@@ -1,0 +1,33 @@
+)Attr
+ @ type(input ) caps(off) hilite(uscore)
+ $ type(input ) caps(on ) hilite(uscore)
+ _ type(text)  color(green)
+)Body Expand(\\)
++-\-\#(             zigi v1r0m0             +-\-\
++
++                                             .zZ.     Zz
+                         ZZZZZZZZ           ZZZZZZZ
+             ZZZZZZZZZZZZZZZZZZZZZZ   ZZ   ZZZ         zZ
+    ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ      ZZZ    .zZZ   ZZ
+  ZZZZZZZZZZZZZZZZZZZZZZ    ZZZZZZZ   ZZ   ZZZ  ..zZZZ  Zz
+zZZZZZZZZZZZZZZZZZ,       ZZZZZZZZZ   ZZZ  ZzZ      ZZ  ZZ         ZZZZZZZ
+ZZZZZZZZZZZZ             ZZZZZZZZ     ZZZ   ZZZZZZZZZZZ      ZZZZZZZZZZZ
+ZZZZZZZg               ZZZZZZZZ       ZZZZ    ZZZZZZ      ZZZZZZZZZg
+                      ZZZZZZZZ        ZZZ            ZZZZZZZZZ
+                     ZZZZZZZ              zZZZZZZZZZZZZZZ
+                   ZZZZZZZ           ZZZZZZZZZZZZZZ
+                 .ZZZZZZZ      ZZZZZZZZZZZZZZ
+                ZZZZZZZZZZZZZZZZZZZZZZ
+                ZZZZZZZZZZZZZZZZZ     _       zOS ISPF Git Interface       +
+               ZZZZZZZZZZZZ           _                                    +
+              ZZZZZZZZZg              %The git interface for the rest of us+
+             ZZZZZZig                 _                                    +
+            ZZZZZZi                   _    2019  Lionel Dyck & Henri Kuiper+
+
+      Please type %any character+ here @Y+ to acknowledge you
+                     know what you're doing.
+)Init
+ .help = zigihp1
+)Proc
+  ver (&Y,nb)
+)end

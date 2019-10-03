@@ -1,0 +1,34 @@
+)Attr
+ @ type(input ) caps(off) hilite(uscore)
+ $ type(input ) caps(on ) hilite(uscore)
+ # type(text) hilite(reverse) color(turq)
+)Body Expand(\\)
++-\-\#(z ISPF Git Interface - Connect/Clone)+-\-\
+%Command ===>_zcmd
++
+%Remote Repository: +URL for reference only
+ @remote                                                                      +
++
+%Local Directory:   +? to be prompted, for Connect select the repo directory
+ @localrep                                                                    +
++
+%PREFIX for datasets: $pdshlq                  + (no quotes)
++
++Notes:
++1. Your SSH Key%must+have been added to an account with access to the repo.
++2. This fails if the local repo already exists.
++3. A succesfull clone results in a copy of the repo in the localdirectory
++4. All 'MVS-datasets' from this repo will be copied to the MVS-side of z/OS
++   (prefixed if a PREFIX has been added).
++5. This%will+overwrite any members if the dataset already exists
++
+                  +Press%Enter+to continue, or%F3+to cancel
+)Init
+ .help = zigihp1
+)Proc
+  ver (&remote,nb)
+  ver (&localrep,nb)
+  if (ver (&pdshlq,nb))
+  else
+  ver (&pdshlq,dsname)
+)end

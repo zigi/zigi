@@ -1,0 +1,14 @@
+)Attr
+ $ type(output) caps(off)
+ # type(text) hilite(reverse) color(turq)
+ _ type(input) caps(off) hilite(uscore)
+)Body Expand(\\)
++-\-\#(z ISPF Git Interface)+-\-\
+%Command ===>_zcmd
++
++
++ Your commit message please _msg                          +
+)Init
+)Proc
+ ver (&msg,nb)
+)end

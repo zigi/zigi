@@ -1,0 +1,28 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+  @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+ # type(text) hilite(reverse) color(turq)
+)Body  Expand(\\)
++\-\#-(z ISPF Git Branch List)+-\-\
+%Command ===>_zcmd
+%
+%Current Repository : $zigirep
+%Current Dataset    : $dsn
+%Current Branch     : $branch
+%
+%Type %C+to checkout an existing branch  %PF3+to return
+%
+%S  Branch
+)Model
+@z+$z                                                              +
+)Init
+  .zvars = '(zsel bname)'
+  .cursor = &zcmd
+  .help = zigihr0
+)Proc
+ ver (&zcsel,list,C)
+)End
+*/

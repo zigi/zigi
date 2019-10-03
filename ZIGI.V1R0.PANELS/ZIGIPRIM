@@ -1,0 +1,24 @@
+)Attr
+ $ type(output) caps(off)
+ # type(text) hilite(reverse) color(turq)
+ _ type(input) caps(on ) hilite(uscore)
+)Body Expand(\\)
++-\-\#(zigi v1r0)+-\-\
+%Command ===>_zcmd
++
++Primary commands:  %Clone+Clone remote remote repository
++                   %Create+Create a local repo from scratch
++                   %SSH+View your SSH public key
++                   %Config+View git configuration
++
++Line commands:     %S+Select and work with repo+%D+Delete the repository
++
+%    +Repository         Prefix            Repo Root (USS)
+)Model
+_z+  $z              + +$z             + +$z
+)Init
+ .zvars = '(zsel zigirep pdshlq localrep)'
+ .help = zigihp0
+)Proc
+ ver (&zsel,list,S,D,I)
+)end

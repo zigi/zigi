@@ -1,0 +1,36 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+  @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  $ type(output) intens(low ) caps(off) just(left )
+  ! type(output) intens(high) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+ # type(text) hilite(reverse) color(turq)
+)Body  Expand(\\)
++\-\#(zigi v1r0)+-\-\
+%Command ===>_zcmd
+%Local dir       : $localdir
+%Remote paths    : $remote1
+%                  $remote2
+%Current Branch  : $branch                                      +
+%
+%Branch  +Checkout (or create) branch %Add    +Add dataset to repo
+%Status  +Show git status output      %Pull   +Pull current branch from origin
+%Commit  +Execute commit -m ....      %Push   +Push current branch to origin
+%Gitlog  +Show git log output         %Remote +Add remote, push intial branch
+%Refresh +Replace MVS datasets
++
++Type%S+to select dataset (Edit or get memberlist)
++
+%S  Status            Prefix          Dataset Name
+)Model
+@z+$z                $z              $z                            +
+)Init
+  .zvars = '(zsel dsnstat pdshlq dsn)'
+  .cursor = &zcmd
+  .help = zigihr0
+)Proc
+ if (&zcmd EQ &z)
+    ver (&zcsel,list,B,E,V)
+)End
+*/

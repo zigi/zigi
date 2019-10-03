@@ -1,0 +1,28 @@
+)Attr
+ @ type(input ) caps(off) hilite(uscore)
+ $ type(input ) caps(on ) hilite(uscore)
+ # type(text) hilite(reverse) color(turq)
+)Body Expand(\\)
++-\-\#(z ISPF Git Interface - Connect/Clone)+-\-\
+%Command ===>_zcmd
++
+%Name:        @zigirep                         +
++
++
+%Local Directory:   +? to be prompted, for Connect select the repo directory
+ @localrep                                                                    +
++
++Notes:
++1. Don't use spaces in name field.
++2. Repository will be named (and stored) in USS as /localdirectory/name
++3. Fails if /localdirectory/name is present
++   Override with @A+ a Y
++4. Thirtytwo characters should be enough for a repo-name :)
++
+                  +Press%Enter+to continue, or%F3+to cancel
+)Init
+ .help = zigihp1
+)Proc
+  ver (&zigirep,nb)
+  ver (&localrep,nb)
+)end

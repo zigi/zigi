@@ -1,0 +1,30 @@
+)Attr
+ # type(text) hilite(reverse) color(turq)
+ @ type(input ) hilite(uscore) caps(off)
+ _ type(input ) hilite(uscore) caps(on) intens(high)
+ $ type(output) hilite(uscore) caps(off)
+)Body Expand(\\)
++-\-\#(z ISPF Git Interface Settings)+-\-\
+%Command ===>_zcmd
++
++  user.name  : @zigiuid                                         +
++  user.email : @zigimail                                        +
+
+
+
+
+
+
+
+
+
+
+
+
+
++Press%Enter+to save, or%F3+to cancel.
+)Init
+)Proc
+  ver (&zigiuid,nb)
+  ver (&zigimail,nb)
+)end

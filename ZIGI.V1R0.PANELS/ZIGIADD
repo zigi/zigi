@@ -1,0 +1,15 @@
+)Attr
+ $ type(output) caps(off)
+ # type(text) hilite(reverse) color(turq)
+ _ type(input) caps(on ) hilite(uscore)
+)Body Expand(\\)
++-\-\#(z ISPF Git Interface)+-\-\
+%Command ===>_zcmd
++
++
++ This needs to be a 3.4-like browse to dataset thinggy...
++Dataset :  _WHAT                                                 +
+)Init
+)Proc
+ ver (&WHAT,nb,dsname)
+)end

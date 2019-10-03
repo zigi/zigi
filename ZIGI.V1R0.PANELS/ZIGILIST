@@ -1,0 +1,26 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+  @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+ # type(text) hilite(reverse) color(turq)
+)Body  Expand(\\)
++\-\#(z ISPF Git Repository List)+-\-\
+%Command ===>_zcmd
+%
+%Current Repository : $zigirep                %E+Edit member
+%Current Dataset    : $dsn                    %A+Add member to staging area
+%Current Branch     : $branch                 %D+See the diff
+
+%S  Status   Data Set Name
+)Model
+@z+$z       $z                                                     +
+)Init
+  .zvars = '(zsel memstat mem)'
+  .cursor = &zcmd
+  .help = zigihr0
+)Proc
+ ver (&zsel,list,E,A,D)
+)End
+*/
