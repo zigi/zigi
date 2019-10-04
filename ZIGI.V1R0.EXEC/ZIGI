@@ -39,6 +39,8 @@
   install_hlq   = 'zigi.v1r0'
   /* ---------------- END OF CUSOM CONFIG------------------ */
 
+  /* THIS IS REALLY HANDY */
+
   exec = "'"install_hlq".exec'"
   panels = "'"install_hlq".panels'"
   /* ---------------------------------------- *
@@ -104,6 +106,22 @@
   keyfile = home'/.ssh/id_rsa.pub'
 
 
+  /* ------------------------------------ *
+  | define our working default variables |
+  * ------------------------------------ */
+  zs1 = '** WARNING **'
+  zs2 = 'Setting PROFILE NOPREFIX'
+  'Control Display Lock'
+  'Addpop row(4) column(12)'
+  'Display Panel(zigipop)'
+  cmd = "sleep 3"
+  x = bpxwunix(cmd,,so.,se.)
+  address TSO
+  "PROFILE NOPREFIX"
+  address ispexec
+  'Rempop'
+
+
   /* Let's just find the location of git */
   zs1 = 'Checking if you have git installed'
   zs2 = 'Please standby'
@@ -120,6 +138,7 @@
   else do
     /* needs a nice error panel with a link to download git */
     say "Git not installed, or not in path. Check /etc/profile"
+    say "Download via rocket, see installer on github gists."
     exit(0)
   end
 
@@ -416,8 +435,8 @@ Work_With_Repo:
         call view_std
         if se.0 > 0 then do
           call view_std 'E'
-          call Refresh localrep,zigirep,pdshlq
         end
+        call Refresh localrep,zigirep,pdshlq
       end
       /* --------------------------------------------------------- *
       | Add a PDS or a Sequential File to "Working Directory"     |
@@ -774,10 +793,11 @@ Refresh:
           target = pdshlq"."root.i
         else
           target = root.i
+        meh = OUTTRAP('var')
         if t = 'dir' then do
           /* Git is always leading, refreshes delete MVS stuff */
           /* But we have a 'fallback' in case we need it... */
-          if nodel != "" then
+          if nodel = "" then
             ADDRESS "TSO" "DELETE "target
           if sysdsn(target) == "DATASET NOT FOUND" then do
              /* create if not there */
@@ -820,6 +840,7 @@ Refresh:
       end
     end
   end
+  meh = OUTTRAP('OFF')
   return
   /* ----------------------------- *
   | Branch management             |
@@ -1283,3 +1304,10 @@ NEWSTR = SUBSTR(NEWSTR, 1 , POS(TMPTXT,NEWSTR)-1) ||,
 NEWTXT || SUBSTR(NEWSTR, POS(TMPTXT,NEWSTR) + LENGTH(TMPTXT))
 END
 RETURN NEWSTR
+
+idle:
+  parse arg secs
+  if secs = '' | secs = null then secs=1
+  cmd = docmd('sleepnd -v git')
+  x = bpxwunix(cmd,,so.,se.)
+  return
