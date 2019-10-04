@@ -13,13 +13,15 @@
 %Current Dataset    : $dsn
 %Current Branch     : $branch
 %
-%Type %C+to checkout an existing branch  %PF3+to return
-%
-%S  Branch
++Type %C+to checkout an existing branch
++Or create a new branch: _newb                        +
+%PF3+to exit                             +
+$S  Branch
 )Model
 @z+$z                                                              +
 )Init
   .zvars = '(zsel bname)'
+  &newb=''
   .cursor = &zcmd
   .help = zigihr0
 )Proc

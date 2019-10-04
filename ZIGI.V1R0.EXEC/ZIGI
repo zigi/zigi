@@ -905,8 +905,18 @@ Branch_it:
   do forever
     zcmd = null
     cc_rc = 0
+    newb = ''
     'tbdispl' rtbb 'panel(zigibra)'
     if rc > 0 then return
+    if newb <> "" then do
+      /* ----------------------------- *
+      | Create this new branch, switch|
+      * ----------------------------- */
+      localdir = localrep'/'zigirep
+      cmd = docmd('cd 'localdir' && git checkout -b 'newb)
+      x = bpxwunix(cmd,,so.,se.)
+      call Work_With_Repo
+    end
     /* ----------------------------- *
     | Checkout the selected bname   |
     * ----------------------------- */
