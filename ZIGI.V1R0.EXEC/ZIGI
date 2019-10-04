@@ -294,17 +294,19 @@
       Otherwise nop
     End
   end
-  /* ------------------------------------ *
-  | set PREFIX ON AGAIN                  |
+  /* -------------------------------\
+  | set PREFIX ON AGAIN             |
+  * --------------------------------*/
+  u = SYSVAR('SYSUID')
   zs1 = '    ** WARNING **'
-  zs2 = 'Setting  PROFILE PREFIX'
+  zs2 = 'Setting  PROFILE PREFIX('u')'
   'Control Display Lock'
   'Addpop row(4) column(12)'
   'Display Panel(zigipop)'
   cmd = "sleep 3"
   x = bpxwunix(cmd,,so.,se.)
   address TSO
-  "PROFILE PREFIX"
+  "PROFILE PREFIX("u")"
   address ispexec
   'Rempop'
 
