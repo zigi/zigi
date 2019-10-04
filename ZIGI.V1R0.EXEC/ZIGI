@@ -265,6 +265,11 @@
       end
       When zsel = 'S' then call Work_With_Repo
       When zsel = 'D' then do
+        /* delete the repo. Maybe needs a 'are you sure' :)
+           for now. we delete the table from ispfprof and
+           make sure we cleanup the repodir...             */
+          cmd = 'cd' localrep' && rm -rf 'zigirep
+          x = bpxwunix(cmd,,so.,se.)
         'tbdelete zigirepo'
       end
       Otherwise nop
@@ -700,73 +705,7 @@ Clone_Connect:
       'Rempop'
       leave
     end
-    /* here call funcction */
-    /* All is well. Let's bring this stuff to MVS */
-    address syscall
-    'readdir 'localrep'/'zigirep' root.'
-    address ispexec
-    do i = 1 to root.0
-      dsnstat = ''
-      if root.i = "." | root.i = ".." then do
-        /* skip the . and .. things */
-        iterate
-      end
-      else do
-        if dsnvalid(root.i) = "OK" then do
-          /* this is a valid DSN, check if dir or file */
-          t='unknown'
-          cmd = '[[ -d 'localrep'/'zigirep'/'root.i' ]] && echo d'
-          x = bpxwunix(cmd,,so.,se.)
-          if so.0 = 1 & so.1 = 'd' then do
-            t='dir'
-          end
-          cmd = '[[ -f 'localrep'/'zigirep'/'root.i' ]] && echo f'
-          x = bpxwunix(cmd,,so.,se.)
-          if so.0 = 1 & so.1 = 'f' then do
-            t='file'
-          end
-          if pdshlq <> "" then
-            target = pdshlq"."root.i
-          else
-            target = root.i
-          if t = 'dir' then do
-            /* it's a dir */
-            if sysdsn(target) == "DATASET NOT FOUND" then do
-               /* create if not there */
-               ADDRESS "TSO" "ALLOC DD(DD) DS("target") NEW",
-               "DSORG(PO) RECFM(F M) LRECL(80) SPACE(1, 5) DIR(24) CYLINDERS"
-               ADDRESS "TSO" "FREE FILE(DD)"
-            end
-            /* get all the members from the dir */
-            address syscall
-            'readdir 'localrep'/'zigirep'/'root.i'/ mems.'
-            address ispexec
-            do ii = 1 to mems.0
-              if mems.ii = "." | mems.ii = ".." then do
-                /* skip the . and .. things */
-                iterate
-              end
-              src = localrep"/"zigirep"/"root.i"/"mems.ii
-              /* fix the cp -M behavior on the way in */
-              m = strreplace(mems.ii,'.','#')
-              m = strreplace(m,'_','@')
-              m = strreplace(m,'-','$')
-              ADDRESS TSO
-              OGET "'"src"'" "'"target"("m")'"
-              address ispexec
-            end
-          end
-          if t = 'file' then do
-            /* it'a file, just oget it over */
-            ADDRESS TSO
-            /* TODO: supress messages */
-            OGET "'"localrep"/"zigirep"/"root.i"'" "'"target"'"
-            address ispexec
-          end
-        end
-      end
-    end
-    /* end function */
+    call Refresh localrep,zigirep,pdshlq
     Address ISPExec
     'tbadd zigirepo'
     "TBSAVE zigirepo REPLCOPY LIBRARY(isptabl)"
