@@ -7,8 +7,10 @@
 %Command ===>_zcmd
 +
 +
-+ This needs to be a 3.4-like browse to dataset thinggy...
++This should be a fully qualified dataset/member. Don't use quotes.
 +Dataset :  _WHAT                                                 +
++
++
 )Init
 )Proc
  ver (&WHAT,nb,dsname)
