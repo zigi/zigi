@@ -497,7 +497,6 @@ Work_With_Repo:
       When abbrev('REMOTE',zcmd,3) = 1 then do
         zcmd=''
         'display panel(zigiremo)'
-        trace i
         cmd = 'cd' localrep'/'zigirep
         cmd = docmd(cmd || '&& git remote add origin 'origin)
         x = bpxwunix(cmd,,so.,se.)
@@ -508,7 +507,7 @@ Work_With_Repo:
         x = bpxwunix(cmd,,so.,se.)
         call View_std
         call View_std E
-        trace off
+        call Work_With_Repo
       end
       /* -------------------------------- *
       | Work with a repo item            |
