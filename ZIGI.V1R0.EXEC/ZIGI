@@ -39,8 +39,8 @@
   install_hlq   = 'zigi.v1r0'
   /* ---------------- END OF CUSOM CONFIG------------------ */
 
-  exec = install_hlq'.exec'
-  panels = install_hlq'.panels'
+  exec = "'"install_hlq".exec'"
+  panels = "'"install_hlq".panels'"
   /* ---------------------------------------- *
   | If panels/exec then libdef and/or altlib |
   * ---------------------------------------- */
@@ -424,6 +424,7 @@ Work_With_Repo:
       * --------------------------------------------------------- */
       When abbrev('ADD',zcmd,3) = 1 then do
         zcmd = ''
+        WHAT=''
         'display panel(zigiadd)'
         /* so we want to add dataset/member */
         zs1 = 'Copying selected datasets to OMVS'
@@ -445,7 +446,7 @@ Work_With_Repo:
             call bpxwunix copycmd
           end
           else do
-            FC = LISTDSI(WHAT)
+            FC = LISTDSI("'"WHAT"'")
             if SYSDSORG = 'PO' then do
               parse VAR WHAT PDS
               PDS = strip(PDS,"B","'")
@@ -875,6 +876,8 @@ Branch_it:
       * ----------------------------- */
       localdir = localrep'/'zigirep
       cmd = docmd('cd 'localdir' && git checkout -b 'newb)
+      x = bpxwunix(cmd,,so.,se.)
+      cmd = docmd('cd 'localdir' && git push -u origin 'newb)
       x = bpxwunix(cmd,,so.,se.)
       call Work_With_Repo
     end
