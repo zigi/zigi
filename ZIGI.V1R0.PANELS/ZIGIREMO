@@ -1,0 +1,18 @@
+)Attr
+ $ type(output) caps(off)
+ # type(text) hilite(reverse) color(turq)
+ _ type(input) caps(off) hilite(uscore)
+)Body Expand(\\)
++-\-\#(z ISPF Git Interface)+-\-\
+%Command ===>_zcmd
++
++
++ Add remote _origin                                                         +
++
++ This will execute a 'git remote add origin' followed by a
++ 'git push -u origin'
++
+)Init
+)Proc
+ ver (&origin,nb)
+)end

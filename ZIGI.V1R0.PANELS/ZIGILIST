@@ -13,9 +13,9 @@
 %Current Dataset    : $dsn                    %A+Add member to staging area
 %Current Branch     : $branch                 %D+See the diff
 
-%S  Status   Data Set Name
+%S  Status          Data Set Name
 )Model
-@z+$z       $z                                                     +
+@z+$z              $                                                     +
 )Init
   .zvars = '(zsel memstat mem)'
   .cursor = &zcmd

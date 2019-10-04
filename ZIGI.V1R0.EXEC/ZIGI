@@ -439,7 +439,10 @@ Work_With_Repo:
             mkdir = "mkdir -p "DIR"/"PDS
             call bpxwunix mkdir
             target = "'"DIR"/"PDS"/"MEM"'"
-            OPUT WHAT target
+            copycmd = "//'"WHAT"'"
+            copycmd = '"'copycmd'"'
+            copycmd = "cp -U -M" copycmd" "DIR"/"PDS"/"
+            call bpxwunix copycmd
           end
           else do
             FC = LISTDSI(WHAT)
@@ -475,7 +478,7 @@ Work_With_Repo:
       /* -------------------------------- *
       | Refresh MVS datasets             |
       * -------------------------------- */
-      When abbrev('REFRESH',zcmd,2) = 1 then do
+      When abbrev('REFRESH',zcmd,3) = 1 then do
         call Refresh localrep,zigirep,pdshlq
       end
       /* -------------------------------- *
@@ -487,6 +490,25 @@ Work_With_Repo:
         cmd = 'cd' localrep'/'zigirep
         cmd = docmd(cmd || '&& git commit -m "'msg'"')
         x = bpxwunix(cmd,,so.,se.)
+      end
+      /* -------------------------------- *
+      | Add/replace remote URI (origin)  |
+      * -------------------------------- */
+      When abbrev('REMOTE',zcmd,3) = 1 then do
+        zcmd=''
+        'display panel(zigiremo)'
+        trace i
+        cmd = 'cd' localrep'/'zigirep
+        cmd = docmd(cmd || '&& git remote add origin 'origin)
+        x = bpxwunix(cmd,,so.,se.)
+        call View_std
+        call View_std E
+        cmd = 'cd' localrep'/'zigirep
+        cmd = docmd(cmd || '&& git push -u origin 'branch)
+        x = bpxwunix(cmd,,so.,se.)
+        call View_std
+        call View_std E
+        trace off
       end
       /* -------------------------------- *
       | Work with a repo item            |
