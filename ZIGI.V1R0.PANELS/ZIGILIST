@@ -9,7 +9,7 @@
 +\-\#(z ISPF Git Repository List)+-\-\
 %Command ===>_zcmd
 %
-%Current Repository : $zigirep                %E+Edit member
+%Current Repository : $zigirep                %S+Edit member
 %Current Dataset    : $dsn                    %A+Add member to staging area
 %Current Branch     : $branch                 %D+See the diff
 
@@ -21,6 +21,6 @@
   .cursor = &zcmd
   .help = zigihr0
 )Proc
- ver (&zsel,list,E,A,D)
+ ver (&zsel,list,S,A,D)
 )End
 */

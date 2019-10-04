@@ -477,6 +477,7 @@ Work_With_Repo:
       | Commit to current branch         |
       * -------------------------------- */
       When abbrev('COMMIT',zcmd,3) = 1 then do
+        zcmd=''
         'display panel(zigicom)'
         cmd = 'cd' localrep'/'zigirep
         cmd = docmd(cmd || '&& git commit -m "'msg'"')
@@ -563,7 +564,7 @@ Work_With_Repo:
           else
             edsn = dsn
           select
-            when zsel = 'E' then do
+            when zsel = 'S' then do
             /* -------------------------------- *
             | Edit member of a PDS             |
             * -------------------------------- */
@@ -572,7 +573,7 @@ Work_With_Repo:
               copcm = "//'"edsn"("mem")'"
               copcm = 'cp -U -M "'copcm'" 'localrep'/'zigirep'/'dsn'/'ussmem
               call bpxwunix copcm
-              dsnstat = "EDIT"
+              call Work_With_Repo
             end
             when zsel = 'A' then do
             /* -------------------------------- *
