@@ -294,6 +294,21 @@
       Otherwise nop
     End
   end
+  /* -------------------------------\
+  | set PREFIX ON AGAIN             |
+  * --------------------------------*/
+  u = SYSVAR('SYSUID')
+  zs1 = '    ** WARNING **'
+  zs2 = 'Setting  PROFILE PREFIX('u')'
+  'Control Display Lock'
+  'Addpop row(4) column(12)'
+  'Display Panel(zigipop)'
+  cmd = "sleep 3"
+  x = bpxwunix(cmd,,so.,se.)
+  address TSO
+  "PROFILE PREFIX("u")"
+  address ispexec
+  'Rempop'
 
   'tbclose zigirepo'
   Exit 0
@@ -665,6 +680,7 @@ Work_With_Repo:
         dsnstat = '*Add'
       end
       Otherwise nope
+      say "WHAT IS HERE"
     end
   end
   'tbend' rtbl
