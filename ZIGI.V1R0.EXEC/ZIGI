@@ -294,6 +294,19 @@
       Otherwise nop
     End
   end
+  /* ------------------------------------ *
+  | set PREFIX ON AGAIN                  |
+  zs1 = '    ** WARNING **'
+  zs2 = 'Setting  PROFILE PREFIX'
+  'Control Display Lock'
+  'Addpop row(4) column(12)'
+  'Display Panel(zigipop)'
+  cmd = "sleep 3"
+  x = bpxwunix(cmd,,so.,se.)
+  address TSO
+  "PROFILE PREFIX"
+  address ispexec
+  'Rempop'
 
   'tbclose zigirepo'
   Exit 0
