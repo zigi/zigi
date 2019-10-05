@@ -681,13 +681,19 @@ Clone_Repo:
     if localrep = '?' then
     localrep = zigiosel()
     parse var remote site ':' user '/' zigirep '.git'
+    parse var site guser '@' host
     /* Let's clone the remote repo... */
     zs1 = "Cloning "zigirep" by "user
-    zs2 = "from "site
+    zs2 = "from "host
     'Control Display Lock'
     'Addpop row(4) column(12)'
     'Display Panel(zigipop)'
-    x = bpxwunix('sleep 2',,so.,se.)
+    cmd = 'touch 'home'/.ssh/known_hosts && '
+    cmd = cmd || 'ssh-keyscan -t rsa,dsa 'host
+    cmd = cmd || ' 2>&1 | sort -u - 'home'/.ssh/known_hosts >'
+    cmd = cmd || ' 'home'/.ssh/tmp_hosts && '
+    cmd = cmd || 'mv 'home'/.ssh/tmp_hosts 'home'/.ssh/known_hosts'
+    x = bpxwunix(cmd,,so.,se.)
     cmd = docmd('cd 'localrep' && git clone 'remote)
     x = bpxwunix(cmd,,so.,se.)
     'Rempop'
