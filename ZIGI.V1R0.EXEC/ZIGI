@@ -526,6 +526,13 @@ Work_With_Repo:
       When abbrev('REMOTE',zcmd,3) = 1 then do
         zcmd=''
         'display panel(zigiremo)'
+        parse var origin guser '@' host ':' rest
+        cmd = 'touch 'home'/.ssh/known_hosts && '
+        cmd = cmd || 'ssh-keyscan -t rsa,dsa 'host
+        cmd = cmd || ' 2>&1 | sort -u - 'home'/.ssh/known_hosts >'
+        cmd = cmd || ' 'home'/.ssh/tmp_hosts && '
+        cmd = cmd || 'mv 'home'/.ssh/tmp_hosts 'home'/.ssh/known_hosts'
+        x = bpxwunix(cmd,,so.,se.)
         cmd = 'cd' localrep'/'zigirep
         cmd = docmd(cmd || '&& git remote add origin 'origin)
         x = bpxwunix(cmd,,so.,se.)
