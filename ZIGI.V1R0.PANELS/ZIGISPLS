@@ -2,8 +2,9 @@
  @ type(input ) caps(off) hilite(uscore)
  $ type(input ) caps(on ) hilite(uscore)
  _ type(text)  color(green)
+ ! type(text)  color(yellow)
 )Body Expand(\\)
-+-\-\#(             zigi v1r0m0             +-\-\
++
 +
 +                                             .zZ.     Zz
                          ZZZZZZZZ           ZZZZZZZ
@@ -22,10 +23,10 @@ ZZZZZZZg               ZZZZZZZZ       ZZZZ    ZZZZZZ      ZZZZZZZZZg
                ZZZZZZZZZZZZ           _                                    +
               ZZZZZZZZZg              %The git interface for the rest of us+
              ZZZZZZig                 _                                    +
-            ZZZZZZi                   _    2019  Lionel Dyck & Henri Kuiper+
+            ZZZZZZi                   _    !Henri Kuiper+&!Lionel Dyck     +
 
-      Please type %any character+ here @Y+ to acknowledge you
-                     know what you're doing.
+  Type %any character+ here @Y+ to acknowledge you know what you're doing
+
 )Init
  .help = zigihp1
 )Proc

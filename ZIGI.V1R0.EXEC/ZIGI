@@ -95,6 +95,7 @@
   * ---------------------------------------------------------------- */
   zcmd = null
   'display panel(zigispls)'
+  if rc = 8 then exit
 
   /* ------------------------------------ *
   | define our working default variables |
@@ -579,6 +580,7 @@ Work_With_Repo:
             end
             else do
               mem = root.i
+              memstat = ''
               do ii = 1 to stats.0
                 /* see if we have this file in git status */
                 stat = substr(stats.ii,1,2)
@@ -1290,7 +1292,7 @@ porcelain:
   if left(stat,1) == "D" then res = "Deleted from index"
   if left(stat,1) == "R" then res = "Renamed in index"
   if left(stat,1) == "C" then res = "Copied in index"
-  if stat == "M " then res = "Up-to-date"
+  if stat == "M " then res = "Ready to commit"
   if stat == "??" then res = "Untracked"
   if stat == " M" then res = "Modified"
   if stat == "MM" then res = "Modified"
