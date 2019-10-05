@@ -20,7 +20,8 @@
 %Gitlog  +Show git log output         %Remote +Add remote, push intial branch
 %Refresh +Replace MVS datasets
 +
-+Type%S+to select dataset (Edit or get memberlist)
+%S+to select dataset (Edit if PS, memberlist if PO)
+%A+to add to index
 +
 %S  Status            Prefix          Dataset Name
 )Model
