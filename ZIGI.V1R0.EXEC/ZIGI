@@ -6,26 +6,32 @@
   | Function:  ISPF Interface to Git for source code           |
   |            management                                      |
   |                                                            |
-  | Syntax:    %zigi                                           |
+  | Syntax:    ex 'zigi.v1r0.exec(zigi)'                       |
   |                                                            |
-  | Custom:    Find *CUSTOM* for local customization           |
-  |            requirements                                    |
+  * ---------------------------------------------------------- */
+
+  install_hlq   = 'zigi.v1r0'            /* customize if needed*/
+
+  /*%NOcomment ----------  rexx procedure  -------------------- *
   |                                                            |
   | Dependencies:                                              |
   |            1. Requires the z/OS port of GIT be installed   |
-  |            2. Change LIBDEF as appropriate (or remove)     |
+  |            2. Git setup in /etc/profile or ~/.profile      |
   |                                                            |
-  | Author:    Henri Kuiper                                    |
+  | Authors:   Henri Kuiper                                    |
   |            Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |                                                            |
+  |            09/30/19 HBK - Major rewrite :)                 |
+  |            07/24/19 HBK - Some git functions               |
   |            06/15/19 HBK - Autofind git binary              |
   |            06/14/19 LBD - Major updates                    |
   |            06/12/19 LBD - Major updates                    |
   |            06/11/19 LBD - Creation                         |
   |                                                            |
   | ---------------------------------------------------------- |
-  |   Copyleft (C) 2019 minor change testing                   |
+  |   Copyleft (C) 2019                                        |
   * ---------------------------------------------------------- */
   Address ISPExec
   'vget (zapplid)'
@@ -33,16 +39,11 @@
 
   parse value '' with null
 
-  /* ---------------- CUSTOM CONFIG    -------------------- *
-  | Specify HLQ for installation
-  * ------------------------------------------------------ */
-  install_hlq   = 'zigi.v1r0'
-  /* ---------------- END OF CUSOM CONFIG------------------ */
 
-  /* THIS IS REALLY HANDY */
-
+  /* FIX THIS COZ PROFILE NOPREFIX */
   exec = "'"install_hlq".exec'"
   panels = "'"install_hlq".panels'"
+
   /* ---------------------------------------- *
   | If panels/exec then libdef and/or altlib |
   * ---------------------------------------- */
@@ -122,7 +123,9 @@
   'Rempop'
 
 
-  /* Let's just find the location of git */
+  /* ------------------------------------ *
+  | Let's try to find git.               |
+  * ------------------------------------ */
   zs1 = 'Checking if you have git installed'
   zs2 = 'Please standby'
   'Control Display Lock'
@@ -271,7 +274,7 @@
     if rc > 0 then leave
     Select
       When abbrev('CREATE',zcmd,2) = 1 then call Create_Repo
-      When abbrev('CLONE',zcmd,2) = 1 then call Clone_Connect
+      When abbrev('CLONE',zcmd,2) = 1 then call Clone_Repo
       When abbrev('CONFIG',zcmd,2) = 1 then do forever
         'display panel(zigiset)'
         /* TODO: Add code to apply the new settings..... */
@@ -286,7 +289,8 @@
       When zsel = 'D' then do
         /* delete the repo. Maybe needs a 'are you sure' :)
            for now. we delete the table from ispfprof and
-           make sure we cleanup the repodir...             */
+           make sure we cleanup the repodir...
+            does not touch MVS datasets                    */
           cmd = 'cd' localrep' && rm -rf 'zigirep
           x = bpxwunix(cmd,,so.,se.)
         'tbdelete zigirepo'
@@ -313,13 +317,10 @@
   'tbclose zigirepo'
   Exit 0
 
-  /* --------------------------------- *
-  | Work with the selected repository |
-  * --------------------------------- */
+/* --------------------------------- *
+| Work with the selected repository |
+* --------------------------------- */
 Work_With_Repo:
-  /* -------------------------------------- *
-  | Get all the datasets from the repo     |
-  * -------------------------------------- */
   parse value '' with dsn dsnstat zsel
   rtbl = 'ZIGI'random(9999)
   'TBCreate' rtbl 'Names(dsn dsnstat pdshql) Replace NoWrite'
@@ -333,9 +334,10 @@ Work_With_Repo:
   cmd = docmd(cmd || '&& git fetch --all')
   x = bpxwunix(cmd,,so.,se.)
   'Rempop'
+
+  /* now we get the status for all in the repo */
   if se.0 > 1 then fetchmsg = "Remote updates, consider a pull"
   else fetchmsg = "No remote updates"
-  /* now we get the status for all in the repo */
   zs1 = 'Building List of repository Data Sets'
   zs2 = fetchmsg
   'Control Display Lock'
@@ -344,12 +346,7 @@ Work_With_Repo:
   cmd = 'cd' localrep'/'zigirep
   cmd = docmd(cmd || '&& git status --porcelain')
   x = bpxwunix(cmd,,stats.,se.)
-  /* now we have stats as a list of */
-  /* xy PATH */
-  /* where xy = ?? --> status untracked
-                 M --> modified
-                 D --> deleted
-                A  --> added (but not committed) */
+
   /* get the stuff from the repo-file */
   address syscall
   'readdir 'localrep'/'zigirep' root.'
@@ -366,13 +363,7 @@ Work_With_Repo:
           stat = substr(stats.ii,1,2)
           PATH = substr(stats.ii,4)
           if pos(dsn, PATH) = 1 then do
-            /* parse porcelain */
-            if stat == "??" then dsnstat = "Untracked"
-            if stat == " M" then dsnstat = "Modified"
-            if stat == "M " then dsnstat = "Added"
-            if stat == "A " then dsnstat = "New"
-            if stat == " D" then dsnstat = "Deleted"
-            dsnstat = stat'-'dsnstat
+            dsnstat = porcelain(stat)
             leave
           end
         end
@@ -382,6 +373,7 @@ Work_With_Repo:
   end
   'tbtop' rtbl
   'Rempop'
+
   /* --------------------------- *
   | Get the current branch info |
   * --------------------------- */
@@ -408,6 +400,7 @@ Work_With_Repo:
     remote1 = "<no remote defined>"
     remote2 = ""
   end
+
   /* -------------------------------- *
   | Process the Repository Data Sets |
   * -------------------------------- */
@@ -591,15 +584,8 @@ Work_With_Repo:
                 stat = substr(stats.ii,1,2)
                 thepath = substr(stats.ii,3)
                 parse var thepath FOLDER "/" MEMBER
-                memstat = ''
                 if mem = MEMBER then do
-                  /* parse porcelain */
-                  if stat == "??" then memstat = "Untracked"
-                  if stat == " M" then memstat = "Modified"
-                  if stat == "M " then memstat = "Added"
-                  if stat == "A " then memstat = "Added(A )"
-                  if stat == " A" then memstat = "Added( A)"
-                  if stat == " D" then memstat = "Deleted"
+                  memstat = porcelain(stat)
                   if FOLDER = "./" & stat = "??" then
                     memstat = 'Untracked'
                   leave
@@ -647,8 +633,6 @@ Work_With_Repo:
               m = strreplace(m,'@','_')
               cmd = docmd(cmd || ' && git add 'm)
               x = bpxwunix(cmd,,so.,se.)
-              say edsn"("mem") added to repo. add nice panel status"
-              dsnstat = '*Add'
               call Work_With_Repo
             end
             when zsel = 'D' then do
@@ -663,7 +647,6 @@ Work_With_Repo:
               cmd = docmd(cmd || ' && git diff 'm)
               x = bpxwunix(cmd,,so.,se.)
               call View_std
-              call Work_With_Repo
             end
             otherwise nope
           end
@@ -676,50 +659,18 @@ Work_With_Repo:
         cmd = 'cd' localrep'/'zigirep
         cmd = docmd(cmd || ' && git add 'dsn)
         x = bpxwunix(cmd,,so.,se.)
-        say "FULLADD to repo, need nice status in panel"
-        dsnstat = '*Add'
+        call Work_With_Repo
       end
       Otherwise nope
-      say "WHAT IS HERE"
     end
   end
   'tbend' rtbl
   return
 
-  /* ----------------------------------------------- *
-  | Process the Git ADD and the Git Commit commands |
-  * ----------------------------------------------- */
-Do_GIT_AC:
-  /* ----------------------------- *
-  | Add the updated member to Git |
-  * ----------------------------- */
-  drop so. se.
-  call pop 'Adding updates to Git'
-  cmd = 'cd' localrep';'zigigitl 'add .'
-  x = bpxwunix(cmd,,so.,se.)
-
-  /* ------------------------ *
-  | Perform a Git Commit now |
-  * ------------------------ */
-  call pop 'Committing updates to Git'
-  cmd = 'cd' localrep';'zigigitl 'commit -m "Updates for' ,
-    sysvar('sysuid') '"'
-  x = bpxwunix(cmd,,so.,se.)
-  if se.0 > 0 then call view_std 'E'
-
-  /* -------------------------------- *
-  | Perform a Git Status for the user |
-  * --------------------------------- */
-  call pop 'Committing updates to Git'
-  cmd = 'cd' localrep';'zigigitl 'status'
-  x = bpxwunix(cmd,,so.,se.)
-  call view_std
-  return
-
-  /* ----------------------------- *
-  | Clone or Connect a repository |
-  * ----------------------------- */
-Clone_Connect:
+/* ----------------------------- *
+| Clone or Connect a repository |
+* ----------------------------- */
+Clone_Repo:
   do forever
     zcmd = null
     cc_rc = 0
@@ -780,7 +731,14 @@ Clone_Connect:
   * ----------------------------- */
 Refresh:
   parse arg localrep,zigirep,pdshlq,nodel
-  /* here call funcction */
+  zs1 = "Refreshing from repo"
+  zs2 = "   USS -> MVS       "
+  'Control Display Lock'
+  'Addpop row(4) column(12)'
+  'Display Panel(zigipop)'
+  x = bpxwunix('sleep 2',,so.,se.)
+  cmd = docmd('cd 'localrep' && git clone 'remote)
+  x = bpxwunix(cmd,,so.,se.)
   /* All is well. Let's bring this stuff to MVS */
   address syscall
   'readdir 'localrep'/'zigirep' root.'
@@ -857,10 +815,12 @@ Refresh:
     end
   end
   meh = OUTTRAP('OFF')
+  'Rempop'
   return
-  /* ----------------------------- *
-  | Branch management             |
-  * ----------------------------- */
+
+/* ----------------------------- *
+| Branch management             |
+* ----------------------------- */
 Branch_it:
   rtbb = 'ZIGB'random(9999)
   'TBCreate' rtbb 'Names(bname) Replace NoWrite'
@@ -987,7 +947,7 @@ Create_Repo:
       leave
     end
     fd = retval  /* as I think it's weird to write to a retval lol */
-    ga1  = "# This .gitattributes file is autogenerated with zigi"
+    ga1  = "# This .gitattributes file is autogenerated with zigi v1r0"
     ga2  = "*   git-encoding=iso8859-1 zos-working-tree-encoding=ibm-1047"
     ga3a = ".gitattributes    "
     ga3b = "git-encoding=iso8859-1 zos-working-tree-encoding=iso8859-1"
@@ -1039,7 +999,7 @@ Create_Repo:
     end
     fd = retval  /* as I think it's weird to write to a retval lol */
     ga1  = "# zigi v1.0 dsn-file "
-    ga2  = "# Contains all datasets managed in git via zigi"
+    ga2  = "# This file needs to be here."
     ga3  = "# Don't edit unless you know what you're doing :)"
     ga1 = ga1 || esc_r || esc_n
     ga2 = ga2 || esc_r || esc_n
@@ -1056,7 +1016,7 @@ Create_Repo:
     cmd = docmd('cd 'reporoot' && git add .zigi/dsn')
     x = bpxwunix(cmd,,so.,se.)
 
-    commitmsg = "added by zigi v0.1 for "
+    commitmsg = "added by zigi v1r0 for "
     commitmsg = commitmsg || MVSVAR('SYMDEF','JOBNAME')
     commitmsg = commitmsg || " on "
     commitmsg = commitmsg || MVSVAR('SYSNAME')
@@ -1071,20 +1031,6 @@ Create_Repo:
     'setmsg msg(isrz002)'
     leave
   end
-  return
-
-Do_Connect:
-  cmd = 'cat' localrep'.hlq'
-  x = bpxwunix(cmd,,so.,se.)
-  pdshlq = strip(so.1)
-  'tbadd zigirepo'
-  "TBSAVE zigirepo REPLCOPY LIBRARY(isptabl)"
-  return
-
-Do_Clone:
-  /* --------------------------- *
-  | Magic happens here by Henri |
-  * --------------------------- */
   return
 
 /* ---------------------------------------------------------- *
@@ -1187,6 +1133,7 @@ catsshk:
   return
 
 Copy_Updates: procedure expose zigigit localrep dsn
+  say "Copy updates used :) "
   /*---------------------  rexx procedure  -------------------- *
   |                                                            |
   | Function:  Check a PDS for any members that do not have    |
@@ -1254,6 +1201,7 @@ Copy_Updates: procedure expose zigigit localrep dsn
   | Copy the member to the appropriate uss directory |
   * ------------------------------------------------ */
 Copy_To_Uss:
+  say "Copy to USS used"
   wdsn = translate(dsn," ","'.")
   wdir = word(wdsn,words(wdsn))
   wdir = lower(wdir)
@@ -1327,3 +1275,38 @@ idle:
   cmd = docmd('sleepnd -v git')
   x = bpxwunix(cmd,,so.,se.)
   return
+
+porcelain:
+  parse arg status
+
+  /* parse git status --short as documented in
+  https://www.git-scm.com/docs/git-status#_short_format */
+
+  res = ''
+
+  if left(stat,1) == " " then res = "Not Updated"
+  if left(stat,1) == "M" then res = "Updated in index"
+  if left(stat,1) == "A" then res = "Added to index"
+  if left(stat,1) == "D" then res = "Deleted from index"
+  if left(stat,1) == "R" then res = "Renamed in index"
+  if left(stat,1) == "C" then res = "Copied in index"
+  if stat == "M " then res = "Up-to-date"
+  if stat == "??" then res = "Untracked"
+  if stat == " M" then res = "Modified"
+  if stat == "MM" then res = "Modified"
+  if stat == "AM" then res = "Modified"
+  if stat == "RM" then res = "Modified"
+  if stat == "CM" then res = "Modified"
+  if stat == " D" then res = "Deleted"
+  if stat == "MD" then res = "Deleted"
+  if stat == "AD" then res = "Deleted"
+  if stat == "RD" then res = "Deleted"
+  if stat == "CD" then res = "Deleted"
+  if stat == " R" then res = "Renamed"
+  if stat == "DR" then res = "Renamed"
+  if stat == " C" then res = "Copied"
+  if stat == "DC" then res = "Copied"
+  if stat == " D" then res = "Deleted"
+  if stat == "??" then res = "Untracked"
+  if stat == "!!" then res = "Ignored"
+  return res
