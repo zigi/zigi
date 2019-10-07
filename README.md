@@ -14,13 +14,24 @@ Run that script.
 
 You should now have git installed on you Mainframe.
 
-Clone this repository and run 
+Clone this repository and run the installer via: 
 
+    git clone git@github.com:wizardofzos/zigi.git
+    cd zigi
     sh install.sh
+    
+### Make sure you can allocate datesets 
 
 
 ## Contributing to zigi?
 
 Yes please!
 
+
+# Known Issues (maybe solutions...)
+
+### Weird Certificate Errors
+When faced with a "SSL Certificate problem: unable to get local issuer" this might 'fix' it.
+
+    git config --global http.sslVerify false
 
