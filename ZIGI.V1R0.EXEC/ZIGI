@@ -107,23 +107,6 @@
   home    = strip(so.1)
   keyfile = home'/.ssh/id_rsa.pub'
 
-
-  /* ------------------------------------ *
-  | define our working default variables |
-  * ------------------------------------ */
-  zs1 = '** WARNING **'
-  zs2 = 'Setting PROFILE NOPREFIX'
-  'Control Display Lock'
-  'Addpop row(4) column(12)'
-  'Display Panel(zigipop)'
-  cmd = "sleep 3"
-  x = bpxwunix(cmd,,so.,se.)
-  address TSO
-  "PROFILE NOPREFIX"
-  address ispexec
-  'Rempop'
-
-
   /* ------------------------------------ *
   | Let's try to find git.               |
   * ------------------------------------ */
@@ -299,21 +282,6 @@
       Otherwise nop
     End
   end
-  /* -------------------------------\
-  | set PREFIX ON AGAIN             |
-  * --------------------------------*/
-  u = SYSVAR('SYSUID')
-  zs1 = '    ** WARNING **'
-  zs2 = 'Setting  PROFILE PREFIX('u')'
-  'Control Display Lock'
-  'Addpop row(4) column(12)'
-  'Display Panel(zigipop)'
-  cmd = "sleep 3"
-  x = bpxwunix(cmd,,so.,se.)
-  address TSO
-  "PROFILE PREFIX("u")"
-  address ispexec
-  'Rempop'
 
   'tbclose zigirepo'
   Exit 0
@@ -509,6 +477,18 @@ Work_With_Repo:
       * -------------------------------- */
       When abbrev('REFRESH',zcmd,3) = 1 then do
         call Refresh localrep,zigirep,pdshlq
+      end
+      /* -------------------------------- *
+      | GIT GREP                         |
+      * -------------------------------- */
+      When abbrev('GREP',zcmd,3) = 1 then do
+        zcmd=''
+        'display panel(zigigrep)'
+        cmd = 'cd' localrep'/'zigirep
+        cmd = docmd(cmd || '&& git grep "'grep'"')
+        x = bpxwunix(cmd,,so.,se.)
+        call View_std
+        call View_std E
       end
       /* -------------------------------- *
       | Commit to current branch         |
@@ -787,10 +767,10 @@ Refresh:
           /* Git is always leading, refreshes delete MVS stuff */
           /* But we have a 'fallback' in case we need it... */
           if nodel = "" then
-            ADDRESS "TSO" "DELETE "target
+            ADDRESS "TSO" "DELETE '"target"'"
           if sysdsn(target) == "DATASET NOT FOUND" then do
              /* create if not there */
-             ADDRESS "TSO" "ALLOC DD(DD) DS("target") NEW",
+             ADDRESS "TSO" "ALLOC DD(DD) DS('"target"') NEW",
              "DSORG(PO) RECFM(F M) LRECL(80) SPACE(1, 5) DIR(24) CYLINDERS"
              ADDRESS "TSO" "FREE FILE(DD)"
           end
@@ -812,7 +792,7 @@ Refresh:
             OGET "'"src"'" "'"target"("m")'"
             /* Set statistics */
             address ispexec
-            "LMINIT DATAID(DATAID) Dataset("target")"
+            "LMINIT DATAID(DATAID) Dataset('"target")'"
             "LMOPEN DATAID("dataid")"
             "LMMSTATS DATAID("dataid") Member("m") User(ZIGI)"
             "LMCLOSE DATAID("dataid")"
