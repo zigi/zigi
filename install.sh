@@ -23,6 +23,9 @@ echo "";
 
 
 read PREFIX?"Prefix (or ENTER for default) : "
+
+PREFIX=` echo $PREFIX  | tr '[a-z]' '[A-Z]'`
+
 if [ -z $PREFIX ]
   then
     EXEC=ZIGI.V1R0.EXEC
