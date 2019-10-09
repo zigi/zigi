@@ -25,10 +25,9 @@ ZZZZZZZg               ZZZZZZZZ       ZZZZ    ZZZZZZ      ZZZZZZZZZg
              ZZZZZZig                 _                                    +
             ZZZZZZi                   _    !Henri Kuiper+&!Lionel Dyck     +
 
-  Type %any character+ here @Y+ to acknowledge you know what you're doing
+               [!ENTER+] to continue [!PF1+] for Release Information
 
 )Init
  .help = zigihp1
 )Proc
-  ver (&Y,nb)
 )end
