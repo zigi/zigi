@@ -1,6 +1,6 @@
   /*%NOcomment ----------  rexx procedure  -------------------- *
   | Name:      zigi  (z ISPF Git Interface)                    |
-  |            ..                                              |
+  |                                                            |
   | Version:   V1R0 (november 2019)                            |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -21,8 +21,9 @@
   | Authors:   Henri Kuiper                                    |
   |            Lionel B. Dyck                                  |
   |                                                            |
-  | History:  (most recent on top)                             |
+  | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            10/17/19 HBK - Add back LMM, cleanup code       |
   |            09/30/19 HBK - Major rewrite :)                 |
   |            07/24/19 HBK - Some git functions               |
   |            06/15/19 HBK - Autofind git binary              |
@@ -303,9 +304,7 @@ Work_With_Repo:
   cmd = docmd(cmd || '&& git fetch --all')
   x = bpxwunix(cmd,,so.,se.)
   'Rempop'
-  /* See if there are any changes in the MVS side (non-ZIGI user)
-     and update those to the repo...
-  */
+  /* get all the files that are in the repo */
   address syscall
   'readdir 'localrep'/'zigirep' root.'
   address ispexec
@@ -314,16 +313,20 @@ Work_With_Repo:
       iterate
     end
     else do
+      /* not the . and .. things */
       if dsnvalid(root.i) = "OK" then do
+        /* and only for valid MVS-datasets (skip README.md et al) */
         cmd = '[ -d 'localrep'/'zigirep'/'root.i' ] && echo "DIR"'
         so.1 = ""
         x = bpxwunix(cmd,,so.,se.)
         if so.1 = "DIR" & x = 0 then do
-          /* Only for dirs */
+          /* And only for dirs in the repo (PDSes in MVS) */
           if pdshlq /= "" then
+            /* make sure to add the prefix :) */
             edsn = pdshlq'.'root.i
           else
             edsn = root.i
+          /* see if any members not touched by zigi */
           "LMINIT DATAID(zigilmm) DATASET('"edsn"')"
           "LMOPEN DATAID("zigilmm") OPTION(INPUT)"
           do forever
@@ -331,11 +334,13 @@ Work_With_Repo:
               "STATS(YES)"
             if rc > 7 then leave
             if zluser /= "ZIGI" then do
+              /* if not touched by zigi, add to repo */
               copycmd = "//'"edsn"("mem")'"
               copycmd = '"'copycmd'"'
               copycmd = "cp -U -M" copycmd" "localrep"/"zigirep
               copycmd = copycmd || "/"root.i"/"
               call bpxwunix copycmd
+              /* update ispf-statistics to reflect zigi control */
               "LMMSTATS DATAID("zigilmm") MEMBER("mem") USER(ZIGI)"
             end
           end

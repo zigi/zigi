@@ -21,7 +21,7 @@
 %Refresh +Replace MVS datasets
 +
 %S+to select dataset (Edit if PS, memberlist if PO)
-%A+to add to index
+%A+to add %modified+datasets/members to index
 +
 %S  Status            Prefix          Dataset Name
 )Model
