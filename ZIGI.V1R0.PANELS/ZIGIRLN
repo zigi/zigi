@@ -6,7 +6,7 @@
 )Body Expand(\\)
 +
 +
-+                                             .zZ.     Zz
+_                                             .zZ.     Zz
                          ZZZZZZZZ           ZZZZZZZ
              ZZZZZZZZZZZZZZZZZZZZZZ   ZZ   ZZZ         zZ
     ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ      ZZZ    .zZZ   ZZ
@@ -19,15 +19,32 @@ ZZZZZZZg               ZZZZZZZZ       ZZZZ    ZZZZZZ      ZZZZZZZZZg
                    ZZZZZZZ           ZZZZZZZZZZZZZZ
                  .ZZZZZZZ      ZZZZZZZZZZZZZZ
                 ZZZZZZZZZZZZZZZZZZZZZZ
-                ZZZZZZZZZZZZZZZZZ     _       zOS ISPF Git Interface       +
-               ZZZZZZZZZZZZ           _                                    +
-              ZZZZZZZZZg              %The git interface for the rest of us+
-             ZZZZZZig                 _                                    +
-            ZZZZZZi                   _    !Henri Kuiper+&!Lionel Dyck     +
+                ZZZZZZZZZZZZZZZZZ
+               ZZZZZZZZZZZZ                         !PF3+to exit_
+              ZZZZZZZZZg
+             ZZZZZZig
+            ZZZZZZi
 
-               [!ENTER+] to continue [!PF1+] for Release Information
+
++
+This is zigi v1r0. Made with love by Henri Kuiper and Lionel B. Dyck.
+If you like to contribute to zigi, head on over to github at
+!https://github.com/wizardofzos/zigi+and fork the repository to start adding
+your features to zigi.
+
+The Mainframe is alive and kicking.
+
+And we now have an ISPF-native git interface too.
+
+Unstoppable!
+
+
+
+
+Henri & Lionel
+2019 and onwards
+
 
 )Init
- .help = zigirln
 )Proc
 )end
