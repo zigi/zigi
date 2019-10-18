@@ -278,7 +278,7 @@
         /* delete the repo. Maybe needs a 'are you sure' :)
            for now. we delete the table from ispfprof and
            make sure we cleanup the repodir...
-            does not touch MVS datasets                    */
+            does not touch z/OS datasets                   */
           cmd = 'cd' localrep' && rm -rf 'zigirep
           x = bpxwunix(cmd,,so.,se.)
         'tbdelete zigirepo'
@@ -318,12 +318,12 @@ Work_With_Repo:
     else do
       /* not the . and .. things */
       if dsnvalid(root.i) = "OK" then do
-        /* and only for valid MVS-datasets (skip README.md et al) */
+        /* and only for valid z/OS-datasets (skip README.md et al) */
         cmd = '[ -d 'localrep'/'zigirep'/'root.i' ] && echo "DIR"'
         so.1 = ""
         x = bpxwunix(cmd,,so.,se.)
         if so.1 = "DIR" & x = 0 then do
-          /* And only for dirs in the repo (PDSes in MVS) */
+          /* And only for dirs in the repo (PDSes in z/OS) */
           if pdshlq /= "" then
             /* make sure to add the prefix :) */
             edsn = pdshlq'.'root.i
@@ -522,7 +522,7 @@ Work_With_Repo:
         call view_std
       end
       /* -------------------------------- *
-      | Refresh MVS datasets             |
+      | Refresh z/OS datasets            |
       * -------------------------------- */
       When abbrev('REFRESH',zcmd,3) = 1 then do
         call Refresh localrep,zigirep,pdshlq
@@ -591,7 +591,7 @@ Work_With_Repo:
         cmd = "[[ -f "localrep"/"zigirep"/"dsn" ]] && echo f"
         x = bpxwunix(cmd,,so.,se.)
         if so.0 = 1 & so.1 = "f" then do
-          /* Do this if it's a regular file (sequential in MVS) */
+          /* Do this if it's a regular file (sequential in z/OS) */
           if pdshlq <> "" then
             edsn = pdshlq"."dsn
           else
@@ -771,19 +771,19 @@ Clone_Repo:
 
 
   /* ----------------------------- *
-  | Refresh MVS side of repo      |
+  | Refresh z/OS side of repo     |
   * ----------------------------- */
 Refresh:
   parse arg localrep,zigirep,pdshlq,nodel
   zs1 = "Refreshing from repo"
-  zs2 = "   USS -> MVS       "
+  zs2 = "   USS -> z/OS      "
   'Control Display Lock'
   'Addpop row(4) column(12)'
   'Display Panel(zigipop)'
   x = bpxwunix('sleep 2',,so.,se.)
   cmd = docmd('cd 'localrep' && git clone 'remote)
   x = bpxwunix(cmd,,so.,se.)
-  /* All is well. Let's bring this stuff to MVS */
+  /* All is well. Let's bring this stuff to z/OS */
   address syscall
   'readdir 'localrep'/'zigirep' root.'
   address ispexec
@@ -813,7 +813,7 @@ Refresh:
           target = root.i
         meh = OUTTRAP('var')
         if t = 'dir' then do
-          /* Git is always leading, refreshes delete MVS stuff */
+          /* Git is always leading, refreshes delete z/OS stuff */
           /* But we have a 'fallback' in case we need it... */
           if nodel = "" then
             ADDRESS "TSO" "DELETE '"target"'"
@@ -1202,7 +1202,7 @@ docmd:
   return 'export HOME='home' && . /etc/profile && bash &&  '  || cmd
 
 dsnvalid:
-  /* Tests for a 'potentially valid' MVS datasetname */
+  /* Tests for a 'potentially valid' z/OS datasetname */
   parse arg dsn
   upp = TRANSLATE(dsn,".ABCDEFGHIJKLMNOPQRSTUVWXYZ",,
     ".abcdefghijklmnopqrstuvwxyz")
