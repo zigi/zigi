@@ -9,7 +9,7 @@
 %Name:        @zigirep                         +
 +
 +
-%Local Directory:   +? to be prompted, for Connect select the repo directory
+%Local Directory:   +(no trailing /)
  @localrep                                                                    +
 +
 +Notes:

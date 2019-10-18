@@ -9,7 +9,7 @@
 %Remote Repository: +URL for reference only
  @remote                                                                      +
 +
-%Local Directory:   +? to be prompted, for Connect select the repo directory
+%Local Directory:   +No ending slashes please...
  @localrep                                                                    +
 +
 %PREFIX for datasets: $pdshlq                  + (no quotes)

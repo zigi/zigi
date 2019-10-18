@@ -706,7 +706,7 @@ Work_With_Repo:
   return
 
 /* ----------------------------- *
-| Clone or Connect a repository |
+| Clone a remote repo           |
 * ----------------------------- */
 Clone_Repo:
   do forever
@@ -714,8 +714,6 @@ Clone_Repo:
     cc_rc = 0
     'Display Panel(zigicc)'
     if rc > 0 then return
-    if localrep = '?' then
-    localrep = zigiosel()
     parse var remote site ':' user '/' zigirep '.git'
     parse var site guser '@' host
     /* Let's clone the remote repo... */
