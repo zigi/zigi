@@ -8,6 +8,8 @@
   |                                                            |
   | Syntax:    ex 'zigi.v1r0.exec(zigi)'                       |
   |                                                            |
+  | NOTE:      ZIGI MUST NEVER be started under the ZIGI       |
+  |            ISPF Applications ID.                           |
   * ---------------------------------------------------------- */
 
   /* Customize this if needed */
@@ -48,11 +50,14 @@
 
   /* ---------------------------------------- *
   | If panels/exec then libdef and/or altlib |
+  | but only if not under ZIGI applid.       |
   * ---------------------------------------- */
-  if panels /= null then
-  'libdef ispplib dataset id('panels') stack'
-  if exec /= null then
-  Address TSO 'altlib act application(exec) dataset('exec')'
+  if zapplid /= 'ZIGI' then do
+     if panels /= null then
+     'libdef ispplib dataset id('panels') stack'
+     if exec /= null then
+     Address TSO 'altlib act application(exec) dataset('exec')'
+     end
 
   /* ----------------------------------------------------------- *
   | Check for running under the ZIGI ISPF application ID and if |
