@@ -338,7 +338,8 @@ Work_With_Repo:
             if rc > 7 then leave
             if zluser /= "ZIGI" then do
               /* if not touched by zigi, add to repo */
-              copycmd = "//'"edsn"("mem")'"
+              m = strip(mem)
+              copycmd = "//'"edsn"("m")'"
               copycmd = '"'copycmd'"'
               copycmd = "cp -U -M" copycmd" "localrep"/"zigirep
               copycmd = copycmd || "/"root.i"/"
@@ -840,12 +841,14 @@ Refresh:
             ADDRESS TSO
             OGET "'"src"'" "'"target"("m")'"
             /* Set statistics */
+            trace i
             address ispexec
             "LMINIT DATAID(DATAID) Dataset('"target")'"
             "LMOPEN DATAID("dataid")"
             "LMMSTATS DATAID("dataid") Member("m") User(ZIGI)"
             "LMCLOSE DATAID("dataid")"
             "LMFREE  DATAID("dataid")"
+            trace off
           end
         end
         if t = 'file' then do
