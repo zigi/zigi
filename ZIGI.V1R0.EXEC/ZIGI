@@ -10,7 +10,8 @@
   |                                                            |
   * ---------------------------------------------------------- */
 
-  install_hlq   = 'zigi.v1r0'            /* customize if needed*/
+  /* Customize this if needed */
+  install_hlq   = 'zigi.v1r0'
 
   /*%NOcomment ----------  rexx procedure  -------------------- *
   |                                                            |
