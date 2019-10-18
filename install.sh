@@ -12,17 +12,24 @@ echo "Welcome to the installer for zigi v1r0";
 echo "";
 echo "This will install zigi on your mainframe.";                   
 echo "";
-echo "MVS datsets required for zigi are:";
+echo "MVS datsets used by zigi are:";
 echo "- ZIGI.V1R0.EXEC";
 echo "- ZIGI.V1R0.PANELS";
 echo "";              
 echo "If you like (or have) to install zigi with another";
 echo "HLQ please provide a PREFIX. Otherwise press ENTER";
+echo ""
+echo "If you do provide a PREFIX, don't end in a dot.";
+echo "Should you decide to use the PREFIX zigi will be";
+echo "installed to:";
+echo "- PREFIX.ZIGI.V1R0.EXEC";
+echo "- PREFIX.ZIGI.V1R0.PANELS";
+
 echo "";
  
 
 
-read PREFIX?"Prefix (or ENTER for default) : "
+read PREFIX?"Prefix (or ENTER for no prefix) : "
 
 PREFIX=` echo $PREFIX  | tr '[a-z]' '[A-Z]'`
 
@@ -75,7 +82,7 @@ echo "";
 
 echo "All done. Head on over to ISPF and execute the following command";
 echo "";
-echo "tso exec '$EXEC(ZIGI)'";
+echo "tso exec '${EXEC}(ZIGI)'";
 echo "";
 echo "";
 
