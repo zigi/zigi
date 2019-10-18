@@ -116,8 +116,10 @@
   'Control Display Lock'
   'Addpop row(4) column(12)'
   'Display Panel(zigipop)'
+
   cmd = docmd('command -v git')
   x = bpxwunix(cmd,,so.,se.)
+
   if so.0 = 1 then do
     zigigitl = strip(so.1)
     'vput (zigigitl) profile'
@@ -1196,7 +1198,7 @@ docmd:
   /* quircky thing, we need to export HOME as we are
      not running a login shell via bpxwunix */
   parse arg cmd
-  return '. /etc/profile && bash && export HOME='home' &&  '  || cmd
+  return 'export HOME='home' && . /etc/profile && bash &&  '  || cmd
 
 dsnvalid:
   /* Tests for a 'potentially valid' MVS datasetname */
