@@ -11,7 +11,7 @@
   * ---------------------------------------------------------- */
 
   /* Customize this if needed */
-  install_hlq   = 'zigi.v1r0'
+  install_hlq   = 'ZIGI.V1R0'
 
   /*%NOcomment ----------  rexx procedure  -------------------- *
   |                                                            |
@@ -714,7 +714,7 @@ Clone_Repo:
     cc_rc = 0
     'Display Panel(zigicc)'
     if rc > 0 then return
-    if localrep = "?" then 
+    if localrep = "?" then
       localrep = zigiosel()
     parse var remote site ':' user '/' zigirep '.git'
     parse var site guser '@' host
