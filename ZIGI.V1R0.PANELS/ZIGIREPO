@@ -18,7 +18,7 @@
 %Status  +Show git status output      %Pull   +Pull current branch from origin
 %Commit  +Execute commit -m ....      %Push   +Push current branch to origin
 %Gitlog  +Show git log output         %Remote +Add remote, push intial branch
-%Refresh +Replace MVS datasets
+%Refresh +Replace MVS datasets        %Grep   +Execute a 'git grep'
 +
 %S+to select dataset (Edit if PS, memberlist if PO)
 %A+to add %modified+datasets/members to index
