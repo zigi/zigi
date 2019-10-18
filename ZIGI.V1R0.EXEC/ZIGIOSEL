@@ -1,0 +1,799 @@
+/* -------------------  rexx procedure  -------------------- */
+  ver = '1.1'
+/*Name:      ZIGIOSEL                                        |
+|                                                            |
+| Function:  ISPF Dialog REXX subroutine to select an OMVS   |
+|            file and return it to the caller for use.       |
+|                                                            |
+|            Similar to ISPF 3.17 (UDList) but without all   |
+|            the capabilities. But it is easy to traverse    |
+|            directories to find the desired file.           |
+|                                                            |
+| Syntax:    omvsfile = ZIGIOSEL(prime)                      |
+|                                                            |
+|            omvsfile is the rexx variable that will be      |
+|            the result of calling the ZIGIOSEL routine      |
+|                                                            |
+|                - result will be null if cancelled out      |
+|                                                            |
+|            prime is optional and if provided is a          |
+|            starting point for the selection process        |
+|            - if blank/null then start at users home dir    |
+|                                                            |
+| Commands:  CD to change directories                        |
+|            CANCEL to quit and return a null value          |
+|            F to find the string in the display             |
+|            L to locate the string                          |
+|            MKDIR new directory from current location       |
+|                                                            |
+| Line commands:   B - to browse the selected file           |
+|                  L - to list the selected directory        |
+|                  I - display info on the file              |
+|                  S - to select the file or directory       |
+|                      and return it                         |
+|                                                            |
+| Sample usage:    Must be called from a REXX Exec under     |
+|                  ISPF in the foreground:                   |
+|                                                            |
+|                  omvsfile = ZIGIOSEL()                     |
+|                  omvsfile = ZIGIOSEL('/usr/lpp/')          |
+|                                                            |
+| Notes:     For testing may be called directly and the      |
+|            selection will then be displayed using SAY.     |
+|                                                            |
+| Author:    Lionel B. Dyck                                  |
+|                                                            |
+| History:  (most recent on top)                             |
+|            10/18/19 - V1.01                                |
+|                     - Added MKDIR                          |
+|            06/12/19 - V1.00                                |
+|                     - Created from OMVSSEL with permission |
+|                       of the author (me)                   |
+* ---------------------------------------------------------- */
+  parse arg prime
+
+/* ---------------------------------------- *
+| Check to see if we are under ISPF or not |
+* ---------------------------------------- */
+  env = sysvar('sysenv')
+  if env = 'FORE' then do
+    if sysvar('sysispf') /= 'ACTIVE'
+    then do
+      say 'Error....'
+      say '%ZIGIOSEL may only be used under ISPF.'
+      say 'Exiting'
+      exit 16
+    end
+  end
+  else do
+    say 'Error....'
+    say '%ZIGIOSEL may only be used under ISPF under TSO.'
+    say 'Exiting'
+    exit 16
+  end
+
+/* --------------- *
+ | Define defaults |
+ * --------------- */
+  parse value '' with null
+  omcsu = 'N'
+  parse source x source x
+  Address ISPExec
+  'Control Errors return'
+  load_info = loadispf()
+
+/* ------------------------------------ *
+| Get the users default Home directory |
+* ------------------------------------ */
+  call syscalls('ON')
+  address syscall "getpwnam" userid() "pw."
+  home_dir = pw.pw_dir'/'
+
+/* -------------------------------------------- *
+| convert \ to / to help out our windows users |
+* -------------------------------------------- */
+  if prime /= null
+  then prime = translate(prime,'61'x,'e0'x)
+  else prime = home_dir
+
+/* ----------------------- *
+ | Call the key subroutine |
+ * ----------------------- */
+  ZIGIOSEL = change_odir(prime)
+
+/* --------------------------------- *
+ | If cancelled out then return null |
+ * --------------------------------- */
+  if zcmd = 'CANCEL' then ZIGIOSEL = null
+
+/* --------------- *
+| Exit processing |
+* --------------- */
+Exit:
+/* ----------------------------------------------- *
+ | Finally return the selected omvs file - or null |
+ * ----------------------------------------------- */
+  x = dropispf(load_info)
+  if source = 'FUNCTION' then Exit ZIGIOSEL
+  else do
+    if ZIGIOSEL = null then ZIGIOSEL = '*none*'
+    say 'Selection:' ZIGIOSEL
+    exit 0
+  end
+
+/* ------------------------------ *
+| Change to a new OMVS Directory |
+* ------------------------------ */
+Change_ODIR: procedure expose zcmd home_dir omcsu ver
+  parse arg fromdir
+  parse value '' with null selections stack_dir
+  if fromdir = '~' then fromdir = home_dir
+
+/* ---------------------------------------------------- *
+ | Rebuild the table if L selection or CD command used. |
+ * ---------------------------------------------------- */
+Restart:
+  call do_restart
+  tblrc = 0
+  do forever
+    ocsel = null
+    if ztdsels = 0 then tblrc = 0
+    if tblrc = 0
+    then 'tbdispl' tbl 'panel(zigiotbl)'
+    else if tblrc = 4 then 'tbdispl' tbl
+    tblrc = rc
+    if translate(zcmd) = 'CANCEL' then leave
+    if tblrc > 4 then do
+      if pos('|',stack_dir) = 0 then leave
+      lp = lastpos('|',stack_dir)
+      fromdir = strip(substr(stack_dir,lp+1))
+      stack_dir = left(stack_dir,lp-1)
+      call restart_odir
+    end
+  if ocsel /= null then ocsel = translate(ocsel)
+  zerrsm = null
+  Select
+    When translate(word(zcmd,1)) = 'MKDIR' then do
+       newdir = fromdir'/'word(zcmd,2)
+       cmd = 'mkdir' newdir
+       rc = bpxwunix(cmd,,stdout.,stderr.)
+       call restart_odir
+       end
+    When translate(word(zcmd,1)) = 'CD' then do
+      savedir = fromdir
+      fromdir = word(zcmd,2)
+      if left(fromdir,1) = '~' then
+         fromdir = strip(home_dir''substr(fromdir,3))
+      address syscall 'chdir (fromdir)'
+      if retval < 0 then do
+        zerrsm = 'Invalid Dir'
+        zerrlm = fromdir 'is an invalid directory'
+        'setmsg msg(oms000)'
+        fromdir = savedir
+      end
+      else stack_dir = stack_dir '|' savedir
+     address syscall 'getcwd fromdir'
+     if right(fromdir,1) /= '/' then fromdir = fromdir'/'
+        if zerrsm = null then
+        call restart_odir
+      end
+      When translate(left(zcmd,1)) = 'F' then do
+        fw = translate(word(zcmd,2))
+        'tbtop' tbl
+        do forever
+          'tbskip' tbl
+          if rc > 0 then leave
+          if pos(fw,translate(ofile)) > 0 then do
+            zerrsm = 'Found'
+            zerrlm = fw 'found in the list'
+            'setmsg msg(oms000)'
+            leave
+          end
+        end
+      end
+      When translate(left(zcmd,1)) = 'L' then do
+        fw = translate(word(zcmd,2))
+        fl = length(fw)
+        'tbtop' tbl
+        do forever
+          'tbskip' tbl
+          if rc > 0 then leave
+          if translate(left(ofile,fl)) = fw then do
+            zerrsm = 'Found'
+            zerrlm = fw 'found in the list'
+            'setmsg msg(oms000)'
+            leave
+          end
+        end
+      end
+      When ocsel = 'B' then do
+        if otype = '-' then do
+          'control display save'
+          call outtrap 'x.'
+          Address TSO 'OBrowse' fromdir''ofile
+          call outtrap 'off'
+          'control display restore'
+          if x.0 > 0 then do
+            zerrsm = 'Error'
+            zerrlm = x.2
+            'Setmsg msg(oms000)'
+          end
+        end
+        else do
+          zerrsm = 'Invalid'
+          zerrlm = 'This file may not be browsed.'
+          'Setmsg msg(oms000)'
+        end
+      end
+      when ocsel = 'I' then call list_info
+      when ocsel = 'L' then call do_dirlist
+      When ocsel = 'S' then do
+         selections = fromdir''ofile
+      end
+      Otherwise nop
+    end
+    if selections /= null then leave
+    if zcmd = 'CANCEL' then leave
+    ocsel = null
+  end
+
+  'tbend' tbl
+
+  if selections = null then zcmd = 'CANCEL'
+  return selections
+
+/* ---------------------------------------------- *
+ | Build the list of directories/files to display |
+ * ---------------------------------------------- */
+  Do_Restart:
+  do forever
+    cmd = 'ls -la' fromdir
+    rc = bpxwunix(cmd,,stdout.,stderr.)
+    if stdout.0 = 0 then do
+      zerrsm = 'Invalid Dir'
+      zerrlm = fromdir stderr.1
+      Address ISPExec 'setmsg msg(oms000)'
+      zcmd = null
+      if cdir_flag = 0 then return fromdir
+      else do
+        if pos('|',stack_dir) = 0 then leave
+        lp = lastpos('|',stack_dir)
+        fromdir = strip(substr(stack_dir,lp+1))
+        stack_dir = left(stack_dir,lp-1)
+      end
+    end
+    else leave
+  end
+  cdir_flag = 1
+
+/* ------------------------------------------ *
+| List the OMVS directory. Once a valid file |
+| is selected then process it.               |
+* ------------------------------------------ */
+  Address ISPExec
+  tbl = 'OC'random(999)
+
+  'TBCreate' tbl 'Names(ocsel ofile odate operm otype) Nowrite'
+
+  do i = 2 to stdout.0
+    parse value stdout.i with operm x1 oid ogrp ,
+      osize omon ody oyr ofile
+    otype = left(operm,1)
+    opermv = 0
+    offset = 100
+    do ip = 2 to 10
+      op = substr(operm,ip,1)
+      select
+        when op = 'r' then opermv = opermv + (4*offset)
+        when op = 'w' then opermv = opermv + (2*offset)
+        when op = 'x' then opermv = opermv + (1*offset)
+        otherwise nop
+      end
+      if ip = 4 then offset = offset / 10
+      if ip = 7 then offset = offset / 10
+    end
+    odate = omon left(ody+100,2) oyr
+    operm = opermv
+    'tbadd' tbl
+  end
+
+  'tbtop' tbl
+  return
+
+/* ---------------------------- *
+ | Process into a sub directory |
+ * ---------------------------- */
+do_dirlist:
+  ocsel = null
+  if ofile = '..' then do
+    stack_dir = stack_dir '|' fromdir
+    fromdir = left(fromdir,length(fromdir)-1)
+    lp = lastpos('/',fromdir)
+    fromdir = left(fromdir,lp)
+    call restart_odir
+    return
+  end
+  else do
+    stack_dir = stack_dir '|' fromdir
+    fromdir = fromdir''ofile'/'
+  end
+  call restart_odir
+  return
+
+/* ------------------------------ *
+| List the info on the OMVS File |
+* ------------------------------ */
+List_Info:
+  cmd = 'ls -la' fromdir''ofile
+  drop stdout. stderr.
+  rc = bpxwunix(cmd,,stdout.,stderr.)
+/* allocate a temp file to browse the results */
+  Address TSO
+  cmd_dd = "C"random()
+  "ALLOCATE FILE("cmd_dd") REUSE UNIT(vio) SPACE(1 1)" ,
+    "CYL DSORG(PS) RECFM(V B) LRECL(120)"
+  "EXECIO * DISKW" cmd_dd "(STEM stdout. FINIS)"
+  Address ISPExec
+  "LMINIT DATAID(DATAID) DDNAME("cmd_dd")"
+  'control display save'
+  "BROWSE DATAID("dataid")"
+  'control display restore'
+  "LMFREE DATAID("dataid")"
+  Address TSO ,
+    "FREE FILE("cmd_dd")"
+  Address ISPExec
+  return
+
+/* --------------------------------------------- *
+| Restart the OMVS Directory at a new directory |
+* --------------------------------------------- */
+Restart_Odir:
+  'tbend' tbl
+  call restart
+  return
+
+/* --------------------  rexx procedure  -------------------- *
+ * Name:      LoadISPF                                        *
+ *                                                            *
+ * Function:  Load ISPF elements that are inline in the       *
+ *            REXX source code.                               *
+ *                                                            *
+ * Syntax:    load_info = loadispf()                          *
+ *            rc = dropispf(load_info)                        *
+ *                                                            *
+ *            The inline ISPF resources are limited to        *
+ *            ISPF Messages, Panels, and Skeletons,           *
+ *                 CLISTs and EXECs are also supported.       *
+ *                                                            *
+ *            The inline resources must start in column 1     *
+ *            and use the following syntax:                   *
+ *                                                            *
+ *            >START    used to indicate the start of the     *
+ *                      inline data                           *
+ *                                                            *
+ *            >END    - used to indicate the end of the       *
+ *                      inline data                           *
+ *                                                            *
+ *            Each resource begins with a type record:        *
+ *            >type name                                      *
+ *               where type is CLIST, EXEC, MSG, PANEL, SKEL  *
+ *                     name is the name of the element        *
+ *                                                            *
+ * Sample usage:                                              *
+ *          -* rexx *-                                        *
+ *          load_info = loadispf()                            *
+ *          ... magic code happens here (your code) ...       *
+ *          rc = dropispf(load_info)                          *
+ *          exit                                              *
+ *          >Start inline elements                            *
+ *          >Panel panel1                                     *
+ *          ...                                               *
+ *          >Msg msg1                                         *
+ *          ...                                               *
+ *          >End of inline elements                           *
+ *                                                            *
+ * Returns:   the list of ddnames allocated for use along     *
+ *            with the libdef's performed or altlib           *
+ *                                                            *
+ *            format is ddname libdef ddname libdef ...       *
+ *                   libdef may be altlibc or altlibe         *
+ *                   for altlib clist or altlib exec          *
+ *                                                            *
+ * Notes:     Entire routine must be included with REXX       *
+ *            exec - inline with the code.                    *
+ *                                                            *
+ * Comments:  The entire rexx program is processed from the   *
+ *            last record to the first to find the >START     *
+ *            record at which point all records from that     *
+ *            point on are processed until the >END           *
+ *            statement or the end of the program is found.   *
+ *                                                            *
+ *            It is *strongly* suggested that the inline      *
+ *            elements be at the very end of your code so     *
+ *            that the search for them is faster.             *
+ *                                                            *
+ *            Inline ISPTLIB or ISPLLIB were not supported    *
+ *            because the values for these would have to be   *
+ *            in hex.                                         *
+ *                                                            *
+ * Author:    Lionel B. Dyck                                  *
+ *                                                            *
+ * History:                                                   *
+ *            01/09/19 - Include DROPISPF routine             *
+ *            08/29/17 - Fixup static values that were vars   *
+ *            05/31/17 - Change default directory count       *
+ *            12/09/16 - update for add_it routine            *
+ *            05/10/16 - correction for clist and exec        *
+ *            04/19/16 - bug correction                       *
+ *            06/04/04 - Enhancements for speed               *
+ *            08/05/02 - Creation                             *
+ *                                                            *
+ * ---------------------------------------------------------- *
+ * Disclaimer: There is no warranty, either explicit or       *
+ * implied with this code. Use it at your own risk as there   *
+ * is no recourse from either the author or his employeer.    *
+ * ---------------------------------------------------------- */
+LoadISPF: Procedure
+
+  parse value "" with null kmsg kpanel kskel first returns ,
+    kclist kexec
+/* ------------------------------------------------------- *
+ * Find the InLine ISPF Elements and load them into a stem *
+ * variable.                                               *
+ *                                                         *
+ * Elements keyword syntax:                                *
+ * >START - start of inline data                           *
+ * >CLIST name                                             *
+ * >EXEC name                                              *
+ * >MSG name                                               *
+ * >PANEL name                                             *
+ * >SKEL name                                              *
+ * >END   - end of all inline data (optional if last)      *
+ * ------------------------------------------------------- */
+  last_line = sourceline()
+  do i = last_line to 1 by -1
+    line = sourceline(i)
+    if translate(left(line,6)) = ">START " then leave
+  end
+  rec = 0
+/* --------------------------------------------------- *
+ * Flag types of ISPF resources by testing each record *
+ * then add each record to the data. stem variable.    *
+ * --------------------------------------------------- */
+  do j = i+1 to last_line
+    line = sourceline(j)
+    if translate(left(line,5)) = ">END "   then leave
+    if translate(left(line,7)) = ">CLIST " then kclist = 1
+    if translate(left(line,6)) = ">EXEC "  then kexec  = 1
+    if translate(left(line,5)) = ">MSG "   then kmsg   = 1
+    if translate(left(line,7)) = ">PANEL " then kpanel = 1
+    if translate(left(line,6)) = ">SKEL "  then kskel  = 1
+    rec  = rec + 1
+    data.rec = line
+  end
+
+/* ----------------------------------------------------- *
+ * Now create the Library and Load the Member(s)         *
+ * ----------------------------------------------------- */
+  Address ISPExec
+/* ----------------------------- *
+ * Assign dynamic random ddnames *
+ * ----------------------------- */
+  clistdd = "lc"random(999)
+  execdd  = "le"random(999)
+  msgdd   = "lm"random(999)
+  paneldd = "lp"random(999)
+  skeldd  = "ls"random(999)
+
+/* ---------------------------------------- *
+ *  LmInit and LmOpen each resource library *
+ * ---------------------------------------- */
+  if kclist <> null then do
+    call alloc_dd clistdd
+    "Lminit dataid(clist) ddname("clistdd")"
+    "LmOpen dataid("clist") Option(Output)"
+    returns = strip(returns clistdd 'ALTLIBC')
+  end
+  if kexec <> null then do
+    call alloc_dd execdd
+    "Lminit dataid(exec) ddname("execdd")"
+    "LmOpen dataid("exec") Option(Output)"
+    returns = strip(returns execdd 'ALTLIBE')
+  end
+  if kmsg <> null then do
+    call alloc_dd msgdd
+    "Lminit dataid(msg) ddname("msgdd")"
+    "LmOpen dataid("msg") Option(Output)"
+    returns = strip(returns msgdd 'ISPMLIB')
+  end
+  if kpanel <> null then do
+    call alloc_dd paneldd
+    "Lminit dataid(panel) ddname("paneldd")"
+    "LmOpen dataid("panel") Option(Output)"
+    returns = strip(returns paneldd 'ISPPLIB')
+  end
+  if kskel <> null then do
+    call alloc_dd skeldd
+    "Lminit dataid(skel) ddname("skeldd")"
+    "LmOpen dataid("skel") Option(Output)"
+    returns = strip(returns skeldd 'ISPSLIB')
+  end
+
+/* ----------------------------------------------- *
+ * Process all records in the data. stem variable. *
+ * ----------------------------------------------- */
+  do i = 1 to rec
+    record = data.i
+    recordu = translate(record)
+    if left(recordu,5) = ">END " then leave
+    if left(recordu,7) = ">CLIST " then do
+      if first = 1 then call add_it
+      type = "Clist"
+      first = 1
+      parse value record with x name
+      iterate
+    end
+    if left(recordu,6) = ">EXEC " then do
+      if first = 1 then call add_it
+      type = "Exec"
+      first = 1
+      parse value record with x name
+      iterate
+    end
+    if left(recordu,5) = ">MSG " then do
+      if first = 1 then call add_it
+      type = "Msg"
+      first = 1
+      parse value record with x name
+      iterate
+    end
+    if left(recordu,7) = ">PANEL " then do
+      if first = 1 then call add_it
+      type = "Panel"
+      first = 1
+      parse value record with x name
+      iterate
+    end
+    if left(recordu,6) = ">SKEL " then do
+      if first = 1 then call add_it
+      type = "Skel"
+      first = 1
+      parse value record with x name
+      iterate
+    end
+   /* --------------------------------------------*
+    * Put the record into the appropriate library *
+    * based on the record type.                   *
+    * ------------------------------------------- */
+    Select
+      When type = "Clist" then
+      "LmPut dataid("clist") MODE(INVAR)" ,
+        "DataLoc(record) DataLen(255)"
+      When type = "Exec" then
+      "LmPut dataid("exec") MODE(INVAR)" ,
+        "DataLoc(record) DataLen(255)"
+      When type = "Msg" then
+      "LmPut dataid("msg") MODE(INVAR)" ,
+        "DataLoc(record) DataLen(80)"
+      When type = "Panel" then
+      "LmPut dataid("panel") MODE(INVAR)" ,
+        "DataLoc(record) DataLen(80)"
+      When type = "Skel" then
+      "LmPut dataid("skel") MODE(INVAR)" ,
+        "DataLoc(record) DataLen(80)"
+      Otherwise nop
+    end
+  end
+  if type <> null then call add_it
+/* ---------------------------------------------------- *
+ * Processing completed - now lmfree the allocation and *
+ * Libdef the library.                                  *
+ * ---------------------------------------------------- */
+  if kclist <> null then do
+    Address TSO,
+      "Altlib Act Application(Clist) File("clistdd")"
+    "LmFree dataid("clist")"
+  end
+  if kexec <> null then do
+    Address TSO,
+      "Altlib Act Application(Exec) File("execdd")"
+    "LmFree dataid("exec")"
+  end
+  if kmsg <> null then do
+    "LmFree dataid("msg")"
+    "Libdef ISPMlib Library ID("msgdd") Stack"
+  end
+  if kpanel <> null then do
+    "Libdef ISPPlib Library ID("paneldd") Stack"
+    "LmFree dataid("panel")"
+  end
+  if kskel <> null then do
+    "Libdef ISPSlib Library ID("skeldd") Stack"
+    "LmFree dataid("skel")"
+  end
+  return returns
+
+/* --------------------------- *
+ * Add the Member using LmmAdd *
+ * based upon type of resource *
+ * --------------------------- */
+Add_It:
+  Select
+    When type = "Clist" then
+    "LmmAdd dataid("clist") Member("name")"
+    When type = "Exec" then
+    "LmmAdd dataid("exec") Member("name")"
+    When type = "Msg" then
+    "LmmAdd dataid("msg") Member("name")"
+    When type = "Panel" then
+    "LmmAdd dataid("panel") Member("name")"
+    When type = "Skel" then
+    "LmmAdd dataid("skel") Member("name")"
+    Otherwise nop
+  end
+  type = null
+  return
+
+/* ------------------------------ *
+ * ALlocate the temp ispf library *
+ * ------------------------------ */
+Alloc_DD:
+  arg dd
+  Address TSO
+  if pos(left(dd,2),"lc le") > 0 then
+  "Alloc f("dd") unit(sysda) spa(5,5) dir(5)",
+    "recfm(v b) lrecl(255) blksize(32760)"
+  else
+  "Alloc f("dd") unit(sysda) spa(5,5) dir(5)",
+    "recfm(f b) lrecl(80) blksize(23440)"
+  return
+
+/* --------------------  rexx procedure  -------------------- *
+ * Name:      DropISPF                                        *
+ *                                                            *
+ * Function:  Remove ISPF LIBDEF's and deactivate ALTLIB's    *
+ *            that were created by the LoadISPF function.     *
+ *                                                            *
+ * Syntax:    rc = dropispf(load_info)                        *
+ *                                                            *
+ * Author:    Janko                                           *
+ *                                                            *
+ * History:                                                   *
+ *            12/05/18 - Creation                             *
+ * ---------------------------------------------------------- */
+DropISPF: Procedure
+  arg load_info
+  Address ISPEXEC
+  do until length(load_info) = 0
+    parse value load_info with dd libd load_info
+    if left(libd,6) = "ALTLIB" then do
+      if libd = "ALTLIBC" then lib = "CLIST"
+      else lib = "EXEC"
+      Address TSO,
+        "Altlib Deact Application("lib")"
+    end
+    else "libdef" libd
+    address tso "free f("dd")"
+  end
+  return 0
+
+
+/* -------------------------------------------- *
+ | Here are the ISPF panels that will be loaded |
+ * -------------------------------------------- */
+/*
+>Start
+>Panel zigiotbl
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+    color(&omscinp)
+  $ type(output) intens(low ) caps(off) just(left ) color(&omsclow)
+  @ type(output) intens(high) color(&omschigh) hilite(&omscrev)
+  + type(text) intens(low) skip(on) color(&omsclow)
+  % type(text) intens(high) skip(on) color(&omschigh)
+  ] type(output) intens(low) color(&omsclow) just(asis) caps(off)
+    hilite(&omcsurev)
+)Body  Expand(\\)
+%-\-\-@title       %-\-\-
+%Command ===>_zcmd
+]omcsumsg
++Directory: $fromdir
+%
+%S  T OMVS File                                               Date         Perm
+)Model
+_z+$z$z                                                      $z           $z  +
+)Init
+  &title = 'zIGISEL &ver'
+  .zvars = '(ocsel otype ofile odate operm)'
+  .cursor = &zcmd
+  .help = ocht0
+)Proc
+ if (&zcmd EQ &z)
+    ver (&ocsel,list,B,I,S,L,b,i,s,l,&z)
+)End
+*/
+>Panel ocht0
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+  color(&omscinp)
+  @ type(text) intens(high) color(&omschigh) hilite(&omscrev)
+  % type(text) intens(high) skip(on) color(&omschigh)
+  + type(text) intens(low) skip(on) color(&omsclow)
+  $ type(output) intens(low ) caps(off) just(left ) color(&omsclow)
+)Body  Expand(\\)
+%Tutorial-\-\-@ZIGIOSEL%-\-\Tutorial
+%Command ===>_zcmd
+%
+%Command options:
+%
+%  CANCEL+Cancel and return to main panel
+%  CD    +Change to directory      (e.g. ..$z+/etc/)
+%  F     +Find word in file name   (e.g. F xxx)
+%  L     +Locate a file            (e.g. L .profile)
+%  MKDIR +Make a new directory     (e.g. MKDIR new)
+%  SU    +Change to/from SuperUser mode
+%
+%Selection options:
+%
+%  B    -+Browse the file
+%  I    -+Display the file info
+%  L    -+List the selected directories files (use%F3+to move up)
+%  S    -+Select the file or directory and return for processing
++
++Only files with a%T+(type) of%blank+are allowed with%B+or%S+
++Only files with a%T+(type) of%d+will work with%L+or%S+
++
+\ \Press%Enter+to continue or%F3+to return to the dialog\ \
+)Init
+   .cursor = zcmd
+   .zvars = '(til)'
+   &til = '~'
+   &zup = ocht0
+   &zcont = ochtcd
+)Proc
+)End
+>Panel ochtcd
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+  color(&omscinp)
+  @ type(text) intens(high) color(&omschigh) hilite(&omscrev)
+  % type(text) intens(high) skip(on) color(&omschigh)
+  + type(text) intens(low) skip(on) color(&omsclow)
+  $ type(output) intens(high) caps(off) just(left )
+)Body  Expand(\\)
+%Tutorial-\-\-@ZIGIOSEL%-\-\Tutorial
+%Command ===>_zcmd
+%
+%CD+Examples within ZIGIOSEL
+%
+%  cd$z                  +Change to users home directory
+%  cd ..                 +Change to the next higher directory
+%  cd ./xyz              +Change to users subdirectory xyz
+%  cd$z                  +Change to users subdirectory xyz
+%  cd /                  +Change to the root directory
+%  cd /usr/lpp/          +Change to /usr/lpp/ directory
+%
++The%CD+command will remember the prior directories during the session
++so that using%F3+will move back up the directory 'chain'. Enter%CANCEL+
++to immediately return.
+%
+%
+%
++
++
++
++
+\ \Press%Enter+to continue or%F3+to return to the dialog\ \
+)Init
+   .cursor = zcmd
+   .zvars = '(til tilx)'
+   &til  = '~'
+   &tilx = '~/'
+   &zup  = ochtcd
+   &zcont = ocht0
+)Proc
+)End
+>msg OMS00
+OMS000  '&omcsm' .ALARM = NO .HELP = OCH0
+'&omclm'
+>End
