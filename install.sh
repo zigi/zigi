@@ -32,13 +32,21 @@ if [ -z $PREFIX ]
     PANELS=ZIGI.V1R0.PANELS
     GPL=ZIGI.V1R0.GPLLIC
     README=ZIGI.V1R0.README
+    HLQ=ZIGI.V1R0
   else
     EXEC=${PREFIX}.ZIGI.V1R0.EXEC
     PANELS=${PREFIX}.ZIGI.V1R0.PANELS
     GPL=${PREFIX}.ZIGI.V1R0.GPLLIC
     README=${PREFIX}.ZIGI.V1R0.README
+    HLQ=${PREFIX}.ZIGI.V1R0
     echo "Make sure to change the ZIGI exec to point to to this HLQ";
 fi
+
+
+# Changing the REXX to have the correct HQL
+sed "s|'zigi.v1r0'|'${HLQ}'|g" ZIGI.V1R0.EXEC/ZIGI > /tmp/changed
+mv /tmp/changed ZIGI.V1R0.EXEC/ZIGI
+
 echo ""
 echo "Preparing to install to :";
 echo "- $EXEC";
