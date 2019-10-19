@@ -8,7 +8,7 @@
  # type(text) hilite(reverse) color(turq)
 )Body  Expand(\\)
 +\-\#(zigi v1r0)+-\-\
-%Command ===>_zcmd
+%Command ===>_zcmd            \ \ %Scroll ===>_zscr+
 %Local dir       : $localdir
 %Remote paths    : $remote1
 %                  $remote2
@@ -23,15 +23,14 @@
 %S+to select dataset (Edit if PS, memberlist if PO)
 %A+to add %modified+datasets/members to index
 +
-%S  Status            Prefix          Dataset Name
+%S  Status            Dataset Name
 )Model
-@z+$z                $z              $z                            +
+@z+$z                $z
 )Init
-  .zvars = '(zsel dsnstat pdshlq dsn)'
+  .zvars = '(zsel dsnstat fulldsn)'
   .cursor = &zcmd
   .help = zigihr0
+  &zscr = CSR
 )Proc
- if (&zcmd EQ &z)
-    ver (&zcsel,list,B,E,V)
 )End
 */

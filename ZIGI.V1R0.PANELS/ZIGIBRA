@@ -7,7 +7,7 @@
  # type(text) hilite(reverse) color(turq)
 )Body  Expand(\\)
 +\-\#-(z ISPF Git Branch List)+-\-\
-%Command ===>_zcmd
+%Command ===>_zcmd   \ \ %Scroll ===>_zscr+
 %
 %Current Repository : $zigirep
 %Current Dataset    : $dsn
@@ -24,6 +24,7 @@ $S  Branch
   &newb=''
   .cursor = &zcmd
   .help = zigihr0
+  &zscr = CSR
 )Proc
  ver (&zcsel,list,C)
 )End

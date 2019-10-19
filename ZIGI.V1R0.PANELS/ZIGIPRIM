@@ -4,7 +4,7 @@
  _ type(input) caps(on ) hilite(uscore)
 )Body Expand(\\)
 +-\-\#(zigi v1r0)+-\-\
-%Command ===>_zcmd
+%Command ===>_zcmd       \ \ %Scroll ===>_zscr+
 +
 +Primary commands:  %Clone+Clone remote remote repository
 +                   %Create+Create a local repo from scratch
@@ -17,6 +17,7 @@
 )Model
 _z+  $z              + +$z             + +$z
 )Init
+ &zscr = CSR
  .zvars = '(zsel zigirep pdshlq localrep)'
  .help = zigihp0
 )Proc

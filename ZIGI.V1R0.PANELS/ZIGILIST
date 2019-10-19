@@ -7,19 +7,20 @@
  # type(text) hilite(reverse) color(turq)
 )Body  Expand(\\)
 +\-\#(z ISPF Git Repository List)+-\-\
-%Command ===>_zcmd
+%Command ===>_zcmd        \ \ %Scroll ===>_zscr+
 %
 %Current Repository : $zigirep                %S+Edit member
 %Current Dataset    : $dsn                    %A+Add member to staging area
 %Current Branch     : $branch                 %D+See the diff
 
-%S  Status          Data Set Name
+%S  Status          Member
 )Model
 @z+$z              $z                                                    +
 )Init
   .zvars = '(zsel memstat mem)'
   .cursor = &zcmd
   .help = zigihr0
+  &zscr = CSR
 )Proc
  ver (&zsel,list,S,A,D)
 )End
