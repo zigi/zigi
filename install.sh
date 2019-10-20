@@ -1,5 +1,22 @@
 #!/bin/bash
 clear
+WHERE=`[ -z "$SSH_CLIENT" ] && echo "OMVS"`
+if [ "$WHERE" = "OMVS" ]
+then
+  echo "It's advised to not run this from OMVS but from a";
+  echo "'real' shell (ssh/telnet in). If you wanna continue,";
+  echo "type YES, otherwise press ENTER and logon via ssh.";
+  read OMVS?"Continue?"
+  if [ -z $OMVS ]
+  then
+    exit
+  else
+    echo "";
+    echo "Ok. Let's continue"
+  fi
+fi
+  
+  
 echo " _______  ___   _______  ___     ____         _______ ";
 echo "|       ||   | |       ||   |   |    |       |  _    |";
 echo "|____   ||   | |    ___||   |    |   |       | | |   |";
@@ -68,15 +85,20 @@ tso "ALLOC DA('$PANELS') DSORG(PO) SPACE(5,1) BLKSIZE(8000) TRACKS DIR(4) LRECL(
 tso "ALLOC DA('$README') DSORG(PS) SPACE(5,1) BLKSIZE(8000) TRACKS LRECL(80) RECFM(F,B) NEW";
 tso "ALLOC DA('$GPL') DSORG(PS) SPACE(5,1) BLKSIZE(8000) TRACKS LRECL(80) RECFM(F,B) NEW";
 
-tso "Free DA('$EXEC')"
-tso "Free DA('$PANELS')" 
-tso "Free DA('$README')"  
-tso "Free DA('$GPL')"   
+if [ "$WHERE" = "OMVS" ]
+then
+  tso "Free DA('$EXEC')"
+  tso "Free DA('$PANELS')"
+  tso "Free DA('$README')"
+  tso "Free DA('$GPL')"
+fi
 
 cp -U -M ZIGI.V1R0.EXEC/* "//'$EXEC'";
 cp -U -M ZIGI.V1R0.PANELS/* "//'$PANELS'";
 cp -U -M ZIGI.GPLLIC "//'$GPL'";
 cp -U -M ZIGI.README "//'$README'";
+
+
 
 echo "";
 
@@ -85,6 +107,7 @@ echo "";
 echo "tso exec '${EXEC}(ZIGI)'";
 echo "";
 echo "";
+
 
 
 
