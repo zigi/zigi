@@ -417,7 +417,12 @@ Work_With_Repo:
             leave
           end
         end
+
+        if pdshlq /= "" then
         fulldsn = "'"pdshlq"."dsn"'"
+        else
+        fulldsn = "'"dsn"'"
+
         'tbadd' rtbl
       end
     end
