@@ -1,0 +1,14 @@
+)Attr
+ $ type(output) caps(off)
+ # type(text) hilite(reverse) color(turq)
+ _ type(input) caps(off) hilite(uscore)
+)Body Expand(\\)
++-\-\#(z ISPF Git Interface)+-\-\
+%Command ===>_zcmd
++
++
++ Git grep for : _grep                                                       +
+)Init
+)Proc
+ ver (&grep,nb)
+)end
