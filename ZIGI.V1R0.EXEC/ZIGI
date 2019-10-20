@@ -26,6 +26,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            10/20/19 HBK - Fix LMM things :)                |
+  |            10/19/19 LBD - Better prefix, scrolling etc.    |
   |            10/17/19 HBK - Add back LMM, cleanup code       |
   |            09/30/19 HBK - Major rewrite :)                 |
   |            07/24/19 HBK - Some git functions               |
@@ -53,11 +55,11 @@
   | but only if not under ZIGI applid.       |
   * ---------------------------------------- */
   if zapplid /= 'ZIGI' then do
-     if panels /= null then
-     'libdef ispplib dataset id('panels') stack'
-     if exec /= null then
-     Address TSO 'altlib act application(exec) dataset('exec')'
-     end
+    if panels /= null then
+    'libdef ispplib dataset id('panels') stack'
+    if exec /= null then
+    Address TSO 'altlib act application(exec) dataset('exec')'
+  end
 
   /* ----------------------------------------------------------- *
   | Check for running under the ZIGI ISPF application ID and if |
@@ -113,12 +115,15 @@
   x = bpxwunix(cmd,,so.,se.)
   home    = strip(so.1)
   keyfile = home'/.ssh/id_rsa.pub'
+  rtbl = 'ZIGI'random(9999)
+  rtbl_open = 0
 
   /* ------------------------------------ *
   | Let's try to find git.               |
   * ------------------------------------ */
   zs1 = 'Checking if you have git installed'
   zs2 = 'Please standby'
+  call pfshow 'off'           /* make sure pfshow is off */
   'Control Display Lock'
   'Addpop row(4) column(12)'
   'Display Panel(zigipop)'
@@ -130,6 +135,7 @@
     zigigitl = strip(so.1)
     'vput (zigigitl) profile'
     'Rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
   end
   else do
     /* needs a nice error panel with a link to download git */
@@ -145,6 +151,7 @@
   * ------------------------------------------ */
   zs1 = 'Checking for user.name and user.email'
   zs2 = 'Please standby'
+  call pfshow 'off'           /* make sure pfshow is off */
   'Control Display Lock'
   'Addpop row(4) column(12)'
   'Display Panel(zigipop)'
@@ -166,11 +173,13 @@
     zigimail = ''
   end
   'Rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   cmd = 'cat 'home'/.ssh/id_rsa.pub'
   x = bpxwunix(cmd,,so.,se.)
   if x > 0 then do
     zs1 = 'No SSH identity found in 'home'/.ssh/id_rsa'
     zs2 = 'Generating keypair, please standby'
+    call pfshow 'off'           /* make sure pfshow is off */
     'Control Display Lock'
     'Addpop row(4) column(12)'
     'Display Panel(zigipop)'
@@ -181,12 +190,13 @@
     cmd = 'cat 'home'/.ssh/id_rsa.pub'
     x = bpxwunix(cmd,,so.,se.)
     'Rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
   end
   zigissh = so.1
   /* need these to see if changed, then we need to
-     redo the command...... @lionel: there's probably
-     a nicer way to do this (via the panel that sees if
-     the value has changed?
+  redo the command...... @lionel: there's probably
+  a nicer way to do this (via the panel that sees if
+  the value has changed?
   */
   old_zigiuid = zigiuid
   old_zigimail = zigimail
@@ -206,7 +216,7 @@
     'VPut (zigiuid zigimail zigissh) Profile'
     /* maybe we could use the ispprof for some lazy caching */
     /* now that we've had the user see the settings.
-       set the git config if they have changed...
+    set the git config if they have changed...
     */
     if old_zigiuid /= zigiuid then do
       cmd = docmd('git config --global user.name "'zigiuid'"')
@@ -263,12 +273,14 @@
 
   do forever
     zsel = null
+    zcmd = null
     'tbdispl zigirepo panel(zigiprim)'
     if rc > 0 then leave
     Select
       When abbrev('CREATE',zcmd,2) = 1 then call Create_Repo
       When abbrev('CLONE',zcmd,2) = 1 then call Clone_Repo
       When abbrev('CONFIG',zcmd,2) = 1 then do forever
+        zcmd = null
         'display panel(zigiset)'
         /* TODO: Add code to apply the new settings..... */
         if rc = 0 | rc = 8 then leave
@@ -281,11 +293,11 @@
       When zsel = 'S' then call Work_With_Repo
       When zsel = 'D' then do
         /* delete the repo. Maybe needs a 'are you sure' :)
-           for now. we delete the table from ispfprof and
-           make sure we cleanup the repodir...
-            does not touch z/OS datasets                   */
-          cmd = 'cd' localrep' && rm -rf 'zigirep
-          x = bpxwunix(cmd,,so.,se.)
+        for now. we delete the table from ispfprof and
+        make sure we cleanup the repodir...
+        does not touch z/OS datasets                   */
+        cmd = 'cd' localrep' && rm -rf 'zigirep
+        x = bpxwunix(cmd,,so.,se.)
         'tbdelete zigirepo'
       end
       Otherwise nop
@@ -295,23 +307,30 @@
   'tbclose zigirepo'
   Exit 0
 
-/* --------------------------------- *
-| Work with the selected repository |
-* --------------------------------- */
+  /* --------------------------------- *
+  | Work with the selected repository |
+  * --------------------------------- */
 Work_With_Repo:
   parse value '' with dsn dsnstat zsel
-  rtbl = 'ZIGI'random(9999)
-  'TBCreate' rtbl 'Names(dsn dsnstat pdshql) Replace NoWrite'
+  if rtbl_open = 1 then do
+     'tbend' rtbl
+     rtbl_open = 0
+     end
+  if rtbl_open = 0 then
+  'TBCreate' rtbl 'Names(dsnstat dsn pdshlq fulldsn) Replace NoWrite'
+  rtbl_open = 1
   /* We always fetch when we start to work on a repo */
   zs1 = 'Fetching Remote info'
   zs2 = 'Patience . . .'
+  call pfshow 'off'         /* turn off pfshow setting */
   'Control Display Lock'
   'Addpop row(4) column(12)'
   'Display Panel(zigipop)'
+  'Rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   cmd = 'cd' localrep'/'zigirep
   cmd = docmd(cmd || '&& git fetch --all')
   x = bpxwunix(cmd,,so.,se.)
-  'Rempop'
   /* get all the files that are in the repo */
   address syscall
   'readdir 'localrep'/'zigirep' root.'
@@ -330,17 +349,23 @@ Work_With_Repo:
         if so.1 = "DIR" & x = 0 then do
           /* And only for dirs in the repo (PDSes in z/OS) */
           if pdshlq /= "" then
-            /* make sure to add the prefix :) */
-            edsn = pdshlq'.'root.i
+          /* make sure to add the prefix :) */
+          edsn = pdshlq'.'root.i
           else
-            edsn = root.i
+          edsn = root.i
           /* see if any members not touched by zigi */
+          mem = ''
           "LMINIT DATAID(zigilmm) DATASET('"edsn"')"
           "LMOPEN DATAID("zigilmm") OPTION(INPUT)"
           do forever
             "LMMLIST DATAID("zigilmm") OPTION(LIST) MEMBER(MEM)" ,
               "STATS(YES)"
-            if rc > 7 then leave
+            if rc > 7 then do
+              "LMClose Dataid("zigilmm")"
+              "LMFree  Dataid("zigilmm")"
+              mem = ''
+              leave
+            end
             if zluser /= "ZIGI" then do
               /* if not touched by zigi, add to repo */
               m = strip(mem)
@@ -364,6 +389,7 @@ Work_With_Repo:
   else fetchmsg = "No remote updates"
   zs1 = 'Building List of repository Data Sets'
   zs2 = fetchmsg
+  call pfshow 'off'           /* make sure pfshow is off */
   'Control Display Lock'
   'Addpop row(4) column(12)'
   'Display Panel(zigipop)'
@@ -391,12 +417,19 @@ Work_With_Repo:
             leave
           end
         end
+
+        if pdshlq /= "" then
+        fulldsn = "'"pdshlq"."dsn"'"
+        else
+        fulldsn = "'"dsn"'"
+
         'tbadd' rtbl
       end
     end
   end
   'tbtop' rtbl
   'Rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
 
   /* --------------------------- *
   | Get the current branch info |
@@ -408,9 +441,9 @@ Work_With_Repo:
   branch_status = word(so.2,4)
   branch_how    = word(so.2,8)
   if branch_status != "up-to-date" then
-    bextra = branch_how
+  bextra = branch_how
   else
-    bextra = ''
+  bextra = ''
   /* get the remote info.....but */
   /* we have to get rid of the tab in git output */
   gitcmd = 'git remote -v | sed -e "s/[[:space:]]\+/ /g"'
@@ -430,7 +463,10 @@ Work_With_Repo:
   * -------------------------------- */
   do forever
     zsel = null
-    'TBdispl' rtbl 'Panel(zigirepo)'
+    zcmd = null
+    if ztdsels = 1
+    then 'TBdispl' rtbl 'Panel(zigirepo)'
+    else 'TBdispl' rtbl
     if rc > 4 then leave
     drop so. se.
     zcmd = translate(zcmd)
@@ -480,42 +516,44 @@ Work_With_Repo:
         /* so we want to add dataset/member */
         zs1 = 'Copying selected datasets to OMVS'
         zs2 = 'Patience . . .'
+        call pfshow 'off'           /* make sure pfshow is off */
         'Control Display Lock'
         'Addpop row(4) column(12)'
         'Display Panel(zigipop)'
         DIR=localrep'/'zigirep
         If POS('(', WHAT) > 0
-          then do
-            parse var WHAT PDS'('MEM')'
+        then do
+          parse var WHAT PDS'('MEM')'
+          PDS = strip(PDS,"B","'")
+          mkdir = "mkdir -p "DIR"/"PDS
+          call bpxwunix mkdir
+          target = "'"DIR"/"PDS"/"MEM"'"
+          copycmd = "//'"WHAT"'"
+          copycmd = '"'copycmd'"'
+          copycmd = "cp -U -M" copycmd" "DIR"/"PDS"/"
+          call bpxwunix copycmd
+        end
+        else do
+          FC = LISTDSI("'"WHAT"'")
+          if SYSDSORG = 'PO' then do
+            parse VAR WHAT PDS
             PDS = strip(PDS,"B","'")
             mkdir = "mkdir -p "DIR"/"PDS
             call bpxwunix mkdir
-            target = "'"DIR"/"PDS"/"MEM"'"
-            copycmd = "//'"WHAT"'"
+            copycmd = "//'"PDS"'"
             copycmd = '"'copycmd'"'
             copycmd = "cp -U -M" copycmd" "DIR"/"PDS"/"
             call bpxwunix copycmd
           end
           else do
-            FC = LISTDSI("'"WHAT"'")
-            if SYSDSORG = 'PO' then do
-              parse VAR WHAT PDS
-              PDS = strip(PDS,"B","'")
-              mkdir = "mkdir -p "DIR"/"PDS
-              call bpxwunix mkdir
-              copycmd = "//'"PDS"'"
-              copycmd = '"'copycmd'"'
-              copycmd = "cp -U -M" copycmd" "DIR"/"PDS"/"
-              call bpxwunix copycmd
-            end
-            else do
-              copycmd = "//'"WHAT"'"
-              copycmd = '"'copycmd'"'
-              copycmd = "cp -U -M" copycmd" "DIR"/"WHAT
-              call bpxwunix copycmd
-            end
+            copycmd = "//'"WHAT"'"
+            copycmd = '"'copycmd'"'
+            copycmd = "cp -U -M" copycmd" "DIR"/"WHAT
+            call bpxwunix copycmd
           end
+        end
         'Rempop'
+        call pfshow 'reset'         /* restore pfshow setting */
         call Work_With_Repo
       end
       /* -------------------------------- *
@@ -584,31 +622,30 @@ Work_With_Repo:
       | Work with a repo item            |
       * -------------------------------- */
       When zsel = 'S' then do
-        rtbl = 'ZIGL'random(9999)
         zs1 = 'Building list of library statuses....'
         zs2 = 'Patience . . .'
+        call pfshow 'off'           /* make sure pfshow is off */
         'Control Display Lock'
         'Addpop row(4) column(12)'
         'Display Panel(zigipop)'
+        'Rempop'
+        call pfshow 'reset'         /* restore pfshow setting */
         'TBCreate' rtll 'Names(mem memstat pdshlq ussmem) replace NoWrite'
-
-
         /* Determine if the repo item is a PDS or a flat-file */
         cmd = "[[ -f "localrep"/"zigirep"/"dsn" ]] && echo f"
         x = bpxwunix(cmd,,so.,se.)
         if so.0 = 1 & so.1 = "f" then do
           /* Do this if it's a regular file (sequential in z/OS) */
           if pdshlq <> "" then
-            edsn = pdshlq"."dsn
+          edsn = pdshlq"."dsn
           else
-            edsn = dsn
+          edsn = dsn
           "Edit Dataset('"edsn"')"
           /* so after the edit, we should update it to working directory */
           copcm = "//'"edsn"'"
           copcm = 'cp -U -M "'copcm'" 'localrep'/'zigirep'/'dsn
           call bpxwunix copcm
           dsnstat = '*Edit'
-          'Rempop'
         end
         else do
           /* Do this if it's a directory */
@@ -631,7 +668,7 @@ Work_With_Repo:
                 if mem = MEMBER then do
                   memstat = porcelain(stat)
                   if FOLDER = "./" & stat = "??" then
-                    memstat = 'Untracked'
+                  memstat = 'Untracked'
                   leave
                 end
               end
@@ -645,20 +682,20 @@ Work_With_Repo:
             'tbadd' rtll
           end
           'tbtop' rtll
-          'Rempop'
           zsel = ''
+          zcmd = ''
           'TBdispl' rtll 'Panel(zigilist)'
           /* Make sure we edit (and copy) right dataset when we have
-             a prefix set */
+          a prefix set */
           if pdshlq <> "" then
-            edsn = pdshlq"."dsn
+          edsn = pdshlq"."dsn
           else
-            edsn = dsn
+          edsn = dsn
           select
             when zsel = 'S' then do
-            /* -------------------------------- *
-            | Edit member of a PDS             |
-            * -------------------------------- */
+              /* -------------------------------- *
+              | Edit member of a PDS             |
+              * -------------------------------- */
               "Edit Dataset('"edsn"("mem")'"
               /* so after the edit, we should update it to repo */
               copcm = "//'"edsn"("mem")'"
@@ -667,9 +704,9 @@ Work_With_Repo:
               call Work_With_Repo
             end
             when zsel = 'A' then do
-            /* -------------------------------- *
-            | Add member of PDS to staging area|
-            * -------------------------------- */
+              /* -------------------------------- *
+              | Add member of PDS to staging area|
+              * -------------------------------- */
               cmd = 'cd' localrep'/'zigirep'/'dsn
               /* These cp -M issues are really getting annoying */
               m = strreplace(mem,'#','.')
@@ -680,9 +717,9 @@ Work_With_Repo:
               call Work_With_Repo
             end
             when zsel = 'D' then do
-            /* -------------------------------- *
-            | Show the diff for the member     |
-            * -------------------------------- */
+              /* -------------------------------- *
+              | Show the diff for the member     |
+              * -------------------------------- */
               cmd = 'cd' localrep'/'zigirep'/'dsn
               /* These cp -M issues are really getting annoying */
               m = strreplace(mem,'#','.')
@@ -708,12 +745,16 @@ Work_With_Repo:
       Otherwise nope
     end
   end
-  'tbend' rtbl
+  if ztdsels = 1 then do
+    'tbend' rtbl
+    rtbl_open = 0
+    call work_with_repo
+  end
   return
 
-/* ----------------------------- *
-| Clone a remote repo           |
-* ----------------------------- */
+  /* ----------------------------- *
+  | Clone a remote repo           |
+  * ----------------------------- */
 Clone_Repo:
   do forever
     zcmd = null
@@ -721,12 +762,13 @@ Clone_Repo:
     'Display Panel(zigicc)'
     if rc > 0 then return
     if localrep = "?" then
-      localrep = zigiosel()
+    localrep = zigiosel()
     parse var remote site ':' user '/' zigirep '.git'
     parse var site guser '@' host
     /* Let's clone the remote repo... */
     zs1 = "Cloning "zigirep" by "user
     zs2 = "from "host
+    call pfshow 'off'           /* make sure pfshow is off */
     'Control Display Lock'
     'Addpop row(4) column(12)'
     'Display Panel(zigipop)'
@@ -739,14 +781,17 @@ Clone_Repo:
     cmd = docmd('cd 'localrep' && git clone 'remote)
     x = bpxwunix(cmd,,so.,se.)
     'Rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if x > 0 then do
       zs1 = 'Clone failed'
       zs2 = se.1
+      call pfshow 'off'           /* make sure pfshow is off */
       'Control Display Lock'
       'Addpop row(4) column(12)'
       'Display Panel(zigipop)'
       x = bpxwunix('sleep 2',,so.,se.)
       'Rempop'
+      call pfshow 'reset'         /* restore pfshow setting */
       leave
     end
     /* Check to see if this is a zigi-managed repo */
@@ -755,12 +800,14 @@ Clone_Repo:
     if so.0 = 1 & so.1 = 0 then do
       zs1 = 'Clone failed'
       zs2 = zigirep' is not a zigi-managed repo'
+      call pfshow 'off'           /* make sure pfshow is off */
       'Control Display Lock'
       'Addpop row(4) column(12)'
       'Display Panel(zigipop)'
       bpxwunix('rm -rf 'localrep'/'zigirep,,so.,se.)
       x = bpxwunix('sleep 2',,so.,se.)
       'Rempop'
+      call pfshow 'reset'         /* restore pfshow setting */
       leave
     end
     call Refresh localrep,zigirep,pdshlq
@@ -783,6 +830,7 @@ Refresh:
   parse arg localrep,zigirep,pdshlq,nodel
   zs1 = "Refreshing from repo"
   zs2 = "   USS -> z/OS      "
+  call pfshow 'off'           /* make sure pfshow is off */
   'Control Display Lock'
   'Addpop row(4) column(12)'
   'Display Panel(zigipop)'
@@ -814,20 +862,20 @@ Refresh:
           t='file'
         end
         if pdshlq <> "" then
-          target = pdshlq"."root.i
+        target = pdshlq"."root.i
         else
-          target = root.i
+        target = root.i
         meh = OUTTRAP('var')
         if t = 'dir' then do
           /* Git is always leading, refreshes delete z/OS stuff */
           /* But we have a 'fallback' in case we need it... */
           if nodel = "" then
-            ADDRESS "TSO" "DELETE '"target"'"
+          ADDRESS "TSO" "DELETE '"target"'"
           if sysdsn(target) == "DATASET NOT FOUND" then do
-             /* create if not there */
-             ADDRESS "TSO" "ALLOC DD(DD) DS('"target"') NEW",
-             "DSORG(PO) RECFM(F M) LRECL(80) SPACE(1, 5) DIR(24) CYLINDERS"
-             ADDRESS "TSO" "FREE FILE(DD)"
+            /* create if not there */
+            ADDRESS "TSO" "ALLOC DD(DD) DS('"target"') NEW",
+              "DSORG(PO) RECFM(F B) LRECL(80) SPACE(1, 5) DIR(24) CYLINDERS"
+            ADDRESS "TSO" "FREE FILE(DD)"
           end
           /* get all the members from the dir */
           address syscall
@@ -866,11 +914,12 @@ Refresh:
   end
   meh = OUTTRAP('OFF')
   'Rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   return
 
-/* ----------------------------- *
-| Branch management             |
-* ----------------------------- */
+  /* ----------------------------- *
+  | Branch management             |
+  * ----------------------------- */
 Branch_it:
   rtbb = 'ZIGB'random(9999)
   'TBCreate' rtbb 'Names(bname) Replace NoWrite'
@@ -884,7 +933,7 @@ Branch_it:
     if pos('/',b1) > 0 then do
       /* this is a remote branch we (maybe) have never checked out */
       seen_this_branch = 0
-       parse var b1 remotes'/'origin'/'bname zooi
+      parse var b1 remotes'/'origin'/'bname zooi
       do ii = 1 to bl.0
         if bl.ii = bname then seen_this_branch = 1
       end
@@ -932,24 +981,26 @@ Branch_it:
     | Checkout the selected bname   |
     * ----------------------------- */
     if zsel = "C" then do
-
       cmd = docmd('cd 'localdir' && git status --porcelain')
       x = bpxwunix(cmd,,so.,se.)
       if so.0 > 0 then do
         zs1 = 'Cannot checkout branch.'
         zs2 = so.1
+        call pfshow 'off'           /* make sure pfshow is off */
         'Control Display Lock'
         'Addpop row(4) column(12)'
         'Display Panel(zigipop)'
         cmd = docmd('sleep 2')
         x = bpxwunix(cmd,,so.,se.)
         'Rempop'
+        call pfshow 'reset'         /* restore pfshow setting */
       end
       cmd = docmd('cd 'localdir' && git checkout 'bname)
       x = bpxwunix(cmd,,so.,se.)
       call Refresh localrep,zigirep,pdshlq
       call Work_With_Repo
     end
+  end
   return
 
 Create_Repo:
@@ -985,13 +1036,13 @@ Create_Repo:
     cmd = docmd('cd 'localrep' && git init 'zigirep)
     x = bpxwunix(cmd,,so.,se.)
     /* The git repo is initialized. Time to stick a
-       .gitattributes (ASCII) in there */
+    .gitattributes (ASCII) in there */
     call syscalls 'ON'
     address syscall
     path = localrep"/"zigirep"/.ga"
     'open' path,
-           O_rdwr+O_creat+O_trunc,
-           660
+      O_rdwr+O_creat+O_trunc,
+      660
     if retval = -1 then do
       say "Something bad when creating .gitattributes. Make errormsg"
       leave
@@ -1041,8 +1092,8 @@ Create_Repo:
     /* Fill dsn file with the comments */
     path = localrep"/"zigirep"/.zigi/dsn"
     'open' path,
-           O_rdwr+O_creat+O_trunc,
-           660
+      O_rdwr+O_creat+O_trunc,
+      660
     if retval = -1 then do
       say "Something bad when creating .gitattributes. Make errormsg"
       leave
@@ -1083,10 +1134,10 @@ Create_Repo:
   end
   return
 
-/* ---------------------------------------------------------- *
- | Generalized routine to view stdout. (so.) or stderr. (se.) |
- | based on the parm passed                                   |
- * ---------------------------------------------------------- */
+  /* ---------------------------------------------------------- *
+  | Generalized routine to view stdout. (so.) or stderr. (se.) |
+  | based on the parm passed                                   |
+  * ---------------------------------------------------------- */
 view_std:
   arg stdopt
   /* ------------------------------- *
@@ -1115,8 +1166,8 @@ view_std:
   | Write out the stem data |
   * ----------------------- */
   if stdopt = null
-     then 'Execio * diskw' dd '(finis stem so.'
-     else 'Execio * diskw' dd '(finis stem se.'
+  then 'Execio * diskw' dd '(finis stem so.'
+  else 'Execio * diskw' dd '(finis stem se.'
   /* -------------------------------------------------- *
   | Access the Temporary Data Set using ISPF           |
   | Library Services.                                  |
@@ -1125,7 +1176,9 @@ view_std:
   * -------------------------------------------------- */
   Address ISPExec
   'lminit dataid(ddb) ddname('dd')'
+  'Control Display Save'
   'browse dataid('ddb')'
+  'Control Display Restore'
   'lmfree dataid('ddb')'
   /* ----------------------------- *
   | Last Free the z/OS Allocation |
@@ -1144,10 +1197,12 @@ Build_SSH:
   zs1 = 'Building SSH Key'
   zs2 = 'Patience . . .'
   do forever
+    call pfshow 'off'           /* make sure pfshow is off */
     'Control Display Lock'
     'Addpop row(4) column(12)'
     'Display Panel(zigipop)'
     'Rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     call catsshk
     if zigissh /= null then leave
   end
@@ -1160,10 +1215,12 @@ Pop:
   parse arg zs1,zs2
   add = address()
   Address ISPExec
+  call pfshow 'off'           /* make sure pfshow is off */
   'Control Display Lock'
   'addpop row(4) column(4)'
   'display panel(zigipop)'
   'rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   Address add
   return
 
@@ -1203,7 +1260,7 @@ Upper:
   * -------------------------- */
 docmd:
   /* quircky thing, we need to export HOME as we are
-     not running a login shell via bpxwunix */
+  not running a login shell via bpxwunix */
   parse arg cmd
   return 'export HOME='home' && . /etc/profile && bash &&  '  || cmd
 
@@ -1222,20 +1279,20 @@ dsnvalid:
   end
 
 strreplace:
-ORIGINAL = ARG(1)
-OLDTXT = ARG(2)
-NEWTXT = ARG(3)
-TMPTXT = 'emRldm9wcy5jb20='
-NEWSTR = ORIGINAL
-DO WHILE POS(OLDTXT,NEWSTR) > 0
-NEWSTR = SUBSTR(NEWSTR, 1 , POS(OLDTXT,NEWSTR)-1) ||,
-TMPTXT || SUBSTR(NEWSTR, POS(OLDTXT,NEWSTR) + LENGTH(OLDTXT))
-END
-DO WHILE POS(TMPTXT,NEWSTR) > 0
-NEWSTR = SUBSTR(NEWSTR, 1 , POS(TMPTXT,NEWSTR)-1) ||,
-NEWTXT || SUBSTR(NEWSTR, POS(TMPTXT,NEWSTR) + LENGTH(TMPTXT))
-END
-RETURN NEWSTR
+  ORIGINAL = ARG(1)
+  OLDTXT = ARG(2)
+  NEWTXT = ARG(3)
+  TMPTXT = 'emRldm9wcy5jb20='
+  NEWSTR = ORIGINAL
+  DO WHILE POS(OLDTXT,NEWSTR) > 0
+    NEWSTR = SUBSTR(NEWSTR, 1 , POS(OLDTXT,NEWSTR)-1) ||,
+      TMPTXT || SUBSTR(NEWSTR, POS(OLDTXT,NEWSTR) + LENGTH(OLDTXT))
+  END
+  DO WHILE POS(TMPTXT,NEWSTR) > 0
+    NEWSTR = SUBSTR(NEWSTR, 1 , POS(TMPTXT,NEWSTR)-1) ||,
+      NEWTXT || SUBSTR(NEWSTR, POS(TMPTXT,NEWSTR) + LENGTH(TMPTXT))
+  END
+  RETURN NEWSTR
 
 idle:
   parse arg secs
@@ -1278,3 +1335,25 @@ porcelain:
   if stat == "??" then res = "Untracked"
   if stat == "!!" then res = "Ignored"
   return res
+  /* ------------------------------------------------------ *
+  | The pfshow routine will:                               |
+  | 1. check to see the passed option                      |
+  | 2. if Off then it will save the current pfshow setting |
+  |    - save the current setting                          |
+  |    - turn off pfshow                                   |
+  | 3. if the option is Reset then it will                 |
+  |    - test if pfshow was on and turn it back on         |
+  * ------------------------------------------------------ */
+pfshow:
+  arg pfkopt
+  if pfkopt = 'RESET' then do
+    if pfkeys = 'ON' then
+    'select pgm(ispopf) parm(FKA,ON)'
+  end
+  if pfkopt = 'OFF' then do
+    'vget (zpfshow)'
+    pfkeys = zpfshow
+    if pfkeys /= 'OFF' then
+    'select pgm(ispopf) parm(FKA,OFF)'
+  end
+  return

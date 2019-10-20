@@ -1,12 +1,10 @@
 )Attr
  $ type(output) caps(off)
-)Body Window(46,6)
+)Body Window(46,4)
 +
   $zs1
   $zs2
 
-+
-+
 )Init
  &zwinttl = 'zIGI Status Popup'
 )Proc
