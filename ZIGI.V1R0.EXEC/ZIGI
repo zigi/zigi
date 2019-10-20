@@ -26,6 +26,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            10/20/19 HBK - Fix LMM things :)                |
+  |            10/19/19 LBD - Better prefix, scrolling etc.    |
   |            10/17/19 HBK - Add back LMM, cleanup code       |
   |            09/30/19 HBK - Major rewrite :)                 |
   |            07/24/19 HBK - Some git functions               |
@@ -352,12 +354,18 @@ Work_With_Repo:
           else
           edsn = root.i
           /* see if any members not touched by zigi */
+          mem = ''
           "LMINIT DATAID(zigilmm) DATASET('"edsn"')"
           "LMOPEN DATAID("zigilmm") OPTION(INPUT)"
           do forever
             "LMMLIST DATAID("zigilmm") OPTION(LIST) MEMBER(MEM)" ,
               "STATS(YES)"
-            if rc > 7 then leave
+            if rc > 7 then do
+              "LMClose Dataid("zigilmm")"
+              "LMFree  Dataid("zigilmm")"
+              mem = ''
+              leave
+            end
             if zluser /= "ZIGI" then do
               /* if not touched by zigi, add to repo */
               m = strip(mem)
