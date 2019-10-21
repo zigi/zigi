@@ -67,10 +67,6 @@ if [ -z $PREFIX ]
 fi
 
 
-# Changing the REXX to have the correct HQL
-sed "s|'ZIGI.V1R0'|'${HLQ}'|g" ZIGI.V1R0.EXEC/ZIGI > /tmp/changed
-mv /tmp/changed ZIGI.V1R0.EXEC/ZIGI
-
 echo ""
 echo "Preparing to install to :";
 echo "- $EXEC";
