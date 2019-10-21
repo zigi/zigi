@@ -78,30 +78,9 @@
   * ----------------------------------------------------------- */
   if zapplid <> "ZIGI" then do
     /* --------------------------------------- *
-    | Create the ISPF Commands table for ZIGI |
-    | to enable Left/Right commands           |
-    * --------------------------------------- */
-    if cmdtbl = 1 then do
-      'tbquery zigicmds rownum('rows')'
-      if rc > 0 then do
-        "TBCreate zigicmds names(zctverb zcttrunc zctact zctdesc)",
-          "replace share nowrite"
-        zctverb  = "RIGHT"
-        zcttrunc = 0
-        zctact   = "Passthru"
-        zctdesc  = "RIGHT for ZIGI Dialog"
-        "TBAdd zigicmds"
-        zctverb  = "LEFT"
-        zcttrunc = 0
-        zctact   = "Passthru"
-        zctdesc  = "LEFT for ZIGI Dialog"
-        "TBAdd zigicmds"
-        cmdtbl = 1
-      end
-    end
+    | Make sure we are under the ZIGI applid  |
+     * --------------------------------------- */
     "Select CMD(%zigi) Newappl(ZIGI) Passlib"
-    if cmdtbl = 1 then
-    "TBClose zigicmds"
     if panels /= null then
     'libdef ispplib'
     if exec /= null then
