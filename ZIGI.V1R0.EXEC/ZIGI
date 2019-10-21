@@ -21,7 +21,6 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            10/21/19 LBD - Use PARSE SOURCE for hlq         |
-  |                         - other minor fixes                |
   |            10/20/19 HBK - Fix LMM things :)                |
   |            10/19/19 LBD - Better prefix, scrolling etc.    |
   |            10/17/19 HBK - Add back LMM, cleanup code       |
@@ -40,27 +39,27 @@
   "Control Errors Return"
 
   parse value '' with null
-/* ----------------------------------------------------- *
- | Get the Active HLQ for use with the ALTLIB and LIBDEF |
- | of the zIGI libraries.                                |
- | 1st Get the active exec library or dd                 |
- * ----------------------------------------------------- */
+  /* ----------------------------------------------------- *
+  | Get the Active HLQ for use with the ALTLIB and LIBDEF |
+  | of the zIGI libraries.                                |
+  | 1st Get the active exec library or dd                 |
+  * ----------------------------------------------------- */
   parse source x1 x2 x3 x4 exec .
   if exec = '?' then do
-     x = listdsi(x4 'FILE')
-     exec = sysdsname
-     end
-/* ------------------------------------------ *
- | Now extract the HLQ for the Panels Library |
- * ------------------------------------------ */
-  install_hlq = translate(exec,' ','.')
-  install_hlq = subword(install_hlq,1,words(install_hlq)-1)
-  install_hlq = translate(install_hlq,'.',' ')
-/* ---------------------------------------------- *
- | Fully qualify the EXEC and PANELS library dsns |
- * ---------------------------------------------- */
+    x = listdsi(x4 'FILE')
+    exec = sysdsname
+  end
+  /* ------------------------------------------ *
+  | Now extract the HLQ for the Panels Library |
+  * ------------------------------------------ */
+  zigihlq = translate(exec,' ','.')
+  zigihlq = subword(zigihlq,1,words(zigihlq)-1)
+  zigihlq = translate(zigihlq,'.',' ')
+  /* ---------------------------------------------- *
+  | Fully qualify the EXEC and PANELS library dsns |
+  * ---------------------------------------------- */
   exec = "'"exec"'"
-  panels = "'"install_hlq".PANELS'"
+  panels = "'"zigihlq".PANELS'"
 
   /* ---------------------------------------- *
   | If panels/exec then libdef and/or altlib |
@@ -126,7 +125,8 @@
   x = bpxwunix(cmd,,so.,se.)
   home    = strip(so.1)
   keyfile = home'/.ssh/id_rsa.pub'
-  rtbl = 'ZIGI'random(9999)
+  rtbl = 'ZIGL'random(9999)
+  rtll = 'ZIGM'random(9999)
   rtbl_open = 0
 
   /* ------------------------------------ *
@@ -324,9 +324,9 @@
 Work_With_Repo:
   parse value '' with dsn dsnstat zsel
   if rtbl_open = 1 then do
-     'tbend' rtbl
-     rtbl_open = 0
-     end
+    'tbend' rtbl
+    rtbl_open = 0
+  end
   if rtbl_open = 0 then
   'TBCreate' rtbl 'Names(dsnstat dsn pdshlq fulldsn) Replace NoWrite'
   rtbl_open = 1
@@ -573,7 +573,7 @@ Work_With_Repo:
       | View output of git status        |
       * -------------------------------- */
       When abbrev('STATUS',zcmd,2) = 1 then do
-      zcmd = null
+        zcmd = null
         cmd = 'cd' localrep'/'zigirep
         cmd = docmd(cmd || '&& git status')
         x = bpxwunix(cmd,,so.,se.)
@@ -583,14 +583,14 @@ Work_With_Repo:
       | Refresh z/OS datasets            |
       * -------------------------------- */
       When abbrev('REFRESH',zcmd,3) = 1 then do
-      zcmd = null
+        zcmd = null
         call Refresh localrep,zigirep,pdshlq
       end
       /* -------------------------------- *
       | GIT GREP                         |
       * -------------------------------- */
       When abbrev('GREP',zcmd,3) = 1 then do
-      zcmd = null
+        zcmd = null
         'display panel(zigigrep)'
         cmd = 'cd' localrep'/'zigirep
         cmd = docmd(cmd || '&& git grep "'grep'"')
@@ -602,7 +602,7 @@ Work_With_Repo:
       | Commit to current branch         |
       * -------------------------------- */
       When abbrev('COMMIT',zcmd,3) = 1 then do
-      zcmd = null
+        zcmd = null
         'display panel(zigicom)'
         cmd = 'cd' localrep'/'zigirep
         cmd = docmd(cmd || '&& git commit -m "'msg'"')
@@ -612,7 +612,7 @@ Work_With_Repo:
       | Add/replace remote URI (origin)  |
       * -------------------------------- */
       When abbrev('REMOTE',zcmd,3) = 1 then do
-      zcmd = null
+        zcmd = null
         'display panel(zigiremo)'
         parse var origin guser '@' host ':' rest
         cmd = 'touch 'home'/.ssh/known_hosts && '
@@ -697,54 +697,67 @@ Work_With_Repo:
             'tbadd' rtll
           end
           'tbtop' rtll
-          zsel = ''
-          zcmd = ''
-          'TBdispl' rtll 'Panel(zigilist)'
-          /* Make sure we edit (and copy) right dataset when we have
-          a prefix set */
-          if pdshlq <> "" then
-          edsn = pdshlq"."dsn
-          else
-          edsn = dsn
-          select
-            when zsel = 'S' then do
-              /* -------------------------------- *
-              | Edit member of a PDS             |
-              * -------------------------------- */
-              "Edit Dataset('"edsn"("mem")'"
-              /* so after the edit, we should update it to repo */
-              copcm = "//'"edsn"("mem")'"
-              copcm = 'cp -U -M "'copcm'" 'localrep'/'zigirep'/'dsn'/'ussmem
-              call bpxwunix copcm
-              call Work_With_Repo
+          /* ---------------------------------- *
+          | Process the Member list until done |
+          * ---------------------------------- */
+          Do Forever
+            zsel = ''
+            zcmd = ''
+            'TBdispl' rtll 'Panel(zigilist)'
+            if rc > 0 then do
+              'tbend' rtll
+              leave
             end
-            when zsel = 'A' then do
-              /* -------------------------------- *
-              | Add member of PDS to staging area|
-              * -------------------------------- */
-              cmd = 'cd' localrep'/'zigirep'/'dsn
-              /* These cp -M issues are really getting annoying */
-              m = strreplace(mem,'#','.')
-              m = strreplace(m,'$','-')
-              m = strreplace(m,'@','_')
-              cmd = docmd(cmd || ' && git add 'm)
-              x = bpxwunix(cmd,,so.,se.)
-              call Work_With_Repo
+            /* Make sure we edit (and copy) right dataset when we have
+            a prefix set */
+            if pdshlq <> "" then
+            edsn = pdshlq"."dsn
+            else
+            edsn = dsn
+            select
+              when zsel = 'S' then do
+                /* -------------------------------- *
+                | Edit member of a PDS             |
+                * -------------------------------- */
+                "Edit Dataset('"edsn"("mem")'"
+                if rc = 0 then do
+                  memstat = 'Modified'
+                  'TBPut' rtll
+                end
+                /* so after the edit, we should update it to repo */
+                copcm = "//'"edsn"("mem")'"
+                copcm = 'cp -U -M "'copcm'" 'localrep'/'zigirep'/'dsn'/'ussmem
+                call bpxwunix copcm
+              end
+              when zsel = 'A' then do
+                /* -------------------------------- *
+                | Add member of PDS to staging area|
+                * -------------------------------- */
+                cmd = 'cd' localrep'/'zigirep'/'dsn
+                /* These cp -M issues are really getting annoying */
+                m = strreplace(mem,'#','.')
+                m = strreplace(m,'$','-')
+                m = strreplace(m,'@','_')
+                cmd = docmd(cmd || ' && git add 'm)
+                x = bpxwunix(cmd,,so.,se.)
+                memstat = 'Added'
+                'tbmod' rtll
+              end
+              when zsel = 'D' then do
+                /* -------------------------------- *
+                | Show the diff for the member     |
+                * -------------------------------- */
+                cmd = 'cd' localrep'/'zigirep'/'dsn
+                /* These cp -M issues are really getting annoying */
+                m = strreplace(mem,'#','.')
+                m = strreplace(m,'$','-')
+                m = strreplace(m,'@','_')
+                cmd = docmd(cmd || ' && git diff 'm)
+                x = bpxwunix(cmd,,so.,se.)
+                call View_std
+              end
+              otherwise nope
             end
-            when zsel = 'D' then do
-              /* -------------------------------- *
-              | Show the diff for the member     |
-              * -------------------------------- */
-              cmd = 'cd' localrep'/'zigirep'/'dsn
-              /* These cp -M issues are really getting annoying */
-              m = strreplace(mem,'#','.')
-              m = strreplace(m,'$','-')
-              m = strreplace(m,'@','_')
-              cmd = docmd(cmd || ' && git diff 'm)
-              x = bpxwunix(cmd,,so.,se.)
-              call View_std
-            end
-            otherwise nope
           end
         end
       end
@@ -1191,7 +1204,13 @@ view_std:
   * -------------------------------------------------- */
   Address ISPExec
   'lminit dataid(ddb) ddname('dd')'
+  /* Comment Start
+  'Control Display Save'
+  Comment End */
   'browse dataid('ddb')'
+  /* Comment Start
+  'Control Display Restore'
+  Comment End */
   'lmfree dataid('ddb')'
   /* ----------------------------- *
   | Last Free the z/OS Allocation |

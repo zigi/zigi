@@ -10,7 +10,7 @@
 %Command ===>_zcmd   \ \ %Scroll ===>_zscr+
 %
 %Current Repository : $zigirep
-%Current Dataset    : $dsn
+%Current HLQ        : $zigihlq
 %Current Branch     : $branch
 %
 +Type %C+to checkout an existing branch
@@ -26,6 +26,6 @@ $S  Branch
   .help = zigihr0
   &zscr = CSR
 )Proc
- ver (&zcsel,list,C)
+ ver (&zsel,list,C)
 )End
 */
