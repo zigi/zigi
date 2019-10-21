@@ -10,12 +10,6 @@
   |                                                            |
   | NOTE:      ZIGI MUST NEVER be started under the ZIGI       |
   |            ISPF Applications ID.                           |
-  * ---------------------------------------------------------- */
-
-  /* Customize this if needed */
-  install_hlq   = 'ZIGI.V1R0'
-
-  /*%NOcomment ----------  rexx procedure  -------------------- *
   |                                                            |
   | Dependencies:                                              |
   |            1. Requires the z/OS port of GIT be installed   |
@@ -26,6 +20,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            10/21/19 LBD - Use PARSE SOURCE for hlq         |
+  |                         - other minor fixes                |
   |            10/20/19 HBK - Fix LMM things :)                |
   |            10/19/19 LBD - Better prefix, scrolling etc.    |
   |            10/17/19 HBK - Add back LMM, cleanup code       |
@@ -44,11 +40,27 @@
   "Control Errors Return"
 
   parse value '' with null
-
-
-  /* FIX THIS COZ PROFILE NOPREFIX */
-  exec = "'"install_hlq".exec'"
-  panels = "'"install_hlq".panels'"
+/* ----------------------------------------------------- *
+ | Get the Active HLQ for use with the ALTLIB and LIBDEF |
+ | of the zIGI libraries.                                |
+ | 1st Get the active exec library or dd                 |
+ * ----------------------------------------------------- */
+  parse source x1 x2 x3 x4 exec .
+  if exec = '?' then do
+     x = listdsi(x4 'FILE')
+     exec = sysdsname
+     end
+/* ------------------------------------------ *
+ | Now extract the HLQ for the Panels Library |
+ * ------------------------------------------ */
+  install_hlq = translate(exec,' ','.')
+  install_hlq = subword(install_hlq,1,words(install_hlq)-1)
+  install_hlq = translate(install_hlq,'.',' ')
+/* ---------------------------------------------- *
+ | Fully qualify the EXEC and PANELS library dsns |
+ * ---------------------------------------------- */
+  exec = "'"exec"'"
+  panels = "'"install_hlq".PANELS'"
 
   /* ---------------------------------------- *
   | If panels/exec then libdef and/or altlib |
@@ -95,7 +107,6 @@
     'libdef ispplib'
     if exec /= null then
     Address TSO 'altlib deact application(exec)'
-    trace off
     exit 0
   end
 
@@ -464,6 +475,7 @@ Work_With_Repo:
   do forever
     zsel = null
     zcmd = null
+    if ztdsels = 0 then ztdsels = 1
     if ztdsels = 1
     then 'TBdispl' rtbl 'Panel(zigirepo)'
     else 'TBdispl' rtbl
@@ -476,6 +488,7 @@ Work_With_Repo:
       | View output of git log           |
       * -------------------------------- */
       When abbrev('GITLOG',zcmd,2) = 1 then do
+        zcmd = null
         cmd = 'cd' localdir' && git log'
         cmd = docmd(cmd)
         x = bpxwunix(cmd,,so.,se.)
@@ -510,8 +523,8 @@ Work_With_Repo:
       | Add a PDS or a Sequential File to "Working Directory"     |
       * --------------------------------------------------------- */
       When abbrev('ADD',zcmd,3) = 1 then do
-        zcmd = ''
-        WHAT=''
+        zcmd = null
+        WHAT = null
         'display panel(zigiadd)'
         /* so we want to add dataset/member */
         zs1 = 'Copying selected datasets to OMVS'
@@ -560,6 +573,7 @@ Work_With_Repo:
       | View output of git status        |
       * -------------------------------- */
       When abbrev('STATUS',zcmd,2) = 1 then do
+      zcmd = null
         cmd = 'cd' localrep'/'zigirep
         cmd = docmd(cmd || '&& git status')
         x = bpxwunix(cmd,,so.,se.)
@@ -569,13 +583,14 @@ Work_With_Repo:
       | Refresh z/OS datasets            |
       * -------------------------------- */
       When abbrev('REFRESH',zcmd,3) = 1 then do
+      zcmd = null
         call Refresh localrep,zigirep,pdshlq
       end
       /* -------------------------------- *
       | GIT GREP                         |
       * -------------------------------- */
       When abbrev('GREP',zcmd,3) = 1 then do
-        zcmd=''
+      zcmd = null
         'display panel(zigigrep)'
         cmd = 'cd' localrep'/'zigirep
         cmd = docmd(cmd || '&& git grep "'grep'"')
@@ -587,7 +602,7 @@ Work_With_Repo:
       | Commit to current branch         |
       * -------------------------------- */
       When abbrev('COMMIT',zcmd,3) = 1 then do
-        zcmd=''
+      zcmd = null
         'display panel(zigicom)'
         cmd = 'cd' localrep'/'zigirep
         cmd = docmd(cmd || '&& git commit -m "'msg'"')
@@ -597,7 +612,7 @@ Work_With_Repo:
       | Add/replace remote URI (origin)  |
       * -------------------------------- */
       When abbrev('REMOTE',zcmd,3) = 1 then do
-        zcmd=''
+      zcmd = null
         'display panel(zigiremo)'
         parse var origin guser '@' host ':' rest
         cmd = 'touch 'home'/.ssh/known_hosts && '
@@ -1176,16 +1191,13 @@ view_std:
   * -------------------------------------------------- */
   Address ISPExec
   'lminit dataid(ddb) ddname('dd')'
-  'Control Display Save'
   'browse dataid('ddb')'
-  'Control Display Restore'
   'lmfree dataid('ddb')'
   /* ----------------------------- *
   | Last Free the z/OS Allocation |
   * ----------------------------- */
   Address TSO ,
     'Free f('dd')'
-    'Free f(ispplib) da('panels')'
   return
 
 
