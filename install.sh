@@ -1,21 +1,6 @@
 #!/bin/bash
 clear
 WHERE=`[ -z "$SSH_CLIENT" ] && echo "OMVS"`
-if [ "$WHERE" = "OMVS" ]
-then
-  echo "It's advised to not run this from OMVS but from a";
-  echo "'real' shell (ssh/telnet in). If you wanna continue,";
-  echo "type YES, otherwise press ENTER and logon via ssh.";
-  read OMVS?"Continue?"
-  if [ -z $OMVS ]
-  then
-    exit
-  else
-    echo "";
-    echo "Ok. Let's continue"
-  fi
-fi
-  
   
 echo " _______  ___   _______  ___     ____         _______ ";
 echo "|       ||   | |       ||   |   |    |       |  _    |";
@@ -74,7 +59,10 @@ echo "- $PANELS";
 echo "";
 read GOON?"ENTER TO CONTINUE";
 echo "";
-echo "Here come the messages from TSO :)";
+if [ "$WHERE" != "OMVS" ]
+then
+ echo "Here come the messages from TSO :)"; 
+fi
 echo ""; 
 tso "ALLOC DA('$EXEC') DSORG(PO) SPACE(5,1) BLKSIZE(8000) TRACKS DIR(2) LRECL(80) RECFM(F,B) NEW";
 tso "ALLOC DA('$PANELS') DSORG(PO) SPACE(5,1) BLKSIZE(8000) TRACKS DIR(4) LRECL(80) RECFM(F,B) NEW";
