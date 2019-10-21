@@ -582,6 +582,7 @@ Work_With_Repo:
       * -------------------------------- */
       When abbrev('COMMIT',zcmd,3) = 1 then do
         zcmd = null
+        msg = ''
         'display panel(zigicom)'
         cmd = 'cd' localrep'/'zigirep
         cmd = docmd(cmd || '&& git commit -m "'msg'"')
