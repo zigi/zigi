@@ -721,7 +721,7 @@ Work_With_Repo:
                 cmd = docmd(cmd || ' && git add 'm)
                 x = bpxwunix(cmd,,so.,se.)
                 memstat = 'Added'
-                'tbmod' rtll
+                'tbput' rtll
               end
               when zsel = 'D' then do
                 /* -------------------------------- *
