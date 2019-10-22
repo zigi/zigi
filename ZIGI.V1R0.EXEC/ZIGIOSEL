@@ -162,7 +162,7 @@ Restart:
        call pfshow 'off'           /* make sure pfshow is off */
        'Control Display Lock'
        'Addpop row(4) column(12)'
-       answer = 755l
+       answer = 755
        'Display Panel(zigipopq)'
        'Rempop'
        call pfshow 'reset'         /* reset pfshow */
