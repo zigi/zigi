@@ -812,7 +812,7 @@ Clone_Repo:
       'Control Display Lock'
       'Addpop row(4) column(12)'
       'Display Panel(zigipop)'
-      bpxwunix('rm -rf 'localrep'/'zigirep,,so.,se.)
+      x = bpxwunix('rm -rf 'localrep'/'zigirep,,so.,se.)
       address 'SYSCALL' 'SLEEP (2)'
       'Rempop'
       call pfshow 'reset'         /* restore pfshow setting */
