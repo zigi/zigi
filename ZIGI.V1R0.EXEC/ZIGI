@@ -983,7 +983,8 @@ Branch_it:
       x = bpxwunix(cmd,,so.,se.)
       cmd = docmd('cd 'localdir' && git push -u origin 'newb)
       x = bpxwunix(cmd,,so.,se.)
-      call Work_With_Repo
+      branch = newb
+      return
     end
     /* ----------------------------- *
     | Checkout the selected bname   |
@@ -1006,7 +1007,8 @@ Branch_it:
       cmd = docmd('cd 'localdir' && git checkout 'bname)
       x = bpxwunix(cmd,,so.,se.)
       call Refresh localrep,zigirep,pdshlq
-      call Work_With_Repo
+      branch = bname
+      return
     end
   end
   return
@@ -1041,6 +1043,13 @@ Create_Repo:
       end
     end
     /* If we made it here, we can freely git init */
+    zs1 = 'Creating your repository'
+    zs2 = 'Please standby'
+    call pfshow 'off'           /* make sure pfshow is off */
+    'Control Display Lock'
+    'Addpop row(4) column(12)'
+    'Display Panel(zigipop)'
+
     cmd = docmd('cd 'localrep' && git init 'zigirep)
     x = bpxwunix(cmd,,so.,se.)
     /* The git repo is initialized. Time to stick a
@@ -1133,6 +1142,9 @@ Create_Repo:
     x = bpxwunix(cmd,,so.,se.)
 
     Address ISPExec
+    'Rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
+
     'tbadd zigirepo'
     "TBSAVE zigirepo REPLCOPY LIBRARY(isptabl)"
     zerrsm = 'Complete'
