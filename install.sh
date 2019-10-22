@@ -24,8 +24,8 @@ echo ""
 echo "If you do provide a PREFIX, don't end in a dot.";
 echo "Should you decide to use the PREFIX zigi will be";
 echo "installed to:";
-echo "- PREFIX.ZIGI.V1R0.EXEC";
-echo "- PREFIX.ZIGI.V1R0.PANELS";
+echo "- prefix.ZIGI.V1R0.EXEC";
+echo "- prefix.ZIGI.V1R0.PANELS";
 
 echo "";
  
