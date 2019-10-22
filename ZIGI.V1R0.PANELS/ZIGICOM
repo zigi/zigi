@@ -7,7 +7,7 @@
 %Command ===>_zcmd
 +
 +
-+ Your commit message please _msg                                            +
++ Your commit message _msg                                                   +
 )Init
 )Proc
  ver (&msg,nb)
