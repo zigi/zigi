@@ -10,7 +10,12 @@
 + Add remote _origin                                                         +
 +
 + This will execute a 'git remote add origin' followed by a
-+ 'git push -u origin'
++ 'git push -u origin master'
++
++ Make sure the remote repository exists and you're authorized to
++ push to master.
++
++ This is best done on a 'brand new' repository :)
 +
 )Init
 )Proc
