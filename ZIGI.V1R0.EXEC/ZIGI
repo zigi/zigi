@@ -442,6 +442,7 @@ Work_With_Repo:
         cmd = 'cd' localrep'/'zigirep
         cmd = docmd(cmd || '&& git commit -m "'msg'"')
         x = bpxwunix(cmd,,so.,se.)
+        call update_repo_metadata
       end
       /* -------------------------------- *
       | Add/replace remote URI (origin)  |
@@ -577,6 +578,7 @@ Work_With_Repo:
                 x = bpxwunix(cmd,,so.,se.)
                 memstat = 'Added'
                 'tbput' rtll
+                call update_repo_metadata
               end
               when zsel = 'D' then do
                 /* -------------------------------- *
