@@ -160,17 +160,36 @@ Restart:
        zs1 = 'Enter the file permissions for the new'
        zs2 = 'directory (e.g. 755):'
        call pfshow 'off'           /* make sure pfshow is off */
-       'Control Display Lock'
+       do forever
        'Addpop row(4) column(12)'
        answer = 755
        'Display Panel(zigipopq)'
        'Rempop'
+       bad = 0
+       if answer = 755 then leave
+       else select
+            when datatype(answer) /= 'NUM' then bad = 1
+            when length(answer) > 3 then bad = 1
+            when answer /= 755 then do ia = 1 to 3
+               if left(answer,1) > 7 then bad = 1
+               if substr(answer,2,1) > 7 then bad = 1
+               if right(answer,1) > 7 then bad = 1
+               end
+            otherwise bad = 0
+            end
+            if bad = 0 then leave
+            zerrsm = 'Error'
+            zerrlm = 'Invalid permissions - suggest using 755'
+            'setmsg msg(isrz002)'
+            end
        call pfshow 'reset'         /* reset pfshow */
        cmd = 'mkdir' newdir
        rc = bpxwunix(cmd,,stdout.,stderr.)
-       if answer = null then answer = 755
        cmd = 'chmod' answer newdir
        rc = bpxwunix(cmd,,stdout.,stderr.)
+       zerrsm = null
+       zerrlm = 'Permissions set to:' answer
+       'setmsg msg(isrz002)'
        call restart_odir
        end
     When translate(word(zcmd,1)) = 'CD' then do
