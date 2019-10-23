@@ -6,7 +6,7 @@
   % type(text) intens(high) skip(on)
  # type(text) hilite(reverse) color(turq)
 )Body  Expand(\\)
-+\-\#-(z ISPF Git Branch List)+-\-\
++\-\#(z ISPF Git Branch List)+-\-\
 %Command ===>_zcmd   \ \ %Scroll ===>_zscr+
 %
 %Current Repository : $zigirep

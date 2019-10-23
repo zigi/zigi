@@ -9,9 +9,10 @@
 +\-\#(z ISPF Git Repository List)+-\-\
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
 %
+%Current Dataset    : $fulldsn
 %Current Repository : $zigirep                %S+Edit member
-%Current Dataset    : $dsn                    %A+Add member to staging area
-%Current Branch     : $branch                 %D+See the diff
+%Current Branch     : $branch                 %A+Add member to staging area
+%                                             %D+See the diff
 
 %S  Status          Member
 )Model
