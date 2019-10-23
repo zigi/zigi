@@ -372,6 +372,7 @@ Work_With_Repo:
         then do
           parse var WHAT PDS'('MEM')'
           PDS = strip(PDS,"B","'")
+          PDS = usssafe(PDS)
           mkdir = "mkdir -p "DIR"/"PDS
           call bpxwunix mkdir
           target = "'"DIR"/"PDS"/"MEM"'"
@@ -385,6 +386,7 @@ Work_With_Repo:
           if SYSDSORG = 'PO' then do
             parse VAR WHAT PDS
             PDS = strip(PDS,"B","'")
+            PDS = usssafe(PDS)
             mkdir = "mkdir -p "DIR"/"PDS
             call bpxwunix mkdir
             copycmd = "//'"PDS"'"
@@ -393,6 +395,7 @@ Work_With_Repo:
             call bpxwunix copycmd
           end
           else do
+            WHAT = usssafe(WHAT)
             copycmd = "//'"WHAT"'"
             copycmd = '"'copycmd'"'
             copycmd = "cp -U -M" copycmd" "DIR"/"WHAT
@@ -493,6 +496,7 @@ Work_With_Repo:
           edsn = dsn
           "Edit Dataset('"edsn"')"
           /* so after the edit, we should update it to working directory */
+          edsn = usssafe(edsn)
           copcm = "//'"edsn"'"
           copcm = 'cp -U -M "'copcm'" 'localrep'/'zigirep'/'dsn
           call bpxwunix copcm
@@ -561,6 +565,8 @@ Work_With_Repo:
                   'TBPut' rtll
                 end
                 /* so after the edit, we should update it to repo */
+                mem = usssafe(mem)
+                edsn = usssafe(edsn)
                 copcm = "//'"edsn"("mem")'"
                 copcm = 'cp -U -M "'copcm'" 'localrep'/'zigirep'/'dsn'/'ussmem
                 call bpxwunix copcm
@@ -1240,10 +1246,14 @@ update_repo_metadata:
             if zluser /= "ZIGI" then do
               /* if not touched by zigi, add to repo */
               m = strip(mem)
-              copycmd = "//'"edsn"("m")'"
+              m = usssafe(m)
+              e = usssafe(edsn)
+              r = usssafe(root.i)
+              /* TODO? Use Scottish Command here ? */
+              copycmd = "//'"e"("m")'"
               copycmd = '"'copycmd'"'
               copycmd = "cp -U -M" copycmd" "localrep"/"zigirep
-              copycmd = copycmd || "/"root.i"/"
+              copycmd = copycmd || "/"r"/"
               call bpxwunix copycmd
               /* update ispf-statistics to reflect zigi control */
               "LMMSTATS DATAID("zigilmm") MEMBER("mem") USER(ZIGI)"
@@ -1364,6 +1374,12 @@ porcelain:
   if stat == "??" then res = "Untracked"
   if stat == "!!" then res = "Ignored"
   return res
+
+usssafe:
+  parse arg dsn
+  dsn = strreplace(dsn, '$', '\$')
+  return dsn
+
   /* ------------------------------------------------------ *
   | The pfshow routine will:                               |
   | 1. check to see the passed option                      |
