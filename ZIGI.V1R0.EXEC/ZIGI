@@ -757,7 +757,7 @@ Refresh:
             m = strreplace(m,'_','@')
             m = strreplace(m,'-','$')
             ADDRESS TSO
-            OGET "'"src"'" "'"target"("m")'"
+            'OGET' "'"src"'" "'"target"("m")'"
             /* Set statistics */
             address ispexec
             "LMINIT DATAID(DATAID) Dataset('"target"')"
@@ -771,7 +771,7 @@ Refresh:
           /* it'a file, just oget it over */
           ADDRESS TSO
           /* TODO: supress messages */
-          OGET "'"localrep"/"zigirep"/"root.i"'" "'"target"'"
+          'OGET' "'"localrep"/"zigirep"/"root.i"'" "'"target"'"
           address ispexec
         end
       end
