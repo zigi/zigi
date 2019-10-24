@@ -1,19 +1,30 @@
 #!/bin/bash
 clear
 WHERE=`[ -z "$SSH_CLIENT" ] && echo "OMVS"`
-  
-echo " _______  ___   _______  ___     ____         _______ ";
-echo "|       ||   | |       ||   |   |    |       |  _    |";
-echo "|____   ||   | |    ___||   |    |   |       | | |   |";
-echo " ____|  ||   | |   | __ |   |    |   |       | | |   |";
-echo "| ______||   | |   ||  ||   |    |   |  ___  | |_|   |";
-echo "| |_____ |   | |   |_| ||   |    |   | |   | |       |";
-echo "|_______||___| |_______||___|    |___| |___| |_______|";
-echo "";
+echo "                                      .zZ.     Zz ";
+echo "                 ZZZZZZZZ           ZZZZZZZ ";
+echo "     ZZZZZZZZZZZZZZZZZZZZZZ   ZZ   ZZZ         zZ ";
+echo "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZ      ZZZ    .zZZ   ZZ ";
+echo "ZZZZZZZZZZZZZZZZ    ZZZZZZZ   ZZ   ZZZ  ..zZZZ  Zz ";
+echo "ZZZZZZZZZZ,       ZZZZZZZZZ   ZZZ  ZzZ      ZZ  ZZ         ZZZZZZZ";
+echo "ZZZZ             ZZZZZZZZ     ZZZ   ZZZZZZZZZZZ      ZZZZZZZZZZZ ";
+echo "               ZZZZZZZZ       ZZZZ    ZZZZZZ      ZZZZZZZZZg ";
+echo "              ZZZZZZZZ        ZZZ            ZZZZZZZZZ ";
+echo "             ZZZZZZZ              zZZZZZZZZZZZZZZ ";
+echo "           ZZZZZZZ           ZZZZZZZZZZZZZZ ";
+echo "         .ZZZZZZZ      ZZZZZZZZZZZZZZ ";
+echo "        ZZZZZZZZZZZZZZZZZZZZZZ ";
+echo "        ZZZZZZZZZZZZZZZZZ             zOS ISPF Git Interface ";
+echo "       ZZZZZZZZZZZZ ";
+echo "      ZZZZZZZZZg               The git interface for the rest of us";
+echo "     ZZZZZZig ";
+echo "    ZZZZZZi                        !Henri Kuiper & Lionel Dyck ";
+echo " "
 echo "Welcome to the installer for zigi v1r0";
 echo "";
 echo "This will install zigi on your mainframe.";                   
 echo "";
+read GOON?"ENTER TO CONTINUE";
 echo "MVS datsets used by zigi are:";
 echo "- ZIGI.V1R0.EXEC";
 echo "- ZIGI.V1R0.PANELS";
