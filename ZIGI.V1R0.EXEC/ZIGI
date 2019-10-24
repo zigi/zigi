@@ -20,6 +20,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            10/24/19 LBD - Change 2 routines to procedure   |
+  |                         - Add Commit message               |
   |            10/21/19 LBD - Use PARSE SOURCE for hlq         |
   |            10/20/19 HBK - Fix LMM things :)                |
   |            10/19/19 LBD - Better prefix, scrolling etc.    |
@@ -294,6 +296,7 @@
     End
   end
 
+  'tbend' rtbl
   'tbclose zigirepo'
   Exit 0
 
@@ -309,10 +312,7 @@ Work_With_Repo:
   do forever
     zsel = null
     zcmd = null
-    if ztdsels = 0 then ztdsels = 1
-    if ztdsels = 1
-    then 'TBdispl' rtbl 'Panel(zigirepo)'
-    else 'TBdispl' rtbl
+    'TBdispl' rtbl 'Panel(zigirepo)'
     if rc > 4 then leave
     drop so. se.
     zcmd = translate(zcmd)
@@ -367,6 +367,7 @@ Work_With_Repo:
         'Control Display Lock'
         'Addpop row(4) column(12)'
         'Display Panel(zigipop)'
+        'Rempop'
         DIR=localrep'/'zigirep
         If POS('(', WHAT) > 0
         then do
@@ -402,7 +403,6 @@ Work_With_Repo:
             call bpxwunix copycmd
           end
         end
-        'Rempop'
         call pfshow 'reset'         /* restore pfshow setting */
         call update_repo_metadata
       end
@@ -445,7 +445,11 @@ Work_With_Repo:
         cmd = 'cd' localrep'/'zigirep
         cmd = docmd(cmd || '&& git commit -m "'msg'"')
         x = bpxwunix(cmd,,so.,se.)
+        if x = 0
+        then call view_std
+        else call view_std 'E'
         call update_repo_metadata
+        call view_std
       end
       /* -------------------------------- *
       | Add/replace remote URI (origin)  |
@@ -531,9 +535,9 @@ Work_With_Repo:
             /* The files in USS have some chars changed due to cp -M */
             /* So we fix the name before we save to table :) */
             ussmem = mem
-            mem = strreplace(mem,'.','#')
-            mem = strreplace(mem,'_','@')
-            mem = strreplace(mem,'-','$')
+            mem = strreplace(mem '.' '#')
+            mem = strreplace(mem '_' '@')
+            mem = strreplace(mem '-' '$')
             'tbadd' rtll
           end
           'tbtop' rtll
@@ -577,13 +581,14 @@ Work_With_Repo:
                 * -------------------------------- */
                 cmd = 'cd' localrep'/'zigirep'/'dsn
                 /* These cp -M issues are really getting annoying */
-                m = strreplace(mem,'#','.')
-                m = strreplace(m,'$','-')
-                m = strreplace(m,'@','_')
+                m = strreplace(mem '#' '.')
+                m = strreplace(m '$' '-')
+                m = strreplace(m '@' '_')
                 cmd = docmd(cmd || ' && git add 'm)
                 x = bpxwunix(cmd,,so.,se.)
                 memstat = 'Added'
                 'tbput' rtll
+                if ztdsels = 1 then
                 call update_repo_metadata
               end
               when zsel = 'D' then do
@@ -592,9 +597,9 @@ Work_With_Repo:
                 * -------------------------------- */
                 cmd = 'cd' localrep'/'zigirep'/'dsn
                 /* These cp -M issues are really getting annoying */
-                m = strreplace(mem,'#','.')
-                m = strreplace(m,'$','-')
-                m = strreplace(m,'@','_')
+                m = strreplace(mem '#' '.')
+                m = strreplace(m '$' '-')
+                m = strreplace(m '@' '_')
                 cmd = docmd(cmd || ' && git diff 'm)
                 x = bpxwunix(cmd,,so.,se.)
                 call View_std
@@ -759,9 +764,9 @@ Refresh:
             end
             src = localrep"/"zigirep"/"root.i"/"mems.ii
             /* fix the cp -M behavior on the way in */
-            m = strreplace(mems.ii,'.','#')
-            m = strreplace(m,'_','@')
-            m = strreplace(m,'-','$')
+            m = strreplace(mems.ii '.' '#')
+            m = strreplace(m '_' '@')
+            m = strreplace(m '-' '$')
             ADDRESS TSO
             'OGET' "'"src"'" "'"target"("m")'"
             /* Set statistics */
@@ -1059,13 +1064,7 @@ view_std:
   * -------------------------------------------------- */
   Address ISPExec
   'lminit dataid(ddb) ddname('dd')'
-  /* Comment Start
-  'Control Display Save'
-  Comment End */
-  'browse dataid('ddb')'
-  /* Comment Start
-  'Control Display Restore'
-  Comment End */
+  'browse dataid('ddb') panel(zigibrow)'
   'lmfree dataid('ddb')'
   /* ----------------------------- *
   | Last Free the z/OS Allocation |
@@ -1151,7 +1150,7 @@ docmd:
   parse arg cmd
   return 'export HOME='home' && . /etc/profile && bash &&  '  || cmd
 
-dsnvalid:
+dsnvalid: Procedure
   /* Tests for a 'potentially valid' z/OS datasetname */
   parse arg dsn
   upp = TRANSLATE(dsn,".ABCDEFGHIJKLMNOPQRSTUVWXYZ",,
@@ -1165,21 +1164,16 @@ dsnvalid:
     return "NO"
   end
 
-strreplace:
-  ORIGINAL = ARG(1)
-  OLDTXT = ARG(2)
-  NEWTXT = ARG(3)
-  TMPTXT = 'emRldm9wcy5jb20='
-  NEWSTR = ORIGINAL
-  DO WHILE POS(OLDTXT,NEWSTR) > 0
-    NEWSTR = SUBSTR(NEWSTR, 1 , POS(OLDTXT,NEWSTR)-1) ||,
-      TMPTXT || SUBSTR(NEWSTR, POS(OLDTXT,NEWSTR) + LENGTH(OLDTXT))
-  END
-  DO WHILE POS(TMPTXT,NEWSTR) > 0
-    NEWSTR = SUBSTR(NEWSTR, 1 , POS(TMPTXT,NEWSTR)-1) ||,
-      NEWTXT || SUBSTR(NEWSTR, POS(TMPTXT,NEWSTR) + LENGTH(TMPTXT))
-  END
-  RETURN NEWSTR
+strreplace: Procedure
+parse arg string strfrom strto
+if pos(strfrom,string) = 0 then return string
+newString = ''
+do i = 1 to length(string)
+   if substr(string,i,1) /= strfrom
+      then newstring = newstring''substr(string,i,1)
+      else  newstring = newstring''strto
+   end
+return newstring
 
 idle:
   parse arg secs
@@ -1375,9 +1369,9 @@ porcelain:
   if stat == "!!" then res = "Ignored"
   return res
 
-usssafe:
+usssafe: procedure
   parse arg dsn
-  dsn = strreplace(dsn, '$', '\$')
+  dsn = strreplace(dsn  '$'  '\$')
   return dsn
 
   /* ------------------------------------------------------ *
