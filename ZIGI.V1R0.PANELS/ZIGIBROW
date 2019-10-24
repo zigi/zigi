@@ -12,6 +12,7 @@
 )INIT
   .HELP = ISR10000
   .ZVARS = 'ZSCBR'
+  &Title = 'zIGI Git Messages'
 )Reinit
   Refresh(ZCMD,ZSCBR,ZDATA)
 )PROC
