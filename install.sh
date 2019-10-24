@@ -18,7 +18,7 @@ echo "        ZZZZZZZZZZZZZZZZZ             zOS ISPF Git Interface ";
 echo "       ZZZZZZZZZZZZ ";
 echo "      ZZZZZZZZZg               The git interface for the rest of us";
 echo "     ZZZZZZig ";
-echo "    ZZZZZZi                        !Henri Kuiper & Lionel Dyck ";
+echo "    ZZZZZZi                         Henri Kuiper & Lionel Dyck ";
 echo " "
 echo "Welcome to the installer for zigi v1r0";
 echo "";
