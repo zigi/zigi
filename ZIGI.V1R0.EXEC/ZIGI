@@ -21,6 +21,7 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            10/24/19 LBD - Change 2 routines to procedure   |
+  |                         - Add Commit message               |
   |            10/21/19 LBD - Use PARSE SOURCE for hlq         |
   |            10/20/19 HBK - Fix LMM things :)                |
   |            10/19/19 LBD - Better prefix, scrolling etc.    |
