@@ -6,7 +6,7 @@
   + type(text) intens(low) skip(on) color(&omsclow)
   $ type(output) intens(high) caps(off) just(left )
 )Body  Expand(\\)
-%Tutorial-\-\-@ZIGIOSEL%-\-\Tutorial
+%zigihelp-\-\-@ZIGIOSEL%-\-\zigihelp
 %Command ===>_zcmd
 %
 %CD+Examples within ZIGIOSEL

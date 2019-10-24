@@ -1372,7 +1372,7 @@ porcelain:
   if stat == " D" then res = "Deleted"
   if stat == "??" then res = "Untracked"
   if stat == "!!" then res = "Ignored"
-  return res
+  return '[' || status || '] ' || res
 
 usssafe: procedure
   parse arg dsn
