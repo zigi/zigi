@@ -1,30 +1,10 @@
-                                               .zZ.     Zz
-                          ZZZZZZZZ           ZZZZZZZ
-              ZZZZZZZZZZZZZZZZZZZZZZ   ZZ   ZZZ         zZ
-     ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ      ZZZ    .zZZ   ZZ
-   ZZZZZZZZZZZZZZZZZZZZZZ    ZZZZZZZ   ZZ   ZZZ  ..zZZZ  Zz
- zZZZZZZZZZZZZZZZZZ,       ZZZZZZZZZ   ZZZ  ZzZ      ZZ  ZZ         ZZZZZZZ
- ZZZZZZZZZZZZ             ZZZZZZZZ     ZZZ   ZZZZZZZZZZZ      ZZZZZZZZZZZ
- ZZZZZZZg               ZZZZZZZZ       ZZZZ    ZZZZZZ      ZZZZZZZZZg
-                       ZZZZZZZZ        ZZZ            ZZZZZZZZZ
-                      ZZZZZZZ              zZZZZZZZZZZZZZZ
-                    ZZZZZZZ           ZZZZZZZZZZZZZZ
-                  .ZZZZZZZ      ZZZZZZZZZZZZZZ
-                 ZZZZZZZZZZZZZZZZZZZZZZ
-                 ZZZZZZZZZZZZZZZZZ             zOS ISPF Git Interface
-                ZZZZZZZZZZZZ
-               ZZZZZZZZZg               The git interface for the rest of us
-              ZZZZZZig
-             ZZZZZZi                        2019  Lionel Dyck & Henri Kuiper
-
-
 =========================RELEASE INFORMATION V1R0===============================
 
 Version : v01.00 / November 2019
 
 zIGI is the zdevops ISPF Git Interface application that enables the
 traditional ISPF user to utilize many of the facilities of Git without
-having to fully learn Git while avoiding the need to use the OMVS
+having to "fully" learn Git while avoiding the need to use the OMVS
 environment.
 
 To get started with this package:
