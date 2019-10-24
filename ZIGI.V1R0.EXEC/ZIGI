@@ -20,6 +20,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            10/24/19 LBD - Change 2 routines to procedure   |
   |            10/21/19 LBD - Use PARSE SOURCE for hlq         |
   |            10/20/19 HBK - Fix LMM things :)                |
   |            10/19/19 LBD - Better prefix, scrolling etc.    |
@@ -445,7 +446,12 @@ Work_With_Repo:
         cmd = 'cd' localrep'/'zigirep
         cmd = docmd(cmd || '&& git commit -m "'msg'"')
         x = bpxwunix(cmd,,so.,se.)
+        cm1 = so.1
         call update_repo_metadata
+        zerrsm = 'Committed.'
+        zerrlm = left('zIGI Commit processing successful.',76) ,
+                 left(cm1,76)
+        'Setmsg msg(isrz002)'
       end
       /* -------------------------------- *
       | Add/replace remote URI (origin)  |
@@ -1151,7 +1157,7 @@ docmd:
   parse arg cmd
   return 'export HOME='home' && . /etc/profile && bash &&  '  || cmd
 
-dsnvalid:
+dsnvalid: Procedure
   /* Tests for a 'potentially valid' z/OS datasetname */
   parse arg dsn
   upp = TRANSLATE(dsn,".ABCDEFGHIJKLMNOPQRSTUVWXYZ",,
@@ -1375,7 +1381,7 @@ porcelain:
   if stat == "!!" then res = "Ignored"
   return res
 
-usssafe:
+usssafe: procedure
   parse arg dsn
   dsn = strreplace(dsn, '$', '\$')
   return dsn

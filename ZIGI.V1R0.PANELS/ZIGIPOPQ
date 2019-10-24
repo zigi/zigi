@@ -1,11 +1,11 @@
 )Attr
  $ type(output) caps(off)
  _ type(input)  caps(off) hilite(uscore)
-)Body Window(46,4)
+)Body Window(41,4)
 +
   $zs1
   $zs2
-+Answer:_answer                     +
+  +Answer:_answer                     +
 )Init
  &zwinttl = 'zIGI Prompt Popup'
 )Proc
