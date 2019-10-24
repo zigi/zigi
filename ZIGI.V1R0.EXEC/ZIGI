@@ -447,8 +447,28 @@ Work_With_Repo:
         cmd = 'cd' localrep'/'zigirep
         cmd = docmd(cmd || '&& git commit -m "'msg'"')
         x = bpxwunix(cmd,,so.,se.)
+        do is = 1 to so.0
+           sso.is = so.is
+           end
+        sso.0 = so.0
+        do is = 1 to se.0
+           sse.is = se.is
+           end
+        sse.0 = se.0
         cm1 = so.1
         call update_repo_metadata
+        iss = so.0
+        do is = iss to sso.0
+           iss = iss + 1
+           so.iss = sso.is
+           end
+        so.0 = iss
+        iss = se.0
+        do is = iss to sse.0
+           iss = iss + 1
+           se.iss = sse.is
+           end
+        se.0 = iss
         call view_std
       end
       /* -------------------------------- *
