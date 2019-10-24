@@ -1,0 +1,37 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  ! type(text) color(green) skip(on)
+  % type(text) intens(high) skip(on)
+ # type(text) hilite(reverse) color(turq)
+)Body  Expand(\\)
++zigihelp \-\#(z ISPF Git Repository List)+-\-\ zigihelp
+%Command ===>_zcmd
+%
+%Starting from scratch.
++Create a fresh repository with the%create+command. Then add some z/OS data-
++sets to the working area of your repository with%add+command.
++Datasets can then be added to the index via the%a+line-command. More info:
++!https://github.com/wizardofzos/zigi/wiki/Create-a-repo-from-scratch
+%
+%Adding a remote.
++Via the%remote+command you can add a remote repository.
+%
+%Information.
++The%GITLog+command will show the full log for the current branch. The%STatus+
++command will show the current status.%GRep+can be used to perform a 'git grep'.
++
+%Refreshing.
++If you want to make sure that your z/OS datasets are up-to-date with the status
++of the repository, use the%refresh+command. This will delete and reallocate all
++the z/OS datasets with the latest version from the current branch.
++
++
++
+\ \Press%Enter+to continue or%F3+to return to the dialog\ \
+)Init
+)Proc
+ &zcont = zigihr1
+)End
+*/
