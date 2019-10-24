@@ -504,7 +504,7 @@ Work_With_Repo:
           /* so after the edit, we should update it to working directory */
           edsn = usssafe(edsn)
           copcm = "//'"edsn"'"
-          copcm = 'cp -U -M "'copcm'" 'localrep'/'zigirep'/'dsn
+          copcm = 'cp "'copcm'" 'localrep'/'zigirep'/'dsn
           call bpxwunix copcm
           dsnstat = '*Edit'
         end
@@ -537,9 +537,9 @@ Work_With_Repo:
             /* The files in USS have some chars changed due to cp -M */
             /* So we fix the name before we save to table :) */
             ussmem = mem
-            mem = strreplace(mem,'.','#')
-            mem = strreplace(mem,'_','@')
-            mem = strreplace(mem,'-','$')
+/*          mem = strreplace(mem '.' '#')
+            mem = strreplace(mem '_' '@')
+            mem = strreplace(mem '-' '$') */
             'tbadd' rtll
           end
           'tbtop' rtll
@@ -574,7 +574,7 @@ Work_With_Repo:
                 mem = usssafe(mem)
                 edsn = usssafe(edsn)
                 copcm = "//'"edsn"("mem")'"
-                copcm = 'cp -U -M "'copcm'" 'localrep'/'zigirep'/'dsn'/'ussmem
+                copcm = 'cp "'copcm'" 'localrep'/'zigirep'/'dsn'/'ussmem
                 call bpxwunix copcm
               end
               when zsel = 'A' then do
@@ -583,9 +583,9 @@ Work_With_Repo:
                 * -------------------------------- */
                 cmd = 'cd' localrep'/'zigirep'/'dsn
                 /* These cp -M issues are really getting annoying */
-                m = strreplace(mem,'#','.')
-                m = strreplace(m,'$','-')
-                m = strreplace(m,'@','_')
+/*              m = strreplace(mem '#' '.')
+                m = strreplace(m '$' '-')
+                m = strreplace(m '@' '_') */
                 cmd = docmd(cmd || ' && git add 'm)
                 x = bpxwunix(cmd,,so.,se.)
                 memstat = 'Added'
@@ -598,9 +598,9 @@ Work_With_Repo:
                 * -------------------------------- */
                 cmd = 'cd' localrep'/'zigirep'/'dsn
                 /* These cp -M issues are really getting annoying */
-                m = strreplace(mem,'#','.')
-                m = strreplace(m,'$','-')
-                m = strreplace(m,'@','_')
+/*              m = strreplace(mem '#' '.')
+                m = strreplace(m '$' '-')
+                m = strreplace(m '@' '_') */
                 cmd = docmd(cmd || ' && git diff 'm)
                 x = bpxwunix(cmd,,so.,se.)
                 call View_std
@@ -765,9 +765,9 @@ Refresh:
             end
             src = localrep"/"zigirep"/"root.i"/"mems.ii
             /* fix the cp -M behavior on the way in */
-            m = strreplace(mems.ii,'.','#')
-            m = strreplace(m,'_','@')
-            m = strreplace(m,'-','$')
+/*          m = strreplace(mems.ii '.' '#')
+            m = strreplace(m '_' '@')
+            m = strreplace(m '-' '$') */
             ADDRESS TSO
             'OGET' "'"src"'" "'"target"("m")'"
             /* Set statistics */
@@ -1165,21 +1165,16 @@ dsnvalid: Procedure
     return "NO"
   end
 
-strreplace:
-  ORIGINAL = ARG(1)
-  OLDTXT = ARG(2)
-  NEWTXT = ARG(3)
-  TMPTXT = 'emRldm9wcy5jb20='
-  NEWSTR = ORIGINAL
-  DO WHILE POS(OLDTXT,NEWSTR) > 0
-    NEWSTR = SUBSTR(NEWSTR, 1 , POS(OLDTXT,NEWSTR)-1) ||,
-      TMPTXT || SUBSTR(NEWSTR, POS(OLDTXT,NEWSTR) + LENGTH(OLDTXT))
-  END
-  DO WHILE POS(TMPTXT,NEWSTR) > 0
-    NEWSTR = SUBSTR(NEWSTR, 1 , POS(TMPTXT,NEWSTR)-1) ||,
-      NEWTXT || SUBSTR(NEWSTR, POS(TMPTXT,NEWSTR) + LENGTH(TMPTXT))
-  END
-  RETURN NEWSTR
+strreplace: Procedure
+parse arg string strfrom strto
+if pos(strfrom,string) = 0 then return string
+newString = ''
+do i = 1 to length(string)
+   if substr(string,i,1) /= strfrom
+      then newstring = newstring''substr(string,i,1)
+      else  newstring = newstring''strto
+   end
+return newstring
 
 idle:
   parse arg secs
@@ -1377,7 +1372,7 @@ porcelain:
 
 usssafe: procedure
   parse arg dsn
-  dsn = strreplace(dsn, '$', '\$')
+  dsn = strreplace(dsn  '$'  '\$')
   return dsn
 
   /* ------------------------------------------------------ *
