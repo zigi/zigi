@@ -296,6 +296,7 @@
     End
   end
 
+  'tbend' rtbl
   'tbclose zigirepo'
   Exit 0
 
@@ -311,10 +312,7 @@ Work_With_Repo:
   do forever
     zsel = null
     zcmd = null
-    if ztdsels = 0 then ztdsels = 1
-    if ztdsels = 1
-    then 'TBdispl' rtbl 'Panel(zigirepo)'
-    else 'TBdispl' rtbl
+    'TBdispl' rtbl 'Panel(zigirepo)'
     if rc > 4 then leave
     drop so. se.
     zcmd = translate(zcmd)
@@ -369,6 +367,7 @@ Work_With_Repo:
         'Control Display Lock'
         'Addpop row(4) column(12)'
         'Display Panel(zigipop)'
+        'Rempop'
         DIR=localrep'/'zigirep
         If POS('(', WHAT) > 0
         then do
@@ -404,7 +403,6 @@ Work_With_Repo:
             call bpxwunix copycmd
           end
         end
-        'Rempop'
         call pfshow 'reset'         /* restore pfshow setting */
         call update_repo_metadata
       end
@@ -504,7 +502,7 @@ Work_With_Repo:
           /* so after the edit, we should update it to working directory */
           edsn = usssafe(edsn)
           copcm = "//'"edsn"'"
-          copcm = 'cp "'copcm'" 'localrep'/'zigirep'/'dsn
+          copcm = 'cp -U -M "'copcm'" 'localrep'/'zigirep'/'dsn
           call bpxwunix copcm
           dsnstat = '*Edit'
         end
@@ -537,9 +535,9 @@ Work_With_Repo:
             /* The files in USS have some chars changed due to cp -M */
             /* So we fix the name before we save to table :) */
             ussmem = mem
-/*          mem = strreplace(mem '.' '#')
+            mem = strreplace(mem '.' '#')
             mem = strreplace(mem '_' '@')
-            mem = strreplace(mem '-' '$') */
+            mem = strreplace(mem '-' '$')
             'tbadd' rtll
           end
           'tbtop' rtll
@@ -574,7 +572,7 @@ Work_With_Repo:
                 mem = usssafe(mem)
                 edsn = usssafe(edsn)
                 copcm = "//'"edsn"("mem")'"
-                copcm = 'cp "'copcm'" 'localrep'/'zigirep'/'dsn'/'ussmem
+                copcm = 'cp -U -M "'copcm'" 'localrep'/'zigirep'/'dsn'/'ussmem
                 call bpxwunix copcm
               end
               when zsel = 'A' then do
@@ -583,13 +581,14 @@ Work_With_Repo:
                 * -------------------------------- */
                 cmd = 'cd' localrep'/'zigirep'/'dsn
                 /* These cp -M issues are really getting annoying */
-/*              m = strreplace(mem '#' '.')
+                m = strreplace(mem '#' '.')
                 m = strreplace(m '$' '-')
-                m = strreplace(m '@' '_') */
+                m = strreplace(m '@' '_')
                 cmd = docmd(cmd || ' && git add 'm)
                 x = bpxwunix(cmd,,so.,se.)
                 memstat = 'Added'
                 'tbput' rtll
+                if ztdsels = 1 then
                 call update_repo_metadata
               end
               when zsel = 'D' then do
@@ -598,9 +597,9 @@ Work_With_Repo:
                 * -------------------------------- */
                 cmd = 'cd' localrep'/'zigirep'/'dsn
                 /* These cp -M issues are really getting annoying */
-/*              m = strreplace(mem '#' '.')
+                m = strreplace(mem '#' '.')
                 m = strreplace(m '$' '-')
-                m = strreplace(m '@' '_') */
+                m = strreplace(m '@' '_')
                 cmd = docmd(cmd || ' && git diff 'm)
                 x = bpxwunix(cmd,,so.,se.)
                 call View_std
@@ -765,9 +764,9 @@ Refresh:
             end
             src = localrep"/"zigirep"/"root.i"/"mems.ii
             /* fix the cp -M behavior on the way in */
-/*          m = strreplace(mems.ii '.' '#')
+            m = strreplace(mems.ii '.' '#')
             m = strreplace(m '_' '@')
-            m = strreplace(m '-' '$') */
+            m = strreplace(m '-' '$')
             ADDRESS TSO
             'OGET' "'"src"'" "'"target"("m")'"
             /* Set statistics */
@@ -1065,7 +1064,7 @@ view_std:
   * -------------------------------------------------- */
   Address ISPExec
   'lminit dataid(ddb) ddname('dd')'
-  'browse dataid('ddb')'
+  'browse dataid('ddb') panel(zigibrow)'
   'lmfree dataid('ddb')'
   /* ----------------------------- *
   | Last Free the z/OS Allocation |

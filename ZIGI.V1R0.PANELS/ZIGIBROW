@@ -1,0 +1,21 @@
+)ATTR
+   _ type(input) caps(off) intens(high)
+   ` type(text) intens(high) caps(off) just(asis) color(turq)
+   | area(dynamic) extend(on) scroll(on)
+   } type(output) intens(high) just(asis) caps(off)
+)BODY   WIDTH(80) EXPAND(//)
+%Browse+}title
+%Command ===>_zcmd                 / /                        %Scroll ===>_Z   +
+|ZDATA ----------------------------/-/-----------------------------------------|
+|                                  / /                                         |
+| ---------------------------------/-/-----------------------------------------|
+)INIT
+  .HELP = ISR10000
+  .ZVARS = 'ZSCBR'
+)Reinit
+  Refresh(ZCMD,ZSCBR,ZDATA)
+)PROC
+  &ZCURSOR = .CURSOR
+  &ZCSROFF = .CSRPOS
+  &ZLVLINE = LVLINE(ZDATA)
+)END
