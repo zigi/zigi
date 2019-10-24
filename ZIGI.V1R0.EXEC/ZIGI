@@ -1353,33 +1353,33 @@ porcelain:
   /* parse git status --short as documented in
   https://www.git-scm.com/docs/git-status#_short_format */
 
-  res = ''
-
-  if left(stat,1) == " " then res = "Not Updated"
-  if left(stat,1) == "M" then res = "Updated in index"
-  if left(stat,1) == "A" then res = "Added to index"
-  if left(stat,1) == "D" then res = "Deleted from index"
-  if left(stat,1) == "R" then res = "Renamed in index"
-  if left(stat,1) == "C" then res = "Copied in index"
-  if stat == "M " then res = "Ready to commit"
-  if stat == "??" then res = "Untracked"
-  if stat == " M" then res = "Modified"
-  if stat == "MM" then res = "Modified"
-  if stat == "AM" then res = "Modified"
-  if stat == "RM" then res = "Modified"
-  if stat == "CM" then res = "Modified"
-  if stat == " D" then res = "Deleted"
-  if stat == "MD" then res = "Deleted"
-  if stat == "AD" then res = "Deleted"
-  if stat == "RD" then res = "Deleted"
-  if stat == "CD" then res = "Deleted"
-  if stat == " R" then res = "Renamed"
-  if stat == "DR" then res = "Renamed"
-  if stat == " C" then res = "Copied"
-  if stat == "DC" then res = "Copied"
-  if stat == " D" then res = "Deleted"
-  if stat == "??" then res = "Untracked"
-  if stat == "!!" then res = "Ignored"
+  Select
+  When stat == " M" then res = "ModWhenied"
+  When stat == " D" then res = "Deleted"
+  When stat == " R" then res = "Renamed"
+  When stat == " C" then res = "Copied"
+  When stat == "M " then res = "Ready to commit"
+  When left(stat,1) == " " then res = "Not Updated"
+  When left(stat,1) == "M" then res = "Updated in index"
+  When left(stat,1) == "A" then res = "Added to index"
+  When left(stat,1) == "D" then res = "Deleted from index"
+  When left(stat,1) == "R" then res = "Renamed in index"
+  When left(stat,1) == "C" then res = "Copied in index"
+  When stat == "??" then res = "Untracked"
+  When stat == "MM" then res = "ModWhenied"
+  When stat == "AM" then res = "ModWhenied"
+  When stat == "RM" then res = "ModWhenied"
+  When stat == "CM" then res = "ModWhenied"
+  When stat == "MD" then res = "Deleted"
+  When stat == "AD" then res = "Deleted"
+  When stat == "RD" then res = "Deleted"
+  When stat == "CD" then res = "Deleted"
+  When stat == "DR" then res = "Renamed"
+  When stat == "DC" then res = "Copied"
+  When stat == "??" then res = "Untracked"
+  When stat == "!!" then res = "Ignored"
+  Otherwise res = ''
+  end
   return '[' || status || '] ' || res
 
 usssafe: procedure

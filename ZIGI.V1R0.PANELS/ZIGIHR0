@@ -13,7 +13,7 @@
 +Create a fresh repository with the%create+command. Then add some z/OS data-
 +sets to the working area of your repository with%add+command.
 +Datasets can then be added to the index via the%a+line-command. More info:
-+!https://github.com/wizardofzos/zigi/wiki/Create-a-repo-from-scratch
+!https://github.com/wizardofzos/zigi/wiki/Create-a-repo-from-scratch
 %
 %Adding a remote.
 +Via the%remote+command you can add a remote repository.
