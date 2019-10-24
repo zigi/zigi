@@ -449,10 +449,7 @@ Work_With_Repo:
         x = bpxwunix(cmd,,so.,se.)
         cm1 = so.1
         call update_repo_metadata
-        zerrsm = 'Committed.'
-        zerrlm = left('zIGI Commit processing successful.',76) ,
-                 left(cm1,76)
-        'Setmsg msg(isrz002)'
+        call view_std
       end
       /* -------------------------------- *
       | Add/replace remote URI (origin)  |
@@ -1066,13 +1063,7 @@ view_std:
   * -------------------------------------------------- */
   Address ISPExec
   'lminit dataid(ddb) ddname('dd')'
-  /* Comment Start
-  'Control Display Save'
-  Comment End */
   'browse dataid('ddb')'
-  /* Comment Start
-  'Control Display Restore'
-  Comment End */
   'lmfree dataid('ddb')'
   /* ----------------------------- *
   | Last Free the z/OS Allocation |
