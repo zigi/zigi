@@ -579,7 +579,8 @@ Work_With_Repo:
                 /* -------------------------------- *
                 | Add member of PDS to staging area|
                 * -------------------------------- */
-                cmd = 'cd' localrep'/'zigirep'/'dsn
+                d = usssafe(dsn)
+                cmd = 'cd' localrep'/'zigirep'/'d
                 /* These cp -M issues are really getting annoying */
                 m = strreplace(mem '#' '.')
                 m = strreplace(m '$' '-')
@@ -595,7 +596,8 @@ Work_With_Repo:
                 /* -------------------------------- *
                 | Show the diff for the member     |
                 * -------------------------------- */
-                cmd = 'cd' localrep'/'zigirep'/'dsn
+                d = usssafe(dsn)
+                cmd = 'cd' localrep'/'zigirep'/'d
                 /* These cp -M issues are really getting annoying */
                 m = strreplace(mem '#' '.')
                 m = strreplace(m '$' '-')
@@ -613,8 +615,9 @@ Work_With_Repo:
       | Add repo item to staging area    |
       * -------------------------------- */
       When zsel = 'A' then do
+        d = usssafe(dsn)
         cmd = 'cd' localrep'/'zigirep
-        cmd = docmd(cmd || ' && git add 'dsn)
+        cmd = docmd(cmd || ' && git add 'd)
         x = bpxwunix(cmd,,so.,se.)
         call update_repo_metadata
       end
@@ -1202,6 +1205,9 @@ update_repo_metadata:
   cmd = 'cd' localrep'/'zigirep
   cmd = docmd(cmd || '&& git fetch --all')
   x = bpxwunix(cmd,,so.,se.)
+  /* now we get the status for all in the repo */
+  if se.0 > 1 then fetchmsg = "Remote updates, consider a pull"
+  else fetchmsg = "No remote updates"
   /* get all the files that are in the repo */
   address syscall
   'readdir 'localrep'/'zigirep' root.'
@@ -1214,7 +1220,8 @@ update_repo_metadata:
       /* not the . and .. things */
       if dsnvalid(root.i) = "OK" then do
         /* and only for valid z/OS-datasets (skip README.md et al) */
-        cmd = '[ -d 'localrep'/'zigirep'/'root.i' ] && echo "DIR"'
+        r = usssafe(root.i)
+        cmd = '[ -d 'localrep'/'zigirep'/'r' ] && echo "DIR"'
         so.1 = ""
         x = bpxwunix(cmd,,so.,se.)
         if so.1 = "DIR" & x = 0 then do
@@ -1259,9 +1266,6 @@ update_repo_metadata:
   end
 
 
-  /* now we get the status for all in the repo */
-  if se.0 > 1 then fetchmsg = "Remote updates, consider a pull"
-  else fetchmsg = "No remote updates"
   zs1 = 'Building List of repository Data Sets'
   zs2 = fetchmsg
   call pfshow 'off'           /* make sure pfshow is off */
@@ -1332,6 +1336,7 @@ update_repo_metadata:
     remote1 = "<no remote defined>"
     remote2 = ""
   end
+  trace off
   return
 
 porcelain:
