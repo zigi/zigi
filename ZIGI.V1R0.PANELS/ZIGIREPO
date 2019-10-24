@@ -23,9 +23,9 @@
 %S+to select dataset (Edit if PS, memberlist if PO)
 %A+to add %modified+datasets/members to index
 +
-%S  Status            Dataset Name
+%S  Status                    Dataset Name
 )Model
-@z+$z                $z
+@z+$z                        $z
 )Init
   .zvars = '(zsel dsnstat fulldsn)'
   .cursor = &zcmd

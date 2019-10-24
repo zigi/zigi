@@ -6,7 +6,7 @@
   + type(text) intens(low) skip(on)
   $ type(output) intens(low ) caps(off) just(left )
 )Body  Expand(\\)
-%Tutorial-\-\-@ZIGIOSEL%-\-\Tutorial
+%zigihelp-\-\-@ZIGIOSEL%-\-\zigihelp
 %Command ===>_zcmd
 %
 %Command options:
@@ -33,7 +33,6 @@
    .cursor = zcmd
    .zvars = '(til)'
    &til = '~'
-   &zup = zigio0
    &zcont = zigiocd
 )Proc
 )End
