@@ -881,6 +881,14 @@ Branch_it:
       branch = bname
       return
     end
+    if zsel = "D" then do
+      cmd = docmd('cd 'localdir' && git branch -d 'bname)
+      x = bpxwunix(cmd,,so.,se.)
+      zerrsm = 'Deleted.'
+      zerrlm = 'Branch 'bname' succesfully deleted'
+      'Setmsg msg(isrz002)'
+      return
+    end
   end
   return
 
