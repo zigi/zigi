@@ -20,6 +20,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            10/24/19 HBK - Also source ~/.profile if exists |
   |            10/24/19 LBD - Change 2 routines to procedure   |
   |                         - Add Commit message               |
   |            10/21/19 LBD - Use PARSE SOURCE for hlq         |
@@ -884,6 +885,7 @@ Branch_it:
     if zsel = "D" then do
       cmd = docmd('cd 'localdir' && git branch -d 'bname)
       x = bpxwunix(cmd,,so.,se.)
+      'tbdelete' rtbb
       zerrsm = 'Deleted.'
       zerrlm = 'Branch 'bname' succesfully deleted'
       'Setmsg msg(isrz002)'
@@ -1159,7 +1161,14 @@ docmd:
   /* quircky thing, we need to export HOME as we are
   not running a login shell via bpxwunix */
   parse arg cmd
-  return 'export HOME='home' && . /etc/profile && bash &&  '  || cmd
+  r = 'export HOME='home' && . /etc/profile && '
+  c = "[[ -f "home"/.profile ]] && echo f"
+  x = bpxwunix(c,,o.,e.)
+  if o.0 = 1 & o.1 = "f" then do
+    r = r ||  '. 'home'/.profile && '
+  end
+  r = r ||  'bash &&  '  || cmd
+  return r
 
 dsnvalid: Procedure
   /* Tests for a 'potentially valid' z/OS datasetname */

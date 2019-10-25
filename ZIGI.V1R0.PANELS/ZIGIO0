@@ -33,6 +33,6 @@
    .cursor = zcmd
    .zvars = '(til)'
    &til = '~'
-   &zcont = zigiocd
+   &zcont = zigihp0
 )Proc
 )End
