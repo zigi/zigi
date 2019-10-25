@@ -1423,7 +1423,7 @@ Add_Dataset:
       'listc level('dsnapfx')'
       call outtrap 'off'
       Address ISPExec
-      do dsni = 1 to x.0 by 2
+      do dsni = 1 to x.0
         if left(x.dsni,7) /= 'NONVSAM' then iterate
         parse value x.dsni with . . dsna .
         if workpfxl = 0
