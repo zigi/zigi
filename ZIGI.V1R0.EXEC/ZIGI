@@ -1453,13 +1453,13 @@ Add_Dataset:
  * -------------------------------------------- */
 Do_Add_Copy:
   zsel = null
-  if dsnaign = 'N' then
-  if pdshlq = null then do
-    pdshlq = dsnapfx
-    'tbput zigirepo'
+  if dsnaign = 'N' then do
+    if pdshlq = null then do
+        pdshlq = dsnapfx
+        what = dsnapfx'.'dsna
+        'tbput zigirepo'
+    end
   end
-  if dsnaign > 0
-  then what = dsnapfx'.'dsna
   else what = dsna
   zs1 = 'Copying selected dataset to OMVS'
   zs2 = 'Patience . . .'
