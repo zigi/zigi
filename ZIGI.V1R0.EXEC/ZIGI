@@ -1161,11 +1161,11 @@ docmd:
   /* quircky thing, we need to export HOME as we are
   not running a login shell via bpxwunix */
   parse arg cmd
-  r = 'export HOME='home' && . /etc/profile && '
+  r = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && '
   c = "[[ -f "home"/.profile ]] && echo f"
   x = bpxwunix(c,,o.,e.)
   if o.0 = 1 & o.1 = "f" then do
-    r = r ||  '. 'home'/.profile && '
+    r = r ||  '. 'home'/.profile > /dev/null 2>&1 && '
   end
   r = r ||  'bash &&  '  || cmd
   return r
