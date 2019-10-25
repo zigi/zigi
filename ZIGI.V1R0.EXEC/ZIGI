@@ -1363,7 +1363,7 @@ porcelain:
   https://www.git-scm.com/docs/git-status#_short_format */
 
   Select
-  When stat == " M" then res = "ModWhenied"
+  When stat == " M" then res = "Modified"
   When stat == " D" then res = "Deleted"
   When stat == " R" then res = "Renamed"
   When stat == " C" then res = "Copied"
@@ -1375,10 +1375,10 @@ porcelain:
   When left(stat,1) == "R" then res = "Renamed in index"
   When left(stat,1) == "C" then res = "Copied in index"
   When stat == "??" then res = "Untracked"
-  When stat == "MM" then res = "ModWhenied"
-  When stat == "AM" then res = "ModWhenied"
-  When stat == "RM" then res = "ModWhenied"
-  When stat == "CM" then res = "ModWhenied"
+  When stat == "MM" then res = "Modified"
+  When stat == "AM" then res = "Modified"
+  When stat == "RM" then res = "Modified"
+  When stat == "CM" then res = "Modified"
   When stat == "MD" then res = "Deleted"
   When stat == "AD" then res = "Deleted"
   When stat == "RD" then res = "Deleted"
