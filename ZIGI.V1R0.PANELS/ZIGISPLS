@@ -6,24 +6,24 @@
 )Body Expand(\\)
 +
 +
-+                                             .zZ.     Zz
++                                             .ZZ.     ZZ
                          ZZZZZZZZ           ZZZZZZZ
-             ZZZZZZZZZZZZZZZZZZZZZZ   ZZ   ZZZ         zZ
-    ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ      ZZZ    .zZZ   ZZ
-  ZZZZZZZZZZZZZZZZZZZZZZ    ZZZZZZZ   ZZ   ZZZ  ..zZZZ  Zz
-zZZZZZZZZZZZZZZZZZ,       ZZZZZZZZZ   ZZZ  ZzZ      ZZ  ZZ         ZZZZZZZ
+             ZZZZZZZZZZZZZZZZZZZZZZ   ZZ   ZZZ         ZZ
+    ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ      ZZZ    .ZZZ   ZZ
+  ZZZZZZZZZZZZZZZZZZZZZZ    ZZZZZZZ   ZZ   ZZZ  ..ZZZZ  ZZ
+ZZZZZZZZZZZZZZZZZZZ       ZZZZZZZZZ   ZZZ  ZzZ      ZZ  ZZ         ZZZZZZZ
 ZZZZZZZZZZZZ             ZZZZZZZZ     ZZZ   ZZZZZZZZZZZ      ZZZZZZZZZZZ
-ZZZZZZZg               ZZZZZZZZ       ZZZZ    ZZZZZZ      ZZZZZZZZZg
+ZZZZZZZZ               ZZZZZZZZ       ZZZZ    ZZZZZZ      ZZZZZZZZZZ
                       ZZZZZZZZ        ZZZ            ZZZZZZZZZ
-                     ZZZZZZZ              zZZZZZZZZZZZZZZ
+                     ZZZZZZZ              ZZZZZZZZZZZZZZZ
                    ZZZZZZZ           ZZZZZZZZZZZZZZ
                  .ZZZZZZZ      ZZZZZZZZZZZZZZ
                 ZZZZZZZZZZZZZZZZZZZZZZ
                 ZZZZZZZZZZZZZZZZZ     _       zOS ISPF Git Interface       +
                ZZZZZZZZZZZZ           _                                    +
-              ZZZZZZZZZg              %The git interface for the rest of us+
-             ZZZZZZig                 _                                    +
-            ZZZZZZi                   _    !Henri Kuiper+&!Lionel Dyck     +
+              ZZZZZZZZZZ              %The git interface for the rest of us+
+             ZZZZZZZZ                 _                                    +
+            ZZZZZZZ                   _    !Henri Kuiper+&!Lionel Dyck     +
 
                [!ENTER+] to continue [!F1+] for Release Information
 

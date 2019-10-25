@@ -1,0 +1,29 @@
+)Attr
+ $ type(output) caps(off)
+ # type(text) hilite(reverse) color(turq)
+)Body Expand(\\)
++zigihelp \-\#(z ISPF Git Interface)+-\-\ zigihelp
+%Command ===>_zcmd
++
++Adding a dataset to the current repository requires the following
++considerations:
++
++ %1.+All datasets must be under the same High Level Qualifier (HLQ)
++ %2.+All datasets must be RECFM=F or RECFM=V
++ %3.+All datasets must be text based
++
++Enter a valid HLQ and press Enter to view the datasets available under
++that HLQ. Then select the individual datasets to add to the repository.
++
++If the dataset does not match the above criteria then it will be rejected.
++
++If the Ignore the HLQ for the OMVS files then the full dataset name will
++be used for the OMVS file name (if PS) or directory name (if PDS).
++
++
++
+\ \Press%Enter+to continue or%F3+to return to the dialog\ \
+)Init
+)Proc
+ &zcont = zigihr0
+)end
