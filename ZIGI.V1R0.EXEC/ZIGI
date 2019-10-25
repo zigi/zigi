@@ -1395,10 +1395,10 @@ Add_Dataset:
   add_count = 0
   top = 0
   dsnatbl = 'ZIGID'random(999)
-  'vget (dsnaign) profile'
-  if dsnaign = null then dsnaign = 'Y'
+  'vget (keeppfx) profile'
+  if keeppfx = null then keeppfx = 'Y'
   'tbcreate' dsnatbl 'names(dastat dsna) nowrite'
-  'vput (dsnaign) profile'
+  'vput (keeppfx) profile'
   do forever
     'tbtop' dsnatbl
     'tbskip' dsnatbl 'number('top')'
@@ -1415,7 +1415,7 @@ Add_Dataset:
       dsnapfx = strip(dsnapfx)
       if oldpfx = null
       then oldpfx = dsnapfx
-      if dsnaign = 'Y'
+      if keeppfx = 'Y'
       then workpfxl = 0
       else workpfxl = length(dsnapfx)+2
       Address TSO
@@ -1453,7 +1453,7 @@ Add_Dataset:
  * -------------------------------------------- */
 Do_Add_Copy:
   zsel = null
-  if dsnaign = 'N' then do
+  if keeppfx = 'N' then do
     if pdshlq = null then do
         pdshlq = dsnapfx
         what = dsnapfx'.'dsna

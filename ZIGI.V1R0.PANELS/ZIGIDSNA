@@ -21,13 +21,13 @@
 )Model
 @z+$z         $z
 )Init
-  .zvars = '(dsnaign zsel dastat dsna)'
+  .zvars = '(keeppfx zsel dastat dsna)'
   .cursor = &zcmd
   .help = zigihad0
   &zscr = CSR
 )Proc
  ver (&dsnapfx,nb,dsname)
- ver (&dsnaign,nb,list,Y,N)
+ ver (&keeppfx,nb,list,Y,N)
  ver (&zsel,list,S)
 )End
 */
