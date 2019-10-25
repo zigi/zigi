@@ -1,0 +1,31 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+  @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+ # type(text) hilite(reverse) color(turq)
+)Body  Expand(\\)
++\-\#(z ISPF Git Dataset Add)+-\-\
+%Command ===>_zcmd        \ \ %Scroll ===>_zscr+
++
+%Enter/Verify Dataset HLQ:@dsnapfx                           +
+%Ignore the HLQ for the OMVS files:@z+(%Y+or%N+)
++
++ Enter or verfiy the dataset prefix to build the selection list (below)
++ of available datasets from which to add to the local repository
++
+%S  Status     Dataset Name
+)Model
+@z+$z         $z
+)Init
+  .zvars = '(dsnaign zsel dastat dsna)'
+  .cursor = &zcmd
+  .help = zigihad0
+  &zscr = CSR
+)Proc
+ ver (&dsnapfx,nb,dsname)
+ ver (&dsnaign,nb,list,Y,N)
+ ver (&zsel,list,S)
+)End
+*/

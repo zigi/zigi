@@ -250,12 +250,12 @@
   /* ---------------------------------------- *
   | Open (or create and open) the Repo Table |
   * ---------------------------------------- */
-  'TBOpen zigirepo Library(isptabl) Write'
+  'TBOpen zigirepo Library(isptabl) Write Share'
   if rc > 0 then do
     if rc = 8 then do
       "TBCreate zigirepo Keys(zigirep)",
         "Names(localrep pdshlq)",
-        "Library(isptabl) Write"
+        "Library(isptabl) Write Share"
       "TBSort   isptabl Fields(zigirepo,N,A)"
       "TBSAVE zigirepo REPLCOPY LIBRARY(isptabl)"
     end
@@ -284,6 +284,9 @@
         if rc > 0 then leave
       end
       When zsel = 'S' then call Work_With_Repo
+      When zsel = 'V' then do
+        'SELECT PGM(ISRDSLST) PARM(UDL' localrep'/'zigirep') SUSPEND'
+      end
       When zsel = 'D' then do
         /* delete the repo. Maybe needs a 'are you sure' :)
         for now. we delete the table from ispfprof and
@@ -292,6 +295,11 @@
         cmd = 'cd' localrep' && rm -rf 'zigirep
         x = bpxwunix(cmd,,so.,se.)
         'tbdelete zigirepo'
+        zerrsm = 'Deleted.'
+        zerrlm = 'The local repository has been deleted from zIGI' ,
+          'and all OMVS files and directory were deleted. The z/OS' ,
+          'datasets remain.'
+        'setmsg msg(isrz002)'
       end
       Otherwise nop
     End
@@ -357,56 +365,7 @@ Work_With_Repo:
       /* --------------------------------------------------------- *
       | Add a PDS or a Sequential File to "Working Directory"     |
       * --------------------------------------------------------- */
-      When abbrev('ADD',zcmd,3) = 1 then do
-        zcmd = null
-        WHAT = null
-        'display panel(zigiadd)'
-        /* so we want to add dataset/member */
-        zs1 = 'Copying selected datasets to OMVS'
-        zs2 = 'Patience . . .'
-        call pfshow 'off'           /* make sure pfshow is off */
-        'Control Display Lock'
-        'Addpop row(4) column(12)'
-        'Display Panel(zigipop)'
-        'Rempop'
-        DIR=localrep'/'zigirep
-        If POS('(', WHAT) > 0
-        then do
-          parse var WHAT PDS'('MEM')'
-          PDS = strip(PDS,"B","'")
-          PDS = usssafe(PDS)
-          mkdir = "mkdir -p "DIR"/"PDS
-          call bpxwunix mkdir
-          target = "'"DIR"/"PDS"/"MEM"'"
-          copycmd = "//'"WHAT"'"
-          copycmd = '"'copycmd'"'
-          copycmd = "cp -U -M" copycmd" "DIR"/"PDS"/"
-          call bpxwunix copycmd
-        end
-        else do
-          FC = LISTDSI("'"WHAT"'")
-          if SYSDSORG = 'PO' then do
-            parse VAR WHAT PDS
-            PDS = strip(PDS,"B","'")
-            PDS = usssafe(PDS)
-            mkdir = "mkdir -p "DIR"/"PDS
-            call bpxwunix mkdir
-            copycmd = "//'"PDS"'"
-            copycmd = '"'copycmd'"'
-            copycmd = "cp -U -M" copycmd" "DIR"/"PDS"/"
-            call bpxwunix copycmd
-          end
-          else do
-            WHAT = usssafe(WHAT)
-            copycmd = "//'"WHAT"'"
-            copycmd = '"'copycmd'"'
-            copycmd = "cp -U -M" copycmd" "DIR"/"WHAT
-            call bpxwunix copycmd
-          end
-        end
-        call pfshow 'reset'         /* restore pfshow setting */
-        call update_repo_metadata
-      end
+      When abbrev('ADD',zcmd,3) = 1 then call Add_Dataset
       /* -------------------------------- *
       | View output of git status        |
       * -------------------------------- */
@@ -924,8 +883,8 @@ Create_Repo:
       cmd = '[[ -d 'localrep'/'zigirep' ]] && echo 1'
       x = bpxwunix(cmd,,so.,se.)
       if so.0 = 1 & so.1 = 1 then do
-        zerrsm = "FAILED"
-        zerrlm = "Error: "localrep"/"zigirep" exists."
+        zerrsm = "Failed."
+        zerrlm = "Error: "localrep"/"zigirep" exists and must not."
         'setmsg msg(isrz002)'
         leave
       end
@@ -1360,7 +1319,6 @@ update_repo_metadata:
     remote1 = "<no remote defined>"
     remote2 = ""
   end
-  trace off
   return
 
 porcelain:
@@ -1424,4 +1382,125 @@ pfshow:
     if pfkeys /= 'OFF' then
     'select pgm(ispopf) parm(FKA,OFF)'
   end
+  return
+
+  /* ------------------------------- *
+  | Add a dataset to the repository |
+  * ------------------------------- */
+Add_Dataset:
+  parse value '' with zcmd what list dsnapfx zsel
+  oldpfx  = pdshlq
+  dsnapfx = pdshlq
+  lc_count = 0
+  add_count = 0
+  top = 0
+  dsnatbl = 'ZIGID'random(999)
+  'vget (dsnaign) profile'
+  if dsnaign = null then dsnaign = 'Y'
+  'tbcreate' dsnatbl 'names(dastat dsna) nowrite'
+  'vput (dsnaign) profile'
+  do forever
+    'tbtop' dsnatbl
+    'tbskip' dsnatbl 'number('top')'
+    if ztdsels > 1
+    then 'tbdispl' dsnatbl
+    else 'tbdispl' dsnatbl 'panel(zigidsna)'
+    if rc > 4 then do
+      'tbend' dsnatbl
+      return
+    end
+    top = ztdtop
+    if zsel = 'S' then call do_add_copy
+    if list /= 1 then do
+      dsnapfx = strip(dsnapfx)
+      if oldpfx = null
+      then oldpfx = dsnapfx
+      if dsnaign = 'Y'
+      then workpfxl = 0
+      else workpfxl = length(dsnapfx)+2
+      Address TSO
+      call outtrap 'x.'
+      'listc level('dsnapfx')'
+      call outtrap 'off'
+      Address ISPExec
+      do dsni = 1 to x.0 by 2
+        if left(x.dsni,7) /= 'NONVSAM' then iterate
+        parse value x.dsni with . . dsna .
+        if workpfxl = 0
+        then dsna = dsna
+        else dsna = substr(dsna,workpfxl)
+        'tbadd' dsnatbl
+        lc_count = lc_count + 1
+      end
+      list = 1
+    end
+    if lc_count = 0 then do
+      zerrsm = 'Empty List'
+      zerrlm = 'The requested high level qualifier resulted in zero' ,
+        'eligible datasets.'
+      'setmsg msg(isrz002)'
+    end
+    'tbtop' dsnatbl
+  end
+  say 'add_count:' add_count
+  if add_count > 0 then
+  call update_repo_metadata
+  return
+
+/* -------------------------------------------- *
+ | Perform the actual copy of the added dataset |
+ | to the local repository.                     |
+ * -------------------------------------------- */
+Do_Add_Copy:
+  zsel = null
+  if dsnaign = 'N' then
+  if pdshlq = null then do
+    pdshlq = dsnapfx
+    'tbput zigirepo'
+  end
+  if dsnaign > 0
+  then what = dsnapfx'.'dsna
+  else what = dsna
+  zs1 = 'Copying selected dataset to OMVS'
+  zs2 = 'Patience . . .'
+  call pfshow 'off'           /* make sure pfshow is off */
+  'Control Display Lock'
+  'Addpop row(4) column(12)'
+  'Display Panel(zigipop)'
+  'Rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
+  DIR = localrep'/'zigirep
+  FC = LISTDSI("'"WHAT"'")
+  if sysdsorg = 'U' then do
+    zerrsm = 'Invalid'
+    zerrlm = 'Dataset' what 'is not a valid Git dataset. Must be' ,
+      'DSORG of PS or PO and this dataset is:' sysdsorg
+    'Setmsg msg(isrz002)'
+    return
+  end
+  if SYSDSORG = 'PO' then do
+    pds = what
+    PDS = strip(PDS,"B","'")
+    PDS = usssafe(PDS)
+    mkdir = "mkdir -p "DIR"/"dsna
+    call bpxwunix mkdir
+    copycmd = "//'"pds"'"
+    copycmd = '"'copycmd'"'
+    copycmd = "cp -U -M" copycmd" "DIR"/"dsna"/"
+    call bpxwunix copycmd
+  end
+  else do
+    WHAT = usssafe(WHAT)
+    copycmd = "//'"WHAT"'"
+    copycmd = '"'copycmd'"'
+    copycmd = "cp -U -M" copycmd" "DIR"/"dsna
+    call bpxwunix copycmd
+  end
+  dastat = 'Untracked'
+  dsn = dsna
+  fulldsn = "'"what"'"
+  'tbmod' rtbl
+  dastat = 'Added'
+  'tbput' dsnatbl
+  add_count = add_count + 1
   return

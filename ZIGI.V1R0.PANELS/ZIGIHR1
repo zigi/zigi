@@ -9,25 +9,22 @@
 +zigihelp \-\#(z ISPF Git Repository List)+-\-\ zigihelp
 %Command ===>_zcmd
 %
+%Refreshing.
++If you want to make sure that your z/OS datasets are up-to-date with the status
++of the repository, use the%refresh+command. This will delete and reallocate all
++the z/OS datasets with the latest version from the current branch.
++
 %Notes:
 %
  %Special Characters+  Special characters in z/OS datasets and member names
-                       will be converted when moved to the repository.
-                       This is done via the -M option for the cp command.
-                       In the%status+log you will see the 'USS'-names (as this
-                       is from the USS-side of things.
++                      will be converted when moved to the repository.
++                      This is done via the -M option for the cp command.
++                      In the%status+log you will see the 'USS'-names (as this
++                      is from the USS-side of things.
 +
- %Status+              The status as shown on the panels for the various repo
-                       elements is explained in detail at the git-scm website
++%Status+              The status as shown on the panels for the various repo
++                      elements is explained in detail at the git-scm website
 %                     !https://www.git-scm.com/docs/git-status
-+
-+
-+
-+
-+
-+
-+
-+
 +
 \ \Press%Enter+to continue or%F3+to return to the dialog\ \
 )Init
