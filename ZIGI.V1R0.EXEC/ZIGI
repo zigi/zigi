@@ -82,7 +82,7 @@
   if zapplid <> "ZIGI" then do
     /* --------------------------------------- *
     | Make sure we are under the ZIGI applid  |
-     * --------------------------------------- */
+    * --------------------------------------- */
     "Select CMD(%zigi) Newappl(ZIGI) Passlib"
     if panels /= null then
     'libdef ispplib'
@@ -443,14 +443,21 @@ Work_With_Repo:
         zcmd = null
         msg = ''
         'display panel(zigicom)'
-        cmd = 'cd' localrep'/'zigirep
-        cmd = docmd(cmd || '&& git commit -m "'msg'"')
-        x = bpxwunix(cmd,,so.,se.)
-        if x = 0
-        then call view_std
-        else call view_std 'E'
-        call update_repo_metadata
-        call view_std
+        if rc > 0 then do
+          zerrsm = 'Cancelled.'
+          zerrlm = 'Commit has been cancelled.'
+          'setmsg msg(isrz002)'
+        end
+        else do
+          cmd = 'cd' localrep'/'zigirep
+          cmd = docmd(cmd || '&& git commit -m "'msg'"')
+          x = bpxwunix(cmd,,so.,se.)
+          if x = 0
+          then call view_std
+          else call view_std 'E'
+          call update_repo_metadata
+          call view_std
+        end
       end
       /* -------------------------------- *
       | Add/replace remote URI (origin)  |
@@ -1161,11 +1168,11 @@ docmd:
   /* quircky thing, we need to export HOME as we are
   not running a login shell via bpxwunix */
   parse arg cmd
-  r = 'export HOME='home' && . /etc/profile && '
+  r = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && '
   c = "[[ -f "home"/.profile ]] && echo f"
   x = bpxwunix(c,,o.,e.)
   if o.0 = 1 & o.1 = "f" then do
-    r = r ||  '. 'home'/.profile && '
+    r = r ||  '. 'home'/.profile > /dev/null 2>&1 && '
   end
   r = r ||  'bash &&  '  || cmd
   return r
@@ -1185,15 +1192,15 @@ dsnvalid: Procedure
   end
 
 strreplace: Procedure
-parse arg string strfrom strto
-if pos(strfrom,string) = 0 then return string
-newString = ''
-do i = 1 to length(string)
-   if substr(string,i,1) /= strfrom
-      then newstring = newstring''substr(string,i,1)
-      else  newstring = newstring''strto
-   end
-return newstring
+  parse arg string strfrom strto
+  if pos(strfrom,string) = 0 then return string
+  newString = ''
+  do i = 1 to length(string)
+    if substr(string,i,1) /= strfrom
+    then newstring = newstring''substr(string,i,1)
+    else  newstring = newstring''strto
+  end
+  return newstring
 
 idle:
   parse arg secs
@@ -1363,31 +1370,31 @@ porcelain:
   https://www.git-scm.com/docs/git-status#_short_format */
 
   Select
-  When stat == " M" then res = "Modified"
-  When stat == " D" then res = "Deleted"
-  When stat == " R" then res = "Renamed"
-  When stat == " C" then res = "Copied"
-  When stat == "M " then res = "Ready to commit"
-  When left(stat,1) == " " then res = "Not Updated"
-  When left(stat,1) == "M" then res = "Updated in index"
-  When left(stat,1) == "A" then res = "Added to index"
-  When left(stat,1) == "D" then res = "Deleted from index"
-  When left(stat,1) == "R" then res = "Renamed in index"
-  When left(stat,1) == "C" then res = "Copied in index"
-  When stat == "??" then res = "Untracked"
-  When stat == "MM" then res = "Modified"
-  When stat == "AM" then res = "Modified"
-  When stat == "RM" then res = "Modified"
-  When stat == "CM" then res = "Modified"
-  When stat == "MD" then res = "Deleted"
-  When stat == "AD" then res = "Deleted"
-  When stat == "RD" then res = "Deleted"
-  When stat == "CD" then res = "Deleted"
-  When stat == "DR" then res = "Renamed"
-  When stat == "DC" then res = "Copied"
-  When stat == "??" then res = "Untracked"
-  When stat == "!!" then res = "Ignored"
-  Otherwise res = ''
+    When stat == " M" then res = "Modified"
+    When stat == " D" then res = "Deleted"
+    When stat == " R" then res = "Renamed"
+    When stat == " C" then res = "Copied"
+    When stat == "M " then res = "Ready to commit"
+    When left(stat,1) == " " then res = "Not Updated"
+    When left(stat,1) == "M" then res = "Updated in index"
+    When left(stat,1) == "A" then res = "Added to index"
+    When left(stat,1) == "D" then res = "Deleted from index"
+    When left(stat,1) == "R" then res = "Renamed in index"
+    When left(stat,1) == "C" then res = "Copied in index"
+    When stat == "??" then res = "Untracked"
+    When stat == "MM" then res = "Modified"
+    When stat == "AM" then res = "Modified"
+    When stat == "RM" then res = "Modified"
+    When stat == "CM" then res = "Modified"
+    When stat == "MD" then res = "Deleted"
+    When stat == "AD" then res = "Deleted"
+    When stat == "RD" then res = "Deleted"
+    When stat == "CD" then res = "Deleted"
+    When stat == "DR" then res = "Renamed"
+    When stat == "DC" then res = "Copied"
+    When stat == "??" then res = "Untracked"
+    When stat == "!!" then res = "Ignored"
+    Otherwise res = ''
   end
   return '[' || status || '] ' || res
 
