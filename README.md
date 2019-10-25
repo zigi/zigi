@@ -30,6 +30,10 @@ Yes please!
 
 # Known Issues (maybe solutions...)
 
+### Git not found (even though you installed it)
+Zigi needs to find the git executable in the 'PATH'. To determine the 'PATH' zigi sources /etc/proifile and ˜.profile.
+Make sure one of these files contains the correct EXPORT statements.
+
 ### Weird Certificate Errors
 When faced with a "SSL Certificate problem: unable to get local issuer" this might 'fix' it.
 
