@@ -9,11 +9,13 @@
 +\-\#(z ISPF Git Dataset Add)+-\-\
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
 +
-%Enter/Verify Dataset HLQ:@dsnapfx                           +
-%Ignore the HLQ for the OMVS files:@z+(%Y+or%N+)
+%Enter Dataset Prefix: @dsnapfx                               +
+%Keep the prefix in the repo:@z+(%Y+or%N+)
 +
-+ Enter or verfiy the dataset prefix to build the selection list (below)
-+ of available datasets from which to add to the local repository
++ Enter a prefix to add datasets under that prefix to the repo via the list
++ below. When you select%N+above to not keep the prefix, datsets in the repo
++ will not have that prefix. If you select%Y+this repository will%permanently+
++ use that prefix. This means don't add datasets with different prefixes.
 +
 %S  Status     Dataset Name
 )Model
