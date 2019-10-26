@@ -1057,9 +1057,6 @@ view_std:
   | Then using ISPF Browse service to browse the data. |
   | And use Library Services to Free the Data Set.     |
   * -------------------------------------------------- */
-  if stdopt = null
-     then lines = so.0
-     else lines = so.0
   Address ISPExec
   'lminit dataid(ddb) ddname('dd')'
   'browse dataid('ddb') panel(zigibrow)'
