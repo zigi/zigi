@@ -298,7 +298,7 @@
         zerrsm = 'Deleted.'
         zerrlm = 'The local repository has been deleted from zIGI' ,
           'and all OMVS files and directory were deleted. The z/OS' ,
-          'datasets remain.'
+          'datasets remain.' localrep'/'zigirep
         'setmsg msg(isrz002)'
       end
       Otherwise nop
@@ -313,15 +313,23 @@
   | Work with the selected repository |
   * --------------------------------- */
 Work_With_Repo:
-  parse value '' with dsn dsnstat zsel
+  parse value '' with dsn dsnstat zsel ztdsels rtop
   call update_repo_metadata
+  'tbtop' rtbl
   /* -------------------------------- *
   | Process the Repository Data Sets |
   * -------------------------------- */
   do forever
     zsel = null
     zcmd = null
+    if ztdsels = 1
+    then 'TBdispl' rtbl
+    else do
+    'tbtop' rtbl
+    'tbskip' rtbl 'Number('rtop')'
     'TBdispl' rtbl 'Panel(zigirepo)'
+    rtop = ztdtop
+    end
     if rc > 4 then leave
     drop so. se.
     zcmd = translate(zcmd)
@@ -994,11 +1002,9 @@ Create_Repo:
 
     'tbadd zigirepo'
     "TBSAVE zigirepo REPLCOPY LIBRARY(isptabl)"
-    zerrsm = 'Complete'
-    zerrlm = zigirep 'has been added/updated in the table'
-    'setmsg msg(isrz002)'
     leave
   end
+  call work_with_repo
   return
 
   /* ---------------------------------------------------------- *
@@ -1255,6 +1261,8 @@ update_repo_metadata:
   'Control Display Lock'
   'Addpop row(4) column(12)'
   'Display Panel(zigipop)'
+  'Rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   cmd = 'cd' localrep'/'zigirep
   cmd = docmd(cmd || '&& git status --porcelain')
   x = bpxwunix(cmd,,stats.,se.)
@@ -1284,14 +1292,10 @@ update_repo_metadata:
         fulldsn = "'"pdshlq"."dsn"'"
         else
         fulldsn = "'"dsn"'"
-
         'tbadd' rtbl
       end
     end
   end
-  'tbtop' rtbl
-  'Rempop'
-  call pfshow 'reset'         /* restore pfshow setting */
 
   /* --------------------------- *
   | Get the current branch info |
@@ -1399,18 +1403,24 @@ Add_Dataset:
   if keeppfx = null then keeppfx = 'Y'
   'tbcreate' dsnatbl 'names(dastat dsna) nowrite'
   'vput (keeppfx) profile'
+  if dsnapfx = null then dsnapnl = 'zigidsna'
+  else dsnapnl = 'zigidsnb'
   do forever
-    'tbtop' dsnatbl
-    'tbskip' dsnatbl 'number('top')'
     if ztdsels > 1
     then 'tbdispl' dsnatbl
-    else 'tbdispl' dsnatbl 'panel(zigidsna)'
+    else do
+      'tbtop' dsnatbl
+      'tbskip' dsnatbl 'number('top')'
+      'tbdispl' dsnatbl 'panel('dsnapnl')'
+    end
     if rc > 4 then do
       'tbend' dsnatbl
+      'tbtop' rtbl
       return
     end
     top = ztdtop
     if zsel = 'S' then call do_add_copy
+    'vput (keeppfx) profile'
     if list /= 1 then do
       dsnapfx = strip(dsnapfx)
       if oldpfx = null
@@ -1442,7 +1452,6 @@ Add_Dataset:
     end
     'tbtop' dsnatbl
   end
-  say 'add_count:' add_count
   if add_count > 0 then
   call update_repo_metadata
   return
@@ -1455,13 +1464,18 @@ Do_Add_Copy:
   zsel = null
   if keeppfx = 'N' then do
     if pdshlq = null then do
-        pdshlq = dsnapfx
-        what = dsnapfx'.'dsna
-        'tbput zigirepo'
+      pdshlq = dsnapfx
+      what = dsnapfx'.'dsna
+      'tbput zigirepo'
+    end
+    else do
+      pdshlq = dsnapfx
+      what = dsnapfx'.'dsna
+      'tbput zigirepo'
     end
   end
   else what = dsna
-  zs1 = 'Copying selected dataset to OMVS'
+  zs1 = 'Copying selected dataset(s) to OMVS'
   zs2 = 'Patience . . .'
   call pfshow 'off'           /* make sure pfshow is off */
   'Control Display Lock'
@@ -1471,11 +1485,15 @@ Do_Add_Copy:
   call pfshow 'reset'         /* restore pfshow setting */
   DIR = localrep'/'zigirep
   FC = LISTDSI("'"WHAT"'")
-  if sysdsorg = 'U' then do
-    zerrsm = 'Invalid'
-    zerrlm = 'Dataset' what 'is not a valid Git dataset. Must be' ,
-      'DSORG of PS or PO and this dataset is:' sysdsorg
-    'Setmsg msg(isrz002)'
+  if sysrecfm = 'U' then do
+    if ztdsels = 1 then do
+      zerrsm = 'Invalid'
+      zerrlm = 'Dataset' what 'is not a valid Git dataset. Must be' ,
+        'RECFM of Fixed or Variable and not U.'
+      'Setmsg msg(isrz002)'
+    end
+    dastat = 'Invalid Recfm'
+    'tbput' dsnatbl
     return
   end
   if SYSDSORG = 'PO' then do
@@ -1496,10 +1514,10 @@ Do_Add_Copy:
     copycmd = "cp -U -M" copycmd" "DIR"/"dsna
     call bpxwunix copycmd
   end
-  dastat = 'Untracked'
+  dsnstat = '[??] Untracked'
   dsn = dsna
   fulldsn = "'"what"'"
-  'tbmod' rtbl
+  'tbadd' rtbl
   dastat = 'Added'
   'tbput' dsnatbl
   add_count = add_count + 1

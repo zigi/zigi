@@ -3,8 +3,11 @@
  $ type(input ) caps(on ) hilite(uscore)
  _ type(text)  color(green)
  ! type(text)  color(yellow)
+ [ type(text) hilite(blink) color(red) intens(high)
+ ] type(text) hilite(blink) color(green) intens(high)
+ } type(text) hilite(blink) color(blue) intens(high)
 )Body Expand(\\)
-+
+                             [G]I}T+for%ISPF Users
 +
 +                                             .ZZ.     ZZ
                          ZZZZZZZZ           ZZZZZZZ
