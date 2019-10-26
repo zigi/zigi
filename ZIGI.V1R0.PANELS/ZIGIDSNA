@@ -22,7 +22,10 @@
 @z+$z             $z
 )Init
   .zvars = '(keeppfx zsel dastat dsna)'
-  .cursor = &zcmd
+  if (&dsnapfx EQ &z)
+     .cursor = &dsnapfx
+  if (&dsnapfx NE &z)
+     .cursor = &zcmd
   .help = zigihad0
   &zscr = CSR
 )Proc
