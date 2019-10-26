@@ -17,7 +17,7 @@
 +Type %D+to locally delete a branch
 +
 +Or create a new branch: _newb                        +
-%PF3+to exit                             +
+%F3+to exit                             +
 $S  Branch
 )Model
 @z+$z                                                              +

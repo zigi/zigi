@@ -9,8 +9,8 @@
 +\-\#(z ISPF Git Dataset Add)+-\-\
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
 +
-%Enter Dataset Prefix: @dsnapfx                               +
-%Keep the prefix in the repo:@z+(%Y+or%N+)
+%Enter Dataset Prefix: $dsnapfx                               +
+%Keep the prefix in the repo:$z+(%Y+or%N+)
 +
 + Enter a prefix to add datasets under that prefix to the repo via the list
 + below. When you select%N+above to not keep the prefix, datsets in the repo
@@ -22,10 +22,7 @@
 @z+$z             $z
 )Init
   .zvars = '(keeppfx zsel dastat dsna)'
-  if (&dsnapfx EQ &z)
-     .cursor = &dsnapfx
-  if (&dsnapfx NE &z)
-     .cursor = &zcmd
+  .cursor = &zcmd
   .help = zigihad0
   &zscr = CSR
 )Proc
