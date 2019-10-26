@@ -25,6 +25,7 @@
 +%Status+              The status as shown on the panels for the various repo
 +                      elements is explained in detail at the git-scm website
 %                     !https://www.git-scm.com/docs/git-status
++                      Or type%GMAN+at the repo screen for the git man page.
 +
 \ \Press%Enter+to continue or%F3+to return to the dialog\ \
 )Init
