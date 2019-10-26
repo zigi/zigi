@@ -24,7 +24,13 @@ echo "Welcome to the installer for zigi v1r0";
 echo "";
 echo "This will install zigi on your mainframe.";                   
 echo "";
-read GOON?"ENTER TO CONTINUE";
+read GOON?"Hit ENTER to continue, type QUIT to quit: ";
+if [ "$GOON" = "QUIT" ]
+  then
+    echo "zigi installer terminated";
+    exit
+fi
+
 echo "MVS datsets used by zigi are:";
 echo "- ZIGI.V1R0.EXEC";
 echo "- ZIGI.V1R0.PANELS";
@@ -59,7 +65,6 @@ if [ -z $PREFIX ]
     GPL=${PREFIX}.ZIGI.V1R0.GPLLIC
     README=${PREFIX}.ZIGI.V1R0.README
     HLQ=${PREFIX}.ZIGI.V1R0
-    echo "Make sure to change the ZIGI exec to point to to this HLQ";
 fi
 
 
@@ -68,7 +73,13 @@ echo "Preparing to install to :";
 echo "- $EXEC";
 echo "- $PANELS";
 echo "";
-read GOON?"ENTER TO CONTINUE";
+read GOON?"Hit ENTER to continue, type QUIT to quit: ";
+if [ "$GOON" = "QUIT" ]
+  then
+    echo "zigi installer terminated";
+
+    exit
+fi
 echo "";
 if [ "$WHERE" != "OMVS" ]
 then
