@@ -9,7 +9,7 @@
 )Area zigi
 +
 +
-_                                             .zZ.     Zz
++                                             .zZ.     Zz
 +                        ZZZZZZZZ           ZZZZZZZ
 +            ZZZZZZZZZZZZZZZZZZZZZZ   ZZ   ZZZ         zZ
 +   ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ      ZZZ    .zZZ   ZZ
@@ -37,7 +37,7 @@ ZZZZZZZg               ZZZZZZZZ       ZZZZ    ZZZZZZ      ZZZZZZZZZg
 +
 +The Mainframe is alive and kicking.
 +And we now have an ISPF-native git interface too.
-+
++Version 1 Release 0 has been released at GSE-UK on November 7 2019
 +
 +Henri & Lionel
 +2019 and onwards

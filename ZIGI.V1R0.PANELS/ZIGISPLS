@@ -7,7 +7,7 @@
  ] type(text) hilite(blink) color(green) intens(high)
  } type(text) hilite(blink) color(blue) intens(high)
 )Body Expand(\\)
-                             [G]I}T+for%ISPF Users
+
 +
 +                                             .ZZ.     ZZ
                          ZZZZZZZZ           ZZZZZZZ
@@ -24,11 +24,11 @@ ZZZZZZZZ               ZZZZZZZZ       ZZZZ    ZZZZZZ      ZZZZZZZZZZ
                 ZZZZZZZZZZZZZZZZZZZZZZ
                 ZZZZZZZZZZZZZZZZZ     _       zOS ISPF Git Interface       +
                ZZZZZZZZZZZZ           _                                    +
-              ZZZZZZZZZZ              %The git interface for the rest of us+
+              ZZZZZZZZZZ              [The git interface for the rest of us+
              ZZZZZZZZ                 _                                    +
             ZZZZZZZ                   _    !Henri Kuiper+&!Lionel Dyck     +
 
-               [!ENTER+] to continue [!F1+] for Release Information
+               !ENTER+ to continue !F1+ for Release Information
 
 )Init
  .help = zigirln
