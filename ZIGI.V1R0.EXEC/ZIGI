@@ -109,6 +109,7 @@
   keyfile = home'/.ssh/id_rsa.pub'
   rtbl = 'ZIGL'random(9999)
   rtll = 'ZIGM'random(9999)
+  rtbb = 'ZIGB'random(9999)
   rtbl_open = 0
 
   /* ------------------------------------ *
@@ -154,7 +155,7 @@
     zigiuid = so.1
   end
   else do
-    zigiuid = ''
+    zigiuid = null
   end
   cmd = docmd('git config --global user.email')
   x = bpxwunix(cmd,,so.,se.)
@@ -163,7 +164,7 @@
     zigimail = so.1
   end
   else do
-    zigimail = ''
+    zigimail = null
   end
   'Rempop'
   call pfshow 'reset'         /* restore pfshow setting */
@@ -196,7 +197,7 @@
   /* end of save old values */
 
   /* this needs refactored :) */
-  if zigiuid = '' | zigimail = '' then do
+  if zigiuid = null | zigimail = null then do
     hit = 0
   end
   else do
@@ -322,7 +323,7 @@ Work_With_Repo:
   do forever
     zsel = null
     zcmd = null
-    if ztdsels = 1
+    if ztdsels > 0
     then 'TBdispl' rtbl
     else do
     'tbtop' rtbl
@@ -418,7 +419,7 @@ Work_With_Repo:
       * -------------------------------- */
       When abbrev('COMMIT',zcmd,3) = 1 then do
         zcmd = null
-        msg = ''
+        msg = null
         'display panel(zigicom)'
         if rc > 0 then do
           zerrsm = 'Cancelled.'
@@ -503,7 +504,7 @@ Work_With_Repo:
             end
             else do
               mem = root.i
-              memstat = ''
+              memstat = null
               do ii = 1 to stats.0
                 /* see if we have this file in git status */
                 stat = substr(stats.ii,1,2)
@@ -530,8 +531,8 @@ Work_With_Repo:
           | Process the Member list until done |
           * ---------------------------------- */
           Do Forever
-            zsel = ''
-            zcmd = ''
+            zsel = null
+            zcmd = null
             'TBdispl' rtll 'Panel(zigilist)'
             if rc > 0 then do
               'tbend' rtll
@@ -706,7 +707,7 @@ Refresh:
   'readdir 'localrep'/'zigirep' root.'
   address ispexec
   do i = 1 to root.0
-    dsnstat = ''
+    dsnstat = null
     if root.i = "." | root.i = ".." then do
       /* skip the . and .. things */
       iterate
@@ -785,12 +786,13 @@ Refresh:
   | Branch management             |
   * ----------------------------- */
 Branch_it:
-  rtbb = 'ZIGB'random(9999)
+  'tbquery' rtbb
+  if rc = 0 then 'tbend' rtbb
   'TBCreate' rtbb 'Names(bname) Replace NoWrite'
   localdir = localrep'/'zigirep
   cmd = docmd('cd 'localdir' && git branch -a')
   x = bpxwunix(cmd,,so.,se.)
-  bl. = ''
+  bl. = null
   bl.0 = 0
   do i = 1 to so.0
     b1 = strip(so.i,'B')
@@ -827,9 +829,10 @@ Branch_it:
   do forever
     zcmd = null
     cc_rc = 0
-    newb = ''
+    newb = null
+    zsel = null
     'tbdispl' rtbb 'panel(zigibra)'
-    if rc > 0 then return
+    if rc > 0 then leave
     if newb <> "" then do
       /* ----------------------------- *
       | Create this new branch, switch|
@@ -840,7 +843,7 @@ Branch_it:
       cmd = docmd('cd 'localdir' && git push -u origin 'newb)
       x = bpxwunix(cmd,,so.,se.)
       branch = newb
-      return
+      leave
     end
     /* ----------------------------- *
     | Checkout the selected bname   |
@@ -864,7 +867,7 @@ Branch_it:
       x = bpxwunix(cmd,,so.,se.)
       call Refresh localrep,zigirep,pdshlq
       branch = bname
-      return
+      leave
     end
     if zsel = "D" then do
       cmd = docmd('cd 'localdir' && git branch -d 'bname)
@@ -873,9 +876,10 @@ Branch_it:
       zerrsm = 'Deleted.'
       zerrlm = 'Branch 'bname' succesfully deleted'
       'Setmsg msg(isrz002)'
-      return
     end
   end
+  'tbend' rtbb
+  ztdsels = 0
   return
 
 Create_Repo:
@@ -883,7 +887,7 @@ Create_Repo:
     zcmd = null
     zigirep = null
     cc_rc = 0
-    pdshlq = ''
+    pdshlq = null
     'Display Panel(ziginew)'
     if rc > 0 then return
     if localrep = '?' then
@@ -1169,7 +1173,7 @@ dsnvalid: Procedure
 strreplace: Procedure
   parse arg string strfrom strto
   if pos(strfrom,string) = 0 then return string
-  newString = ''
+  newString = null
   do i = 1 to length(string)
     if substr(string,i,1) /= strfrom
     then newstring = newstring''substr(string,i,1)
@@ -1179,7 +1183,7 @@ strreplace: Procedure
 
 idle:
   parse arg secs
-  if secs = '' | secs = null then secs=1
+  if secs = null | secs = null then secs=1
   cmd = docmd('sleepnd -v git')
   x = bpxwunix(cmd,,so.,se.)
   return
@@ -1231,7 +1235,7 @@ update_repo_metadata:
           else
           edsn = root.i
           /* see if any members not touched by zigi */
-          mem = ''
+          mem = null
           "LMINIT DATAID(zigilmm) DATASET('"edsn"')"
           "LMOPEN DATAID("zigilmm") OPTION(INPUT)"
           do forever
@@ -1240,7 +1244,7 @@ update_repo_metadata:
             if rc > 7 then do
               "LMClose Dataid("zigilmm")"
               "LMFree  Dataid("zigilmm")"
-              mem = ''
+              mem = null
               leave
             end
             if zluser /= "ZIGI" then do
@@ -1282,7 +1286,7 @@ update_repo_metadata:
   'readdir 'localrep'/'zigirep' root.'
   address ispexec
   do i = 1 to root.0
-    dsnstat = ''
+    dsnstat = null
     if root.i = "." | root.i = ".." then do
       iterate
     end
@@ -1319,7 +1323,7 @@ update_repo_metadata:
   if branch_status != "up-to-date" then
   bextra = branch_how
   else
-  bextra = ''
+  bextra = null
   /* get the remote info.....but */
   /* we have to get rid of the tab in git output */
   gitcmd = 'git remote -v | sed -e "s/[[:space:]]\+/ /g"'
@@ -1366,7 +1370,7 @@ porcelain:
     When stat == "DC" then res = "Copied"
     When stat == "??" then res = "Untracked"
     When stat == "!!" then res = "Ignored"
-    Otherwise res = ''
+    Otherwise res = null
   end
   return '[' || status || '] ' || res
 
