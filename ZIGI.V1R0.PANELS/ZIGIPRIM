@@ -11,11 +11,11 @@
 +                   %SSH+View your SSH public key
 +                   %Config+View git configuration
 +
-+Repo options:      %S+Select%V+View+%D+Delete
++Repo options:      %S+Work with repo%V+View repo USS files+%D+Delete repo
 +
-%    +Repository         Prefix            Repo Root (USS)
+%    +Repository         Prefix                    Repo Root (USS)
 )Model
-_z+  $z              + +$z             + +$z
+_z+  $z              + +$z                     + +$z
 )Init
  &zscr = CSR
  .zvars = '(zsel zigirep pdshlq localrep)'
