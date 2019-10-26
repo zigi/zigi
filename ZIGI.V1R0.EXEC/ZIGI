@@ -404,6 +404,16 @@ Work_With_Repo:
         call View_std E
       end
       /* -------------------------------- *
+      | GMAN Git Commamd                 |
+      * -------------------------------- */
+      When abbrev('GMAN',zcmd,2) = 1 then do
+        zcmd = null
+        cmd = 'cd' localrep'/'zigirep
+        cmd = docmd(cmd || '&& man git')
+        x = bpxwunix(cmd,,so.,se.)
+        call View_std
+      end
+      /* -------------------------------- *
       | Commit to current branch         |
       * -------------------------------- */
       When abbrev('COMMIT',zcmd,3) = 1 then do
@@ -1047,6 +1057,9 @@ view_std:
   | Then using ISPF Browse service to browse the data. |
   | And use Library Services to Free the Data Set.     |
   * -------------------------------------------------- */
+  if stdopt = null
+     then lines = so.0
+     else lines = so.0
   Address ISPExec
   'lminit dataid(ddb) ddname('dd')'
   'browse dataid('ddb') panel(zigibrow)'

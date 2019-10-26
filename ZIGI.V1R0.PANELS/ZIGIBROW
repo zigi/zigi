@@ -4,7 +4,7 @@
    | area(dynamic) extend(on) scroll(on)
    } type(output) intens(high) just(asis) caps(off)
 )BODY   WIDTH(80) EXPAND(//)
-%Browse+}title
+%Browse+}title          / /%Lines }lines
 %Command ===>_zcmd                 / /                        %Scroll ===>_Z   +
 |ZDATA ----------------------------/-/-----------------------------------------|
 |                                  / /                                         |
@@ -14,7 +14,7 @@
   .ZVARS = 'ZSCBR'
   &Title = 'zIGI Git Messages'
 )Reinit
-  Refresh(ZCMD,ZSCBR,ZDATA)
+  Refresh(ZCMD,ZSCBR,ZDATA,LINES)
 )PROC
   &ZCURSOR = .CURSOR
   &ZCSROFF = .CSRPOS
