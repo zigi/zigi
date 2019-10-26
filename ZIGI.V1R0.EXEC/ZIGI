@@ -1209,7 +1209,7 @@ update_repo_metadata:
   cmd = docmd(cmd || '&& git fetch --all')
   x = bpxwunix(cmd,,so.,se.)
   /* now we get the status for all in the repo */
-  if se.0 > 1 then fetchmsg = "Remote updates, consider a pull"
+  if se.0 > 1 then fetchmsg = "Remote updates, check status"
   else fetchmsg = "No remote updates"
   /* get all the files that are in the repo */
   address syscall
