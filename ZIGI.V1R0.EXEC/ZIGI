@@ -356,6 +356,7 @@ Work_With_Repo:
         x = bpxwunix(cmd,,so.,se.)
         call view_std
         if se.0 > 0 then call view_std 'E'
+        call update_repo_metadata
       end
       /* --------------------------------------------------------- *
       | Pull latest version of remote current branch from origin  |
