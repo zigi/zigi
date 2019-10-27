@@ -931,6 +931,7 @@ Create_Repo:
       660
     if retval = -1 then do
       say "Something bad when creating .gitattributes. Make errormsg"
+      Address ISPExec
       leave
     end
     fd = retval  /* as I think it's weird to write to a retval lol */
