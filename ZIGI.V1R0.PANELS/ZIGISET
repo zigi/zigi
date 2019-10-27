@@ -12,10 +12,10 @@
 
 
 
-
-
-
-
++ The user.name and user.email are used to set email and username
++ to your commits. The username does not need to be the same as your
++ username.
++ See : https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup
 
 
 
