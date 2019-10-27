@@ -23,11 +23,13 @@ echo " "
 echo "Welcome to the installer for zigi v1r0";
 echo "";
 echo "This will install zigi on your mainframe.";                   
+echo "See https://github.com/wizardofzos/zigi/wiki for more information"
 echo "";
-read GOON?"Hit ENTER to continue, type QUIT to quit: ";
-if [ "$GOON" = "QUIT" ]
+read GOON?"Hit ENTER to continue, type any chracter + ENTER to quit: ";
+if [ -n "$GOON" ]
   then
-    echo "zigi installer terminated";
+    echo ""               
+    echo "zigi installer terminated :(";
     exit
 fi
 
@@ -73,13 +75,13 @@ echo "Preparing to install to :";
 echo "- $EXEC";
 echo "- $PANELS";
 echo "";
-read GOON?"Hit ENTER to continue, type QUIT to quit: ";
-if [ "$GOON" = "QUIT" ]
+read GOON?"Hit ENTER to continue, type any chracter + ENTER to quit: ";
+if [ -n "$GOON" ]
   then
-    echo "zigi installer terminated";
-
+    echo "zigi installer terminated :(";
     exit
 fi
+
 echo "";
 if [ "$WHERE" != "OMVS" ]
 then
