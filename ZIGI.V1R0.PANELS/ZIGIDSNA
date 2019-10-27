@@ -14,8 +14,9 @@
 +
 + Enter a prefix to add datasets under that prefix to the repo via the list
 + below. When you select%N+above to not keep the prefix, datsets in the repo
-+ will not have that prefix. If you select%Y+this repository will%permanently+
-+ use that prefix. This means don't add datasets with different prefixes.
++ will not have that prefix. If you select%N+the prefix entered will be the
++ prefix for the full repository, meaning you%can't add+datasets with a prefix
++ other than the one you select here.
 +
 %S  Status         Dataset Name
 )Model
