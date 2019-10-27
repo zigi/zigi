@@ -9,13 +9,13 @@
 +\-\#(z ISPF Git Dataset Add)+-\-\
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
 +
-%Enter Dataset Prefix: $dsnapfx                               +
+%Fixed Dataset Prefix: $dsnapfx                               +
 %Keep the prefix in the repo:$z+(%Y+or%N+)
 +
-+ Enter a prefix to add datasets under that prefix to the repo via the list
-+ below. When you select%N+above to not keep the prefix, datsets in the repo
-+ will not have that prefix. If you select%Y+this repository will%permanently+
-+ use that prefix. This means don't add datasets with different prefixes.
++ You've selected to not keep the prefix. Only datsets with the prefix you
++ selected are elligible to be added to the repository.
++
++
 +
 %S  Status         Dataset Name
 )Model
