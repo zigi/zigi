@@ -15,14 +15,10 @@
       +
       %Line Selections:
       %S            +Select a Local Repository to work in
-      %D            +Delete a Local Repository (z/OS datasets untouched)
-+
-+
-+
-+
-+
-+
-+
+      %V            +View the Local Repository
+      %D            +Delete a Local Repository
++                    - Repository in USS and zIGI removed
++                    - z/OS dataset remain
 +
 +
 +

@@ -17,7 +17,7 @@
 +Notes:
 +1. Your SSH Key%must+have been added to an account with access to the repo.
 +2. This fails if the local repo already exists.
-+3. A succesfull clone results in a copy of the repo in the localdirectory
++3. A succesfull clone results in a copy of the repo in the local directory
 +4. All 'z/OS-datasets' from this repo will be copied to real z/OS datasets
 +   (prefixed if a PREFIX has been added).
 +5. This%will+overwrite any members if the dataset already exists

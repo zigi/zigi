@@ -1,0 +1,33 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+  @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+ # type(text) hilite(reverse) color(turq)
+)Body  Expand(\\)
++\-\#(z ISPF Git Dataset Add)+-\-\
+%Command ===>_zcmd        \ \ %Scroll ===>_zscr+
++
+%Enter Dataset Prefix: $dsnapfx                               +
+%Keep the prefix in the repo:$z+(%Y+or%N+)
++
++ Enter a prefix to add datasets under that prefix to the repo via the list
++ below. When you select%N+above to not keep the prefix, datsets in the repo
++ will not have that prefix. If you select%Y+this repository will%permanently+
++ use that prefix. This means don't add datasets with different prefixes.
++
+%S  Status         Dataset Name
+)Model
+@z+$z             $z
+)Init
+  .zvars = '(keeppfx zsel dastat dsna)'
+  .cursor = &zcmd
+  .help = zigihad0
+  &zscr = CSR
+)Proc
+ ver (&dsnapfx,nb,dsname)
+ ver (&keeppfx,nb,list,Y,N)
+ ver (&zsel,list,S)
+)End
+*/

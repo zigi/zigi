@@ -22,10 +22,7 @@
 +The%GITLog+command will show the full log for the current branch. The%STatus+
 +command will show the current status.%GRep+can be used to perform a 'git grep'.
 +
-%Refreshing.
-+If you want to make sure that your z/OS datasets are up-to-date with the status
-+of the repository, use the%refresh+command. This will delete and reallocate all
-+the z/OS datasets with the latest version from the current branch.
++
 +
 +
 +
