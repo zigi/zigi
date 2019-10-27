@@ -13,6 +13,8 @@
 %Remote paths    : $remote1
 %                  $remote2
 %Current Branch  : $branch                                      +
+%                  !bstat                                                     +
+%                  $baction                                                   +
 %
 %Branch  +Checkout (or create) branch %Add    +Add dataset to repo
 %Status  +Show git status output      %Pull   +Pull current branch from origin
