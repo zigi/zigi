@@ -653,10 +653,8 @@ Clone_Repo:
       zs1 = 'Clone failed'
       zs2 = se.1
       call pfshow 'off'           /* make sure pfshow is off */
-      'Control Display Lock'
       'Addpop row(4) column(12)'
       'Display Panel(zigipop)'
-      address 'SYSCALL' 'SLEEP (2)'
       'Rempop'
       call pfshow 'reset'         /* restore pfshow setting */
       leave
@@ -1194,6 +1192,8 @@ update_repo_metadata:
   if rtbl_open = 1 then do
     'tbend' rtbl
     rtbl_open = 0
+    ztdsels = 0
+    rtop = 0
   end
   if rtbl_open = 0 then
   'TBCreate' rtbl 'Names(dsnstat dsn pdshlq fulldsn) Replace NoWrite'
