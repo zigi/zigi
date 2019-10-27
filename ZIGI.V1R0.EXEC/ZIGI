@@ -369,6 +369,7 @@ Work_With_Repo:
         if se.0 > 0 then do
           call view_std 'E'
         end
+        call update_repo_metadata
         call Refresh localrep,zigirep,pdshlq
       end
       /* --------------------------------------------------------- *
@@ -1319,11 +1320,7 @@ update_repo_metadata:
   x = bpxwunix(cmd,,so.,se.)
   branch = word(so.1,3)
   branch_status = word(so.2,4)
-  branch_how    = word(so.2,8)
-  if branch_status != "up-to-date" then
-  bextra = branch_how
-  else
-  bextra = null
+  parse var so.2 bstat","baction
   /* get the remote info.....but */
   /* we have to get rid of the tab in git output */
   gitcmd = 'git remote -v | sed -e "s/[[:space:]]\+/ /g"'
