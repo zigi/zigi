@@ -1,5 +1,5 @@
 )Attr
- @ type(input ) caps(off) hilite(uscore)
+ { type(input ) caps(off) hilite(uscore)
  $ type(input ) caps(on ) hilite(uscore)
  _ type(text)  color(green)
  ! type(text)  color(yellow)
