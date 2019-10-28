@@ -596,7 +596,7 @@ Work_With_Repo:
                 x = bpxwunix(cmd,,so.,se.)
                 call View_std
               end
-              otherwise nope
+              otherwise nop
             end
           end
         end
@@ -611,7 +611,7 @@ Work_With_Repo:
         x = bpxwunix(cmd,,so.,se.)
         call update_repo_metadata
       end
-      Otherwise nope
+      Otherwise nop
     end
   end
   if ztdsels = 1 then do
@@ -814,10 +814,7 @@ Branch_it:
 
 Create_Repo:
   do forever
-    zcmd = null
-    zigirep = null
-    cc_rc = 0
-    pdshlq = null
+    parse value '' with zerrsm zcmd zigirep cc_rc pdshlq
     'Display Panel(ziginew)'
     if rc > 0 then return
     if localrep = '?' then
@@ -848,7 +845,8 @@ Create_Repo:
     'Control Display Lock'
     'Addpop row(4) column(12)'
     'Display Panel(zigipop)'
-
+    'Rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     cmd = docmd('cd 'localrep' && git init 'zigirep)
     x = bpxwunix(cmd,,so.,se.)
     /* The git repo is initialized. Time to stick a
@@ -942,14 +940,12 @@ Create_Repo:
     x = bpxwunix(cmd,,so.,se.)
 
     Address ISPExec
-    'Rempop'
-    call pfshow 'reset'         /* restore pfshow setting */
-
     'tbadd zigirepo'
     "TBSAVE zigirepo REPLCOPY LIBRARY(isptabl)"
     leave
   end
-  call work_with_repo
+  if zerrsm = null then
+     call work_with_repo
   return
 
   /* ---------------------------------------------------------- *
@@ -1251,18 +1247,23 @@ update_repo_metadata:
   cmd = docmd('cd 'localdir' && git status')
   x = bpxwunix(cmd,,so.,se.)
   branch = word(so.1,3)
+  if so.0 > 1 then do
   branch_status = word(so.2,4)
   parse var so.2 bstat","baction
+  end
+  else do
+    parse value '' with branch_status bstat baction
+    end
   /* get the remote info.....but */
   /* we have to get rid of the tab in git output */
   gitcmd = 'git remote -v | sed -e "s/[[:space:]]\+/ /g"'
   cmd = docmd('cd 'localdir' && 'gitcmd)
   x = bpxwunix(cmd,,so.,se.)
-  if so.0 > 0 then do
+  if so.0 > 0 then
     remote1 = word(so.1,1) || ' ' || word(so.1,2) || ' ' || word(so.1,3)
+  if so.0 > 1 then
     remote2 = word(so.2,1) || ' ' || word(so.2,2) || ' ' || word(so.2,3)
-  end
-  else do
+  if so.0 = 0 then do
     remote1 = "<no remote defined>"
     remote2 = ""
   end
@@ -1348,6 +1349,7 @@ Add_Dataset:
   'vput (keeppfx) profile'
   if dsnapfx = null then dsnapnl = 'zigidsna'
   else dsnapnl = 'zigidsnb'
+  old_dsnapfx = dsnapfx
   do forever
     if ztdsels > 1
     then 'tbdispl' dsnatbl
@@ -1364,6 +1366,8 @@ Add_Dataset:
     top = ztdtop
     if zsel = 'S' then call do_add_copy
     'vput (keeppfx) profile'
+    if dsnapfx /= old_dsnapfx then list = 0
+    old_dsnapfx = dsnapfx
     if list /= 1 then do
       dsnapfx = strip(dsnapfx)
       if oldpfx = null
@@ -1445,17 +1449,27 @@ Do_Add_Copy:
     PDS = usssafe(PDS)
     mkdir = "mkdir -p "DIR"/"dsna
     call bpxwunix mkdir
+    Address TSO,
+    "oputx '"pds"'" dir'/'dsna 'text quiet'
+    /* Comment Start
     copycmd = "//'"pds"'"
     copycmd = '"'copycmd'"'
     copycmd = "cp -U -M" copycmd" "DIR"/"dsna"/"
     call bpxwunix copycmd
+       Comment End */
   end
   else do
     WHAT = usssafe(WHAT)
+    /* Comment Start
     copycmd = "//'"WHAT"'"
     copycmd = '"'copycmd'"'
     copycmd = "cp -U -M" copycmd" "DIR"/"dsna
     call bpxwunix copycmd
+       Comment End */
+    call outtrap 'x.'
+    Address TSO,
+    "oput '"what"'" dir'/'dsna 'text'
+    call outtrap 'off'
   end
   dsnstat = '[??] Untracked'
   dsn = dsna
