@@ -87,7 +87,6 @@ if [ "$WHERE" != "OMVS" ]
 then
  echo "Here come the messages from TSO :)"; 
 fi
-echo ""; 
 tso "ALLOC DA('$EXEC') DSORG(PO) SPACE(5,1) BLKSIZE(8000) TRACKS DIR(2) LRECL(80) RECFM(F,B) NEW";
 tso "ALLOC DA('$PANELS') DSORG(PO) SPACE(5,1) BLKSIZE(8000) TRACKS DIR(4) LRECL(80) RECFM(F,B) NEW";
 tso "ALLOC DA('$README') DSORG(PS) SPACE(5,1) BLKSIZE(8000) TRACKS LRECL(80) RECFM(F,B) NEW";
@@ -101,9 +100,13 @@ then
   tso "Free DA('$GPL')"
 fi
 
+echo "Copying execs"
 cp -U -M ZIGI.V1R0.EXEC/* "//'$EXEC'";
+echo "Copying panels"
 cp -U -M ZIGI.V1R0.PANELS/* "//'$PANELS'";
+echo "Copying GPL-License"
 cp -U -M ZIGI.GPLLIC "//'$GPL'";
+echo "Copying README"
 cp -U -M ZIGI.README "//'$README'";
 
 
