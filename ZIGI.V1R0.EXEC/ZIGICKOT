@@ -16,9 +16,6 @@
   |                                                            |
   | History:  (most recent on top)                             |
   |            10/28/19 LBD - Support sequential files         |
-  |            06/13/19 LBD - Create .hlq file with HLQ        |
-  |                         - Create/Replace .gitignore for    |
-  |                           the .hlq and .gitignore          |
   |            06/12/19 LBD - Correct to handle a git direcory |
   |            06/11/19 LBD - Add popup status                 |
   |            06/10/19 LBD - Creation                         |
@@ -31,50 +28,6 @@
   Address ISPExec
   'vget (ckothlq ckotdir)'
   Address TSO
-
-  /* ------------------------------------------------ *
-  | Create or Replace the .hlq file with the HLQ for |
-  | the z/OS partitioned data sets where these       |
-  | directories and files have been checked out to.  |
-  * ------------------------------------------------ */
-  newstack
-  dirx = translate(ckotdir,' ','/')
-  queue ckothlq
-  queue ''
-  hlqdd = 'HLQ'random(9999)
-  'Alloc f('hlqdd') ds('hlqdd') new spa(1) tr recfm(f) lrecl(80)' ,
-    'blksize(80)'
-  'execio * diskw' hlqdd '(finis'
-  'free f('hlqdd')'
-  call outtrap 'x.'
-  'oputx' hlqdd ckotdir'/.hlq'
-  'delete' hlqdd
-  call outtrap 'off'
-  cmd = 'chmod 666' ckotdir'/.hlq'
-  x = bpxwunix(cmd,,so.,se.)
-  delstack
-
-  /* --------------------------------------------------- *
-  | Create or Replace the .gitignore file to for git to |
-  | ignore the just created/replaced .hlq file.         |
-  | Have to also tell git to ignore the .gitignore file |
-  * --------------------------------------------------- */
-  newstack
-  queue '# git ignore file to ignore the .hlq file'
-  queue '.gitignore'
-  queue '.hlq'
-  queue ''
-  'Alloc f('hlqdd') ds('hlqdd') new spa(1) tr recfm(f) lrecl(80)' ,
-    'blksize(80)'
-  'execio * diskw' hlqdd '(finis'
-  'free f('hlqdd')'
-  call outtrap 'x.'
-  'oputx' hlqdd ckotdir'/.gitignore'
-  'delete' hlqdd
-  call outtrap 'off'
-  cmd = 'chmod 666' ckotdir'/.gitignore'
-  x = bpxwunix(cmd,,so.,se.)
-  delstack
 
   /* -------------------- *
   | Issue the LS command |
