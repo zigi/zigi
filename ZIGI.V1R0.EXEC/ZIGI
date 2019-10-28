@@ -488,11 +488,13 @@ Work_With_Repo:
           edsn = dsn
           "Edit Dataset('"edsn"')"
           /* so after the edit, we should update it to working directory */
+          if rc = 0 then do
           edsn = usssafe(edsn)
           copcm = "//'"edsn"'"
           copcm = 'cp -U -M "'copcm'" 'localrep'/'zigirep'/'dsn
           call bpxwunix copcm
-          dsnstat = '*Edit'
+          end
+        dsnstat = '*Edit'
         end
         else do
           /* Do this if it's a directory */
@@ -693,93 +695,21 @@ Clone_Repo:
   * ----------------------------- */
 Refresh:
   parse arg localrep,zigirep,pdshlq,nodel
-  zs1 = "Refreshing from repo"
+  zs1 = "Refreshing from repository"
   zs2 = "   USS -> z/OS      "
   call pfshow 'off'           /* make sure pfshow is off */
   'Control Display Lock'
   'Addpop row(4) column(12)'
   'Display Panel(zigipop)'
+  'Rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   address 'SYSCALL' 'SLEEP (2)'
   cmd = docmd('cd 'localrep' && git clone 'remote)
   x = bpxwunix(cmd,,so.,se.)
-  /* All is well. Let's bring this stuff to z/OS */
-  address syscall
-  'readdir 'localrep'/'zigirep' root.'
-  address ispexec
-  do i = 1 to root.0
-    dsnstat = null
-    if root.i = "." | root.i = ".." then do
-      /* skip the . and .. things */
-      iterate
-    end
-    else do
-      if dsnvalid(root.i) = "OK" then do
-        /* this is a valid DSN, check if dir or file */
-        t='unknown'
-        cmd = '[[ -d 'localrep'/'zigirep'/'root.i' ]] && echo d'
-        x = bpxwunix(cmd,,so.,se.)
-        if so.0 = 1 & so.1 = 'd' then do
-          t='dir'
-        end
-        cmd = '[[ -f 'localrep'/'zigirep'/'root.i' ]] && echo f'
-        x = bpxwunix(cmd,,so.,se.)
-        if so.0 = 1 & so.1 = 'f' then do
-          t='file'
-        end
-        if pdshlq <> "" then
-        target = pdshlq"."root.i
-        else
-        target = root.i
-        meh = OUTTRAP('var')
-        if t = 'dir' then do
-          /* Git is always leading, refreshes delete z/OS stuff */
-          /* But we have a 'fallback' in case we need it... */
-          if nodel = "" then
-          ADDRESS "TSO" "DELETE '"target"'"
-          if sysdsn(target) == "DATASET NOT FOUND" then do
-            /* create if not there */
-            ADDRESS "TSO" "ALLOC DD(DD) DS('"target"') NEW",
-              "DSORG(PO) RECFM(F B) LRECL(80) SPACE(1, 5) DIR(24) CYLINDERS"
-            ADDRESS "TSO" "FREE FILE(DD)"
-          end
-          /* get all the members from the dir */
-          address syscall
-          'readdir 'localrep'/'zigirep'/'root.i'/ mems.'
-          address ispexec
-          do ii = 1 to mems.0
-            if mems.ii = "." | mems.ii = ".." then do
-              /* skip the . and .. things */
-              iterate
-            end
-            src = localrep"/"zigirep"/"root.i"/"mems.ii
-            /* fix the cp -M behavior on the way in */
-            m = strreplace(mems.ii '.' '#')
-            m = strreplace(m '_' '@')
-            m = strreplace(m '-' '$')
-            ADDRESS TSO
-            'OGET' "'"src"'" "'"target"("m")'"
-            /* Set statistics */
-            address ispexec
-            "LMINIT DATAID(DATAID) Dataset('"target"')"
-            "LMOPEN DATAID("dataid")"
-            "LMMSTATS DATAID("dataid") Member("m") User(ZIGI)"
-            "LMCLOSE DATAID("dataid")"
-            "LMFREE  DATAID("dataid")"
-          end
-        end
-        if t = 'file' then do
-          /* it'a file, just oget it over */
-          ADDRESS TSO
-          /* TODO: supress messages */
-          'OGET' "'"localrep"/"zigirep"/"root.i"'" "'"target"'"
-          address ispexec
-        end
-      end
-    end
-  end
-  meh = OUTTRAP('OFF')
-  'Rempop'
-  call pfshow 'reset'         /* restore pfshow setting */
+  ckotdir = localrep'/'zigirep
+  ckothlq = pdshlq
+  'vput (ckotdir ckothlq)'
+  'Select cmd(%zigickot)'
   return
 
   /* ----------------------------- *
