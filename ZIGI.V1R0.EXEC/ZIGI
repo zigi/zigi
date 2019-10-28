@@ -436,7 +436,6 @@ Work_With_Repo:
           then call view_std
           else call view_std 'E'
           call update_repo_metadata
-          call view_std
         end
       end
       /* -------------------------------- *
@@ -525,9 +524,9 @@ Work_With_Repo:
             /* The files in USS have some chars changed due to cp -M */
             /* So we fix the name before we save to table :) */
             ussmem = mem
-            mem = strreplace(mem '.' '#')
-            mem = strreplace(mem '_' '@')
-            mem = strreplace(mem '-' '$')
+            mem = strreplace(mem,'.','#')
+            mem = strreplace(mem,'_','@')
+            mem = strreplace(mem,'-','$')
             'tbadd' rtll
           end
           'tbtop' rtll
@@ -572,9 +571,9 @@ Work_With_Repo:
                 d = usssafe(dsn)
                 cmd = 'cd' localrep'/'zigirep'/'d
                 /* These cp -M issues are really getting annoying */
-                m = strreplace(mem '#' '.')
-                m = strreplace(m '$' '-')
-                m = strreplace(m '@' '_')
+                m = strreplace(mem,'#','.')
+                m = strreplace(m,'$','-')
+                m = strreplace(m,'@','_')
                 cmd = docmd(cmd || ' && git add 'm)
                 x = bpxwunix(cmd,,so.,se.)
                 memstat = 'Added'
@@ -589,9 +588,9 @@ Work_With_Repo:
                 d = usssafe(dsn)
                 cmd = 'cd' localrep'/'zigirep'/'d
                 /* These cp -M issues are really getting annoying */
-                m = strreplace(mem '#' '.')
-                m = strreplace(m '$' '-')
-                m = strreplace(m '@' '_')
+                m = strreplace(mem,'#','.')
+                m = strreplace(m,'$','-')
+                m = strreplace(m,'@','_')
                 cmd = docmd(cmd || ' && git diff 'm)
                 x = bpxwunix(cmd,,so.,se.)
                 call View_std
@@ -1097,16 +1096,21 @@ dsnvalid: Procedure
     return "NO"
   end
 
-strreplace: Procedure
-  parse arg string strfrom strto
-  if pos(strfrom,string) = 0 then return string
-  newString = null
-  do i = 1 to length(string)
-    if substr(string,i,1) /= strfrom
-    then newstring = newstring''substr(string,i,1)
-    else  newstring = newstring''strto
-  end
-  return newstring
+STRREPLACE:
+  ORIGINAL = ARG(1)
+  OLDTXT = ARG(2)
+  NEWTXT = ARG(3)
+  TMPTXT = '6A53CD2EW1F'
+  NEWSTR = ORIGINAL
+  DO WHILE POS(OLDTXT,NEWSTR) > 0
+  NEWSTR = SUBSTR(NEWSTR, 1 , POS(OLDTXT,NEWSTR)-1) ||,
+  TMPTXT || SUBSTR(NEWSTR, POS(OLDTXT,NEWSTR) + LENGTH(OLDTXT))
+  END
+  DO WHILE POS(TMPTXT,NEWSTR) > 0
+  NEWSTR = SUBSTR(NEWSTR, 1 , POS(TMPTXT,NEWSTR)-1) ||,
+  NEWTXT || SUBSTR(NEWSTR, POS(TMPTXT,NEWSTR) + LENGTH(TMPTXT))
+  END
+  RETURN NEWSTR
 
 idle:
   parse arg secs
@@ -1132,8 +1136,6 @@ update_repo_metadata:
   'Control Display Lock'
   'Addpop row(4) column(12)'
   'Display Panel(zigipop)'
-  'Rempop'
-  call pfshow 'reset'         /* restore pfshow setting */
   cmd = 'cd' localrep'/'zigirep
   cmd = docmd(cmd || '&& git fetch --all')
   x = bpxwunix(cmd,,so.,se.)
@@ -1196,6 +1198,8 @@ update_repo_metadata:
       end
     end
   end
+  'Rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
 
 
   zs1 = 'Building List of repository Data Sets'
@@ -1204,8 +1208,6 @@ update_repo_metadata:
   'Control Display Lock'
   'Addpop row(4) column(12)'
   'Display Panel(zigipop)'
-  'Rempop'
-  call pfshow 'reset'         /* restore pfshow setting */
   cmd = 'cd' localrep'/'zigirep
   cmd = docmd(cmd || '&& git status --porcelain')
   x = bpxwunix(cmd,,stats.,se.)
@@ -1239,6 +1241,8 @@ update_repo_metadata:
       end
     end
   end
+  'Rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
 
   /* --------------------------- *
   | Get the current branch info |
@@ -1306,7 +1310,7 @@ porcelain:
 
 usssafe: procedure
   parse arg dsn
-  dsn = strreplace(dsn  '$'  '\$')
+  dsn = strreplace(dsn, '$', '\$')
   return dsn
 
   /* ------------------------------------------------------ *
@@ -1364,7 +1368,10 @@ Add_Dataset:
       return
     end
     top = ztdtop
-    if zsel = 'S' then call do_add_copy
+    if zsel = 'S' then do
+      call do_add_copy
+      call update_repo_metadata
+    end
     'vput (keeppfx) profile'
     if dsnapfx /= old_dsnapfx then list = 0
     old_dsnapfx = dsnapfx
@@ -1399,8 +1406,6 @@ Add_Dataset:
     end
     'tbtop' dsnatbl
   end
-  if add_count > 0 then
-  call update_repo_metadata
   return
 
 /* -------------------------------------------- *
@@ -1449,27 +1454,27 @@ Do_Add_Copy:
     PDS = usssafe(PDS)
     mkdir = "mkdir -p "DIR"/"dsna
     call bpxwunix mkdir
+    /* Comment Start
     Address TSO,
     "oputx '"pds"'" dir'/'dsna 'text quiet'
-    /* Comment Start
+       Comment End */
     copycmd = "//'"pds"'"
     copycmd = '"'copycmd'"'
     copycmd = "cp -U -M" copycmd" "DIR"/"dsna"/"
     call bpxwunix copycmd
-       Comment End */
   end
   else do
     WHAT = usssafe(WHAT)
-    /* Comment Start
     copycmd = "//'"WHAT"'"
     copycmd = '"'copycmd'"'
     copycmd = "cp -U -M" copycmd" "DIR"/"dsna
     call bpxwunix copycmd
-       Comment End */
+    /* Comment Start
     call outtrap 'x.'
     Address TSO,
     "oput '"what"'" dir'/'dsna 'text'
     call outtrap 'off'
+       Comment End */
   end
   dsnstat = '[??] Untracked'
   dsn = dsna

@@ -14,8 +14,8 @@
 +
 + You've selected to not keep the prefix. Only datsets with the prefix you
 + selected are elligible to be added to the repository.
-+
-+
++ Press%ENTER+to refresh the list of datasets that can be added to this
++ repository.
 +
 %S  Status         Dataset Name
 )Model
