@@ -1,0 +1,283 @@
+  /*%NOcomment ----------  rexx procedure  -------------------- *
+  | Name:      zigickot                                        |
+  |                                                            |
+  | Function:  zigi Checkout                                   |
+  |                                                            |
+  | Syntax:    %zigickot                                       |
+  |                                                            |
+  | Usage Notes:                                               |
+  |            1. ISPF Variables will pass the                 |
+  |               - default HLQ to be used                     |
+  |            2. The OMVS Directory where the project is      |
+  |            3. Sequential files that have no lowercase      |
+  |               will be processed.                           |
+  |                                                            |
+  | Author:    Lionel B. Dyck                                  |
+  |                                                            |
+  | History:  (most recent on top)                             |
+  |            10/28/19 LBD - Support sequential files         |
+  |            06/13/19 LBD - Create .hlq file with HLQ        |
+  |                         - Create/Replace .gitignore for    |
+  |                           the .hlq and .gitignore          |
+  |            06/12/19 LBD - Correct to handle a git direcory |
+  |            06/11/19 LBD - Add popup status                 |
+  |            06/10/19 LBD - Creation                         |
+  |                                                            |
+  * ---------------------------------------------------------- */
+
+  /* -------------------------------------------- *
+  | Get the ISPF Variables with our instructions |
+  * -------------------------------------------- */
+  Address ISPExec
+  'vget (ckothlq ckotdir)'
+  Address TSO
+
+  /* ------------------------------------------------ *
+  | Create or Replace the .hlq file with the HLQ for |
+  | the z/OS partitioned data sets where these       |
+  | directories and files have been checked out to.  |
+  * ------------------------------------------------ */
+  newstack
+  dirx = translate(ckotdir,' ','/')
+  queue ckothlq
+  queue ''
+  hlqdd = 'HLQ'random(9999)
+  'Alloc f('hlqdd') ds('hlqdd') new spa(1) tr recfm(f) lrecl(80)' ,
+    'blksize(80)'
+  'execio * diskw' hlqdd '(finis'
+  'free f('hlqdd')'
+  call outtrap 'x.'
+  'oputx' hlqdd ckotdir'/.hlq'
+  'delete' hlqdd
+  call outtrap 'off'
+  cmd = 'chmod 666' ckotdir'/.hlq'
+  x = bpxwunix(cmd,,so.,se.)
+  delstack
+
+  /* --------------------------------------------------- *
+  | Create or Replace the .gitignore file to for git to |
+  | ignore the just created/replaced .hlq file.         |
+  | Have to also tell git to ignore the .gitignore file |
+  * --------------------------------------------------- */
+  newstack
+  queue '# git ignore file to ignore the .hlq file'
+  queue '.gitignore'
+  queue '.hlq'
+  queue ''
+  'Alloc f('hlqdd') ds('hlqdd') new spa(1) tr recfm(f) lrecl(80)' ,
+    'blksize(80)'
+  'execio * diskw' hlqdd '(finis'
+  'free f('hlqdd')'
+  call outtrap 'x.'
+  'oputx' hlqdd ckotdir'/.gitignore'
+  'delete' hlqdd
+  call outtrap 'off'
+  cmd = 'chmod 666' ckotdir'/.gitignore'
+  x = bpxwunix(cmd,,so.,se.)
+  delstack
+
+  /* -------------------- *
+  | Issue the LS command |
+  * -------------------- */
+  cmd = 'ls -laRk' ckotdir
+  rc = bpxwunix(cmd,,stdout.,stderr.)
+
+  /* ---------------------------------------------- *
+  | Display any error messages and if so then exit |
+  * ---------------------------------------------- */
+  if stderr.0 > 0 then do
+    do i = 1 to stderr.0
+      say stderr.i
+    end
+    exit 8
+  end
+
+  /* ------------------------- *
+  | Define our work variables |
+  * ------------------------- */
+  parse value '' with subs files
+  hit = 0
+
+  /* ---------------------------------------------------- *
+  | Process the results of the ls command to:            |
+  | 1. collect number of members per sub-directory       |
+  | 2. collect bytes count (in k) for each sub-directory |
+  | 3. collect info on sequential files                  |
+  * ---------------------------------------------------- */
+  if stdout.0 > 0 then
+  do i = 1 to stdout.0
+    select
+      when pos(ckotdir,stdout.i) > 0 then do
+        parse value stdout.i with (ckotdir)sub':'
+        if left(sub,1) = '/' then sub = substr(sub,2)
+        if strip(sub) /= '' then do
+          size.sub = 0
+          dir.sub = 0
+          if left(sub,1) /= '.' then
+          subs = subs sub
+        end
+      end
+      when word(stdout.i,1) = 'total' then do
+        hit = hit + 1
+      end
+      when hit > 1 & left(stdout.i,1) = '-' then
+      if strip(sub) /= '' then do
+        size.sub = size.sub + word(stdout.i,5)
+        dir.sub = dir.sub + 1
+      end
+      when hit = 1 & left(stdout.i,1) = '-' then do
+        file = word(stdout.i,9)
+        if left(file,1) = '.' then iterate
+        fx = translate(file,'??????????????????????????', ,
+          'abcdefghijklmnopqrstuvwxyz')
+        if pos('?',fx) > 0 then iterate
+        files = files file
+      end
+      otherwise nop
+    end
+  end
+
+  /* -------------------------------------------- *
+  | Process the individual files, if any         |
+  | Allocation and Copy                          |
+  * -------------------------------------------- */
+  do i = 1 to words(files)
+    parse value '' with zs1 zs2 zs3 zs4 zs5 zs6 zs7 zs8
+    zs9 = 'Patience while the data is copied from OMVS files' ,
+      'to a z/OS PDS.'
+    sub = word(files,i)
+    fileg = "'"ckothlq"."sub"'"
+    odir = "'"ckotdir"/"sub"'"
+    zs1 = 'Processing file:' sub
+    zs2 = 'From:           ' odir
+    zs3 = 'To:             ' fileg
+    call pop_status
+    call outtrap 'x.'
+    'oget' odir fileg 'text'
+    call outtrap 'off'
+  end
+
+  /* -------------------------------------------- *
+  | Process the sub-directories and initiate the |
+  | Allocation and Copy                          |
+  * -------------------------------------------- */
+  do i = 1 to words(subs)
+    parse value '' with zs1 zs2 zs3 zs4 zs5 zs6 zs7 zs8
+    zs9 = 'Patience while the data is copied from OMVS files' ,
+      'to a z/OS PDS.'
+    sub = word(subs,i)
+    zs1 = 'Processing subdirectory:' sub
+    zs2 = 'Members:                ' dir.sub
+    zs3 = 'Total bytes (k):        ' size.sub
+    tracks =  (size.sub%50000 + 1) * 2
+    zs4 = 'Tracks allocated:       ' tracks
+    call pop_status
+    call alloc_copy_pds
+    call add_stats
+  end
+
+  Exit
+
+  /* ---------------------------------------------- *
+  | Allocate the PDS and perform the copy (OGETX)  |
+  | - the PDS will be allocated as a PDSE          |
+  | - if the target PDS exists delete and realloc  |
+  * ---------------------------------------------- */
+Alloc_Copy_PDS:
+  pds = "'"ckothlq"."sub"'"
+  odir = "'"ckotdir"/"sub"/"
+  zs8 = ''
+  if sysdsn(pds) = 'OK' then do
+    zs8 = 'Re-Allocating'
+    call outtrap 'x.'
+    'delete' pds
+    call outtrap 'off'
+  end
+  zs5 = 'Allocating PDSE:        ' pds
+  call pop_status
+  'Alloc new spa('tracks','tracks') recfm(f b) lrecl(80)' ,
+    'Blksize(32720) Dsntype(Library,2) dsorg(po) dir(1)' ,
+    'dsn('pds')'
+  'Free ds('pds')'
+  zs6 =  'Populating from:        ' odir
+  call pop_status
+  'ogetx' odir pds 'text lc quiet'
+  return
+
+  /* ------------ *
+  | PopUp Status |
+  * ------------ */
+Pop_Status:
+  Address ISPExec
+  call pfshow 'off'
+  'Control Display Lock'
+  'Addpop row(4) column(2)'
+  'Display Panel(zigipopc)'
+  'Rempop'
+  call pfshow 'reset'
+  Address TSO
+  return
+
+  /* ---------------------------------- *
+  | Add ISPF Statistics to all Members |
+  | - set the initial userid to GIT    |
+  * ---------------------------------- */
+Add_Stats:
+  zs7 = 'Adding ISPF Statistics  '
+  call pop_status
+  members = ''
+  call outtrap 'm.'
+  'listd' pds 'mem'
+  call outtrap 'off'
+
+  division = 10
+  incr = (m.0 % division) + 1
+  progc = '**'
+  perc# = 0
+
+  do ix = 7 to m.0
+    members = members word(m.ix,1)
+  end
+  members_c = words(members)
+  Address ISPExec
+  "LMINIT DATAID(DATAID) Dataset("pds")"
+  "LMOPEN DATAID("dataid")"
+  do im = 1 to members_c
+
+    if im//incr = 0 then do
+      perc# = perc# + division
+      perc = perc#"%"
+      zs7 = 'Adding ISPF Statistics: ' perc
+      call pop_status
+    end
+
+    member = word(members,im)
+    "LMMSTATS DATAID("dataid") Member("member") User(GIT)"
+  end
+  "LMCLOSE DATAID("dataid")"
+  "LMFREE  DATAID("dataid")"
+  Address TSO
+  return
+
+  /* ------------------------------------------------------ *
+  | The pfshow routine will:                               |
+  | 1. check to see the passed option                      |
+  | 2. if Off then it will save the current pfshow setting |
+  |    - save the current setting                          |
+  |    - turn off pfshow                                   |
+  | 3. if the option is Reset then it will                 |
+  |    - test if pfshow was on and turn it back on         |
+  * ------------------------------------------------------ */
+pfshow:
+  arg pfkopt
+  if pfkopt = 'RESET' then do
+    if pfkeys = 'ON' then
+    'select pgm(ispopf) parm(FKA,ON)'
+  end
+  if pfkopt = 'OFF' then do
+    'vget (zpfshow)'
+    pfkeys = zpfshow
+    if pfkeys /= 'OFF' then
+    'select pgm(ispopf) parm(FKA,OFF)'
+  end
+  return
