@@ -173,7 +173,7 @@ Pop_Status:
 
   /* ---------------------------------- *
   | Add ISPF Statistics to all Members |
-  | - set the initial userid to GIT    |
+  | - set the initial userid to ZIGI   |
   * ---------------------------------- */
 Add_Stats:
   zs7 = 'Adding ISPF Statistics  '
@@ -205,7 +205,7 @@ Add_Stats:
     end
 
     member = word(members,im)
-    "LMMSTATS DATAID("dataid") Member("member") User(GIT)"
+    "LMMSTATS DATAID("dataid") Member("member") User(ZIGI)"
   end
   "LMCLOSE DATAID("dataid")"
   "LMFREE  DATAID("dataid")"
