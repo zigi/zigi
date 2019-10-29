@@ -560,17 +560,18 @@ Work_With_Repo:
                 then "Edit Dataset("fulldsn")"
                 else "Edit Dataset('"edsn"("mem")'"
                 if rc = 0 then do
-                  memstat = 'Modified'
-                  'TBPut' rtll
+                   /* so after the edit, we should update it to repo */
+                   memstat = 'Modified'
+                   'TBPut' rtll
+                   mem = usssafe(mem)
+                   edsn = usssafe(edsn)
+                   if sysdsorg = 'PS'
+                   then copcm = "//'"edsn"'"
+                   else copcm = "//'"edsn"("mem")'"
+                   copcm = 'cp -U -M "'copcm'" ,
+                      'localrep'/'zigirep'/'dsn'/'ussmem
+                   call bpxwunix copcm
                 end
-                /* so after the edit, we should update it to repo */
-                mem = usssafe(mem)
-                edsn = usssafe(edsn)
-                if sysdsorg = 'PS'
-                then copcm = "//'"edsn"'"
-                else copcm = "//'"edsn"("mem")'"
-                copcm = 'cp -U -M "'copcm'" 'localrep'/'zigirep'/'dsn'/'ussmem
-                call bpxwunix copcm
               end
               when zsel = 'A' then do
                 /* -------------------------------- *
