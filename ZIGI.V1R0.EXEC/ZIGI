@@ -1497,4 +1497,30 @@ Do_Add_Copy:
   dastat = 'Added'
   'tbput' dsnatbl
   add_count = add_count + 1
+  call save_dsninfo
+  return
+
+/* ------------------------------------------------------- *
+ | Get the DCB and optionally Directory info for the added |
+ | dataset and save in the /.zigi/dsn file for use when    |
+ | creating/recreating the z/OS dataset.                   |
+ |                                                         |
+ | Format is:                                              |
+ |  directory name (dsn)                                   |
+ |  recfm                                                  |
+ |  lrecl                                                  |
+ |  blksize                                                |
+ |  directory size (## if PDS or NO_LIM for PDSE orr       |
+ |                  blank if PS)                           |
+ * ------------------------------------------------------- */
+Save_dsninfo:
+  x = listdsi(fulldsn)
+  dsn_record = dsn sysrecfm syslrecl sysblksize sysadirblk
+/* ------------------------------------------------ *
+ | Need to add code to:                             |
+ | - read the current /.zigi/dsn file               |
+ | - replace existing info for the dataset if there |
+ | - or add the info                                |
+ | - Add code to ZIGICKOT to use this info          |
+ * ------------------------------------------------ */
   return
