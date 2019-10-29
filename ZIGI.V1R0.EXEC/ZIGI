@@ -269,7 +269,7 @@
     zsel = null
     zcmd = null
     'tbdispl zigirepo panel(zigiprim)'
-    if rc > 0 then leave
+    if rc > 4 then leave
     Select
       When abbrev('CREATE',zcmd,2) = 1 then call Create_Repo
       When abbrev('CLONE',zcmd,2) = 1 then call Clone_Repo
@@ -547,7 +547,7 @@ Work_With_Repo:
               'TBdispl' rtll 'Panel(zigilist)'
             end
             else 'tbdispl' rtll
-            if rc > 0 then do
+            if rc > 4 then do
               'tbend' rtll
               leave
             end
@@ -559,7 +559,7 @@ Work_With_Repo:
             else
             edsn = dsn
             select
-              When translate(word(zcmd,1)) = 'L' then do
+              When abbrev("L",word(zcmd,1),1) = 1 then do
                 mem = translate(word(zcmd,2))
                 'tbtop' rtll
                 'tbsarg' rtll
@@ -701,13 +701,11 @@ Clone_Repo:
       zs1 = 'Clone failed'
       zs2 = zigirep' is not a zigi-managed repo'
       call pfshow 'off'           /* make sure pfshow is off */
-      'Control Display Lock'
       'Addpop row(4) column(12)'
       'Display Panel(zigipop)'
-      x = bpxwunix('rm -rf 'localrep'/'zigirep,,so.,se.)
-      address 'SYSCALL' 'SLEEP (2)'
       'Rempop'
       call pfshow 'reset'         /* restore pfshow setting */
+      x = bpxwunix('rm -rf 'localrep'/'zigirep,,so.,se.)
       leave
     end
     call Refresh localrep,zigirep,pdshlq
@@ -795,7 +793,7 @@ Branch_it:
     newb = null
     zsel = null
     'tbdispl' rtbb 'panel(zigibra)'
-    if rc > 0 then leave
+    if rc > 4 then leave
     if newb <> null then do
       /* ----------------------------- *
       | Create this new branch, switch|
@@ -818,11 +816,8 @@ Branch_it:
         zs1 = 'Cannot checkout branch.'
         zs2 = so.1
         call pfshow 'off'           /* make sure pfshow is off */
-        'Control Display Lock'
         'Addpop row(4) column(12)'
         'Display Panel(zigipop)'
-        cmd = docmd('sleep 2')
-        address 'SYSCALL' 'SLEEP (2)'
         'Rempop'
         call pfshow 'reset'         /* restore pfshow setting */
       end

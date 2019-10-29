@@ -10,10 +10,12 @@
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
 %
 %Current Dataset    : $fulldsn
-%Current Repository : $zigirep                %S+Edit member
-%Current Branch     : $branch                 %A+Add member to staging area
-%                                             %D+See the diff
-
+%Current Repository : $zigirep
+%Current Branch     : $branch
+%
+%Commands:  %L+Locate
+%Selections:%S+Edit%A+Add for commit%D+Show Diff
+%
 %S  Status                    Member
 )Model
 @z+$z                        $z                                         +
