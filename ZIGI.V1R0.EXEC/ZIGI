@@ -467,6 +467,8 @@ Work_With_Repo:
       | Work with a repo item            |
       * -------------------------------- */
       When zsel = 'S' then do
+        x = listdsi(fulldsn)
+        if sysdsorg /= 'PS' then do
         zs1 = 'Building list of library statuses....'
         zs2 = 'Patience . . .'
         call pfshow 'off'           /* make sure pfshow is off */
@@ -475,6 +477,7 @@ Work_With_Repo:
         'Display Panel(zigipop)'
         'Rempop'
         call pfshow 'reset'         /* restore pfshow setting */
+        end
         'TBCreate' rtll 'Names(mem memstat pdshlq ussmem) replace NoWrite'
         /* Determine if the repo item is a PDS or a flat-file */
         cmd = "[[ -f "localrep"/"zigirep"/"dsn" ]] && echo f"
@@ -550,9 +553,12 @@ Work_With_Repo:
             select
               when zsel = 'S' then do
                 /* -------------------------------- *
-                | Edit member of a PDS             |
+                | Edit PDS member or PS dataset    |
                 * -------------------------------- */
-                "Edit Dataset('"edsn"("mem")'"
+                x = listdsi(fulldsn)
+                if sysdsorg = 'PS'
+                then "Edit Dataset("fulldsn")"
+                else "Edit Dataset('"edsn"("mem")'"
                 if rc = 0 then do
                   memstat = 'Modified'
                   'TBPut' rtll
@@ -560,7 +566,9 @@ Work_With_Repo:
                 /* so after the edit, we should update it to repo */
                 mem = usssafe(mem)
                 edsn = usssafe(edsn)
-                copcm = "//'"edsn"("mem")'"
+                if sysdsorg = 'PS'
+                then copcm = "//'"edsn"'"
+                else copcm = "//'"edsn"("mem")'"
                 copcm = 'cp -U -M "'copcm'" 'localrep'/'zigirep'/'dsn'/'ussmem
                 call bpxwunix copcm
               end
@@ -762,7 +770,7 @@ Branch_it:
     zsel = null
     'tbdispl' rtbb 'panel(zigibra)'
     if rc > 0 then leave
-    if newb <> "" then do
+    if newb <> null then do
       /* ----------------------------- *
       | Create this new branch, switch|
       * ----------------------------- */
@@ -1096,21 +1104,18 @@ dsnvalid: Procedure
     return "NO"
   end
 
-STRREPLACE:
-  ORIGINAL = ARG(1)
-  OLDTXT = ARG(2)
-  NEWTXT = ARG(3)
-  TMPTXT = '6A53CD2EW1F'
-  NEWSTR = ORIGINAL
-  DO WHILE POS(OLDTXT,NEWSTR) > 0
-  NEWSTR = SUBSTR(NEWSTR, 1 , POS(OLDTXT,NEWSTR)-1) ||,
-  TMPTXT || SUBSTR(NEWSTR, POS(OLDTXT,NEWSTR) + LENGTH(OLDTXT))
-  END
-  DO WHILE POS(TMPTXT,NEWSTR) > 0
-  NEWSTR = SUBSTR(NEWSTR, 1 , POS(TMPTXT,NEWSTR)-1) ||,
-  NEWTXT || SUBSTR(NEWSTR, POS(TMPTXT,NEWSTR) + LENGTH(TMPTXT))
-  END
-  RETURN NEWSTR
+strreplace: Procedure
+  string  = arg(1)
+  strfrom = arg(2)
+  strto   = arg(3)
+  if pos(strfrom,string) = 0 then return string
+  newString = ''
+  do i = 1 to length(string)
+    if substr(string,i,1) /= strfrom
+    then newstring = newstring''substr(string,i,1)
+    else  newstring = newstring''strto
+  end
+  return newstring
 
 idle:
   parse arg secs
@@ -1156,11 +1161,11 @@ update_repo_metadata:
         /* and only for valid z/OS-datasets (skip README.md et al) */
         r = usssafe(root.i)
         cmd = '[ -d 'localrep'/'zigirep'/'r' ] && echo "DIR"'
-        so.1 = ""
+        so.1 = null
         x = bpxwunix(cmd,,so.,se.)
         if so.1 = "DIR" & x = 0 then do
           /* And only for dirs in the repo (PDSes in z/OS) */
-          if pdshlq /= "" then
+          if pdshlq /= null then
           /* make sure to add the prefix :) */
           edsn = pdshlq'.'root.i
           else
@@ -1269,7 +1274,7 @@ update_repo_metadata:
     remote2 = word(so.2,1) || ' ' || word(so.2,2) || ' ' || word(so.2,3)
   if so.0 = 0 then do
     remote1 = "<no remote defined>"
-    remote2 = ""
+    remote2 = null
   end
   return
 
@@ -1351,8 +1356,7 @@ Add_Dataset:
   if keeppfx = null then keeppfx = 'Y'
   'tbcreate' dsnatbl 'names(dastat dsna) nowrite'
   'vput (keeppfx) profile'
-  if dsnapfx = null then dsnapnl = 'zigidsna'
-  else dsnapnl = 'zigidsnb'
+  dsnapnl = 'zigidsna'
   old_dsnapfx = dsnapfx
   do forever
     if ztdsels > 1
@@ -1368,10 +1372,7 @@ Add_Dataset:
       return
     end
     top = ztdtop
-    if zsel = 'S' then do
-      call do_add_copy
-      call update_repo_metadata
-    end
+    if zsel = 'S' then call do_add_copy
     'vput (keeppfx) profile'
     if dsnapfx /= old_dsnapfx then list = 0
     old_dsnapfx = dsnapfx
@@ -1406,6 +1407,8 @@ Add_Dataset:
     end
     'tbtop' dsnatbl
   end
+  if add_count > 0 then
+  call update_repo_metadata
   return
 
 /* -------------------------------------------- *
@@ -1454,10 +1457,6 @@ Do_Add_Copy:
     PDS = usssafe(PDS)
     mkdir = "mkdir -p "DIR"/"dsna
     call bpxwunix mkdir
-    /* Comment Start
-    Address TSO,
-    "oputx '"pds"'" dir'/'dsna 'text quiet'
-       Comment End */
     copycmd = "//'"pds"'"
     copycmd = '"'copycmd'"'
     copycmd = "cp -U -M" copycmd" "DIR"/"dsna"/"
@@ -1469,12 +1468,6 @@ Do_Add_Copy:
     copycmd = '"'copycmd'"'
     copycmd = "cp -U -M" copycmd" "DIR"/"dsna
     call bpxwunix copycmd
-    /* Comment Start
-    call outtrap 'x.'
-    Address TSO,
-    "oput '"what"'" dir'/'dsna 'text'
-    call outtrap 'off'
-       Comment End */
   end
   dsnstat = '[??] Untracked'
   dsn = dsna
