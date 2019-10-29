@@ -326,10 +326,10 @@ Work_With_Repo:
     if ztdsels > 0
     then 'TBdispl' rtbl
     else do
-    'tbtop' rtbl
-    'tbskip' rtbl 'Number('rtop')'
-    'TBdispl' rtbl 'Panel(zigirepo)'
-    rtop = ztdtop
+      'tbtop' rtbl
+      'tbskip' rtbl 'Number('rtop')'
+      'TBdispl' rtbl 'Panel(zigirepo)'
+      rtop = ztdtop
     end
     if rc > 4 then leave
     drop so. se.
@@ -469,14 +469,14 @@ Work_With_Repo:
       When zsel = 'S' then do
         x = listdsi(fulldsn)
         if sysdsorg /= 'PS' then do
-        zs1 = 'Building list of library statuses....'
-        zs2 = 'Patience . . .'
-        call pfshow 'off'           /* make sure pfshow is off */
-        'Control Display Lock'
-        'Addpop row(4) column(12)'
-        'Display Panel(zigipop)'
-        'Rempop'
-        call pfshow 'reset'         /* restore pfshow setting */
+          zs1 = 'Building list of library statuses....'
+          zs2 = 'Patience . . .'
+          call pfshow 'off'           /* make sure pfshow is off */
+          'Control Display Lock'
+          'Addpop row(4) column(12)'
+          'Display Panel(zigipop)'
+          'Rempop'
+          call pfshow 'reset'         /* restore pfshow setting */
         end
         'TBCreate' rtll 'Names(mem memstat pdshlq ussmem) replace NoWrite'
         /* Determine if the repo item is a PDS or a flat-file */
@@ -491,12 +491,12 @@ Work_With_Repo:
           "Edit Dataset('"edsn"')"
           /* so after the edit, we should update it to working directory */
           if rc = 0 then do
-          edsn = usssafe(edsn)
-          copcm = "//'"edsn"'"
-          copcm = 'cp -U -M "'copcm'" 'localrep'/'zigirep'/'dsn
-          call bpxwunix copcm
+            edsn = usssafe(edsn)
+            copcm = "//'"edsn"'"
+            copcm = 'cp -U -M "'copcm'" 'localrep'/'zigirep'/'dsn
+            call bpxwunix copcm
           end
-        dsnstat = '*Edit'
+          dsnstat = '*Edit'
         end
         else do
           /* Do this if it's a directory */
@@ -536,21 +536,46 @@ Work_With_Repo:
           /* ---------------------------------- *
           | Process the Member list until done |
           * ---------------------------------- */
+          save_top = 0
+          ztdsels  = 0
           Do Forever
             zsel = null
             zcmd = null
-            'TBdispl' rtll 'Panel(zigilist)'
+            if ztdsels = 0 then do
+              'tbtop' rtll
+              'tbskip' rtll 'number('save_top')'
+              'TBdispl' rtll 'Panel(zigilist)'
+            end
+            else 'tbdispl' rtll
             if rc > 0 then do
               'tbend' rtll
               leave
             end
             /* Make sure we edit (and copy) right dataset when we have
             a prefix set */
+            save_top = ztdtop
             if pdshlq <> "" then
             edsn = pdshlq"."dsn
             else
             edsn = dsn
             select
+              When translate(word(zcmd,1)) = 'L' then do
+                mem = translate(word(zcmd,2))
+                'tbtop' rtll
+                'tbsarg' rtll
+                'tbscan' rtll 'arglist(mem) position(scanrow) condlist(ge)'
+                if rc = 0 then do
+                  save_top = scanrow
+                  zerrsm = 'Found'
+                  zerrlm = word(zcmd,2) 'was found in row' ztdtop
+                  'Setmsg msg(isrz002)'
+                end
+                else do
+                  zerrsm = 'Not Found'
+                  zerrlm = word(zcmd,2) 'was not found'
+                  'Setmsg msg(isrz002)'
+                end
+              end
               when zsel = 'S' then do
                 /* -------------------------------- *
                 | Edit PDS member or PS dataset    |
@@ -560,17 +585,17 @@ Work_With_Repo:
                 then "Edit Dataset("fulldsn")"
                 else "Edit Dataset('"edsn"("mem")'"
                 if rc = 0 then do
-                   /* so after the edit, we should update it to repo */
-                   memstat = 'Modified'
-                   'TBPut' rtll
-                   mem = usssafe(mem)
-                   edsn = usssafe(edsn)
-                   if sysdsorg = 'PS'
-                   then copcm = "//'"edsn"'"
-                   else copcm = "//'"edsn"("mem")'"
-                   copcm = 'cp -U -M "'copcm'" ,
+                  /* so after the edit, we should update it to repo */
+                  memstat = 'Modified'
+                  'TBPut' rtll
+                  mem = usssafe(mem)
+                  edsn = usssafe(edsn)
+                  if sysdsorg = 'PS'
+                  then copcm = "//'"edsn"'"
+                  else copcm = "//'"edsn"("mem")'"
+                  copcm = 'cp -U -M "'copcm'" ,
                       'localrep'/'zigirep'/'dsn'/'ussmem
-                   call bpxwunix copcm
+                  call bpxwunix copcm
                 end
               end
               when zsel = 'A' then do
@@ -953,7 +978,7 @@ Create_Repo:
     leave
   end
   if zerrsm = null then
-     call work_with_repo
+  call work_with_repo
   return
 
   /* ---------------------------------------------------------- *
@@ -1258,21 +1283,21 @@ update_repo_metadata:
   x = bpxwunix(cmd,,so.,se.)
   branch = word(so.1,3)
   if so.0 > 1 then do
-  branch_status = word(so.2,4)
-  parse var so.2 bstat","baction
+    branch_status = word(so.2,4)
+    parse var so.2 bstat","baction
   end
   else do
     parse value '' with branch_status bstat baction
-    end
+  end
   /* get the remote info.....but */
   /* we have to get rid of the tab in git output */
   gitcmd = 'git remote -v | sed -e "s/[[:space:]]\+/ /g"'
   cmd = docmd('cd 'localdir' && 'gitcmd)
   x = bpxwunix(cmd,,so.,se.)
   if so.0 > 0 then
-    remote1 = word(so.1,1) || ' ' || word(so.1,2) || ' ' || word(so.1,3)
+  remote1 = word(so.1,1) || ' ' || word(so.1,2) || ' ' || word(so.1,3)
   if so.0 > 1 then
-    remote2 = word(so.2,1) || ' ' || word(so.2,2) || ' ' || word(so.2,3)
+  remote2 = word(so.2,1) || ' ' || word(so.2,2) || ' ' || word(so.2,3)
   if so.0 = 0 then do
     remote1 = "<no remote defined>"
     remote2 = null
@@ -1412,10 +1437,10 @@ Add_Dataset:
   call update_repo_metadata
   return
 
-/* -------------------------------------------- *
- | Perform the actual copy of the added dataset |
- | to the local repository.                     |
- * -------------------------------------------- */
+  /* -------------------------------------------- *
+  | Perform the actual copy of the added dataset |
+  | to the local repository.                     |
+  * -------------------------------------------- */
 Do_Add_Copy:
   zsel = null
   if keeppfx = 'N' then do
