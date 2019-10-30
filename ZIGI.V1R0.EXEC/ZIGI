@@ -398,7 +398,10 @@ Work_With_Repo:
       /* --------------------------------------------------------- *
       | Add a PDS or a Sequential File to "Working Directory"     |
       * --------------------------------------------------------- */
-      When abbrev('ADD',zcmd,3) = 1 then call Add_Dataset
+      When abbrev('ADD',zcmd,3) = 1 then do
+        call Add_Dataset
+        if add_count > 0 then call update_repo_metadata
+      end
       /* -------------------------------- *
       | View output of git status        |
       * -------------------------------- */
@@ -726,7 +729,9 @@ Clone_Repo:
     call Refresh localrep zigirep pdshlq qualignr
     Address ISPExec
     'tbadd zigirepo'
+    /*
     "TBSAVE zigirepo REPLCOPY LIBRARY(isptabl)"
+    */
     zerrsm = 'Complete'
     zerrlm = zigirep 'has been added/updated in the table'
     'setmsg msg(isrz002)'
@@ -1451,10 +1456,13 @@ update_repo_metadata:
         'tbtop' rtbl
         if add_count > 0 then
         'tbput zigirepo'
+        "TBSAVE zigirepo REPLCOPY LIBRARY(isptabl)"
         return
       end
       top = ztdtop
-      if zsel = 'S' then call do_add_copy
+      if zsel = 'S' then do
+        call do_add_copy
+      end
       if list /= 1 then do
         dsnapfx = strip(dsnapfx)
         Address TSO
@@ -1478,8 +1486,6 @@ update_repo_metadata:
       end
       'tbtop' dsnatbl
     end
-    if add_count > 0 then
-    call update_repo_metadata
     return
 
   /* -------------------------------------------- *
@@ -1528,8 +1534,8 @@ update_repo_metadata:
       call bpxwunix copycmd
     end
     else do
-      WHAT = usssafe(WHAT)
-      copycmd = "//'"WHAT"'"
+      W = usssafe(WHAT)
+      copycmd = "//'"W"'"
       copycmd = '"'copycmd'"'
       copycmd = "cp -U -M" copycmd" "DIR"/"dsnb
       call bpxwunix copycmd
