@@ -16,11 +16,11 @@
 +may add more datasets to this repository but you may not change the dataset
 +prefix or the number of qualifier in the prefix to ignore.
 +
-%S  Status         Dataset Name
+%S  Dataset Name                                Status
 )Model
-@z+$z             $z
+@z+$z                                          $z
 )Init
-  .zvars = '(qualignr zsel dastat dsna)'
+  .zvars = '(qualignr zsel dsna dastat)'
   .help = zigihad0
   &zscr = CSR
 )Proc

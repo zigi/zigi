@@ -23,7 +23,7 @@
 %Refresh +Replace MVS datasets        %Grep   +Execute a 'git grep'
 +
 %S+to select dataset (Edit if PS, memberlist if PO)
-%A+to add%modified+datasets/members to index
+%A+to add%modified+datasets/members to index (one at a time please)
 +
 %S  Status                    Dataset Name
 )Model
