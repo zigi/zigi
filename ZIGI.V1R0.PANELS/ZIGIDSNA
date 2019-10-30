@@ -16,11 +16,11 @@
 +below. Optionally change the number of qualifiers to ignore in the prefix
 +for the OMVS file name or directory.
 +
-%S  Status         Dataset Name
+%S  Dataset Name                                Status
 )Model
-@z+$z             $z
+@z+$z                                          $z
 )Init
-  .zvars = '(qualignr zsel dastat dsna)'
+  .zvars = '(qualignr zsel dsna dastat)'
   .help = zigihad0
   &zscr = CSR
 )Reinit
