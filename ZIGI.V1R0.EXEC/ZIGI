@@ -1586,6 +1586,17 @@ update_repo_metadata:
     'oput' sd_dsn "'"path"' text"
     'free f('sd_dd')'
     'delete' sd_dsn
+    /* Add the dsn to the repo so it comes along with
+       the pushes and is part of repo. Needs work.
+       When datasets are not actually added to the repo
+       the dsn files has 'unneeded' dsn entries...
+    */
+    cmd = 'cd 'localrep'/'zigirep' && git add .zigi/dsn'
+    /* Uncomment if we want to auto-commit this....
+    cmd = cmd || ' && git commit -m "zigi dsn update"'
+    */
+    cmd = docmd(cmd)
+    x = bpxwunix(cmd,,so.,se.)
     call outtrap 'off'
   /* ------------------------------------------------ *
   | Need to add code to:                             |
