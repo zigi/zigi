@@ -9,26 +9,25 @@
 +\-\#(z ISPF Git Dataset Add)+-\-\
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
 +
-%Enter Dataset Prefix: @dsnapfx                               +
-%Keep the prefix in the repo:@z+(%Y+or%N+)
+%Fixed Dataset Prefix:             @dsnapfx                               +
+%Ignore 1st n qualifiers in prefix:@z+(0 to 8)
 +
-+ Enter a prefix to add datasets under that prefix to the repo via the list
-+ below. When you select%N+above to not keep the prefix, datsets in the repo
-+ will not have that prefix. If you select%N+the prefix entered will be the
-+ prefix for the full repository, meaning you%can't add+datasets with a prefix
-+ other than the one you select here.
++Enter a prefix to add datasets under that prefix to the repo via the list
++below. Optionally change the number of qualifiers to ignore in the prefix
++for the OMVS file name or directory.
 +
 %S  Status         Dataset Name
 )Model
 @z+$z             $z
 )Init
-  .zvars = '(keeppfx zsel dastat dsna)'
-  .CURSOR = DSNAPFX
+  .zvars = '(qualignr zsel dastat dsna)'
   .help = zigihad0
   &zscr = CSR
+)Reinit
+ if (&qualignr EQ &Z)
+    .CURSOR = QUALIGNR
 )Proc
  ver (&dsnapfx,nb,dsname)
- ver (&keeppfx,nb,list,Y,N)
+ ver (&qualignr,nb,range,0,8)
  ver (&zsel,list,S)
 )End
-*/

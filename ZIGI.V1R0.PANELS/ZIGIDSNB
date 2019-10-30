@@ -1,7 +1,7 @@
 )Attr Default(%+_)
   _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
   @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
-  $ type(output) intens(low ) caps(off) just(left )
+  $ type(output) intens(low ) caps(off) just(left)
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
  # type(text) hilite(reverse) color(turq)
@@ -9,24 +9,20 @@
 +\-\#(z ISPF Git Dataset Add)+-\-\
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
 +
-%Fixed Dataset Prefix: $dsnapfx                               +
-%Keep the prefix in the repo:$z+(%Y+or%N+)
+%Fixed Dataset Prefix:             $dsnapfx                               +
+%Ignore 1st n qualifiers in prefix:$z+
 +
-+ You've selected to not keep the prefix. Only datsets with the prefix you
-+ selected are elligible to be added to the repository.
-+ Press%ENTER+to refresh the list of datasets that can be added to this
-+ repository.
++The repository already exists, and datasets have already been added. You
++may add more datasets to this repository but you may not change the dataset
++prefix or the number of qualifier in the prefix to ignore.
 +
 %S  Status         Dataset Name
 )Model
 @z+$z             $z
 )Init
-  .zvars = '(keeppfx zsel dastat dsna)'
+  .zvars = '(qualignr zsel dastat dsna)'
   .help = zigihad0
   &zscr = CSR
 )Proc
- ver (&dsnapfx,nb,dsname)
- ver (&keeppfx,nb,list,Y,N)
  ver (&zsel,list,S)
 )End
-*/
