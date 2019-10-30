@@ -15,6 +15,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            10/30/19 LBD - Get DCB info from /.zigi/dsn     |
   |            10/28/19 LBD - Support sequential files         |
   |            06/12/19 LBD - Correct to handle a git direcory |
   |            06/11/19 LBD - Add popup status                 |
@@ -48,8 +49,32 @@
   /* ------------------------- *
   | Define our work variables |
   * ------------------------- */
-  parse value '' with subs files
+  parse value '' with subs files null
   hit = 0
+
+/* ------------------------------------ *
+ | Read in ../.zigi/dsn to get dcb info |
+ * ------------------------------------ */
+  call outtrap 'x.'
+  ckdd = 'ck'time('s')
+  if sysvar('syspref') = null then pref = sysvar('sysuid')'.'
+                              else pref = null
+  "oget '"ckotdir"/.zigi/dsn'" ckdd 'text'
+  'Alloc f('ckdd') shr ds('ckdd')'
+  'Execio * diskr' ckdd '(finis stem ck.'
+  'Free f('ckdd')'
+  'delete' ckdd
+  call outtrap 'off'
+  do i = 1 to ck.0
+     if left(ck.i,1) = '#' then iterate
+     if word(ck.i,1) = '*' then do
+        parse value ck.i with . def_dsorg def_recfm def_lrecl def_blksize .
+        end
+    else do
+        dsn = word(ck.i,1)
+        def.dsn = subword(ck.i,2)
+        end
+    end
 
   /* ---------------------------------------------------- *
   | Process the results of the ls command to:            |
@@ -148,8 +173,18 @@ Alloc_Copy_PDS:
   end
   zs5 = 'Allocating PDSE:        ' pds
   call pop_status
-  'Alloc new spa('tracks','tracks') recfm(f b) lrecl(80)' ,
-    'Blksize(32720) Dsntype(Library,2) dsorg(po) dir(1)' ,
+
+  if def.sub /= null then do
+     parse value def.sub with dsorg recfm lrecl blksize
+     recfm = left(recfm,1) substr(recfm,2,1) substr(recfm,3,1)
+     end
+     else do
+       recfm = left(def_recfm,1) substr(def_recfm,2,1) substr(def_recfm,3,1)
+       lrecl = def_lrecl
+       blksize = def_blksize
+     end
+  'Alloc new spa('tracks','tracks') recfm('recfm') lrecl('lrecl')' ,
+    'Blksize('blksize') Dsntype(Library,2) dsorg(po) dir(1)' ,
     'dsn('pds')'
   'Free ds('pds')'
   zs6 =  'Populating from:        ' odir
