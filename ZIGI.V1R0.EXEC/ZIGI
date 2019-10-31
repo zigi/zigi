@@ -1448,6 +1448,9 @@ Add_Dataset:
     if dsnapfx = null
     then dsnapnl = 'zigidsna'
     else dsnapnl = 'zigidsnb'
+    if dsnapfx /= null
+       then if list = null
+            then call get_list
     if ztdsels > 1
     then 'tbdispl' dsnatbl
     else do
@@ -1475,21 +1478,7 @@ Add_Dataset:
     if zsel = 'S' then do
       call do_add_copy
     end
-    if list /= 1 then do
-      dsnapfx = strip(dsnapfx)
-      Address TSO
-      call outtrap 'x.'
-      'listc level('dsnapfx')'
-      call outtrap 'off'
-      Address ISPExec
-      do dsni = 1 to x.0
-        if left(x.dsni,7) /= 'NONVSAM' then iterate
-        parse value x.dsni with . . dsna .
-        'tbadd' dsnatbl
-        lc_count = lc_count + 1
-      end
-      list = 1
-    end
+    if list = null then call get_list
     if lc_count = 0 then do
       zerrsm = 'Empty List'
       zerrlm = 'The requested high level qualifier resulted in zero' ,
@@ -1498,6 +1487,28 @@ Add_Dataset:
     end
     'tbtop' dsnatbl
   end
+  return
+
+Get_List:
+      dsnapfx = strip(dsnapfx)
+      cmd = 'ls' localrep'/'zigirep
+      x = bpxwunix(cmd,,so.,se.)
+      Address TSO
+      call outtrap 'x.'
+      'listc level('dsnapfx')'
+      call outtrap 'off'
+      Address ISPExec
+      do dsni = 1 to x.0
+        if left(x.dsni,7) /= 'NONVSAM' then iterate
+        parse value x.dsni with . . dsna .
+        dastat = null
+        do gl = 1 to so.0
+           if pos(word(so.gl,1),dsna) > 0 then dastat = 'Added'
+           end
+        'tbadd' dsnatbl
+        lc_count = lc_count + 1
+      end
+      list = 1
   return
 
   /* -------------------------------------------- *
