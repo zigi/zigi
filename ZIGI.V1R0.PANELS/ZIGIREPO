@@ -22,8 +22,8 @@
 %Gitlog  +Show git log output         %Remote +Add remote, push intial branch
 %Refresh +Replace MVS datasets        %Grep   +Execute a 'git grep'
 +
-%S+to select dataset (Edit if PS, memberlist if PO)
-%A+to add%modified+datasets/members to index (one at a time please)
+%S+to select dataset (Edit if PS, memberlist if PO, one at a time)
+%A+to add%modified+datasets/members to index
 +
 %S  Status                    Dataset Name
 )Model
