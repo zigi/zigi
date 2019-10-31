@@ -20,6 +20,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            10/31/19 LBD - Various Fixes :)                 |
+  |            10/29/19 LBD - Add MultiDCB Support             |
   |            10/24/19 HBK - Also source ~/.profile if exists |
   |            10/24/19 LBD - Change 2 routines to procedure   |
   |                         - Add Commit message               |
@@ -524,6 +526,7 @@ Work_With_Repo:
               copcm = "//'"edsn"'"
               copcm = 'cp -U -M "'copcm'" 'localrep'/'zigirep'/'dsn
               call bpxwunix copcm
+              call update_repo_metadata
             end
             dsnstat = '*Edit'
           end
