@@ -669,6 +669,7 @@ Work_With_Repo:
         cmd = 'cd' localrep'/'zigirep
         cmd = docmd(cmd || ' && git add 'd)
         x = bpxwunix(cmd,,so.,se.)
+        if ztdsels = 1 then
         call update_repo_metadata
       end
       Otherwise nop
