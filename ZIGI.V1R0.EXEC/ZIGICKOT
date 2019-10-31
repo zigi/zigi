@@ -72,6 +72,7 @@
         end
     else do
         dsn = word(ck.i,1)
+        say "1 def.dsn setting"
         def.dsn = subword(ck.i,2)
         end
     end
@@ -174,7 +175,7 @@ Alloc_Copy_PDS:
   zs5 = 'Allocating PDSE:        ' pds
   call pop_status
 
-  if def.sub /= null then do
+  if def.sub /= def"."sub then do
      parse value def.sub with dsorg recfm lrecl blksize
      recfm = left(recfm,1) substr(recfm,2,1) substr(recfm,3,1)
      end

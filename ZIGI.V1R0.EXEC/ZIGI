@@ -729,9 +729,7 @@ Clone_Repo:
     call Refresh localrep zigirep pdshlq qualignr
     Address ISPExec
     'tbadd zigirepo'
-    /*
     "TBSAVE zigirepo REPLCOPY LIBRARY(isptabl)"
-    */
     zerrsm = 'Complete'
     zerrlm = zigirep 'has been added/updated in the table'
     'setmsg msg(isrz002)'
@@ -757,6 +755,7 @@ Refresh:
   cmd = docmd('cd 'localrep' && git clone 'remote)
   x = bpxwunix(cmd,,so.,se.)
   ckotdir = localrep'/'zigirep
+  if qualignr = "QUALIGNR" then qualignr = 0
   if qualignr = 0
   then ckothlq = pdshlq
   else do
@@ -848,6 +847,7 @@ Branch_it:
       end
       cmd = docmd('cd 'localdir' && git checkout 'bname)
       x = bpxwunix(cmd,,so.,se.)
+      call update_repo_metadata
       call Refresh localrep zigirep pdshlq qualignr
       branch = bname
       leave
