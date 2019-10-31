@@ -502,6 +502,7 @@ Work_With_Repo:
           'Setmsg msg(isrz002)'
         end
       When zsel = 'S' then do
+          x = listdsi(fulldsn)
           if sysdsorg /= 'PS' then do
             zs1 = 'Building list of library statuses....'
             zs2 = 'Patience . . .'

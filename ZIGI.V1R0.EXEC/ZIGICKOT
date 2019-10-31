@@ -59,6 +59,7 @@
   ckdd = 'ck'time('s')
   if sysvar('syspref') = null then pref = sysvar('sysuid')'.'
   else pref = null
+  call outtrap 'x.'
   "oget '"ckotdir"/.zigi/dsn'" ckdd 'text'
   'Alloc f('ckdd') shr ds('ckdd')'
   'Execio * diskr' ckdd '(finis stem ck.'
@@ -138,12 +139,15 @@
     tracks =  (size.sub%50000 + 1) * 2
     sub = fileg
     call get_dcb
-    'alloc ds('fileg') new spa('tracks','tracks') tr' ,
+    'alloc ds('fileg') new spa('tracks','tracks') tr dsorg(ps)' ,
       'recfm('recfm') lrecl('lrecl') blksize('blksize')'
     'free ds('fileg')'
+    fileg = translate(fileg,' ','.')
     m = strreplace(fileg,'.','#')
     m = strreplace(m,'_','@')
     m = strreplace(m,'-','$')
+    m = translate(fileg,'.',' ')
+    call outtrap 'x.'
     'oget' odir m 'text'
     call outtrap 'off'
   end
@@ -186,6 +190,7 @@ Alloc_Copy_PDS:
   end
   zs5 = 'Allocating PDSE:        ' pds
   call pop_status
+  call get_dcb
   'Alloc new spa('tracks','tracks') recfm('recfm') lrecl('lrecl')' ,
     'Blksize('blksize') Dsntype(Library,2) dsorg(po) dir(1)' ,
     'dsn('pds')'
@@ -196,13 +201,13 @@ Alloc_Copy_PDS:
   | Read directory to get all member file names and then |
   | adjust according and then do individual oget         |
   * ---------------------------------------------------- */
-  trace '?i'
   target = substr(pds,2,length(pds)-2)
   call syscalls 'ON'
   address syscall
   rdir = substr(odir,2,length(odir)-2)
   'readdir' rdir 'mems.'
   address ispexec
+  call outtrap 'x.'
   do ii = 1 to mems.0
     if mems.ii = "." | mems.ii = ".." then do
       /* skip the . and .. things */
@@ -223,6 +228,7 @@ Alloc_Copy_PDS:
     "LMCLOSE DATAID("dataid")"
     "LMFREE  DATAID("dataid")"
   end
+  call outtrap 'off'
   return
 
 get_dcb:
