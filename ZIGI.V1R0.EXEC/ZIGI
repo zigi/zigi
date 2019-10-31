@@ -1007,7 +1007,7 @@ Create_Repo:
     call write_fd '#     0 is allowed if system determined blksize is enabled'
     call write_fd '#  '
     call write_fd '# Default DSORG and DCB info'
-    call write_fd '* PO fb 80 32720'
+    call write_fd '* PO FB 80 32720'
     'close' fd
 
     /* ------------------ Let's make our first commit :)       */
