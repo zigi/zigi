@@ -1,0 +1,19 @@
+)Attr
+ $ type(output) caps(off)
+)Body Window(76,12)
++
+  $zs1
+  $zs2
+  $zs3
+  $zs4
+  $zs5
+  $zs6
+  $zs7
+  $zs8
++
+  $zs9
++
+)Init
+ &zwinttl = 'zIGI Check Out Processing'
+)Proc
+)end
