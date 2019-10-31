@@ -1249,7 +1249,7 @@ update_repo_metadata:
           do forever
             "LMMLIST DATAID("zigilmm") OPTION(LIST) MEMBER(MEM)" ,
               "STATS(YES)"
-            if rc > 7 then do
+            if rc > 3 then do
               "LMClose Dataid("zigilmm")"
               "LMFree  Dataid("zigilmm")"
               mem = null
