@@ -52,13 +52,13 @@
   parse value '' with subs files null
   hit = 0
 
-/* ------------------------------------ *
- | Read in ../.zigi/dsn to get dcb info |
- * ------------------------------------ */
+  /* ------------------------------------ *
+  | Read in ../.zigi/dsn to get dcb info |
+  * ------------------------------------ */
   call outtrap 'x.'
   ckdd = 'ck'time('s')
   if sysvar('syspref') = null then pref = sysvar('sysuid')'.'
-                              else pref = null
+  else pref = null
   "oget '"ckotdir"/.zigi/dsn'" ckdd 'text'
   'Alloc f('ckdd') shr ds('ckdd')'
   'Execio * diskr' ckdd '(finis stem ck.'
@@ -67,15 +67,15 @@
   def. = null
   call outtrap 'off'
   do i = 1 to ck.0
-     if left(ck.i,1) = '#' then iterate
-     if word(ck.i,1) = '*' then do
-        parse value ck.i with . def_dsorg def_recfm def_lrecl def_blksize .
-        end
-    else do
-        dsn = word(ck.i,1)
-        def.dsn = subword(ck.i,2)
-        end
+    if left(ck.i,1) = '#' then iterate
+    if word(ck.i,1) = '*' then do
+      parse value ck.i with . def_dsorg def_recfm def_lrecl def_blksize .
     end
+    else do
+      dsn = word(ck.i,1)
+      def.dsn = subword(ck.i,2)
+    end
+  end
 
   /* ---------------------------------------------------- *
   | Process the results of the ls command to:            |
@@ -134,14 +134,17 @@
     call pop_status
     call outtrap 'x.'
     if sysdsn(fileg) = 'OK' then
-       'delete' fileg
+    'delete' fileg
     tracks =  (size.sub%50000 + 1) * 2
     sub = fileg
     call get_dcb
     'alloc ds('fileg') new spa('tracks','tracks') tr' ,
-       'recfm('recfm') lrecl('lrecl') blksize('blksize')'
+      'recfm('recfm') lrecl('lrecl') blksize('blksize')'
     'free ds('fileg')'
-    'oget' odir fileg 'text'
+    m = strreplace(fileg,'.','#')
+    m = strreplace(m,'_','@')
+    m = strreplace(m,'-','$')
+    'oget' odir m 'text'
     call outtrap 'off'
   end
 
@@ -183,26 +186,55 @@ Alloc_Copy_PDS:
   end
   zs5 = 'Allocating PDSE:        ' pds
   call pop_status
-
   'Alloc new spa('tracks','tracks') recfm('recfm') lrecl('lrecl')' ,
     'Blksize('blksize') Dsntype(Library,2) dsorg(po) dir(1)' ,
     'dsn('pds')'
   'Free ds('pds')'
   zs6 =  'Populating from:        ' odir
   call pop_status
-  'ogetx' odir pds 'text lc quiet'
+  /* ---------------------------------------------------- *
+  | Read directory to get all member file names and then |
+  | adjust according and then do individual oget         |
+  * ---------------------------------------------------- */
+  trace '?i'
+  target = substr(pds,2,length(pds)-2)
+  call syscalls 'ON'
+  address syscall
+  rdir = substr(odir,2,length(odir)-2)
+  'readdir' rdir 'mems.'
+  address ispexec
+  do ii = 1 to mems.0
+    if mems.ii = "." | mems.ii = ".." then do
+      /* skip the . and .. things */
+      iterate
+    end
+    src = rdir'/'mems.ii
+    /* fix the cp -M behavior on the way in */
+    m = strreplace(mems.ii,'.','#')
+    m = strreplace(m,'_','@')
+    m = strreplace(m,'-','$')
+    Address TSO
+    'OGET' "'"src"'" "'"target"("m")'"
+    /* Set statistics */
+    Address ISPexec
+    "LMINIT DATAID(DATAID) Dataset('"target"')"
+    "LMOPEN DATAID("dataid")"
+    "LMMSTATS DATAID("dataid") Member("m") User(ZIGI)"
+    "LMCLOSE DATAID("dataid")"
+    "LMFREE  DATAID("dataid")"
+  end
   return
 
-  get_dcb:
+get_dcb:
   if def.sub /= null then do
-     parse value def.sub with dsorg recfm lrecl blksize
-     recfm = left(recfm,1) substr(recfm,2,1) substr(recfm,3,1)
-     end
-     else do
-       recfm = left(def_recfm,1) substr(def_recfm,2,1) substr(def_recfm,3,1)
-       lrecl = def_lrecl
-       blksize = def_blksize
-     end
+    parse value def.sub with dsorg recfm lrecl blksize
+    recfm = left(recfm,1) substr(recfm,2,1) substr(recfm,3,1)
+  end
+  else do
+    recfm = left(def_recfm,1) substr(def_recfm,2,1) substr(def_recfm,3,1)
+    lrecl = def_lrecl
+    blksize = def_blksize
+  end
   return
 
   /* ------------ *
@@ -282,3 +314,16 @@ pfshow:
     'select pgm(ispopf) parm(FKA,OFF)'
   end
   return
+
+strreplace: Procedure
+  string  = arg(1)
+  strfrom = arg(2)
+  strto   = arg(3)
+  if pos(strfrom,string) = 0 then return string
+  newString = ''
+  do i = 1 to length(string)
+    if substr(string,i,1) /= strfrom
+    then newstring = newstring''substr(string,i,1)
+    else  newstring = newstring''strto
+  end
+  return newstring
