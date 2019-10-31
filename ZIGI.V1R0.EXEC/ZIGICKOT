@@ -64,6 +64,7 @@
   'Execio * diskr' ckdd '(finis stem ck.'
   'Free f('ckdd')'
   'delete' ckdd
+  def. = null
   call outtrap 'off'
   do i = 1 to ck.0
      if left(ck.i,1) = '#' then iterate
@@ -72,7 +73,6 @@
         end
     else do
         dsn = word(ck.i,1)
-        say "1 def.dsn setting"
         def.dsn = subword(ck.i,2)
         end
     end
@@ -110,6 +110,7 @@
         fx = translate(file,'??????????????????????????', ,
           'abcdefghijklmnopqrstuvwxyz')
         if pos('?',fx) > 0 then iterate
+        size.file =  word(stdout.i,5)
         files = files file
       end
       otherwise nop
@@ -132,6 +133,14 @@
     zs3 = 'To:             ' fileg
     call pop_status
     call outtrap 'x.'
+    if sysdsn(fileg) = 'OK' then
+       'delete' fileg
+    tracks =  (size.sub%50000 + 1) * 2
+    sub = fileg
+    call get_dcb
+    'alloc ds('fileg') new spa('tracks','tracks') tr' ,
+       'recfm('recfm') lrecl('lrecl') blksize('blksize')'
+    'free ds('fileg')'
     'oget' odir fileg 'text'
     call outtrap 'off'
   end
@@ -175,7 +184,17 @@ Alloc_Copy_PDS:
   zs5 = 'Allocating PDSE:        ' pds
   call pop_status
 
-  if def.sub /= def"."sub then do
+  'Alloc new spa('tracks','tracks') recfm('recfm') lrecl('lrecl')' ,
+    'Blksize('blksize') Dsntype(Library,2) dsorg(po) dir(1)' ,
+    'dsn('pds')'
+  'Free ds('pds')'
+  zs6 =  'Populating from:        ' odir
+  call pop_status
+  'ogetx' odir pds 'text lc quiet'
+  return
+
+  get_dcb:
+  if def.sub /= null then do
      parse value def.sub with dsorg recfm lrecl blksize
      recfm = left(recfm,1) substr(recfm,2,1) substr(recfm,3,1)
      end
@@ -184,13 +203,6 @@ Alloc_Copy_PDS:
        lrecl = def_lrecl
        blksize = def_blksize
      end
-  'Alloc new spa('tracks','tracks') recfm('recfm') lrecl('lrecl')' ,
-    'Blksize('blksize') Dsntype(Library,2) dsorg(po) dir(1)' ,
-    'dsn('pds')'
-  'Free ds('pds')'
-  zs6 =  'Populating from:        ' odir
-  call pop_status
-  'ogetx' odir pds 'text lc quiet'
   return
 
   /* ------------ *
