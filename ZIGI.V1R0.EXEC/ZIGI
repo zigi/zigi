@@ -703,6 +703,7 @@ Work_With_Repo:
                   copcm = 'cp -U -M "'copcm'" ,
                       'localrep'/'zigirep'/'dsn'/'ussmem
                   call bpxwunix copcm
+                  call update_repo_metadata
                 end
               end
               when zsel = 'A' then do
