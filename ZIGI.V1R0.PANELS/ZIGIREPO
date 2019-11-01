@@ -10,11 +10,11 @@
 )Body  Expand(\\)
 +-\-\#zigtitle   +-\-\
 %Command ===>_zcmd            \ \ %Scroll ===>_zscr+
-%Local dir       : $localdir
-%Remote paths    : $remote1
-%Current Branch  : $branch                                      +
-%                  !bstat                                                     +
-%                  $baction                                                   +
+%Local dir      :$localdir
+%Remote paths   :$remote1
+%Current Branch :$branch                                      +
+%                !bstat                                                     +
+%                $baction                                                   +
 %
 [v1      +Checkout (or create) branch [v2     +Add dataset to repo
 [v3      +Show git status output      [v4     +Pull current branch from origin
