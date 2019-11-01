@@ -506,7 +506,7 @@ Work_With_Repo:
           cmd = 'cd' localrep'/'zigirep
           cmd = docmd(cmd || '&& git commit -m "'msg'"')
           x = bpxwunix(cmd,,co.,ce.)
-          cmd = 'cd' localdir' && git push'
+          cmd = 'cd' localrep'/'zigirep ' && git push'
           cmd = docmd(cmd)
           call pop 'Pushing Updates to Remote Git'
           x = bpxwunix(cmd,,po.,pe.)

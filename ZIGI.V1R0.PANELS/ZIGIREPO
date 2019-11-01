@@ -12,7 +12,6 @@
 %Command ===>_zcmd            \ \ %Scroll ===>_zscr+
 %Local dir       : $localdir
 %Remote paths    : $remote1
-%                  $remote2
 %Current Branch  : $branch                                      +
 %                  !bstat                                                     +
 %                  $baction                                                   +
