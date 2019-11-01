@@ -6,6 +6,7 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
+ [ type(output) caps(off) pas(on) intens(high) color(white)
 )Body  Expand(\\)
 +-\-\#zigtitle   +-\-\
 %Command ===>_zcmd            \ \ %Scroll ===>_zscr+
@@ -16,11 +17,11 @@
 %                  !bstat                                                     +
 %                  $baction                                                   +
 %
-%Branch  +Checkout (or create) branch %Add    +Add dataset to repo
-%Status  +Show git status output      %Pull   +Pull current branch from origin
-%Commit  +Execute commit -m ....      %Push   +Push current branch to origin
-%Gitlog  +Show git log output         %Remote +Add remote, push intial branch
-%Refresh +Replace MVS datasets        %Grep   +Execute a 'git grep'
+[v1      +Checkout (or create) branch [v2     +Add dataset to repo
+[v3      +Show git status output      [v4     +Pull current branch from origin
+[v5      +Execute commit -m ....      [v6     +Push current branch to origin
+[v7      +Show git log output         [v8     +Add remote, push intial branch
+[v9      +Replace MVS datasets        [v10    +Execute a 'git grep'
 +
 %S+to select dataset (Edit if PS, memberlist if PO, one at a time)
 %A+to add%modified+datasets/members to index
@@ -29,9 +30,30 @@
 )Model
 @z+$z                        $z
 )Init
+ &v1     = 'Branch'
+ &v2     = 'Add'
+ &v3     = 'Status'
+ &v4     = 'Pull'
+ &v5     = 'Commit'
+ &v6     = 'Push'
+ &v7     = 'Gitlog'
+ &v8     = 'Remote'
+ &v9     = 'Refresh'
+ &v10    = 'Grep'
   .zvars = '(zsel dsnstat fulldsn)'
   .cursor = &zcmd
   .help = zigihr0
   &zscr = CSR
 )Proc
+)PNTS
+ Field(ZPS00001) Var(zcmd) Val('Branch')
+ Field(ZPS00002) Var(zcmd) Val('Add')
+ Field(ZPS00003) Var(zcmd) Val('Status')
+ Field(ZPS00004) Var(zcmd) Val('Pull')
+ Field(ZPS00005) Var(zcmd) Val('Commit')
+ Field(ZPS00006) Var(zcmd) Val('Push')
+ Field(ZPS00007) Var(zcmd) Val('Gitlog')
+ Field(ZPS00008) Var(zcmd) Val('Remote')
+ Field(ZPS00009) Var(zcmd) Val('Refresh')
+ Field(ZPS00010) Var(zcmd) Val('Grep')
 )End

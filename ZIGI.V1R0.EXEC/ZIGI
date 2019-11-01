@@ -1164,7 +1164,7 @@ Build_SSH:
   * ----------------------- */
 Pop:
   parse arg zs1 zs2
-  add = address()
+  add = address()             /* save addressing environment */
   Address ISPExec
   call pfshow 'off'           /* make sure pfshow is off */
   'Control Display Lock'
@@ -1172,7 +1172,7 @@ Pop:
   'display panel(zigipop)'
   'rempop'
   call pfshow 'reset'         /* restore pfshow setting */
-  Address add
+  Address add                 /* restore addressing environment */
   return
 
   /* ------------------------------ *
