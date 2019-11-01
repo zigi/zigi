@@ -27,6 +27,19 @@
  if (&qualignr EQ &Z)
     .CURSOR = QUALIGNR
 )Proc
+ &row = &z
+ if (&ZCMD = &Z)
+     if (&ztdsels = 0000)
+        &row = .csrrow
+        if (&row ^= &z)
+            if (&zsel = &z)
+                &zsel = S
+     if (&ztdsels ^= 0000)
+         &row = &z
+     if (&ZSEL ^= &Z)
+       if (&Zsel = '=')
+           &Zsel = &osel
+     &osel = &zsel
  ver (&dsnapfx,nb,dsname)
  ver (&qualignr,nb,range,0,8)
  ver (&zsel,list,S)

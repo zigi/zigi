@@ -25,5 +25,18 @@
   .help = zigihr0
   &zscr = CSR
 )Proc
+ &row = &z
+ if (&ZCMD = &Z)
+     if (&ztdsels = 0000)
+        &row = .csrrow
+        if (&row ^= &z)
+            if (&zsel = &z)
+                &zsel = S
+     if (&ztdsels ^= 0000)
+         &row = &z
+     if (&ZSEL ^= &Z)
+       if (&Zsel = '=')
+           &Zsel = &osel
+     &osel = &zsel
  ver (&zsel,list,S,A,D)
 )End

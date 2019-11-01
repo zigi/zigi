@@ -45,15 +45,29 @@
   .help = zigihr0
   &zscr = CSR
 )Proc
+ &row = &z
+ if (&ZCMD = &Z)
+     if (&ztdsels = 0000)
+        &row = .csrrow
+        if (&row ^= &z)
+            if (&zsel = &z)
+                &zsel = S
+     if (&ztdsels ^= 0000)
+         &row = &z
+     if (&ZSEL ^= &Z)
+       if (&Zsel = '=')
+           &Zsel = &osel
+     &osel = &zsel
+ ver (&zsel,list,S,A)
 )PNTS
- Field(ZPS00001) Var(zcmd) Val('Branch')
- Field(ZPS00002) Var(zcmd) Val('Add')
- Field(ZPS00003) Var(zcmd) Val('Status')
- Field(ZPS00004) Var(zcmd) Val('Pull')
- Field(ZPS00005) Var(zcmd) Val('Commit')
- Field(ZPS00006) Var(zcmd) Val('Push')
- Field(ZPS00007) Var(zcmd) Val('Gitlog')
- Field(ZPS00008) Var(zcmd) Val('Remote')
- Field(ZPS00009) Var(zcmd) Val('Refresh')
- Field(ZPS00010) Var(zcmd) Val('Grep')
+ FIELD(V1) VAR(ZCMD) VAL('BRANCH')
+ FIELD(V2) VAR(ZCMD) VAL('ADD')
+ FIELD(V3) VAR(ZCMD) VAL('STATUS')
+ FIELD(V4) VAR(ZCMD) VAL('PULL')
+ FIELD(V5) VAR(ZCMD) VAL('COMMIT')
+ FIELD(V6) VAR(ZCMD) VAL('PUSH')
+ FIELD(V7) VAR(ZCMD) VAL('GITLOG')
+ FIELD(V8) VAR(ZCMD) VAL('REMOTE')
+ FIELD(V9) VAR(ZCMD) VAL('REFRESH')
+ FIELD(V10) VAR(ZCMD) VAL('GREP')
 )End

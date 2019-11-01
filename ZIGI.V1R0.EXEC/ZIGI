@@ -98,7 +98,7 @@
   | Running under the ZIGI ISPF Application ID so let's do some work |
   * ---------------------------------------------------------------- */
   zcmd = null
-  zigtitle = 'zigi' ver
+  zigtitle = '(zigi' ver')'
   'vput (zigtitle)'
   'display panel(zigispls)'
   if rc = 8 then exit
@@ -292,10 +292,16 @@
 
   'tbtop zigirepo'
   do forever
-    zsel = null
-    zcmd = null
+    parse value '' with zsel zcmd row
     'tbdispl zigirepo panel(zigiprim)'
     if rc > 4 then leave
+
+    if row <> null then
+       if row > 0 then do
+            'TBTop zigirepo'
+            'TBSkip zigirepo Number('row')'
+            end
+
     Select
       When abbrev('CREATE',zcmd,2) = 1 then call Create_Repo
       When abbrev('CLONE',zcmd,2) = 1 then call Clone_Repo
@@ -348,8 +354,7 @@ Work_With_Repo:
   | Process the Repository Data Sets |
   * -------------------------------- */
   do forever
-    zsel = null
-    zcmd = null
+    parse value '' with zsel zcmd row
     if ztdsels > 0
     then 'TBdispl' rtbl
     else do
@@ -364,6 +369,13 @@ Work_With_Repo:
     end
     drop so. se.
     zcmd = translate(zcmd)
+
+      if row <> null then
+         if row > 0 then do
+              "TBTop " rtbl
+              "TBSkip" rtbl "Number("row")"
+              end
+
     Select
       When abbrev('BRANCH',zcmd,2) = 1 then call Branch_it
       /* -------------------------------- *
@@ -409,7 +421,7 @@ Work_With_Repo:
       When abbrev('ADD',zcmd,3) = 1 then do
         call Add_Dataset
         if add_count > 0 then
-          call update_repo_metadata
+        call update_repo_metadata
       end
       /* -------------------------------- *
       | View output of git status        |
@@ -435,11 +447,13 @@ Work_With_Repo:
       When abbrev('GREP',zcmd,3) = 1 then do
         zcmd = null
         'display panel(zigigrep)'
-        cmd = 'cd' localrep'/'zigirep
-        cmd = docmd(cmd || '&& git grep "'grep'"')
-        x = bpxwunix(cmd,,so.,se.)
-        call View_std
-        call View_std E
+        if rc = 0 then do
+          cmd = 'cd' localrep'/'zigirep
+          cmd = docmd(cmd || '&& git grep "'grep'"')
+          x = bpxwunix(cmd,,so.,se.)
+          call View_std
+          call View_std E
+        end
       end
       /* -------------------------------- *
       | GMAN Git Commamd                 |
@@ -496,21 +510,21 @@ Work_With_Repo:
           x = bpxwunix(cmd,,po.,pe.)
           drop so.
           do cc = 1 to co.0
-             so.cc = co.cc
-             end
+            so.cc = co.cc
+          end
           x = cc
           do cc = 1 to ce.0
-             x = x + 1
-             so.x = ce.cc
-             end
+            x = x + 1
+            so.x = ce.cc
+          end
           do cc = 1 to po.0
-             x = x + 1
-             so.x = po.cc
-             end
+            x = x + 1
+            so.x = po.cc
+          end
           do cc = 1 to pe.0
-             x = x + 1
-             so.x = pe.cc
-             end
+            x = x + 1
+            so.x = pe.cc
+          end
           so.0 = x
           drop co. ce. po. pe.
           call view_std
@@ -621,8 +635,7 @@ Work_With_Repo:
           save_top = 0
           ztdsels  = 0
           Do Forever
-            zsel = null
-            zcmd = null
+            parse value '' with zsel zcmd row
             if ztdsels = 0 then do
               'tbtop' rtll
               'tbskip' rtll 'number('save_top')'
@@ -637,6 +650,13 @@ Work_With_Repo:
             a prefix set */
             save_top = ztdtop
             edsn = substr(fulldsn,2,length(fulldsn)-2)
+
+    if row <> null then
+       if row > 0 then do
+            'TBTop' rtll
+            'TBSkip' rtll 'Number('row')'
+            end
+
             select
               When abbrev("L",translate(word(zcmd,1)),1) = 1 then do
                 mem = translate(word(zcmd,2))
@@ -1497,6 +1517,7 @@ Add_Dataset:
   'tbcreate' dsnatbl 'names(dastat dsna) nowrite'
   if dsnapfx = null then qualignr = null
   do forever
+    parse value '' with zsel zcmd row
     if dsnapfx = null
     then dsnapnl = 'zigidsna'
     else dsnapnl = 'zigidsnb'
@@ -1527,9 +1548,17 @@ Add_Dataset:
       return
     end
     top = ztdtop
+
+    if row <> null then
+       if row > 0 then do
+            'TBTop zigirepo'
+            'TBSkip zigirepo Number('row')'
+            end
+
     if zsel = 'S' then do
       call do_add_copy
     end
+
     if list = null then call get_list
     if lc_count = 0 then do
       zerrsm = 'Empty List'
@@ -1649,14 +1678,14 @@ Save_dsninfo:
   'alloc f('sd_dd') shr ds('sd_dsn')'
   'execio * diskr' sd_dd '(finis stem sd.'
   do x = 1 to sd.0
-     if word(sd.x,1) = dsn then do
-        'free f('sd_dd')'
-        'delete' sd_dsn
-        call outtrap 'off'
-        Address ISPExec
-        return
-        end
-     end
+    if word(sd.x,1) = dsn then do
+      'free f('sd_dd')'
+      'delete' sd_dsn
+      call outtrap 'off'
+      Address ISPExec
+      return
+    end
+  end
   slast = sd.0
   slast = slast + 1
   sd.slast = dsn_record

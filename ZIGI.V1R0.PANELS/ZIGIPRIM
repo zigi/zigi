@@ -26,10 +26,23 @@ _z+  $z              + +$z                     + +$z
  .zvars = '(zsel zigirep pdshlq localrep)'
  .help = zigihp0
 )Proc
+ &row = &z
+ if (&ZCMD = &Z)
+     if (&ztdsels = 0000)
+        &row = .csrrow
+        if (&row ^= &z)
+            if (&zsel = &z)
+                &zsel = S
+     if (&ztdsels ^= 0000)
+         &row = &z
+     if (&ZSEL ^= &Z)
+       if (&Zsel = '=')
+           &Zsel = &osel
+     &osel = &zsel
  ver (&zsel,list,S,D,V)
 )PNTS
- Field(ZPS00001) Var(zcmd) Val('CLONE')
- Field(ZPS00002) Var(zcmd) Val('CREATE')
- Field(ZPS00003) Var(zcmd) Val('SSH')
- Field(ZPS00004) Var(zcmd) Val('CONFIG')
+ FIELD(CLONE   ) VAR(ZCMD) VAL('CLONE')
+ FIELD(CREATE  ) VAR(ZCMD) VAL('CREATE')
+ FIELD(SSH     ) VAR(ZCMD) VAL('SSH')
+ FIELD(CONFIG  ) VAR(ZCMD) VAL('CONFIG')
 )end
