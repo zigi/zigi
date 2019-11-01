@@ -1,11 +1,11 @@
 )Attr Default(%+_)
   _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
   $ type(output) intens(low ) caps(off) just(left )
-  @ type(output) intens(high)
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
+  @ type(output) hilite(reverse) color(turq) caps(off)
 )Body  Expand(\\)
-%-\-\-@title       %-\-\-
++-\-\@zigtitle   +-\-\
 %Command ===>_zcmd
 +
 +Directory: $fromdir
@@ -14,7 +14,6 @@
 )Model
 _z+$z$z                                                      $z           $z  +
 )Init
-  &title = 'zIGISEL &ver'
   .zvars = '(ocsel otype ofile odate operm)'
   .cursor = &zcmd
   .help = zigio0

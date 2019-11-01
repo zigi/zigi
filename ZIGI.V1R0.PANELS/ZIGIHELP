@@ -3,9 +3,9 @@
   $ type(output) intens(low ) caps(off) just(left )
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
- # type(text) hilite(reverse) color(turq)
+  # type(output) hilite(reverse) color(turq) caps(off)
 )Body  Expand(\\)
-+Tutorial \-\#(z ISPF Git Repository List)+-\-\ Tutorial
++zigihelp \-\#zigtitle   +-\-\ zigihelp
 %Command ===>_zcmd
 %
 %Commands:

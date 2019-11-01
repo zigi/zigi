@@ -1,8 +1,8 @@
 )Attr
  $ type(output) caps(off)
- # type(text) hilite(reverse) color(turq)
+ # type(output) hilite(reverse) color(turq) caps(off)
 )Body Expand(\\)
-+zigihelp \-\#(z ISPF Git Interface)+-\-\ zigihelp
++zigihelp \-\#zigtitle   +-\-\ zigihelp
 %Command ===>_zcmd
 +
 +Adding a dataset to the current repository requires the following

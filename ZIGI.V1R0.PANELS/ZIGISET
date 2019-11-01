@@ -1,22 +1,22 @@
 )Attr
- # type(text) hilite(reverse) color(turq)
  @ type(input ) hilite(uscore) caps(off)
  _ type(input ) hilite(uscore) caps(on) intens(high)
  $ type(output) hilite(uscore) caps(off)
+ # type(output) hilite(reverse) color(turq) caps(off)
 )Body Expand(\\)
-+-\-\#(z ISPF Git Interface Settings)+-\-\
-%Command ===>_zcmd
++-\-\#zigtitle   +-\-\
+%Command ===>_zcmd                                                             +
 +
 +  user.name  : @zigiuid                                         +
 +  user.email : @zigimail                                        +
 
 
 
-+ The user.name and user.email are used to set email and username
-+ to your commits. The username does not need to be the same as your
-+ username.
++The user.name and user.email are used to set email and username
++to your commits. The username does not need to be the same as your
++username.
 
-+ See : https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup
++See : https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup
 
 
 

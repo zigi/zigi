@@ -1,12 +1,12 @@
 )Attr Default(%+_)
   _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
   color(&omscinp)
-  @ type(text) intens(high) color(&omschigh) hilite(&omscrev)
   % type(text) intens(high) skip(on) color(&omschigh)
   + type(text) intens(low) skip(on) color(&omsclow)
   $ type(output) intens(high) caps(off) just(left )
+  @ type(output) hilite(reverse) color(turq) caps(off)
 )Body  Expand(\\)
-%zigihelp-\-\-@ZIGIOSEL%-\-\zigihelp
++zigihelp \-\@zigtitle   +-\-\ zigihelp
 %Command ===>_zcmd
 %
 %CD+Examples within ZIGIOSEL

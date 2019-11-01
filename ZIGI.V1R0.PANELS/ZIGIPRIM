@@ -1,9 +1,9 @@
 )Attr
  $ type(output) caps(off)
- # type(text) hilite(reverse) color(turq)
  _ type(input) caps(on ) hilite(uscore)
+ # type(output) hilite(reverse) color(turq) caps(off)
 )Body Expand(\\)
-+-\-\#(zigi v1r0)+-\-\
++-\-\#zigtitle   +-\-\
 %Command ===>_zcmd       \ \ %Scroll ===>_zscr+
 +
 +Primary commands:  %Clone+Clone remote remote repository

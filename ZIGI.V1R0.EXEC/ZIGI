@@ -1,5 +1,6 @@
-  /*%NOcomment ----------  rexx procedure  -------------------- *
-  | Name:      zigi  (z ISPF Git Interface)                    |
+  /*%NOcomment ----------  rexx procedure  ------------------- */
+  ver = 'v1r0'
+  /*Name:      zigi  (z ISPF Git Interface)                    |
   |                                                            |
   | Version:   V1R0 (november 2019)                            |
   |                                                            |
@@ -97,6 +98,8 @@
   | Running under the ZIGI ISPF Application ID so let's do some work |
   * ---------------------------------------------------------------- */
   zcmd = null
+  zigtitle = 'zigi' ver
+  'vput (zigtitle)'
   'display panel(zigispls)'
   if rc = 8 then exit
 

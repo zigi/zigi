@@ -1,10 +1,10 @@
 )Attr
- # type(text) hilite(reverse) color(turq)
  $ type(output) hilite(uscore) caps(off)
  @ type(output) caps(off)
  _ type(input ) hilite(uscore) caps(on) intens(high)
+ # type(output) hilite(reverse) color(turq) caps(off)
 )Body Expand(\\)
-+-\-\#(z ISPF Git Interface SSH Key)+-\-\
++-\-\#zigtitle   +-\-\
 %Command ===>_zcmd
 +
 +  SSH Key File: @keyfile

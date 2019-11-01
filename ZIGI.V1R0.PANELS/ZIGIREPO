@@ -5,9 +5,9 @@
   ! type(output) intens(high) caps(off) just(left )
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
- # type(text) hilite(reverse) color(turq)
+  # type(output) hilite(reverse) color(turq) caps(off)
 )Body  Expand(\\)
-+\-\#(zigi v1r0)+-\-\
++-\-\#zigtitle   +-\-\
 %Command ===>_zcmd            \ \ %Scroll ===>_zscr+
 %Local dir       : $localdir
 %Remote paths    : $remote1
