@@ -10,7 +10,7 @@
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
 %
 %Current Dataset    : $fulldsn
-%Current Repository : $zigirep
+%Current Repository : $localdir
 %Current Branch     : $branch
 %
 %Commands:  %L+Locate

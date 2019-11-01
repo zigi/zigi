@@ -532,6 +532,7 @@ Work_With_Repo:
           end
           else do
           /* Do this if it's a PDS */
+            localdir = localrep'/'zigirep
             'TBCreate' rtll 'Names(mem memstat ussmem) replace NoWrite'
             address syscall
             'readdir 'localrep'/'zigirep'/'dsn' root.'
