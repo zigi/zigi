@@ -474,6 +474,50 @@ Work_With_Repo:
         end
       end
       /* -------------------------------- *
+      | Commit to current branch and     |
+      | Push after the commit.           |
+      * -------------------------------- */
+      When abbrev('CP',zcmd,1) = 1 then do
+        zcmd = null
+        msg = null
+        'display panel(zigicom)'
+        if rc > 0 then do
+          zerrsm = 'Cancelled.'
+          zerrlm = 'Commit has been cancelled.'
+          'setmsg msg(isrz002)'
+        end
+        else do
+          cmd = 'cd' localrep'/'zigirep
+          cmd = docmd(cmd || '&& git commit -m "'msg'"')
+          x = bpxwunix(cmd,,co.,ce.)
+          cmd = 'cd' localdir' && git push'
+          cmd = docmd(cmd)
+          call pop 'Pushing Updates to Remote Git'
+          x = bpxwunix(cmd,,po.,pe.)
+          drop so.
+          do cc = 1 to co.0
+             so.cc = co.cc
+             end
+          x = cc
+          do cc = 1 to ce.0
+             x = x + 1
+             so.x = ce.cc
+             end
+          do cc = 1 to po.0
+             x = x + 1
+             so.x = po.cc
+             end
+          do cc = 1 to pe.0
+             x = x + 1
+             so.x = pe.cc
+             end
+          so.0 = x
+          drop co. ce. po. pe.
+          call view_std
+          call update_repo_metadata
+        end
+      end
+      /* -------------------------------- *
       | Add/replace remote URI (origin)  |
       * -------------------------------- */
       When abbrev('REMOTE',zcmd,3) = 1 then do
