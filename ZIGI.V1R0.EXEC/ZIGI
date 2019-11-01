@@ -290,12 +290,16 @@
     end
   end
 
+  repo_top = 0
   'tbtop zigirepo'
   do forever
     parse value '' with zsel zcmd row
+    'TBTop zigirepo'
+    'tbskip zigirepo number('repo_top')'
     'tbdispl zigirepo panel(zigiprim)'
     if rc > 4 then leave
 
+    repo_top = ztdtop
     if row = 0 then zsel = null
     if row <> null then
     if row > 0 then do
