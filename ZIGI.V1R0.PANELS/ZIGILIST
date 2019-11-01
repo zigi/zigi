@@ -14,7 +14,7 @@
 %Current Branch     : $branch
 %
 %Commands:  %L+Locate
-%Selections:%S+Edit%A+Add for commit%D+Show Diff
+%Selections:%S+Edit%A+Add for commit%D+Show Diff (on at a time)
 %
 %S  Member     Status
 )Model
