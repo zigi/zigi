@@ -16,11 +16,11 @@
 %Commands:  %L+Locate
 %Selections:%S+Edit%A+Add for commit%D+Show Diff
 %
-%S  Status                    Member
+%S  Member     Status
 )Model
-@z+$z                        $z                                         +
+@z+$z        +$z
 )Init
-  .zvars = '(zsel memstat mem)'
+  .zvars = '(zsel mem memstat)'
   .cursor = &zcmd
   .help = zigihr0
   &zscr = CSR
