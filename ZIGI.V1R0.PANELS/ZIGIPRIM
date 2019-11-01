@@ -1,15 +1,16 @@
 )Attr
  $ type(output) caps(off)
- # type(text) hilite(reverse) color(turq)
  _ type(input) caps(on ) hilite(uscore)
+ # type(output) hilite(reverse) color(turq) caps(off)
+ @ type(output) caps(off) pas(on) intens(high) color(white)
 )Body Expand(\\)
-+-\-\#(zigi v1r0)+-\-\
++-\-\#zigtitle   +-\-\
 %Command ===>_zcmd       \ \ %Scroll ===>_zscr+
 +
-+Primary commands:  %Clone+Clone remote remote repository
-+                   %Create+Create a local repo from scratch
-+                   %SSH+View your SSH public key
-+                   %Config+View git configuration
++Primary commands:  @Clone+Clone remote remote repository
++                   @Create+Create a local repo from scratch
++                   @SSH+View your SSH public key
++                   @Config+View git configuration
 +
 +Repo options:      %S+Work with repo%V+View repo USS files+%D+Delete repo
 +
@@ -17,9 +18,31 @@
 )Model
 _z+  $z              + +$z                     + +$z
 )Init
+ &clone  = 'Clone'
+ &create = 'Create'
+ &ssh    = 'SSH'
+ &config = 'Config'
  &zscr = CSR
  .zvars = '(zsel zigirep pdshlq localrep)'
  .help = zigihp0
 )Proc
+ &row = &z
+ if (&ZCMD = &Z)
+     if (&ztdsels = 0000)
+        &row = .csrrow
+        if (&row ^= &z)
+            if (&zsel = &z)
+                &zsel = S
+     if (&ztdsels ^= 0000)
+         &row = &z
+     if (&ZSEL ^= &Z)
+       if (&Zsel = '=')
+           &Zsel = &osel
+     &osel = &zsel
  ver (&zsel,list,S,D,V)
+)PNTS
+ FIELD(CLONE   ) VAR(ZCMD) VAL('CLONE')
+ FIELD(CREATE  ) VAR(ZCMD) VAL('CREATE')
+ FIELD(SSH     ) VAR(ZCMD) VAL('SSH')
+ FIELD(CONFIG  ) VAR(ZCMD) VAL('CONFIG')
 )end

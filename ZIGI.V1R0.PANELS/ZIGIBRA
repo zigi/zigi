@@ -4,9 +4,9 @@
   $ type(output) intens(low ) caps(off) just(left )
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
- # type(text) hilite(reverse) color(turq)
+  # type(output) hilite(reverse) color(turq) caps(off)
 )Body  Expand(\\)
-+\-\#(z ISPF Git Branch List)+-\-\
++-\-\#zigtitle   +-\-\
 %Command ===>_zcmd   \ \ %Scroll ===>_zscr+
 %
 %Current Repository : $zigirep

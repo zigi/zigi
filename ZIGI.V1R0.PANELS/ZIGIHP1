@@ -1,8 +1,8 @@
 )Attr
  $ type(output) caps(off)
- # type(text) hilite(reverse) color(turq)
+ # type(output) hilite(reverse) color(turq) caps(off)
 )Body Expand(\\)
-+zigihelp \-\#(z ISPF Git Interface)+-\-\ zigihelp
++zigihelp \-\#zigtitle   +-\-\ zigihelp
 %Command ===>_zcmd
 +
 %Create+will execute a 'git init' in the specified path creating a%Local

@@ -1,9 +1,9 @@
 )Attr
  @ type(input ) caps(off) hilite(uscore)
  $ type(input ) caps(on ) hilite(uscore)
- # type(text) hilite(reverse) color(turq)
+ # type(output) hilite(reverse) color(turq) caps(off)
 )Body Expand(\\)
-+-\-\#(z ISPF Git Interface - Connect/Clone)+-\-\
++-\-\#zigtitle   +-\-\
 %Command ===>_zcmd
 +
 %Name:        @zigirep                         +

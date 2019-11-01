@@ -4,26 +4,39 @@
   $ type(output) intens(low ) caps(off) just(left )
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
- # type(text) hilite(reverse) color(turq)
+  # type(output) hilite(reverse) color(turq) caps(off)
 )Body  Expand(\\)
-+\-\#(z ISPF Git Repository List)+-\-\
++-\-\#zigtitle   +-\-\
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
 %
 %Current Dataset    : $fulldsn
-%Current Repository : $zigirep
+%Current Repository : $localdir
 %Current Branch     : $branch
 %
 %Commands:  %L+Locate
 %Selections:%S+Edit%A+Add for commit%D+Show Diff
 %
-%S  Status                    Member
+%S  Member     Status
 )Model
-@z+$z                        $z                                         +
+@z+$z        +$z
 )Init
-  .zvars = '(zsel memstat mem)'
+  .zvars = '(zsel mem memstat)'
   .cursor = &zcmd
   .help = zigihr0
   &zscr = CSR
 )Proc
+ &row = &z
+ if (&ZCMD = &Z)
+     if (&ztdsels = 0000)
+        &row = .csrrow
+        if (&row ^= &z)
+            if (&zsel = &z)
+                &zsel = S
+     if (&ztdsels ^= 0000)
+         &row = &z
+     if (&ZSEL ^= &Z)
+       if (&Zsel = '=')
+           &Zsel = &osel
+     &osel = &zsel
  ver (&zsel,list,S,A,D)
 )End

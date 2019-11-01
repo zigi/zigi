@@ -4,9 +4,9 @@
   + type(text) intens(low) skip(on)
   ! type(text) color(green) skip(on)
   % type(text) intens(high) skip(on)
- # type(text) hilite(reverse) color(turq)
+  # type(output) hilite(reverse) color(turq) caps(off)
 )Body  Expand(\\)
-+zigihelp \-\#(z ISPF Git Repository List)+-\-\ zigihelp
++zigihelp \-\#zigtitle   +-\-\ zigihelp
 %Command ===>_zcmd
 %
 %Starting from scratch.
