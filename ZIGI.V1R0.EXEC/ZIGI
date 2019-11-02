@@ -1,7 +1,7 @@
   /*%NOcomment ----------  rexx procedure  ------------------- */
-  ver = 'v1r0'
+  ver = 'v1r1'
   /*Name:      zigi  (z ISPF Git Interface)                    |
-  |                                                            |
+  ver = 'v1r1'
   | Version:   V1R0 (november 2019)                            |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -21,6 +21,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            11/02/19 LBD - Add shorten ZIGIREPO panel       |
+  |                           ZIGIREPS if SHort command used   |
   |            10/31/19 LBD - Various Fixes :)                 |
   |            10/29/19 LBD - Add MultiDCB Support             |
   |            10/24/19 HBK - Also source ~/.profile if exists |
@@ -358,6 +360,8 @@ Work_With_Repo:
   /* -------------------------------- *
   | Process the Repository Data Sets |
   * -------------------------------- */
+  'vget (repopan) profile'
+  if repopan = null then repopan = 'zigirepo'
   do forever
     parse value '' with zsel zcmd row
     if ztdsels > 0
@@ -365,7 +369,7 @@ Work_With_Repo:
     else do
       'tbtop' rtbl
       'tbskip' rtbl 'Number('rtop')'
-      'TBdispl' rtbl 'Panel(zigirepo)'
+      'TBdispl' rtbl 'Panel('repopan')'
       rtop = ztdtop
     end
     if rc > 4 then do
@@ -383,6 +387,12 @@ Work_With_Repo:
     end
 
     Select
+      When abbrev('SHORT',zcmd,2) = 1 then do
+           if repopan = 'zigirepo'
+              then repopan = 'zigireps'
+              else repopan = 'zigirepo'
+           'vput (repopan) profile'
+           end
       When abbrev('BRANCH',zcmd,2) = 1 then call Branch_it
       /* -------------------------------- *
       | View output of git log           |
