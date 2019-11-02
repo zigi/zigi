@@ -254,7 +254,7 @@
       "TBCreate zigirepo Keys(zigirep)",
         "Names(localrep pdshlq qualignr)",
         "Library(isptabl) Write Share"
-      "TBSort   isptabl Fields(zigirepo,C,A)"
+      "TBSort zigirepo Fields(zigirep,C,A)"
       "TBSAVE zigirepo REPLCOPY LIBRARY(isptabl)"
     end
     if rc > 8 then do
@@ -727,7 +727,7 @@ Work_With_Repo:
         x = bpxwunix(cmd,,so.,se.)
         if so.0 > 0 then call view_std
         if se.0 > 0 then call view_std 'E'
-        zs1 = 'Adding' dsn
+        zs1 = 'Adding' fulldsn
         zs2 = 'Making it ready to Commit'
         call do_popup
         if ztdsels = 1 then
