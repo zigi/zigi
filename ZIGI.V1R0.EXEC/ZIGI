@@ -2,7 +2,7 @@
   ver = 'v1r1'
   /*Name:      zigi  (z ISPF Git Interface)                    |
   ver = 'v1r1'
-  | Version:   V1R0 (november 2019)                            |
+  | Version:   V1R1 (tbd)                                      |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
   |            management                                      |
@@ -124,10 +124,7 @@
   * ------------------------------------ */
   zs1 = 'Checking if you have git installed'
   zs2 = 'Please standby'
-  call pfshow 'off'           /* make sure pfshow is off */
-  'Control Display Lock'
-  'Addpop row(4) column(12)'
-  'Display Panel(zigipop)'
+  call do_popup
 
   cmd = docmd('command -v git')
   x = bpxwunix(cmd,,so.,se.)
@@ -135,19 +132,12 @@
   if so.0 = 1 then do
     zigigitl = strip(so.1)
     'vput (zigigitl) profile'
-    'Rempop'
-    call pfshow 'reset'         /* restore pfshow setting */
   end
   else do
     /* needs a nice error panel with a link to download git */
     zs1 = "Git not installed, or not in path. Check /etc/profile"
     zs2 = "Download via rocket, see installer on github gists."
-    parse value '' with zs3 zs4
-    call pfshow 'off'           /* make sure pfshow is off */
-    'Control Display Lock'
-    'Addpop row(4) column(12)'
-    'Display Panel(zigipop4)'
-    call pfshow 'reset'
+    call do_popup
     exit(0)
   end
 
@@ -158,10 +148,7 @@
   * ------------------------------------------ */
   zs1 = 'Checking for user.name and user.email'
   zs2 = 'Please standby'
-  call pfshow 'off'           /* make sure pfshow is off */
-  'Control Display Lock'
-  'Addpop row(4) column(12)'
-  'Display Panel(zigipop)'
+  call do_popup
   cmd = docmd('git config --global user.name')
   x = bpxwunix(cmd,,so.,se.)
   if x = 0 then do
@@ -179,25 +166,18 @@
   else do
     zigimail = null
   end
-  'Rempop'
-  call pfshow 'reset'         /* restore pfshow setting */
   cmd = 'cat 'home'/.ssh/id_rsa.pub'
   x = bpxwunix(cmd,,so.,se.)
   if x > 0 then do
     zs1 = 'No SSH identity found in 'home'/.ssh/id_rsa'
     zs2 = 'Generating keypair, please standby'
-    call pfshow 'off'           /* make sure pfshow is off */
-    'Control Display Lock'
-    'Addpop row(4) column(12)'
-    'Display Panel(zigipop)'
+    call do_popup
     cmd = 'mkdir -p 'home'/.ssh'
     x = bpxwunix(cmd,,so.,se.)
     cmd = 'cd 'home' && ssh-keygen -t rsa -f .ssh/id_rsa'
     x = bpxwunix(cmd,,so.,se.)
     cmd = 'cat 'home'/.ssh/id_rsa.pub'
     x = bpxwunix(cmd,,so.,se.)
-    'Rempop'
-    call pfshow 'reset'         /* restore pfshow setting */
   end
   zigissh = so.1
   /* need these to see if changed, then we need to
@@ -233,12 +213,7 @@
         zs2 = so.1
         zs3 = se.1
         zs4 = ''
-        call pfshow 'off'           /* make sure pfshow is off */
-        'Control Display Lock'
-        'Addpop row(4) column(12)'
-        'Display Panel(zigipop4)'
-        'Rempop'
-        call pfshow 'reset'         /* restore pfshow setting */
+        call do_popup4
       end
       cmd = docmd('git config --global user.email "'zigimail'"')
       x = bpxwunix(cmd,,so.,se.)
@@ -247,12 +222,7 @@
         zs2 = so.1
         zs3 = se.1
         zs4 = ''
-        call pfshow 'off'           /* make sure pfshow is off */
-        'Control Display Lock'
-        'Addpop row(4) column(12)'
-        'Display Panel(zigipop4)'
-        'Rempop'
-        call pfshow 'reset'         /* restore pfshow setting */
+        call do_popup4
       end
       /* Let's adopt the new style. Only push current branch */
       cmd = docmd('git config --global push.default simple')
@@ -292,7 +262,7 @@
     end
   end
 
-  repo_top = 0
+  repo_top = 1
   'tbtop zigirepo'
   do forever
     parse value '' with zsel zcmd row
@@ -388,11 +358,11 @@ Work_With_Repo:
 
     Select
       When abbrev('SHORT',zcmd,2) = 1 then do
-           if repopan = 'zigirepo'
-              then repopan = 'zigireps'
-              else repopan = 'zigirepo'
-           'vput (repopan) profile'
-           end
+        if repopan = 'zigirepo'
+        then repopan = 'zigireps'
+        else repopan = 'zigirepo'
+        'vput (repopan) profile'
+      end
       When abbrev('BRANCH',zcmd,2) = 1 then call Branch_it
       /* -------------------------------- *
       | View output of git log           |
@@ -586,12 +556,7 @@ Work_With_Repo:
         if sysdsorg /= 'PS' then do
           zs1 = 'Building list of library statuses....'
           zs2 = 'Patience . . .'
-          call pfshow 'off'           /* make sure pfshow is off */
-          'Control Display Lock'
-          'Addpop row(4) column(12)'
-          'Display Panel(zigipop)'
-          'Rempop'
-          call pfshow 'reset'         /* restore pfshow setting */
+          call do_popup
         end
         /* Determine if the repo item is a PDS or a flat-file */
         if sysdsorg = 'PS' then do
@@ -760,6 +725,11 @@ Work_With_Repo:
         cmd = 'cd' localrep'/'zigirep
         cmd = docmd(cmd || ' && git add 'd)
         x = bpxwunix(cmd,,so.,se.)
+        if so.0 > 0 then call view_std
+        if se.0 > 0 then call view_std 'E'
+        zs1 = 'Adding' dsn
+        zs2 = 'Making it ready to Commit'
+        call do_popup
         if ztdsels = 1 then
         call update_repo_metadata
       end
@@ -789,10 +759,7 @@ Clone_Repo:
     /* Let's clone the remote repo... */
     zs1 = "Cloning "zigirep" by "user
     zs2 = "from "host
-    call pfshow 'off'           /* make sure pfshow is off */
-    'Control Display Lock'
-    'Addpop row(4) column(12)'
-    'Display Panel(zigipop)'
+    call do_popup
     cmd = 'touch 'home'/.ssh/known_hosts && '
     cmd = cmd || 'ssh-keyscan -t rsa,dsa 'host
     cmd = cmd || ' 2>&1 | sort -u - 'home'/.ssh/known_hosts >'
@@ -801,16 +768,10 @@ Clone_Repo:
     x = bpxwunix(cmd,,so.,se.)
     cmd = docmd('cd 'localrep' && git clone 'remote)
     x = bpxwunix(cmd,,so.,se.)
-    'Rempop'
-    call pfshow 'reset'         /* restore pfshow setting */
     if x > 0 then do
       zs1 = 'Clone failed'
       zs2 = se.1
-      call pfshow 'off'           /* make sure pfshow is off */
-      'Addpop row(4) column(12)'
-      'Display Panel(zigipop)'
-      'Rempop'
-      call pfshow 'reset'         /* restore pfshow setting */
+      call do_popup
       leave
     end
     /* Check to see if this is a zigi-managed repo */
@@ -847,12 +808,7 @@ Refresh:
   parse arg localrep zigirep pdshlq qualignr .
   zs1 = "Refreshing from repository"
   zs2 = "   USS -> z/OS      "
-  call pfshow 'off'           /* make sure pfshow is off */
-  'Control Display Lock'
-  'Addpop row(4) column(12)'
-  'Display Panel(zigipop)'
-  'Rempop'
-  call pfshow 'reset'         /* restore pfshow setting */
+  call do_popup
   address 'SYSCALL' 'SLEEP (2)'
   cmd = docmd('cd 'localrep' && git clone 'remote)
   x = bpxwunix(cmd,,so.,se.)
@@ -996,12 +952,7 @@ Create_Repo:
     /* If we made it here, we can freely git init */
     zs1 = 'Creating your repository'
     zs2 = 'Please standby'
-    call pfshow 'off'           /* make sure pfshow is off */
-    'Control Display Lock'
-    'Addpop row(4) column(12)'
-    'Display Panel(zigipop)'
-    'Rempop'
-    call pfshow 'reset'         /* restore pfshow setting */
+    call do_popup
     cmd = docmd('cd 'localrep' && git init 'zigirep)
     x = bpxwunix(cmd,,so.,se.)
     /* The git repo is initialized. Time to stick a
@@ -1016,12 +967,8 @@ Create_Repo:
       Address ISPExec
       zs1 = "Something bad when creating .gitattributes. Make errormsg"
       zs4 = 'Press F3 to close this popup and exit.'
-      parse value '' with zs2 zs4
-      call pfshow 'off'           /* make sure pfshow is off */
-      'Addpop row(4) column(12)'
-      'Display Panel(zigipop4)'
-      'Rempop'
-      call pfshow 'reset'         /* restore pfshow setting */
+      parse value '' with zs2 zs3
+      call do_popup4
       leave
     end
     fd = retval  /* as I think it's weird to write to a retval lol */
@@ -1071,12 +1018,8 @@ Create_Repo:
       Address ISPExec
       zs1 = "Something bad when creating .gitattributes. Make errormsg"
       zs4 = 'Press F3 to close this popup and exit.'
-      parse value '' with zs2 zs4
-      call pfshow 'off'           /* make sure pfshow is off */
-      'Addpop row(4) column(12)'
-      'Display Panel(zigipop4)'
-      'Rempop'
-      call pfshow 'reset'         /* restore pfshow setting */
+      parse value '' with zs2 zs3
+      call do_popup4
       leave
     end
     fd = retval  /* as I think it's weird to write to a retval lol */
@@ -1187,31 +1130,10 @@ Build_SSH:
   zs1 = 'Building SSH Key'
   zs2 = 'Patience . . .'
   do forever
-    call pfshow 'off'           /* make sure pfshow is off */
-    'Control Display Lock'
-    'Addpop row(4) column(12)'
-    'Display Panel(zigipop)'
-    'Rempop'
-    call pfshow 'reset'         /* restore pfshow setting */
+    call do_popup
     call catsshk
     if zigissh /= null then leave
   end
-  return
-
-  /* ----------------------- *
-  | Generalized Pop Message |
-  * ----------------------- */
-Pop:
-  parse arg zs1 zs2
-  add = address()             /* save addressing environment */
-  Address ISPExec
-  call pfshow 'off'           /* make sure pfshow is off */
-  'Control Display Lock'
-  'addpop row(4) column(4)'
-  'display panel(zigipop)'
-  'rempop'
-  call pfshow 'reset'         /* restore pfshow setting */
-  Address add                 /* restore addressing environment */
   return
 
   /* ------------------------------ *
@@ -1308,10 +1230,7 @@ update_repo_metadata:
   /* We always fetch when we start to work on a repo */
   zs1 = 'Fetching Remote info'
   zs2 = 'Patience . . .'
-  call pfshow 'off'         /* turn off pfshow setting */
-  'Control Display Lock'
-  'Addpop row(4) column(12)'
-  'Display Panel(zigipop)'
+  call do_popup
   cmd = 'cd' localrep'/'zigirep
   cmd = docmd(cmd || '&& git fetch --all')
   x = bpxwunix(cmd,,so.,se.)
@@ -1377,16 +1296,11 @@ update_repo_metadata:
       end
     end
   end
-  'Rempop'
-  call pfshow 'reset'         /* restore pfshow setting */
 
 
   zs1 = 'Building List of repository Data Sets'
   zs2 = fetchmsg
-  call pfshow 'off'           /* make sure pfshow is off */
-  'Control Display Lock'
-  'Addpop row(4) column(12)'
-  'Display Panel(zigipop)'
+  call do_popup
   cmd = 'cd' localrep'/'zigirep
   cmd = docmd(cmd || '&& git status --porcelain')
   x = bpxwunix(cmd,,stats.,se.)
@@ -1428,8 +1342,6 @@ update_repo_metadata:
       end
     end
   end
-  'Rempop'
-  call pfshow 'reset'         /* restore pfshow setting */
 
   /* --------------------------- *
   | Get the current branch info |
@@ -1632,12 +1544,7 @@ Do_Add_Copy:
   end
   zs1 = 'Copying selected dataset(s) to OMVS'
   zs2 = 'Patience . . .'
-  call pfshow 'off'           /* make sure pfshow is off */
-  'Control Display Lock'
-  'Addpop row(4) column(12)'
-  'Display Panel(zigipop)'
-  'Rempop'
-  call pfshow 'reset'         /* restore pfshow setting */
+  call do_popup
   DIR = localrep'/'zigirep
   FC = LISTDSI("'"WHAT"'")
   if sysrecfm = 'U' then do
@@ -1735,4 +1642,40 @@ Write_FD:
   parse arg string
   string = string || ESC_R || ESC_N
   'write' fd 'string' length(string)
+  return
+
+  /* ----------------------- *
+  | Generalized Pop Message |
+  | with msg passed         |
+  * ----------------------- */
+Pop:
+  parse arg zs1 zs2
+  add = address()             /* save addressing environment */
+  Address ISPExec
+  call do_popup
+  Address add                 /* restore addressing environment */
+  return
+
+  /* ---------------------------------------- *
+  | Common routine for normal (2 line) popup |
+  * ---------------------------------------- */
+Do_Popup:
+  call pfshow 'off'           /* make sure pfshow is off */
+  'Control Display Lock'
+  'Addpop row(4) column(12)'
+  'Display Panel(zigipop)'
+  'Rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
+  return
+
+  /* ---------------------------------------- *
+  | Common routine for normal (4 line) popup |
+  * ---------------------------------------- */
+Do_Popup4:
+  call pfshow 'off'           /* make sure pfshow is off */
+  'Control Display Lock'
+  'Addpop row(4) column(12)'
+  'Display Panel(zigipop4)'
+  'Rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   return
