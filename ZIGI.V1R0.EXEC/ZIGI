@@ -251,8 +251,8 @@
   'TBOpen zigirepo Library(isptabl) Write Share'
   if rc > 0 then do
     if rc = 8 then do
-      "TBCreate zigirepo Keys(zigirep)",
-        "Names(localrep pdshlq qualignr)",
+      "TBCreate zigirepo Keys(zigikey)",
+        "Names(zigirep localrep pdshlq qualignr)",
         "Library(isptabl) Write Share"
       "TBSort zigirepo Fields(zigirep,C,A)"
       "TBSAVE zigirepo REPLCOPY LIBRARY(isptabl)"
@@ -551,172 +551,7 @@ Work_With_Repo:
           'Somehow it may have been deleted.'
         'Setmsg msg(isrz002)'
       end
-      When zsel = 'S' then do
-        x = listdsi(fulldsn)
-        if sysdsorg /= 'PS' then do
-          zs1 = 'Building list of library statuses....'
-          zs2 = 'Patience . . .'
-          call do_popup
-        end
-        /* Determine if the repo item is a PDS or a flat-file */
-        if sysdsorg = 'PS' then do
-          /* Do this if it's a regular file (sequential in z/OS) */
-          edsn = substr(fulldsn,2,length(fulldsn)-2)
-          "Edit Dataset('"edsn"')"
-          /* so after the edit, we should update it to working directory */
-          if rc = 0 then do
-            edsn = usssafe(edsn)
-            copcm = "//'"edsn"'"
-            copcm = 'cp -U -M "'copcm'" 'localrep'/'zigirep'/'dsn
-            call bpxwunix copcm
-            call update_repo_metadata
-          end
-          dsnstat = '*Edit'
-        end
-        else do
-          /* Do this if it's a PDS */
-          localdir = localrep'/'zigirep
-          'TBCreate' rtll 'Names(mem memstat ussmem) replace NoWrite'
-          address syscall
-          'readdir 'localrep'/'zigirep'/'dsn' root.'
-          address ispexec
-          do i = 1 to root.0
-            /* for all files but not . or .. */
-            if root.i = "." | root.i = ".." then do
-              iterate
-            end
-            else do
-              mem = root.i
-              memstat = null
-              do ii = 1 to stats.0
-                /* see if we have this file in git status */
-                stat = substr(stats.ii,1,2)
-                thepath = substr(stats.ii,3)
-                parse var thepath FOLDER "/" MEMBER
-                if mem = MEMBER then do
-                  memstat = porcelain(stat)
-                  if FOLDER = "./" & stat = "??" then
-                  memstat = 'Untracked'
-                  leave
-                end
-              end
-            end
-            /* The files in USS have some chars changed due to cp -M */
-            /* So we fix the name before we save to table :) */
-            ussmem = mem
-            mem = strreplace(mem,'.','#')
-            mem = strreplace(mem,'_','@')
-            mem = strreplace(mem,'-','$')
-            'tbadd' rtll
-          end
-          'tbtop' rtll
-          /* ---------------------------------- *
-          | Process the Member list until done |
-          * ---------------------------------- */
-          save_top = 0
-          ztdsels  = 0
-          Do Forever
-            parse value '' with zsel zcmd row
-            if ztdsels = 0 then do
-              'tbtop' rtll
-              'tbskip' rtll 'number('save_top')'
-              'TBdispl' rtll 'Panel(zigilist)'
-            end
-            else 'tbdispl' rtll
-            if rc > 4 then do
-              'tbend' rtll
-              leave
-            end
-            /* Make sure we edit (and copy) right dataset when we have
-            a prefix set */
-            save_top = ztdtop
-            edsn = substr(fulldsn,2,length(fulldsn)-2)
-
-            if row = 0 then zsel = null
-            if row <> null then
-            if row > 0 then do
-              'TBTop' rtll
-              'TBSkip' rtll 'Number('row')'
-            end
-
-            select
-              When abbrev("L",translate(word(zcmd,1)),1) = 1 then do
-                mem = translate(word(zcmd,2))
-                'tbtop' rtll
-                'tbsarg' rtll
-                'tbscan' rtll 'arglist(mem) position(scanrow) condlist(ge)'
-                if rc = 0 then do
-                  save_top = scanrow
-                  zerrsm = null
-                  zerrlm = word(zcmd,2) 'was found in row' ztdtop
-                  'Setmsg msg(isrz002)'
-                end
-                else do
-                  zerrsm = null
-                  zerrlm = word(zcmd,2) 'was not found'
-                  'Setmsg msg(isrz002)'
-                end
-              end
-              when zsel = 'S' then do
-                /* -------------------------------- *
-                | Edit PDS member or PS dataset    |
-                * -------------------------------- */
-                x = listdsi(fulldsn)
-                edsn = substr(fulldsn,2,length(fulldsn)-2)
-                if sysdsorg = 'PS'
-                then "Edit Dataset('"edsn"')"
-                else "Edit Dataset('"edsn"("mem")'"
-                if rc = 0 then do
-                  /* so after the edit, we should update it to repo */
-                  memstat = 'Modified'
-                  'TBPut' rtll
-                  mem = usssafe(mem)
-                  edsn = usssafe(edsn)
-                  if sysdsorg = 'PS'
-                  then copcm = "//'"edsn"'"
-                  else copcm = "//'"edsn"("mem")'"
-                  copcm = 'cp -U -M "'copcm'" ,
-                      'localrep'/'zigirep'/'dsn'/'ussmem
-                  call bpxwunix copcm
-                  call update_repo_metadata
-                end
-              end
-              when zsel = 'A' then do
-                /* -------------------------------- *
-                | Add member of PDS to staging area|
-                * -------------------------------- */
-                d = usssafe(dsn)
-                cmd = 'cd' localrep'/'zigirep'/'d
-                /* These cp -M issues are really getting annoying */
-                m = strreplace(mem,'#','.')
-                m = strreplace(m,'$','-')
-                m = strreplace(m,'@','_')
-                cmd = docmd(cmd || ' && git add 'm)
-                x = bpxwunix(cmd,,so.,se.)
-                memstat = 'Added'
-                'tbput' rtll
-                if ztdsels = 1 then
-                call update_repo_metadata
-              end
-              when zsel = 'D' then do
-                /* -------------------------------- *
-                | Show the diff for the member     |
-                * -------------------------------- */
-                d = usssafe(dsn)
-                cmd = 'cd' localrep'/'zigirep'/'d
-                /* These cp -M issues are really getting annoying */
-                m = strreplace(mem,'#','.')
-                m = strreplace(m,'$','-')
-                m = strreplace(m,'@','_')
-                cmd = docmd(cmd || ' && git diff 'm)
-                x = bpxwunix(cmd,,so.,se.)
-                call View_std
-              end
-              otherwise nop
-            end
-          end
-        end
-      end
+      When zsel = 'S' then call work_with_repo_file
       /* -------------------------------- *
       | Add repo item to staging area    |
       * -------------------------------- */
@@ -790,6 +625,7 @@ Clone_Repo:
     end
     call Refresh localrep zigirep pdshlq qualignr
     Address ISPExec
+    zigikey = localrep'/'zigirep
     'tbadd zigirepo'
     "TBSAVE zigirepo REPLCOPY LIBRARY(isptabl)"
     zerrsm = 'Complete'
@@ -800,6 +636,175 @@ Clone_Repo:
   call work_with_repo
   return
 
+  /* ---------------------------------------- *
+  | Process the selected dataset (PDS or PS) |
+  * ---------------------------------------- */
+Work_with_repo_file:
+  x = listdsi(fulldsn)
+  if sysdsorg /= 'PS' then do
+    zs1 = 'Building list of library statuses....'
+    zs2 = 'Patience . . .'
+    call do_popup
+  end
+  /* Determine if the repo item is a PDS or a flat-file */
+  if sysdsorg = 'PS' then do
+    /* Do this if it's a regular file (sequential in z/OS) */
+    edsn = substr(fulldsn,2,length(fulldsn)-2)
+    "Edit Dataset('"edsn"')"
+    /* so after the edit, we should update it to working directory */
+    if rc = 0 then do
+      edsn = usssafe(edsn)
+      copcm = "//'"edsn"'"
+      copcm = 'cp -U -M "'copcm'" 'localrep'/'zigirep'/'dsn
+      call bpxwunix copcm
+      call update_repo_metadata
+    end
+    dsnstat = '*Edit'
+  end
+  else do
+    /* Do this if it's a PDS */
+    localdir = localrep'/'zigirep
+    'TBCreate' rtll 'Names(mem memstat ussmem) replace NoWrite'
+    address syscall
+    'readdir 'localrep'/'zigirep'/'dsn' root.'
+    address ispexec
+    do i = 1 to root.0
+      /* for all files but not . or .. */
+      if root.i = "." | root.i = ".." then do
+        iterate
+      end
+      else do
+        mem = root.i
+        memstat = null
+        do ii = 1 to stats.0
+          /* see if we have this file in git status */
+          stat = substr(stats.ii,1,2)
+          thepath = substr(stats.ii,3)
+          parse var thepath FOLDER "/" MEMBER
+          if mem = MEMBER then do
+            memstat = porcelain(stat)
+            if FOLDER = "./" & stat = "??" then
+            memstat = 'Untracked'
+            leave
+          end
+        end
+      end
+      /* The files in USS have some chars changed due to cp -M */
+      /* So we fix the name before we save to table :) */
+      ussmem = mem
+      mem = strreplace(mem,'.','#')
+      mem = strreplace(mem,'_','@')
+      mem = strreplace(mem,'-','$')
+      'tbadd' rtll
+    end
+    'tbtop' rtll
+    /* ---------------------------------- *
+    | Process the Member list until done |
+    * ---------------------------------- */
+    save_top = 0
+    ztdsels  = 0
+    Do Forever
+      parse value '' with zsel zcmd row
+      if ztdsels = 0 then do
+        'tbtop' rtll
+        'tbskip' rtll 'number('save_top')'
+        'TBdispl' rtll 'Panel(zigilist)'
+      end
+      else 'tbdispl' rtll
+      if rc > 4 then do
+        'tbend' rtll
+        leave
+      end
+      /* Make sure we edit (and copy) right dataset when we have
+      a prefix set */
+      save_top = ztdtop
+      edsn = substr(fulldsn,2,length(fulldsn)-2)
+
+      if row = 0 then zsel = null
+      if row <> null then
+      if row > 0 then do
+        'TBTop' rtll
+        'TBSkip' rtll 'Number('row')'
+      end
+
+      select
+        When abbrev("L",translate(word(zcmd,1)),1) = 1 then do
+          mem = translate(word(zcmd,2))
+          'tbtop' rtll
+          'tbsarg' rtll
+          'tbscan' rtll 'arglist(mem) position(scanrow) condlist(ge)'
+          if rc = 0 then do
+            save_top = scanrow
+            zerrsm = null
+            zerrlm = word(zcmd,2) 'was found in row' ztdtop
+            'Setmsg msg(isrz002)'
+          end
+          else do
+            zerrsm = null
+            zerrlm = word(zcmd,2) 'was not found'
+            'Setmsg msg(isrz002)'
+          end
+        end
+        when zsel = 'S' then do
+          /* -------------------------------- *
+          | Edit PDS member or PS dataset    |
+          * -------------------------------- */
+          x = listdsi(fulldsn)
+          edsn = substr(fulldsn,2,length(fulldsn)-2)
+          if sysdsorg = 'PS'
+          then "Edit Dataset('"edsn"')"
+          else "Edit Dataset('"edsn"("mem")'"
+          if rc = 0 then do
+            /* so after the edit, we should update it to repo */
+            memstat = 'Modified'
+            'TBPut' rtll
+            mem = usssafe(mem)
+            edsn = usssafe(edsn)
+            if sysdsorg = 'PS'
+            then copcm = "//'"edsn"'"
+            else copcm = "//'"edsn"("mem")'"
+            copcm = 'cp -U -M "'copcm'" ,
+                      'localrep'/'zigirep'/'dsn'/'ussmem
+            call bpxwunix copcm
+            call update_repo_metadata
+          end
+        end
+        when zsel = 'A' then do
+          /* -------------------------------- *
+          | Add member of PDS to staging area|
+          * -------------------------------- */
+          d = usssafe(dsn)
+          cmd = 'cd' localrep'/'zigirep'/'d
+          /* These cp -M issues are really getting annoying */
+          m = strreplace(mem,'#','.')
+          m = strreplace(m,'$','-')
+          m = strreplace(m,'@','_')
+          cmd = docmd(cmd || ' && git add 'm)
+          x = bpxwunix(cmd,,so.,se.)
+          memstat = 'Added'
+          'tbput' rtll
+          if ztdsels = 1 then
+          call update_repo_metadata
+        end
+        when zsel = 'D' then do
+          /* -------------------------------- *
+          | Show the diff for the member     |
+          * -------------------------------- */
+          d = usssafe(dsn)
+          cmd = 'cd' localrep'/'zigirep'/'d
+          /* These cp -M issues are really getting annoying */
+          m = strreplace(mem,'#','.')
+          m = strreplace(m,'$','-')
+          m = strreplace(m,'@','_')
+          cmd = docmd(cmd || ' && git diff 'm)
+          x = bpxwunix(cmd,,so.,se.)
+          call View_std
+        end
+        otherwise nop
+      end
+    end
+  end
+  return
 
   /* ----------------------------- *
   | Refresh z/OS side of repo     |
@@ -1061,6 +1066,7 @@ Create_Repo:
     x = bpxwunix(cmd,,so.,se.)
 
     Address ISPExec
+    zigikey = localrep'/'zigirep
     'tbadd zigirepo'
     "TBSAVE zigirepo REPLCOPY LIBRARY(isptabl)"
     leave
