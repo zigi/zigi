@@ -7,10 +7,7 @@
 +-\-\#zigtitle   +-\-\
 %Command ===>_zcmd       \ \ %Scroll ===>_zscr+
 +
-+Primary commands:  @Clone+remote remote repository    @Short+
-+                   @Create+a local repo from scratch
-+                   @SSH+View your SSH public key
-+                   @Config+View git configuration
++Primary commands:  @Clone+@Create+@SSH+@Config+@Short
 +
 +Repo options:      %S+Work with repo%V+View repo USS files+%D+Delete repo
 +

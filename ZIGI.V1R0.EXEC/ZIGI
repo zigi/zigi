@@ -286,11 +286,13 @@
 
   repo_top = 1
   'tbtop zigirepo'
+  'vget (primpanl) profile'
+  if primpanl = null then primpanl = 'zigiprim'
   do forever
     parse value '' with zsel zcmd row
     'TBTop zigirepo'
     'tbskip zigirepo number('repo_top')'
-    'tbdispl zigirepo panel(zigiprim)'
+    'tbdispl zigirepo panel('primpanl')'
     if rc > 4 then leave
 
     repo_top = ztdtop
@@ -309,6 +311,12 @@
         'display panel(zigiset)'
         /* TODO: Add code to apply the new settings..... */
         if rc = 0 | rc = 8 then leave
+      end
+      When abbrev('SHORT',zcmd,2) = 1 then do
+        if primpanl = 'zigiprim'
+        then primpanl = 'zigiprms'
+        else primpanl = 'zigiprim'
+        'vput (primpanl) profile'
       end
       When abbrev('SSH',zcmd,2) = 1 then do forever
         zcmd = null
