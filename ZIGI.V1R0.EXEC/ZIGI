@@ -325,10 +325,10 @@
         if rc > 0 then leave
       end
       Otherwise nop
-      end
+    end
 
-      if zsel /= null then
-      Select
+    if zsel /= null then
+    Select
       When zsel = 'S' then call Work_With_Repo
       When zsel = 'V' then do
         'SELECT PGM(ISRDSLST) PARM(UDL' localrep'/'zigirep') SUSPEND'
@@ -591,10 +591,10 @@ Work_With_Repo:
         call update_repo_metadata
       end
       Otherwise nop
-      end
+    end
 
-      if zsel /= null then
-      Select
+    if zsel /= null then
+    Select
       /* -------------------------------- *
       | Work with a repo item            |
       * -------------------------------- */
@@ -733,9 +733,12 @@ Work_with_repo_file:
       /* The files in USS have some chars changed due to cp -M */
       /* So we fix the name before we save to table :) */
       ussmem = mem
+      mem = translate(mem,'#@$','._-')
+      /* Comment Start
       mem = strreplace(mem,'.','#')
       mem = strreplace(mem,'_','@')
       mem = strreplace(mem,'-','$')
+      Comment End */
       'tbadd' rtll
     end
     'tbtop' rtll
@@ -817,9 +820,12 @@ Work_with_repo_file:
           d = usssafe(dsn)
           cmd = 'cd' localrep'/'zigirep'/'d
           /* These cp -M issues are really getting annoying */
+          m = translate('._-','##$')
+          /* Comment Start
           m = strreplace(mem,'#','.')
-          m = strreplace(m,'$','-')
           m = strreplace(m,'@','_')
+          m = strreplace(m,'$','-')
+          Comment End */
           cmd = docmd(cmd || ' && git add 'm)
           x = bpxwunix(cmd,,so.,se.)
           memstat = 'Added'
@@ -834,9 +840,12 @@ Work_with_repo_file:
           d = usssafe(dsn)
           cmd = 'cd' localrep'/'zigirep'/'d
           /* These cp -M issues are really getting annoying */
+          m = translate('._-','##$')
+          /* Comment Start
           m = strreplace(mem,'#','.')
           m = strreplace(m,'$','-')
           m = strreplace(m,'@','_')
+          Comment End */
           cmd = docmd(cmd || ' && git diff 'm)
           x = bpxwunix(cmd,,so.,se.)
           call View_std
@@ -972,6 +981,10 @@ Branch_it:
         'Display Panel(zigipop)'
         'Rempop'
         call pfshow 'reset'         /* restore pfshow setting */
+        if so.0 > 0 then
+        call view_std
+        if se.0 > 0 then
+        call view_std 'E'
       end
       cmd = docmd('cd 'localdir' && git checkout 'bname)
       x = bpxwunix(cmd,,so.,se.)
@@ -1268,6 +1281,14 @@ dsnvalid: Procedure
     return "NO"
   end
 
+  /* ------------------------------------------------- *
+  |                                                  |
+  | String replace routine                           |
+  | input string                                     |
+  | from string                                      |
+  | to string                                        |
+  | translate is input to from                       |
+  * ------------------------------------------------- */
 strreplace: Procedure
   string  = arg(1)
   strfrom = arg(2)
