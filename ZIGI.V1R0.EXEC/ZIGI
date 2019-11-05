@@ -1149,8 +1149,10 @@ Create_Repo:
     "TBSAVE zigirepo REPLCOPY LIBRARY(isptabl)"
     leave
   end
+  /* Not required for a new repo
   if zerrsm = null then
   call work_with_repo
+     Comment End */
   return
 
   /* ---------------------------------------------------------- *
@@ -1329,6 +1331,9 @@ update_repo_metadata:
   /* now we get the status for all in the repo */
   if se.0 > 1 then fetchmsg = "Remote updates, check status"
   else fetchmsg = "No remote updates"
+  zs1 = 'Reading the Local Repo info'
+  zs2 = 'Patience . . .'
+  call do_popup
   /* get all the files that are in the repo */
   address syscall
   'readdir 'localrep'/'zigirep' root.'
@@ -1562,6 +1567,7 @@ Add_Dataset:
     if add_count > 0 then
     pdshlq = dsnapfx
     if rc > 4 then do
+      zsel = null
       'tbend' dsnatbl
       'tbsort' rtbl 'fields(fulldsn,c,a)'
       'tbtop' rtbl
@@ -1639,9 +1645,11 @@ Do_Add_Copy:
     dsnb = subword(dsnb,qualignr+1)
     dsnb = translate(dsnb,'.',' ')
   end
-  zs1 = 'Copying selected dataset(s) to OMVS'
-  zs2 = 'Patience . . .'
-  call do_popup
+  zs1 = 'Copying' dsna
+  zs2 = 'to' dsnb 'in OMVS'
+  zs3 = ' '
+  zs4 = 'Patience . . .'
+  call do_popup4
   DIR = localrep'/'zigirep
   FC = LISTDSI("'"WHAT"'")
   if sysrecfm = 'U' then do
@@ -1771,7 +1779,7 @@ Do_Popup:
 Do_Popup4:
   call pfshow 'off'           /* make sure pfshow is off */
   'Control Display Lock'
-  'Addpop row(4) column(12)'
+  'Addpop row(4) column(6)'
   'Display Panel(zigipop4)'
   'Rempop'
   call pfshow 'reset'         /* restore pfshow setting */
