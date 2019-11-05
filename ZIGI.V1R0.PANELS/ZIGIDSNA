@@ -16,6 +16,8 @@
 +below. Optionally change the number of qualifiers to ignore in the prefix
 +for the OMVS file name or directory.
 +
++Options:%S+Add+%A+Add+%B+Browse
++
 %S  Dataset Name                                Status
 )Model
 @z+$z                                          $z
@@ -42,5 +44,5 @@
      &osel = &zsel
  ver (&dsnapfx,nb,dsname)
  ver (&qualignr,nb,range,0,8)
- ver (&zsel,list,S)
+ ver (&zsel,list,S,B,A)
 )End

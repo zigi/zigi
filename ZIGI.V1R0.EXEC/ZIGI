@@ -1578,7 +1578,12 @@ Add_Dataset:
       'TBSkip zigirepo Number('row')'
     end
 
-    if zsel = 'S' then do
+    if zsel = 'B' then do
+       "LMInit Dataid(edvbr) dataset('"dsna"')"
+       "Memlist Dataid("edvbr") Default(B)"
+       "LMfree Dataid("edvbr")"
+       end
+    if zsel = 'S' | zsel = 'A' then do
       call do_add_copy
     end
 
