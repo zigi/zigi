@@ -4,10 +4,27 @@
  # type(output) hilite(reverse) color(turq) caps(off)
 )Body Expand(\\)
 +-\-\#zigtitle   +-\-\
-%Command ===>_zcmd
+%Command ===>_zcmd                                                            +
 +
 +
-+ Git grep for : _grep                                                       +
++Git grep for : _grep                                                         +
++
++Note: The grep is case sensitive.
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++\ \Press%F3+to exit grep prompt \ \
 )Init
 )Proc
  ver (&grep,nb)
