@@ -539,6 +539,9 @@ Work_With_Repo:
           'setmsg msg(isrz002)'
         end
         else do
+          zs1 = 'Commit and Push Updates to'
+          zs2 = 'Remote git Repository'
+          call do_popup
           cmd = 'cd' localrep'/'zigirep
           x = docmd(cmd || '&& git commit -m "'msg'"')
           drop co.
@@ -551,7 +554,6 @@ Work_With_Repo:
             co.x = se.cc
           end
           sx = x
-          call pop 'Pushing Updates to Remote Git'
           cmd = 'cd' localrep'/'zigirep ' && git push'
           cmd = docmd(cmd)
           x = sx
