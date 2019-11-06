@@ -46,7 +46,7 @@
   'vget (zapplid)'
   "Control Errors Return"
 
-  parse value '' with null
+  parse value '' with null rx
   /* ----------------------------------------------------- *
   | Get the Active HLQ for use with the ALTLIB and LIBDEF |
   | of the zIGI libraries.                                |
@@ -1152,7 +1152,7 @@ Create_Repo:
   /* Not required for a new repo
   if zerrsm = null then
   call work_with_repo
-     Comment End */
+  Comment End */
   return
 
   /* ---------------------------------------------------------- *
@@ -1260,13 +1260,15 @@ docmd:
   /* quircky thing, we need to export HOME as we are
   not running a login shell via bpxwunix */
   parse arg cmd
-  r = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && '
-  c = "[[ -f "home"/.profile ]] && echo f"
-  x = bpxwunix(c,,o.,e.)
-  if o.0 = 1 & o.1 = "f" then do
-    r = r ||  '. 'home'/.profile > /dev/null 2>&1 && '
+  if rx = null then do
+    rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && '
+    c = "[[ -f "home"/.profile ]] && echo f"
+    x = bpxwunix(c,,o.,e.)
+    if o.0 = 1 & o.1 = "f" then do
+      rx = rx ||  '. 'home'/.profile > /dev/null 2>&1 && '
+    end
   end
-  r = r ||  'bash &&  '  || cmd
+  r = rx ||  'bash &&  '  || cmd
   return r
 
 dsnvalid: Procedure
@@ -1585,10 +1587,10 @@ Add_Dataset:
     end
 
     if zsel = 'B' then do
-       "LMInit Dataid(edvbr) dataset('"dsna"')"
-       "Memlist Dataid("edvbr") Default(B)"
-       "LMfree Dataid("edvbr")"
-       end
+      "LMInit Dataid(edvbr) dataset('"dsna"')"
+      "Memlist Dataid("edvbr") Default(B)"
+      "LMfree Dataid("edvbr")"
+    end
     if zsel = 'S' | zsel = 'A' then do
       call do_add_copy
     end
