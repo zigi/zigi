@@ -1273,10 +1273,10 @@ Work_With_Repo:
       c = "[[ -f "home"/.profile ]] && echo f"
       x = bpxwunix(c,,o.,e.)
       if o.0 = 1 & o.1 = "f" then do
-        rx = rx ||  '. 'home'/.profile > /dev/null 2>&1 && '
+        rx = rx '. 'home'/.profile > /dev/null 2>&1 && '
       end
     end
-    r = rx ||  'bash &&  '  || cmd
+    r = rx 'bash &&' cmd
     return r
 
   dsnvalid: Procedure
