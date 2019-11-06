@@ -303,6 +303,7 @@
     Select
       When abbrev('CREATE',zcmd,2) = 1 then do
         call Create_Repo
+        call work_with_repo
         zsel = null
       end
       When abbrev('CLONE',zcmd,2) = 1 then do
