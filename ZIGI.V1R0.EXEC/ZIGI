@@ -420,11 +420,9 @@ Work_With_Repo:
       | Push current branch to origin    |
       * -------------------------------- */
       When abbrev('PUSH',zcmd,2) = 1 then do
-      trace '?i'
         call pop 'Pushing Updates to Remote Git'
         cmd = 'cd' localdir' && git push'
-        cmd = docmdx(cmd)
-        x = bpxwunix(cmd,,so.,se.)
+        cmd = docmd(cmd)
         call view_std
         if se.0 > 0 then call view_std 'E'
         call update_repo_metadata
@@ -533,7 +531,6 @@ Work_With_Repo:
         'setmsg msg(isrz002)'
       end
       else do
-        trace '?I'
         cmd = 'cd' localrep'/'zigirep
         x = docmd(cmd || '&& git commit -m "'msg'"')
         drop co.
@@ -548,8 +545,7 @@ Work_With_Repo:
         sx = x
         call pop 'Pushing Updates to Remote Git'
         cmd = 'cd' localrep'/'zigirep ' && git push'
-        cmd = docmdx(cmd)
-        x = bpxwunix(cmd,,so.,se.)
+        cmd = docmd(cmd)
         x = sx
         do cc = 1 to so.0
           x = x + 1
@@ -583,8 +579,7 @@ Work_With_Repo:
       call View_std
       call View_std E
       cmd = 'cd' localrep'/'zigirep
-      cmd = docmdx(cmd '&& git push -u origin 'branch)
-      x = bpxwunix(cmd,,so.,se.)
+      cmd = docmd(cmd '&& git push -u origin 'branch)
       call View_std
       call View_std E
       call update_repo_metadata
@@ -949,14 +944,12 @@ Work_With_Repo:
       'tbdispl' rtbb 'panel(zigibra)'
       if rc > 4 then leave
       if newb <> null then do
-      trace '?i'
         /* ----------------------------- *
         | Create this new branch, switch|
         * ----------------------------- */
         localdir = localrep'/'zigirep
         x = docmd('cd 'localdir' && git checkout -b 'newb)
         cmd = docmd('cd 'localdir' && git push -u origin 'newb)
-        x = bpxwunix(cmd,,so.,se.)
         branch = newb
         leave
       end
@@ -985,7 +978,7 @@ Work_With_Repo:
         leave
       end
       if zsel = "D" then do
-        x = docmd('cd 'localdir' && git branch -d 'bname)
+        x = docmd('cd 'localdir' && git branch -D 'bname)
         'tbdelete' rtbb
         zerrsm = 'Deleted.'
         zerrlm = 'Branch 'bname' succesfully deleted'
