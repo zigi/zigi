@@ -21,6 +21,11 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            11/06/19 LBD - Numerous changes including       |
+  |                           - Improve bpxwunix performance   |
+  |                             by using an env stem           |
+  |                           - fix lrecl for browse reports   |
+  |                           - other bug fixes and cleanup    |
   |            11/02/19 LBD - Add shorten ZIGIREPO panel       |
   |                           ZIGIREPS if SHort command used   |
   |            10/31/19 LBD - Various Fixes :)                 |
@@ -617,7 +622,7 @@ Work_With_Repo:
         if sysdsorg = 'PS' then call copy_ps 'x'
         d = usssafe(dsn)
         cmd = 'cd' localrep'/'zigirep
-        x = docmd(cmd || ' && git add 'd)
+        x = docmd(cmd '&& git add 'd)
         if so.0 > 0 then call view_std
         if se.0 > 0 then call view_std 'E'
         zs1 = 'Adding' fulldsn
@@ -875,7 +880,9 @@ Copy_PS:
     x = bpxwunix(copcm,,so.,se.)
     if so.0 > 0 then call view_std
     if se.0 > 0 then call view_std 'E'
+    /* Comment Start - does not appear to be needed here
     call update_repo_metadata
+       Comment End */
   end
   dsnstat = '*Edit'
   return
@@ -1156,12 +1163,23 @@ view_std:
   | Randomly define a DDName to use |
   * ------------------------------- */
   dd = 'dd'random(9999)
+ /* --------------------------------------- *
+  | Get lrecl to determine dcb for temp d/s |
+  * --------------------------------------- */
+  vlrecl = 0
+  do li  = 1 to so.0
+     if length(so.li) > vlrecl then vlrecl = length(so.li)
+     end
+  do li  = 1 to se.0
+     if length(se.li) > vlrecl then vlrecl = length(se.li)
+     end
+  if vlrecl < 81 then vlrecl = 80
   /* ------------------------------------------ *
   | Allocate a temporary data set for our data |
   * ------------------------------------------ */
   Address TSO
   'Alloc f('dd') new spa(5,5) tr' ,
-    'recfm(v b) lrecl(80) blksize(0)'
+    'recfm(v b) lrecl('vlrecl+4') blksize(0)'
   /* ------------------------------- *
   | Replace null records with blank |
   * ------------------------------- */
@@ -1474,6 +1492,7 @@ porcelain:
 
 usssafe: procedure
   parse arg dsn
+  if pos('$',dsn) = 0 then return dsn
   dsn = strreplace(dsn, '$', '\$')
   return dsn
 
