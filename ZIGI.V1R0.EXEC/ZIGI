@@ -683,9 +683,6 @@ Clone_Repo:
     zigikey = localrep'/'zigirep
     'tbadd zigirepo'
     "TBSAVE zigirepo REPLCOPY LIBRARY(isptabl)"
-    zerrsm = 'Complete'
-    zerrlm = zigirep 'has been added/updated in the table'
-    'setmsg msg(isrz002)'
     leave
   end
   call work_with_repo
@@ -720,10 +717,12 @@ Work_with_repo_file:
       else do
         mem = root.i
         memstat = null
-        do ii = 1 to so..0
+        cmd = 'cd' localrep'/'zigirep
+        x = docmd(cmd || '&& git status --porcelain')
+        do ii = 1 to so.0
           /* see if we have this file in git status */
-          stat = substr(so..ii,1,2)
-          thepath = substr(so..ii,3)
+          stat = substr(so.ii,1,2)
+          thepath = substr(so.ii,3)
           parse var thepath FOLDER "/" MEMBER
           if mem = MEMBER then do
             memstat = porcelain(stat)
