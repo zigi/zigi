@@ -17,7 +17,7 @@
       %S            +Select a Local Repository to work in
       %V            +View the Local Repository
       %D            +Delete a Local Repository
-+                    - Repository in USS and zIGI removed
++                    - Repository in OMVS and zIGI removed
 +                    - z/OS dataset remain
 +
 +

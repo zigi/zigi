@@ -19,8 +19,8 @@
  %Special Characters+  Special characters in z/OS datasets and member names
 +                      will be converted when moved to the repository.
 +                      This is done via the -M option for the cp command.
-+                      In the%status+log you will see the 'USS'-names (as this
-+                      is from the USS-side of things.
++                      In the%status+log you will see the 'OMVS'-names (as this
++                      is from the OMVS-side of things.
 +
 +%Status+              The status as shown on the panels for the various repo
 +                      elements is explained in detail at the git-scm website

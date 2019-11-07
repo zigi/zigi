@@ -14,7 +14,7 @@
 +
 +Notes:
 +1. Don't use spaces in name field.
-+2. Repository will be named (and stored) in USS as /localdirectory/name
++2. Repository will be named (and stored) in OMVS as /localdirectory/name
 +3. Fails if /localdirectory/name is present
 +   Override with a Y@A+
 +4. Thirtytwo characters should be enough for a repo-name :)

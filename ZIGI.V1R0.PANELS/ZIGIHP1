@@ -20,7 +20,7 @@
 +
 %PREFIX+is a set of high level qualifiers (0,n) that will be prefixed
 +to the Datasets from the remote repository. This%does not+change the names
-+of the files and folders in USS.
++of the files and folders in OMVS.
 +
 \ \Press%Enter+to continue or%F3+to return to the dialog\ \
 )Init

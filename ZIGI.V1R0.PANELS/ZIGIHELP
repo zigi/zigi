@@ -10,7 +10,7 @@
 %
 %Commands:
             %Branch   +Change to a new, or existing, Branch
-            %Copy     +Copy all updates to USS and do Git Add and Commit
+            %Copy     +Copy all updates to OMVS and do Git Add and Commit
             %GLog     +View Git Log
             %PULl     +Pull updates from the Remote Repository
             %PUsh     +Push updates to Remote Repository

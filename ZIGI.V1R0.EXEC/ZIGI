@@ -737,7 +737,7 @@ Work_with_repo_file:
           end
         end
       end
-      /* The files in USS have some chars changed due to cp -M */
+      /* The files in OMVS have some chars changed due to cp -M */
       /* So we fix the name before we save to table :) */
       ussmem = mem
       mem = translate(mem,'#@$','._-')
@@ -893,7 +893,7 @@ Copy_PS:
 Refresh:
   parse arg localrep zigirep pdshlq qualignr .
   zs1 = "Refreshing from repository"
-  zs2 = "   USS -> z/OS      "
+  zs2 = "   OMVS -> z/OS      "
   call do_popup
   address 'SYSCALL' 'SLEEP (2)'
   x = docmd('cd 'localrep' && git clone 'remote)

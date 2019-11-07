@@ -9,9 +9,9 @@
 +
 +Primary commands:  @Clone+@Create+@SSH+@Config+@Short
 +
-+Repo options:      %S+Work with repo%V+View repo USS files+%D+Delete repo
++Repo options:      %S+Work with repo%V+View repo OMVS files+%D+Delete repo
 +
-%    +Repository         Prefix                    Repo Root (USS)
+%    +Repository         Prefix                    Repo Root (OMVS)
 )Model
 _z+  $z              + +$z                     + +$z
 )Init
