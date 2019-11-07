@@ -629,7 +629,7 @@ Work_With_Repo:
       Otherwise nop
     end
   end
-  if ztdsels = 0 then do
+  if ztdsels = 1 then do
     'tbend' rtbl
     rtbl_open = 0
     call work_with_repo
