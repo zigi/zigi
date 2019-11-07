@@ -620,14 +620,14 @@ Work_With_Repo:
       When zsel = 'A' then do
         x = listdsi(fulldsn)
         if sysdsorg = 'PS' then call copy_ps 'x'
+        zs1 = 'Adding' fulldsn
+        zs2 = 'Making it ready to Commit'
+        call do_popup
         d = usssafe(dsn)
         cmd = 'cd' localrep'/'zigirep
         x = docmd(cmd '&& git add 'd)
         if so.0 > 0 then call view_std
         if se.0 > 0 then call view_std 'E'
-        zs1 = 'Adding' fulldsn
-        zs2 = 'Making it ready to Commit'
-        call do_popup
         if ztdsels = 1 then
         call update_repo_metadata
       end
