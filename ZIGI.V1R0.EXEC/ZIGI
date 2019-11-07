@@ -1159,6 +1159,7 @@ Create_Repo:
   * ---------------------------------------------------------- */
 view_std:
   arg stdopt
+  'Control Display Save'
   /* ------------------------------- *
   | Randomly define a DDName to use |
   * ------------------------------- */
@@ -1213,6 +1214,7 @@ view_std:
   * ----------------------------- */
   Address TSO ,
     'Free f('dd')'
+  'Control Display Restore'
   return
 
 
