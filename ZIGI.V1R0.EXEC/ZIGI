@@ -812,7 +812,8 @@ Work_with_repo_file:
             copcm = 'cp -U -M "'copcm'" ,
                       'localrep'/'zigirep'/'dsn'/'ussmem
             call bpxwunix copcm
-            call update_repo_metadata
+            dsnstat = '[ M] Modified'
+            'tbput' rtbl
           end
         end
         when zsel = 'A' then do
@@ -826,8 +827,6 @@ Work_with_repo_file:
           x = docmd(cmd || ' && git add 'm)
           memstat = 'Added'
           'tbput' rtll
-          if ztdsels = 1 then
-          call update_repo_metadata
         end
         when zsel = 'D' then do
           /* -------------------------------- *
