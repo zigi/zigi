@@ -827,7 +827,7 @@ Work_with_repo_file:
           d = usssafe(dsn)
           cmd = 'cd' localrep'/'zigirep'/'d
           /* These cp -M issues are really getting annoying */
-          m = translate('._-','##$')
+          m = translate(mem,'._-','##$')
           /* Comment Start
           m = strreplace(mem,'#','.')
           m = strreplace(m,'@','_')
@@ -846,7 +846,7 @@ Work_with_repo_file:
           d = usssafe(dsn)
           cmd = 'cd' localrep'/'zigirep'/'d
           /* These cp -M issues are really getting annoying */
-          m = translate('._-','##$')
+          m = translate(mem,'._-','##$')
           /* Comment Start
           m = strreplace(mem,'#','.')
           m = strreplace(m,'$','-')
