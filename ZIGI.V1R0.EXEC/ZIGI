@@ -466,7 +466,7 @@ Work_With_Repo:
       When abbrev('STATUS',zcmd,2) = 1 then do
         zcmd = null
         cmd = 'cd' localrep'/'zigirep
-        x = docmd(cmd || '&& git status')
+        x = docmd(cmd '&& git status')
         call view_std
       end
       /* -------------------------------- *
@@ -504,7 +504,7 @@ Work_With_Repo:
       When abbrev('GMAN',zcmd,2) = 1 then do
         zcmd = null
         cmd = 'cd' localrep'/'zigirep
-        x = docmd(cmd || '&& man git')
+        x = docmd(cmd '&& man git')
         call View_std
       end
       /* -------------------------------- *
@@ -512,7 +512,7 @@ Work_With_Repo:
       * -------------------------------- */
       When abbrev('COMMIT',zcmd,3) = 1 then do
         zcmd = null
-        msg = null
+        parse value '' with msg msg1 msg2 msg3 msg4 msg5 msg6 msg7 msg8 msg9
         'display panel(zigicom)'
         if rc > 0 then do
           zerrsm = 'Cancelled.'
@@ -520,11 +520,54 @@ Work_With_Repo:
           'setmsg msg(isrz002)'
         end
         else do
-          cmd = 'cd' localrep'/'zigirep
-          x = docmd(cmd || '&& git commit -m "'msg'"')
+          io = 0
+          do ic = 1 to 14
+            interpret 'cmessage = msg'ic
+            cmessage = strip(cmessage)
+            if cmessage /= null then do
+              if cmessage = '.' then cmessage = '  '
+              io = io + 1
+              cmsg.io = cmessage
+            end
+          end
+          cmsg.0 = io
+         /* ------------------------------- *
+          | If > 1 msg line then use a file |
+          * ------------------------------- */
+          if io > 1 then do
+            file = 'cmsg'random(999)
+            fdd  = file
+            if sysvar('syspref') = null
+            then filem = sysvar('sysuid')'.'file
+            else filem = file
+            file = localrep'/'zigirep'/'file
+            file = "'"file"'"
+            address tso
+            'alloc f('fdd') new spa(1,1) tr recfm(f b) lrecl(72) blksize(0)',
+              'ds('filem')'
+            'execio * diskw' fdd '(finis stem cmsg.'
+            'free  f('fdd')'
+            call outtrap 'x.'
+            'oput' filem file 'Text'
+            'delete' filem
+            call outtrap 'off'
+            address ispexec
+            cmd = 'cd' localrep'/'zigirep
+            x = docmd(cmd '&& git commit -F' file)
+          end
+         /* ------------------------------- *
+          | If = 0 then use commit -m msg   |
+          * ------------------------------- */
+          else x = docmd(cmd "&& git commit -m '"cmsg.1"'")
           if x = 0
           then call view_std
           else call view_std 'E'
+         /* ------------------------------- *
+          | If > 1 msg then delete the msg  |
+          | file from omvs                  |
+          * ------------------------------- */
+          if io > 1 then
+          x = docmd('rm' file)
           call update_repo_metadata
         end
       end
@@ -546,7 +589,7 @@ Work_With_Repo:
           zs2 = 'Remote git Repository'
           call do_popup
           cmd = 'cd' localrep'/'zigirep
-          x = docmd(cmd || '&& git commit -m "'msg'"')
+          x = docmd(cmd '&& git commit -m "'msg'"')
           drop co.
           do cc = 1 to so.0
             co.cc = so.cc
@@ -582,13 +625,13 @@ Work_With_Repo:
         'display panel(zigiremo)'
         parse var origin guser '@' host ':' rest
         cmd = 'touch 'home'/.ssh/known_hosts && '
-        cmd = cmd || 'ssh-keyscan -t rsa,dsa 'host
-        cmd = cmd || ' 2>&1 | sort -u - 'home'/.ssh/known_hosts >'
-        cmd = cmd || ' 'home'/.ssh/tmp_hosts && '
-        cmd = cmd || 'mv 'home'/.ssh/tmp_hosts 'home'/.ssh/known_hosts'
+        cmd = cmd 'ssh-keyscan -t rsa,dsa 'host
+        cmd = cmd ' 2>&1 | sort -u - 'home'/.ssh/known_hosts >'
+        cmd = cmd ' 'home'/.ssh/tmp_hosts && '
+        cmd = cmd 'mv 'home'/.ssh/tmp_hosts 'home'/.ssh/known_hosts'
         x = bpxwunix(cmd,,so.,se.)
         cmd = 'cd' localrep'/'zigirep
-        x = docmd(cmd || '&& git remote add origin 'origin)
+        x = docmd(cmd '&& git remote add origin 'origin)
         call View_std
         call View_std E
         cmd = 'cd' localrep'/'zigirep
@@ -659,10 +702,10 @@ Clone_Repo:
     zs2 = "from "host
     call do_popup
     cmd = 'touch 'home'/.ssh/known_hosts && '
-    cmd = cmd || 'ssh-keyscan -t rsa,dsa 'host
-    cmd = cmd || ' 2>&1 | sort -u - 'home'/.ssh/known_hosts >'
-    cmd = cmd || ' 'home'/.ssh/tmp_hosts && '
-    cmd = cmd || 'mv 'home'/.ssh/tmp_hosts 'home'/.ssh/known_hosts'
+    cmd = cmd 'ssh-keyscan -t rsa,dsa 'host
+    cmd = cmd ' 2>&1 | sort -u - 'home'/.ssh/known_hosts >'
+    cmd = cmd ' 'home'/.ssh/tmp_hosts && '
+    cmd = cmd 'mv 'home'/.ssh/tmp_hosts 'home'/.ssh/known_hosts'
     x = bpxwunix(cmd,,so.,se.)
     x = docmd('cd 'localrep' && git clone 'remote)
     if x > 0 then do
@@ -722,7 +765,7 @@ Work_with_repo_file:
         mem = root.i
         memstat = null
         cmd = 'cd' localrep'/'zigirep
-        x = docmd(cmd || '&& git status --porcelain')
+        x = docmd(cmd '&& git status --porcelain')
         do ii = 1 to so.0
           /* see if we have this file in git status */
           stat = substr(so.ii,1,2)
@@ -824,7 +867,7 @@ Work_with_repo_file:
           cmd = 'cd' localrep'/'zigirep'/'d
           /* These cp -M issues are really getting annoying */
           m = translate(mem,'._-','##$')
-          x = docmd(cmd || ' && git add 'm)
+          x = docmd(cmd ' && git add 'm)
           memstat = 'Added'
           'tbput' rtll
         end
@@ -836,7 +879,7 @@ Work_with_repo_file:
           cmd = 'cd' localrep'/'zigirep'/'d
           /* These cp -M issues are really getting annoying */
           m = translate(mem,'._-','##$')
-          x = docmd(cmd || ' && git diff 'm)
+          x = docmd(cmd ' && git diff 'm)
           call View_std
         end
         otherwise nop
@@ -864,11 +907,10 @@ Copy_PS:
     x = bpxwunix(copcm,,so.,se.)
     if so.0 > 0 then call view_std
     if se.0 > 0 then call view_std 'E'
-    /* Comment Start - does not appear to be needed here
-    call update_repo_metadata
-       Comment End */
   end
   dsnstat = '*Edit'
+  dsnstat = '[ M] Modified'
+  'tbput' rtbl
   return
 
   /* ----------------------------- *
@@ -1063,8 +1105,8 @@ Create_Repo:
     reporoot = localrep'/'zigirep'/'
     /* convert to iso8859-1 */
     cmd = 'cd 'localrep'/'zigirep' && '
-    cmd = cmd || 'iconv -f ibm-1047 -t iso8859-1 .ga'
-    cmd = cmd || ' > .gitattributes'
+    cmd = cmd 'iconv -f ibm-1047 -t iso8859-1 .ga'
+    cmd = cmd ' > .gitattributes'
     x = bpxwunix(cmd,,so.,se.)
 
     /* delete the .ga file */
@@ -1073,7 +1115,7 @@ Create_Repo:
 
     /* tag it and bag it */
     cmd = 'cd 'localrep'/'zigirep' && '
-    cmd = cmd || 'chtag -tc iso8859-1 .gitattributes'
+    cmd = cmd 'chtag -tc iso8859-1 .gitattributes'
     x = bpxwunix(cmd,,so.,se.)
 
 
@@ -1124,9 +1166,9 @@ Create_Repo:
     x = docmd('cd 'reporoot' && git add .zigi/dsn')
 
     commitmsg = "added by zigi v1r0 for "
-    commitmsg = commitmsg || MVSVAR('SYMDEF','JOBNAME')
-    commitmsg = commitmsg || " on "
-    commitmsg = commitmsg || MVSVAR('SYSNAME')
+    commitmsg = commitmsg MVSVAR('SYMDEF','JOBNAME')
+    commitmsg = commitmsg " on "
+    commitmsg = commitmsg MVSVAR('SYSNAME')
     x = docmd('cd 'reporoot' && git commit -m "'commitmsg'"')
 
     Address ISPExec
@@ -1148,16 +1190,16 @@ view_std:
   | Randomly define a DDName to use |
   * ------------------------------- */
   dd = 'dd'random(9999)
- /* --------------------------------------- *
+  /* --------------------------------------- *
   | Get lrecl to determine dcb for temp d/s |
   * --------------------------------------- */
   vlrecl = 0
   do li  = 1 to so.0
-     if length(so.li) > vlrecl then vlrecl = length(so.li)
-     end
+    if length(so.li) > vlrecl then vlrecl = length(so.li)
+  end
   do li  = 1 to se.0
-     if length(se.li) > vlrecl then vlrecl = length(se.li)
-     end
+    if length(se.li) > vlrecl then vlrecl = length(se.li)
+  end
   if vlrecl < 81 then vlrecl = 80
   /* ------------------------------------------ *
   | Allocate a temporary data set for our data |
@@ -1254,9 +1296,12 @@ dsnvalid: Procedure
   upp = TRANSLATE(dsn,".ABCDEFGHIJKLMNOPQRSTUVWXYZ",,
     ".abcdefghijklmnopqrstuvwxyz")
   if upp = dsn then do
+    call outtrap 'x.'
     if sysdsn(dsn) = "OK" | sysdsn(dsn) = "DATASET NOT FOUND" then do
+      call outtrap 'off'
       return "OK"
     end
+    call outtrap 'off'
   end
   else do
     return "NO"
@@ -1304,7 +1349,7 @@ update_repo_metadata:
   zs2 = 'Patience . . .'
   call do_popup
   cmd = 'cd' localrep'/'zigirep
-  x = docmd(cmd || '&& git fetch --all')
+  x = docmd(cmd '&& git fetch --all')
   /* now we get the status for all in the repo */
   if se.0 > 1 then fetchmsg = "Remote updates, check status"
   else fetchmsg = "No remote updates"
@@ -1376,7 +1421,7 @@ update_repo_metadata:
   zs2 = fetchmsg
   call do_popup
   cmd = 'cd' localrep'/'zigirep
-  x = docmd(cmd || '&& git status --porcelain')
+  x = docmd(cmd '&& git status --porcelain')
 
   /* get the stuff from the repo-file */
   address syscall
@@ -1434,7 +1479,7 @@ update_repo_metadata:
   gitcmd = 'git remote -v | sed -e "s/[[:space:]]\+/ /g"'
   x = docmd('cd 'localdir' && 'gitcmd)
   if so.0 > 0 then
-  remote1 = word(so.1,1) || ' ' || word(so.1,2)
+  remote1 = word(so.1,1) ' ' word(so.1,2)
   if so.0 = 0 then do
     remote1 = "<no remote defined>"
     remote2 = null
@@ -1602,7 +1647,7 @@ Get_List:
     dastat = null
     do gl = 1 to so.0
       if right(dsna,length(word(so.gl,1))) = word(so.gl,1)
-         then dastat = 'Added'
+      then dastat = 'Added'
     end
     'tbadd' dsnatbl
     lc_count = lc_count + 1
@@ -1714,7 +1759,7 @@ Save_dsninfo:
   'free f('sd_dd')'
   'delete' sd_dsn
   cmd = 'cd 'localrep'/'zigirep' && git add .zigi/dsn'
-  cmd = cmd || ' && git commit -m "zigi dsn update"'
+  cmd = cmd ' && git commit -m "zigi dsn update"'
   x = docmd(cmd)
   call outtrap 'off'
   Address ISPExec
