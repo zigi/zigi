@@ -459,8 +459,6 @@ Work_With_Repo:
       * --------------------------------------------------------- */
       When abbrev('ADD',zcmd,3) = 1 then do
         call Add_Dataset
-        if add_count > 0 then
-        call update_repo_metadata
       end
       /* -------------------------------- *
       | View output of git status        |
@@ -553,7 +551,7 @@ Work_With_Repo:
           do cc = 1 to so.0
             co.cc = so.cc
           end
-          x = cc
+          x = so.0
           do cc = 1 to se.0
             x = x + 1
             co.x = se.cc
@@ -684,6 +682,7 @@ Clone_Repo:
     end
     Address ISPExec
     if c_stat = 1 then return
+    qualignr = words(translate(pdshlq,' ','.'))
     call Refresh localrep zigirep pdshlq qualignr
     zigikey = localrep'/'zigirep
     'tbadd zigirepo'
@@ -732,7 +731,7 @@ Work_with_repo_file:
           if mem = MEMBER then do
             memstat = porcelain(stat)
             if FOLDER = "./" & stat = "??" then
-            memstat = 'Untracked'
+            memstat = '[??] Untracked'
             leave
           end
         end
@@ -741,13 +740,9 @@ Work_with_repo_file:
       /* So we fix the name before we save to table :) */
       ussmem = mem
       mem = translate(mem,'#@$','._-')
-      /* Comment Start
-      mem = strreplace(mem,'.','#')
-      mem = strreplace(mem,'_','@')
-      mem = strreplace(mem,'-','$')
-      Comment End */
       'tbadd' rtll
     end
+    'tbsort' rtll
     'tbtop' rtll
     /* ---------------------------------- *
     | Process the Member list until done |
@@ -827,12 +822,7 @@ Work_with_repo_file:
           d = usssafe(dsn)
           cmd = 'cd' localrep'/'zigirep'/'d
           /* These cp -M issues are really getting annoying */
-          m = translate('._-','##$')
-          /* Comment Start
-          m = strreplace(mem,'#','.')
-          m = strreplace(m,'@','_')
-          m = strreplace(m,'$','-')
-          Comment End */
+          m = translate(mem,'._-','##$')
           x = docmd(cmd || ' && git add 'm)
           memstat = 'Added'
           'tbput' rtll
@@ -846,12 +836,7 @@ Work_with_repo_file:
           d = usssafe(dsn)
           cmd = 'cd' localrep'/'zigirep'/'d
           /* These cp -M issues are really getting annoying */
-          m = translate('._-','##$')
-          /* Comment Start
-          m = strreplace(mem,'#','.')
-          m = strreplace(m,'$','-')
-          m = strreplace(m,'@','_')
-          Comment End */
+          m = translate(mem,'._-','##$')
           x = docmd(cmd || ' && git diff 'm)
           call View_std
         end
@@ -898,7 +883,7 @@ Refresh:
   address 'SYSCALL' 'SLEEP (2)'
   x = docmd('cd 'localrep' && git clone 'remote)
   ckotdir = localrep'/'zigirep
-  if qualignr = "QUALIGNR" then qualignr = 0
+  if datatype(qualignr) /= 'NUM' then qualignr = 0
   if qualignr = 0
   then ckothlq = pdshlq
   else do
@@ -1417,7 +1402,7 @@ update_repo_metadata:
 
         if qualignr = null then do
           qualignr = 0
-          'tbput zigirepo'
+          'tbmod zigirepo'
         end
         if qualignr = 0 then fulldsn = "'"pdshlq"."dsn"'"
         else do
@@ -1455,6 +1440,7 @@ update_repo_metadata:
     remote1 = "<no remote defined>"
     remote2 = null
   end
+  'tbsort' rtbl 'fields(fulldsn)'
   return
 
 porcelain:
@@ -1508,6 +1494,7 @@ usssafe: procedure
   |    - test if pfshow was on and turn it back on         |
   * ------------------------------------------------------ */
 pfshow:
+  if zpfshow = 'OFF' then return
   arg pfkopt
   if pfkopt = 'RESET' then do
     if pfkeys = 'ON' then
@@ -1563,7 +1550,7 @@ Add_Dataset:
       'tbsort' rtbl 'fields(fulldsn,c,a)'
       'tbtop' rtbl
       if add_count > 0 then
-      'tbput zigirepo'
+      'tbmod zigirepo'
       "TBSAVE zigirepo REPLCOPY LIBRARY(isptabl)"
       return
     end
@@ -1615,7 +1602,8 @@ Get_List:
     parse value x.dsni with . . dsna .
     dastat = null
     do gl = 1 to so.0
-      if pos(word(so.gl,1),dsna) > 0 then dastat = 'Added'
+      if right(dsna,length(word(so.gl,1))) = word(so.gl,1)
+         then dastat = 'Added'
     end
     'tbadd' dsnatbl
     lc_count = lc_count + 1
@@ -1675,7 +1663,7 @@ Do_Add_Copy:
   dsnstat = '[??] Untracked'
   dsn = dsnb
   fulldsn = "'"what"'"
-  'tbput' rtbl
+  'tbadd' rtbl
   dastat = 'Added'
   'tbput' dsnatbl
   add_count = add_count + 1
@@ -1783,7 +1771,7 @@ GETENV:
   cmd = 'pwd'
   x = bpxwunix(cmd,,so.,se.)
   home    = strip(so.1)
-  cmd  = docmdx('set')
+  cmd  = docmdx('env')
   rc = bpxwunix(cmd,,so.,se.)
   envc = 0
   do ci = 1 to so.0
@@ -1804,10 +1792,6 @@ GETENV:
   * -------------------- */
 add_env:
   parse arg env_val
-  if pos('"',env_val) > 0 then do
-    parse value env_val with evar'='eval .
-    env_val = evar'='substr(eval,2,length(eval)-2)
-  end
   envc = envc + 1
   env.envc = env_val
   return
