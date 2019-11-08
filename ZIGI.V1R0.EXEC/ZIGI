@@ -684,7 +684,7 @@ Clone_Repo:
     end
     Address ISPExec
     if c_stat = 1 then return
-    call Refresh localrep zigirep pdshlq qualignr
+    call Refresh localrep zigirep pdshlq 0
     zigikey = localrep'/'zigirep
     'tbadd zigirepo'
     "TBSAVE zigirepo REPLCOPY LIBRARY(isptabl)"
