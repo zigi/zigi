@@ -6,9 +6,25 @@
 +-\-\#zigtitle   +-\-\
 %Command ===>_zcmd
 +
++ Your commit message _msg1                                                  +
++                     _msg2                                                  +
++                     _msg3                                                  +
++                     _msg4                                                  +
++                     _msg5                                                  +
++                     _msg6                                                  +
++                     _msg7                                                  +
++                     _msg8                                                  +
++                     _msg9                                                  +
++                     _msg10                                                 +
++                     _msg11                                                 +
++                     _msg12                                                 +
++                     _msg13                                                 +
++                     _msg14                                                 +
 +
-+ Your commit message _msg                                                   +
+        +To insert a blank line enter a%.+in the 1st position of the data.
++
+                            +Press%Enter+to continue.
 )Init
 )Proc
- ver (&msg,nb)
+ ver (&msg1,nb)
 )end
