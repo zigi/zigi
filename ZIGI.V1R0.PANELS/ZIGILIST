@@ -2,6 +2,7 @@
   _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
   @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
   $ type(output) intens(low ) caps(off) just(left )
+  [ type(output) intens(low ) caps(off) just(right)
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
@@ -16,11 +17,11 @@
 %Commands:  %L+Locate
 %Selections:%S+Edit%A+Add for commit%D+Show Diff (one at a time)
 %
-%S  Member     Status
+%S  Member     Status       Size    Mod-Date  Mod-Time  Userid
 )Model
-@z+$z        +$z
+@z+$z        +$z        [z      +  [z       +[z       +$z
 )Init
-  .zvars = '(zsel mem memstat)'
+  .zvars = '(zsel mem memstat zlcnorc zlmdate zlmtime zluser)'
   .cursor = &zcmd
   .help = zigihr0
   &zscr = CSR
