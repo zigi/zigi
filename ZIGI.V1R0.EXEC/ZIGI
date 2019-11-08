@@ -1335,6 +1335,7 @@ idle:
   return
 
 update_repo_metadata:
+  debug('start of update_repo_metadata')
   if rtbl_open = 1 then do
     'tbend' rtbl
     rtbl_open = 0
@@ -1345,11 +1346,13 @@ update_repo_metadata:
   'TBCreate' rtbl 'Names(dsnstat dsn pdshlq fulldsn) Replace NoWrite'
   rtbl_open = 1
   /* We always fetch when we start to work on a repo */
+  debug('fetching remote')
   zs1 = 'Fetching Remote info'
   zs2 = 'Patience . . .'
   call do_popup
   cmd = 'cd' localrep'/'zigirep
-  x = docmd(cmd '&& git fetch --all')
+  x = docmd(cmd '&& git fetch')
+  debug('...done')
   /* now we get the status for all in the repo */
   if se.0 > 1 then fetchmsg = "Remote updates, check status"
   else fetchmsg = "No remote updates"
@@ -1357,9 +1360,12 @@ update_repo_metadata:
   zs2 = 'Patience . . .'
   call do_popup
   /* get all the files that are in the repo */
+  debug('getting all files in repo-1')
   address syscall
   'readdir 'localrep'/'zigirep' root.'
   address ispexec
+  debug('...done')
+  debug('iterating...')
   do i = 1 to root.0
     if root.i = "." | root.i = ".." then do
       iterate
@@ -1369,9 +1375,11 @@ update_repo_metadata:
       if dsnvalid(root.i) = "OK" then do
         /* and only for valid z/OS-datasets (skip README.md et al) */
         r = usssafe(root.i)
+        debug('   check file or dir')
         cmd = '[ -d 'localrep'/'zigirep'/'r' ] && echo "DIR"'
         so.1 = null
         x = bpxwunix(cmd,,so.,se.)
+        debug('   done')
         if qualignr = 0 then fulldsn = "'"pdshlq"."root.i"'"
         else do
           fulldsn = translate(pdshlq,' ','.')
@@ -1380,6 +1388,7 @@ update_repo_metadata:
           fulldsn = "'"fulldsn'.'root.i"'"
         end
         if so.1 = "DIR" & x = 0 then do
+          debug('its a dir...lmmstat all the things')
           /* And only for dirs in the repo (PDSes in z/OS) */
           edsn = substr(fulldsn,2,length(fulldsn)-2)
           /* see if any members not touched by zigi */
@@ -1420,13 +1429,17 @@ update_repo_metadata:
   zs1 = 'Building List of repository Data Sets'
   zs2 = fetchmsg
   call do_popup
+  debug('get the status')
   cmd = 'cd' localrep'/'zigirep
   x = docmd(cmd '&& git status --porcelain')
-
+  debug('done')
   /* get the stuff from the repo-file */
+  debug('get all the files (again?)')
   address syscall
   'readdir 'localrep'/'zigirep' root.'
   address ispexec
+  debug('done')
+  debug('iterate the files')
   do i = 1 to root.0
     dsnstat = null
     if root.i = "." | root.i = ".." then do
@@ -1434,6 +1447,7 @@ update_repo_metadata:
     end
     else do
       if dsnvalid(root.i) = "OK" then do
+        debug('Get the git status and fill dsnstat')
         dsn = root.i
         do ii = 1 to so.0
           stat = substr(so.ii,1,2)
@@ -1443,6 +1457,7 @@ update_repo_metadata:
             leave
           end
         end
+        debug('done')
 
         if qualignr = null then do
           qualignr = 0
@@ -1465,6 +1480,7 @@ update_repo_metadata:
   | Get the current branch info |
   * --------------------------- */
   localdir = localrep'/'zigirep
+  debug('getting git status for branch names')
   x = docmd('cd 'localdir' && git status')
   branch = word(so.1,3)
   if so.0 > 1 then do
@@ -1476,6 +1492,7 @@ update_repo_metadata:
   end
   /* get the remote info.....but */
   /* we have to get rid of the tab in git output */
+  debug('getting the remotes')
   gitcmd = 'git remote -v | sed -e "s/[[:space:]]\+/ /g"'
   x = docmd('cd 'localdir' && 'gitcmd)
   if so.0 > 0 then
@@ -1860,3 +1877,12 @@ docmdx:
   end
   r = rx 'bash && ' cmd
   return r
+
+debug:
+  if ZIGID     = 'YES' then do
+    parse arg msg
+    msg = TIME()' : 'msg
+    c = 'echo "'msg'" >> /tmp/zigidebug.txt'
+    x = bpxwunix(c,,so.,se.)
+  end
+  return 0
