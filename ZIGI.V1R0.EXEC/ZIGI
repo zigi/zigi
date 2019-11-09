@@ -1,8 +1,8 @@
   /*%NOcomment ----------  rexx procedure  ------------------- */
   ver = 'v1r1'
   /*Name:      zigi  (z ISPF Git Interface)                    |
-  ver = 'v1r1'
-  | Version:   V1R1 (tbd)                                      |
+  |                                                            |
+  | Version:   V1R1                                            |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
   |            management                                      |
