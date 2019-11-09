@@ -432,14 +432,7 @@ Work_With_Repo:
       /* -------------------------------- *
       | Push current branch to origin    |
       * -------------------------------- */
-      When abbrev('PUSH',zcmd,2) = 1 then do
-        call pop 'Pushing Updates to Remote Git'
-        cmd = 'cd' localdir' && git push'
-        cmd = docmd(cmd)
-        call view_std
-        if se.0 > 0 then call view_std 'E'
-        call update_repo_metadata
-      end
+      When abbrev('PUSH',zcmd,2) = 1 then call do_push
       /* --------------------------------------------------------- *
       | Pull latest version of remote current branch from origin  |
       * --------------------------------------------------------- */
@@ -512,7 +505,8 @@ Work_With_Repo:
       * -------------------------------- */
       When abbrev('COMMIT',zcmd,3) = 1 then do
         zcmd = null
-        parse value '' with msg msg1 msg2 msg3 msg4 msg5 msg6 msg7 msg8 msg9
+        parse value '' with msg1 msg2 msg3 msg4 msg5 msg6 msg7 msg8 msg9 ,
+          msg10 msg11 msg12 msg13 msg14 msg15 msg16 msg17 zpush
         'display panel(zigicom)'
         if rc > 0 then do
           zerrsm = 'Cancelled.'
@@ -520,8 +514,11 @@ Work_With_Repo:
           'setmsg msg(isrz002)'
         end
         else do
-          io = 0
-          do ic = 1 to 14
+          interpret 'cmessage = msg1'
+          cmsg.1 = cmessage
+          cmsg.2 = left('-',72,'-')
+          io = 2
+          do ic = 2 to 17
             interpret 'cmessage = msg'ic
             cmessage = strip(cmessage)
             if cmessage /= null then do
@@ -531,10 +528,10 @@ Work_With_Repo:
             end
           end
           cmsg.0 = io
-         /* ------------------------------- *
+          /* ------------------------------- *
           | If > 1 msg line then use a file |
           * ------------------------------- */
-          if io > 1 then do
+          if io > 2 then do
             file = 'cmsg'random(999)
             fdd  = file
             if sysvar('syspref') = null
@@ -555,65 +552,21 @@ Work_With_Repo:
             cmd = 'cd' localrep'/'zigirep
             x = docmd(cmd '&& git commit -F' file)
           end
-         /* ------------------------------- *
-          | If = 0 then use commit -m msg   |
+          /* ------------------------------- *
+          | If = 2 then use commit -m msg   |
           * ------------------------------- */
           else x = docmd(cmd "&& git commit -m '"cmsg.1"'")
           if x = 0
           then call view_std
           else call view_std 'E'
-         /* ------------------------------- *
+          /* ------------------------------- *
           | If > 1 msg then delete the msg  |
           | file from omvs                  |
           * ------------------------------- */
           if io > 1 then
-          x = docmd('rm' file)
-          call update_repo_metadata
-        end
-      end
-      /* -------------------------------- *
-      | Commit to current branch and     |
-      | Push after the commit.           |
-      * -------------------------------- */
-      When abbrev('CP',zcmd,1) = 1 then do
-        zcmd = null
-        msg = null
-        'display panel(zigicom)'
-        if rc > 0 then do
-          zerrsm = 'Cancelled.'
-          zerrlm = 'Commit has been cancelled.'
-          'setmsg msg(isrz002)'
-        end
-        else do
-          zs1 = 'Commit and Push Updates to'
-          zs2 = 'Remote git Repository'
-          call do_popup
-          cmd = 'cd' localrep'/'zigirep
-          x = docmd(cmd '&& git commit -m "'msg'"')
-          drop co.
-          do cc = 1 to so.0
-            co.cc = so.cc
-          end
-          x = so.0
-          do cc = 1 to se.0
-            x = x + 1
-            co.x = se.cc
-          end
-          sx = x
-          cmd = 'cd' localrep'/'zigirep ' && git push'
-          cmd = docmd(cmd)
-          x = sx
-          do cc = 1 to so.0
-            x = x + 1
-            co.x = so.cc
-          end
-          do cc = 1 to se.0
-            x = x + 1
-            so.x = se.cc
-          end
-          so.0 = x
-          drop co. ce. po. pe.
-          call view_std
+          cmd = 'rm' file
+          x = bpxwunix(cmd,,do.,de.)
+          if zpush = 'Y' then call do_push 'x'
           call update_repo_metadata
         end
       end
@@ -680,6 +633,20 @@ Work_With_Repo:
     rtbl_open = 0
     call work_with_repo
   end
+  return
+
+  /* ---------------------------------- *
+  | Push the updates to the remote git |
+  * ---------------------------------- */
+Do_Push:
+  arg opt
+  call pop 'Pushing Updates to Remote Git'
+  cmd = 'cd' localdir' && git push'
+  cmd = docmd(cmd)
+  call view_std
+  if se.0 > 0 then call view_std 'E'
+  if opt = null then
+  call update_repo_metadata
   return
 
   /* ----------------------------- *
