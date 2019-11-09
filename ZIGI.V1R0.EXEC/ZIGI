@@ -516,7 +516,7 @@ Work_With_Repo:
         else do
           interpret 'cmessage = msg1'
           cmsg.1 = cmessage
-          cmsg.2 = left('-',72,'-')
+          cmsg.2 = left('-',length(cmsg.1),'-')
           io = 2
           do ic = 2 to 17
             interpret 'cmessage = msg'ic
