@@ -21,7 +21,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            11/06/19     - Numerous changes including       |
+  |            11/09/19 HBK - Redo autoadds, performance fix   |
+  |            11/06/19 LBD - Numerous changes including       |
   |                           - Improve bpxwunix performance   |
   |                             by using an env stem           |
   |                           - fix lrecl for browse reports   |
@@ -721,6 +722,8 @@ Work_with_repo_file:
     address syscall
     'readdir 'localrep'/'zigirep'/'dsn' root.'
     address ispexec
+    cmd = 'cd' localrep'/'zigirep
+    x = docmd(cmd '&& git status --porcelain')
     do i = 1 to root.0
       /* for all files but not . or .. */
       if root.i = "." | root.i = ".." then do
@@ -729,8 +732,6 @@ Work_with_repo_file:
       else do
         mem = root.i
         memstat = null
-        cmd = 'cd' localrep'/'zigirep
-        x = docmd(cmd '&& git status --porcelain')
         do ii = 1 to so.0
           /* see if we have this file in git status */
           stat = substr(so.ii,1,2)
