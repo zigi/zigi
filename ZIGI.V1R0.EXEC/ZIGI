@@ -21,10 +21,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            11/09/19 HBK - Improve auto-add to git working  |
-  |                           folder. Update zigilist panel.   |
-  |                           Some minor bug fixes.            |
-  |            11/06/19 LBD - Numerous changes including       |
+  |            11/06/19     - Numerous changes including       |
   |                           - Improve bpxwunix performance   |
   |                             by using an env stem           |
   |                           - fix lrecl for browse reports   |
@@ -831,18 +828,19 @@ Work_with_repo_file:
           m = translate(mem,'#@$','._-')
           x = docmd(cmd || ' && git add 'm)
           call update_repo_metadata
+          /* then call this function again to update the    */
+          /* status of the members in this pds after update */
+          call work_with_repo_file
         end
         when zsel = 'D' then do
           /* -------------------------------- *
           | Show the diff for the member     |
           * -------------------------------- */
-          trace i
           d = usssafe(dsn)
           cmd = 'cd' localrep'/'zigirep'/'d
           /* These cp -M issues are really getting annoying */
           m = translate(mem,'#@$','._-')
           x = docmd(cmd ' && git diff 'm)
-          trace off
           call View_std
         end
         otherwise nop
@@ -1312,8 +1310,21 @@ update_repo_metadata:
   zs1 = 'Fetching Remote info'
   zs2 = 'Patience . . .'
   call do_popup
+  /* get the remote info.....but */
+  /* we have to get rid of the tab in git output */
+  debug('getting the remotes')
+  gitcmd = 'git remote -v | sed -e "s/[[:space:]]\+/ /g"'
+  x = docmd('cd 'localdir' && 'gitcmd)
+  if so.0 > 0 then
+  remote1 = word(so.1,1) ' ' word(so.1,2)
+  if so.0 = 0 then do
+    remote1 = "<no remote defined>"
+    remote2 = null
+  end
   cmd = 'cd' localrep'/'zigirep
-  x = docmd(cmd '&& git fetch')
+  /* Fetch only if there's a remote */
+  if remote1 /= '<no remote defined>' then
+    x = docmd(cmd '&& git fetch')
   debug('...done')
   /* now we get the status for all in the repo */
   if se.0 > 1 then fetchmsg = "Remote updates, check status"
@@ -1459,17 +1470,6 @@ update_repo_metadata:
   end
   else do
     parse value '' with branch_status bstat baction
-  end
-  /* get the remote info.....but */
-  /* we have to get rid of the tab in git output */
-  debug('getting the remotes')
-  gitcmd = 'git remote -v | sed -e "s/[[:space:]]\+/ /g"'
-  x = docmd('cd 'localdir' && 'gitcmd)
-  if so.0 > 0 then
-  remote1 = word(so.1,1) ' ' word(so.1,2)
-  if so.0 = 0 then do
-    remote1 = "<no remote defined>"
-    remote2 = null
   end
   'tbsort' rtbl 'fields(fulldsn)'
   return
