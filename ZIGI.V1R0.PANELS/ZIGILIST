@@ -17,9 +17,9 @@
 %Commands:  %L+Locate
 %Selections:%S+Edit%A+Add for commit%D+Show Diff (one at a time)
 %
-%S  Member     Status              Size    Mod-Date  Mod-Time
+%S  Member     Status                  Size    Mod-Date  Mod-Time
 )Model
-@z+$z        +$z               [z      +  [z       +[z       +
+@z+$z        +$z                   [z      +  [z       +[z       +
 )Init
   .zvars = '(zsel mem memstat zlcnorc zlmdate zlmtime)'
   .cursor = &zcmd
