@@ -2,29 +2,36 @@
  $ type(output) caps(off)
  # type(output) hilite(reverse) color(turq) caps(off)
  _ type(input) caps(off) hilite(uscore)
+ @ type(input) caps(on ) hilite(uscore)
 )Body Expand(\\)
 +-\-\#zigtitle   +-\-\
-%Command ===>_zcmd
+%Command ===>_zcmd                                                             +
 +
-+ Your commit message _msg1                                                  +
-+                     _msg2                                                  +
-+                     _msg3                                                  +
-+                     _msg4                                                  +
-+                     _msg5                                                  +
-+                     _msg6                                                  +
-+                     _msg7                                                  +
-+                     _msg8                                                  +
-+                     _msg9                                                  +
-+                     _msg10                                                 +
-+                     _msg11                                                 +
-+                     _msg12                                                 +
-+                     _msg13                                                 +
-+                     _msg14                                                 +
++ Commit Title: _msg1                                             +
++ Comment Explanation: (. in 1st postion for blank line)    %Push after:@z+(Y/N)
+ _msg2                                                                    +
+ _msg3                                                                    +
+ _msg4                                                                    +
+ _msg5                                                                    +
+ _msg6                                                                    +
+ _msg7                                                                    +
+ _msg8                                                                    +
+ _msg9                                                                    +
+ _msg10                                                                   +
+ _msg11                                                                   +
+ _msg12                                                                   +
+ _msg13                                                                   +
+ _msg14                                                                   +
+ _msg15                                                                   +
+ _msg16                                                                   +
+ _msg17                                                                   +
 +
-        +To insert a blank line enter a%.+in the 1st position of the data.
-+
-                            +Press%Enter+to continue.
+                  +Press%Enter+to continue, or%F3+to cancel.
 )Init
+  .zvars = '(zpush)'
+  if (&zpush EQ &Z)
+      &zpush = 'N'
 )Proc
  ver (&msg1,nb)
+ ver (&zpush,list,Y,N,&Z)
 )end
