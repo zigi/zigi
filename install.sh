@@ -75,7 +75,7 @@ echo "Preparing to install to :";
 echo "- $EXEC";
 echo "- $PANELS";
 echo "";
-read GOON?"Hit ENTER to continue, type any chracter + ENTER to quit: ";
+read GOON?"Hit ENTER to continue, type any character + ENTER to quit: ";
 if [ -n "$GOON" ]
   then
     echo "zigi installer terminated :(";
