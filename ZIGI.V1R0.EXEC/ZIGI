@@ -21,8 +21,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            11/09/19 HBK - Redo autoadds, performance fix   |
-  |            11/06/19 LBD - Numerous changes including       |
+  |            11/06/19     - Numerous changes including       |
   |                           - Improve bpxwunix performance   |
   |                             by using an env stem           |
   |                           - fix lrecl for browse reports   |
@@ -718,10 +717,13 @@ Work_with_repo_file:
   else do
     /* Do this if it's a PDS */
     localdir = localrep'/'zigirep
-    'TBCreate' rtll 'Names(mem memstat ussmem) replace NoWrite'
+    'TBCreate' rtll 'Names(mem memstat ussmem zlcnorc zlmdate zlmtime)',
+                    'replace NoWrite'
     address syscall
     'readdir 'localrep'/'zigirep'/'dsn' root.'
     address ispexec
+    "LMINIT DATAID(DID) Dataset("fulldsn")"
+    "LMOPEN DATAID("did")"
     cmd = 'cd' localrep'/'zigirep
     x = docmd(cmd '&& git status --porcelain')
     do i = 1 to root.0
@@ -749,8 +751,11 @@ Work_with_repo_file:
       /* So we fix the name before we save to table :) */
       ussmem = mem
       mem = translate(mem,'#@$','._-')
+      "LMMLIST DATAID("did") Member("mem") OPTION(LIST) STATS(YES)"
       'tbadd' rtll
     end
+    "LMCLOSE DATAID("did")"
+    "LMFREE DATAID("did")"
     'tbsort' rtll
     'tbtop' rtll
     /* ---------------------------------- *
