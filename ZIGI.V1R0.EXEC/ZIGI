@@ -21,7 +21,10 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            11/06/19     - Numerous changes including       |
+  |            11/09/19 HBK - Improve auto-add to git working  |
+  |                           folder. Update zigilist panel.   |
+  |                           Some minor bug fixes.            |
+  |            11/06/19 LBD - Numerous changes including       |
   |                           - Improve bpxwunix performance   |
   |                             by using an env stem           |
   |                           - fix lrecl for browse reports   |
@@ -612,10 +615,6 @@ Work_With_Repo:
       | Add repo item to staging area    |
       * -------------------------------- */
       When zsel = 'A' then do
-      /*
-        x = listdsi(fulldsn)
-        if sysdsorg = 'PS' then call copy_ps 'x'
-        */
         zs1 = 'Adding' fulldsn
         zs2 = 'Making it ready to Commit'
         call do_popup
@@ -814,17 +813,12 @@ Work_with_repo_file:
           else "Edit Dataset('"edsn"("mem")'"
           if rc = 0 then do
             /* so after the edit, we should update it to repo */
-            memstat = 'Modified'
-            'TBPut' rtll
-            mem = usssafe(mem)
-            edsn = usssafe(edsn)
-            if sysdsorg = 'PS'
-            then copcm = "//'"edsn"'"
-            else copcm = "//'"edsn"("mem")'"
-            copcm = 'cp -U -M "'copcm'" ,
-                      'localrep'/'zigirep'/'dsn'/'ussmem
-            call bpxwunix copcm
+            /* this is done via update_repo_metadata because  */
+            /* now the user will not be ZIGI in ISPFSTATS     */
             call update_repo_metadata
+            /* then call this function again to update the    */
+            /* status of the members in this pds after update */
+            call work_with_repo_file
           end
         end
         when zsel = 'A' then do
@@ -834,20 +828,21 @@ Work_with_repo_file:
           d = usssafe(dsn)
           cmd = 'cd' localrep'/'zigirep'/'d
           /* These cp -M issues are really getting annoying */
-          m = translate(mem,'._-','##$')
+          m = translate(mem,'#@$','._-')
           x = docmd(cmd || ' && git add 'm)
-          memstat = 'Added'
-          'tbput' rtll
+          call update_repo_metadata
         end
         when zsel = 'D' then do
           /* -------------------------------- *
           | Show the diff for the member     |
           * -------------------------------- */
+          trace i
           d = usssafe(dsn)
           cmd = 'cd' localrep'/'zigirep'/'d
           /* These cp -M issues are really getting annoying */
-          m = translate(mem,'._-','##$')
+          m = translate(mem,'#@$','._-')
           x = docmd(cmd ' && git diff 'm)
+          trace off
           call View_std
         end
         otherwise nop
