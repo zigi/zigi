@@ -812,7 +812,13 @@ Work_with_repo_file:
             /* so after the edit, we should update it to repo */
             /* this is done via update_repo_metadata because  */
             /* now the user will not be ZIGI in ISPFSTATS     */
+            /* this 'modifies' the fulldsn and dsn vars so    */
+            /* better save before and restore after           */
+            save_fulldsn = fulldsn
+            save_dsn = dsn
             call update_repo_metadata
+            fulldsn = save_fulldsn
+            dsn = save_dsn
             /* then call this function again to update the    */
             /* status of the members in this pds after update */
             call work_with_repo_file
@@ -827,9 +833,13 @@ Work_with_repo_file:
           /* These cp -M issues are really getting annoying */
           m = translate(mem,'#@$','._-')
           x = docmd(cmd || ' && git add 'm)
+          save_fulldsn = fulldsn
+          save_dsn = dsn
           call update_repo_metadata
           /* then call this function again to update the    */
           /* status of the members in this pds after update */
+          fulldsn = save_fulldsn
+          dsn = save_dsn
           call work_with_repo_file
         end
         when zsel = 'D' then do
