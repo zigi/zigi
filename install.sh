@@ -25,7 +25,7 @@ echo "";
 echo "This will install zigi on your mainframe.";                   
 echo "See https://github.com/wizardofzos/zigi/wiki for more information"
 echo "";
-read GOON?"Hit ENTER to continue, type any chracter + ENTER to quit: ";
+read GOON?"Hit ENTER to continue, type any character + ENTER to quit: ";
 if [ -n "$GOON" ]
   then
     echo ""               
