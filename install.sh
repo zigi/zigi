@@ -1,6 +1,16 @@
-#!/bin/bash
+#!/bin/sh
 clear
 WHERE=`[ -z "$SSH_CLIENT" ] && echo "OMVS"`
+# Let's make sure we *really* run from sh lol
+SHELL=`ps -p "$$" -o comm | tail -1`
+if [ "$SHELL" != "/bin/sh" ]
+then
+ echo "Please run the installer from sh...";
+ echo "Current shell = $SHELL"
+ exit
+fi
+
+echo ""
 echo "                                      .zZ.     Zz ";
 echo "                 ZZZZZZZZ           ZZZZZZZ ";
 echo "     ZZZZZZZZZZZZZZZZZZZZZZ   ZZ   ZZZ         zZ ";
