@@ -911,7 +911,7 @@ Branch_it:
   if rc = 0 then 'tbend' rtbb
   'TBCreate' rtbb 'Names(bname) Replace NoWrite'
   localdir = localrep'/'zigirep
-  x = docmd('cd 'localdir' && git branch -a')
+  x = docmd('cd 'localdir' && git remote prune origin && git branch -a')
   bl. = null
   bl.0 = 0
   do i = 1 to so.0

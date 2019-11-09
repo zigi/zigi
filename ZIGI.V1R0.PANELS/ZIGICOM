@@ -2,12 +2,13 @@
  $ type(output) caps(off)
  # type(output) hilite(reverse) color(turq) caps(off)
  _ type(input) caps(off) hilite(uscore)
+ @ type(input) caps(on ) hilite(uscore)
 )Body Expand(\\)
 +-\-\#zigtitle   +-\-\
 %Command ===>_zcmd                                                             +
 +
 + Commit Title: _msg1                                             +
-+ Comment Explanation: (. in 1st postion for blank line)    %Push after:_z+(Y/N)
++ Comment Explanation: (. in 1st postion for blank line)    %Push after:@z+(Y/N)
  _msg2                                                                    +
  _msg3                                                                    +
  _msg4                                                                    +
