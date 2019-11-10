@@ -654,6 +654,7 @@ Do_Commit:
     if x = 0
     then call view_std
     else call view_std 'E'
+    drop so. se.
     /* ------------------------------- *
     | If > 1 msg then delete the msg  |
     | file from omvs                  |
@@ -676,6 +677,7 @@ Do_Push:
   cmd = docmd(cmd)
   call view_std
   if se.0 > 0 then call view_std 'E'
+  drop so. se.
   if opt = null then
   call update_repo_metadata
   return
@@ -684,7 +686,7 @@ Do_Push:
   | Clone a remote repo           |
   * ----------------------------- */
 Clone_Repo:
-  parse value '' with localrep pdshlq
+  parse value '' with localrep pdshlq remotebr
   do forever
     zcmd = null
     c_stat = 0
@@ -705,7 +707,11 @@ Clone_Repo:
     cmd = cmd ' 'home'/.ssh/tmp_hosts && '
     cmd = cmd 'mv 'home'/.ssh/tmp_hosts 'home'/.ssh/known_hosts'
     x = bpxwunix(cmd,,so.,se.)
-    x = docmd('cd 'localrep' && git clone 'remote)
+    cmd = 'cd 'localrep
+    if remotebr = null
+       then cmd = cmd ' && git clone 'remote
+       else cmd = cmd ' && git clone -b' remotebr remote
+    x = docmd(cmd)
     if x > 0 then do
       call view_std 'E'
       c_stat = 1
