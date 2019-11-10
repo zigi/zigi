@@ -21,9 +21,10 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            11/09/09     - My history keeps dissapearing    |
+  |            11/10/09 HBK - Fix qualignr edge-cases          |
+  |            11/09/09 HBK - My history keeps dissapearing    |
   |                           see git :)                       |
-  |            11/06/19     - Numerous changes including       |
+  |            11/06/19 LBD - Numerous changes including       |
   |                           - Improve bpxwunix performance   |
   |                             by using an env stem           |
   |                           - fix lrecl for browse reports   |
@@ -458,12 +459,7 @@ Work_With_Repo:
       /* -------------------------------- *
       | View output of git status        |
       * -------------------------------- */
-      When abbrev('STATUS',zcmd,2) = 1 then do
-        zcmd = null
-        cmd = 'cd' localrep'/'zigirep
-        x = docmd(cmd '&& git status')
-        call view_std
-      end
+      When abbrev('STATUS',zcmd,2) = 1 then call do_status
       /* -------------------------------- *
       | Refresh z/OS datasets            |
       * -------------------------------- */
@@ -505,73 +501,7 @@ Work_With_Repo:
       /* -------------------------------- *
       | Commit to current branch         |
       * -------------------------------- */
-      When abbrev('COMMIT',zcmd,3) = 1 then do
-        zcmd = null
-        parse value '' with msg1 msg2 msg3 msg4 msg5 msg6 msg7 msg8 msg9 ,
-          msg10 msg11 msg12 msg13 msg14 msg15 msg16 msg17 zpush
-        'display panel(zigicom)'
-        if rc > 0 then do
-          zerrsm = 'Cancelled.'
-          zerrlm = 'Commit has been cancelled.'
-          'setmsg msg(isrz002)'
-        end
-        else do
-          interpret 'cmessage = msg1'
-          cmsg.1 = cmessage
-          cmsg.2 = left('-',length(cmsg.1),'-')
-          io = 2
-          do ic = 2 to 17
-            interpret 'cmessage = msg'ic
-            cmessage = strip(cmessage)
-            if cmessage /= null then do
-              if cmessage = '.' then cmessage = '  '
-              io = io + 1
-              cmsg.io = cmessage
-            end
-          end
-          cmsg.0 = io
-          /* ------------------------------- *
-          | If > 1 msg line then use a file |
-          * ------------------------------- */
-          if io > 2 then do
-            file = 'cmsg'random(999)
-            fdd  = file
-            if sysvar('syspref') = null
-            then filem = sysvar('sysuid')'.'file
-            else filem = file
-            file = localrep'/'zigirep'/'file
-            file = "'"file"'"
-            address tso
-            'alloc f('fdd') new spa(1,1) tr recfm(f b) lrecl(72) blksize(0)',
-              'ds('filem')'
-            'execio * diskw' fdd '(finis stem cmsg.'
-            'free  f('fdd')'
-            call outtrap 'x.'
-            'oput' filem file 'Text'
-            'delete' filem
-            call outtrap 'off'
-            address ispexec
-            cmd = 'cd' localrep'/'zigirep
-            x = docmd(cmd '&& git commit -F' file)
-          end
-          /* ------------------------------- *
-          | If = 2 then use commit -m msg   |
-          * ------------------------------- */
-          else x = docmd(cmd "&& git commit -m '"cmsg.1"'")
-          if x = 0
-          then call view_std
-          else call view_std 'E'
-          /* ------------------------------- *
-          | If > 1 msg then delete the msg  |
-          | file from omvs                  |
-          * ------------------------------- */
-          if io > 1 then
-          cmd = 'rm' file
-          x = bpxwunix(cmd,,do.,de.)
-          if zpush = 'Y' then call do_push 'x'
-          call update_repo_metadata
-        end
-      end
+      When abbrev('COMMIT',zcmd,3) = 1 then call do_commit
       /* -------------------------------- *
       | Add/replace remote URI (origin)  |
       * -------------------------------- */
@@ -651,6 +581,98 @@ Work_With_Repo:
   end
   return
 
+  /* ---------------------- *
+  | Display the git Status |
+  * ---------------------- */
+Do_Status:
+  zcmd = null
+  cmd = 'cd' localrep'/'zigirep
+  x = docmd(cmd '&& git status')
+  call view_std
+  return
+
+  /* ------------------- *
+  | Display the Git Log |
+  * ------------------- */
+Do_GitLog:
+  zcmd = null
+  cmd = 'cd' localdir' && git log'
+  x = docmd(cmd)
+  call view_std
+  return
+
+  /* ------------------------ *
+  | Do the Commit Processing |
+  * ------------------------ */
+Do_Commit:
+  zcmd = null
+  parse value '' with msg1 msg2 msg3 msg4 msg5 msg6 msg7 msg8 msg9 ,
+    msg10 msg11 msg12 msg13 msg14 msg15 msg16 msg17 zpush
+  'display panel(zigicom)'
+  if rc > 0 then do
+    zerrsm = 'Cancelled.'
+    zerrlm = 'Commit has been cancelled.'
+    'setmsg msg(isrz002)'
+  end
+  else do
+    interpret 'cmessage = msg1'
+    cmsg.1 = cmessage
+    cmsg.2 = left('-',length(cmsg.1),'-')
+    io = 2
+    do ic = 2 to 17
+      interpret 'cmessage = msg'ic
+      cmessage = strip(cmessage)
+      if cmessage /= null then do
+        if cmessage = '.' then cmessage = '  '
+        io = io + 1
+        cmsg.io = cmessage
+      end
+    end
+    cmsg.0 = io
+    /* ------------------------------- *
+    | If > 1 msg line then use a file |
+    * ------------------------------- */
+    if io > 2 then do
+      file = 'cmsg'random(999)
+      fdd  = file
+      if sysvar('syspref') = null
+      then filem = sysvar('sysuid')'.'file
+      else filem = file
+      file = localrep'/'zigirep'/'file
+      file = "'"file"'"
+      address tso
+      'alloc f('fdd') new spa(1,1) tr recfm(f b) lrecl(72) blksize(0)',
+        'ds('filem')'
+      'execio * diskw' fdd '(finis stem cmsg.'
+      'free  f('fdd')'
+      call outtrap 'x.'
+      'oput' filem file 'Text'
+      'delete' filem
+      call outtrap 'off'
+      address ispexec
+      cmd = 'cd' localrep'/'zigirep
+      x = docmd(cmd '&& git commit -F' file)
+    end
+    /* ------------------------------- *
+    | If = 2 then use commit -m msg   |
+    * ------------------------------- */
+    else x = docmd(cmd "&& git commit -m '"cmsg.1"'")
+    if x = 0
+    then call view_std
+    else call view_std 'E'
+    drop so. se.
+    /* ------------------------------- *
+    | If > 1 msg then delete the msg  |
+    | file from omvs                  |
+    * ------------------------------- */
+    if io > 1 then
+    cmd = 'rm' file
+    x = bpxwunix(cmd,,do.,de.)
+    if zpush = 'Y' then call do_push 'x'
+    call update_repo_metadata
+  end
+  return
+
   /* ---------------------------------- *
   | Push the updates to the remote git |
   * ---------------------------------- */
@@ -661,6 +683,7 @@ Do_Push:
   cmd = docmd(cmd)
   call view_std
   if se.0 > 0 then call view_std 'E'
+  drop so. se.
   if opt = null then
   call update_repo_metadata
   return
@@ -669,7 +692,7 @@ Do_Push:
   | Clone a remote repo           |
   * ----------------------------- */
 Clone_Repo:
-  parse value '' with localrep pdshlq
+  parse value '' with localrep pdshlq remotebr
   do forever
     zcmd = null
     c_stat = 0
@@ -690,7 +713,11 @@ Clone_Repo:
     cmd = cmd ' 'home'/.ssh/tmp_hosts && '
     cmd = cmd 'mv 'home'/.ssh/tmp_hosts 'home'/.ssh/known_hosts'
     x = bpxwunix(cmd,,so.,se.)
-    x = docmd('cd 'localrep' && git clone 'remote)
+    cmd = 'cd 'localrep
+    if remotebr = null
+       then cmd = cmd ' && git clone 'remote
+       else cmd = cmd ' && git clone -b' remotebr remote
+    x = docmd(cmd)
     if x > 0 then do
       call view_std 'E'
       c_stat = 1
@@ -736,7 +763,7 @@ Work_with_repo_file:
     /* Do this if it's a PDS */
     localdir = localrep'/'zigirep
     'TBCreate' rtll 'Names(mem memstat ussmem zlcnorc zlmdate zlmtime)',
-                    'replace NoWrite'
+      'replace NoWrite'
     address syscall
     'readdir 'localrep'/'zigirep'/'dsn' root.'
     address ispexec
@@ -805,7 +832,10 @@ Work_with_repo_file:
         'TBSkip' rtll 'Number('row')'
       end
 
-      select
+      Select
+      When abbrev('COMMIT',zcmd,3) = 1 then call do_commit
+      When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
+      When abbrev('STATUS',zcmd,2) = 1 then call do_status
         When abbrev("L",translate(word(zcmd,1)),1) = 1 then do
           mem = translate(word(zcmd,2))
           'tbtop' rtll
@@ -876,6 +906,10 @@ Work_with_repo_file:
           m = translate(mem,'#@$','._-')
           m = translate(mem,'._-','#@$')
 
+          zs1 = 'Un-modiying 'mem
+          zs2 = 'This never happened...'
+          call do_popup
+          address 'SYSCALL' 'SLEEP (1)'
           x = docmd(cmd || ' && git checkout -- 'm)
           save_fulldsn = fulldsn
           save_dsn = dsn
@@ -1151,7 +1185,7 @@ Create_Repo:
       leave
     end
     fd = retval  /* as I think it's weird to write to a retval lol */
-    call write_fd "# zigi v1.0 dsn-file "
+    call write_fd "# zigi" ver "dsn-file "
     call write_fd "# This file needs to be here."
     call write_fd "# Don't edit unless you know what you're doing :)"
     call write_fd '#  '
@@ -1376,7 +1410,7 @@ update_repo_metadata:
   cmd = 'cd' localrep'/'zigirep
   /* Fetch only if there's a remote */
   if remote1 /= '<no remote defined>' then
-    x = docmd(cmd '&& git fetch')
+  x = docmd(cmd '&& git fetch')
   debug('...done')
   /* now we get the status for all in the repo */
   if se.0 > 1 then fetchmsg = "Remote updates, check status"
@@ -1397,7 +1431,7 @@ update_repo_metadata:
     end
     else do
       /* not the . and .. things */
-      if dsnvalid(root.i) = "OK" then do
+      if dsnvalid("'"root.i"'") = "OK" then do
         /* and only for valid z/OS-datasets (skip README.md et al) */
         r = usssafe(root.i)
         debug('   check file or dir')
@@ -1405,7 +1439,12 @@ update_repo_metadata:
         so.1 = null
         x = bpxwunix(cmd,,so.,se.)
         debug('   done')
-        if qualignr = 0 then fulldsn = "'"pdshlq"."root.i"'"
+        if qualignr = 0 then do
+          if pdshlq /= '' then
+            fulldsn = "'"pdshlq"."root.i"'"
+          else
+            fulldsn = "'"root.i"'"
+        end
         else do
           fulldsn = translate(pdshlq,' ','.')
           fulldsn = subword(fulldsn,1,qualignr)
@@ -1496,7 +1535,12 @@ update_repo_metadata:
           qualignr = 0
           'tbmod zigirepo'
         end
-        if qualignr = 0 then fulldsn = "'"pdshlq"."dsn"'"
+        if qualignr = 0 then do
+          if pdshlq /= '' then
+            fulldsn = "'"pdshlq"."dsn"'"
+          else
+            fulldsn = "'"dsn"'"
+        end
         else do
           fulldsn = translate(pdshlq,' ','.')
           fulldsn = subword(fulldsn,1,qualignr)
@@ -1625,7 +1669,10 @@ Add_Dataset:
       'tbdispl' dsnatbl 'panel('dsnapnl') cursor('csr')'
     end
     if add_count > 0 then
-    pdshlq = dsnapfx
+      if qualignr = 0 then
+        pdshlq = ''
+      else
+        pdshlq  = dsnapfx
     if rc > 4 then do
       zsel = null
       'tbend' dsnatbl
