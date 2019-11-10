@@ -612,8 +612,6 @@ Work_With_Repo:
       | Add repo item to staging area    |
       * -------------------------------- */
       When zsel = 'A' then do
-        x = listdsi(fulldsn)
-        if sysdsorg = 'PS' then call copy_ps 'x'
         zs1 = 'Adding' fulldsn
         zs2 = 'Making it ready to Commit'
         call do_popup
@@ -714,15 +712,20 @@ Work_with_repo_file:
   end
   /* Determine if the repo item is a PDS or a flat-file */
   if sysdsorg = 'PS' then do
-    call copy_ps
+    call edit_ps
   end
   else do
     /* Do this if it's a PDS */
     localdir = localrep'/'zigirep
-    'TBCreate' rtll 'Names(mem memstat ussmem) replace NoWrite'
+    'TBCreate' rtll 'Names(mem memstat ussmem zlcnorc zlmdate zlmtime)',
+                    'replace NoWrite'
     address syscall
     'readdir 'localrep'/'zigirep'/'dsn' root.'
     address ispexec
+    "LMINIT DATAID(DID) Dataset("fulldsn")"
+    "LMOPEN DATAID("did")"
+    cmd = 'cd' localrep'/'zigirep
+    x = docmd(cmd '&& git status --porcelain')
     do i = 1 to root.0
       /* for all files but not . or .. */
       if root.i = "." | root.i = ".." then do
@@ -731,8 +734,6 @@ Work_with_repo_file:
       else do
         mem = root.i
         memstat = null
-        cmd = 'cd' localrep'/'zigirep
-        x = docmd(cmd '&& git status --porcelain')
         do ii = 1 to so.0
           /* see if we have this file in git status */
           stat = substr(so.ii,1,2)
@@ -750,8 +751,11 @@ Work_with_repo_file:
       /* So we fix the name before we save to table :) */
       ussmem = mem
       mem = translate(mem,'#@$','._-')
+      "LMMLIST DATAID("did") Member("mem") OPTION(LIST) STATS(YES)"
       'tbadd' rtll
     end
+    "LMCLOSE DATAID("did")"
+    "LMFREE DATAID("did")"
     'tbsort' rtll
     'tbtop' rtll
     /* ---------------------------------- *
@@ -812,18 +816,18 @@ Work_with_repo_file:
           else "Edit Dataset('"edsn"("mem")'"
           if rc = 0 then do
             /* so after the edit, we should update it to repo */
-            memstat = 'Modified'
-            'TBPut' rtll
-            mem = usssafe(mem)
-            edsn = usssafe(edsn)
-            if sysdsorg = 'PS'
-            then copcm = "//'"edsn"'"
-            else copcm = "//'"edsn"("mem")'"
-            copcm = 'cp -U -M "'copcm'" ,
-                      'localrep'/'zigirep'/'dsn'/'ussmem
-            call bpxwunix copcm
-            dsnstat = '[ M] Modified'
-            'tbput' rtbl
+            /* this is done via update_repo_metadata because  */
+            /* now the user will not be ZIGI in ISPFSTATS     */
+            /* this 'modifies' the fulldsn and dsn vars so    */
+            /* better save before and restore after           */
+            save_fulldsn = fulldsn
+            save_dsn = dsn
+            call update_repo_metadata
+            fulldsn = save_fulldsn
+            dsn = save_dsn
+            /* then call this function again to update the    */
+            /* status of the members in this pds after update */
+            call work_with_repo_file
           end
         end
         when zsel = 'A' then do
@@ -833,10 +837,16 @@ Work_with_repo_file:
           d = usssafe(dsn)
           cmd = 'cd' localrep'/'zigirep'/'d
           /* These cp -M issues are really getting annoying */
-          m = translate(mem,'._-','##$')
+          m = translate(mem,'#@$','._-')
           x = docmd(cmd || ' && git add 'm)
-          memstat = 'Added'
-          'tbput' rtll
+          save_fulldsn = fulldsn
+          save_dsn = dsn
+          call update_repo_metadata
+          /* then call this function again to update the    */
+          /* status of the members in this pds after update */
+          fulldsn = save_fulldsn
+          dsn = save_dsn
+          call work_with_repo_file
         end
         when zsel = 'D' then do
           /* -------------------------------- *
@@ -845,7 +855,7 @@ Work_with_repo_file:
           d = usssafe(dsn)
           cmd = 'cd' localrep'/'zigirep'/'d
           /* These cp -M issues are really getting annoying */
-          m = translate(mem,'._-','##$')
+          m = translate(mem,'#@$','._-')
           x = docmd(cmd ' && git diff 'm)
           call View_std
         end
@@ -858,7 +868,7 @@ Work_with_repo_file:
   /* ------------------------- *
   | Copy a PS dataset to OMVS |
   * ------------------------- */
-Copy_PS:
+Edit_PS:
   arg noedit
   edsn = substr(fulldsn,2,length(fulldsn)-2)
   if noedit = null then do
@@ -875,9 +885,7 @@ Copy_PS:
     if so.0 > 0 then call view_std
     if se.0 > 0 then call view_std 'E'
   end
-  dsnstat = '*Edit'
-  dsnstat = '[ M] Modified'
-  'tbput' rtbl
+  call update_repo_metadata
   return
 
   /* ----------------------------- *
@@ -1318,8 +1326,21 @@ update_repo_metadata:
   zs1 = 'Fetching Remote info'
   zs2 = 'Patience . . .'
   call do_popup
+  /* get the remote info.....but */
+  /* we have to get rid of the tab in git output */
+  debug('getting the remotes')
+  gitcmd = 'git remote -v | sed -e "s/[[:space:]]\+/ /g"'
+  x = docmd('cd 'localdir' && 'gitcmd)
+  if so.0 > 0 then
+  remote1 = word(so.1,1) ' ' word(so.1,2)
+  if so.0 = 0 then do
+    remote1 = "<no remote defined>"
+    remote2 = null
+  end
   cmd = 'cd' localrep'/'zigirep
-  x = docmd(cmd '&& git fetch')
+  /* Fetch only if there's a remote */
+  if remote1 /= '<no remote defined>' then
+    x = docmd(cmd '&& git fetch')
   debug('...done')
   /* now we get the status for all in the repo */
   if se.0 > 1 then fetchmsg = "Remote updates, check status"
@@ -1355,10 +1376,10 @@ update_repo_metadata:
           fulldsn = translate(fulldsn,'.',' ')
           fulldsn = "'"fulldsn'.'root.i"'"
         end
+        edsn = substr(fulldsn,2,length(fulldsn)-2)
         if so.1 = "DIR" & x = 0 then do
           debug('its a dir...lmmstat all the things')
           /* And only for dirs in the repo (PDSes in z/OS) */
-          edsn = substr(fulldsn,2,length(fulldsn)-2)
           /* see if any members not touched by zigi */
           mem = null
           "LMINIT DATAID(zigilmm) DATASET('"edsn"')"
@@ -1388,6 +1409,14 @@ update_repo_metadata:
               "LMMSTATS DATAID("zigilmm") MEMBER("mem") USER(ZIGI)"
             end
           end
+        end
+        else do
+          /* It must be a PS, just copy it over to OMVS */
+          s = usssafe(fulldsn)
+          copycmd = "//"s
+          copycmd = '"'copycmd'"'
+          copycmd = "cp -U -M" copycmd" "localrep"/"zigirep"/"root.i
+          x = bpxwunix(copycmd,,co.,ce.)
         end
       end
     end
@@ -1457,17 +1486,6 @@ update_repo_metadata:
   end
   else do
     parse value '' with branch_status bstat baction
-  end
-  /* get the remote info.....but */
-  /* we have to get rid of the tab in git output */
-  debug('getting the remotes')
-  gitcmd = 'git remote -v | sed -e "s/[[:space:]]\+/ /g"'
-  x = docmd('cd 'localdir' && 'gitcmd)
-  if so.0 > 0 then
-  remote1 = word(so.1,1) ' ' word(so.1,2)
-  if so.0 = 0 then do
-    remote1 = "<no remote defined>"
-    remote2 = null
   end
   'tbsort' rtbl 'fields(fulldsn)'
   return
