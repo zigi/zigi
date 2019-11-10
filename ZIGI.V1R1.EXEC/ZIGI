@@ -21,9 +21,10 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            11/09/09     - My history keeps dissapearing    |
+  |            11/10/09 HBK - Fix qualignr edge-cases          |
+  |            11/09/09 HBK - My history keeps dissapearing    |
   |                           see git :)                       |
-  |            11/06/19     - Numerous changes including       |
+  |            11/06/19 LBD - Numerous changes including       |
   |                           - Improve bpxwunix performance   |
   |                             by using an env stem           |
   |                           - fix lrecl for browse reports   |
