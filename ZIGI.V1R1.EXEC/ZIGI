@@ -876,6 +876,10 @@ Work_with_repo_file:
           m = translate(mem,'#@$','._-')
           m = translate(mem,'._-','#@$')
 
+          zs1 = 'Un-modiying 'mem
+          zs2 = 'This never happened...'
+          call do_popup
+          address 'SYSCALL' 'SLEEP (1)'
           x = docmd(cmd || ' && git checkout -- 'm)
           save_fulldsn = fulldsn
           save_dsn = dsn
@@ -1151,7 +1155,7 @@ Create_Repo:
       leave
     end
     fd = retval  /* as I think it's weird to write to a retval lol */
-    call write_fd "# zigi v1.0 dsn-file "
+    call write_fd "# zigi v1.1 dsn-file "
     call write_fd "# This file needs to be here."
     call write_fd "# Don't edit unless you know what you're doing :)"
     call write_fd '#  '
