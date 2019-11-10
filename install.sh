@@ -111,9 +111,9 @@ then
 fi
 
 echo "Copying execs"
-cp -U -M ZIGI.V1R0.EXEC/* "//'$EXEC'";
+cp -U -M ZIGI.V1R1.EXEC/* "//'$EXEC'";
 echo "Copying panels"
-cp -U -M ZIGI.V1R0.PANELS/* "//'$PANELS'";
+cp -U -M ZIGI.V1R1.PANELS/* "//'$PANELS'";
 echo "Copying GPL-License"
 cp -U -M ZIGI.GPLLIC "//'$GPL'";
 echo "Copying README"
