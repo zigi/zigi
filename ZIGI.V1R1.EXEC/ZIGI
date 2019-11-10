@@ -1665,7 +1665,7 @@ Get_List:
 Do_Add_Copy:
   zsel = null
   what = dsna
-  if qualignr > 0
+  if qualignr >= 0
   then do
     dsnb = translate(dsna,' ','.')
     dsnb = subword(dsnb,qualignr+1)
