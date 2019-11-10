@@ -21,6 +21,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            11/09/09     - My history keeps dissapearing    |
+  |                           see git :)                       |
   |            11/06/19     - Numerous changes including       |
   |                           - Improve bpxwunix performance   |
   |                             by using an env stem           |
@@ -623,6 +625,22 @@ Work_With_Repo:
         if ztdsels = 1 then
         call update_repo_metadata
       end
+      /* -------------------------------- *
+      | Un-Modify entire dataset         |
+      * -------------------------------- */
+      When zsel = 'U' then do
+        zs1 = 'Un-modiying ' fulldsn
+        zs2 = 'This never happened...'
+        call do_popup
+        d = usssafe(dsn)
+        cmd = 'cd' localrep'/'zigirep
+        x = docmd(cmd '&& git checkout -- 'd)
+        if so.0 > 0 then call view_std
+        if se.0 > 0 then call view_std 'E'
+        if ztdsels = 1 then do
+          call update_repo_metadata
+        end
+      end
       Otherwise nop
     end
   end
@@ -837,8 +855,29 @@ Work_with_repo_file:
           d = usssafe(dsn)
           cmd = 'cd' localrep'/'zigirep'/'d
           /* These cp -M issues are really getting annoying */
-          m = translate(mem,'#@$','._-')
+          m = translate(mem,'._-','#@$')
           x = docmd(cmd || ' && git add 'm)
+          save_fulldsn = fulldsn
+          save_dsn = dsn
+          call update_repo_metadata
+          /* then call this function again to update the    */
+          /* status of the members in this pds after update */
+          fulldsn = save_fulldsn
+          dsn = save_dsn
+          call work_with_repo_file
+        end
+        when zsel = 'U' then do
+          /* -------------------------------- *
+          | Undo a commit. eg checkout --    |
+          * -------------------------------- */
+          d = usssafe(dsn)
+          cmd = 'cd' localrep'/'zigirep'/'d
+          /* These cp -M issues are really getting annoying */
+          say mem
+          m = translate(mem,'#@$','._-')
+          m = translate(mem,'._-','#@$')
+
+          x = docmd(cmd || ' && git checkout -- 'm)
           save_fulldsn = fulldsn
           save_dsn = dsn
           call update_repo_metadata
@@ -1141,10 +1180,7 @@ Create_Repo:
 
     x = docmd('cd 'reporoot' && git add .zigi/dsn')
 
-    commitmsg = "added by zigi v1r0 for "
-    commitmsg = commitmsg MVSVAR('SYMDEF','JOBNAME')
-    commitmsg = commitmsg " on "
-    commitmsg = commitmsg MVSVAR('SYSNAME')
+    commitmsg = "added by zigi v1r1"
     x = docmd('cd 'reporoot' && git commit -m "'commitmsg'"')
 
     Address ISPExec
@@ -1665,7 +1701,7 @@ Get_List:
 Do_Add_Copy:
   zsel = null
   what = dsna
-  if qualignr > 0
+  if qualignr >= 0
   then do
     dsnb = translate(dsna,' ','.')
     dsnb = subword(dsnb,qualignr+1)

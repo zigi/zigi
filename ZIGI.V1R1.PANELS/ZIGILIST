@@ -15,11 +15,11 @@
 %Current Branch     : $branch
 %
 %Commands:  %L+Locate
-%Selections:%S+Edit%A+Add for commit%D+Show Diff (one at a time)
+%Selections:%S+Edit%A+Add for commit%D+Show Diff%U+Un-Modify
 %
-%S  Member     Status                  Size    Mod-Date  Mod-Time
+%S  Member     Status                     Size    Mod-Date  Mod-Time
 )Model
-@z+$z        +$z                   [z      +  [z       +[z       +
+@z+$z        +$z                      [z      +  [z       +[z       +
 )Init
   .zvars = '(zsel mem memstat zlcnorc zlmdate zlmtime)'
   .cursor = &zcmd
@@ -39,5 +39,5 @@
        if (&Zsel = '=')
            &Zsel = &osel
      &osel = &zsel
- ver (&zsel,list,S,A,D)
+ ver (&zsel,list,S,A,D,U)
 )End
