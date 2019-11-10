@@ -562,12 +562,14 @@ Work_With_Repo:
         zs1 = 'Un-modiying ' fulldsn
         zs2 = 'This never happened...'
         call do_popup
+        address 'SYSCALL' 'SLEEP (1)'
         d = usssafe(dsn)
         cmd = 'cd' localrep'/'zigirep
         x = docmd(cmd '&& git checkout -- 'd)
         if so.0 > 0 then call view_std
         if se.0 > 0 then call view_std 'E'
         if ztdsels = 1 then do
+          call Refresh localrep zigirep pdshlq qualignr
           call update_repo_metadata
         end
       end
@@ -657,9 +659,8 @@ Do_Commit:
     | If = 2 then use commit -m msg   |
     * ------------------------------- */
     else x = docmd(cmd "&& git commit -m '"cmsg.1"'")
-    if x = 0
-    then call view_std
-    else call view_std 'E'
+    if x /= 0
+    then call view_std E
     drop so. se.
     /* ------------------------------- *
     | If > 1 msg then delete the msg  |
@@ -833,9 +834,13 @@ Work_with_repo_file:
       end
 
       Select
-      When abbrev('COMMIT',zcmd,3) = 1 then call do_commit
-      When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
-      When abbrev('STATUS',zcmd,2) = 1 then call do_status
+        When abbrev('COMMIT',zcmd,3) = 1 then do
+          call do_commit
+          /* update our statusses */
+          call work_with_repo_file
+        end
+        When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
+        When abbrev('STATUS',zcmd,2) = 1 then call do_status
         When abbrev("L",translate(word(zcmd,1)),1) = 1 then do
           mem = translate(word(zcmd,2))
           'tbtop' rtll
@@ -911,6 +916,9 @@ Work_with_repo_file:
           call do_popup
           address 'SYSCALL' 'SLEEP (1)'
           x = docmd(cmd || ' && git checkout -- 'm)
+          /* after the checkout --, we better re-populate   */
+          /* the z/OS datasets                              */
+          call Refresh localrep zigirep pdshlq qualignr
           save_fulldsn = fulldsn
           save_dsn = dsn
           call update_repo_metadata

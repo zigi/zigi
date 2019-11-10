@@ -24,6 +24,7 @@
 +
 %S+to select dataset (Edit if PS, memberlist if PO, one at a time)
 %A+to add%modified+datasets/members to index
+%U+to Un-Modify
 +
 %S  Status                    Dataset Name
 )Model
@@ -58,7 +59,7 @@
        if (&Zsel = '=')
            &Zsel = &osel
      &osel = &zsel
- ver (&zsel,list,S,A)
+ ver (&zsel,list,S,A,U)
 )PNTS
  FIELD(V1) VAR(ZCMD) VAL('BRANCH')
  FIELD(V2) VAR(ZCMD) VAL('ADD')
