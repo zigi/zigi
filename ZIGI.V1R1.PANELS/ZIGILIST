@@ -3,6 +3,7 @@
   @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
   $ type(output) intens(low ) caps(off) just(left )
   [ type(output) intens(low ) caps(off) just(right)
+  ] type(output) caps(off) pas(on) intens(high) color(white)
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
@@ -14,7 +15,7 @@
 %Current Repository : $localdir
 %Current Branch     : $branch
 %
-%Commands:  %L+Locate
+%Commands:  %L+Locate    ]Commit+]Gitlog+]Status+
 %Selections:%S+Edit%A+Add for commit%D+Show Diff%U+Un-Modify
 %
 %S  Member     Status                     Size    Mod-Date  Mod-Time
@@ -25,6 +26,9 @@
   .cursor = &zcmd
   .help = zigihr0
   &zscr = CSR
+  &Commit = 'Commit'
+  &gitlog = 'Gitlog'
+  &status = 'Status'
 )Proc
  &row = &z
  if (&ZCMD = &Z)
@@ -40,4 +44,8 @@
            &Zsel = &osel
      &osel = &zsel
  ver (&zsel,list,S,A,D,U)
+)PNTS
+ FIELD(COMMIT) VAR(ZCMD) VAL('COMMIT')
+ FIELD(GITLOG) VAR(ZCMD) VAL('GITLOG')
+ FIELD(STATUS) VAR(ZCMD) VAL('STATUS')
 )End
