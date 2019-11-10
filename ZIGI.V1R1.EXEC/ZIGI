@@ -1401,7 +1401,7 @@ update_repo_metadata:
     end
     else do
       /* not the . and .. things */
-      if dsnvalid(root.i) = "OK" then do
+      if dsnvalid("'"root.i"'") = "OK" then do
         /* and only for valid z/OS-datasets (skip README.md et al) */
         r = usssafe(root.i)
         debug('   check file or dir')
@@ -1409,7 +1409,12 @@ update_repo_metadata:
         so.1 = null
         x = bpxwunix(cmd,,so.,se.)
         debug('   done')
-        if qualignr = 0 then fulldsn = "'"pdshlq"."root.i"'"
+        if qualignr = 0 then do
+          if pdshlq /= '' then
+            fulldsn = "'"pdshlq"."root.i"'"
+          else
+            fulldsn = "'"root.i"'"
+        end
         else do
           fulldsn = translate(pdshlq,' ','.')
           fulldsn = subword(fulldsn,1,qualignr)
@@ -1500,7 +1505,12 @@ update_repo_metadata:
           qualignr = 0
           'tbmod zigirepo'
         end
-        if qualignr = 0 then fulldsn = "'"pdshlq"."dsn"'"
+        if qualignr = 0 then do
+          if pdshlq /= '' then
+            fulldsn = "'"pdshlq"."dsn"'"
+          else
+            fulldsn = "'"dsn"'"
+        end
         else do
           fulldsn = translate(pdshlq,' ','.')
           fulldsn = subword(fulldsn,1,qualignr)
@@ -1629,7 +1639,10 @@ Add_Dataset:
       'tbdispl' dsnatbl 'panel('dsnapnl') cursor('csr')'
     end
     if add_count > 0 then
-    pdshlq = dsnapfx
+      if qualignr = 0 then
+        pdshlq = ''
+      else
+        pdshlq  = dsnapfx
     if rc > 4 then do
       zsel = null
       'tbend' dsnatbl
