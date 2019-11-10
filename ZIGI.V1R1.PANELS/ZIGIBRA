@@ -20,11 +20,11 @@
 +Or create a new branch: _newb                                     +
 +
 +
-+S  Branch
++S  Branch                                      Status
 )Model
-@z+$z                                                              +
+@z+$z                                         +$z
 )Init
-  .zvars = '(zsel bname)'
+  .zvars = '(zsel bname brstatus)'
   &newb=''
   .cursor = &zcmd
   .help = zigihr0
