@@ -33,7 +33,7 @@
  &v8     = 'Pull'
  &v9     = 'Remote'
  &v10    = 'Grep'
- &v11    = 'Short'
+ &v11    = 'Pro'
   .zvars = '(zsel dsnstat fulldsn)'
   .cursor = &zcmd
   .help = zigihr0
@@ -64,5 +64,5 @@
  FIELD(V8) VAR(ZCMD) VAL('Pull')
  FIELD(V9) VAR(ZCMD) VAL('Remote')
  FIELD(V10) VAR(ZCMD) VAL('Grep')
- FIELD(V11) VAR(ZCMD) VAL('Short')
+ FIELD(V11) VAR(ZCMD) VAL('PRO')
 )End

@@ -22,7 +22,7 @@
 +The%GITLog+command will show the full log for the current branch. The%STatus+
 +command will show the current status.%GRep+can be used to perform a 'git grep'.
 +
-%Short+will switch between panels with more, or less, information. The shorter
+%PRo+will switch between panels with more, or less, information. The shorter
 +version has more room to display datasets.
 +
 +

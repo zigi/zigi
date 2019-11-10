@@ -7,7 +7,7 @@
 +-\-\#zigtitle   +-\-\
 %Command ===>_zcmd       \ \ %Scroll ===>_zscr+
 +
-+Primary commands:  @Clone+remote remote repository    @Short+
++Primary commands:  @Clone+remote remote repository    @Pro+
 +                   @Create+a local repo from scratch
 +                   @SSH+View your SSH public key
 +                   @Config+View git configuration
@@ -20,7 +20,7 @@ _z+  $z              + +$z                     + +$z
 )Init
  &clone  = 'Clone'
  &create = 'Create'
- &short  = 'Short'
+ &pro    = 'Pro'
  &ssh    = 'SSH'
  &config = 'Config'
  &zscr = CSR
@@ -44,7 +44,7 @@ _z+  $z              + +$z                     + +$z
 )PNTS
  FIELD(CLONE   ) VAR(ZCMD) VAL('CLONE')
  FIELD(CREATE  ) VAR(ZCMD) VAL('CREATE')
- FIELD(SHORT   ) VAR(ZCMD) VAL('SHORT')
+ FIELD(PRO     ) VAR(ZCMD) VAL('PRO')
  FIELD(SSH     ) VAR(ZCMD) VAL('SSH')
  FIELD(CONFIG  ) VAR(ZCMD) VAL('CONFIG')
 )end
