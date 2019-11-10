@@ -21,6 +21,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            11/09/09     - My history keeps dissapearing    |
+  |                           see git :)                       |
   |            11/06/19     - Numerous changes including       |
   |                           - Improve bpxwunix performance   |
   |                             by using an env stem           |
@@ -623,6 +625,22 @@ Work_With_Repo:
         if ztdsels = 1 then
         call update_repo_metadata
       end
+      /* -------------------------------- *
+      | Un-Modify entire dataset         |
+      * -------------------------------- */
+      When zsel = 'U' then do
+        zs1 = 'Un-modiying ' fulldsn
+        zs2 = 'This never happened...'
+        call do_popup
+        d = usssafe(dsn)
+        cmd = 'cd' localrep'/'zigirep
+        x = docmd(cmd '&& git checkout -- 'd)
+        if so.0 > 0 then call view_std
+        if se.0 > 0 then call view_std 'E'
+        if ztdsels = 1 then do
+          call update_repo_metadata
+        end
+      end
       Otherwise nop
     end
   end
@@ -837,7 +855,7 @@ Work_with_repo_file:
           d = usssafe(dsn)
           cmd = 'cd' localrep'/'zigirep'/'d
           /* These cp -M issues are really getting annoying */
-          m = translate(mem,'#@$','._-')
+          m = translate(mem,'._-','#@$')
           x = docmd(cmd || ' && git add 'm)
           save_fulldsn = fulldsn
           save_dsn = dsn
@@ -850,12 +868,15 @@ Work_with_repo_file:
         end
         when zsel = 'U' then do
           /* -------------------------------- *
-          | Undo a commit. eg checkout --   a|
+          | Undo a commit. eg checkout --    |
           * -------------------------------- */
           d = usssafe(dsn)
           cmd = 'cd' localrep'/'zigirep'/'d
           /* These cp -M issues are really getting annoying */
+          say mem
           m = translate(mem,'#@$','._-')
+          m = translate(mem,'._-','#@$')
+
           x = docmd(cmd || ' && git checkout -- 'm)
           save_fulldsn = fulldsn
           save_dsn = dsn
