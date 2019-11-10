@@ -848,6 +848,24 @@ Work_with_repo_file:
           dsn = save_dsn
           call work_with_repo_file
         end
+        when zsel = 'U' then do
+          /* -------------------------------- *
+          | Undo a commit. eg checkout --   a|
+          * -------------------------------- */
+          d = usssafe(dsn)
+          cmd = 'cd' localrep'/'zigirep'/'d
+          /* These cp -M issues are really getting annoying */
+          m = translate(mem,'#@$','._-')
+          x = docmd(cmd || ' && git checkout -- 'm)
+          save_fulldsn = fulldsn
+          save_dsn = dsn
+          call update_repo_metadata
+          /* then call this function again to update the    */
+          /* status of the members in this pds after update */
+          fulldsn = save_fulldsn
+          dsn = save_dsn
+          call work_with_repo_file
+        end
         when zsel = 'D' then do
           /* -------------------------------- *
           | Show the diff for the member     |
