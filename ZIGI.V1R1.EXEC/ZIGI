@@ -1141,10 +1141,7 @@ Create_Repo:
 
     x = docmd('cd 'reporoot' && git add .zigi/dsn')
 
-    commitmsg = "added by zigi v1r0 for "
-    commitmsg = commitmsg MVSVAR('SYMDEF','JOBNAME')
-    commitmsg = commitmsg " on "
-    commitmsg = commitmsg MVSVAR('SYSNAME')
+    commitmsg = "added by zigi v1r1"
     x = docmd('cd 'reporoot' && git commit -m "'commitmsg'"')
 
     Address ISPExec
