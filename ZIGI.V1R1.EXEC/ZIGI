@@ -873,7 +873,6 @@ Work_with_repo_file:
           d = usssafe(dsn)
           cmd = 'cd' localrep'/'zigirep'/'d
           /* These cp -M issues are really getting annoying */
-          say mem
           m = translate(mem,'#@$','._-')
           m = translate(mem,'._-','#@$')
 
@@ -1366,6 +1365,7 @@ update_repo_metadata:
   /* we have to get rid of the tab in git output */
   debug('getting the remotes')
   gitcmd = 'git remote -v | sed -e "s/[[:space:]]\+/ /g"'
+  localdir = localrep'/'zigirep
   x = docmd('cd 'localdir' && 'gitcmd)
   if so.0 > 0 then
   remote1 = word(so.1,1) ' ' word(so.1,2)
@@ -1512,7 +1512,6 @@ update_repo_metadata:
   /* --------------------------- *
   | Get the current branch info |
   * --------------------------- */
-  localdir = localrep'/'zigirep
   debug('getting git status for branch names')
   x = docmd('cd 'localdir' && git status')
   branch = word(so.1,3)
