@@ -1013,7 +1013,6 @@ Branch_it:
             if sbname = bname then do
                brstatus = 'Local/Remote'
                'tbmod' rtbb
-               say 'tbmod rc:' rc
                leave
             end
             end
@@ -1042,6 +1041,7 @@ Branch_it:
       end
     end
   end
+  'tbsort' rtbb 'fields(bname,c,a)'
   'tbtop' rtbb
   save_btop = 0
   do forever
