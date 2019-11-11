@@ -1431,7 +1431,7 @@ update_repo_metadata:
   /* now we get the status for all in the repo */
   if se.0 > 1 then fetchmsg = "Remote updates, check status"
   else fetchmsg = "No remote updates"
-  zs1 = 'Reading the Local Repo info'
+  zs1 = 'Updating Repo and Getting Stats'
   zs2 = 'Patience . . .'
   call do_popup
   /* get all the files that are in the repo */
