@@ -1,5 +1,5 @@
 )Attr Default(%+_)
-  _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+  _ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
   @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
   $ type(output) intens(low ) caps(off) just(left )
   [ type(output) intens(low ) caps(off) just(right)

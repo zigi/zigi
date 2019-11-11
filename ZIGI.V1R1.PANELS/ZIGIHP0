@@ -11,6 +11,7 @@
       %Commands:
       %Clone        +Clone a Remote Repository (creates z/OS datasets)
       %Create       +Create an empty Local Repository
+      %GitHelp+     +Display git Help information
       %SSH          +View the public part of your SHH-keypair
       +
       %Line Selections:

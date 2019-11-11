@@ -1,6 +1,6 @@
 )Attr
  $ type(output) caps(off)
- _ type(input) caps(off) hilite(uscore)
+ _ type(input) caps(off) hilite(uscore) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
 )Body Expand(\\)
 +-\-\#zigtitle   +-\-\
@@ -15,7 +15,7 @@
 + Make sure the remote repository exists and you're authorized to
 + push to master.
 +
-+ This is best done on a 'brand new' repository :)
++ This is best done on a 'brand new' repository :-)
 +
 )Init
 )Proc

@@ -16,8 +16,8 @@
 %                !bstat                                                     +
 %                $baction                                                   +
 %
-[v1      +Checkout/Create branch  [v2     +Add dataset          [v3
-[v4      +Show git status         [v5     +Pull from origin
+[v1      +Checkout/Create branch  [v2     +Add dataset          [v3 +
+[v4      +Show git status         [v5     +Pull from origin     [githelp+
 [v6      +Execute commit -m       [v7     +Push to origin
 [v8      +Show git log output     [v9     +Add remote and push
 [v10     +Replace MVS datasets    [v11    +Execute a 'git grep'
@@ -30,17 +30,18 @@
 )Model
 @z+$z                        $z
 )Init
- &v1     = 'Branch'
- &v2     = 'Add'
- &v3     = 'Short'
- &v4     = 'Status'
- &v5     = 'Pull'
- &v6     = 'Commit'
- &v7     = 'Push'
- &v8     = 'Gitlog'
- &v9     = 'Remote'
- &v10    = 'Refresh'
- &v11    = 'Grep'
+ &v1      = 'Branch'
+ &v2      = 'Add'
+ &v3      = 'Pro'
+ &v4      = 'Status'
+ &v5      = 'Pull'
+ &v6      = 'Commit'
+ &v7      = 'Push'
+ &v8      = 'Gitlog'
+ &v9      = 'Remote'
+ &v10     = 'Refresh'
+ &v11     = 'Grep'
+ &githelp = 'Githelp'
   .zvars = '(zsel dsnstat fulldsn)'
   .cursor = &zcmd
   .help = zigihr0
@@ -63,7 +64,7 @@
 )PNTS
  FIELD(V1) VAR(ZCMD) VAL('BRANCH')
  FIELD(V2) VAR(ZCMD) VAL('ADD')
- FIELD(V3) VAR(ZCMD) VAL('Short')
+ FIELD(V3) VAR(ZCMD) VAL('PRO')
  FIELD(V4) VAR(ZCMD) VAL('STATUS')
  FIELD(V5) VAR(ZCMD) VAL('PULL')
  FIELD(V6) VAR(ZCMD) VAL('COMMIT')
@@ -72,4 +73,5 @@
  FIELD(V9) VAR(ZCMD) VAL('REMOTE')
  FIELD(V10) VAR(ZCMD) VAL('REFRESH')
  FIELD(V11) VAR(ZCMD) VAL('GREP')
+ FIELD(GITHELP) VAR(ZCMD) VAL('GITHELP')
 )End

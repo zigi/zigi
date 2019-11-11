@@ -1,6 +1,6 @@
 )Attr
  $ type(output) caps(off)
- _ type(input)  caps(off) hilite(uscore)
+ _ type(input)  caps(off) hilite(uscore) intens(low)
 )Body Window(41,4)
 +
   $zs1
