@@ -679,8 +679,7 @@ Do_Push:
   call pop 'Pushing Updates to Remote Git'
   cmd = 'cd' localdir' && git push'
   cmd = docmd(cmd)
-  call view_std
-  if se.0 > 0 then call view_std 'E'
+  call view_std 'B'
   drop so. se.
   if opt = null then
   call update_repo_metadata
@@ -1289,12 +1288,19 @@ view_std:
       so.sc = se.xi
       end
    so.0 = sc
+   drop se.
   /* ----------------------- *
   | Write out the stem data |
   * ----------------------- */
   if stdopt = null
-  then 'Execio * diskw' dd '(finis stem so.'
-  else 'Execio * diskw' dd '(finis stem se.'
+  then do
+    'Execio * diskw' dd '(finis stem so.'
+    drop so.
+  end
+  else do
+    'Execio * diskw' dd '(finis stem se.'
+    drop se.
+  end
   /* -------------------------------------------------- *
   | Access the Temporary Data Set using ISPF           |
   | Library Services.                                  |
