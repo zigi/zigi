@@ -489,7 +489,7 @@ Work_With_Repo:
           else  call View_std 'B'
         end
       end
-     
+
       /* -------------------------------- *
       | Commit to current branch         |
       * -------------------------------- */
@@ -818,7 +818,10 @@ Work_with_repo_file:
       Select
       When abbrev('GITHELP',zcmd,4) = 1 then
           Address TSO '%githelp'
-      When abbrev('COMMIT',zcmd,3) = 1 then call do_commit
+      When abbrev('COMMIT',zcmd,3) = 1 then do
+        call do_commit
+        call work_with_repo_file
+      end
       When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
       When abbrev('STATUS',zcmd,2) = 1 then call do_status
         When abbrev("L",translate(word(zcmd,1)),1) = 1 then do
