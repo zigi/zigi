@@ -404,7 +404,6 @@ Work_With_Repo:
       'tbend' rtbl
       return
     end
-    drop so. se.
     zcmd = translate(zcmd)
 
     if row = 0 then zsel = null
@@ -443,10 +442,7 @@ Work_With_Repo:
         call pop 'Pulling from remote'
         cmd = 'cd' localdir' && git pull'
         x = docmd(cmd)
-        call view_std
-        if se.0 > 0 then do
-          call view_std 'E'
-        end
+        call view_std 'B'
         call update_repo_metadata
         call Refresh localrep zigirep pdshlq qualignr
       end
@@ -483,20 +479,8 @@ Work_With_Repo:
             zerrlm = 'grep search found nothing.'
             'setmsg msg(isrz002)'
           end
-          else do
-            call View_std
-            call View_std E
-          end
+          else  call View_std 'B'
         end
-      end
-      /* -------------------------------- *
-      | GMAN Git Commamd                 |
-      * -------------------------------- */
-      When abbrev('GMAN',zcmd,2) = 1 then do
-        zcmd = null
-        cmd = 'cd' localrep'/'zigirep
-        x = docmd(cmd '&& man git')
-        call View_std
       end
       /* -------------------------------- *
       | Commit to current branch         |
@@ -517,12 +501,10 @@ Work_With_Repo:
         x = bpxwunix(cmd,,so.,se.)
         cmd = 'cd' localrep'/'zigirep
         x = docmd(cmd '&& git remote add origin 'origin)
-        call View_std
-        call View_std E
+        call View_std 'B'
         cmd = 'cd' localrep'/'zigirep
         cmd = docmd(cmd '&& git push -u origin 'branch)
-        call View_std
-        call View_std E
+        call View_std 'B'
         call update_repo_metadata
       end
       Otherwise nop
@@ -550,8 +532,7 @@ Work_With_Repo:
         d = usssafe(dsn)
         cmd = 'cd' localrep'/'zigirep
         x = docmd(cmd '&& git add 'd)
-        if so.0 > 0 then call view_std
-        if se.0 > 0 then call view_std 'E'
+        call view_std 'B'
         if ztdsels = 1 then
         call update_repo_metadata
       end
@@ -565,8 +546,7 @@ Work_With_Repo:
         d = usssafe(dsn)
         cmd = 'cd' localrep'/'zigirep
         x = docmd(cmd '&& git checkout -- 'd)
-        if so.0 > 0 then call view_std
-        if se.0 > 0 then call view_std 'E'
+        call view_std 'B'
         if ztdsels = 1 then do
           call update_repo_metadata
         end
@@ -658,7 +638,6 @@ Do_Commit:
     * -------------------------------------- */
     else x = docmd(cmd "&& git commit -m '"cmsg.1"'")
     call view_std 'B'
-    drop so. se.
     /* ------------------------------- *
     | If > 1 msg then delete the msg  |
     | file from omvs                  |
@@ -680,7 +659,6 @@ Do_Push:
   cmd = 'cd' localdir' && git push'
   cmd = docmd(cmd)
   call view_std 'B'
-  drop so. se.
   if opt = null then
   call update_repo_metadata
   return
@@ -715,10 +693,9 @@ Clone_Repo:
     then cmd = cmd ' && git clone 'remote
     else cmd = cmd ' && git clone -b' remotebr remote
     x = docmd(cmd)
+    call view_std 'B'
     if x > 0 then do
-      call view_std 'E'
       c_stat = 1
-      Address ISPExec
       return
     end
     /* Check to see if this is a zigi-managed repo */
@@ -727,10 +704,8 @@ Clone_Repo:
     if so.0 = 1 & so.1 = 0 then do
       c_stat = 1
       x = bpxwunix('rm -rf 'localrep'/'zigirep,,so.,se.)
-      Address ISPExec
       return
     end
-    Address ISPExec
     if c_stat = 1 then return
     qualignr = words(translate(pdshlq,' ','.'))
     call Refresh localrep zigirep pdshlq qualignr
@@ -951,8 +926,7 @@ Edit_PS:
     copcm = "//'"edsn"'"
     copcm = 'cp -U -M "'copcm'" 'localrep'/'zigirep'/'dsn
     x = bpxwunix(copcm,,so.,se.)
-    if so.0 > 0 then call view_std
-    if se.0 > 0 then call view_std 'E'
+    call view_std 'B'
   end
   call update_repo_metadata
   return
@@ -1039,7 +1013,6 @@ Branch_it:
       end
     end
   end
-  drop so. se.
   'tbsort' rtbb 'fields(bname,c,a)'
   'tbtop' rtbb
   save_btop = 0
@@ -1078,10 +1051,7 @@ Branch_it:
         'Display Panel(zigipop)'
         'Rempop'
         call pfshow 'reset'         /* restore pfshow setting */
-        if so.0 > 0 then
-        call view_std
-        if se.0 > 0 then
-        call view_std 'E'
+        call view_std 'B'
       end
       x = docmd('cd 'localdir' && git checkout 'bname)
       call update_repo_metadata
@@ -1944,6 +1914,7 @@ GETENV:
   call add_env '_BPX_SHAREAS=YES'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
   env.0 = envc
+  drop so. se.
   return
 
   /* -------------------- *
@@ -1957,6 +1928,7 @@ add_env:
 
 docmd:
   parse arg cmd
+  drop so. se.
   cmd = 'bash &&' cmd
   x = bpxwunix(cmd,,so.,se.,env.)
   return x
@@ -1965,6 +1937,7 @@ docmdx:
   /* quircky thing, we need to export HOME as we are
   not running a login shell via bpxwunix */
   parse arg cmd
+  drop so. se.
   if rx = null then do
     rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && '
     c = "[[ -f "home"/.profile ]] && echo f"
