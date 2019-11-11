@@ -1001,6 +1001,7 @@ Branch_it:
       /* this is a remote branch we (maybe) have never checked out */
       seen_this_branch = 0
       parse var b1 remotes'/'origin'/'bname zooi
+      bname = strip(bname)
       do ii = 1 to bl.0
         if bl.ii = bname then seen_this_branch = 1
       end
@@ -1032,7 +1033,7 @@ Branch_it:
       /* this is already a local branch */
       if pos('*',b1) = 0 then do
         /* Add it to the table if it's not the current (*) branch */
-        bname = so.i
+        bname = strip(so.i)
         ni = bl.0 + 1
         bl.ni = b1
         bl.0 = ni
@@ -1041,6 +1042,7 @@ Branch_it:
       end
     end
   end
+  drop so. se.
   'tbsort' rtbb 'fields(bname,c,a)'
   'tbtop' rtbb
   save_btop = 0
@@ -1431,7 +1433,7 @@ update_repo_metadata:
   /* now we get the status for all in the repo */
   if se.0 > 1 then fetchmsg = "Remote updates, check status"
   else fetchmsg = "No remote updates"
-  zs1 = 'Updating Repo and Getting Stats'
+  zs1 = 'Updating Repo and/or Getting Stats'
   zs2 = 'Patience . . .'
   call do_popup
   /* get all the files that are in the repo */
@@ -1512,7 +1514,6 @@ update_repo_metadata:
       end
     end
   end
-
 
   zs1 = 'Building List of repository Data Sets'
   zs2 = fetchmsg
