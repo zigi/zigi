@@ -607,12 +607,12 @@ Do_Commit:
     'setmsg msg(isrz002)'
   end
   else do
-    interpret 'cmessage = msg1'
+    cmessage = value('msg1')
     cmsg.1 = cmessage
     cmsg.2 = left('-',length(cmsg.1),'-')
     io = 2
     do ic = 2 to 17
-      interpret 'cmessage = msg'ic
+      cmessage = value('msg'ic)
       cmessage = strip(cmessage)
       if cmessage /= null then do
         if cmessage = '.' then cmessage = '  '
