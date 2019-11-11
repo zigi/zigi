@@ -21,6 +21,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            11/11/09 LBD - Add GITHELP as a command from    |
+  |                           all panels (except browse)       |
   |            11/10/09 HBK - Fix qualignr edge-cases          |
   |            11/09/09 HBK - My history keeps dissapearing    |
   |                           see git :)                       |
@@ -309,6 +311,8 @@
 
     if zcmd /= null then
     Select
+      When abbrev('GITHELP',zcmd,4) = 1 then
+        Address TSO '%githelp'
       When abbrev('CREATE',zcmd,2) = 1 then do
         call Create_Repo
         call work_with_repo
@@ -415,6 +419,8 @@ Work_With_Repo:
 
     if zcmd /= null then
     Select
+      When abbrev('GITHELP',zcmd,4) = 1 then
+        Address TSO '%githelp'
       When abbrev('PRO',zcmd,2) = 1 then do
         if repopan = 'zigirepo'
         then repopan = 'zigireps'
@@ -805,6 +811,8 @@ Work_with_repo_file:
       end
 
       Select
+        When abbrev('GITHELP',zcmd,4) = 1 then
+          Address TSO '%githelp'
         When abbrev('COMMIT',zcmd,3) = 1 then call do_commit
         When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
         When abbrev('STATUS',zcmd,2) = 1 then call do_status
@@ -1028,6 +1036,8 @@ Branch_it:
     'tbdispl' rtbb 'panel(zigibra)'
     if rc > 4 then leave
     save_btop = ztdtop
+    if abbrev('GITHELP',zcmd,4) = 1 then
+          Address TSO '%githelp'
     if newb <> null then do
       /* ----------------------------- *
       | Create this new branch, switch|

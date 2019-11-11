@@ -8,7 +8,7 @@
 %Command ===>_zcmd       \ \ %Scroll ===>_zscr+
 +
 +Primary commands:  @Clone+remote remote repository    @Pro+
-+                   @Create+a local repo from scratch
++                   @Create+a local repo from scratch  @githelp+
 +                   @SSH+View your SSH public key
 +                   @Config+View git configuration
 +
@@ -18,11 +18,12 @@
 )Model
 _z+  $z              + +$z                     + +$z
 )Init
- &clone  = 'Clone'
- &create = 'Create'
- &pro    = 'Pro'
- &ssh    = 'SSH'
- &config = 'Config'
+ &clone   = 'Clone'
+ &create  = 'Create'
+ &pro     = 'Pro'
+ &ssh     = 'SSH'
+ &config  = 'Config'
+ &githelp = 'GitHelp'
  &zscr = CSR
  .zvars = '(zsel zigirep pdshlq localrep)'
  .help = zigihp0
@@ -47,4 +48,5 @@ _z+  $z              + +$z                     + +$z
  FIELD(PRO     ) VAR(ZCMD) VAL('PRO')
  FIELD(SSH     ) VAR(ZCMD) VAL('SSH')
  FIELD(CONFIG  ) VAR(ZCMD) VAL('CONFIG')
+ FIELD(GITHELP ) VAR(ZCMD) VAL('GITHELP')
 )end

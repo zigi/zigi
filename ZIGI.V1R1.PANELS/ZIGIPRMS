@@ -7,7 +7,7 @@
 +-\-\#zigtitle   +-\-\
 %Command ===>_zcmd       \ \ %Scroll ===>_zscr+
 +
-+Primary commands:  @Clone+@Create+@SSH+@Config+@Pro
++Primary commands:  @Clone+@Create+@SSH+@Config+@Pro+@Githelp+
 +
 +Repo options:      %S+Work with repo%V+View repo OMVS files+%D+Delete repo
 +
@@ -15,11 +15,12 @@
 )Model
 _z+  $z              + +$z                     + +$z
 )Init
- &clone  = 'Clone'
- &create = 'Create'
- &pro    = 'Pro'
- &ssh    = 'SSH'
- &config = 'Config'
+ &clone   = 'Clone'
+ &create  = 'Create'
+ &githelp = 'GitHelp'
+ &pro     = 'Pro'
+ &ssh     = 'SSH'
+ &config  = 'Config'
  &zscr = CSR
  .zvars = '(zsel zigirep pdshlq localrep)'
  .help = zigihp0
@@ -44,4 +45,5 @@ _z+  $z              + +$z                     + +$z
  FIELD(PRO     ) VAR(ZCMD) VAL('PRO')
  FIELD(SSH     ) VAR(ZCMD) VAL('SSH')
  FIELD(CONFIG  ) VAR(ZCMD) VAL('CONFIG')
+ FIELD(GITHELP ) VAR(ZCMD) VAL('GITHELP')
 )end
