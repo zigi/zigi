@@ -11,9 +11,7 @@
 +-\-\#zigtitle   +-\-\
 %Command ===>_zcmd            \ \ %Scroll ===>_zscr+
 %Local dir      :$localdir
- &v3      = 'Basic'
 %Current Branch :$branch                                      +
- &v5      = 'Pull'
 %                $baction                                                   +
 %
 [v1      +Checkout/Create branch  [v2     +Add dataset          [v3   +
@@ -32,7 +30,7 @@
 )Init
  &v1      = 'Branch'
  &v2      = 'Add'
- &v3      = 'Basic'
+ &v3      = 'Pro'
  &v4      = 'Status'
  &v5      = 'Pull'
  &v6      = 'Commit'

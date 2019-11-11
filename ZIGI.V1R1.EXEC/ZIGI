@@ -309,6 +309,7 @@
       'TBSkip zigirepo Number('row')'
     end
 
+    if zcmd = 'BASIC' then zcmd = 'PRO'
     if zcmd /= null then
     Select
       When abbrev('GITHELP',zcmd,4) = 1 then
