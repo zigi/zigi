@@ -16,7 +16,7 @@
 %                !bstat                                                     +
 %                $baction                                                   +
 %
-+Commands:[v1[v2[v3 [v4 [v5 [v6 [v7  [v8  [v9 [v10 [v11[gith+
++Commands:[v1[v2[v3 [v4 [v5 [v6 [v7  [v8  [v9 [v10 [v11[gith[view+
 +Options: %S+Select%A+Add
 +
 %S  Status                    Dataset Name
@@ -35,6 +35,7 @@
  &v10     = 'Grep'
  &v11     = 'Pro'
  &gith    = 'GitH'
+ &view    = 'View'
   .zvars = '(zsel dsnstat fulldsn)'
   .cursor = &zcmd
   .help = zigihr0
@@ -67,4 +68,5 @@
  FIELD(V10) VAR(ZCMD) VAL('Grep')
  FIELD(V11) VAR(ZCMD) VAL('PRO')
  FIELD(GITH) VAR(ZCMD) VAL('Githelp')
+ FIELD(VIEW) VAR(ZCMD) VAL('View')
 )End

@@ -420,6 +420,8 @@ Work_With_Repo:
 
     if zcmd /= null then
     Select
+      When abbrev('VIEW',zcmd,1) = 1 then
+        'SELECT PGM(ISRDSLST) PARM(UDL' localrep'/'zigirep') SUSPEND'
       When abbrev('GITHELP',zcmd,4) = 1 then
         Address TSO '%githelp'
       When abbrev('PRO',zcmd,2) = 1 then do

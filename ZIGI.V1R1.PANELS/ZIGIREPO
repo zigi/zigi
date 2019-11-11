@@ -11,14 +11,14 @@
 +-\-\#zigtitle   +-\-\
 %Command ===>_zcmd            \ \ %Scroll ===>_zscr+
 %Local dir      :$localdir
-%Remote path    :$remote1
+ &v3      = 'Basic'
 %Current Branch :$branch                                      +
-%                !bstat                                                     +
+ &v5      = 'Pull'
 %                $baction                                                   +
 %
-[v1      +Checkout/Create branch  [v2     +Add dataset          [v3 +
+[v1      +Checkout/Create branch  [v2     +Add dataset          [v3   +
 [v4      +Show git status         [v5     +Pull from origin     [githelp+
-[v6      +Execute commit -m       [v7     +Push to origin
+[v6      +Execute commit -m       [v7     +Push to origin       [view+OMVS Dir
 [v8      +Show git log output     [v9     +Add remote and push
 [v10     +Replace MVS datasets    [v11    +Execute a 'git grep'
 +
@@ -32,7 +32,7 @@
 )Init
  &v1      = 'Branch'
  &v2      = 'Add'
- &v3      = 'Pro'
+ &v3      = 'Basic'
  &v4      = 'Status'
  &v5      = 'Pull'
  &v6      = 'Commit'
@@ -42,6 +42,7 @@
  &v10     = 'Refresh'
  &v11     = 'Grep'
  &githelp = 'Githelp'
+ &view    = 'View'
   .zvars = '(zsel dsnstat fulldsn)'
   .cursor = &zcmd
   .help = zigihr0
@@ -74,4 +75,5 @@
  FIELD(V10) VAR(ZCMD) VAL('REFRESH')
  FIELD(V11) VAR(ZCMD) VAL('GREP')
  FIELD(GITHELP) VAR(ZCMD) VAL('GITHELP')
+ FIELD(VIEW   ) VAR(ZCMD) VAL('VIEW')
 )End
