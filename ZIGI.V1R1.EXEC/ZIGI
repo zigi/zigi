@@ -653,13 +653,11 @@ Do_Commit:
       cmd = 'cd' localrep'/'zigirep
       x = docmd(cmd '&& git commit -F' file)
     end
-    /* ------------------------------- *
-    | If = 2 then use commit -m msg   |
-    * ------------------------------- */
+    /* ------------------------------------- *
+    | If cmsg.0 = 2 then use commit -m msg   |
+    * -------------------------------------- */
     else x = docmd(cmd "&& git commit -m '"cmsg.1"'")
-    if x = 0
-    then call view_std
-    else call view_std 'E'
+    call view_std 'B'
     drop so. se.
     /* ------------------------------- *
     | If > 1 msg then delete the msg  |
@@ -1273,15 +1271,24 @@ view_std:
   /* ------------------------------- *
   | Replace null records with blank |
   * ------------------------------- */
-  if stdopt = null then
   do xi = 1 to so.0
     if so.xi = null
     then so.xi = ' '
   end
-  else do xi = 1 to se.0
+  do xi = 1 to se.0
     if se.xi = null
     then se.xi = ' '
   end
+  /* ----------------------------- *
+   | If stdopt is 'B' then do both |
+   * ----------------------------- */
+   stdopt = null
+   sc = so.0
+   do xi = 1 to se.0
+      sc = sc + 1
+      so.sc = se.xi
+      end
+   so.0 = sc
   /* ----------------------- *
   | Write out the stem data |
   * ----------------------- */
