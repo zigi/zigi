@@ -11,10 +11,11 @@
 %Commands:
             %Branch   +Change to a new, or existing, Branch
             %Copy     +Copy all updates to OMVS and do Git Add and Commit
+            %GitHelp  +Git Help manpages
             %GLog     +View Git Log
-            %PULl     +Pull updates from the Remote Repository
+            %Pro+     +Toggle panel for more or less instructions
             %PUsh     +Push updates to Remote Repository
-            %SHow     +View Git Status
+            %PULl     +Pull updates from the Remote Repository
             %STatus   +Git Show
 %
 %Selections:

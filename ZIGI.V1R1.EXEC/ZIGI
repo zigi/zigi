@@ -21,6 +21,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            11/11/09 LBD - Add GITHELP as a command from    |
+  |                           all panels (except browse)       |
   |            11/10/09 HBK - Fix qualignr edge-cases          |
   |            11/09/09 HBK - My history keeps dissapearing    |
   |                           see git :)                       |
@@ -307,8 +309,11 @@
       'TBSkip zigirepo Number('row')'
     end
 
+    if zcmd = 'BASIC' then zcmd = 'PRO'
     if zcmd /= null then
     Select
+      When abbrev('GITHELP',zcmd,4) = 1 then
+        Address TSO '%githelp'
       When abbrev('CREATE',zcmd,2) = 1 then do
         call Create_Repo
         call work_with_repo
@@ -324,7 +329,7 @@
         /* TODO: Add code to apply the new settings..... */
         if rc = 0 | rc = 8 then leave
       end
-      When abbrev('SHORT',zcmd,2) = 1 then do
+      When abbrev('PRO',zcmd,2) = 1 then do
         if primpanl = 'zigiprim'
         then primpanl = 'zigiprms'
         else primpanl = 'zigiprim'
@@ -414,9 +419,14 @@ Work_With_Repo:
       "TBSkip" rtbl "Number("row")"
     end
 
+    if zcmd = 'BASIC' then zcmd = 'PRO'
     if zcmd /= null then
     Select
-      When abbrev('SHORT',zcmd,2) = 1 then do
+      When abbrev('VIEW',zcmd,1) = 1 then
+        'SELECT PGM(ISRDSLST) PARM(UDL' localrep'/'zigirep') SUSPEND'
+      When abbrev('GITHELP',zcmd,4) = 1 then
+        Address TSO '%githelp'
+      When abbrev('PRO',zcmd,2) = 1 then do
         if repopan = 'zigirepo'
         then repopan = 'zigireps'
         else repopan = 'zigirepo'
@@ -443,10 +453,7 @@ Work_With_Repo:
         call pop 'Pulling from remote'
         cmd = 'cd' localdir' && git pull'
         x = docmd(cmd)
-        call view_std
-        if se.0 > 0 then do
-          call view_std 'E'
-        end
+        call view_std 'B'
         call update_repo_metadata
         call Refresh localrep zigirep pdshlq qualignr
       end
@@ -483,21 +490,10 @@ Work_With_Repo:
             zerrlm = 'grep search found nothing.'
             'setmsg msg(isrz002)'
           end
-          else do
-            call View_std
-            call View_std E
-          end
+          else  call View_std 'B'
         end
       end
-      /* -------------------------------- *
-      | GMAN Git Commamd                 |
-      * -------------------------------- */
-      When abbrev('GMAN',zcmd,2) = 1 then do
-        zcmd = null
-        cmd = 'cd' localrep'/'zigirep
-        x = docmd(cmd '&& man git')
-        call View_std
-      end
+
       /* -------------------------------- *
       | Commit to current branch         |
       * -------------------------------- */
@@ -517,12 +513,10 @@ Work_With_Repo:
         x = bpxwunix(cmd,,so.,se.)
         cmd = 'cd' localrep'/'zigirep
         x = docmd(cmd '&& git remote add origin 'origin)
-        call View_std
-        call View_std E
+        call View_std 'B'
         cmd = 'cd' localrep'/'zigirep
         cmd = docmd(cmd '&& git push -u origin 'branch)
-        call View_std
-        call View_std E
+        call View_std 'B'
         call update_repo_metadata
       end
       Otherwise nop
@@ -550,8 +544,7 @@ Work_With_Repo:
         d = usssafe(dsn)
         cmd = 'cd' localrep'/'zigirep
         x = docmd(cmd '&& git add 'd)
-        if so.0 > 0 then call view_std
-        if se.0 > 0 then call view_std 'E'
+        call view_std 'B'
         if ztdsels = 1 then
         call update_repo_metadata
       end
@@ -565,8 +558,7 @@ Work_With_Repo:
         d = usssafe(dsn)
         cmd = 'cd' localrep'/'zigirep
         x = docmd(cmd '&& git checkout -- 'd)
-        if so.0 > 0 then call view_std
-        if se.0 > 0 then call view_std 'E'
+        call view_std 'B'
         if ztdsels = 1 then do
           call update_repo_metadata
         end
@@ -653,14 +645,11 @@ Do_Commit:
       cmd = 'cd' localrep'/'zigirep
       x = docmd(cmd '&& git commit -F' file)
     end
-    /* ------------------------------- *
-    | If = 2 then use commit -m msg   |
-    * ------------------------------- */
+    /* ------------------------------------- *
+    | If cmsg.0 = 2 then use commit -m msg   |
+    * -------------------------------------- */
     else x = docmd(cmd "&& git commit -m '"cmsg.1"'")
-    if x = 0
-    then call view_std
-    else call view_std 'E'
-    drop so. se.
+    call view_std 'B'
     /* ------------------------------- *
     | If > 1 msg then delete the msg  |
     | file from omvs                  |
@@ -681,9 +670,7 @@ Do_Push:
   call pop 'Pushing Updates to Remote Git'
   cmd = 'cd' localdir' && git push'
   cmd = docmd(cmd)
-  call view_std
-  if se.0 > 0 then call view_std 'E'
-  drop so. se.
+  call view_std 'B'
   if opt = null then
   call update_repo_metadata
   return
@@ -715,11 +702,11 @@ Clone_Repo:
     x = bpxwunix(cmd,,so.,se.)
     cmd = 'cd 'localrep
     if remotebr = null
-       then cmd = cmd ' && git clone 'remote
-       else cmd = cmd ' && git clone -b' remotebr remote
+    then cmd = cmd ' && git clone 'remote
+    else cmd = cmd ' && git clone -b' remotebr remote
     x = docmd(cmd)
+    call view_std 'B'
     if x > 0 then do
-      call view_std 'E'
       c_stat = 1
       Address ISPExec
       return
@@ -833,7 +820,12 @@ Work_with_repo_file:
       end
 
       Select
-      When abbrev('COMMIT',zcmd,3) = 1 then call do_commit
+      When abbrev('GITHELP',zcmd,4) = 1 then
+          Address TSO '%githelp'
+      When abbrev('COMMIT',zcmd,3) = 1 then do
+        call do_commit
+        call work_with_repo_file
+      end
       When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
       When abbrev('STATUS',zcmd,2) = 1 then call do_status
         When abbrev("L",translate(word(zcmd,1)),1) = 1 then do
@@ -911,6 +903,9 @@ Work_with_repo_file:
           call do_popup
           address 'SYSCALL' 'SLEEP (1)'
           x = docmd(cmd || ' && git checkout -- 'm)
+          /* after the checkout --, we better re-populate   */
+          /* the z/OS datasets                              */
+          call Refresh localrep zigirep pdshlq qualignr
           save_fulldsn = fulldsn
           save_dsn = dsn
           call update_repo_metadata
@@ -954,8 +949,7 @@ Edit_PS:
     copcm = "//'"edsn"'"
     copcm = 'cp -U -M "'copcm'" 'localrep'/'zigirep'/'dsn
     x = bpxwunix(copcm,,so.,se.)
-    if so.0 > 0 then call view_std
-    if se.0 > 0 then call view_std 'E'
+    call view_std 'B'
   end
   call update_repo_metadata
   return
@@ -989,7 +983,7 @@ Refresh:
 Branch_it:
   'tbquery' rtbb
   if rc = 0 then 'tbend' rtbb
-  'TBCreate' rtbb 'Names(bname) Replace NoWrite'
+  'TBCreate' rtbb 'keys(bname) Names(brstatus) Replace NoWrite'
   localdir = localrep'/'zigirep
   cmd = ' && git remote prune origin > /dev/null 2>&1 && git branch -a'
   x = docmd('cd 'localdir cmd)
@@ -1001,15 +995,30 @@ Branch_it:
       /* this is a remote branch we (maybe) have never checked out */
       seen_this_branch = 0
       parse var b1 remotes'/'origin'/'bname zooi
+      bname = strip(bname)
       do ii = 1 to bl.0
         if bl.ii = bname then seen_this_branch = 1
       end
+      if seen_this_branch = 1 then do
+         sbname = bname
+         'tbtop' rtbb
+         do forever
+            'tbskip' rtbb
+            if rc > 0 then leave
+            if sbname = bname then do
+               brstatus = 'Local/Remote'
+               'tbmod' rtbb
+               leave
+            end
+            end
+         end
       /* but only add it to table if we haven't yet */
       if seen_this_branch = 0 then do
         if bname <> branch & bname <> "HEAD" then do
           ni = bl.0 + 1
           bl.ni = bname
           bl.0 = ni
+          brstatus = 'Remote'
           'tbadd' rtbb
         end
       end
@@ -1018,14 +1027,16 @@ Branch_it:
       /* this is already a local branch */
       if pos('*',b1) = 0 then do
         /* Add it to the table if it's not the current (*) branch */
-        bname = so.i
+        bname = strip(so.i)
         ni = bl.0 + 1
         bl.ni = b1
         bl.0 = ni
+        brstatus = 'Local'
         'tbadd' rtbb
       end
     end
   end
+  'tbsort' rtbb 'fields(bname,c,a)'
   'tbtop' rtbb
   save_btop = 0
   do forever
@@ -1040,6 +1051,8 @@ Branch_it:
     'tbdispl' rtbb 'panel(zigibra)'
     if rc > 4 then leave
     save_btop = ztdtop
+    if abbrev('GITHELP',zcmd,4) = 1 then
+          Address TSO '%githelp'
     if newb <> null then do
       /* ----------------------------- *
       | Create this new branch, switch|
@@ -1063,10 +1076,7 @@ Branch_it:
         'Display Panel(zigipop)'
         'Rempop'
         call pfshow 'reset'         /* restore pfshow setting */
-        if so.0 > 0 then
-        call view_std
-        if se.0 > 0 then
-        call view_std 'E'
+        call view_std 'B'
       end
       x = docmd('cd 'localdir' && git checkout 'bname)
       call update_repo_metadata
@@ -1255,21 +1265,37 @@ view_std:
   /* ------------------------------- *
   | Replace null records with blank |
   * ------------------------------- */
-  if stdopt = null then
   do xi = 1 to so.0
     if so.xi = null
     then so.xi = ' '
   end
-  else do xi = 1 to se.0
+  do xi = 1 to se.0
     if se.xi = null
     then se.xi = ' '
   end
+  /* ----------------------------- *
+   | If stdopt is 'B' then do both |
+   * ----------------------------- */
+   stdopt = null
+   sc = so.0
+   do xi = 1 to se.0
+      sc = sc + 1
+      so.sc = se.xi
+      end
+   so.0 = sc
+   drop se.
   /* ----------------------- *
   | Write out the stem data |
   * ----------------------- */
   if stdopt = null
-  then 'Execio * diskw' dd '(finis stem so.'
-  else 'Execio * diskw' dd '(finis stem se.'
+  then do
+    'Execio * diskw' dd '(finis stem so.'
+    drop so.
+  end
+  else do
+    'Execio * diskw' dd '(finis stem se.'
+    drop se.
+  end
   /* -------------------------------------------------- *
   | Access the Temporary Data Set using ISPF           |
   | Library Services.                                  |
@@ -1415,7 +1441,7 @@ update_repo_metadata:
   /* now we get the status for all in the repo */
   if se.0 > 1 then fetchmsg = "Remote updates, check status"
   else fetchmsg = "No remote updates"
-  zs1 = 'Reading the Local Repo info'
+  zs1 = 'Updating Repo and/or Getting Stats'
   zs2 = 'Patience . . .'
   call do_popup
   /* get all the files that are in the repo */
@@ -1441,9 +1467,9 @@ update_repo_metadata:
         debug('   done')
         if qualignr = 0 then do
           if pdshlq /= '' then
-            fulldsn = "'"pdshlq"."root.i"'"
+          fulldsn = "'"pdshlq"."root.i"'"
           else
-            fulldsn = "'"root.i"'"
+          fulldsn = "'"root.i"'"
         end
         else do
           fulldsn = translate(pdshlq,' ','.')
@@ -1537,9 +1563,9 @@ update_repo_metadata:
         end
         if qualignr = 0 then do
           if pdshlq /= '' then
-            fulldsn = "'"pdshlq"."dsn"'"
+          fulldsn = "'"pdshlq"."dsn"'"
           else
-            fulldsn = "'"dsn"'"
+          fulldsn = "'"dsn"'"
         end
         else do
           fulldsn = translate(pdshlq,' ','.')
@@ -1669,10 +1695,10 @@ Add_Dataset:
       'tbdispl' dsnatbl 'panel('dsnapnl') cursor('csr')'
     end
     if add_count > 0 then
-      if qualignr = 0 then
-        pdshlq = ''
-      else
-        pdshlq  = dsnapfx
+    if qualignr = 0 then
+    pdshlq = ''
+    else
+    pdshlq  = dsnapfx
     if rc > 4 then do
       zsel = null
       'tbend' dsnatbl
@@ -1914,6 +1940,7 @@ GETENV:
   call add_env '_BPX_SHAREAS=YES'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
   env.0 = envc
+  drop so. se.
   return
 
   /* -------------------- *
@@ -1927,6 +1954,7 @@ add_env:
 
 docmd:
   parse arg cmd
+  drop so. se.
   cmd = 'bash &&' cmd
   x = bpxwunix(cmd,,so.,se.,env.)
   return x
@@ -1935,6 +1963,7 @@ docmdx:
   /* quircky thing, we need to export HOME as we are
   not running a login shell via bpxwunix */
   parse arg cmd
+  drop so. se.
   if rx = null then do
     rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && '
     c = "[[ -f "home"/.profile ]] && echo f"

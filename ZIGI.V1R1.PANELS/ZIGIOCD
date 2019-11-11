@@ -1,6 +1,5 @@
 )Attr Default(%+_)
   _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
-  color(&omscinp)
   % type(text) intens(high) skip(on) color(&omschigh)
   + type(text) intens(low) skip(on) color(&omsclow)
   $ type(output) intens(high) caps(off) just(left )

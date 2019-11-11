@@ -1,7 +1,7 @@
 )Attr
  $ type(output) hilite(uscore) caps(off)
  @ type(output) caps(off)
- _ type(input ) hilite(uscore) caps(on) intens(high)
+ _ type(input ) hilite(uscore) caps(on) intens(low )
  # type(output) hilite(reverse) color(turq) caps(off)
 )Body Expand(\\)
 +-\-\#zigtitle   +-\-\
