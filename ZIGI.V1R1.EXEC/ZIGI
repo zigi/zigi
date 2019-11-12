@@ -513,20 +513,27 @@ Work_With_Repo:
       When abbrev('REMOTE',zcmd,3) = 1 then do
         zcmd = null
         'display panel(zigiremo)'
-        parse var origin guser '@' host ':' rest
-        cmd = 'touch 'home'/.ssh/known_hosts && '
-        cmd = cmd 'ssh-keyscan -t rsa,dsa 'host
-        cmd = cmd ' 2>&1 | sort -u - 'home'/.ssh/known_hosts >'
-        cmd = cmd ' 'home'/.ssh/tmp_hosts && '
-        cmd = cmd 'mv 'home'/.ssh/tmp_hosts 'home'/.ssh/known_hosts'
-        x = bpxwunix(cmd,,so.,se.)
-        cmd = 'cd' localrep'/'zigirep
-        x = docmd(cmd '&& git remote add origin 'origin)
-        call View_std 'B'
-        cmd = 'cd' localrep'/'zigirep
-        cmd = docmd(cmd '&& git push -u origin 'branch)
-        call View_std 'B'
-        call update_repo_metadata
+        if rc > 0 then do
+          zerrsm = 'Cancelled.'
+          zerrlm = 'Remote update cancelled.'
+          'setmsg msg(isrz003)'
+          end
+        else do
+          parse var origin guser '@' host ':' rest
+          cmd = 'touch 'home'/.ssh/known_hosts && '
+          cmd = cmd 'ssh-keyscan -t rsa,dsa 'host
+          cmd = cmd ' 2>&1 | sort -u - 'home'/.ssh/known_hosts >'
+          cmd = cmd ' 'home'/.ssh/tmp_hosts && '
+          cmd = cmd 'mv 'home'/.ssh/tmp_hosts 'home'/.ssh/known_hosts'
+          x = bpxwunix(cmd,,so.,se.)
+          cmd = 'cd' localrep'/'zigirep
+          x = docmd(cmd '&& git remote add origin 'origin)
+          call View_std 'B'
+          cmd = 'cd' localrep'/'zigirep
+          cmd = docmd(cmd '&& git push -u origin 'branch)
+          call View_std 'B'
+          call update_repo_metadata
+        end
       end
       Otherwise do
         zerrsm = 'Unknown'
