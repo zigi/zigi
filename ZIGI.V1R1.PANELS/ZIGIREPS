@@ -16,8 +16,8 @@
 %                !bstat                                                     +
 %                $baction                                                   +
 %
-+Commands:[Add[Basic[Br[Com[GitH[GitL[Grep[Pull[Push[Ref[Rem[St[View
-+Options: %S+Select%A+Add
++Commands:[Add[Br[Com[GitH[GitL[Grep[Pro[Pull[Push[Ref[Rem[St[View
++Options: %S+Select%A+Add%U+Un-Modify
 +
 %S  Status                    Dataset Name
 )Model
@@ -33,7 +33,7 @@
  &Pull    = 'Pull'
  &Rem     = 'Rem'
  &Grep    = 'Grep'
- &Basic   = 'Basic'
+ &Pro     = 'Pro'
  &gith    = 'GitH'
  &view    = 'View'
   .zvars = '(zsel dsnstat fulldsn)'
@@ -54,7 +54,7 @@
        if (&Zsel = '=')
            &Zsel = &osel
      &osel = &zsel
- ver (&zsel,list,S,A)
+ ver (&zsel,list,S,A,U)
 )PNTS
  FIELD(Br) VAR(ZCMD) VAL('Branch')
  FIELD(St) VAR(ZCMD) VAL('Status')
@@ -66,7 +66,7 @@
  FIELD(Pull) VAR(ZCMD) VAL('Pull')
  FIELD(Rem) VAR(ZCMD) VAL('Remote')
  FIELD(Grep) VAR(ZCMD) VAL('Grep')
- FIELD(Basic) VAR(ZCMD) VAL('BASIC')
+ FIELD(Pro) VAR(ZCMD) VAL('Pro')
  FIELD(GITH) VAR(ZCMD) VAL('Githelp')
  FIELD(VIEW) VAR(ZCMD) VAL('View')
 )End
