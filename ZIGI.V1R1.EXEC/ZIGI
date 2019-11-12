@@ -517,7 +517,7 @@ Work_With_Repo:
           zerrsm = 'Cancelled.'
           zerrlm = 'Remote update cancelled.'
           'setmsg msg(isrz003)'
-          end
+        end
         else do
           parse var origin guser '@' host ':' rest
           cmd = 'touch 'home'/.ssh/known_hosts && '
@@ -954,7 +954,13 @@ Work_with_repo_file:
           /* These cp -M issues are really getting annoying */
           m = translate(mem,'#@$','._-')
           x = docmd(cmd ' && git diff 'm)
-          call View_std
+          if so.0 + se.0 > 0
+          then call View_std
+          else do
+            zerrsm = 'No Diff'
+            zerrlm = 'No differnce found.'
+            'Setmsg msg(isrz003)'
+          end
         end
         otherwise nop
       end

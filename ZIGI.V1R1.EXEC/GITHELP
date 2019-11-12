@@ -224,7 +224,7 @@ popup:
  parse arg msg1
  msg2 = 'Patience . . .'
   call pfshow 'off'           /* make sure pfshow is off */
- 'addpop'
+  'Addpop row(4) column(12)'
  'Control Display Lock'
  'Display Panel(gitpop)'
  'rempop'
