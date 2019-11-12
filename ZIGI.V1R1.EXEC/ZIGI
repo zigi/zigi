@@ -120,6 +120,7 @@
   * ------------------------------------ */
   zerrhm   = 'zigih00'
   zerralrm = 'NO'
+  zerrtp   = 'NOTIFY'
   zs1 = 'Preparing the zigi environment for use'
   zs2 = 'Please standby'
   call do_popup
@@ -236,7 +237,7 @@
     'VPut (zigiuid zigimail zigissh) Profile'
     zerrsm = 'Updated.'
     zerrlm = 'zIGI Settings updated successfully.'
-    'Setmsg msg(isrz002)'
+    'Setmsg msg(isrz003)'
     if zigiuid /= null
     then if zigimail /= null
     then if zigissh /= null
@@ -257,7 +258,7 @@
   if rc > 0 then do
     if rc = 8 then call create_zigirepo
     if rc > 8 then do
-      'setmsg msg(isrz002)'
+      'setmsg msg(isrz003)'
     end
   end
 
@@ -313,7 +314,7 @@
     if zcmd /= null then
     Select
       When abbrev('GITHELP',zcmd,4) = 1 then
-        Address TSO '%githelp'
+      Address TSO '%githelp'
       When abbrev('CREATE',zcmd,2) = 1 then do
         call Create_Repo
         call work_with_repo
@@ -340,7 +341,11 @@
         'display panel(zigisshk)'
         if rc > 0 then leave
       end
-      Otherwise nop
+      Otherwise do
+        zerrsm = 'Unknown'
+        zerrlm = zcmd 'is not a recognized command.'
+        'setmsg msg(isrz003)'
+      end
     end
 
     if zsel /= null then
@@ -361,9 +366,13 @@
         zerrlm = 'The local repository has been deleted from zIGI' ,
           'and all OMVS files and directory were deleted. The z/OS' ,
           'datasets remain.' localrep'/'zigirep
-        'setmsg msg(isrz002)'
+        'setmsg msg(isrz003)'
       end
-      Otherwise nop
+      Otherwise do
+        zerrsm = 'Unknown'
+        zerrlm = zsel 'is not a recognized command.'
+        'setmsg msg(isrz003)'
+      end
     End
   end
 
@@ -423,9 +432,9 @@ Work_With_Repo:
     if zcmd /= null then
     Select
       When abbrev('VIEW',zcmd,1) = 1 then
-        'SELECT PGM(ISRDSLST) PARM(UDL' localrep'/'zigirep') SUSPEND'
+      'SELECT PGM(ISRDSLST) PARM(UDL' localrep'/'zigirep') SUSPEND'
       When abbrev('GITHELP',zcmd,4) = 1 then
-        Address TSO '%githelp'
+      Address TSO '%githelp'
       When abbrev('PRO',zcmd,2) = 1 then do
         if repopan = 'zigirepo'
         then repopan = 'zigireps'
@@ -488,7 +497,7 @@ Work_With_Repo:
           if x = 1 then do
             zerrsm = ''
             zerrlm = 'grep search found nothing.'
-            'setmsg msg(isrz002)'
+            'setmsg msg(isrz003)'
           end
           else  call View_std 'B'
         end
@@ -519,7 +528,11 @@ Work_With_Repo:
         call View_std 'B'
         call update_repo_metadata
       end
-      Otherwise nop
+      Otherwise do
+        zerrsm = 'Unknown'
+        zerrlm = zcmd 'is not a recognized command.'
+        'setmsg msg(isrz003)'
+      end
     end
 
     if zsel /= null then
@@ -531,7 +544,7 @@ Work_With_Repo:
         zerrsm = 'Error'
         zerrlm = fulldsn 'does not exist. This should not have happened.' ,
           'Somehow it may have been deleted.'
-        'Setmsg msg(isrz002)'
+        'Setmsg msg(isrz003)'
       end
       When zsel = 'S' then call work_with_repo_file
       /* -------------------------------- *
@@ -604,7 +617,7 @@ Do_Commit:
   if rc > 0 then do
     zerrsm = 'Cancelled.'
     zerrlm = 'Commit has been cancelled.'
-    'setmsg msg(isrz002)'
+    'setmsg msg(isrz003)'
   end
   else do
     cmessage = value('msg1')
@@ -819,15 +832,16 @@ Work_with_repo_file:
         'TBSkip' rtll 'Number('row')'
       end
 
+      if zcmd /= null then
       Select
-      When abbrev('GITHELP',zcmd,4) = 1 then
-          Address TSO '%githelp'
-      When abbrev('COMMIT',zcmd,3) = 1 then do
-        call do_commit
-        call work_with_repo_file
-      end
-      When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
-      When abbrev('STATUS',zcmd,2) = 1 then call do_status
+        When abbrev('GITHELP',zcmd,4) = 1 then
+        Address TSO '%githelp'
+        When abbrev('COMMIT',zcmd,3) = 1 then do
+          call do_commit
+          call work_with_repo_file
+        end
+        When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
+        When abbrev('STATUS',zcmd,2) = 1 then call do_status
         When abbrev("L",translate(word(zcmd,1)),1) = 1 then do
           mem = translate(word(zcmd,2))
           'tbtop' rtll
@@ -837,14 +851,23 @@ Work_with_repo_file:
             save_top = scanrow
             zerrsm = null
             zerrlm = word(zcmd,2) 'was found in row' ztdtop
-            'Setmsg msg(isrz002)'
+            'Setmsg msg(isrz003)'
           end
           else do
             zerrsm = null
             zerrlm = word(zcmd,2) 'was not found'
-            'Setmsg msg(isrz002)'
+            'Setmsg msg(isrz003)'
           end
         end
+        Otherwise do
+          zerrsm = 'Unknown'
+          zerrlm = zcmd 'is not a recognized command.'
+          'setmsg msg(isrz003)'
+        end
+      end
+
+      if zsel /= null then
+      Select
         when zsel = 'S' then do
           /* -------------------------------- *
           | Edit PDS member or PS dataset    |
@@ -1000,18 +1023,18 @@ Branch_it:
         if bl.ii = bname then seen_this_branch = 1
       end
       if seen_this_branch = 1 then do
-         sbname = bname
-         'tbtop' rtbb
-         do forever
-            'tbskip' rtbb
-            if rc > 0 then leave
-            if sbname = bname then do
-               brstatus = 'Local/Remote'
-               'tbmod' rtbb
-               leave
-            end
-            end
-         end
+        sbname = bname
+        'tbtop' rtbb
+        do forever
+          'tbskip' rtbb
+          if rc > 0 then leave
+          if sbname = bname then do
+            brstatus = 'Local/Remote'
+            'tbmod' rtbb
+            leave
+          end
+        end
+      end
       /* but only add it to table if we haven't yet */
       if seen_this_branch = 0 then do
         if bname <> branch & bname <> "HEAD" then do
@@ -1052,7 +1075,7 @@ Branch_it:
     if rc > 4 then leave
     save_btop = ztdtop
     if abbrev('GITHELP',zcmd,4) = 1 then
-          Address TSO '%githelp'
+    Address TSO '%githelp'
     if newb <> null then do
       /* ----------------------------- *
       | Create this new branch, switch|
@@ -1089,7 +1112,7 @@ Branch_it:
       'tbdelete' rtbb
       zerrsm = 'Deleted.'
       zerrlm = 'Branch 'bname' succesfully deleted'
-      'Setmsg msg(isrz002)'
+      'Setmsg msg(isrz003)'
     end
   end
   'tbend' rtbb
@@ -1118,7 +1141,7 @@ Create_Repo:
       if so.0 = 1 & so.1 = 1 then do
         zerrsm = "Failed."
         zerrlm = "Error: "localrep"/"zigirep" exists and must not."
-        'setmsg msg(isrz002)'
+        'setmsg msg(isrz003)'
         leave
       end
     end
@@ -1274,16 +1297,16 @@ view_std:
     then se.xi = ' '
   end
   /* ----------------------------- *
-   | If stdopt is 'B' then do both |
-   * ----------------------------- */
-   stdopt = null
-   sc = so.0
-   do xi = 1 to se.0
-      sc = sc + 1
-      so.sc = se.xi
-      end
-   so.0 = sc
-   drop se.
+  | If stdopt is 'B' then do both |
+  * ----------------------------- */
+  stdopt = null
+  sc = so.0
+  do xi = 1 to se.0
+    sc = sc + 1
+    so.sc = se.xi
+  end
+  so.0 = sc
+  drop se.
   /* ----------------------- *
   | Write out the stem data |
   * ----------------------- */
@@ -1731,7 +1754,7 @@ Add_Dataset:
       zerrsm = 'Empty List'
       zerrlm = 'The requested high level qualifier resulted in zero' ,
         'eligible datasets.'
-      'setmsg msg(isrz002)'
+      'setmsg msg(isrz003)'
     end
     'tbtop' dsnatbl
   end
@@ -1791,7 +1814,7 @@ Do_Add_Copy:
       zerrsm = 'Invalid'
       zerrlm = 'Dataset' what 'is not a valid Git dataset. Must be' ,
         'RECFM of Fixed or Variable and not U.'
-      'Setmsg msg(isrz002)'
+      'Setmsg msg(isrz003)'
     end
     dastat = 'Invalid Recfm'
     'tbput' dsnatbl
