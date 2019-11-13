@@ -54,7 +54,9 @@
   * ---------------------------------------------------------- */
   Address ISPExec
   'vget (zapplid)'
+  /* Comment Start
   "Control Errors Return"
+     Comment End */
 
   parse value '' with null rx
   /* ----------------------------------------------------- *
@@ -316,7 +318,8 @@
       When abbrev('GITHELP',zcmd,4) = 1 then
       Address TSO '%githelp'
       When abbrev('CREATE',zcmd,2) = 1 then do
-        call Create_Repo
+        x = Create_Repo()
+        if x = 0 then
         call work_with_repo
         zsel = null
       end
@@ -376,6 +379,7 @@
     End
   end
 
+  if rtbl_open = 1 then
   'tbend' rtbl
   'tbclose zigirepo'
   Exit 0
@@ -404,6 +408,7 @@ Work_With_Repo:
   * -------------------------------- */
   'vget (repopan) profile'
   if repopan = null then repopan = 'zigirepo'
+  rtop = 0
   do forever
     parse value '' with zsel zcmd row
     if ztdsels > 0
@@ -416,6 +421,7 @@ Work_With_Repo:
     end
     if rc > 4 then do
       'tbend' rtbl
+      rtbl_open = 0
       return
     end
     drop so. se.
@@ -1136,7 +1142,7 @@ Create_Repo:
   do forever
     parse value '' with zerrsm zcmd zigirep cc_rc pdshlq
     'Display Panel(ziginew)'
-    if rc > 0 then return
+    if rc > 0 then return 8
     if localrep = '?' then
     localrep = zigiosel()
     /* ---------------------------------------------------- *
@@ -1268,7 +1274,7 @@ Create_Repo:
     "TBSAVE zigirepo REPLCOPY LIBRARY(isptabl)"
     leave
   end
-  return
+  return 0
 
   /* ---------------------------------------------------------- *
   | Generalized routine to view stdout. (so.) or stderr. (se.) |
@@ -1309,6 +1315,7 @@ view_std:
     if se.xi = null
     then se.xi = ' '
   end
+  sec = so.0 + se.0
   /* ----------------------------- *
   | If stdopt is 'B' then do both |
   * ----------------------------- */
@@ -1339,9 +1346,11 @@ view_std:
   | And use Library Services to Free the Data Set.     |
   * -------------------------------------------------- */
   Address ISPExec
-  'lminit dataid(ddb) ddname('dd')'
-  'browse dataid('ddb') panel(zigibrow)'
-  'lmfree dataid('ddb')'
+  if sec > 0 then do
+    'lminit dataid(ddb) ddname('dd')'
+    'browse dataid('ddb') panel(zigibrow)'
+    'lmfree dataid('ddb')'
+  end
   /* ----------------------------- *
   | Last Free the z/OS Allocation |
   * ----------------------------- */
@@ -1442,7 +1451,7 @@ idle:
   return
 
 update_repo_metadata:
-  debug('start of update_repo_metadata')
+  x = debug('start of update_repo_metadata')
   if rtbl_open = 1 then do
     'tbend' rtbl
     rtbl_open = 0
@@ -1453,13 +1462,13 @@ update_repo_metadata:
   'TBCreate' rtbl 'Names(dsnstat dsn pdshlq fulldsn) Replace NoWrite'
   rtbl_open = 1
   /* We always fetch when we start to work on a repo */
-  debug('fetching remote')
+  x = debug('fetching remote')
   zs1 = 'Fetching Remote info'
   zs2 = 'Patience . . .'
   call do_popup
   /* get the remote info.....but */
   /* we have to get rid of the tab in git output */
-  debug('getting the remotes')
+  x = debug('getting the remotes')
   gitcmd = 'git remote -v | sed -e "s/[[:space:]]\+/ /g"'
   localdir = localrep'/'zigirep
   x = docmd('cd 'localdir' && 'gitcmd)
@@ -1473,7 +1482,7 @@ update_repo_metadata:
   /* Fetch only if there's a remote */
   if remote1 /= '<no remote defined>' then
   x = docmd(cmd '&& git fetch')
-  debug('...done')
+  x = debug('...done')
   /* now we get the status for all in the repo */
   if se.0 > 1 then fetchmsg = "Remote updates, check status"
   else fetchmsg = "No remote updates"
@@ -1481,12 +1490,12 @@ update_repo_metadata:
   zs2 = 'Patience . . .'
   call do_popup
   /* get all the files that are in the repo */
-  debug('getting all files in repo-1')
+  x = debug('getting all files in repo-1')
   address syscall
   'readdir 'localrep'/'zigirep' root.'
   address ispexec
-  debug('...done')
-  debug('iterating...')
+  x = debug('...done')
+  x = debug('iterating...')
   do i = 1 to root.0
     if root.i = "." | root.i = ".." then do
       iterate
@@ -1496,11 +1505,11 @@ update_repo_metadata:
       if dsnvalid("'"root.i"'") = "OK" then do
         /* and only for valid z/OS-datasets (skip README.md et al) */
         r = usssafe(root.i)
-        debug('   check file or dir')
+        x = debug('   check file or dir')
         cmd = '[ -d 'localrep'/'zigirep'/'r' ] && echo "DIR"'
         so.1 = null
         x = bpxwunix(cmd,,so.,se.)
-        debug('   done')
+        x = debug('   done')
         if qualignr = 0 then do
           if pdshlq /= '' then
           fulldsn = "'"pdshlq"."root.i"'"
@@ -1515,7 +1524,7 @@ update_repo_metadata:
         end
         edsn = substr(fulldsn,2,length(fulldsn)-2)
         if so.1 = "DIR" & x = 0 then do
-          debug('its a dir...lmmstat all the things')
+          x = debug('its a dir...lmmstat all the things')
           /* And only for dirs in the repo (PDSes in z/OS) */
           /* see if any members not touched by zigi */
           mem = null
@@ -1563,17 +1572,17 @@ update_repo_metadata:
   zs1 = 'Building List of repository Data Sets'
   zs2 = fetchmsg
   call do_popup
-  debug('get the status')
+  x = debug('get the status')
   cmd = 'cd' localrep'/'zigirep
   x = docmd(cmd '&& git status --porcelain')
-  debug('done')
+  x = debug('done')
   /* get the stuff from the repo-file */
-  debug('get all the files (again?)')
+  x = debug('get all the files (again?)')
   address syscall
   'readdir 'localrep'/'zigirep' root.'
   address ispexec
-  debug('done')
-  debug('iterate the files')
+  x = debug('done')
+  x = debug('iterate the files')
   do i = 1 to root.0
     dsnstat = null
     if root.i = "." | root.i = ".." then do
@@ -1581,7 +1590,7 @@ update_repo_metadata:
     end
     else do
       if dsnvalid(root.i) = "OK" then do
-        debug('Get the git status and fill dsnstat')
+        x = debug('Get the git status and fill dsnstat')
         dsn = root.i
         do ii = 1 to so.0
           stat = substr(so.ii,1,2)
@@ -1591,7 +1600,7 @@ update_repo_metadata:
             leave
           end
         end
-        debug('done')
+        x = debug('done')
 
         if qualignr = null then do
           qualignr = 0
@@ -1618,7 +1627,7 @@ update_repo_metadata:
   /* --------------------------- *
   | Get the current branch info |
   * --------------------------- */
-  debug('getting git status for branch names')
+  x = debug('getting git status for branch names')
   x = docmd('cd 'localdir' && git status')
   branch = word(so.1,3)
   if so.0 > 1 then do
@@ -1749,8 +1758,8 @@ Add_Dataset:
     if row = 0 then zsel = null
     if row <> null then
     if row > 0 then do
-      'TBTop zigirepo'
-      'TBSkip zigirepo Number('row')'
+      'TBTop' dsnatbl
+      'TBSkip' dsnatbl 'Number('row')'
     end
 
     if zsel = 'B' then do
