@@ -54,9 +54,7 @@
   * ---------------------------------------------------------- */
   Address ISPExec
   'vget (zapplid)'
-  /* Comment Start
   "Control Errors Return"
-     Comment End */
 
   parse value '' with null rx
   /* ----------------------------------------------------- *
