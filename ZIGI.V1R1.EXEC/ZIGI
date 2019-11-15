@@ -21,6 +21,10 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            11/13/09 LBD - Enhance the debug routine:       |
+  |                           Return a return code             |
+  |                           check for ZIGIDEBG DD enable     |
+  |                           log is in users home dir         |
   |            11/11/09 LBD - Add GITHELP as a command from    |
   |                           all panels (except browse)       |
   |            11/10/09 HBK - Fix qualignr edge-cases          |
@@ -54,9 +58,17 @@
   * ---------------------------------------------------------- */
   Address ISPExec
   'vget (zapplid)'
+
+/* ---------------------------------------- *
+ | Check for ZIGIDEBG DD for debug purposes |
+ * ---------------------------------------- */
+ x = listdsi('ZIGIDEBG' 'FILE')
+ if x > 0 then if sysreason = 3 then zigidebg = 1
+          else zigidebg = 0
+ if zigidebg = 0 then
   "Control Errors Return"
 
-  parse value '' with null rx
+  parse value '' with null rx zigidebg_flag
   /* ----------------------------------------------------- *
   | Get the Active HLQ for use with the ALTLIB and LIBDEF |
   | of the zIGI libraries.                                |
@@ -124,6 +136,9 @@
   zs1 = 'Preparing the zigi environment for use'
   zs2 = 'Please standby'
   call do_popup
+  cmd = 'pwd'
+  x = bpxwunix(cmd,,so.,se.)
+  home    = strip(so.1)
   call getenv
   keyfile = home'/.ssh/id_rsa.pub'
   rtbl = 'ZIGL'random(9999)
@@ -380,6 +395,9 @@
   if rtbl_open = 1 then
   'tbend' rtbl
   'tbclose zigirepo'
+  if zigidebg = 1 then
+     if zigidebg_use = 1 then
+     "Select Cmd(OBrowse '"home"/zigidebug.txt')"
   Exit 0
 
   /* ------------------------------ *
@@ -1966,9 +1984,7 @@ Do_Popup4:
   | bpxwunix commands.                                    |
   * ----------------------------------------------------- */
 GETENV:
-  cmd = 'pwd'
-  x = bpxwunix(cmd,,so.,se.)
-  home    = strip(so.1)
+  x = debug('Starting collection of env variables')
   cmd  = docmdx('env')
   rc = bpxwunix(cmd,,so.,se.)
   envc = 0
@@ -1984,6 +2000,7 @@ GETENV:
   call add_env '_BPX_SPAWN_SCRIPT=YES'
   env.0 = envc
   drop so. se.
+  x = debug('Finished collection of env variables')
   return
 
   /* -------------------- *
@@ -2019,10 +2036,13 @@ docmdx:
   return r
 
 debug:
-  if ZIGID     = 'YES' then do
+  if zigidebg  = 1 then do
     parse arg msg
     msg = TIME()' : 'msg
-    c = 'echo "'msg'" >> /tmp/zigidebug.txt'
+    c = 'echo "'msg'" >> 'home'/zigidebug.txt'
     x = bpxwunix(c,,so.,se.)
+    if so.0 + se.0 > 0 then
+    call view_std 'B'
+    zigidebg_use = 1
   end
   return 0
