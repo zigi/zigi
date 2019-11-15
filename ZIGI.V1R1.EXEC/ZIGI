@@ -852,7 +852,7 @@ Work_with_repo_file:
       /* Make sure we edit (and copy) right dataset when we have
       a prefix set */
       save_top = ztdtop
-      edsn = substr(fulldsn,2,length(fulldsn)-2)
+      edsn = strip(fulldsn,'B',"'")
 
       if row = 0 then zsel = null
       if row <> null then
@@ -902,7 +902,7 @@ Work_with_repo_file:
           | Edit PDS member or PS dataset    |
           * -------------------------------- */
           x = listdsi(fulldsn)
-          edsn = substr(fulldsn,2,length(fulldsn)-2)
+          edsn = strip(fulldsn,'B',"'")
           if sysdsorg = 'PS'
           then "Edit Dataset('"edsn"')"
           else "Edit Dataset('"edsn"("mem")'"
@@ -995,7 +995,7 @@ Work_with_repo_file:
   * ------------------------- */
 Edit_PS:
   arg noedit
-  edsn = substr(fulldsn,2,length(fulldsn)-2)
+  edsn = strip(fulldsn,'B',"'")
   if noedit = null then do
     /* Do this if it's a regular file (sequential in z/OS) */
     "Edit Dataset('"edsn"')"
@@ -1156,7 +1156,7 @@ Branch_it:
 
 Create_Repo:
   do forever
-    parse value '' with zerrsm zcmd zigirep cc_rc pdshlq
+    parse value '' with zerrsm zcmd zigirep cc_rc pdshlq localrep
     'Display Panel(ziginew)'
     if rc > 0 then return 8
     if localrep = '?' then
@@ -1424,12 +1424,12 @@ Upper:
 
 dsnvalid: Procedure
   /* Tests for a 'potentially valid' z/OS datasetname */
-  parse arg dsn
-  upp = TRANSLATE(dsn,".ABCDEFGHIJKLMNOPQRSTUVWXYZ",,
+  parse arg val_dsn
+  upp = TRANSLATE(val_dsn,".ABCDEFGHIJKLMNOPQRSTUVWXYZ",,
     ".abcdefghijklmnopqrstuvwxyz")
-  if upp = dsn then do
+  if upp = val_dsn then do
     call outtrap 'x.'
-    if sysdsn(dsn) = "OK" | sysdsn(dsn) = "DATASET NOT FOUND" then do
+    if sysdsn(val_dsn) = "OK" | sysdsn(val_dsn) = "DATASET NOT FOUND" then do
       call outtrap 'off'
       return "OK"
     end
@@ -1475,7 +1475,7 @@ update_repo_metadata:
     rtop = 0
   end
   if rtbl_open = 0 then
-  'TBCreate' rtbl 'Names(dsnstat dsn pdshlq fulldsn) Replace NoWrite'
+  'TBCreate' rtbl 'Keys(fulldsn) Names(dsnstat dsn pdshlq) Replace NoWrite'
   rtbl_open = 1
   /* We always fetch when we start to work on a repo */
   x = debug('fetching remote')
@@ -1538,7 +1538,7 @@ update_repo_metadata:
           fulldsn = translate(fulldsn,'.',' ')
           fulldsn = "'"fulldsn'.'root.i"'"
         end
-        edsn = substr(fulldsn,2,length(fulldsn)-2)
+        edsn = strip(fulldsn,'B',"'")
         if so.1 = "DIR" & x = 0 then do
           x = debug('its a dir...lmmstat all the things')
           /* And only for dirs in the repo (PDSes in z/OS) */
@@ -1747,6 +1747,7 @@ Add_Dataset:
     then 'tbdispl' dsnatbl
     else do
       select
+        when add_count = 0 & list = 1 then csr = 'ZSEL'
         when dsnapfx  = null then csr = 'DSNAPFX'
         when qualignr = null then csr = 'QUALIGNR'
         otherwise csr = 'ZCMD'
@@ -1757,11 +1758,11 @@ Add_Dataset:
     end
     if add_count > 0 then
     if qualignr = 0 then
-    pdshlq = ''
-    else
-    pdshlq  = dsnapfx
+       pdshlq = ''
+       else pdshlq  = dsnapfx
     if rc > 4 then do
       zsel = null
+      'tbput' rtbl
       'tbend' dsnatbl
       'tbsort' rtbl 'fields(fulldsn,c,a)'
       'tbtop' rtbl
@@ -1799,7 +1800,7 @@ Add_Dataset:
   return
 
 tbcreate_dsnatbl:
-  'tbcreate' dsnatbl 'names(dastat dsna) nowrite'
+  'tbcreate' dsnatbl 'keys(dsna) names(dastat) nowrite'
   return
 
 Get_List:
@@ -1855,7 +1856,7 @@ Do_Add_Copy:
       'Setmsg msg(isrz003)'
     end
     dastat = 'Invalid Recfm'
-    'tbput' dsnatbl
+    'tbmod' dsnatbl
     return
   end
   if SYSDSORG = 'PO' then do
@@ -1879,9 +1880,10 @@ Do_Add_Copy:
   dsnstat = '[??] Untracked'
   dsn = dsnb
   fulldsn = "'"what"'"
+  pdshlq = dsnapfx
   'tbadd' rtbl
   dastat = 'Added'
-  'tbput' dsnatbl
+  'tbmod' dsnatbl
   add_count = add_count + 1
   call save_dsninfo
   return
