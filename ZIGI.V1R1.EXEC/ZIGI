@@ -1547,39 +1547,30 @@ update_repo_metadata:
         edsn = strip(fulldsn,'B',"'")
         if so.1 = "DIR" & x = 0 then do
           x = debug('its a dir...lmmstat all the things')
-          /* And only for dirs in the repo (PDSes in z/OS) */
-          /* see if any members not touched by zigi */
-          mem = null
-          "LMINIT DATAID(zigilmm) DATASET('"edsn"')"
-          "LMOPEN DATAID("zigilmm") OPTION(INPUT)"
-          do forever
-            "LMMLIST DATAID("zigilmm") OPTION(LIST) MEMBER(MEM)" ,
-              "STATS(YES)"
-            if rc > 3 then do
-              "LMClose Dataid("zigilmm")"
-              "LMFree  Dataid("zigilmm")"
-              mem = null
-              leave
-            end
-            if zluser /= "ZIGI" then do
-              /* if not touched by zigi, add to repo */
-              m = strip(mem)
-              m = usssafe(m)
-              e = usssafe(edsn)
-              r = usssafe(root.i)
-              /* TODO? Use Scottish Command here ? */
-              copycmd = "//'"e"("m")'"
-              copycmd = '"'copycmd'"'
-              copycmd = "cp -U -M" copycmd" "localrep"/"zigirep
-              copycmd = copycmd || "/"r"/"
-              call bpxwunix copycmd
-              /* update ispf-statistics to reflect zigi control */
-              "LMMSTATS DATAID("zigilmm") MEMBER("mem") USER(ZIGI)"
-            end
+          Address TSO
+          statfile = localrep'/'zigirep'/.zigi/'root.i
+          mem_delta = zigistat("'"edsn"'" statfile 'C')
+          Address ISPExec
+          mem_hit = 0
+          do im = 1 to words(mem_delta)
+            mem = word(mem_delta,im)
+            m = strip(mem)
+            m = usssafe(m)
+            e = usssafe(edsn)
+            r = usssafe(root.i)
+            /* TODO? Use Scottish Command here ? */
+            copycmd = "//'"e"("m")'"
+            copycmd = '"'copycmd'"'
+            copycmd = "cp -U -M" copycmd" "localrep"/"zigirep
+            copycmd = copycmd || "/"r"/"
+            call bpxwunix copycmd
+            mem_hit = 1
           end
+          if mem_hit = 1 then
+          x = zigistat("'"edsn"'" statfile 'S')
         end
         else do
-          /* It must be a PS, just copy it over to OMVS */
+      /* It must be a PS, just copy it over to OMVS */
           s = usssafe(fulldsn)
           copycmd = "//"s
           copycmd = '"'copycmd'"'
@@ -1589,7 +1580,6 @@ update_repo_metadata:
       end
     end
   end
-
 
   zs1 = 'Building List of repository Data Sets'
   zs2 = fetchmsg
@@ -1786,11 +1776,11 @@ Add_Dataset:
     end
 
     if zsel = 'B' then do
-      'Control Display Save'
+      'control display save'
       "LMInit Dataid(edvbr) dataset('"dsna"')"
       "Memlist Dataid("edvbr") Default(B)"
       "LMfree Dataid("edvbr")"
-      'Control Display Restore'
+      'control display restore'
     end
     if zsel = 'S' | zsel = 'A' then do
       call do_add_copy
@@ -1877,6 +1867,8 @@ Do_Add_Copy:
     copycmd = '"'copycmd'"'
     copycmd = "cp -U -M" copycmd" "DIR"/"dsnb"/"
     call bpxwunix copycmd
+    Address TSO '%zigistat' "'"pds"'" dir"/.zigi/"dsnb 'S'
+    x = docmd('cd' dir '&& git add .zigi/'dsnb)
   end
   else do
     W = usssafe(WHAT)
