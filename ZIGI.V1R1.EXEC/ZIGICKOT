@@ -15,6 +15,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            11/16/19 LBD - Change to use ZIGISTAT routine   |
   |            10/30/19 LBD - Get DCB info from /.zigi/dsn     |
   |            10/28/19 LBD - Support sequential files         |
   |            06/12/19 LBD - Correct to handle a git direcory |
@@ -201,10 +202,10 @@ Alloc_Copy_PDS:
   | Read directory to get all member file names and then |
   | adjust according and then do individual oget         |
   * ---------------------------------------------------- */
-  target = substr(pds,2,length(pds)-2)
+  target = strip(pds,'B',"'")
   call syscalls 'ON'
   address syscall
-  rdir = substr(odir,2,length(odir)-2)
+  rdir = strip(odir,'B',"'")
   'readdir' rdir 'mems.'
   address ispexec
   call outtrap 'x.'
@@ -220,13 +221,7 @@ Alloc_Copy_PDS:
     m = strreplace(m,'-','$')
     Address TSO
     'OGET' "'"src"'" "'"target"("m")'"
-    /* Set statistics */
     Address ISPexec
-    "LMINIT DATAID(DATAID) Dataset('"target"')"
-    "LMOPEN DATAID("dataid")"
-    "LMMSTATS DATAID("dataid") Member("m") User(ZIGI)"
-    "LMCLOSE DATAID("dataid")"
-    "LMFREE  DATAID("dataid")"
   end
   call outtrap 'off'
   return
@@ -264,38 +259,8 @@ Pop_Status:
 Add_Stats:
   zs7 = 'Adding ISPF Statistics  '
   call pop_status
-  members = ''
-  call outtrap 'm.'
-  'listd' pds 'mem'
-  call outtrap 'off'
-
-  division = 10
-  incr = (m.0 % division) + 1
-  progc = '**'
-  perc# = 0
-
-  do ix = 7 to m.0
-    members = members word(m.ix,1)
-  end
-  members_c = words(members)
-  Address ISPExec
-  "LMINIT DATAID(DATAID) Dataset("pds")"
-  "LMOPEN DATAID("dataid")"
-  do im = 1 to members_c
-
-    if im//incr = 0 then do
-      perc# = perc# + division
-      perc = perc#"%"
-      zs7 = 'Adding ISPF Statistics: ' perc
-      call pop_status
-    end
-
-    member = word(members,im)
-    "LMMSTATS DATAID("dataid") Member("member") User(ZIGI)"
-  end
-  "LMCLOSE DATAID("dataid")"
-  "LMFREE  DATAID("dataid")"
-  Address TSO
+  filepath = ckotdir'/.zigi/'sub
+  '%zigistat' pds filepath 'U'
   return
 
   /* ------------------------------------------------------ *
