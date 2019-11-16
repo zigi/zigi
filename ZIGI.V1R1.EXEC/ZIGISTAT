@@ -1,0 +1,233 @@
+  /*%NOcomment ----------  rexx procedure  -------------------- *
+  | Name:      zigistat                                        |
+  |                                                            |
+  | Function:  Collect or Compare the ISPF Stats for all       |
+  |            members in a PDS                                |
+  |                                                            |
+  | Syntax:    x=zigistat(dsname filepath option)              |
+  |                                                            |
+  |            dsname is the z/OS dataset name to work with    |
+  |                                                            |
+  |            filepath is the OMVS file where the stats are   |
+  |            stored and consists of:                         |
+  |                localdir/repodir/.zigi/filename             |
+  |                filename is the OMVS file that represents   |
+  |                the z/OS PDS dataset name                   |
+  |                                                            |
+  | Options:   C - compare stats                               |
+  |            S - save stats                                  |
+  |            U - update stats to those saved                 |
+  |                used when creating/refreshing datasets      |
+  | Usage                                                      |
+  |   Notes: Subroutine of zigi                                |
+  |          Returns string of members changed                 |
+  |                                                            |
+  | Dependencies:                                              |
+  |          ISPF services                                     |
+  |                                                            |
+  | Return:                                                    |
+  |          0 - stats saved or stats applied                  |
+  |          8 - no dsname provided                            |
+  |         12 - no filepath provided                          |
+  |         16 - no option provided                            |
+  |         20 - stats file in /.zigi missing                  |
+  |     string - string of members with different stats        |
+  |                                                            |
+  | Author:    Lionel B. Dyck                                  |
+  |                                                            |
+  | History:  (most recent on top)                             |
+  |            11/15/19 LBD - Creation                         |
+  |                                                            |
+  * ---------------------------------------------------------- */
+zigistat:
+  /* ---------------------- *
+  | Get the passed options |
+  * ---------------------- */
+  parse arg dsn filepath opt
+
+  /* --------------- *
+  | Define defaults |
+  * --------------- */
+  parse value '' with null string m.
+  zdd = 'ZS'time('s')
+
+  /* --------------------------------- *
+  | Check for parms and return if not |
+  * --------------------------------- */
+  parse arg dsn filepath opt
+  if dsn      = null then return 8
+  if filepath = null then return 12
+  if opt      = null then return 16
+  opt         = translate(opt)   /* make upper case */
+
+  /* --------------------------------------- *
+  | If option C or U then read in the stats |
+  | - check if stats member exists rc=16    |
+  | - read into stem stats.                 |
+  * --------------------------------------- */
+  if pos(opt,'C U') > 0 then do
+    x = check_stats_file(filepath)
+    if x > 0 then return x
+    address tso
+    "alloc f("zdd") path('"filepath"')"
+    'Execio * diskr' zdd '(finis stem stats.'
+    'Free  f('zdd')'
+  end
+
+  /* ------------------ *
+  * Define ISPF Dataid *
+  * ------------------ */
+  Address ISPEXEC
+  "LMINIT DATAID(STATUS) DATASET("dsn")"
+  "LMOPEN DATAID("STATUS") OPTION(INPUT)"
+
+  /* ------------ *
+  * Set defaults *
+  * ------------ */
+  parse value null with member mem. ,
+    ZLCDATE ZLMDATE ZLVERS ZLMOD ZLMTIME ZLCNORC,
+    ZLINORC ZLMNORC ZLUSER ,
+    zlcnorce zlinorce zlmnorce
+  mem.0  = 0
+
+  /* ----------------------- *
+  * Now process all members *
+  * ----------------------- */
+  do forever
+    "LMMLIST Dataid("status") OPTION(LIST) MEMBER(MEMBER)" ,
+      "STATS(YES)"
+    /* --------------------------------- *
+    * If RC 8 or more leave the do loop *
+    * --------------------------------- */
+    if rc > 7 then leave
+    /* ------------------------------ *
+    * Add each member info to a stem *
+    * ------------------------------ */
+    c = mem.0 + 1
+    mem.c = member ,
+      ZLCDATE  ZLMDATE  ZLVERS ZLMOD ZLMTIME ZLCNORC ,
+      ZLINORC ZLMNORC ZLUSER ,
+      zlcnorce zlinorce zlmnorce
+    mem.0 = c
+  end
+
+  /* ------------------------- *
+  * Close and Free the Dataid *
+  * ------------------------- */
+  "LMClose Dataid("status")"
+  "LMFree  Dataid("status")"
+
+  /* ----------------------------------------------- *
+  | Process the data based on the provided options: |
+  |                                                 |
+  |    C - compare stats                            |
+  |    S - save stats                               |
+  |    U - update stats to those saved              |
+  |        used when creating/refreshing datasets   |
+  * ----------------------------------------------- */
+  Select
+    /* ----------------------------------------------------- *
+    | Save all stats for all members in the active dataset. |
+    | - data will be saved to /.zigi/filename               |
+    * ----------------------------------------------------- */
+    When opt = 'S' then do
+      x = check_stats_file(filepath)
+      if x > 0 then call alloc_new_stats_file
+      else call alloc_stats_file
+      Address tso
+      'execio * diskw' zdd '(finis stem mem.'
+      'free  f('zdd')'
+      Address ISPExec
+      return 0
+    end
+    /* ---------------------------------------------------------- *
+    | Update ISPF Stats:                                         |
+    |  - all members in the $zigi$ stats member will have their  |
+    |    ispf stats updated to reflect the saved stats           |
+    |  - new members will not be updated as we don't know about  |
+    |   them                                                     |
+    |  - members with no stats will have stats added if they are |
+    |    in the saved stats member                               |
+    * ---------------------------------------------------------- */
+    When opt = 'U' then do
+      "LMINIT DATAID(zstats) DATASET("dsn")"
+      "LMOPEN DATAID("zstats") OPTION(INPUT)"
+      do i = 1 to stats.0
+        parse value stats.i with member ZLCDATE ZLMDATE ZLVERS ZLMOD ,
+          ZLMTIME ZLCNORC ZLINORC ZLMNORC ZLUSER ZLCNORCE ,
+          ZLINORCE ZLMNORCE
+        if member = '$ZIGI$' then iterate
+        if zlcdate = null then ,
+          'LMMSTATS DATAID('zstats') Member('member') user('sysvar(sysuid)')'
+        else ,
+          'LMMSTATS DATAID('zstats') MEMBER('member') VERSION('zlvers')' ,
+          'MODLEVEL('zlmod') CREATED('zlcdate') MODDATE('zlmdate')' ,
+          'MODTIME('zlmtime') CURSIZE('zlcnorc') INITSIZE('zlinorc')' ,
+          'MODRECS('zlmnorc') USER('zluser')'
+      end
+      "LMClose Dataid("zstats")"
+    end
+    /* ----------------------------------------------------------- *
+    | Compare ISPF stats.                                         |
+    |                                                             |
+    | Comparison will be from the active datasets ISPF stats with |
+    | the saved stats found in the $ZIGI$ member.                 |
+    |                                                             |
+    | If a member is in the active but not in the saved list then |
+    | it will be added to the returned string.                    |
+    |                                                             |
+    | If a members saved stats do not match the active stats then |
+    | it will be added to the returned string.                    |
+    * ----------------------------------------------------------- */
+    When opt = 'C' then do
+      /* 1st setup the saved stem for easy comparison */
+      do i = 1 to stats.0
+        parse value stats.i with savedmem data
+        m.savedmem = data
+      end
+      /* now compare active to saved */
+      do i = 1 to mem.0
+        parse value mem.i with actmem data
+        if m.actmem = null then string = string actmem
+        else if data /= m.actmem then string = string actmem
+      end
+      return string
+    end
+    Otherwise nop  /* should never get here */
+  end
+
+  /* -------------------------------------------- *
+  | Check to see if the provided filepath exists |
+  | rc 0 it does                                 |
+  | rc 20 it does not                            |
+  * -------------------------------------------- */
+Check_Stats_File:
+  save_address = address()
+  address syscall 'lstat' filepath 'file.'
+  if file.0 = 0 then do
+    ADDRESS value(save_address)
+    return 20
+  end
+  else return 0
+
+  /* --------------------------------------------- *
+  | Alloc a new stats file and leave it allocated |
+  * --------------------------------------------- */
+Alloc_New_Stats_File:
+  address tso
+  "alloc f("zdd") path('"filepath"') pathdisp(keep,keep)" ,
+    "pathopts(ordwr,ocreat) pathmode(sirusr,siwusr)" ,
+    "filedata(text)"
+  address ispexec
+  return
+
+  /* -------------------------------------------------------- *
+  | Allocate the stats file to the dd and leave it allocated |
+  * -------------------------------------------------------- */
+Alloc_Stats_File:
+  address tso
+  "alloc f("zdd") path('"filepath"') filedata(text)" ,
+    "pathopts(ordwr,ocreat) pathmode(sirusr,siwusr)" ,
+    "filedata(text)"
+  address ispexec
+  return
