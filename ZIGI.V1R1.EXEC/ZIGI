@@ -1786,9 +1786,11 @@ Add_Dataset:
     end
 
     if zsel = 'B' then do
+      'Control Display Save'
       "LMInit Dataid(edvbr) dataset('"dsna"')"
       "Memlist Dataid("edvbr") Default(B)"
       "LMfree Dataid("edvbr")"
+      'Control Display Restore'
     end
     if zsel = 'S' | zsel = 'A' then do
       call do_add_copy
