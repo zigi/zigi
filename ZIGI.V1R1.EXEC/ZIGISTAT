@@ -69,6 +69,7 @@ zigistat:
     x = check_stats_file(filepath)
     if x > 0 then return x
     address tso
+    drop stats.
     "alloc f("zdd") path('"filepath"')"
     'Execio * diskr' zdd '(finis stem stats.'
     'Free  f('zdd')'
@@ -131,13 +132,18 @@ zigistat:
     | - data will be saved to /.zigi/filename               |
     * ----------------------------------------------------- */
     When opt = 'S' then do
-      x = check_stats_file(filepath)
-      if x > 0 then call alloc_new_stats_file
-      else call alloc_stats_file
+      fp = translate(filepath,' ','/')
+      fpfile = subword(fp,words(fp))
+      fp = subword(fp,1,words(fp)-1)
+      fp = translate(fp,'/',' ')
+      x = bpxwunix('cd' fp '&& rm' fpfile,,so.,se.)
+      call alloc_new_stats_file
       Address tso
       'execio * diskw' zdd '(finis stem mem.'
       'free  f('zdd')'
       Address ISPExec
+      cmd = 'cd' fp '&& git add' fpfile
+      x = bpxwunix(cmd,,so.,se.)
       return 0
     end
     /* ---------------------------------------------------------- *
@@ -156,7 +162,6 @@ zigistat:
         parse value stats.i with member ZLCDATE ZLMDATE ZLVERS ZLMOD ,
           ZLMTIME ZLCNORC ZLINORC ZLMNORC ZLUSER ZLCNORCE ,
           ZLINORCE ZLMNORCE
-        if member = '$ZIGI$' then iterate
         if zlcdate = null then ,
           'LMMSTATS DATAID('zstats') Member('member') user('sysvar(sysuid)')'
         else ,
