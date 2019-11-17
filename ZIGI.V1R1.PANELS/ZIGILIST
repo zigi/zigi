@@ -18,11 +18,11 @@
 %Commands:  %L+Locate    ]Commit+]Gitlog+]Status+
 %Selections:%S+Edit%A+Add for commit%D+Show Diff%U+Un-Modify
 %
-%S  Member     Status                     Size    Mod-Date  Mod-Time
+%S  Member     Status                     Size    Mod-Date  Mod-Time  Userid
 )Model
-@z+$z        +$z                      [z      +  [z       +[z       +
+@z+$z        +$z                      [z      +  [z       +[z       +$z
 )Init
-  .zvars = '(zsel mem memstat zlcnorc zlmdate zlmtime)'
+  .zvars = '(zsel mem memstat zlcnorc zlmdate zlmtime zluser)'
   .cursor = &zcmd
   .help = zigihr0
   &zscr = CSR

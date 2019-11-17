@@ -794,7 +794,8 @@ Work_with_repo_file:
   else do
     /* Do this if it's a PDS */
     localdir = localrep'/'zigirep
-    'TBCreate' rtll 'Names(mem memstat ussmem zlcnorc zlmdate zlmtime)',
+    'TBCreate' rtll 'Names(mem memstat ussmem zlcnorc' ,
+      'zlmdate zlmtime zluser)',
       'replace NoWrite'
     address syscall
     'readdir 'localrep'/'zigirep'/'dsn' root.'
