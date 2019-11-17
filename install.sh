@@ -1,6 +1,16 @@
-#!/bin/bash
+#!/bin/sh
 clear
 WHERE=`[ -z "$SSH_CLIENT" ] && echo "OMVS"`
+# Let's make sure we *really* run from sh lol
+SHELL=`ps -p "$$" -o comm | tail -1`
+if [ "$SHELL" != "/bin/sh" ]
+then
+ echo "Please run the installer from sh...";
+ echo "Current shell = $SHELL"
+ exit
+fi
+
+echo ""
 echo "                                      .zZ.     Zz ";
 echo "                 ZZZZZZZZ           ZZZZZZZ ";
 echo "     ZZZZZZZZZZZZZZZZZZZZZZ   ZZ   ZZZ         zZ ";
@@ -14,21 +24,21 @@ echo "             ZZZZZZZ              zZZZZZZZZZZZZZZ ";
 echo "           ZZZZZZZ           ZZZZZZZZZZZZZZ ";
 echo "         .ZZZZZZZ      ZZZZZZZZZZZZZZ ";
 echo "        ZZZZZZZZZZZZZZZZZZZZZZ ";
-echo "        ZZZZZZZZZZZZZZZZZ             z/OS ISPF Git Interface ";
+echo "        ZZZZZZZZZZZZZZZZZ             zOS ISPF Git Interface ";
 echo "       ZZZZZZZZZZZZ ";
 echo "      ZZZZZZZZZg               The git interface for the rest of us";
 echo "     ZZZZZZig ";
 echo "    ZZZZZZi                         Henri Kuiper & Lionel Dyck ";
 echo " "
-echo "Welcome to the installer for zigi v1r1";
+echo "Welcome to the installer for zigi v1r0";
 echo "";
-echo "This will install zigi on your mainframe.";
+echo "This will install zigi on your mainframe.";                   
 echo "See https://github.com/wizardofzos/zigi/wiki for more information"
 echo "";
-read GOON?"Hit ENTER to continue, type any chracter + ENTER to quit: ";
+read GOON?"Hit ENTER to continue, type any character + ENTER to quit: ";
 if [ -n "$GOON" ]
   then
-    echo ""
+    echo ""               
     echo "zigi installer terminated :(";
     exit
 fi
@@ -36,7 +46,7 @@ fi
 echo "MVS datsets used by zigi are:";
 echo "- ZIGI.V1R1.EXEC";
 echo "- ZIGI.V1R1.PANELS";
-echo "";
+echo "";              
 echo "If you like (or have) to install zigi with another";
 echo "HLQ please provide a PREFIX. Otherwise press ENTER";
 echo ""
@@ -47,6 +57,8 @@ echo "- prefix.ZIGI.V1R1.EXEC";
 echo "- prefix.ZIGI.V1R1.PANELS";
 
 echo "";
+ 
+
 
 read PREFIX?"Prefix (or ENTER for no prefix) : "
 
@@ -67,12 +79,13 @@ if [ -z $PREFIX ]
     HLQ=${PREFIX}.ZIGI.V1R1
 fi
 
+
 echo ""
 echo "Preparing to install to :";
 echo "- $EXEC";
 echo "- $PANELS";
 echo "";
-read GOON?"Hit ENTER to continue, type any chracter + ENTER to quit: ";
+read GOON?"Hit ENTER to continue, type any character + ENTER to quit: ";
 if [ -n "$GOON" ]
   then
     echo "zigi installer terminated :(";
@@ -82,7 +95,7 @@ fi
 echo "";
 if [ "$WHERE" != "OMVS" ]
 then
- echo "Here come the messages from TSO :)";
+ echo "Here come the messages from TSO :)"; 
 fi
 tso "ALLOC DA('$EXEC') DSORG(PO) SPACE(5,1) BLKSIZE(8000) TRACKS DIR(2) LRECL(80) RECFM(F,B) NEW";
 tso "ALLOC DA('$PANELS') DSORG(PO) SPACE(5,1) BLKSIZE(8000) TRACKS DIR(4) LRECL(80) RECFM(F,B) NEW";
@@ -105,6 +118,8 @@ echo "Copying GPL-License"
 cp -U -M ZIGI.GPLLIC "//'$GPL'";
 echo "Copying README"
 cp -U -M ZIGI.README "//'$README'";
+
+
 
 echo "";
 
