@@ -48,7 +48,7 @@ zigistat:
   /* --------------- *
   | Define defaults |
   * --------------- */
-  parse value '' with null string m.
+  parse value '' with null string m. rx
   zdd = 'ZS'time('s')
 
   /* --------------------------------- *
@@ -132,21 +132,21 @@ zigistat:
     | - data will be saved to /.zigi/filename               |
     * ----------------------------------------------------- */
     When opt = 'S' then do
-      /* Comment Start
-      fp = translate(filepath,' ','/')
-      fpfile = subword(fp,words(fp))
-      fp = subword(fp,1,words(fp)-1)
-      fp = translate(fp,'/',' ')
-      x = bpxwunix('cd' fp '&& rm' fpfile,,so.,se.)
-         Comment End */
       x = bpxwunix('rm' filepath,,so.,se.)
       call alloc_new_stats_file
       Address tso
       'execio * diskw' zdd '(finis stem mem.'
       'free  f('zdd')'
+      /* --------------------------------------------- *
+      | Now issue the git add for the ispf stats file |
+      * --------------------------------------------- */
       Address ISPExec
-      cmd = 'cd' fp '&& git add' fpfile
+      cmd = 'pwd'
       x = bpxwunix(cmd,,so.,se.)
+      home    = strip(so.1)
+      call getenv
+      cmd = 'git add' filepath
+      x = docmd(cmd)
       return 0
     end
     /* ---------------------------------------------------------- *
@@ -239,3 +239,57 @@ Alloc_Stats_File:
     "filedata(text)"
   address ispexec
   return
+
+  /* ----------------------------------------------------- *
+  | Get the users current OMVS enviornment for use in the |
+  | bpxwunix commands.                                    |
+  * ----------------------------------------------------- */
+GETENV:
+  cmd  = docmdx('env')
+  rc = bpxwunix(cmd,,so.,se.)
+  envc = 0
+  do ci = 1 to so.0
+    if left(so.ci,3) = 'GIT' then call add_env so.ci
+    if left(so.ci,4) = 'HOME' then call add_env so.ci
+    if left(so.ci,4) = 'PATH' then call add_env so.ci
+    if left(so.ci,4) = 'MANP' then call add_env so.ci
+    if left(so.ci,4) = 'LIBP' then call add_env so.ci
+    if left(so.ci,3) = 'PWD' then call add_env so.ci
+  end
+  call add_env '_BPX_SHAREAS=YES'
+  call add_env '_BPX_SPAWN_SCRIPT=YES'
+  env.0 = envc
+  drop so. se.
+  return
+
+  /* -------------------- *
+  | Add info to env stem |
+  * -------------------- */
+add_env:
+  parse arg env_val
+  envc = envc + 1
+  env.envc = env_val
+  return
+
+docmd:
+  parse arg cmd
+  drop so. se.
+  cmd = 'bash &&' cmd
+  x = bpxwunix(cmd,,so.,se.,env.)
+  return x
+
+docmdx:
+  /* quircky thing, we need to export HOME as we are
+  not running a login shell via bpxwunix */
+  parse arg cmd
+  drop so. se.
+  if rx = null then do
+    rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && '
+    c = "[[ -f "home"/.profile ]] && echo f"
+    x = bpxwunix(c,,o.,e.)
+    if o.0 = 1 & o.1 = "f" then do
+      rx = rx '. 'home'/.profile > /dev/null 2>&1 && '
+    end
+  end
+  r = rx 'bash && ' cmd
+  return r
