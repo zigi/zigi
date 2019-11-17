@@ -132,6 +132,13 @@ zigistat:
     | - data will be saved to /.zigi/filename               |
     * ----------------------------------------------------- */
     When opt = 'S' then do
+      /* Comment Start
+      fp = translate(filepath,' ','/')
+      fpfile = subword(fp,words(fp))
+      fp = subword(fp,1,words(fp)-1)
+      fp = translate(fp,'/',' ')
+      x = bpxwunix('cd' fp '&& rm' fpfile,,so.,se.)
+         Comment End */
       x = bpxwunix('rm' filepath,,so.,se.)
       call alloc_new_stats_file
       Address tso
