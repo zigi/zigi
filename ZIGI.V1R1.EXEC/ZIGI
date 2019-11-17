@@ -897,6 +897,7 @@ Work_with_repo_file:
           zerrlm = zcmd 'is not a recognized command.'
           'setmsg msg(isrz003)'
         end
+      zsel = null
       end
 
       if zsel /= null then
