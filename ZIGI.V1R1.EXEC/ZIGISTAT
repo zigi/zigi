@@ -145,7 +145,11 @@ zigistat:
       x = bpxwunix(cmd,,so.,se.)
       home    = strip(so.1)
       call getenv
-      cmd = 'git add' filepath
+      fp = translate(filepath,' ','/')
+      parse value fp with fp '.zigi' fpfile
+      fp = translate(fp,'/',' ')
+      fpfile = '.zigi/'strip(fpfile)
+      cmd = 'cd' fp '&& git add' fpfile
       x = docmd(cmd)
       return 0
     end
