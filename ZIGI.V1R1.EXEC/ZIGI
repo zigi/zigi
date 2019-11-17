@@ -21,6 +21,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            11/16/09 LBD - Convert to using zigitstat       |
+  |                           to save/update/compare           |
+  |                           ispf stats on PDS members.       |
   |            11/13/09 LBD - Enhance the debug routine:       |
   |                           Return a return code             |
   |                           check for ZIGIDEBG DD enable     |
