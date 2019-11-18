@@ -120,7 +120,7 @@ zigistat:
     /* --------------------------------- *
     * If RC 8 or more leave the do loop *
     * --------------------------------- */
-    if rc > 7 then leave
+    if rc > 3 then leave
     /* ------------------------------ *
     * Add each member info to a stem *
     * ------------------------------ */
