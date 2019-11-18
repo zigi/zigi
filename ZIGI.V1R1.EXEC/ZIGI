@@ -845,7 +845,7 @@ Work_with_repo_file:
     end
     "LMCLOSE DATAID("did")"
     "LMFREE DATAID("did")"
-    'tbsort' rtll
+    'tbsort' rtll 'Fields(mem,c,a)'
     'tbtop' rtll
     /* ---------------------------------- *
     | Process the Member list until done |

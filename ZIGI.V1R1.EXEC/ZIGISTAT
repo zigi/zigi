@@ -36,6 +36,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            11/18/19 LBD - Many fixes and add Debug         |
   |            11/15/19 LBD - Creation                         |
   |                                                            |
   * ---------------------------------------------------------- */
@@ -60,21 +61,37 @@ zigistat:
   if opt      = null then return 16
   opt         = translate(opt)   /* make upper case */
 
+
+  /* ---------------------------------------- *
+  | Check for ZIGIDEBG DD for debug purposes |
+  * ---------------------------------------- */
+  x = listdsi('ZIGIDEBG' 'FILE')
+  if x > 0 then if sysreason = 3
+  then zigidebg = 1
+  else zigidebg = 0
+
+  x = debug('start of zigistat with option:' opt)
+
   /* --------------------------------------- *
   | If option C or U then read in the stats |
   | - check if stats member exists rc=16    |
   | - read into stem stats.                 |
   * --------------------------------------- */
   if pos(opt,'C U') > 0 then do
+    x = debug('Checking stats file' filepath)
     x = check_stats_file(filepath)
-    if x > 0 then return x
+    rc = x
+    x = debug('Checking stats file complete')
+    if rc > 0 then return x
     address tso
+    x = debug('Reading the ISPF stats file')
     drop stats.
     cmd = 'cat' filepath
     x = bpxwunix(cmd,,stats.,se.)
     do i = 1 to stats.0
       stats.i = translate(stats.i,' ','0D'x)
     end
+    x = debug('Reading complete')
   end
 
   /* ------------------ *
@@ -87,6 +104,7 @@ zigistat:
   /* ------------ *
   * Set defaults *
   * ------------ */
+  x = debug('Collecting stats for all members for:' dsn)
   parse value null with member mem. ,
     ZLCDATE ZLMDATE ZLVERS ZLMOD ZLMTIME ZLCNORC,
     ZLINORC ZLMNORC ZLUSER ,
@@ -119,6 +137,7 @@ zigistat:
   * ------------------------- */
   "LMClose Dataid("status")"
   "LMFree  Dataid("status")"
+  x = debug('Stat collection complete.')
 
   /* ----------------------------------------------- *
   | Process the data based on the provided options: |
@@ -134,6 +153,7 @@ zigistat:
     | - data will be saved to /.zigi/filename               |
     * ----------------------------------------------------- */
     When opt = 'S' then do
+      x = debug('Saving stats begins to:' filepath)
       x = bpxwunix('rm' filepath,,so.,se.)
       call write_stats
       /* --------------------------------------------- *
@@ -150,6 +170,7 @@ zigistat:
       fpfile = '.zigi/'strip(fpfile)
       cmd = 'cd' fp '&& git add' fpfile
       x = docmd(cmd)
+      x = debug('Saving stats completed.')
       return 0
     end
     /* ---------------------------------------------------------- *
@@ -162,6 +183,7 @@ zigistat:
     |    in the saved stats member                               |
     * ---------------------------------------------------------- */
     When opt = 'U' then do
+      x = debug('Performing ISPF Stats file update for:' dsn)
       "LMINIT DATAID(zstats) DATASET("dsn")"
       "LMOPEN DATAID("zstats") OPTION(INPUT)"
       do i = 1 to stats.0
@@ -177,6 +199,7 @@ zigistat:
           'MODRECS('zlmnorc') USER('zluser')'
       end
       "LMClose Dataid("zstats")"
+      x = debug('ISPF Stats file update complete.')
     end
     /* ----------------------------------------------------------- *
     | Compare ISPF stats.                                         |
@@ -191,6 +214,7 @@ zigistat:
     | it will be added to the returned string.                    |
     * ----------------------------------------------------------- */
     When opt = 'C' then do
+      x = debug('ISPF Stats comparison starting.')
       /* 1st setup the saved stem for easy comparison */
       do i = 1 to stats.0
         parse value stats.i with savedmem data
@@ -202,6 +226,7 @@ zigistat:
         if m.actmem = null then string = string actmem
         else if data /= m.actmem then string = string actmem
       end
+      x = debug('ISPF Stats comparison complete.')
       return string
     end
     Otherwise nop  /* should never get here */
@@ -299,18 +324,18 @@ Write_Stats:
   Address ISPExec
   return
 
-/* ----------------------------------- *
- | Routine to write out a line of data |
- * ----------------------------------- */
+  /* ----------------------------------- *
+  | Routine to write out a line of data |
+  * ----------------------------------- */
 Write_FD:
   parse arg string
   string = string || ESC_R || ESC_N
   'write' fd 'string' length(string)
   return
 
-/* ----------------------------------- *
- | Issue popup - turn off pfshow if on |
- * ----------------------------------- */
+  /* ----------------------------------- *
+  | Issue popup - turn off pfshow if on |
+  * ----------------------------------- */
 Do_Popup4:
   call pfshow 'off'           /* make sure pfshow is off */
   'Control Display Lock'
@@ -320,9 +345,9 @@ Do_Popup4:
   call pfshow 'reset'         /* restore pfshow setting */
   return
 
-/* -------------------------------- *
- | routine to turn off pfshow if on |
- * -------------------------------- */
+  /* -------------------------------- *
+  | routine to turn off pfshow if on |
+  * -------------------------------- */
 pfshow:
   if zpfshow = 'OFF' then return
   arg pfkopt
@@ -337,3 +362,15 @@ pfshow:
     'select pgm(ispopf) parm(FKA,OFF)'
   end
   return
+
+debug:
+  if zigidebg  = 1 then do
+    parse arg msg
+    msg = Date() Time()' : 'msg
+    c = 'echo "'msg'" >> 'home'/zigidebug.txt'
+    x = bpxwunix(c,,so.,se.)
+    if so.0 + se.0 > 0 then
+    call view_std 'B'
+    zigidebg_use = 1
+  end
+  return 0
