@@ -885,6 +885,7 @@ Work_with_repo_file:
         When abbrev('GITHELP',zcmd,4) = 1 then
         Address TSO '%githelp'
         When abbrev('COMMIT',zcmd,3) = 1 then do
+          zsel = null
           call do_commit
           call work_with_repo_file
         end
@@ -1871,7 +1872,7 @@ Do_Add_Copy:
   if SYSDSORG = 'PO' then do
     pds = what
     PDS = strip(PDS,"B","'")
-    PDSS = usssafe(PDS)
+    pdss = usssafe(dsnb)
     mkdir = "mkdir -p "DIR"/"pdss
     call bpxwunix mkdir
     copycmd = "//'"pds"'"
