@@ -21,8 +21,10 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            11/18/09 LBD - Some fixes including F3 on       |
-  |                           ZIGIOSEL support                 |
+  |            11/18/09 LBD - Support F3 in ZIGIOSEL and       |
+  |                           skip clone.                      |
+  |                         - Replace LMMSTATS with LMMFIND    |
+  |                           to get member stats              |
   |            11/16/09 LBD - Convert to using zigitstat       |
   |                           to save/update/compare           |
   |                           ispf stats on PDS members.       |
@@ -735,13 +737,6 @@ Clone_Repo:
     if rc > 0 then return
     if localrep = "?" then
     localrep = zigiosel()
-    if strip(localrep) = null then do
-      zerrsm = 'Cancelled.'
-      zerrlm = 'Clone cancelled due to lack of a target' ,
-        'directory.'
-      'Setmsg msg(isrz003)'
-      return
-    end
     parse var remote site ':' user '/' zigirep '.git'
     parse var site guser '@' host
     /* Let's clone the remote repo... */
@@ -811,8 +806,6 @@ Work_with_repo_file:
     address ispexec
     "LMINIT DATAID(DID) Dataset("fulldsn")"
     "LMOPEN DATAID("did")"
-    mem = null
-    "LMMLIST DATAID("did") Member("mem") OPTION(LIST) STATS(YES)"
     cmd = 'cd' localrep'/'zigirep
     x = docmd(cmd '&& git status --porcelain')
     do i = 1 to root.0
@@ -840,12 +833,12 @@ Work_with_repo_file:
       /* So we fix the name before we save to table :) */
       ussmem = mem
       mem = translate(mem,'#@$','._-')
-      "LMMLIST DATAID("did") Member("mem") OPTION(LIST) STATS(YES)"
+      "LMMFind DATAID("did") Member("mem") STATS(YES)"
       'tbadd' rtll
     end
     "LMCLOSE DATAID("did")"
     "LMFREE DATAID("did")"
-    'tbsort' rtll 'Fields(mem,c,a)'
+    'tbsort' rtll
     'tbtop' rtll
     /* ---------------------------------- *
     | Process the Member list until done |
@@ -881,11 +874,7 @@ Work_with_repo_file:
         When abbrev('GITHELP',zcmd,4) = 1 then
         Address TSO '%githelp'
         When abbrev('COMMIT',zcmd,3) = 1 then do
-          save_dsn = dsn
-          save_fulldsn = fulldsn
           call do_commit
-          dsn = save_dsn
-          fulldsn = save_fulldsn
           call work_with_repo_file
         end
         When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog

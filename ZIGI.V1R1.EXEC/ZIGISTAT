@@ -195,7 +195,7 @@ zigistat:
         else ,
           'LMMSTATS DATAID('zstats') MEMBER('member') VERSION('zlvers')' ,
           'MODLEVEL('zlmod') CREATED('zlcdate') MODDATE('zlmdate')' ,
-          'MODTIME('zlmtime') CURSIZE('zlcnorc') INITSIZE('zlinorc')' ,
+          'MODTIME('zlmtime') INITSIZE('zlinorc')' ,
           'MODRECS('zlmnorc') USER('zluser')'
       end
       "LMClose Dataid("zstats")"
