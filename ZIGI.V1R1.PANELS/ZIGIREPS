@@ -17,7 +17,7 @@
 %                $baction                                                   +
 %
 +Commands:[Add[Basic[Br[Com[GitH[GitL[Grep[Pull[Push[Ref[Rem[St[View
-+Options: %S+Select%A+Add%U+Un-Modify
++Options: %S+Select%A+Add
 +
 %S  Status                    Dataset Name
 )Model

@@ -16,7 +16,7 @@
 %Current Branch     : $branch
 %
 %Commands:  %L+Locate    ]Commit+]Gitlog+]Status+
-%Selections:%S+Edit%A+Add for commit%D+Show Diff%U+Un-Modify
+%Selections:%S+Edit%A+Add for commit%D+Show Diff
 %
 %S  Member     Status                     Size    Mod-Date  Mod-Time  Userid
 )Model

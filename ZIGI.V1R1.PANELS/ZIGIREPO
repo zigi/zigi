@@ -22,7 +22,6 @@
 +
 %S+to select dataset (Edit if PS, memberlist if PO, one at a time)
 %A+to add%modified+datasets/members to index
-%U+to Un-Modify
 +
 %S  Status                    Dataset Name
 )Model
