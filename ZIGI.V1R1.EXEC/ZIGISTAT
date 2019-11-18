@@ -369,8 +369,6 @@ debug:
     msg = Date() Time()' : 'msg
     c = 'echo "'msg'" >> 'home'/zigidebug.txt'
     x = bpxwunix(c,,so.,se.)
-    if so.0 + se.0 > 0 then
-    call view_std 'B'
     zigidebg_use = 1
   end
   return 0
