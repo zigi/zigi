@@ -829,10 +829,15 @@ Work_with_repo_file:
           end
         end
       end
-      /* The files in OMVS have some chars changed due to cp -M */
-      /* So we fix the name before we save to table :) */
+      /* ------------------------------------------------------- *
+      |  The files in OMVS have some chars changed due to cp -M |
+      |  So we fix the name before we save to table :)          |
+      * ------------------------------------------------------- */
       ussmem = mem
       mem = translate(mem,'#@$','._-')
+      /* ---------------------------------------------- *
+      | No get ISPF stats for each member for the list |
+      * ---------------------------------------------- */
       "LMMFind DATAID("did") Member("mem") STATS(YES)"
       'tbadd' rtll
     end
@@ -1578,7 +1583,7 @@ update_repo_metadata:
           x = zigistat("'"edsn"'" statfile 'S')
         end
         else do
-      /* It must be a PS, just copy it over to OMVS */
+          /* It must be a PS, just copy it over to OMVS */
           s = usssafe(fulldsn)
           copycmd = "//"s
           copycmd = '"'copycmd'"'
