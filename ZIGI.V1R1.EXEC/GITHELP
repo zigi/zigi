@@ -302,9 +302,9 @@ docmd:
 +\-\%git manpages+\-\
 %Command ===>_zcmd
 +
-%GITHELP+displays all the availble git commands, along with other git
-+pages with more information. This will help the git novice, and git guru
-+to better use git.
+%GITHELP+displays all the availble git commands, along with other git pages
++with more information. This will help the git novice, and git guru to better
++use git.
 +
 %Commands:+
     %Only+removes all rows that do not have the provided string:
