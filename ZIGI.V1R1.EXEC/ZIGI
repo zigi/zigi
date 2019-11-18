@@ -737,6 +737,12 @@ Clone_Repo:
     if rc > 0 then return
     if localrep = "?" then
     localrep = zigiosel()
+    if strip(localrep) = null then do
+      zerrsm = 'Cancelled.'
+      zerrlm = 'Clone cancelled as OMVS directory selection cancelled.'
+      'Setmsg msg(isrz003)'
+      return
+    end
     parse var remote site ':' user '/' zigirep '.git'
     parse var site guser '@' host
     /* Let's clone the remote repo... */
@@ -927,11 +933,7 @@ Work_with_repo_file:
             /* this 'modifies' the fulldsn and dsn vars so    */
             /* better save before and restore after           */
             if ztdsels = 1 then do
-              save_fulldsn = fulldsn
-              save_dsn = dsn
               call update_repo_metadata
-              fulldsn = save_fulldsn
-              dsn = save_dsn
               /* then call this function again to update the    */
               /* status of the members in this pds after update */
               call work_with_repo_file
@@ -950,13 +952,9 @@ Work_with_repo_file:
           /* save and then restore dsn and full dsn around
           update_repo_metadata  */
           if ztdsels = 1 then do
-            save_fulldsn = fulldsn
-            save_dsn = dsn
             call update_repo_metadata
             /* then call this function again to update the    */
             /* status of the members in this pds after update */
-            fulldsn = save_fulldsn
-            dsn = save_dsn
             call work_with_repo_file
           end
         end
@@ -978,13 +976,9 @@ Work_with_repo_file:
           /* after the checkout --, we better re-populate   */
           /* the z/OS datasets                              */
           call Refresh localrep zigirep pdshlq qualignr
-          save_fulldsn = fulldsn
-          save_dsn = dsn
           call update_repo_metadata
           /* then call this function again to update the    */
           /* status of the members in this pds after update */
-          fulldsn = save_fulldsn
-          dsn = save_dsn
           call work_with_repo_file
         end
         when zsel = 'D' then do
@@ -1486,6 +1480,8 @@ idle:
   return
 
 update_repo_metadata:
+  save_fulldsn = fulldsn
+  save_dsn = dsn
   x = debug('start of update_repo_metadata')
   if rtbl_open = 1 then do
     'tbend' rtbl
@@ -1663,6 +1659,8 @@ update_repo_metadata:
     parse value '' with branch_status bstat baction
   end
   'tbsort' rtbl 'fields(fulldsn)'
+  fulldsn = save_fulldsn
+  dsn = save_dsn
   return
 
 porcelain:
@@ -1873,21 +1871,22 @@ Do_Add_Copy:
   if SYSDSORG = 'PO' then do
     pds = what
     PDS = strip(PDS,"B","'")
-    PDS = usssafe(PDS)
-    mkdir = "mkdir -p "DIR"/"dsnb
+    PDSS = usssafe(PDS)
+    mkdir = "mkdir -p "DIR"/"pdss
     call bpxwunix mkdir
     copycmd = "//'"pds"'"
     copycmd = '"'copycmd'"'
-    copycmd = "cp -U -M" copycmd" "DIR"/"dsnb"/"
+    copycmd = "cp -U -M" copycmd" "DIR"/"pdss"/"
     call bpxwunix copycmd
-    Address TSO '%zigistat' "'"pds"'" dir"/.zigi/"dsnb 'S'
-    x = docmd('cd' dir '&& git add .zigi/'dsnb)
+    Address TSO '%zigistat' "'"pds"'" dir"/.zigi/"pdss 'S'
+    x = docmd('cd' dir '&& git add .zigi/'pdss)
   end
   else do
     W = usssafe(WHAT)
+    PSS = usssafe(dsnb)
     copycmd = "//'"W"'"
     copycmd = '"'copycmd'"'
-    copycmd = "cp -U -M" copycmd" "DIR"/"dsnb
+    copycmd = "cp -U -M" copycmd" "DIR"/"pss
     call bpxwunix copycmd
   end
   dsnstat = '[??] Untracked'

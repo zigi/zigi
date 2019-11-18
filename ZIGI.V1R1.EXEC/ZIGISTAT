@@ -118,7 +118,7 @@ zigistat:
     "LMMLIST Dataid("status") OPTION(LIST) MEMBER(MEMBER)" ,
       "STATS(YES)"
     /* --------------------------------- *
-    * If RC 8 or more leave the do loop *
+    * If RC 4 or more leave the do loop *
     * --------------------------------- */
     if rc > 3 then leave
     /* ------------------------------ *
