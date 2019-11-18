@@ -3056,15 +3056,15 @@ Do_Add_Copy:
   if SYSDSORG = 'PO' then do
     pds = what
     PDS = strip(PDS,"B","'")
-    PDS = usssafe(PDS)
-    mkdir = "mkdir -p "DIR"/"dsnb
+    PDSS = usssafe(PDS)
+    mkdir = "mkdir -p "DIR"/"pdss
     call bpxwunix mkdir
     copycmd = "//'"pds"'"
     copycmd = '"'copycmd'"'
-    copycmd = "cp -U -M" copycmd" "DIR"/"dsnb"/"
+    copycmd = "cp -U -M" copycmd" "DIR"/"pdss"/"
     call bpxwunix copycmd
-    Address TSO '%zigistat' "'"pds"'" dir"/.zigi/"dsnb 'S'
-    x = docmd('cd' dir '&& git add .zigi/'dsnb)
+    Address TSO '%zigistat' "'"pds"'" dir"/.zigi/"pdss 'S'
+    x = docmd('cd' dir '&& git add .zigi/'pdss)
   end
   else do
     W = usssafe(WHAT)
