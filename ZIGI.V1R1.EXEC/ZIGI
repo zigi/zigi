@@ -25,6 +25,7 @@
   |                           skip clone.                      |
   |                         - Replace LMMSTATS with LMMFIND    |
   |                           to get member stats              |
+  |                         - Add -v (verbose) where ok        |
   |            11/16/09 LBD - Convert to using zigitstat       |
   |                           to save/update/compare           |
   |                           ispf stats on PDS members.       |
@@ -489,7 +490,7 @@ Work_With_Repo:
       * --------------------------------------------------------- */
       When abbrev('PULL',zcmd,3) = 1 then do
         call pop 'Pulling from remote'
-        cmd = 'cd' localdir' && git pull'
+        cmd = 'cd' localdir' && git pull -v'
         x = docmd(cmd)
         call view_std 'B'
         call Refresh localrep zigirep pdshlq qualignr
@@ -559,7 +560,7 @@ Work_With_Repo:
           x = docmd(cmd '&& git remote add origin 'origin)
           call View_std 'B'
           cmd = 'cd' localrep'/'zigirep
-          cmd = docmd(cmd '&& git push -u origin 'branch)
+          cmd = docmd(cmd '&& git push -vu origin 'branch)
           call View_std 'B'
           call update_repo_metadata
         end
@@ -592,7 +593,7 @@ Work_With_Repo:
         call do_popup
         d = usssafe(dsn)
         cmd = 'cd' localrep'/'zigirep
-        x = docmd(cmd '&& git add 'd)
+        x = docmd(cmd '&& git add -v 'd)
         call view_std 'B'
         if ztdsels = 1 then
         call update_repo_metadata
@@ -628,7 +629,7 @@ Work_With_Repo:
 Do_Status:
   zcmd = null
   cmd = 'cd' localrep'/'zigirep
-  x = docmd(cmd '&& git status')
+  x = docmd(cmd '&& git status -v')
   call view_std
   return
 
@@ -697,7 +698,7 @@ Do_Commit:
     /* ------------------------------------- *
     | If cmsg.0 = 2 then use commit -m msg   |
     * -------------------------------------- */
-    else x = docmd(cmd "&& git commit -m '"cmsg.1"'")
+    else x = docmd(cmd "&& git commit -vm '"cmsg.1"'")
     call view_std 'B'
     /* ------------------------------- *
     | If > 1 msg then delete the msg  |
@@ -717,7 +718,7 @@ Do_Commit:
 Do_Push:
   arg opt
   call pop 'Pushing Updates to Remote Git'
-  cmd = 'cd' localdir' && git push'
+  cmd = 'cd' localdir' && git push -v'
   cmd = docmd(cmd)
   call view_std 'B'
   if opt = null then
@@ -757,8 +758,8 @@ Clone_Repo:
     x = bpxwunix(cmd,,so.,se.)
     cmd = 'cd 'localrep
     if remotebr = null
-    then cmd = cmd ' && git clone 'remote
-    else cmd = cmd ' && git clone -b' remotebr remote
+    then cmd = cmd ' && git clone -v 'remote
+    else cmd = cmd ' && git clone -vb' remotebr remote
     x = docmd(cmd)
     if x > 0 then do
       c_stat = 1
