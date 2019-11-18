@@ -32,13 +32,13 @@ echo "    ZZZZZZi                         Henri Kuiper & Lionel Dyck ";
 echo " "
 echo "Welcome to the installer for zigi v1r0";
 echo "";
-echo "This will install zigi on your mainframe.";                   
+echo "This will install zigi on your mainframe.";
 echo "See https://github.com/wizardofzos/zigi/wiki for more information"
 echo "";
 read GOON?"Hit ENTER to continue, type any character + ENTER to quit: ";
 if [ -n "$GOON" ]
   then
-    echo ""               
+    echo ""
     echo "zigi installer terminated :(";
     exit
 fi
@@ -46,7 +46,7 @@ fi
 echo "MVS datsets used by zigi are:";
 echo "- ZIGI.V1R1.EXEC";
 echo "- ZIGI.V1R1.PANELS";
-echo "";              
+echo "";
 echo "If you like (or have) to install zigi with another";
 echo "HLQ please provide a PREFIX. Otherwise press ENTER";
 echo ""
@@ -57,7 +57,7 @@ echo "- prefix.ZIGI.V1R1.EXEC";
 echo "- prefix.ZIGI.V1R1.PANELS";
 
 echo "";
- 
+
 
 
 read PREFIX?"Prefix (or ENTER for no prefix) : "
@@ -95,12 +95,12 @@ fi
 echo "";
 if [ "$WHERE" != "OMVS" ]
 then
- echo "Here come the messages from TSO :)"; 
+ echo "Here come the messages from TSO :)";
 fi
-tso "ALLOC DA('$EXEC') DSORG(PO) SPACE(5,1) BLKSIZE(8000) TRACKS DIR(2) LRECL(80) RECFM(F,B) NEW";
-tso "ALLOC DA('$PANELS') DSORG(PO) SPACE(5,1) BLKSIZE(8000) TRACKS DIR(4) LRECL(80) RECFM(F,B) NEW";
-tso "ALLOC DA('$README') DSORG(PS) SPACE(5,1) BLKSIZE(8000) TRACKS LRECL(80) RECFM(F,B) NEW";
-tso "ALLOC DA('$GPL') DSORG(PS) SPACE(5,1) BLKSIZE(8000) TRACKS LRECL(80) RECFM(F,B) NEW";
+tso "ALLOC DA('$EXEC') DSORG(PO) SPACE(15,15) BLKSIZE(32720) TRACKS DIR(1) LRECL(80) RECFM(F,B) NEW  Dsntype(Library,2)";
+tso "ALLOC DA('$PANELS') DSORG(PO) SPACE(15,15) BLKSIZE(32720) TRACKS DIR(1) LRECL(80) RECFM(F,B) NEW  Dsntype(Library,2)";
+tso "ALLOC DA('$README') DSORG(PS) SPACE(5,1) BLKSIZE(32720) TRACKS LRECL(80) RECFM(F,B) NEW";
+tso "ALLOC DA('$GPL') DSORG(PS) SPACE(5,1) BLKSIZE(32720) TRACKS LRECL(80) RECFM(F,B) NEW";
 
 if [ "$WHERE" = "OMVS" ]
 then
