@@ -802,6 +802,8 @@ Work_with_repo_file:
     address ispexec
     "LMINIT DATAID(DID) Dataset("fulldsn")"
     "LMOPEN DATAID("did")"
+    mem = null
+    "LMMLIST DATAID("did") Member("mem") OPTION(LIST) STATS(YES)"
     cmd = 'cd' localrep'/'zigirep
     x = docmd(cmd '&& git status --porcelain')
     do i = 1 to root.0
@@ -897,7 +899,7 @@ Work_with_repo_file:
           zerrlm = zcmd 'is not a recognized command.'
           'setmsg msg(isrz003)'
         end
-      zsel = null
+        zsel = null
       end
 
       if zsel /= null then
@@ -1245,7 +1247,6 @@ Create_Repo:
     cmd = cmd 'chtag -tc iso8859-1 .gitattributes'
     x = bpxwunix(cmd,,so.,se.)
 
-
     /* Create the .zigi folder in the repo and add the dsn-file */
     cmd = 'cd 'localrep'/'zigirep' && mkdir .zigi'
     x = bpxwunix(cmd,,so.se.)
@@ -1257,7 +1258,7 @@ Create_Repo:
       660
     if retval = -1 then do
       Address ISPExec
-      zs1 = "Something bad when creating .gitattributes. Make errormsg"
+      zs1 = "Something bad when creating .zigi/dsn."
       zs4 = 'Press F3 to close this popup and exit.'
       parse value '' with zs2 zs3
       call do_popup4

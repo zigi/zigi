@@ -70,9 +70,11 @@ zigistat:
     if x > 0 then return x
     address tso
     drop stats.
-    "alloc f("zdd") path('"filepath"')"
-    'Execio * diskr' zdd '(finis stem stats.'
-    'Free  f('zdd')'
+    cmd = 'cat' filepath
+    x = bpxwunix(cmd,,stats.,se.)
+    do i = 1 to stats.0
+      stats.i = translate(stats.i,' ','0D'x)
+    end
   end
 
   /* ------------------ *
@@ -105,10 +107,10 @@ zigistat:
     * Add each member info to a stem *
     * ------------------------------ */
     c = mem.0 + 1
-    mem.c = member ,
+    mem.c = strip(member ,
       ZLCDATE  ZLMDATE  ZLVERS ZLMOD ZLMTIME ZLCNORC ,
       ZLINORC ZLMNORC ZLUSER ,
-      zlcnorce zlinorce zlmnorce
+      zlcnorce zlinorce zlmnorce)
     mem.0 = c
   end
 
@@ -133,10 +135,7 @@ zigistat:
     * ----------------------------------------------------- */
     When opt = 'S' then do
       x = bpxwunix('rm' filepath,,so.,se.)
-      call alloc_new_stats_file
-      Address tso
-      'execio * diskw' zdd '(finis stem mem.'
-      'free  f('zdd')'
+      call write_stats
       /* --------------------------------------------- *
       | Now issue the git add for the ispf stats file |
       * --------------------------------------------- */
@@ -168,7 +167,7 @@ zigistat:
       do i = 1 to stats.0
         parse value stats.i with member ZLCDATE ZLMDATE ZLVERS ZLMOD ,
           ZLMTIME ZLCNORC ZLINORC ZLMNORC ZLUSER ZLCNORCE ,
-          ZLINORCE ZLMNORCE
+          ZLINORCE ZLMNORCE .
         if zlcdate = null then ,
           'LMMSTATS DATAID('zstats') Member('member') user('sysvar(sysuid)')'
         else ,
@@ -195,7 +194,7 @@ zigistat:
       /* 1st setup the saved stem for easy comparison */
       do i = 1 to stats.0
         parse value stats.i with savedmem data
-        m.savedmem = data
+        m.savedmem = strip(data)
       end
       /* now compare active to saved */
       do i = 1 to mem.0
@@ -221,28 +220,6 @@ Check_Stats_File:
     return 20
   end
   else return 0
-
-  /* --------------------------------------------- *
-  | Alloc a new stats file and leave it allocated |
-  * --------------------------------------------- */
-Alloc_New_Stats_File:
-  address tso
-  "alloc f("zdd") path('"filepath"') pathdisp(keep,keep)" ,
-    "pathopts(ordwr,ocreat) pathmode(sirusr,siwusr)" ,
-    "filedata(text)"
-  address ispexec
-  return
-
-  /* -------------------------------------------------------- *
-  | Allocate the stats file to the dd and leave it allocated |
-  * -------------------------------------------------------- */
-Alloc_Stats_File:
-  address tso
-  "alloc f("zdd") path('"filepath"') filedata(text)" ,
-    "pathopts(ordwr,ocreat) pathmode(sirusr,siwusr)" ,
-    "filedata(text)"
-  address ispexec
-  return
 
   /* ----------------------------------------------------- *
   | Get the users current OMVS enviornment for use in the |
@@ -297,3 +274,66 @@ docmdx:
   end
   r = rx 'bash && ' cmd
   return r
+
+  /* ----------------------------- *
+  | Write out the ISPF Stats file |
+  * ----------------------------- */
+Write_Stats:
+  call syscalls 'ON'
+  address syscall
+  /* Fill dsn file with the comments */
+  'open' filepath O_rdwr+O_creat+O_trunc 660
+  if retval = -1 then do
+    Address ISPExec
+    zs1 = "Something bad when creating" filepath
+    zs4 = 'Press F3 to close this popup and exit.'
+    parse value '' with zs2 zs3
+    call do_popup4
+    return
+  end
+  fd = retval
+  do is = 1 to mem.0
+    call write_fd mem.is
+  end
+  'close' fd
+  Address ISPExec
+  return
+
+/* ----------------------------------- *
+ | Routine to write out a line of data |
+ * ----------------------------------- */
+Write_FD:
+  parse arg string
+  string = string || ESC_R || ESC_N
+  'write' fd 'string' length(string)
+  return
+
+/* ----------------------------------- *
+ | Issue popup - turn off pfshow if on |
+ * ----------------------------------- */
+Do_Popup4:
+  call pfshow 'off'           /* make sure pfshow is off */
+  'Control Display Lock'
+  'Addpop row(4) column(6)'
+  'Display Panel(zigipop4)'
+  'Rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
+  return
+
+/* -------------------------------- *
+ | routine to turn off pfshow if on |
+ * -------------------------------- */
+pfshow:
+  if zpfshow = 'OFF' then return
+  arg pfkopt
+  if pfkopt = 'RESET' then do
+    if pfkeys = 'ON' then
+    'select pgm(ispopf) parm(FKA,ON)'
+  end
+  if pfkopt = 'OFF' then do
+    'vget (zpfshow)'
+    pfkeys = zpfshow
+    if pfkeys /= 'OFF' then
+    'select pgm(ispopf) parm(FKA,OFF)'
+  end
+  return

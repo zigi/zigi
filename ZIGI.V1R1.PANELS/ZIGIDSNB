@@ -41,5 +41,7 @@
        if (&Zsel = '=')
            &Zsel = &osel
      &osel = &zsel
+ if (&row = 0)
+     &zsel = &z
  ver (&zsel,list,S,B,A)
 )End

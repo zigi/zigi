@@ -38,6 +38,8 @@ _z+  $z              + +$z                     + +$z
        if (&Zsel = '=')
            &Zsel = &osel
      &osel = &zsel
+ if (&row = 0)
+     &zsel = &z
  ver (&zsel,list,S,D,V)
 )PNTS
  FIELD(CLONE   ) VAR(ZCMD) VAL('CLONE')
