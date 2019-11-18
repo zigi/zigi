@@ -21,6 +21,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            11/18/09 LBD - Some fixes including F3 on       |
+  |                           ZIGIOSEL support                 |
   |            11/16/09 LBD - Convert to using zigitstat       |
   |                           to save/update/compare           |
   |                           ispf stats on PDS members.       |
@@ -733,6 +735,13 @@ Clone_Repo:
     if rc > 0 then return
     if localrep = "?" then
     localrep = zigiosel()
+    if strip(localrep) = null then do
+      zerrsm = 'Cancelled.'
+      zerrlm = 'Clone cancelled due to lack of a target' ,
+        'directory.'
+      'Setmsg msg(isrz003)'
+      return
+    end
     parse var remote site ':' user '/' zigirep '.git'
     parse var site guser '@' host
     /* Let's clone the remote repo... */
