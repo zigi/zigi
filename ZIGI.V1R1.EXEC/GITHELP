@@ -363,7 +363,7 @@ _z+@z
 @msg2
 +
 )INIT
-  &ZWINTTL = 'GIT Help Patience'
+  &ZWINTTL = 'GIT Help Popup'
 )END
 >End  */
 
