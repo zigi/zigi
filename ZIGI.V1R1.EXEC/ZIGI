@@ -881,7 +881,11 @@ Work_with_repo_file:
         When abbrev('GITHELP',zcmd,4) = 1 then
         Address TSO '%githelp'
         When abbrev('COMMIT',zcmd,3) = 1 then do
+          save_dsn = dsn
+          save_fulldsn = fulldsn
           call do_commit
+          dsn = save_dsn
+          fulldsn = save_fulldsn
           call work_with_repo_file
         end
         When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
