@@ -11,7 +11,9 @@
 +-\-\#zigtitle   +-\-\
 %Command ===>_zcmd            \ \ %Scroll ===>_zscr+
 %Local dir      :$localdir
+%Remote path    :$remote1
 %Current Branch :$branch                                      +
+%                !bstat
 %                $baction                                                   +
 %
 [Add+    Add dataset            [Grep+ Find Strings      [Remote+ Add remote
