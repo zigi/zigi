@@ -31,7 +31,5 @@
 )Proc
   ver (&remote,nb)
   ver (&localrep,nb)
-  if (ver (&pdshlq,nb))
-  else
-  ver (&pdshlq,dsname)
+  ver (&pdshlq,nb,dsname)
 )end

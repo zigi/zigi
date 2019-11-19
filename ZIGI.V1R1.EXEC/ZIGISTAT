@@ -61,7 +61,6 @@ zigistat:
   if opt      = null then return 16
   opt         = translate(opt)   /* make upper case */
 
-
   /* ---------------------------------------- *
   | Check for ZIGIDEBG DD for debug purposes |
   * ---------------------------------------- */

@@ -1874,13 +1874,14 @@ Do_Add_Copy:
     pds = what
     PDS = strip(PDS,"B","'")
     pdss = usssafe(dsnb)
+    pdsc = usssafe(pds)
     mkdir = "mkdir -p "DIR"/"pdss
-    call bpxwunix mkdir
-    copycmd = "//'"pds"'"
+    x = bpxwunix(mkdir,,so.,se.)
+    copycmd = "//'"pdsc"'"
     copycmd = '"'copycmd'"'
     copycmd = "cp -U -M" copycmd" "DIR"/"pdss"/"
-    call bpxwunix copycmd
-    Address TSO '%zigistat' "'"pds"'" dir"/.zigi/"pdss 'S'
+    x =bpxwunix(copycmd,,so.,se.)
+    Address TSO '%zigistat' "'"pds"'" dir"/.zigi/"dsnb 'S'
     x = docmd('cd' dir '&& git add .zigi/'pdss)
   end
   else do
