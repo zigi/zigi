@@ -309,7 +309,7 @@
     do i = 1 to tc.0
       parse value key.i with localrep pdshlq qualignr zigirep
       zigikey = localrep'/'zigirep
-      'tbadd zigirepo'
+      'tbadd zigirepo order'
     end
   end
 
@@ -629,7 +629,7 @@ Work_With_Repo:
 Do_Status:
   zcmd = null
   cmd = 'cd' localrep'/'zigirep
-  x = docmd(cmd '&& git status -v')
+  x = docmd(cmd '&& git status')
   call view_std
   return
 
@@ -781,7 +781,7 @@ Clone_Repo:
     qualignr = words(translate(pdshlq,' ','.'))
     call Refresh localrep zigirep pdshlq qualignr
     zigikey = localrep'/'zigirep
-    'tbadd zigirepo'
+    'tbadd zigirepo order'
     "TBSAVE zigirepo REPLCOPY LIBRARY(isptabl)"
     leave
   end
@@ -1301,7 +1301,7 @@ Create_Repo:
 
     Address ISPExec
     zigikey = localrep'/'zigirep
-    'tbadd zigirepo'
+    'tbadd zigirepo order'
     "TBSAVE zigirepo REPLCOPY LIBRARY(isptabl)"
     leave
   end
