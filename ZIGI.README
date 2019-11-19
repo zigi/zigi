@@ -11,7 +11,7 @@ To get started with this package:
 
 1. Install git for OMVS via the great folks at Rocket Software
 1a. Go to this url for git and the pre-requisite tools (bash, gzip,
-    unzip, vim, and perl):
+    and perl):
     https://www.rocketsoftware.com/product-categories/mainframe/git-for-zos
 1b. Go to this url to get a simplified installer for git and the
     pre-requisite tools:
@@ -22,6 +22,8 @@ To get started with this package:
 4. cd zigi
 5. ./install.sh (su and MVS HLQ access might be required)
 6. ISPF,3.4. Go to ZIGI.V1R1.EXEC and exec ZIGI
+
+More information in the wiki: https://github.com/wizardofzos/zigi/wiki
 
  This file is part of zIGI.
 
