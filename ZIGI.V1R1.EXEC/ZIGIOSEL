@@ -1,6 +1,5 @@
-/* -------------------  rexx procedure  -------------------- */
-  ver = '1.2'
-/*Name:      ZIGIOSEL                                        |
+/* -------------------  rexx procedure  -------------------- *
+| Name:      ZIGIOSEL                                        |
 |                                                            |
 | Function:  ISPF Dialog REXX subroutine to select an OMVS   |
 |            file and return it to the caller for use.       |
@@ -44,6 +43,9 @@
 | Author:    Lionel B. Dyck                                  |
 |                                                            |
 | History:  (most recent on top)                             |
+|            11/15/19 - Use zigi version                     |
+|            11/12/19 - V1.03                                |
+|                     - Change ISRZ002 to ISRZ003            |
 |            10/22/19 - V1.02                                |
 |                     - Prompt for Permissions for MKDIR     |
 |            10/18/19 - V1.01                                |
@@ -82,8 +84,15 @@
   parse source x source x
   zerrhm   = 'zigih00'
   zerralrm = 'NO'
+  zerrtp   = 'NOTIFY'
   Address ISPExec
   'Control Errors return'
+
+/* --------------------------------- *
+ | Get version from zigi shared pool |
+ * --------------------------------- */
+  'vget (ver)'
+  if ver = null then ver = 'zigi'
 
 /* ------------------------------------ *
 | Get the users default Home directory |
@@ -180,7 +189,7 @@ Restart:
             if bad = 0 then leave
             zerrsm = 'Error'
             zerrlm = 'Invalid permissions - suggest using 755'
-            'setmsg msg(isrz002)'
+            'setmsg msg(isrz003)'
             end
        call pfshow 'reset'         /* reset pfshow */
        cmd = 'mkdir' newdir
@@ -189,7 +198,7 @@ Restart:
        rc = bpxwunix(cmd,,stdout.,stderr.)
        zerrsm = null
        zerrlm = 'Permissions set to:' answer
-       'setmsg msg(isrz002)'
+       'setmsg msg(isrz003)'
        call restart_odir
        end
     When translate(word(zcmd,1)) = 'CD' then do
@@ -201,7 +210,7 @@ Restart:
       if retval < 0 then do
         zerrsm = 'Invalid Dir'
         zerrlm = fromdir 'is an invalid directory'
-        'setmsg msg(isrz002)'
+        'setmsg msg(isrz003)'
         fromdir = savedir
       end
       else stack_dir = stack_dir '|' savedir
@@ -219,7 +228,7 @@ Restart:
           if pos(fw,translate(ofile)) > 0 then do
             zerrsm = 'Found'
             zerrlm = fw 'found in the list'
-            'setmsg msg(isrz002)'
+            'setmsg msg(isrz003)'
             leave
           end
         end
@@ -234,7 +243,7 @@ Restart:
           if translate(left(ofile,fl)) = fw then do
             zerrsm = 'Found'
             zerrlm = fw 'found in the list'
-            'setmsg msg(isrz002)'
+            'setmsg msg(isrz003)'
             leave
           end
         end
@@ -249,13 +258,13 @@ Restart:
           if x.0 > 0 then do
             zerrsm = 'Error'
             zerrlm = x.2
-            'Setmsg msg(isrz002)'
+            'Setmsg msg(isrz003)'
           end
         end
         else do
           zerrsm = 'Invalid'
           zerrlm = 'This file may not be browsed.'
-          'Setmsg msg(isrz002)'
+          'Setmsg msg(isrz003)'
         end
       end
       when ocsel = 'I' then call list_info
@@ -285,7 +294,7 @@ Restart:
     if stdout.0 = 0 then do
       zerrsm = 'Invalid Dir'
       zerrlm = fromdir stderr.1
-      Address ISPExec 'setmsg msg(isrz002)'
+      Address ISPExec 'setmsg msg(isrz003)'
       zcmd = null
       if cdir_flag = 0 then return fromdir
       else do

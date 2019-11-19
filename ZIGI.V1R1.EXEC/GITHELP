@@ -16,6 +16,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            11/18/19 LBD - Set LRECL to 84 where it         |
+  |                           should have been to start wtih   |
   |            11/10/19 LBD - Creation                         |
   |                                                            |
   * ---------------------------------------------------------- */
@@ -178,17 +180,17 @@ Browse_Cmd:
   | Randomly define a DDName to use |
   * ------------------------------- */
   dd = 'dd'random(9999)
-  /* ------------------------------------------ *
-  | Allocate a temporary data set for our data |
-  * ------------------------------------------ */
-  'Alloc f('dd') new spa(5,5) tr' ,
-    'recfm(v b) lrecl(80) blksize(0)'
   /* ------------------------- *
   | Fixup null records in so. |
   * ------------------------- */
   do fso = 1 to so.0
     if so.fso = null then so.fso = '  '
   end
+  /* ------------------------------------------ *
+  | Allocate a temporary data set for our data |
+  * ------------------------------------------ */
+  'Alloc f('dd') new spa(5,5) tr' ,
+    'recfm(v b) lrecl(84) blksize(0)'
   /* ----------------------- *
   | Write out the stem data |
   * ----------------------- */
@@ -224,7 +226,7 @@ popup:
  parse arg msg1
  msg2 = 'Patience . . .'
   call pfshow 'off'           /* make sure pfshow is off */
- 'addpop'
+  'Addpop row(4) column(12)'
  'Control Display Lock'
  'Display Panel(gitpop)'
  'rempop'
@@ -302,9 +304,9 @@ docmd:
 +\-\%git manpages+\-\
 %Command ===>_zcmd
 +
-%GITHELP+displays all the availble git commands, along with other git
-+pages with more information. This will help the git novice, and git guru
-+to better use git.
+%GITHELP+displays all the availble git commands, along with other git pages
++with more information. This will help the git novice, and git guru to better
++use git.
 +
 %Commands:+
     %Only+removes all rows that do not have the provided string:
@@ -363,7 +365,7 @@ _z+@z
 @msg2
 +
 )INIT
-  &ZWINTTL = 'GIT Help Patience'
+  &ZWINTTL = 'GIT Help Popup'
 )END
 >End  */
 

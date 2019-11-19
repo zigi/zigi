@@ -1,6 +1,6 @@
 =========================RELEASE INFORMATION V1R0===============================
 
-Version : v01.00 / November 2019
+Version : v01.01 / November 2019
 
 zIGI is the zdevops ISPF Git Interface application that enables the
 traditional ISPF user to utilize many of the facilities of Git without
@@ -9,27 +9,31 @@ environment.
 
 To get started with this package:
 
-1. Install git for USS via the great folks at Rocket Software
+1. Install git for OMVS via the great folks at Rocket Software
+1a. Go to this url for git and the pre-requisite tools (bash, gzip,
+    unzip, vim, and perl):
+    https://www.rocketsoftware.com/product-categories/mainframe/git-for-zos
+1b. Go to this url to get a simplified installer for git and the
+    pre-requisite tools:
+    https://gist.github.com/wizardofzos/897b243d4cbe9fbc471ec1396fbbe174
 2. Make sure git-related setups (PATH/LIB etc.) is set via
    /etc/profile
-3. From uss-shell invoke: git clone git@github.com/wizardofzos/zigi.git
+3. From OMVS-shell invoke: git clone git@github.com/wizardofzos/zigi.git
 4. cd zigi
 5. ./install.sh (su and MVS HLQ access might be required)
-6. ISPF,3.4. Go to ZIGI.V1R0.EXEC and exec ZIGI
+6. ISPF,3.4. Go to ZIGI.V1R1.EXEC and exec ZIGI
 
  This file is part of zIGI.
 
- zIGI is free software: you can redistribute it and/or
- modify it under the terms of the GNU General Public
- License as published by the Free Software Foundation
- version 3 of the License.
+ zIGI is free software: you can redistribute it and/or modify it under
+ the terms of the GNU General Public License as published by the Free
+ Software Foundation version 3 of the License.
 
- zIGI is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied
- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE.  See the GNU General Public License for more
- details.
+ zIGI is distributed in the hope that it will be useful, but WITHOUT ANY
+ WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ for more details.
 
- You should have received a copy of the GNU General Public
- License along with zIGI. See ZIGI.GPLLIC, if not, see
+ You should have received a copy of the GNU General Public License along
+ with zIGI. See ZIGI.GPLLIC, if not, see
  <https://www.gnu.org/licenses/>.

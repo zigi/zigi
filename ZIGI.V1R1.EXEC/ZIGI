@@ -21,6 +21,18 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            11/18/09 LBD - Support F3 in ZIGIOSEL and       |
+  |                           skip clone.                      |
+  |                         - Replace LMMSTATS with LMMFIND    |
+  |                           to get member stats              |
+  |                         - Add -v (verbose) where ok        |
+  |            11/16/09 LBD - Convert to using zigitstat       |
+  |                           to save/update/compare           |
+  |                           ispf stats on PDS members.       |
+  |            11/13/09 LBD - Enhance the debug routine:       |
+  |                           Return a return code             |
+  |                           check for ZIGIDEBG DD enable     |
+  |                           log is in users home dir         |
   |            11/11/09 LBD - Add GITHELP as a command from    |
   |                           all panels (except browse)       |
   |            11/10/09 HBK - Fix qualignr edge-cases          |
@@ -54,9 +66,17 @@
   * ---------------------------------------------------------- */
   Address ISPExec
   'vget (zapplid)'
+
+  /* ---------------------------------------- *
+  | Check for ZIGIDEBG DD for debug purposes |
+  * ---------------------------------------- */
+  x = listdsi('ZIGIDEBG' 'FILE')
+  if x > 0 then if sysreason = 3 then zigidebg = 1
+  else zigidebg = 0
+  if zigidebg = 0 then
   "Control Errors Return"
 
-  parse value '' with null rx
+  parse value '' with null rx zigidebg_flag
   /* ----------------------------------------------------- *
   | Get the Active HLQ for use with the ALTLIB and LIBDEF |
   | of the zIGI libraries.                                |
@@ -111,7 +131,7 @@
   * ---------------------------------------------------------------- */
   zcmd = null
   zigtitle = '(zigi' ver')'
-  'vput (zigtitle)'
+  'vput (zigtitle ver)'
   'display panel(zigispls)'
   if rc = 8 then exit
 
@@ -120,9 +140,13 @@
   * ------------------------------------ */
   zerrhm   = 'zigih00'
   zerralrm = 'NO'
+  zerrtp   = 'NOTIFY'
   zs1 = 'Preparing the zigi environment for use'
   zs2 = 'Please standby'
   call do_popup
+  cmd = 'pwd'
+  x = bpxwunix(cmd,,so.,se.)
+  home    = strip(so.1)
   call getenv
   keyfile = home'/.ssh/id_rsa.pub'
   rtbl = 'ZIGL'random(9999)
@@ -236,7 +260,7 @@
     'VPut (zigiuid zigimail zigissh) Profile'
     zerrsm = 'Updated.'
     zerrlm = 'zIGI Settings updated successfully.'
-    'Setmsg msg(isrz002)'
+    'Setmsg msg(isrz003)'
     if zigiuid /= null
     then if zigimail /= null
     then if zigissh /= null
@@ -257,7 +281,7 @@
   if rc > 0 then do
     if rc = 8 then call create_zigirepo
     if rc > 8 then do
-      'setmsg msg(isrz002)'
+      'setmsg msg(isrz003)'
     end
   end
 
@@ -285,7 +309,7 @@
     do i = 1 to tc.0
       parse value key.i with localrep pdshlq qualignr zigirep
       zigikey = localrep'/'zigirep
-      'tbadd zigirepo'
+      'tbadd zigirepo order'
     end
   end
 
@@ -313,9 +337,10 @@
     if zcmd /= null then
     Select
       When abbrev('GITHELP',zcmd,4) = 1 then
-        Address TSO '%githelp'
+      Address TSO '%githelp'
       When abbrev('CREATE',zcmd,2) = 1 then do
-        call Create_Repo
+        x = Create_Repo()
+        if x = 0 then
         call work_with_repo
         zsel = null
       end
@@ -340,7 +365,11 @@
         'display panel(zigisshk)'
         if rc > 0 then leave
       end
-      Otherwise nop
+      Otherwise do
+        zerrsm = 'Unknown'
+        zerrlm = zcmd 'is not a recognized command.'
+        'setmsg msg(isrz003)'
+      end
     end
 
     if zsel /= null then
@@ -361,14 +390,22 @@
         zerrlm = 'The local repository has been deleted from zIGI' ,
           'and all OMVS files and directory were deleted. The z/OS' ,
           'datasets remain.' localrep'/'zigirep
-        'setmsg msg(isrz002)'
+        'setmsg msg(isrz003)'
       end
-      Otherwise nop
+      Otherwise do
+        zerrsm = 'Unknown'
+        zerrlm = zsel 'is not a recognized command.'
+        'setmsg msg(isrz003)'
+      end
     End
   end
 
+  if rtbl_open = 1 then
   'tbend' rtbl
   'tbclose zigirepo'
+  if zigidebg = 1 then
+  if zigidebg_use = 1 then
+  "Select Cmd(OBrowse '"home"/zigidebug.txt')"
   Exit 0
 
   /* ------------------------------ *
@@ -395,6 +432,7 @@ Work_With_Repo:
   * -------------------------------- */
   'vget (repopan) profile'
   if repopan = null then repopan = 'zigirepo'
+  rtop = 0
   do forever
     parse value '' with zsel zcmd row
     if ztdsels > 0
@@ -407,6 +445,7 @@ Work_With_Repo:
     end
     if rc > 4 then do
       'tbend' rtbl
+      rtbl_open = 0
       return
     end
     drop so. se.
@@ -423,9 +462,9 @@ Work_With_Repo:
     if zcmd /= null then
     Select
       When abbrev('VIEW',zcmd,1) = 1 then
-        'SELECT PGM(ISRDSLST) PARM(UDL' localrep'/'zigirep') SUSPEND'
+      'SELECT PGM(ISRDSLST) PARM(UDL' localrep'/'zigirep') SUSPEND'
       When abbrev('GITHELP',zcmd,4) = 1 then
-        Address TSO '%githelp'
+      Address TSO '%githelp'
       When abbrev('PRO',zcmd,2) = 1 then do
         if repopan = 'zigirepo'
         then repopan = 'zigireps'
@@ -451,11 +490,11 @@ Work_With_Repo:
       * --------------------------------------------------------- */
       When abbrev('PULL',zcmd,3) = 1 then do
         call pop 'Pulling from remote'
-        cmd = 'cd' localdir' && git pull'
+        cmd = 'cd' localdir' && git pull -v'
         x = docmd(cmd)
         call view_std 'B'
-        call update_repo_metadata
         call Refresh localrep zigirep pdshlq qualignr
+        call update_repo_metadata
       end
       /* --------------------------------------------------------- *
       | Add a PDS or a Sequential File to "Working Directory"     |
@@ -488,7 +527,7 @@ Work_With_Repo:
           if x = 1 then do
             zerrsm = ''
             zerrlm = 'grep search found nothing.'
-            'setmsg msg(isrz002)'
+            'setmsg msg(isrz003)'
           end
           else  call View_std 'B'
         end
@@ -504,22 +543,33 @@ Work_With_Repo:
       When abbrev('REMOTE',zcmd,3) = 1 then do
         zcmd = null
         'display panel(zigiremo)'
-        parse var origin guser '@' host ':' rest
-        cmd = 'touch 'home'/.ssh/known_hosts && '
-        cmd = cmd 'ssh-keyscan -t rsa,dsa 'host
-        cmd = cmd ' 2>&1 | sort -u - 'home'/.ssh/known_hosts >'
-        cmd = cmd ' 'home'/.ssh/tmp_hosts && '
-        cmd = cmd 'mv 'home'/.ssh/tmp_hosts 'home'/.ssh/known_hosts'
-        x = bpxwunix(cmd,,so.,se.)
-        cmd = 'cd' localrep'/'zigirep
-        x = docmd(cmd '&& git remote add origin 'origin)
-        call View_std 'B'
-        cmd = 'cd' localrep'/'zigirep
-        cmd = docmd(cmd '&& git push -u origin 'branch)
-        call View_std 'B'
-        call update_repo_metadata
+        if rc > 0 then do
+          zerrsm = 'Cancelled.'
+          zerrlm = 'Remote update cancelled.'
+          'setmsg msg(isrz003)'
+        end
+        else do
+          parse var origin guser '@' host ':' rest
+          cmd = 'touch 'home'/.ssh/known_hosts && '
+          cmd = cmd 'ssh-keyscan -t rsa,dsa 'host
+          cmd = cmd ' 2>&1 | sort -u - 'home'/.ssh/known_hosts >'
+          cmd = cmd ' 'home'/.ssh/tmp_hosts && '
+          cmd = cmd 'mv 'home'/.ssh/tmp_hosts 'home'/.ssh/known_hosts'
+          x = bpxwunix(cmd,,so.,se.)
+          cmd = 'cd' localrep'/'zigirep
+          x = docmd(cmd '&& git remote add origin 'origin)
+          call View_std 'B'
+          cmd = 'cd' localrep'/'zigirep
+          cmd = docmd(cmd '&& git push -vu origin 'branch)
+          call View_std 'B'
+          call update_repo_metadata
+        end
       end
-      Otherwise nop
+      Otherwise do
+        zerrsm = 'Unknown'
+        zerrlm = zcmd 'is not a recognized command.'
+        'setmsg msg(isrz003)'
+      end
     end
 
     if zsel /= null then
@@ -531,7 +581,7 @@ Work_With_Repo:
         zerrsm = 'Error'
         zerrlm = fulldsn 'does not exist. This should not have happened.' ,
           'Somehow it may have been deleted.'
-        'Setmsg msg(isrz002)'
+        'Setmsg msg(isrz003)'
       end
       When zsel = 'S' then call work_with_repo_file
       /* -------------------------------- *
@@ -543,7 +593,7 @@ Work_With_Repo:
         call do_popup
         d = usssafe(dsn)
         cmd = 'cd' localrep'/'zigirep
-        x = docmd(cmd '&& git add 'd)
+        x = docmd(cmd '&& git add -v 'd)
         call view_std 'B'
         if ztdsels = 1 then
         call update_repo_metadata
@@ -604,7 +654,7 @@ Do_Commit:
   if rc > 0 then do
     zerrsm = 'Cancelled.'
     zerrlm = 'Commit has been cancelled.'
-    'setmsg msg(isrz002)'
+    'setmsg msg(isrz003)'
   end
   else do
     cmessage = value('msg1')
@@ -648,7 +698,7 @@ Do_Commit:
     /* ------------------------------------- *
     | If cmsg.0 = 2 then use commit -m msg   |
     * -------------------------------------- */
-    else x = docmd(cmd "&& git commit -m '"cmsg.1"'")
+    else x = docmd(cmd "&& git commit -vm '"cmsg.1"'")
     call view_std 'B'
     /* ------------------------------- *
     | If > 1 msg then delete the msg  |
@@ -668,7 +718,7 @@ Do_Commit:
 Do_Push:
   arg opt
   call pop 'Pushing Updates to Remote Git'
-  cmd = 'cd' localdir' && git push'
+  cmd = 'cd' localdir' && git push -v'
   cmd = docmd(cmd)
   call view_std 'B'
   if opt = null then
@@ -682,12 +732,19 @@ Clone_Repo:
   parse value '' with localrep pdshlq remotebr
   do forever
     zcmd = null
+    remote = null
     c_stat = 0
     cc_rc = 0
     'Display Panel(zigicc)'
     if rc > 0 then return
     if localrep = "?" then
     localrep = zigiosel()
+    if strip(localrep) = null then do
+      zerrsm = 'Cancelled.'
+      zerrlm = 'Clone cancelled as OMVS directory selection cancelled.'
+      'Setmsg msg(isrz003)'
+      return
+    end
     parse var remote site ':' user '/' zigirep '.git'
     parse var site guser '@' host
     /* Let's clone the remote repo... */
@@ -702,12 +759,12 @@ Clone_Repo:
     x = bpxwunix(cmd,,so.,se.)
     cmd = 'cd 'localrep
     if remotebr = null
-    then cmd = cmd ' && git clone 'remote
-    else cmd = cmd ' && git clone -b' remotebr remote
+    then cmd = cmd ' && git clone -v 'remote
+    else cmd = cmd ' && git clone -vb' remotebr remote
     x = docmd(cmd)
-    call view_std 'B'
     if x > 0 then do
       c_stat = 1
+      call view_std 'B'
       Address ISPExec
       return
     end
@@ -725,7 +782,7 @@ Clone_Repo:
     qualignr = words(translate(pdshlq,' ','.'))
     call Refresh localrep zigirep pdshlq qualignr
     zigikey = localrep'/'zigirep
-    'tbadd zigirepo'
+    'tbadd zigirepo order'
     "TBSAVE zigirepo REPLCOPY LIBRARY(isptabl)"
     leave
   end
@@ -749,7 +806,8 @@ Work_with_repo_file:
   else do
     /* Do this if it's a PDS */
     localdir = localrep'/'zigirep
-    'TBCreate' rtll 'Names(mem memstat ussmem zlcnorc zlmdate zlmtime)',
+    'TBCreate' rtll 'Names(mem memstat ussmem zlcnorc' ,
+      'zlmdate zlmtime zluser)',
       'replace NoWrite'
     address syscall
     'readdir 'localrep'/'zigirep'/'dsn' root.'
@@ -779,16 +837,21 @@ Work_with_repo_file:
           end
         end
       end
-      /* The files in OMVS have some chars changed due to cp -M */
-      /* So we fix the name before we save to table :) */
+      /* ------------------------------------------------------- *
+      |  The files in OMVS have some chars changed due to cp -M |
+      |  So we fix the name before we save to table :)          |
+      * ------------------------------------------------------- */
       ussmem = mem
       mem = translate(mem,'#@$','._-')
-      "LMMLIST DATAID("did") Member("mem") OPTION(LIST) STATS(YES)"
+      /* ---------------------------------------------- *
+      | No get ISPF stats for each member for the list |
+      * ---------------------------------------------- */
+      "LMMFind DATAID("did") Member("mem") STATS(YES)"
       'tbadd' rtll
     end
     "LMCLOSE DATAID("did")"
     "LMFREE DATAID("did")"
-    'tbsort' rtll
+    'tbsort' rtll 'Fields(mem,c,a)'
     'tbtop' rtll
     /* ---------------------------------- *
     | Process the Member list until done |
@@ -810,7 +873,7 @@ Work_with_repo_file:
       /* Make sure we edit (and copy) right dataset when we have
       a prefix set */
       save_top = ztdtop
-      edsn = substr(fulldsn,2,length(fulldsn)-2)
+      edsn = strip(fulldsn,'B',"'")
 
       if row = 0 then zsel = null
       if row <> null then
@@ -819,15 +882,17 @@ Work_with_repo_file:
         'TBSkip' rtll 'Number('row')'
       end
 
+      if zcmd /= null then
       Select
-      When abbrev('GITHELP',zcmd,4) = 1 then
-          Address TSO '%githelp'
-      When abbrev('COMMIT',zcmd,3) = 1 then do
-        call do_commit
-        call work_with_repo_file
-      end
-      When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
-      When abbrev('STATUS',zcmd,2) = 1 then call do_status
+        When abbrev('GITHELP',zcmd,4) = 1 then
+        Address TSO '%githelp'
+        When abbrev('COMMIT',zcmd,3) = 1 then do
+          zsel = null
+          call do_commit
+          call work_with_repo_file
+        end
+        When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
+        When abbrev('STATUS',zcmd,2) = 1 then call do_status
         When abbrev("L",translate(word(zcmd,1)),1) = 1 then do
           mem = translate(word(zcmd,2))
           'tbtop' rtll
@@ -837,20 +902,30 @@ Work_with_repo_file:
             save_top = scanrow
             zerrsm = null
             zerrlm = word(zcmd,2) 'was found in row' ztdtop
-            'Setmsg msg(isrz002)'
+            'Setmsg msg(isrz003)'
           end
           else do
             zerrsm = null
             zerrlm = word(zcmd,2) 'was not found'
-            'Setmsg msg(isrz002)'
+            'Setmsg msg(isrz003)'
           end
         end
+        Otherwise do
+          zerrsm = 'Unknown'
+          zerrlm = zcmd 'is not a recognized command.'
+          'setmsg msg(isrz003)'
+        end
+        zsel = null
+      end
+
+      if zsel /= null then
+      Select
         when zsel = 'S' then do
           /* -------------------------------- *
           | Edit PDS member or PS dataset    |
           * -------------------------------- */
           x = listdsi(fulldsn)
-          edsn = substr(fulldsn,2,length(fulldsn)-2)
+          edsn = strip(fulldsn,'B',"'")
           if sysdsorg = 'PS'
           then "Edit Dataset('"edsn"')"
           else "Edit Dataset('"edsn"("mem")'"
@@ -860,14 +935,12 @@ Work_with_repo_file:
             /* now the user will not be ZIGI in ISPFSTATS     */
             /* this 'modifies' the fulldsn and dsn vars so    */
             /* better save before and restore after           */
-            save_fulldsn = fulldsn
-            save_dsn = dsn
-            call update_repo_metadata
-            fulldsn = save_fulldsn
-            dsn = save_dsn
-            /* then call this function again to update the    */
-            /* status of the members in this pds after update */
-            call work_with_repo_file
+            if ztdsels = 1 then do
+              call update_repo_metadata
+              /* then call this function again to update the    */
+              /* status of the members in this pds after update */
+              call work_with_repo_file
+            end
           end
         end
         when zsel = 'A' then do
@@ -879,14 +952,14 @@ Work_with_repo_file:
           /* These cp -M issues are really getting annoying */
           m = translate(mem,'._-','#@$')
           x = docmd(cmd || ' && git add 'm)
-          save_fulldsn = fulldsn
-          save_dsn = dsn
-          call update_repo_metadata
-          /* then call this function again to update the    */
-          /* status of the members in this pds after update */
-          fulldsn = save_fulldsn
-          dsn = save_dsn
-          call work_with_repo_file
+          /* save and then restore dsn and full dsn around
+          update_repo_metadata  */
+          if ztdsels = 1 then do
+            call update_repo_metadata
+            /* then call this function again to update the    */
+            /* status of the members in this pds after update */
+            call work_with_repo_file
+          end
         end
         when zsel = 'U' then do
           /* -------------------------------- *
@@ -906,13 +979,9 @@ Work_with_repo_file:
           /* after the checkout --, we better re-populate   */
           /* the z/OS datasets                              */
           call Refresh localrep zigirep pdshlq qualignr
-          save_fulldsn = fulldsn
-          save_dsn = dsn
           call update_repo_metadata
           /* then call this function again to update the    */
           /* status of the members in this pds after update */
-          fulldsn = save_fulldsn
-          dsn = save_dsn
           call work_with_repo_file
         end
         when zsel = 'D' then do
@@ -924,7 +993,13 @@ Work_with_repo_file:
           /* These cp -M issues are really getting annoying */
           m = translate(mem,'#@$','._-')
           x = docmd(cmd ' && git diff 'm)
-          call View_std
+          if so.0 + se.0 > 0
+          then call View_std
+          else do
+            zerrsm = 'No Diff'
+            zerrlm = 'No differnce found.'
+            'Setmsg msg(isrz003)'
+          end
         end
         otherwise nop
       end
@@ -937,7 +1012,7 @@ Work_with_repo_file:
   * ------------------------- */
 Edit_PS:
   arg noedit
-  edsn = substr(fulldsn,2,length(fulldsn)-2)
+  edsn = strip(fulldsn,'B',"'")
   if noedit = null then do
     /* Do this if it's a regular file (sequential in z/OS) */
     "Edit Dataset('"edsn"')"
@@ -1000,18 +1075,18 @@ Branch_it:
         if bl.ii = bname then seen_this_branch = 1
       end
       if seen_this_branch = 1 then do
-         sbname = bname
-         'tbtop' rtbb
-         do forever
-            'tbskip' rtbb
-            if rc > 0 then leave
-            if sbname = bname then do
-               brstatus = 'Local/Remote'
-               'tbmod' rtbb
-               leave
-            end
-            end
-         end
+        sbname = bname
+        'tbtop' rtbb
+        do forever
+          'tbskip' rtbb
+          if rc > 0 then leave
+          if sbname = bname then do
+            brstatus = 'Local/Remote'
+            'tbmod' rtbb
+            leave
+          end
+        end
+      end
       /* but only add it to table if we haven't yet */
       if seen_this_branch = 0 then do
         if bname <> branch & bname <> "HEAD" then do
@@ -1052,7 +1127,7 @@ Branch_it:
     if rc > 4 then leave
     save_btop = ztdtop
     if abbrev('GITHELP',zcmd,4) = 1 then
-          Address TSO '%githelp'
+    Address TSO '%githelp'
     if newb <> null then do
       /* ----------------------------- *
       | Create this new branch, switch|
@@ -1089,7 +1164,7 @@ Branch_it:
       'tbdelete' rtbb
       zerrsm = 'Deleted.'
       zerrlm = 'Branch 'bname' succesfully deleted'
-      'Setmsg msg(isrz002)'
+      'Setmsg msg(isrz003)'
     end
   end
   'tbend' rtbb
@@ -1098,9 +1173,9 @@ Branch_it:
 
 Create_Repo:
   do forever
-    parse value '' with zerrsm zcmd zigirep cc_rc pdshlq
+    parse value '' with zerrsm zcmd zigirep cc_rc pdshlq localrep
     'Display Panel(ziginew)'
-    if rc > 0 then return
+    if rc > 0 then return 8
     if localrep = '?' then
     localrep = zigiosel()
     /* ---------------------------------------------------- *
@@ -1118,7 +1193,7 @@ Create_Repo:
       if so.0 = 1 & so.1 = 1 then do
         zerrsm = "Failed."
         zerrlm = "Error: "localrep"/"zigirep" exists and must not."
-        'setmsg msg(isrz002)'
+        'setmsg msg(isrz003)'
         leave
       end
     end
@@ -1176,7 +1251,6 @@ Create_Repo:
     cmd = cmd 'chtag -tc iso8859-1 .gitattributes'
     x = bpxwunix(cmd,,so.,se.)
 
-
     /* Create the .zigi folder in the repo and add the dsn-file */
     cmd = 'cd 'localrep'/'zigirep' && mkdir .zigi'
     x = bpxwunix(cmd,,so.se.)
@@ -1188,7 +1262,7 @@ Create_Repo:
       660
     if retval = -1 then do
       Address ISPExec
-      zs1 = "Something bad when creating .gitattributes. Make errormsg"
+      zs1 = "Something bad when creating .zigi/dsn."
       zs4 = 'Press F3 to close this popup and exit.'
       parse value '' with zs2 zs3
       call do_popup4
@@ -1228,11 +1302,11 @@ Create_Repo:
 
     Address ISPExec
     zigikey = localrep'/'zigirep
-    'tbadd zigirepo'
+    'tbadd zigirepo order'
     "TBSAVE zigirepo REPLCOPY LIBRARY(isptabl)"
     leave
   end
-  return
+  return 0
 
   /* ---------------------------------------------------------- *
   | Generalized routine to view stdout. (so.) or stderr. (se.) |
@@ -1273,17 +1347,18 @@ view_std:
     if se.xi = null
     then se.xi = ' '
   end
+  sec = so.0 + se.0
   /* ----------------------------- *
-   | If stdopt is 'B' then do both |
-   * ----------------------------- */
-   stdopt = null
-   sc = so.0
-   do xi = 1 to se.0
-      sc = sc + 1
-      so.sc = se.xi
-      end
-   so.0 = sc
-   drop se.
+  | If stdopt is 'B' then do both |
+  * ----------------------------- */
+  stdopt = null
+  sc = so.0
+  do xi = 1 to se.0
+    sc = sc + 1
+    so.sc = se.xi
+  end
+  so.0 = sc
+  drop se.
   /* ----------------------- *
   | Write out the stem data |
   * ----------------------- */
@@ -1303,9 +1378,11 @@ view_std:
   | And use Library Services to Free the Data Set.     |
   * -------------------------------------------------- */
   Address ISPExec
-  'lminit dataid(ddb) ddname('dd')'
-  'browse dataid('ddb') panel(zigibrow)'
-  'lmfree dataid('ddb')'
+  if sec > 0 then do
+    'lminit dataid(ddb) ddname('dd')'
+    'browse dataid('ddb') panel(zigibrow)'
+    'lmfree dataid('ddb')'
+  end
   /* ----------------------------- *
   | Last Free the z/OS Allocation |
   * ----------------------------- */
@@ -1363,12 +1440,12 @@ Upper:
 
 dsnvalid: Procedure
   /* Tests for a 'potentially valid' z/OS datasetname */
-  parse arg dsn
-  upp = TRANSLATE(dsn,".ABCDEFGHIJKLMNOPQRSTUVWXYZ",,
+  parse arg val_dsn
+  upp = TRANSLATE(val_dsn,".ABCDEFGHIJKLMNOPQRSTUVWXYZ",,
     ".abcdefghijklmnopqrstuvwxyz")
-  if upp = dsn then do
+  if upp = val_dsn then do
     call outtrap 'x.'
-    if sysdsn(dsn) = "OK" | sysdsn(dsn) = "DATASET NOT FOUND" then do
+    if sysdsn(val_dsn) = "OK" | sysdsn(val_dsn) = "DATASET NOT FOUND" then do
       call outtrap 'off'
       return "OK"
     end
@@ -1406,7 +1483,9 @@ idle:
   return
 
 update_repo_metadata:
-  debug('start of update_repo_metadata')
+  save_fulldsn = fulldsn
+  save_dsn = dsn
+  x = debug('start of update_repo_metadata')
   if rtbl_open = 1 then do
     'tbend' rtbl
     rtbl_open = 0
@@ -1414,16 +1493,16 @@ update_repo_metadata:
     rtop = 0
   end
   if rtbl_open = 0 then
-  'TBCreate' rtbl 'Names(dsnstat dsn pdshlq fulldsn) Replace NoWrite'
+  'TBCreate' rtbl 'Keys(fulldsn) Names(dsnstat dsn pdshlq) Replace NoWrite'
   rtbl_open = 1
   /* We always fetch when we start to work on a repo */
-  debug('fetching remote')
+  x = debug('fetching remote')
   zs1 = 'Fetching Remote info'
   zs2 = 'Patience . . .'
   call do_popup
   /* get the remote info.....but */
   /* we have to get rid of the tab in git output */
-  debug('getting the remotes')
+  x = debug('getting the remotes')
   gitcmd = 'git remote -v | sed -e "s/[[:space:]]\+/ /g"'
   localdir = localrep'/'zigirep
   x = docmd('cd 'localdir' && 'gitcmd)
@@ -1437,7 +1516,7 @@ update_repo_metadata:
   /* Fetch only if there's a remote */
   if remote1 /= '<no remote defined>' then
   x = docmd(cmd '&& git fetch')
-  debug('...done')
+  x = debug('...done')
   /* now we get the status for all in the repo */
   if se.0 > 1 then fetchmsg = "Remote updates, check status"
   else fetchmsg = "No remote updates"
@@ -1445,12 +1524,12 @@ update_repo_metadata:
   zs2 = 'Patience . . .'
   call do_popup
   /* get all the files that are in the repo */
-  debug('getting all files in repo-1')
+  x = debug('getting all files in repo-1')
   address syscall
   'readdir 'localrep'/'zigirep' root.'
   address ispexec
-  debug('...done')
-  debug('iterating...')
+  x = debug('...done')
+  x = debug('iterating...')
   do i = 1 to root.0
     if root.i = "." | root.i = ".." then do
       iterate
@@ -1460,11 +1539,11 @@ update_repo_metadata:
       if dsnvalid("'"root.i"'") = "OK" then do
         /* and only for valid z/OS-datasets (skip README.md et al) */
         r = usssafe(root.i)
-        debug('   check file or dir')
+        x = debug('   check file or dir')
         cmd = '[ -d 'localrep'/'zigirep'/'r' ] && echo "DIR"'
         so.1 = null
         x = bpxwunix(cmd,,so.,se.)
-        debug('   done')
+        x = debug('   done')
         if qualignr = 0 then do
           if pdshlq /= '' then
           fulldsn = "'"pdshlq"."root.i"'"
@@ -1477,39 +1556,30 @@ update_repo_metadata:
           fulldsn = translate(fulldsn,'.',' ')
           fulldsn = "'"fulldsn'.'root.i"'"
         end
-        edsn = substr(fulldsn,2,length(fulldsn)-2)
+        edsn = strip(fulldsn,'B',"'")
         if so.1 = "DIR" & x = 0 then do
-          debug('its a dir...lmmstat all the things')
-          /* And only for dirs in the repo (PDSes in z/OS) */
-          /* see if any members not touched by zigi */
-          mem = null
-          "LMINIT DATAID(zigilmm) DATASET('"edsn"')"
-          "LMOPEN DATAID("zigilmm") OPTION(INPUT)"
-          do forever
-            "LMMLIST DATAID("zigilmm") OPTION(LIST) MEMBER(MEM)" ,
-              "STATS(YES)"
-            if rc > 3 then do
-              "LMClose Dataid("zigilmm")"
-              "LMFree  Dataid("zigilmm")"
-              mem = null
-              leave
-            end
-            if zluser /= "ZIGI" then do
-              /* if not touched by zigi, add to repo */
-              m = strip(mem)
-              m = usssafe(m)
-              e = usssafe(edsn)
-              r = usssafe(root.i)
-              /* TODO? Use Scottish Command here ? */
-              copycmd = "//'"e"("m")'"
-              copycmd = '"'copycmd'"'
-              copycmd = "cp -U -M" copycmd" "localrep"/"zigirep
-              copycmd = copycmd || "/"r"/"
-              call bpxwunix copycmd
-              /* update ispf-statistics to reflect zigi control */
-              "LMMSTATS DATAID("zigilmm") MEMBER("mem") USER(ZIGI)"
-            end
+          x = debug('its a dir...lmmstat all the things')
+          Address TSO
+          statfile = localrep'/'zigirep'/.zigi/'root.i
+          mem_delta = zigistat("'"edsn"'" statfile 'C')
+          Address ISPExec
+          mem_hit = 0
+          do im = 1 to words(mem_delta)
+            mem = word(mem_delta,im)
+            m = strip(mem)
+            m = usssafe(m)
+            e = usssafe(edsn)
+            r = usssafe(root.i)
+            /* TODO? Use Scottish Command here ? */
+            copycmd = "//'"e"("m")'"
+            copycmd = '"'copycmd'"'
+            copycmd = "cp -U -M" copycmd" "localrep"/"zigirep
+            copycmd = copycmd || "/"r"/"
+            call bpxwunix copycmd
+            mem_hit = 1
           end
+          if mem_hit = 1 then
+          x = zigistat("'"edsn"'" statfile 'S')
         end
         else do
           /* It must be a PS, just copy it over to OMVS */
@@ -1523,21 +1593,20 @@ update_repo_metadata:
     end
   end
 
-
   zs1 = 'Building List of repository Data Sets'
   zs2 = fetchmsg
   call do_popup
-  debug('get the status')
+  x = debug('get the status')
   cmd = 'cd' localrep'/'zigirep
   x = docmd(cmd '&& git status --porcelain')
-  debug('done')
+  x = debug('done')
   /* get the stuff from the repo-file */
-  debug('get all the files (again?)')
+  x = debug('get all the files (again?)')
   address syscall
   'readdir 'localrep'/'zigirep' root.'
   address ispexec
-  debug('done')
-  debug('iterate the files')
+  x = debug('done')
+  x = debug('iterate the files')
   do i = 1 to root.0
     dsnstat = null
     if root.i = "." | root.i = ".." then do
@@ -1545,7 +1614,7 @@ update_repo_metadata:
     end
     else do
       if dsnvalid(root.i) = "OK" then do
-        debug('Get the git status and fill dsnstat')
+        x = debug('Get the git status and fill dsnstat')
         dsn = root.i
         do ii = 1 to so.0
           stat = substr(so.ii,1,2)
@@ -1555,7 +1624,7 @@ update_repo_metadata:
             leave
           end
         end
-        debug('done')
+        x = debug('done')
 
         if qualignr = null then do
           qualignr = 0
@@ -1582,7 +1651,7 @@ update_repo_metadata:
   /* --------------------------- *
   | Get the current branch info |
   * --------------------------- */
-  debug('getting git status for branch names')
+  x = debug('getting git status for branch names')
   x = docmd('cd 'localdir' && git status')
   branch = word(so.1,3)
   if so.0 > 1 then do
@@ -1593,6 +1662,8 @@ update_repo_metadata:
     parse value '' with branch_status bstat baction
   end
   'tbsort' rtbl 'fields(fulldsn)'
+  fulldsn = save_fulldsn
+  dsn = save_dsn
   return
 
 porcelain:
@@ -1686,6 +1757,7 @@ Add_Dataset:
     then 'tbdispl' dsnatbl
     else do
       select
+        when add_count = 0 & list = 1 then csr = 'ZSEL'
         when dsnapfx  = null then csr = 'DSNAPFX'
         when qualignr = null then csr = 'QUALIGNR'
         otherwise csr = 'ZCMD'
@@ -1697,10 +1769,10 @@ Add_Dataset:
     if add_count > 0 then
     if qualignr = 0 then
     pdshlq = ''
-    else
-    pdshlq  = dsnapfx
+    else pdshlq  = dsnapfx
     if rc > 4 then do
       zsel = null
+      'tbput' rtbl
       'tbend' dsnatbl
       'tbsort' rtbl 'fields(fulldsn,c,a)'
       'tbtop' rtbl
@@ -1713,14 +1785,16 @@ Add_Dataset:
     if row = 0 then zsel = null
     if row <> null then
     if row > 0 then do
-      'TBTop zigirepo'
-      'TBSkip zigirepo Number('row')'
+      'TBTop' dsnatbl
+      'TBSkip' dsnatbl 'Number('row')'
     end
 
     if zsel = 'B' then do
+      'control display save'
       "LMInit Dataid(edvbr) dataset('"dsna"')"
       "Memlist Dataid("edvbr") Default(B)"
       "LMfree Dataid("edvbr")"
+      'control display restore'
     end
     if zsel = 'S' | zsel = 'A' then do
       call do_add_copy
@@ -1731,14 +1805,14 @@ Add_Dataset:
       zerrsm = 'Empty List'
       zerrlm = 'The requested high level qualifier resulted in zero' ,
         'eligible datasets.'
-      'setmsg msg(isrz002)'
+      'setmsg msg(isrz003)'
     end
     'tbtop' dsnatbl
   end
   return
 
 tbcreate_dsnatbl:
-  'tbcreate' dsnatbl 'names(dastat dsna) nowrite'
+  'tbcreate' dsnatbl 'keys(dsna) names(dastat) nowrite'
   return
 
 Get_List:
@@ -1791,36 +1865,41 @@ Do_Add_Copy:
       zerrsm = 'Invalid'
       zerrlm = 'Dataset' what 'is not a valid Git dataset. Must be' ,
         'RECFM of Fixed or Variable and not U.'
-      'Setmsg msg(isrz002)'
+      'Setmsg msg(isrz003)'
     end
     dastat = 'Invalid Recfm'
-    'tbput' dsnatbl
+    'tbmod' dsnatbl
     return
   end
   if SYSDSORG = 'PO' then do
     pds = what
     PDS = strip(PDS,"B","'")
-    PDS = usssafe(PDS)
-    mkdir = "mkdir -p "DIR"/"dsnb
-    call bpxwunix mkdir
-    copycmd = "//'"pds"'"
+    pdss = usssafe(dsnb)
+    pdsc = usssafe(pds)
+    mkdir = "mkdir -p "DIR"/"pdss
+    x = bpxwunix(mkdir,,so.,se.)
+    copycmd = "//'"pdsc"'"
     copycmd = '"'copycmd'"'
-    copycmd = "cp -U -M" copycmd" "DIR"/"dsnb"/"
-    call bpxwunix copycmd
+    copycmd = "cp -U -M" copycmd" "DIR"/"pdss"/"
+    x =bpxwunix(copycmd,,so.,se.)
+    Address TSO '%zigistat' "'"pds"'" dir"/.zigi/"dsnb 'S'
+    x = docmd('cd' dir '&& git add .zigi/'pdss)
   end
   else do
     W = usssafe(WHAT)
+    PSS = usssafe(dsnb)
     copycmd = "//'"W"'"
     copycmd = '"'copycmd'"'
-    copycmd = "cp -U -M" copycmd" "DIR"/"dsnb
+    copycmd = "cp -U -M" copycmd" "DIR"/"pss
     call bpxwunix copycmd
   end
   dsnstat = '[??] Untracked'
   dsn = dsnb
   fulldsn = "'"what"'"
+  pdshlq = dsnapfx
   'tbadd' rtbl
   dastat = 'Added'
-  'tbput' dsnatbl
+  'tbmod' dsnatbl
   add_count = add_count + 1
   call save_dsninfo
   return
@@ -1923,9 +2002,7 @@ Do_Popup4:
   | bpxwunix commands.                                    |
   * ----------------------------------------------------- */
 GETENV:
-  cmd = 'pwd'
-  x = bpxwunix(cmd,,so.,se.)
-  home    = strip(so.1)
+  x = debug('Starting collection of env variables')
   cmd  = docmdx('env')
   rc = bpxwunix(cmd,,so.,se.)
   envc = 0
@@ -1941,6 +2018,7 @@ GETENV:
   call add_env '_BPX_SPAWN_SCRIPT=YES'
   env.0 = envc
   drop so. se.
+  x = debug('Finished collection of env variables')
   return
 
   /* -------------------- *
@@ -1976,10 +2054,13 @@ docmdx:
   return r
 
 debug:
-  if ZIGID     = 'YES' then do
+  if zigidebg  = 1 then do
     parse arg msg
-    msg = TIME()' : 'msg
-    c = 'echo "'msg'" >> /tmp/zigidebug.txt'
+    msg = Date() Time()' : 'msg
+    c = 'echo "'msg'" >> 'home'/zigidebug.txt'
     x = bpxwunix(c,,so.,se.)
+    if so.0 + se.0 > 0 then
+    call view_std 'B'
+    zigidebg_use = 1
   end
   return 0

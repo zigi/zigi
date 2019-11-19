@@ -16,13 +16,13 @@
 %Current Branch     : $branch
 %
 %Commands:  %L+Locate    ]Commit+]Gitlog+]Status+
-%Selections:%S+Edit%A+Add for commit%D+Show Diff%U+Un-Modify
+%Selections:%S+Edit%A+Add for commit%D+Show Diff
 %
-%S  Member     Status                     Size    Mod-Date  Mod-Time
+%S  Member     Status                     Size    Mod-Date  Mod-Time  Userid
 )Model
-@z+$z        +$z                      [z      +  [z       +[z       +
+@z+$z        +$z                      [z      +  [z       +[z       +$z
 )Init
-  .zvars = '(zsel mem memstat zlcnorc zlmdate zlmtime)'
+  .zvars = '(zsel mem memstat zlcnorc zlmdate zlmtime zluser)'
   .cursor = &zcmd
   .help = zigihr0
   &zscr = CSR
@@ -43,6 +43,8 @@
        if (&Zsel = '=')
            &Zsel = &osel
      &osel = &zsel
+ if (&row = 0)
+    &zsel = &z
  ver (&zsel,list,S,A,D,U)
 )PNTS
  FIELD(COMMIT) VAR(ZCMD) VAL('COMMIT')
