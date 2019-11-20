@@ -334,7 +334,7 @@ docmd:
   _ type(input) hilite(uscore)
   @ type(output) intens(high)
   $ type(output) intens(low )
-)Body Expand(\\) width(132)
+)Body Expand(\\) width(&zscreenw)
 +\-\%git manpages+\-\
 %Command ===>_zcmd                  \ \                        %Scroll ===>_scrl
 +
