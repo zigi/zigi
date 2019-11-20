@@ -87,6 +87,7 @@
     j = i + 1
     gitcat = strip(so.j)
     gitc = gitc + 1
+    git.gitc = gitcmd gitcat
     'tbadd githelp'
   end
   git.0 = gitc
@@ -189,14 +190,16 @@ Browse_Cmd:
   /* ------------------------- *
   | Fixup null records in so. |
   * ------------------------- */
+  lrecl = 84
   do fso = 1 to so.0
     if so.fso = null then so.fso = '  '
+    if length(so.fso) > lrecl then lrecl = length(so.fso)
   end
   /* ------------------------------------------ *
   | Allocate a temporary data set for our data |
   * ------------------------------------------ */
   'Alloc f('dd') new spa(5,5) tr' ,
-    'recfm(v b) lrecl(84) blksize(0)'
+    'recfm(v b) lrecl('lrecl+4') blksize(0)'
   /* ----------------------- *
   | Write out the stem data |
   * ----------------------- */
