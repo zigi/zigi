@@ -17,7 +17,7 @@
 +2. Repository will be named (and stored) in OMVS as /localdirectory/name
 +3. Fails if /localdirectory/name is present
 +   Override with a Y@A+
-+4. Thirtytwo characters should be enough for a repo-name :)
++4. Thirty-two characters should be enough for a repo-name :)
 +
                   +Press%Enter+to continue, or%F3+to cancel
 )Init
