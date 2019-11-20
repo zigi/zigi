@@ -16,7 +16,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
-  |            11/20/19 LBD - Save/Restore before browse       |
+  |            11/20/19 LBD - Enable a wide screen table       |
+  |                         - Save/Restore before browse       |
   |            11/18/19 LBD - Set LRECL to 84 where it         |
   |                           should have been to start wtih   |
   |            11/10/19 LBD - Creation                         |
@@ -29,6 +30,7 @@
   | Get into ISPF and load the ISPF panels |
   * -------------------------------------- */
   address ispexec
+  'vget (zscreenw)'
   load_info = loadispf()
 
   call popup 'Getting git OMVS environment variables.'
@@ -98,6 +100,9 @@
   /* ----------------- *
   | Display the table |
   * ----------------- */
+  if zscreenw = 80 then
+  gpanel = 'githelp'
+  else gpanel = 'githelpw'
   do forever
     zcmd = null
     if stop > 0 then do
@@ -106,7 +111,7 @@
     end
     if ztdsels > 0 then
     'tbdispl githelp'
-    else 'tbdispl githelp panel(githelp)'
+    else 'tbdispl githelp panel('gpanel')'
     if rc > 4 then leave
     if row > 0 then do
       'tbtop githelp'
@@ -226,15 +231,15 @@ tcmd:
   return x
 
 popup:
- parse arg msg1
- msg2 = 'Patience . . .'
+  parse arg msg1
+  msg2 = 'Patience . . .'
   call pfshow 'off'           /* make sure pfshow is off */
   'Addpop row(4) column(12)'
- 'Control Display Lock'
- 'Display Panel(gitpop)'
- 'rempop'
+  'Control Display Lock'
+  'Display Panel(gitpop)'
+  'rempop'
   call pfshow 'reset'         /* make sure pfshow is reset */
- return
+  return
 
 pfshow:
   if zpfshow = 'OFF' then return
@@ -323,6 +328,40 @@ docmd:
 )Init
  &zcont = tgithelp
 )Proc
+)End
+>Panel githelpw
+)Attr
+  _ type(input) hilite(uscore)
+  @ type(output) intens(high)
+  $ type(output) intens(low )
+)Body Expand(\\) width(132)
++\-\%git manpages+\-\
+%Command ===>_zcmd                  \ \                        %Scroll ===>_scrl
++
++Commands:  %Only+display only rows with string%Refresh+after an Only
++Selections:%S+select to view
++
++S  Command                 Description
+)Model
+_z+@z                      $z
+)Init
+ .zvars = '(vsel gitcmd gitcat)'
+ .help = tgithelp
+)Proc
+ IF (&ZCMD = &Z)
+     if (&ztdsels = 0000)
+        &row = .csrrow
+        if (&row ^= 0)
+            if (&vsel = &z)
+                &vsel = S
+     if (&ztdsels ^= 0000)
+          &row = &z
+     IF (&vsel ^= &Z)
+        if (&vsel = '=')
+           &vsel = &osel
+     &osel = &vsel
+     if (&row = 0)
+        &vsel = &Z
 )End
 >Panel githelp
 )Attr
