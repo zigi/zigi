@@ -22,8 +22,7 @@
 [Githelp+ Git Help              [Push+ Push to origin
 [GitLog+  Show git log output   [Refresh+ Replace MVS datasets
 +
-%S+to select dataset (Edit if PS, memberlist if PO, one at a time)
-%A+to add%modified+datasets/members to index
+%S+Select (Edit)%A+Add to index%B+Browse%V+View
 +
 %S  Status                    Dataset Name
 )Model
@@ -62,7 +61,7 @@
      &osel = &zsel
  if (&row = 0)
      &zsel = &z
- ver (&zsel,list,S,A,U)
+ ver (&zsel,list,S,A,U,B,V)
 )PNTS
  FIELD(ADD   )  VAR(ZCMD) VAL('ADD')
  FIELD(BR    )  VAR(ZCMD) VAL('BRANCH')

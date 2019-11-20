@@ -264,28 +264,12 @@ GETENV:
   cmd = 'pwd'
   x = bpxwunix(cmd,,so.,se.)
   home    = strip(so.1)
-  cmd  = docmd('env')
-  rc = bpxwunix(cmd,,so.,se.)
-  envc = 0
-  do ci = 1 to so.0
-    if left(so.ci,3) = 'GIT' then call add_env so.ci
-    if left(so.ci,4) = 'HOME' then call add_env so.ci
-    if left(so.ci,4) = 'PATH' then call add_env so.ci
-    if left(so.ci,4) = 'MANP' then call add_env so.ci
-    if left(so.ci,4) = 'LIBP' then call add_env so.ci
-    if left(so.ci,3) = 'PWD' then call add_env so.ci
-  end
-  env.0 = envc
+  rv=bpxwunix('env',,'env.',,,1)
+  x = env.0
+  x = x + 1
+  env.x = 'HOME='pwd
+  env.0 = x
   drop so. se.
-  return
-
-  /* -------------------- *
-  | Add info to env stem |
-  * -------------------- */
-add_env:
-  parse arg env_val
-  envc = envc + 1
-  env.envc = env_val
   return
 
 docmd:

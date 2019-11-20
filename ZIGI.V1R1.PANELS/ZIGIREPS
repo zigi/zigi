@@ -17,7 +17,7 @@
 %                $baction                                                   +
 %
 +Commands:[Add[Basic[Br[Com[GitH[GitL[Grep[Pull[Push[Ref[Rem[St[View
-+Options: %S+Select%A+Add
++Options: %S+Select%A+Add%B+Browse%V+View
 +
 %S  Status                    Dataset Name
 )Model
@@ -56,7 +56,7 @@
      &osel = &zsel
  if (&row = 0)
      &zsel = &z
- ver (&zsel,list,S,A,U)
+ ver (&zsel,list,S,A,U,B,V)
 )PNTS
  FIELD(Br) VAR(ZCMD) VAL('Branch')
  FIELD(St) VAR(ZCMD) VAL('Status')

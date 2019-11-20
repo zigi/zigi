@@ -15,7 +15,7 @@
 %Current Repository : $localdir
 %Current Branch     : $branch
 %
-%Commands:  %L+Locate    ]Commit+]Gitlog+]Status+
+%Commands:  %L+Locate    ]Commit+]Gitlog+]Status+]Reset    +
 %Selections:%S+Edit%A+Add for commit%D+Show Diff
 %
 %S  Member     Status                     Size    Mod-Date  Mod-Time  Userid
@@ -29,6 +29,7 @@
   &Commit = 'Commit'
   &gitlog = 'Gitlog'
   &status = 'Status'
+  &reset  = 'Reset-IDs'
 )Proc
  &row = &z
  if (&ZCMD = &Z)
@@ -50,4 +51,5 @@
  FIELD(COMMIT) VAR(ZCMD) VAL('COMMIT')
  FIELD(GITLOG) VAR(ZCMD) VAL('GITLOG')
  FIELD(STATUS) VAR(ZCMD) VAL('STATUS')
+ FIELD(reset ) VAR(ZCMD) VAL('RESET')
 )End

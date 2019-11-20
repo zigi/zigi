@@ -1,0 +1,12 @@
+)Attr
+ $ type(input)  caps(on ) hilite(uscore) intens(low)
+)Body Window(45,4)
++
++Enter the userid to be set for all members:
++Userid:$resetid +
++
+)Init
+ &zwinttl = 'zIGI Reset ID Prompt'
+)Proc
+  ver (&resetid,nb,dsname)
+)end

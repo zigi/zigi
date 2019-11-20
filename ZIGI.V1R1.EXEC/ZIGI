@@ -574,6 +574,28 @@ Work_With_Repo:
 
     if zsel /= null then
     Select
+      When zsel = 'B' then do
+        'control display save'
+        x = listdsi(fulldsn)
+        if sysdsorg = 'PO' then do
+        'LMInit Dataid(zigdid) Dataset('fulldsn')'
+        "Memlist Dataid("zigdid") Default(B)"
+        "LMfree Dataid("zigdid")"
+        end
+        else 'Browse Dataset('fulldsn')'
+        'control display restore'
+        end
+      When zsel = 'V' then do
+        'control display save'
+        x = listdsi(fulldsn)
+        if sysdsorg = 'PO' then do
+        'LMInit Dataid(zigdid) Dataset('fulldsn')'
+        "Memlist Dataid("zigdid") Default(V)"
+        "LMfree Dataid("zigdid")"
+        end
+        else 'View Dataset('fulldsn')'
+        'control display restore'
+        end
       /* -------------------------------- *
       | Work with a repo item            |
       * -------------------------------- */
@@ -642,6 +664,33 @@ Do_GitLog:
   x = docmd(cmd)
   call view_std
   return
+
+/* ----------------------------- *
+ | Reset USERIDs for all members |
+ * ----------------------------- */
+ do_resetid:
+ call pfshow 'off'
+  'Addpop row(4) column(12)'
+  'display panel(zigirsid)'
+  xrc = rc
+  'Rempop'
+  call pfshow 'reset'
+ if xrc = 0 then do
+    save_top = ztdtop
+    'tbtop' rtll
+      "LMINIT DATAID(zstats) DATASET("fulldsn")"
+      "LMOPEN DATAID("zstats") OPTION(INPUT)"
+    do forever
+       'tbskip' rtll
+       if rc > 3 then leave
+      zluser = resetid
+      'LMMSTATS DATAID('zstats') Member('mem') user('zluser')'
+      'tbput' rtll
+       end
+      "LMClose Dataid("zstats")"
+    ztdtop = save_top
+    end
+ return
 
   /* ------------------------ *
   | Do the Commit Processing |
@@ -732,7 +781,6 @@ Clone_Repo:
   parse value '' with localrep pdshlq remotebr
   do forever
     zcmd = null
-    remote = null
     c_stat = 0
     cc_rc = 0
     'Display Panel(zigicc)'
@@ -806,7 +854,7 @@ Work_with_repo_file:
   else do
     /* Do this if it's a PDS */
     localdir = localrep'/'zigirep
-    'TBCreate' rtll 'Names(mem memstat ussmem zlcnorc' ,
+    'TBCreate' rtll 'Keys(mem) Names(memstat ussmem zlcnorc' ,
       'zlmdate zlmtime zluser)',
       'replace NoWrite'
     address syscall
@@ -893,6 +941,7 @@ Work_with_repo_file:
         end
         When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
         When abbrev('STATUS',zcmd,2) = 1 then call do_status
+        When abbrev('RESET',zcmd,2) = 1 then call do_resetid
         When abbrev("L",translate(word(zcmd,1)),1) = 1 then do
           mem = translate(word(zcmd,2))
           'tbtop' rtll
