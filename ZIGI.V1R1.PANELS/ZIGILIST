@@ -15,7 +15,7 @@
 %Current Repository : $localdir
 %Current Branch     : $branch
 %
-%Commands:  %L+Locate    ]Commit+]Gitlog+]Status+]Reset    +
+%Commands:  %L+Locate    ]Commit+]Gitlog+]Sort+]Status+]Reset    +
 %Selections:%S+Edit%A+Add for commit%D+Show Diff
 %
 %S  Member     Status                     Size    Mod-Date  Mod-Time  Userid
@@ -28,6 +28,7 @@
   &zscr = CSR
   &Commit = 'Commit'
   &gitlog = 'Gitlog'
+  &sort   = 'Sort'
   &status = 'Status'
   &reset  = 'Reset-IDs'
 )Proc
@@ -51,5 +52,6 @@
  FIELD(COMMIT) VAR(ZCMD) VAL('COMMIT')
  FIELD(GITLOG) VAR(ZCMD) VAL('GITLOG')
  FIELD(STATUS) VAR(ZCMD) VAL('STATUS')
- FIELD(reset ) VAR(ZCMD) VAL('RESET')
+ FIELD(RESET ) VAR(ZCMD) VAL('RESET')
+ FIELD(SORT )  VAR(ZCMD) VAL('SORT')
 )End
