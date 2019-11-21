@@ -480,7 +480,7 @@ Work_With_Repo:
       When abbrev('GITLOG',zcmd,2) = 1 then do
         zcmd = null
         call pfshow 'off'           /* make sure pfshow is off */
-        'vget (lcnt logdfrom logdto) profile'
+        'vget (lcnt logdfrom logdto greplog) profile'
         'Addpop row(4) column(6)'
         'Display Panel(zigilog)'
         'Rempop'
@@ -489,9 +489,10 @@ Work_With_Repo:
         if lcnt /= null then lopts = '-n' lcnt
         if logdfrom /= null then lopts = lopts '--after="'logdfrom'"'
         if logdto   /= null then lopts = lopts '--until="'logdto'"'
+        if greplog /= null then lopts = lopts '--grep='translate(greplog)
         lopts = translate(lopts,'-','/')
         cmd = 'cd' localdir' && git log --cc -m' lopts
-        'vput (lcnt logdfrom logdto) profile'
+        'vput (lcnt logdfrom logdto greplog) profile'
         x = docmd(cmd)
         call view_std
       end
