@@ -16,6 +16,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            11/21/19 LBD - Test after Only for 0 rows       |
   |            11/20/19 LBD - Enable a wide screen table       |
   |                         - Save/Restore before browse       |
   |            11/18/19 LBD - Set LRECL to 84 where it         |
@@ -124,16 +125,7 @@
     * -------------------- */
     if zcmd /= null then do
       Select
-        When abbrev("REFRESH",word(zcmd,1),1) = 1 then do
-          'tbend githelp'
-          call create_tab
-          do i = 1 to git.0
-            parse value git.i with gitcmd gitcat
-            'tbadd githelp'
-          end
-          'tbtop githelp'
-          stop = 0
-        end
+        When abbrev("REFRESH",word(zcmd,1),1) = 1 then call do_refresh
         When abbrev("ONLY",word(zcmd,1),1) = 1 then do
           ostring = translate(word(zcmd,2))
           'tbtop githelp'
@@ -142,6 +134,16 @@
             if rc > 0 then leave
             if pos(ostring,translate(gitcmd gitcat)) = 0 then
             'tbdelete githelp'
+          end
+          'tbquery githelp rownum(rows)'
+          if rows = 0 then do
+            call do_refresh
+            zerrhm   = 'zigih00'
+            zerralrm = 'NO'
+            zerrtp   = 'NOTIFY'
+            zerrsm = 'Empty.'
+    zerrlm = 'The Only request resulted in zero rows. Refreshing the table.'
+            'Setmsg msg(isrz003)'
           end
         end
         Otherwise nop
@@ -723,3 +725,13 @@ DropISPF: Procedure
     address tso "free f("dd")"
   end
   return 0
+Do_Refresh:
+  'tbend githelp'
+  call create_tab
+  do i = 1 to git.0
+    parse value git.i with gitcmd gitcat
+    'tbadd githelp'
+  end
+  'tbtop githelp'
+  stop = 0
+  return
