@@ -518,12 +518,12 @@ Work_With_Repo:
       | GIT GREP                         |
       * -------------------------------- */
       When abbrev('GREP',zcmd,3) = 1 then do forever
-        zcmd = null
+        parse value  '' with zcmd grepstr
         'display panel(zigigrep)'
         if rc > 0 then leave
         if rc = 0 then do
           cmd = 'cd' localrep'/'zigirep
-          x = docmd(cmd '&& git grep "'grep'"')
+          x = docmd(cmd '&& git grep "'grepstr'"')
           if x = 1 then do
             zerrsm = ''
             zerrlm = 'grep search found nothing.'
@@ -1001,7 +1001,7 @@ Work_with_repo_file:
           cmd = 'cd' localrep'/'zigirep'/'d
           /* These cp -M issues are really getting annoying */
           m = translate(mem,'._-','#@$')
-          x = docmd(cmd || ' && git add 'm)
+          x = docmd(cmd || ' && git add -v 'm)
           /* save and then restore dsn and full dsn around
           update_repo_metadata  */
           if ztdsels = 1 then do
@@ -1083,7 +1083,7 @@ Edit_PS:
  | Sort the member list (zigilist) |
  * ------------------------------- */
 Do_LSort:
-  parse value zcmd with x sort_field sort_order
+  parse value zcmd with x sort_field sort_order sf sc
   if sort_field = null then do
        call pfshow 'off'           /* make sure pfshow is off */
        'Addpop row(4) column(6)'

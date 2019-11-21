@@ -7,7 +7,7 @@
 %Command ===>_zcmd                                                            +
 +
 +
-+Git grep for : _grep                                                         +
++Git grep for : _grepstr                                                      +
 +
 +Note: The grep is case sensitive.
 +
@@ -27,5 +27,5 @@
 +\ \Press%F3+to exit grep prompt \ \
 )Init
 )Proc
- ver (&grep,nb)
+ ver (&grepstr,nb)
 )end
