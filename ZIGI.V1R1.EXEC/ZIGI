@@ -21,6 +21,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            11/21/09 LBD - Check for ISPTABL and use it     |
+  |                           otherwise use ISPPROF for our    |
+  |                           table.                           |
   |            11/18/09 LBD - Support F3 in ZIGIOSEL and       |
   |                           skip clone.                      |
   |                         - Replace LMMSTATS with LMMFIND    |
@@ -277,7 +280,10 @@
   /* ---------------------------------------- *
   | Open (or create and open) the Repo Table |
   * ---------------------------------------- */
-  'TBOpen zigirepo Library(isptabl) Write Share'
+  isptabl = 'ISPTABL'
+  x = listdsi(isptabl 'FILE')
+  if x > 0 then isptabl = 'ISPPROF'
+  'TBOpen zigirepo Library('isptabl') Write Share'
   if rc > 0 then do
     if rc = 8 then call create_zigirepo
     if rc > 8 then do
@@ -300,11 +306,7 @@
     end
     tc.0 = tc
     'tbend zigirepo'
-    call outtrap 'x.'
-    x = listdsi('isptabl' 'file')
-    table_dsn = "'"sysdsname"("zigirepo")'"
-    Address TSO 'Delete' table_dsn
-    call outtrap 'off'
+    'TBErase zigirepo Library('isptabl')'
     call create_zigirepo
     do i = 1 to tc.0
       parse value key.i with localrep pdshlq qualignr zigirep
@@ -414,9 +416,9 @@
 Create_zigirepo:
   "TBCreate zigirepo Keys(zigikey)",
     "Names(zigirep localrep pdshlq qualignr)",
-    "Library(isptabl) Write Share"
+    'Library('isptabl') Write Share'
   "TBSort zigirepo Fields(zigirep,C,A)"
-  "TBSAVE zigirepo REPLCOPY LIBRARY(isptabl)"
+  'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
   return
 
   /* --------------------------------- *
@@ -832,7 +834,7 @@ Clone_Repo:
     call Refresh localrep zigirep pdshlq qualignr
     zigikey = localrep'/'zigirep
     'tbadd zigirepo order'
-    "TBSAVE zigirepo REPLCOPY LIBRARY(isptabl)"
+    'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
     leave
   end
   call work_with_repo
@@ -1403,7 +1405,7 @@ Create_Repo:
     Address ISPExec
     zigikey = localrep'/'zigirep
     'tbadd zigirepo order'
-    "TBSAVE zigirepo REPLCOPY LIBRARY(isptabl)"
+    'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
     leave
   end
   return 0
@@ -1878,7 +1880,7 @@ Add_Dataset:
       'tbtop' rtbl
       if add_count > 0 then
       'tbmod zigirepo'
-      "TBSAVE zigirepo REPLCOPY LIBRARY(isptabl)"
+      'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
       return
     end
     top = ztdtop
