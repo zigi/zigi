@@ -1097,12 +1097,12 @@ Do_LSort:
   if sort_order = null then sort_order = 'A'
   /* support abbreviations in field names */
    Select
-   When abbrev(sort_field,'MEMBER',2)  = 0 then sort_field = 'MEMBER'
-   When abbrev(sort_field,'STATUS',2)  = 0 then sort_field = 'STATUS'
-   When abbrev(sort_field,'SIZE',2)    = 0 then sort_field = 'SIZE'
-   When abbrev(sort_field,'DATE',2)    = 0 then sort_field = 'DATE'
-   When abbrev(sort_field,'TIME',2)    = 0 then sort_field = 'TIME'
-   When abbrev(sort_field,'USERID',2)  = 0 then sort_field = 'USERID'
+   When abbrev('MEMBER',sort_field,2) = 1 then sort_field = 'MEMBER'
+   When abbrev('STATUS',sort_field,2) = 1 then sort_field = 'STATUS'
+   When abbrev('SIZE',sort_field,2)   = 1 then sort_field = 'SIZE'
+   When abbrev('DATE',sort_field,2)   = 1 then sort_field = 'DATE'
+   When abbrev('TIME',sort_field,2)   = 1 then sort_field = 'TIME'
+   When abbrev('USERID',sort_field,2) = 1 then sort_field = 'USERID'
    Otherwise nop
    end
   /* 1st validate sort_field */

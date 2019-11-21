@@ -2,6 +2,7 @@
  $ type(output) caps(off)
  # type(output) hilite(reverse) color(turq) caps(off)
  _ type(input) caps(off) hilite(uscore) intens(low)
+ + type(text ) intens(low) skip(on)
  @ type(input) caps(on ) hilite(uscore) intens(low)
 )Body Expand(\\)
 +-\-\#zigtitle   +-\-\

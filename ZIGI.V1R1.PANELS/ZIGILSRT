@@ -8,9 +8,21 @@
 +Enter the sort order:$z+  A+(ascending) D+(descending)
 +
 )Init
- .zvars = '(sf sc)'
+ .zvars = '(sfx sc)'
  &zwinttl = 'zIGI Sort Selections'
 )Proc
- ver (&sf,nb,range,1,6)
+ ver (&sfx,nb,range,1,6)
  ver (&sc,nb,list,A,D)
+ if (&sfx EQ 1)
+     &sf = 'MEMBER'
+ if (&sfx EQ 2)
+     &sf = 'STATUS'
+ if (&sfx EQ 3)
+     &sf = 'SIZE'
+ if (&sfx EQ 4)
+     &sf = 'DATE'
+ if (&sfx EQ 5)
+     &sf = 'TIME'
+ if (&sfx EQ 6)
+     &sf = 'USERID'
 )end
