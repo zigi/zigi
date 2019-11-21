@@ -479,7 +479,19 @@ Work_With_Repo:
       * -------------------------------- */
       When abbrev('GITLOG',zcmd,2) = 1 then do
         zcmd = null
-        cmd = 'cd' localdir' && git log'
+        call pfshow 'off'           /* make sure pfshow is off */
+        'vget (lcnt logdfrom logdto) profile'
+        'Addpop row(4) column(6)'
+        'Display Panel(zigilog)'
+        'Rempop'
+        call pfshow 'reset'         /* restore pfshow setting */
+        lopts = null
+        if lcnt /= null then lopts = '-n' lcnt
+        if logdfrom /= null then lopts = lopts '--after="'logdfrom'"'
+        if logdto   /= null then lopts = lopts '--until="'logdto'"'
+        lopts = translate(lopts,'-','/')
+        cmd = 'cd' localdir' && git log --cc -m' lopts
+        'vput (lcnt logdfrom logdto) profile'
         x = docmd(cmd)
         call view_std
       end
