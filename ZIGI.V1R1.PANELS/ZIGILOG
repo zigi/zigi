@@ -8,8 +8,8 @@
 +   Number of Commits:$lcnt+       1 to 9999
 +           From Date:$logdfrom   +yyyy/mm/dd
 +          Until Date:$logdto     +yyyy/mm/dd
-+              Filter:@greplog    +element name or
-+                                  pattern
++              Filter:@greplog                      +
++              element name or pattern
 )Init
  &zwinttl = 'zIGI Log Filter'
 )Proc
