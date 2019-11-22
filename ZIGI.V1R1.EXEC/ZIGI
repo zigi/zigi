@@ -494,7 +494,13 @@ Work_With_Repo:
         cmd = 'cd' localdir' && git log --cc -m' lopts
         'vput (lcnt logdfrom logdto greplog) profile'
         x = docmd(cmd)
-        call view_std
+        if so.0 + se.0 > 1
+        then call view_std
+        else do
+          zerrsm = ''
+          zerrlm = 'GitLog filters resulted in an empty report.'
+          'setmsg msg(isrz003)'
+        end
       end
       /* -------------------------------- *
       | Push current branch to origin    |
@@ -1102,46 +1108,46 @@ Edit_PS:
 Do_LSort:
   parse value zcmd with x sort_field sort_order sf sc
   if sort_field = null then do
-       call pfshow 'off'           /* make sure pfshow is off */
-       'Addpop row(4) column(6)'
-       'Display Panel(zigilsrt)'
-       'Rempop'
-       sort_field = sf
-       sort_order = sc
-       call pfshow 'reset'         /* restore pfshow setting */
-     end
+    call pfshow 'off'           /* make sure pfshow is off */
+    'Addpop row(4) column(6)'
+    'Display Panel(zigilsrt)'
+    'Rempop'
+    sort_field = sf
+    sort_order = sc
+    call pfshow 'reset'         /* restore pfshow setting */
+  end
   if sort_order = null then sort_order = 'A'
   /* support abbreviations in field names */
-   Select
-   When abbrev('MEMBER',sort_field,2) = 1 then sort_field = 'MEMBER'
-   When abbrev('STATUS',sort_field,2) = 1 then sort_field = 'STATUS'
-   When abbrev('SIZE',sort_field,2)   = 1 then sort_field = 'SIZE'
-   When abbrev('DATE',sort_field,2)   = 1 then sort_field = 'DATE'
-   When abbrev('TIME',sort_field,2)   = 1 then sort_field = 'TIME'
-   When abbrev('USERID',sort_field,2) = 1 then sort_field = 'USERID'
-   Otherwise nop
-   end
+  Select
+    When abbrev('MEMBER',sort_field,2) = 1 then sort_field = 'MEMBER'
+    When abbrev('STATUS',sort_field,2) = 1 then sort_field = 'STATUS'
+    When abbrev('SIZE',sort_field,2)   = 1 then sort_field = 'SIZE'
+    When abbrev('DATE',sort_field,2)   = 1 then sort_field = 'DATE'
+    When abbrev('TIME',sort_field,2)   = 1 then sort_field = 'TIME'
+    When abbrev('USERID',sort_field,2) = 1 then sort_field = 'USERID'
+    Otherwise nop
+  end
   /* 1st validate sort_field */
-    if wordpos(sort_field,'MEMBER STATUS SIZE DATE TIME USERID') = 0
-       then do
-      zerrsm = 'Invalid.'
-      zerrlm = sort_field 'is an invalid sort field. Valid names are:' ,
-               'MEMBER STATUS SIZE DATE TIME USERID'
-      'Setmsg msg(isrz003)'
-       return
-       end
+  if wordpos(sort_field,'MEMBER STATUS SIZE DATE TIME USERID') = 0
+  then do
+    zerrsm = 'Invalid.'
+    zerrlm = sort_field 'is an invalid sort field. Valid names are:' ,
+      'MEMBER STATUS SIZE DATE TIME USERID'
+    'Setmsg msg(isrz003)'
+    return
+  end
   /* 2nd validate the sort_order A or D */
   if pos(sort_order,'AD') = 0 then do
-      zerrsm = 'Invalid.'
-      zerrlm = sort_order 'is an invalid sort order. Must be either' ,
-               'A for ascending or D for descending.'
-      'Setmsg msg(isrz003)'
-       return
-       end
+    zerrsm = 'Invalid.'
+    zerrlm = sort_order 'is an invalid sort order. Must be either' ,
+      'A for ascending or D for descending.'
+    'Setmsg msg(isrz003)'
+    return
+  end
   sw = wordpos(sort_field,'MEMBER STATUS SIZE DATE TIME USERID')
   sort_field = subword('mem memstat zlcnorc zlmdate zlmtime zluser',sw,1)
   if sw = 2 then sort_type = 'N'
-            else sort_type = 'C'
+  else sort_type = 'C'
   'tbsort' rtll 'fields('sort_field','sort_type','sort_order')'
   return
 
@@ -1178,6 +1184,10 @@ Branch_it:
   localdir = localrep'/'zigirep
   cmd = ' && git remote prune origin > /dev/null 2>&1 && git branch -a'
   x = docmd('cd 'localdir cmd)
+  if so.0 + se.0 = 0 then do
+    cmd = '&& git branch -a'
+    x = docmd('cd 'localdir cmd)
+  end
   bl. = null
   bl.0 = 0
   do i = 1 to so.0
