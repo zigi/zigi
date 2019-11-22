@@ -163,20 +163,6 @@ zigistat:
       x = debug('Saving stats begins to:' filepath)
       x = bpxwunix('rm' filepath,,so.,se.)
       call write_stats
-      /* --------------------------------------------- *
-      | Now issue the git add for the ispf stats file |
-      * --------------------------------------------- */
-      Address ISPExec
-      cmd = 'pwd'
-      x = bpxwunix(cmd,,so.,se.)
-      home    = strip(so.1)
-      call getenv
-      fp = translate(filepath,' ','/')
-      parse value fp with fp '.zigi' fpfile
-      fp = translate(fp,'/',' ')
-      fpfile = '.zigi/'strip(fpfile)
-      cmd = 'cd' fp '&& git add' fpfile
-      x = docmd(cmd)
       x = debug('Saving stats completed.')
       return 0
     end

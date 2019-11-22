@@ -638,8 +638,14 @@ Work_With_Repo:
         cmd = 'cd' localrep'/'zigirep
         x = docmd(cmd '&& git add -v 'd)
         call view_std 'B'
-        if ztdsels = 1 then
-        call update_repo_metadata
+        if ztdsels = 1 then do
+          statfile = translate(strip(fulldsn,'B',"'"),' ','.')
+          statfile = subword(statfile,qualignr+1)
+          statfile = translate(statfile,'.',' ')
+          cmd = 'cd' localrep'/'zigirep'/.zigi/'
+          x = docmd(cmd '&& git add -v 'statfile)
+          call update_repo_metadata
+        end
       end
       /* -------------------------------- *
       | Un-Modify entire dataset         |
@@ -689,7 +695,7 @@ Do_GitLog:
 /* ----------------------------- *
  | Reset USERIDs for all members |
  * ----------------------------- */
-do_resetid:
+Do_Resetid:
   call pfshow 'off'
   'Addpop row(4) column(12)'
   'display panel(zigirsid)'
@@ -711,6 +717,10 @@ do_resetid:
     end
     "LMClose Dataid("zstats")"
     ztdtop = save_top
+    statfile = translate(strip(fulldsn,'B',"'"),' ','.')
+    statfile = subword(statfile,qualignr+1)
+    statfile = translate(statfile,'.',' ')
+    x = zigistat(fulldsn statfile 'S')
   end
   return
 
@@ -1028,6 +1038,11 @@ Work_with_repo_file:
           /* save and then restore dsn and full dsn around
           update_repo_metadata  */
           if ztdsels = 1 then do
+            statfile = translate(strip(fulldsn,'B',"'"),' ','.')
+            statfile = subword(statfile,qualignr+1)
+            statfile = translate(statfile,'.',' ')
+            cmd = 'cd' localrep'/'zigirep'/.zigi/'
+            x = docmd(cmd '&& git add -v 'statfile)
             call update_repo_metadata
             /* then call this function again to update the    */
             /* status of the members in this pds after update */
@@ -1146,7 +1161,7 @@ Do_LSort:
   end
   sw = wordpos(sort_field,'MEMBER STATUS SIZE DATE TIME USERID')
   sort_field = subword('mem memstat zlcnorc zlmdate zlmtime zluser',sw,1)
-  if sw = 2 then sort_type = 'N'
+  if sw = 3 then sort_type = 'N'
   else sort_type = 'C'
   'tbsort' rtll 'fields('sort_field','sort_type','sort_order')'
   return
