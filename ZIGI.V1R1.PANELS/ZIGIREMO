@@ -1,0 +1,24 @@
+)Attr
+ $ type(output) caps(off)
+ _ type(input) caps(off) hilite(uscore) intens(low)
+ # type(output) hilite(reverse) color(turq) caps(off)
+)Body Expand(\\)
++-\-\#zigtitle   +-\-\
+%Command ===>_zcmd
++
++Add remote _origin                                                         +
++
++This will execute a 'git remote add origin' followed by a
++'git push -u origin master'
++
++Make sure the remote repository exists and you're authorized to
++push to master.
++
+              + This is best done on a 'brand new' repository :-)
++
+                     +Press%Enter+to continue%F3+to cancel
++
+)Init
+)Proc
+ ver (&origin,nb)
+)end

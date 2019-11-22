@@ -1,0 +1,31 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+)Body  Expand(\\)
++zigihelp \-\#zigtitle   +-\-\ zigihelp
+%Command ===>_zcmd
+%
+%Commands:
+            %Branch   +Change to a new, or existing, Branch
+            %Copy     +Copy all updates to OMVS and do Git Add and Commit
+            %GitHelp  +Git Help manpages
+            %GLog     +View Git Log
+            %Pro+     +Toggle panel for more or less instructions
+            %PUsh     +Push updates to Remote Repository
+            %PULl     +Pull updates from the Remote Repository
+            %STatus   +Git Show
+%
+%Selections:
+            %B+Browse +Browse the Data Set
+            %E+Edit   +Edit the Data Set
+            %V+View   +View the Data Set
+%
+%
+)Init
+)Proc
+ &zup = zigihr0
+ &zcont = zigihr1
+)End

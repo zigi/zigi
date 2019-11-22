@@ -1,0 +1,57 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  $ type(output) intens(low ) caps(off) just(left )
+  [ type(output) intens(low ) caps(off) just(right)
+  ] type(output) caps(off) pas(on) intens(high) color(white)
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+)Body  Expand(\\)
++-\-\#zigtitle   +-\-\
+%Command ===>_zcmd        \ \ %Scroll ===>_zscr+
+%
+%Current Dataset    : $fulldsn
+%Current Repository : $localdir
+%Current Branch     : $branch
+%
+%Commands:  %L+Locate    ]Commit+]Gitlog+]Sort+]Status+]Reset    +
+%Selections:%S+Edit%A+Add for commit%D+Show Diff
+%
+%S  Member     Status                     Size    Mod-Date  Mod-Time  Userid
+)Model
+@z+$z        +$z                      [z      +  [z       +[z       +$z
+)Init
+  .zvars = '(zsel mem memstat zlcnorc zlmdate zlmtime zluser)'
+  .cursor = &zcmd
+  .help = zigihr0
+  &zscr = CSR
+  &Commit = 'Commit'
+  &gitlog = 'Gitlog'
+  &sort   = 'Sort'
+  &status = 'Status'
+  &reset  = 'Reset-IDs'
+)Proc
+ &row = &z
+ if (&ZCMD = &Z)
+     if (&ztdsels = 0000)
+        &row = .csrrow
+        if (&row ^= &z)
+            if (&zsel = &z)
+                &zsel = S
+     if (&ztdsels ^= 0000)
+         &row = &z
+     if (&ZSEL ^= &Z)
+       if (&Zsel = '=')
+           &Zsel = &osel
+     &osel = &zsel
+ if (&row = 0)
+    &zsel = &z
+ ver (&zsel,list,S,A,D,U)
+)PNTS
+ FIELD(COMMIT) VAR(ZCMD) VAL('COMMIT')
+ FIELD(GITLOG) VAR(ZCMD) VAL('GITLOG')
+ FIELD(STATUS) VAR(ZCMD) VAL('STATUS')
+ FIELD(RESET ) VAR(ZCMD) VAL('RESET')
+ FIELD(SORT )  VAR(ZCMD) VAL('SORT')
+)End

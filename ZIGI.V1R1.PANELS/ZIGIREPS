@@ -1,0 +1,74 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+  @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  $ type(output) intens(low ) caps(off) just(left )
+  ! type(output) intens(high) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+ [ type(output) caps(off) pas(on) intens(high) color(white)
+)Body  Expand(\\)
++-\-\#zigtitle   +-\-\
+%Command ===>_zcmd            \ \ %Scroll ===>_zscr+
+%Local dir      :$localdir
+%Remote path    :$remote1
+%Current Branch :$branch                                      +
+%                !bstat                                                     +
+%                $baction                                                   +
+%
++Commands:[Add[Basic[Br[Com[GitH[GitL[Grep[Pull[Push[Ref[Rem[St[View
++Options: %S+Select%A+Add%B+Browse%V+View
++
+%S  Status                    Dataset Name
+)Model
+@z+$z                        $z
+)Init
+ &Br      = 'Br'
+ &St      = 'St'
+ &Gitl    = 'GitL'
+ &Ref     = 'Rer'
+ &Add     = 'Add'
+ &Com     = 'Com'
+ &Push    = 'Push'
+ &Pull    = 'Pull'
+ &Rem     = 'Rem'
+ &Grep    = 'Grep'
+ &Basic   = 'Basic'
+ &gith    = 'GitH'
+ &view    = 'View'
+  .zvars = '(zsel dsnstat fulldsn)'
+  .cursor = &zcmd
+  .help = zigihr0
+  &zscr = CSR
+)Proc
+ &row = &z
+ if (&ZCMD = &Z)
+     if (&ztdsels = 0000)
+        &row = .csrrow
+        if (&row ^= &z)
+            if (&zsel = &z)
+                &zsel = S
+     if (&ztdsels ^= 0000)
+         &row = &z
+     if (&ZSEL ^= &Z)
+       if (&Zsel = '=')
+           &Zsel = &osel
+     &osel = &zsel
+ if (&row = 0)
+     &zsel = &z
+ ver (&zsel,list,S,A,U,B,V)
+)PNTS
+ FIELD(Br) VAR(ZCMD) VAL('Branch')
+ FIELD(St) VAR(ZCMD) VAL('Status')
+ FIELD(Gitl) VAR(ZCMD) VAL('Gitlog')
+ FIELD(Ref) VAR(ZCMD) VAL('Refresh')
+ FIELD(Add) VAR(ZCMD) VAL('Add')
+ FIELD(Com) VAR(ZCMD) VAL('Commit')
+ FIELD(Push) VAR(ZCMD) VAL('Push')
+ FIELD(Pull) VAR(ZCMD) VAL('Pull')
+ FIELD(Rem) VAR(ZCMD) VAL('Remote')
+ FIELD(Grep) VAR(ZCMD) VAL('Grep')
+ FIELD(Basic) VAR(ZCMD) VAL('Basic')
+ FIELD(GITH) VAR(ZCMD) VAL('Githelp')
+ FIELD(VIEW) VAR(ZCMD) VAL('View')
+)End

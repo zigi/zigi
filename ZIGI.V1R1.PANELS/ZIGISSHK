@@ -1,0 +1,34 @@
+)Attr
+ $ type(output) hilite(uscore) caps(off)
+ @ type(output) caps(off)
+ _ type(input ) hilite(uscore) caps(on) intens(low )
+ # type(output) hilite(reverse) color(turq) caps(off)
+)Body Expand(\\)
++-\-\#zigtitle   +-\-\
+%Command ===>_zcmd
++
++  SSH Key File: @keyfile
++
+$sshkey
+
+
+
+
+
+
+
+
+
+
+
+
+
+
++
++Press%F3+when ready to continue.
+)Init
+*rexx(* zigissh sshkey)
+ sshkey = left('Copy the records below and paste into Git SSH Key:',78) zigissh
+*endrexx
+)Proc
+)end

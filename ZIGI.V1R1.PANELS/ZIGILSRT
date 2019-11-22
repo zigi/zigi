@@ -1,0 +1,28 @@
+)Attr
+ $ type(input)  caps(on ) hilite(uscore) intens(low)
+ + type(text) skip(on) intens(low)
+)Body Window(65,5)
++
++Enter the field to sort:$z+  1 - Member+2 - Status+3 - Size+
++                             4 - Date+  5 - Time+  6 - Userid+
++Enter the sort order:$z+  A+(ascending) D+(descending)
++
+)Init
+ .zvars = '(sfx sc)'
+ &zwinttl = 'zIGI Sort Selections'
+)Proc
+ ver (&sfx,nb,range,1,6)
+ ver (&sc,nb,list,A,D)
+ if (&sfx EQ 1)
+     &sf = 'MEMBER'
+ if (&sfx EQ 2)
+     &sf = 'STATUS'
+ if (&sfx EQ 3)
+     &sf = 'SIZE'
+ if (&sfx EQ 4)
+     &sf = 'DATE'
+ if (&sfx EQ 5)
+     &sf = 'TIME'
+ if (&sfx EQ 6)
+     &sf = 'USERID'
+)end

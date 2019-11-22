@@ -1,0 +1,39 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+  % type(text) intens(high) skip(on) color(&omschigh)
+  + type(text) intens(low) skip(on) color(&omsclow)
+  $ type(output) intens(high) caps(off) just(left )
+  @ type(output) hilite(reverse) color(turq) caps(off)
+)Body  Expand(\\)
++zigihelp \-\@zigtitle   +-\-\ zigihelp
+%Command ===>_zcmd
+%
+%CD+Examples within ZIGIOSEL
+%
+%  cd$z                  +Change to users home directory
+%  cd ..                 +Change to the next higher directory
+%  cd ./xyz              +Change to users subdirectory xyz
+%  cd$z                  +Change to users subdirectory xyz
+%  cd /                  +Change to the root directory
+%  cd /usr/lpp/          +Change to /usr/lpp/ directory
+%
++The%CD+command will remember the prior directories during the session
++so that using%F3+will move back up the directory 'chain'. Enter%CANCEL+
++to immediately return.
+%
+%
+%
++
++
++
++
+\ \Press%Enter+to continue or%F3+to return to the dialog\ \
+)Init
+   .cursor = zcmd
+   .zvars = '(til tilx)'
+   &til  = '~'
+   &tilx = '~/'
+   &zup  = zigiocd
+   &zcont = zigio0
+)Proc
+)End

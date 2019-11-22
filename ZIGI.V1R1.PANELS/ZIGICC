@@ -1,0 +1,35 @@
+)Attr
+ @ type(input ) caps(off) hilite(uscore)
+ $ type(input ) caps(on ) hilite(uscore)
+ # type(output) hilite(reverse) color(turq) caps(off)
+)Body Expand(\\)
++-\-\#zigtitle   +-\-\
+%Command ===>_zcmd
++
+%Remote Repository: +URL for reference only
+ @remote                                                                      +
++
+%Optional:        : +Specific branch to clone (default is master)
+ @remotebr                                   +
++
+%Local Directory:   +? to browse omvs folder structure
+ @localrep                                                                    +
++
+%PREFIX for datasets: $pdshlq                  + (no quotes)
++
++Notes:
++1. Your SSH Key%must+have been added to an account with access to the repo.
++2. This fails if the local repo already exists.
++3. A succesfull clone results in a copy of the repo in the local directory
++4. All 'z/OS-datasets' from this repo will be copied to real z/OS datasets
++   (prefixed if a PREFIX has been added).
++5. This%will+overwrite any members if the dataset already exists
++
+                  +Press%Enter+to continue, or%F3+to cancel
+)Init
+ .help = zigihp1
+)Proc
+  ver (&remote,nb)
+  ver (&localrep,nb)
+  ver (&pdshlq,nb,dsname)
+)end

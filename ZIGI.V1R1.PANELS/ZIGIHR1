@@ -1,0 +1,34 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  ! type(text) color(green) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+)Body  Expand(\\)
++zigihelp \-\#zigtitle   +-\-\ zigihelp
+%Command ===>_zcmd
+%
+%Refreshing.
++If you want to make sure that your z/OS datasets are up-to-date with the status
++of the repository, use the%refresh+command. This will delete and reallocate all
++the z/OS datasets with the latest version from the current branch.
++
+%Notes:
+%
+ %Special Characters+  Special characters in z/OS datasets and member names
++                      will be converted when moved to the repository.
++                      This is done via the -M option for the cp command.
++                      In the%status+log you will see the 'OMVS'-names (as this
++                      is from the OMVS-side of things.
++
++%Status+              The status as shown on the panels for the various repo
++                      elements is explained in detail at the git-scm website
+%                     !https://www.git-scm.com/docs/git-status
++                      Or type%GMAN+at the repo screen for the git man page.
++
+\ \Press%Enter+to continue or%F3+to return to the dialog\ \
+)Init
+)Proc
+ &zcont = zigio0
+)End
