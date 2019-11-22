@@ -1042,7 +1042,8 @@ Work_with_repo_file:
             statfile = subword(statfile,qualignr+1)
             statfile = translate(statfile,'.',' ')
             cmd = 'cd' localrep'/'zigirep'/.zigi/'
-            x = docmd(cmd '&& git add -v 'statfile)
+            cmd = cmd '&& git add -v 'statfile
+            x = docmd(cmd)
             call update_repo_metadata
             /* then call this function again to update the    */
             /* status of the members in this pds after update */
