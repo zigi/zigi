@@ -30,7 +30,7 @@ echo "      ZZZZZZZZZg               The git interface for the rest of us";
 echo "     ZZZZZZig ";
 echo "    ZZZZZZi                         Henri Kuiper & Lionel Dyck ";
 echo " "
-echo "Welcome to the installer for zigi v1r0";
+echo "Welcome to the installer for zigi v1r1";
 echo "";
 echo "This will install zigi on your mainframe.";
 echo "See https://github.com/wizardofzos/zigi/wiki for more information"
@@ -115,9 +115,9 @@ cp -U -M ZIGI.V1R1.EXEC/* "//'$EXEC'";
 echo "Copying panels"
 cp -U -M ZIGI.V1R1.PANELS/* "//'$PANELS'";
 echo "Copying GPL-License"
-cp -U -M ZIGI.GPLLIC "//'$GPL'";
+cp -U -M ZIGI.V1R1.GPLLIC "//'$GPL'";
 echo "Copying README"
-cp -U -M ZIGI.README "//'$README'";
+cp -U -M ZIGI.V1R1.README "//'$README'";
 
 
 
