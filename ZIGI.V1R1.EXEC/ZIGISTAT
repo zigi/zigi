@@ -36,6 +36,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            11/22/19 LBD - If a member has no stats - add   |
   |            11/18/19 LBD - Many fixes and add Debug         |
   |            11/15/19 LBD - Creation                         |
   |                                                            |
@@ -120,6 +121,13 @@ zigistat:
     * If RC 4 or more leave the do loop *
     * --------------------------------- */
     if rc > 3 then leave
+   /* -------------------------------- *
+    | Check if no stats then add them. |
+    * -------------------------------- */
+    if zlcdate = null then do
+       'LMMSTATS DATAID('status') Member('member') user('sysvar(sysuid)')'
+       "LMMFind DATAID("status") Member("member") STATS(YES)"
+       end
     /* ------------------------------ *
     * Add each member info to a stem *
     * ------------------------------ */
@@ -204,7 +212,7 @@ zigistat:
     | Compare ISPF stats.                                         |
     |                                                             |
     | Comparison will be from the active datasets ISPF stats with |
-    | the saved stats found in the $ZIGI$ member.                 |
+    | the saved stats found in ISPF stats file in /.zigi          |
     |                                                             |
     | If a member is in the active but not in the saved list then |
     | it will be added to the returned string.                    |
