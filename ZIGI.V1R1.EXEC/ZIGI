@@ -720,6 +720,7 @@ Do_Resetid:
     statfile = translate(strip(fulldsn,'B',"'"),' ','.')
     statfile = subword(statfile,qualignr+1)
     statfile = translate(statfile,'.',' ')
+    statfile = localrep'/'zigirep'/.zigi/'statfile
     x = zigistat(fulldsn statfile 'S')
   end
   return
