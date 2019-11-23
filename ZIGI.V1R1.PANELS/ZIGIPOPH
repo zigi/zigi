@@ -1,10 +1,13 @@
 )Attr
  $ type(output) caps(off)
  _ type(input)  caps(on ) hilite(uscore) intens(low)
-)Body Window(53,4)
-  +Confirm you really want to perform a roolback
+)Body Window(55,7)
+  +Confirm you really want to perform a rollback
   +to the selected Commit level?
   +(ALL changes made after that commit will be lost)
+  +
+  %NOTE:+It is recommended you do this in a new Branch
+  +
   +===>_z  +(YES or NO or F3)
 )Init
  .zvars = '(rolla)'
