@@ -728,15 +728,31 @@ Do_Rollback:
       call view_std
     end
     if zsel = 'R' then do
-say 'performing rollback to:' crtag cdatetime
-say 'git reset' ctag
-say 'call Refresh localrep zigirep pdshlq qualignr'
+      zcmd  = null
+      rolla = 'NO'
+      call pfshow 'off'           /* make sure pfshow is off */
+      'Addpop row(4) column(12)'
+      'Display Panel(zigipoph)'
+      prc = rc
+      'Rempop'
+      call pfshow 'reset'         /* restore pfshow setting */
+      if rolla = 'YES' then do
+        cmd = 'cd' localrep'/'zigirep
+        x = docmd(cmd '&& git reset --hard' ctag)
+        if so.0 + se.0 > 0 then call view_std 'B'
+        call Refresh localrep zigirep pdshlq qualignr
+        call work_with_repo
+      end
+      else do
+        zerrsm = 'Cancelled.'
+        zerrlm = 'Rollback cancelled.'
+        'setmsg msg(isrz003)'
+      end
       leave
     end
   end
   'tbend' zcrtbl
   drop cr.
-  say 'call work with repo or update meta data'
   return
 
 Do_Rollback_Log:

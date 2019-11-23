@@ -16,7 +16,7 @@
 %                !bstat                                                     +
 %                $baction                                                   +
 %
-+Commands:[Add[Basic[Br[Com[GitH[GitL[Grep[Pull[Push[Ref[Rem[St[View
++Commands:[Add[Basic[Br[Com[GitH[GitL[Grep[Pull[Push[Ref[Rem[Roll[St[View
 +Options: %S+Select%A+Add%B+Browse%V+View
 +
 %S  Status                    Dataset Name
@@ -36,6 +36,7 @@
  &Basic   = 'Basic'
  &gith    = 'GitH'
  &view    = 'View'
+ &roll    = 'Roll'
   .zvars = '(zsel dsnstat fulldsn)'
   .cursor = &zcmd
   .help = zigihr0
@@ -71,4 +72,5 @@
  FIELD(Basic) VAR(ZCMD) VAL('Basic')
  FIELD(GITH) VAR(ZCMD) VAL('Githelp')
  FIELD(VIEW) VAR(ZCMD) VAL('View')
+ FIELD(ROLL) VAR(ZCMD) VAL('Roll')
 )End

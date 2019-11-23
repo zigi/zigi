@@ -16,11 +16,11 @@
 %                !bstat
 %                $baction                                                   +
 %
-[Add+    Add dataset            [Grep+ Find Strings      [Remote+ Add remote
-[Br    + Checkout/Create branch [Pro+  Pro Panel version [Status+ Git Status
-[Commit+ Execute commit -m      [Pull+ Pull from origin  [View+   OMVS Dir
-[Githelp+ Git Help              [Push+ Push to origin
-[GitLog+  Show git log output   [Refresh+ Replace MVS datasets
+[Add+    Add dataset            [Grep+ Find Strings      [Remote+  Add remote
+[Br    + Checkout/Create branch [Pro+  Pro Panel version [Rollback+Revert
+[Commit+ Execute commit -m      [Pull+ Pull from origin  [Status+  Git Status
+[Githelp+Git Help               [Push+ Push to origin    [View+    OMVS Dir
+[GitLog+ Show git log output    [Refresh+ Replace MVS datasets
 +
 %S+Select (Edit)%A+Add to index%B+Browse%V+View
 +
@@ -32,6 +32,7 @@
  &Add     = 'Add'
  &Pro     = 'Pro'
  &Status  = 'Status'
+ &Rollback  = 'Rollback'
  &Pull    = 'Pull'
  &Commit  = 'Commit'
  &Push    = 'Push'
@@ -73,6 +74,7 @@
  FIELD(PULL  )  VAR(ZCMD) VAL('PULL')
  FIELD(PUSH  )  VAR(ZCMD) VAL('PUSH')
  FIELD(REFRESH) VAR(ZCMD) VAL('REFRESH')
+ FIELD(ROLLBACK) VAR(ZCMD) VAL('ROLLBACK')
  FIELD(REMOTE)  VAR(ZCMD) VAL('REMOTE')
  FIELD(STATUS)  VAR(ZCMD) VAL('STATUS')
  FIELD(VIEW  )  VAR(ZCMD) VAL('VIEW')
