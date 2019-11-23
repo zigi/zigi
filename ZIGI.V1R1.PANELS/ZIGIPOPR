@@ -1,0 +1,13 @@
+)Attr
+ $ type(output) caps(off)
+ _ type(input)  caps(on ) hilite(uscore) intens(low)
+)Body Window(48,3)
+  +Confirm you really want to perform a full
+  +REFRESH (replacement) of your z/OS datasets:
+  +===>_z  +(YES or NO or F3)
+)Init
+ .zvars = '(refa)'
+ &zwinttl = 'zIGI Prompt Popup'
+)Proc
+ ver (&refa,nb,list,YES,NO)
+)end

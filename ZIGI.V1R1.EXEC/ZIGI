@@ -477,7 +477,31 @@ Work_With_Repo:
       /* -------------------------------- *
       | View output of git log           |
       * -------------------------------- */
-      When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
+      When abbrev('GITLOG',zcmd,2) = 1 then do
+        zcmd = null
+        call pfshow 'off'           /* make sure pfshow is off */
+        'vget (lcnt logdfrom logdto greplog) profile'
+        'Addpop row(4) column(6)'
+        'Display Panel(zigilog)'
+        'Rempop'
+        call pfshow 'reset'         /* restore pfshow setting */
+        lopts = null
+        if lcnt /= null then lopts = '-n' lcnt
+        if logdfrom /= null then lopts = lopts '--after="'logdfrom'"'
+        if logdto   /= null then lopts = lopts '--until="'logdto'"'
+        if greplog /= null then lopts = lopts '--grep='translate(greplog)
+        lopts = translate(lopts,'-','/')
+        cmd = 'cd' localdir' && git log --cc -m' lopts
+        'vput (lcnt logdfrom logdto greplog) profile'
+        x = docmd(cmd)
+        if so.0 + se.0 > 1
+        then call view_std
+        else do
+          zerrsm = ''
+          zerrlm = 'GitLog filters resulted in an empty report.'
+          'setmsg msg(isrz003)'
+        end
+      end
       /* -------------------------------- *
       | Push current branch to origin    |
       * -------------------------------- */
@@ -508,32 +532,39 @@ Work_With_Repo:
       * -------------------------------- */
       When abbrev('REFRESH',zcmd,3) = 1 then do
         zcmd = null
-        call Refresh localrep zigirep pdshlq qualignr
-        call update_repo_metadata
+        refa = 'NO'
+        call pfshow 'off'           /* make sure pfshow is off */
+        'Addpop row(4) column(12)'
+        'Display Panel(zigipopr)'
+        prc = rc
+        'Rempop'
+        call pfshow 'reset'         /* restore pfshow setting */
+        if refa = 'YES' then do
+          call Refresh localrep zigirep pdshlq qualignr
+          call update_repo_metadata
+        end
+        else do
+          zerrsm = 'Cancelled.'
+          zerrlm = 'Refresh cancelled.'
+          'setmsg msg(isrz003)'
+        end
       end
       /* -------------------------------- *
       | GIT GREP                         |
       * -------------------------------- */
-      When abbrev('GREP',zcmd,3) = 1 then do forever
-        parse value  '' with zcmd grepstr
-        'display panel(zigigrep)'
-        if rc > 0 then leave
-        if rc = 0 then do
-          cmd = 'cd' localrep'/'zigirep
-          x = docmd(cmd '&& git grep "'grepstr'"')
-          if x = 1 then do
-            zerrsm = ''
-            zerrlm = 'grep search found nothing.'
-            'setmsg msg(isrz003)'
-          end
-          else  call View_std 'B'
-        end
+      When abbrev('GREP',zcmd,3) = 1 then do
+        parse value  '' with zcmd grepstr grepopt
+        grepdir = localrep'/'zigirep
+        call do_grep grepdir
       end
-
       /* -------------------------------- *
       | Commit to current branch         |
       * -------------------------------- */
       When abbrev('COMMIT',zcmd,3) = 1 then call do_commit
+      /* -------------------------------- *
+      | Rollback to a Commit Tab         |
+      * -------------------------------- */
+      When abbrev('ROLLBACK',zcmd,3) = 1 then call do_rollback
       /* -------------------------------- *
       | Add/replace remote URI (origin)  |
       * -------------------------------- */
@@ -648,6 +679,185 @@ Work_With_Repo:
   end
   return
 
+  /* ------------------------ *
+  | Rollback to a Commit Tab |
+  | $$$ Work in Progress $$$ |
+  * ------------------------ */
+Do_Rollback:
+  zcmd = null
+  crcnt = 10
+  ocrcnt = 10
+  zcrtbl = 'ZR'time('s')
+  call do_rollback_log
+  ztdsels = 0
+  ztdtop = 1
+  'tbtop' zcrtbl
+  'tbsort' zcrtbl 'fields(gdsn,c,a)'
+  do forever
+    zsel = null
+    if ztdsels > 1
+    then 'tbdispl' zcrtbl
+    else do
+      'tbtop' zcrtbl
+      'tbskip' zcrtbl 'number('ztdtop')'
+      'tbdispl' zcrtbl 'panel(zigiroll)'
+    end
+    if rc > 4 then leave
+    if crcnt /= ocrcnt then do
+      ocrcnt = crcnt
+      'tbend' zcrtbl
+      call do_rollback_log
+      ztdtop = 1
+      zsel = null
+      ztdsels = 0
+    end
+    if zsel = null then iterate
+    if row /= null then do
+      'tbtop' zcrtbl
+      'tbskip' zcrtbl    'number('row')'
+    end
+    if zsel = 'S' then do
+      soo = 0
+      drop so.
+      do si = 1 to cr.ctag.0
+        soo = soo + 1
+        so.soo = cr.ctag.si
+        so.0 = soo
+      end
+      se.0 = 0
+      call view_std
+    end
+    if zsel = 'R' then do
+say 'performing rollback to:' crtag cdatetime
+say 'git reset' ctag
+say 'call Refresh localrep zigirep pdshlq qualignr'
+      leave
+    end
+  end
+  'tbend' zcrtbl
+  drop cr.
+  say 'call work with repo or update meta data'
+  return
+
+Do_Rollback_Log:
+  cmd = 'cd' localdir
+  x = docmd(cmd '&& git log --cc -m -n' ocrcnt)
+  'TBCreate' zcrtbl 'Keys(ctag) Names(cdatetim ctitle) nowrite share'
+  do cri = 1 to so.0
+    if word(so.cri,1) = 'commit' then do
+      ctag = word(so.cri,2)
+      crc = 1
+      cr.ctag.crc = so.1
+      cr.ctag.0 = crc
+    end
+    else do
+      crc = crc + 1
+      if so.cri = null then so.cri = ' '
+      cr.ctag.crc = so.cri
+      cr.ctag.0 = crc
+      if word(so.cri,1) = 'Date:' then do
+        parse value so.cri with 'Date:' dow mon day time year .
+        mon = wordpos(mon,'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec')
+        cdatetim = year'/'right(mon+100,2)'/'right(day+100,2) time
+        ctc = cri + 2
+        ctitle = strip(so.ctc)
+        'tbadd' zcrtbl
+      end
+    end
+  end
+  return
+
+  /* ------------------- *
+  | Grep the repository |
+  * ------------------- */
+do_grep:
+  parse arg grepdir
+  zcmd = null
+  do forever
+    'display panel(zigigrep)'
+    if rc > 0 then leave
+    cmd = 'cd' grepdir
+    x = docmd(cmd '&& git grep "'grepstr'"')
+    select
+      when x = 1 then do
+        zerrsm = ''
+        zerrlm = 'grep search found nothing.'
+        'setmsg msg(isrz003)'
+      end
+      when grepopt = 'R' then do
+        call View_std 'B'
+      end
+      when grepopt = 'D' then do
+        parse value '' with dsntbl gstat gcount
+        zgreptbl = 'ZG'time('s')
+        'TBCreate' zgreptbl 'Keys(gdsn) Names(gstat gcount) nowrite share'
+        do si = 1 to so.0
+          if pos('/',so.si) = 0 then parse value so.si with gdsn":" .
+          else do
+            parse value so.si with gdsn'/'mem':' .
+            gdsn = gdsn'('mem')'
+          end
+
+          gdsn = "'"pdshlq"."strip(gdsn)"'"
+          if wordpos(gdsn,dsntbl) > 0
+          then do
+            gcount = gcount + 1
+            'tbmod' zgreptbl
+          end
+          else do
+            gcount = 1
+            'tbadd' zgreptbl
+            dsntbl = dsntbl gdsn
+          end
+        end
+        ztdsels = 0
+        ztdtop = 1
+        'tbtop' zgreptbl
+        'tbsort' zgreptbl 'fields(gdsn,c,a)'
+        do forever
+          if ztdsels > 1
+          then 'tbdispl' zgreptbl
+          else do
+            'tbtop' zgreptbl
+            'tbskip' zgreptbl 'number('ztdtop')'
+            'tbdispl' zgreptbl 'panel(zigigrds)'
+          end
+          if rc > 4 then leave
+          if zsel = null then iterate
+          if row /= null then do
+            'tbtop' zgreptbl
+            'tbskip' zgreptbl  'number('row')'
+          end
+          if zsel = 'S' then zsel = 'E'
+          'Control display save'
+          Select
+            When zsel = 'B' then do
+              'Browse dataset('gdsn')'
+              gstat = '*Browse'
+              'tbmod' zgreptbl
+            end
+            When zsel = 'E' then do
+              'edit dataset('gdsn')'
+              gstat = '*Edit'
+              'tbmod' zgreptbl
+            end
+            When zsel = 'V' then do
+              'view dataset('gdsn')'
+              gstat = '*View'
+              'tbmod' zgreptbl
+            end
+            Otherwise nop
+          end
+          'Control display restore'
+          zsel = ''
+        end
+        'tbend' zgreptbl
+      end
+      otherwise nop
+    end
+  end
+  return
+
   /* ---------------------- *
   | Display the git Status |
   * ---------------------- */
@@ -663,34 +873,14 @@ Do_Status:
   * ------------------- */
 Do_GitLog:
   zcmd = null
-  zcmd = null
-  call pfshow 'off'           /* make sure pfshow is off */
-  'vget (lcnt logdfrom logdto greplog) profile'
-  'Addpop row(4) column(6)'
-  'Display Panel(zigilog)'
-  'Rempop'
-  call pfshow 'reset'         /* restore pfshow setting */
-  lopts = null
-  if lcnt /= null then lopts = '-n' lcnt
-  if logdfrom /= null then lopts = lopts '--after="'logdfrom'"'
-  if logdto   /= null then lopts = lopts '--until="'logdto'"'
-  if greplog /= null then lopts = lopts '--grep='translate(greplog)
-  lopts = translate(lopts,'-','/')
-  cmd = 'cd' localdir' && git log --cc -m' lopts
-  'vput (lcnt logdfrom logdto greplog) profile'
+  cmd = 'cd' localdir' && git log'
   x = docmd(cmd)
-  if so.0 + se.0 > 1
-  then call view_std
-  else do
-    zerrsm = ''
-    zerrlm = 'GitLog filters resulted in an empty report.'
-    'setmsg msg(isrz003)'
-  end
+  call view_std
   return
 
-/* ----------------------------- *
- | Reset USERIDs for all members |
- * ----------------------------- */
+  /* ----------------------------- *
+  | Reset USERIDs for all members |
+  * ----------------------------- */
 Do_Resetid:
   call pfshow 'off'
   'Addpop row(4) column(12)'
@@ -969,6 +1159,9 @@ Work_with_repo_file:
           call do_commit
           call work_with_repo_file
         end
+        When abbrev('GREP',zcmd,2) = 1 then do
+          call do_grep localdir'/'dsn
+        end
         When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
         When abbrev('STATUS',zcmd,2) = 1 then call do_status
         When abbrev('RESET',zcmd,2) = 1 then call do_resetid
@@ -1010,15 +1203,7 @@ Work_with_repo_file:
           then "Edit Dataset('"edsn"')"
           else "Edit Dataset('"edsn"("mem")'"
           if rc = 0 then do
-            /* so after the edit, we should update it to repo */
-            /* this is done via update_repo_metadata because  */
-            /* now the user will not be ZIGI in ISPFSTATS     */
-            /* this 'modifies' the fulldsn and dsn vars so    */
-            /* better save before and restore after           */
             if ztdsels = 1 then do
-              call update_repo_metadata
-              /* then call this function again to update the    */
-              /* status of the members in this pds after update */
               call work_with_repo_file
             end
           end
@@ -1032,8 +1217,6 @@ Work_with_repo_file:
           /* These cp -M issues are really getting annoying */
           m = translate(mem,'._-','#@$')
           x = docmd(cmd || ' && git add -v 'm)
-          /* save and then restore dsn and full dsn around
-          update_repo_metadata  */
           if ztdsels = 1 then do
             statfile = translate(strip(fulldsn,'B',"'"),' ','.')
             statfile = subword(statfile,qualignr+1)
@@ -1041,9 +1224,6 @@ Work_with_repo_file:
             cmd = 'cd' localrep'/'zigirep'/.zigi/'
             cmd = cmd '&& git add -v 'statfile
             x = docmd(cmd)
-            call update_repo_metadata
-            /* then call this function again to update the    */
-            /* status of the members in this pds after update */
             call work_with_repo_file
           end
         end
@@ -1065,9 +1245,6 @@ Work_with_repo_file:
           /* after the checkout --, we better re-populate   */
           /* the z/OS datasets                              */
           call Refresh localrep zigirep pdshlq qualignr
-          call update_repo_metadata
-          /* then call this function again to update the    */
-          /* status of the members in this pds after update */
           call work_with_repo_file
         end
         when zsel = 'D' then do
@@ -1115,9 +1292,9 @@ Edit_PS:
   call update_repo_metadata
   return
 
-/* ------------------------------- *
- | Sort the member list (zigilist) |
- * ------------------------------- */
+  /* ------------------------------- *
+  | Sort the member list (zigilist) |
+  * ------------------------------- */
 Do_LSort:
   parse value zcmd with x sort_field sort_order sf sc
   if sort_field = null then do
