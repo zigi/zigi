@@ -737,17 +737,26 @@ Do_Rollback:
       call pfshow 'reset'         /* restore pfshow setting */
       if rolla = 'ROLLBACK' then do
         cmd = 'cd' localrep'/'zigirep
-        x = docmd(cmd ' && git checkout -b' newbr)
         drop combine.
         combine.0 = 0
+        call add_combine cmd
+        x = docmd(cmd ' && git checkout -b' newbr)
+        call add_combine 'git checkout -b' newbr
         call combine_msgs
         cmd = 'cd' localrep'/'zigirep
         x = docmd(cmd '&& git reset --hard' ctag)
+        call add_combine 'git reset --hard' ctag
         call combine_msgs
-        cmd = 'cd' localrep'/'zigirep
-        cmd = docmd(cmd ' && git push origin 'newbr)
-        branch = newb
-        call combine_msgs
+        if left(remote1,1) /= '<' then do
+          cmd = 'cd' localrep'/'zigirep
+          cmd = docmd(cmd ' && git push origin 'newbr)
+          call add_combine 'git push origin' newbr
+          branch = newb
+          call combine_msgs
+          x = docmd(cmd ' && git push --set-upstream origin' newbr)
+          call add_combine 'git push --set-upstream origin' newbr
+          call combine_msgs
+        end
         if combine.0 > 0 then call view_std 'C'
         call Refresh localrep zigirep pdshlq qualignr
         call work_with_repo
@@ -1684,7 +1693,6 @@ view_std:
   else do
     do li = 1 to combine.0
       if length(combine.li) > vlrecl then vlrecl = length(combine.li)
-      if combine.li = null then combine.li = ' '
     end
     sec = combine.0
   end
@@ -1698,17 +1706,23 @@ view_std:
   /* ----------------------------- *
   | If stdopt is 'B' then do both |
   * ----------------------------- */
-  stdopt = null
-  sc = so.0
-  do xi = 1 to se.0
-    sc = sc + 1
-    so.sc = se.xi
+  if stdopt /= 'C' then do
+    stdopt = null
+    sc = so.0
+    do xi = 1 to se.0
+      sc = sc + 1
+      so.sc = se.xi
+    end
+    so.0 = sc
+    drop se.
   end
-  so.0 = sc
-  drop se.
   /* ----------------------- *
   | Write out the stem data |
   * ----------------------- */
+  if stdopt = 'C' then do
+    'Execio * diskw' dd '(finis stem combine.'
+    drop combine.
+  end
   if stdopt /= 'C' then do
     if stdopt = null
     then do
@@ -1720,10 +1734,6 @@ view_std:
       drop se.
     end
   end
-  else do
-      'Execio * diskw' dd '(finis stem combine.'
-      drop combine.
-    end
   /* -------------------------------------------------- *
   | Access the Temporary Data Set using ISPF           |
   | Library Services.                                  |
@@ -2412,20 +2422,30 @@ debug:
   end
   return 0
 
+Add_Combine: procedure expose combine.
+  parse arg msg
+  c = combine.0
+  combine.c = msg
+  c = c + 1
+  combine.c = '   '
+  combine.0 = c
+  return
+
 /* --------------------------------------------------------- *
  | Combine the stdout and stderr messages into combine. stem |
  | for viewing.                                              |
  * --------------------------------------------------------- */
-Combine_msgs: procedure expose so. se. combine.
-
+Combine_msgs: procedure expose so. se. combine. null
   c = combine.0
   do i = 1 to so.0
     c = c + 1
     combine.c = so.i
+    if combine.c = null then combine.c = ' '
   end
   do i = 1 to se.0
     c = c + 1
     combine.c = se.i
+    if combine.c = null then combine.c = ' '
   end
   combine.0 = c
   return
