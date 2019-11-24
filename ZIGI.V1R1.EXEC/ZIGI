@@ -1,5 +1,8 @@
   /*%NOcomment ----------  rexx procedure  ------------------- */
-  ver = 'v1r1'
+  ver = 'v1r2'
+  /* ********************************
+   * look for records with 'needed'
+   ********************************** */
   /*Name:      zigi  (z ISPF Git Interface)                    |
   |                                                            |
   | Version:   V1R1                                            |
@@ -156,6 +159,7 @@
   rtll = 'ZIGM'random(9999)
   rtbb = 'ZIGB'random(9999)
   rtbl_open = 0
+  rtll_open = 0
 
   /* ------------------------------------ *
   | Let's try to find git.               |
@@ -334,6 +338,8 @@
       'TBTop zigirepo'
       'TBSkip zigirepo Number('row')'
     end
+
+    parse value '' with fulldsn dsn
 
     if abbrev('BASIC',zcmd,2) = 1 then zcmd = 'PRO'
     if zcmd /= null then
@@ -679,10 +685,6 @@ Work_With_Repo:
   end
   return
 
-  /* ------------------------ *
-  | Rollback to a Commit Tab |
-  | $$$ Work in Progress $$$ |
-  * ------------------------ */
 Do_Rollback:
   zcmd = null
   crcnt = 10
@@ -1093,6 +1095,7 @@ Work_with_repo_file:
     'TBCreate' rtll 'Keys(mem) Names(memstat ussmem zlcnorc' ,
       'zlmdate zlmtime zluser)',
       'replace NoWrite'
+    rtll_open = 1
     address syscall
     'readdir 'localrep'/'zigirep'/'dsn' root.'
     address ispexec
@@ -1136,13 +1139,13 @@ Work_with_repo_file:
     "LMCLOSE DATAID("did")"
     "LMFREE DATAID("did")"
     'tbsort' rtll 'Fields(mem,c,a)'
-    'tbtop' rtll
     /* ---------------------------------- *
     | Process the Member list until done |
     * ---------------------------------- */
     save_top = 0
     ztdsels  = 0
     Do Forever
+      if rtll_open = 0 then leave
       parse value '' with zsel zcmd row
       if ztdsels = 0 then do
         'tbtop' rtll
@@ -1151,7 +1154,9 @@ Work_with_repo_file:
       end
       else 'tbdispl' rtll
       if rc > 4 then do
+        if rtll_open = 1 then
         'tbend' rtll
+        rtll_open = 0
         leave
       end
       /* Make sure we edit (and copy) right dataset when we have
@@ -1220,6 +1225,7 @@ Work_with_repo_file:
           else "Edit Dataset('"edsn"("mem")'"
           if rc = 0 then do
             if ztdsels = 1 then do
+              call update_repo_metadata /* needed ?? */
               call work_with_repo_file
             end
           end
@@ -1240,6 +1246,7 @@ Work_with_repo_file:
             cmd = 'cd' localrep'/'zigirep'/.zigi/'
             cmd = cmd '&& git add -v 'statfile
             x = docmd(cmd)
+            call update_repo_metadata  /* needed ?? */
             call work_with_repo_file
           end
         end
@@ -1261,6 +1268,7 @@ Work_with_repo_file:
           /* after the checkout --, we better re-populate   */
           /* the z/OS datasets                              */
           call Refresh localrep zigirep pdshlq qualignr
+          call update_repo_metadata /* needed ?? */
           call work_with_repo_file
         end
         when zsel = 'D' then do
@@ -1808,16 +1816,10 @@ strreplace: Procedure
   end
   return newstring
 
-idle:
-  parse arg secs
-  if secs = null | secs = null then secs=1
-  x = docmd('sleepnd -v git')
-  return
-
 update_repo_metadata:
   save_fulldsn = fulldsn
   save_dsn = dsn
-  x = debug('start of update_repo_metadata')
+  x = debug('start of update_repo_metadata' fulldsn dsn)
   if rtbl_open = 1 then do
     'tbend' rtbl
     rtbl_open = 0
@@ -1996,6 +1998,7 @@ update_repo_metadata:
   'tbsort' rtbl 'fields(fulldsn)'
   fulldsn = save_fulldsn
   dsn = save_dsn
+  x = debug('Done with update_repo_metadata' fulldsn dsn)
   return
 
 porcelain:
