@@ -738,7 +738,7 @@ Do_Rollback:
       prc = rc
       'Rempop'
       call pfshow 'reset'         /* restore pfshow setting */
-      if rolla = 'YES' then do
+      if rolla = 'ROLLBACK' then do
         cmd = 'cd' localrep'/'zigirep
         x = docmd(cmd '&& git reset --hard' ctag)
         if so.0 + se.0 > 0 then call view_std 'B'
