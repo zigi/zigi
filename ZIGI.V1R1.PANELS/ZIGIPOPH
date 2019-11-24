@@ -1,17 +1,20 @@
 )Attr
  $ type(output) caps(off)
  _ type(input)  caps(off) hilite(uscore) intens(low)
-)Body Window(58,7)
-  +Confirm you really want to perform a rollback
-  +to the selected Commit level?
-  +(ALL changes made after that commit will be lost)
-  +
-  %NOTE:+It is recommended you do this in a new Branch
-  +
-  +===>_z       +(ROLLBACK in upper case or%F3+to cancel)
+)Body Window(47,9)
++Confirm you really want to perform a rollback
++to the selected Commit level?
++
+%Confirm ===>_z       +ROLLBACK in upper case
++
+%New Branch Name:_z                          +
++The new branch will be at the rollback level.
++
+                      %F3+to cancel
 )Init
- .zvars = '(rolla)'
+ .zvars = '(rolla newbr)'
  &zwinttl = 'zIGI Prompt Popup'
 )Proc
  ver (&rolla,nb,list,ROLLBACK)
+ ver (&newbr,nb)
 )end

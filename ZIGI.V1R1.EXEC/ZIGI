@@ -1,8 +1,5 @@
   /*%NOcomment ----------  rexx procedure  ------------------- */
   ver = 'v1r2'
-  /* ********************************
-   * look for records with 'needed'
-   ********************************** */
   /*Name:      zigi  (z ISPF Git Interface)                    |
   |                                                            |
   | Version:   V1R1                                            |
@@ -731,7 +728,7 @@ Do_Rollback:
     end
     if zsel = 'R' then do
       zcmd  = null
-      rolla = 'NO'
+      rolla = 'Cancel'
       call pfshow 'off'           /* make sure pfshow is off */
       'Addpop row(4) column(12)'
       'Display Panel(zigipoph)'
@@ -740,8 +737,18 @@ Do_Rollback:
       call pfshow 'reset'         /* restore pfshow setting */
       if rolla = 'ROLLBACK' then do
         cmd = 'cd' localrep'/'zigirep
+        x = docmd(cmd ' && git checkout -b' newbr)
+        drop combine.
+        combine.0 = 0
+        call combine_msgs
+        cmd = 'cd' localrep'/'zigirep
         x = docmd(cmd '&& git reset --hard' ctag)
-        if so.0 + se.0 > 0 then call view_std 'B'
+        call combine_msgs
+        cmd = 'cd' localrep'/'zigirep
+        cmd = docmd(cmd ' && git push origin 'newbr)
+        branch = newb
+        call combine_msgs
+        if combine.0 > 0 then call view_std 'C'
         call Refresh localrep zigirep pdshlq qualignr
         call work_with_repo
       end
@@ -1662,12 +1669,24 @@ view_std:
   /* --------------------------------------- *
   | Get lrecl to determine dcb for temp d/s |
   * --------------------------------------- */
-  vlrecl = 0
-  do li  = 1 to so.0
-    if length(so.li) > vlrecl then vlrecl = length(so.li)
+  if stdopt /= 'C' then do
+    vlrecl = 0
+    do li  = 1 to so.0
+      if length(so.li) > vlrecl then vlrecl = length(so.li)
+      if so.li = null then so.li = ' '
+    end
+    do li  = 1 to se.0
+      if length(se.li) > vlrecl then vlrecl = length(se.li)
+      if se.li = null then se.li = ' '
+    end
+    sec = so.0 + se.0
   end
-  do li  = 1 to se.0
-    if length(se.li) > vlrecl then vlrecl = length(se.li)
+  else do
+    do li = 1 to combine.0
+      if length(combine.li) > vlrecl then vlrecl = length(combine.li)
+      if combine.li = null then combine.li = ' '
+    end
+    sec = combine.0
   end
   if vlrecl < 81 then vlrecl = 80
   /* ------------------------------------------ *
@@ -1676,18 +1695,6 @@ view_std:
   Address TSO
   'Alloc f('dd') new spa(5,5) tr' ,
     'recfm(v b) lrecl('vlrecl+4') blksize(0)'
-  /* ------------------------------- *
-  | Replace null records with blank |
-  * ------------------------------- */
-  do xi = 1 to so.0
-    if so.xi = null
-    then so.xi = ' '
-  end
-  do xi = 1 to se.0
-    if se.xi = null
-    then se.xi = ' '
-  end
-  sec = so.0 + se.0
   /* ----------------------------- *
   | If stdopt is 'B' then do both |
   * ----------------------------- */
@@ -1702,15 +1709,21 @@ view_std:
   /* ----------------------- *
   | Write out the stem data |
   * ----------------------- */
-  if stdopt = null
-  then do
-    'Execio * diskw' dd '(finis stem so.'
-    drop so.
+  if stdopt /= 'C' then do
+    if stdopt = null
+    then do
+      'Execio * diskw' dd '(finis stem so.'
+      drop so.
+    end
+    else do
+      'Execio * diskw' dd '(finis stem se.'
+      drop se.
+    end
   end
   else do
-    'Execio * diskw' dd '(finis stem se.'
-    drop se.
-  end
+      'Execio * diskw' dd '(finis stem combine.'
+      drop combine.
+    end
   /* -------------------------------------------------- *
   | Access the Temporary Data Set using ISPF           |
   | Library Services.                                  |
@@ -1730,7 +1743,6 @@ view_std:
     'Free f('dd')'
   'Control Display Restore'
   return
-
 
   /* -------------------------------------------------------- *
   | This routine will generate the users personal SSH Public |
@@ -2399,3 +2411,21 @@ debug:
     zigidebg_use = 1
   end
   return 0
+
+/* --------------------------------------------------------- *
+ | Combine the stdout and stderr messages into combine. stem |
+ | for viewing.                                              |
+ * --------------------------------------------------------- */
+Combine_msgs: procedure expose so. se. combine.
+
+  c = combine.0
+  do i = 1 to so.0
+    c = c + 1
+    combine.c = so.i
+  end
+  do i = 1 to se.0
+    c = c + 1
+    combine.c = se.i
+  end
+  combine.0 = c
+  return
