@@ -1463,8 +1463,10 @@ Refresh:
   zs1 = "Refreshing from repository"
   zs2 = "   OMVS -> z/OS      "
   call do_popup
+  /*
   address 'SYSCALL' 'SLEEP (2)'
   x = docmd('cd 'localrep' && git clone 'remote)
+  */
   ckotdir = localrep'/'zigirep
   if datatype(qualignr) /= 'NUM' then qualignr = 0
   if qualignr = 0
