@@ -10,22 +10,22 @@
 +
 +A zigi managed repository consists of the following characteristics:
 +
-%1.+z/OS datasets map to OMVS files for seqential and OMVS directories for
-    partitioned data sets with each PDS member as a file within the
-    directory. The file names are always upper case.
-                                  %and
-%2.+A .zigi directory within the repository that contains at a minimum a
-    file called dsn. This file defines the characteristics of the each
-    z/OS dataset in the format of:  dsname dsorg recfm lrecl blksize
-+   e.g. ZIGI.EXEC PO FB 80 32720
-                                  %or
-%3.+To convert a non-zigi managed repository to a zigi managed repository
+%1.+To convert a non-zigi managed repository to a zigi managed repository
 +   to the following:
 +   a. upload the repository files manually into z/OS datasets that are
 +      appropriate to their type
 +   b. in zigi use the CREATE command to create a repository
 +   c. use the ADD command in the zigi Repository table panel to
 +      add the z/OS datasets to the new repository
++                                 %or
+%2.+z/OS datasets map to OMVS files for seqential and OMVS directories for
++   partitioned data sets with each PDS member as a file within the
++   directory. The file names are always upper case.
++                                 %and
+%3.+A .zigi directory within the repository that contains at a minimum a
++   file called dsn. This file defines the characteristics of the each
++   z/OS dataset in the format of:  dsname dsorg recfm lrecl blksize
++   e.g. ZIGI.EXEC PO FB 80 32720
 +
 )Init
  &zigtitle = '(Characteristics of a zigi Managed Repository)'

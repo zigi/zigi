@@ -7,8 +7,8 @@
 +
 +The clone did complete to:$clonerep
 +
-+The files in OMVS will be retained to allow you to
-+manually convert them to the correct layout.
++The files in OMVS will be retained to allow you
++to manually convert them to the correct layout.
 +
 +Press%F3+to close this window and display the tutorial
 +on converting this repository for use by zigi.
