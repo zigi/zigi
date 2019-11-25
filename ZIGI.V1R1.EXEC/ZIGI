@@ -960,9 +960,9 @@ Do_Resetid:
     statfile = translate(strip(fulldsn,'B',"'"),' ','.')
     statfile = subword(statfile,qualignr+1)
     statfile = translate(statfile,'.',' ')
-    statfile = localrep'/'zigirep'/.zigi/'statfile
-    x = zigistat(fulldsn statfile 'S')
-    x = docmd('cd' dir '&& git add .zigi/'statfile)
+    statpath = localrep'/'zigirep'/.zigi/'statfile
+    x = zigistat(fulldsn statpath 'S')
+    x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfile)
   end
   return
 
@@ -1077,12 +1077,12 @@ fixup_userids:
     end
     "LMClose Dataid("reset")"
     "LMFree  Dataid("reset")"
-     statfile = translate(strip(wrokdsn,'B',"'"),' ','.')
+     statfile = translate(strip(workdsn,'B',"'"),' ','.')
      statfile = subword(statfile,qualignr+1)
      statfile = translate(statfile,'.',' ')
-    x = zigistat(workdsn statfile 'S')
-    dir = localrep'/'zigirep
-    x = docmd('cd' dir '&& git add .zigi/'statfile)
+     x = zigistat(workdsn localrep'/'zigirep'/.zigi/'statfile 'S')
+     dir = localrep'/'zigirep
+     x = docmd('cd' dir '&& git add .zigi/'statfile)
   end
   return
 
@@ -1335,6 +1335,7 @@ Work_with_repo_file:
             cmd = 'cd' localrep'/'zigirep'/.zigi/'
             cmd = cmd '&& git add -v 'statfile
             x = docmd(cmd)
+            x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'statfile 'S')
             call update_repo_metadata  /* needed ?? */
             call work_with_repo_file
           end
@@ -1990,8 +1991,9 @@ update_repo_metadata:
         if so.1 = "DIR" & x = 0 then do
           x = debug('its a dir...lmmstat all the things')
           Address TSO
-          statfile = localrep'/'zigirep'/.zigi/'root.i
-          mem_delta = zigistat("'"edsn"'" statfile 'C')
+          statpath = localrep'/'zigirep'/.zigi/'root.i
+          statfile = root.i
+          mem_delta = zigistat("'"edsn"'" statpath 'C')
           Address ISPExec
           mem_hit = 0
           do im = 1 to words(mem_delta)
@@ -2009,8 +2011,8 @@ update_repo_metadata:
             mem_hit = 1
           end
           if mem_hit = 1 then do
-            x = zigistat("'"edsn"'" statfile 'S')
-            x = docmd('cd' dir '&& git add .zigi/'statfile)
+            x = zigistat("'"edsn"'" localrep'/'zigirep'/.zigi/'statfile 'S')
+            x = docmd('cd' localdir'/'zigirep '&& git add .zigi/'statfile)
           end
         end
         else do
