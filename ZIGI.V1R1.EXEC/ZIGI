@@ -1077,12 +1077,12 @@ fixup_userids:
     end
     "LMClose Dataid("reset")"
     "LMFree  Dataid("reset")"
-     statfile = translate(strip(workdsn,'B',"'"),' ','.')
-     statfile = subword(statfile,qualignr+1)
-     statfile = translate(statfile,'.',' ')
-     x = zigistat(workdsn localrep'/'zigirep'/.zigi/'statfile 'S')
-     dir = localrep'/'zigirep
-     x = docmd('cd' dir '&& git add .zigi/'statfile)
+    statfile = translate(strip(workdsn,'B',"'"),' ','.')
+    statfile = subword(statfile,qualignr+1)
+    statfile = translate(statfile,'.',' ')
+    x = zigistat(workdsn localrep'/'zigirep'/.zigi/'statfile 'S')
+    dir = localrep'/'zigirep
+    x = docmd('cd' dir '&& git add .zigi/'statfile)
   end
   return
 
@@ -1146,9 +1146,16 @@ Clone_Repo:
     cmd = '[[ ! -d 'localrep'/'zigirep'/.zigi ]] && echo 0'
     x = bpxwunix(cmd,,so.,se.)
     if so.0 = 1 & so.1 = 0 then do
+      Address ISPExec
+      clonerep = localrep'/'zigirep
+      'Addpop row(4) column(12)'
+      'Display Panel(zigipopn)'
+      'Rempop'
+      'Select pgm(isptutor) parm(ziginman)'
+      /* Comment Start
       c_stat = 1
       x = bpxwunix('rm -rf 'localrep'/'zigirep,,so.,se.)
-      Address ISPExec
+         Comment End */
       return
     end
     Address ISPExec
@@ -1314,7 +1321,7 @@ Work_with_repo_file:
           else "Edit Dataset('"edsn"("mem")'"
           if rc = 0 then do
             if ztdsels = 1 then do
-              call update_repo_metadata /* needed ?? */
+              call update_repo_metadata
               call work_with_repo_file
             end
           end
@@ -1335,8 +1342,9 @@ Work_with_repo_file:
             cmd = 'cd' localrep'/'zigirep'/.zigi/'
             cmd = cmd '&& git add -v 'statfile
             x = docmd(cmd)
-            x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'statfile 'S')
-            call update_repo_metadata  /* needed ?? */
+            x = zigistat(fulldsn ,
+               localrep'/'zigirep'/.zigi/'statfile 'S')
+            call update_repo_metadata
             call work_with_repo_file
           end
         end
@@ -1358,7 +1366,7 @@ Work_with_repo_file:
             /* after the checkout --, we better re-populate   */
             /* the z/OS datasets                              */
           call Refresh localrep zigirep pdshlq qualignr
-          call update_repo_metadata /* needed ?? */
+          call update_repo_metadata
           call work_with_repo_file
         end
         when zsel = 'D' then do
@@ -1994,7 +2002,7 @@ update_repo_metadata:
           x = debug('its a dir...lmmstat all the things')
           Address TSO
           statpath = localrep'/'zigirep'/.zigi/'root.i
-          statfile = root.i
+          statfile = usssafe(root.i)
           mem_delta = zigistat("'"edsn"'" statpath 'C')
           Address ISPExec
           mem_hit = 0
@@ -2428,6 +2436,17 @@ Do_Popup:
 Do_Popup4:
   call pfshow 'off'           /* make sure pfshow is off */
   'Control Display Lock'
+  'Addpop row(4) column(6)'
+  'Display Panel(zigipop4)'
+  'Rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
+  return
+
+    /* ---------------------------------------- *
+    | Common routine for normal (4 line) popup |
+    * ---------------------------------------- */
+Do_Popup4p:
+  call pfshow 'off'           /* make sure pfshow is off */
   'Addpop row(4) column(6)'
   'Display Panel(zigipop4)'
   'Rempop'
