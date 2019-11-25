@@ -1,0 +1,37 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+  @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+)Body  Expand(\\)
++-\-\#zigtitle   +-\-\
++Command ===>_zcmd   \ \ +
+%
++Review/Update Repository Settings:
+%
++Default Push on Confirm:@z+                      Y or N
++Default Userid to set prior to Commit:@defruid + or blank
++
++
++
++
++
++
++
++
++
++
++
++
++
++
+        %ENTER+to register updates and%F3+to Cancel or Leave the panel.
+)Init
+ .zvars = '(defcpush)'
+  .cursor = &zcmd
+  .help = zigihr0
+  &zscr = CSR
+)Proc
+)End

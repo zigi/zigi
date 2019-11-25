@@ -16,11 +16,11 @@
 %                !bstat
 %                $baction                                                   +
 %
-[Add+    Add dataset            [Grep+ Find Strings      [Remote+  Add remote
-[Br    + Checkout/Create branch [Pro+  Pro Panel version [Rollback+Revert
-[Commit+ Execute commit -m      [Pull+ Pull from origin  [Status+  Git Status
-[Githelp+Git Help               [Push+ Push to origin    [View+    OMVS Dir
-[GitLog+ Show git log output    [Refresh+ Replace MVS datasets
+[Add+    Add dataset           [Grep+Find Strings       [Remote+  Add remote
+[Br    + Checkout/Create branch[Pro+ Pro Panel version  [Rollback+Revert
+[Commit+ Execute commit -m     [Pull+Pull from origin   [Set+     Set Defaults
+[Githelp+Git Help              [Push+Push to origin     [Status+  Git Status
+[GitLog+ Show git log output   [Refresh+Replace datasets[View+   OMVS Dir
 +
 %S+Select (Edit)%A+Add to index%B+Browse%V+View
 +
@@ -42,6 +42,7 @@
  &Grep    = 'Grep'
  &githelp = 'Githelp'
  &view    = 'View'
+ &set     = 'Set'
   .zvars = '(zsel dsnstat fulldsn)'
   .cursor = &zcmd
   .help = zigihr0
@@ -74,8 +75,9 @@
  FIELD(PULL  )  VAR(ZCMD) VAL('PULL')
  FIELD(PUSH  )  VAR(ZCMD) VAL('PUSH')
  FIELD(REFRESH) VAR(ZCMD) VAL('REFRESH')
- FIELD(ROLLBACK) VAR(ZCMD) VAL('ROLLBACK')
  FIELD(REMOTE)  VAR(ZCMD) VAL('REMOTE')
+ FIELD(ROLLBACK) VAR(ZCMD) VAL('ROLLBACK')
+ FIELD(SET   )  VAR(ZCMD) VAL('SET')
  FIELD(STATUS)  VAR(ZCMD) VAL('STATUS')
  FIELD(VIEW  )  VAR(ZCMD) VAL('VIEW')
 )End
