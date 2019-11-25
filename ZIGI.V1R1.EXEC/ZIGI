@@ -1077,6 +1077,12 @@ fixup_userids:
     end
     "LMClose Dataid("reset")"
     "LMFree  Dataid("reset")"
+     statfile = translate(strip(wrokdsn,'B',"'"),' ','.')
+     statfile = subword(statfile,qualignr+1)
+     statfile = translate(statfile,'.',' ')
+    x = zigistat(workdsn statfile 'S')
+    dir = localrep'/'zigirep
+    x = docmd('cd' dir '&& git add .zigi/'statfile)
   end
   return
 
