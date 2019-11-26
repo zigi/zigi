@@ -303,9 +303,10 @@ Write_Stats:
   'open' filepath O_rdwr+O_creat+O_trunc 660
   if retval = -1 then do
     Address ISPExec
-    zs1 = "Something bad when creating" filepath
+    zs1 = "Something bad when creating"
+    zs2 = filepath
     zs4 = 'Press F3 to close this popup and exit.'
-    parse value '' with zs2 zs3
+    parse value '' with zs3
     call do_popup4
     return
   end
@@ -331,7 +332,6 @@ Write_FD:
   * ----------------------------------- */
 Do_Popup4:
   call pfshow 'off'           /* make sure pfshow is off */
-  'Control Display Lock'
   'Addpop row(4) column(6)'
   'Display Panel(zigipop4)'
   'Rempop'

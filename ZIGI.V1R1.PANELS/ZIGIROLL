@@ -1,0 +1,43 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  @ type(output) intens(high) caps(off) just(left )
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+)Body  Expand(\\)
++-\-\#zigtitle   +-\-\
+%Command ===>_zcmd        \ \ %Scroll ===>_zscr+
++
++Commits to Review:_z +(1 to 99)
++
++Options:%S+Display%R+RollBack
++
++Sel Date/Time            Tag
+     Title
++
+)Model
+_z+ $z                   $z
+    @z
+)Init
+  .ZVARS = '(crcnt zsel cdatetim ctag ctitle)'
+  &zscr = CSR
+)Proc
+ &row = &z
+ if (&ZCMD = &Z)
+     if (&ztdsels = 0000)
+        &row = .csrrow
+        if (&row ^= &z)
+            if (&zsel = &z)
+                &zsel = S
+     if (&ztdsels ^= 0000)
+         &row = &z
+     if (&ZSEL ^= &Z)
+       if (&Zsel = '=')
+           &Zsel = &osel
+     &osel = &zsel
+ if (&row = 0)
+     &zsel = &z
+ ver (&crcnt,nb,range,1,99)
+ ver (&zsel,list,S,R)
+)End

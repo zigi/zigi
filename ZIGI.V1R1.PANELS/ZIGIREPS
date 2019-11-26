@@ -16,30 +16,32 @@
 %                !bstat                                                     +
 %                $baction                                                   +
 %
-+Commands:[Add[Basic[Br[Com[GitH[GitL[Grep[Pull[Push[Ref[Rem[St[View
++Commands:[Add[Basic[Br[Com[GitH[GitL[Grep[Pull[Push[Ref[Rem[Roll[Set[St[View
 +Options: %S+Select%A+Add%B+Browse%V+View
 +
 %S  Status                    Dataset Name
 )Model
 @z+$z                        $z
 )Init
- &Br      = 'Br'
- &St      = 'St'
- &Gitl    = 'GitL'
- &Ref     = 'Rer'
  &Add     = 'Add'
- &Com     = 'Com'
- &Push    = 'Push'
- &Pull    = 'Pull'
- &Rem     = 'Rem'
- &Grep    = 'Grep'
  &Basic   = 'Basic'
- &gith    = 'GitH'
- &view    = 'View'
-  .zvars = '(zsel dsnstat fulldsn)'
-  .cursor = &zcmd
-  .help = zigihr0
-  &zscr = CSR
+ &Br      = 'Br'
+ &Com     = 'Com'
+ &Gith    = 'GitH'
+ &Gitl    = 'GitL'
+ &Grep    = 'Grep'
+ &Pull    = 'Pull'
+ &Push    = 'Push'
+ &Ref     = 'Ref'
+ &Rem     = 'Rem'
+ &Roll    = 'Roll'
+ &Set     = 'Set'
+ &St      = 'St'
+ &View    = 'View'
+ .zvars = '(zsel dsnstat fulldsn)'
+ .cursor = &zcmd
+ .help = zigihr0
+ &zscr = CSR
 )Proc
  &row = &z
  if (&ZCMD = &Z)
@@ -58,17 +60,19 @@
      &zsel = &z
  ver (&zsel,list,S,A,U,B,V)
 )PNTS
- FIELD(Br) VAR(ZCMD) VAL('Branch')
- FIELD(St) VAR(ZCMD) VAL('Status')
- FIELD(Gitl) VAR(ZCMD) VAL('Gitlog')
- FIELD(Ref) VAR(ZCMD) VAL('Refresh')
- FIELD(Add) VAR(ZCMD) VAL('Add')
- FIELD(Com) VAR(ZCMD) VAL('Commit')
- FIELD(Push) VAR(ZCMD) VAL('Push')
- FIELD(Pull) VAR(ZCMD) VAL('Pull')
- FIELD(Rem) VAR(ZCMD) VAL('Remote')
- FIELD(Grep) VAR(ZCMD) VAL('Grep')
- FIELD(Basic) VAR(ZCMD) VAL('Basic')
- FIELD(GITH) VAR(ZCMD) VAL('Githelp')
- FIELD(VIEW) VAR(ZCMD) VAL('View')
+ FIELD(ADD) VAR(ZCMD) VAL('ADD')
+ FIELD(BASIC) VAR(ZCMD) VAL('BASIC')
+ FIELD(BR) VAR(ZCMD) VAL('BRANCH')
+ FIELD(COM) VAR(ZCMD) VAL('COMMIT')
+ FIELD(GITH) VAR(ZCMD) VAL('GITHELP')
+ FIELD(GITL) VAR(ZCMD) VAL('GITLOG')
+ FIELD(GREP) VAR(ZCMD) VAL('GREP')
+ FIELD(PULL) VAR(ZCMD) VAL('PULL')
+ FIELD(PUSH) VAR(ZCMD) VAL('PUSH')
+ FIELD(REF) VAR(ZCMD) VAL('REFRESH')
+ FIELD(REM) VAR(ZCMD) VAL('REMOTE')
+ FIELD(ROLL) VAR(ZCMD) VAL('ROLL')
+ FIELD(SET) VAR(ZCMD) VAL('SET')
+ FIELD(ST) VAR(ZCMD) VAL('STATUS')
+ FIELD(VIEW) VAR(ZCMD) VAL('VIEW')
 )End
