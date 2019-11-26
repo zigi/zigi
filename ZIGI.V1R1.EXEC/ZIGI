@@ -1630,7 +1630,8 @@ Branch_it:
 
 Create_Repo:
   do forever
-    parse value '' with zerrsm zcmd zigirep cc_rc pdshlq localrep
+    parse value '' with zerrsm zcmd zigirep cc_rc pdshlq localrep ,
+          defcpush defruid
     'Display Panel(ziginew)'
     if rc > 0 then return 8
     if localrep = '?' then
