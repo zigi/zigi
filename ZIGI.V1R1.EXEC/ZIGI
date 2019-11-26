@@ -1147,8 +1147,11 @@ Clone_Repo:
     x = bpxwunix(cmd,,so.,se.)
     if so.0 = 1 & so.1 = 0 then do
       Address ISPExec
-      clonerep = localrep'/'zigirep
-      'Addpop row(4) column(12)'
+      newrep = 'nonzigi.'zigirep
+      cmd = 'cd' localrep '&& mv' zigirep newrep
+      x = bpxwunix(cmd,,so.,se.)
+      clonerep = localrep'/'newrep
+      'Addpop row(4) column(8)'
       'Display Panel(zigipopn)'
       'Rempop'
       'Select pgm(isptutor) parm(ziginman)'

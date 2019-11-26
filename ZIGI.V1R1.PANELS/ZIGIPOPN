@@ -1,11 +1,12 @@
 )Attr
  $ type(output) caps(off)
  _ type(input)  caps(off) hilite(uscore) intens(low)
-)Body Window(55,11)
+)Body Window(55,12)
 +The git repository that you requested is not eligible
 +to be managed by zigi.
 +
-+The clone did complete to:$clonerep
++The clone did complete to:
+$clonerep
 +
 +The files in OMVS will be retained to allow you
 +to manually convert them to the correct layout.
