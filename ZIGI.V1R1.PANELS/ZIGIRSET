@@ -12,8 +12,8 @@
 +Review/Update Repository Settings:
 %
 +Default Push on Confirm:@z+                      Y or N
-+Default Userid to set prior to Commit:@defruid + or blank
 +
++Default Userid to set prior to Commit:@defruid + or blank
 +
 +
 +
@@ -30,8 +30,8 @@
         %ENTER+to register updates and%F3+to Cancel or Leave the panel.
 )Init
  .zvars = '(defcpush)'
-  .cursor = &zcmd
-  .help = zigihr0
-  &zscr = CSR
+ .cursor = zcmd
+ .help = zigihr0
+ &zscr = CSR
 )Proc
 )End

@@ -28,25 +28,25 @@
 )Model
 @z+$z                        $z
 )Init
- &Br      = 'Branch'
  &Add     = 'Add'
- &Pro     = 'Pro'
- &Status  = 'Status'
- &Rollback  = 'Rollback'
- &Pull    = 'Pull'
+ &Br      = 'Branch'
  &Commit  = 'Commit'
- &Push    = 'Push'
+ &Githelp = 'Githelp'
  &GitLog  = 'Gitlog'
- &Remote  = 'Remote'
- &Refresh = 'Refresh'
  &Grep    = 'Grep'
- &githelp = 'Githelp'
- &view    = 'View'
- &set     = 'Set'
-  .zvars = '(zsel dsnstat fulldsn)'
-  .cursor = &zcmd
-  .help = zigihr0
-  &zscr = CSR
+ &Pro     = 'Pro'
+ &Pull    = 'Pull'
+ &Push    = 'Push'
+ &Refresh = 'Refresh'
+ &Remote  = 'Remote'
+ &Rollback  = 'Rollback'
+ &Set     = 'Set'
+ &Status  = 'Status'
+ &View    = 'View'
+ .zvars = '(zsel dsnstat fulldsn)'
+ .cursor = &zcmd
+ .help = zigihr0
+ &zscr = CSR
 )Proc
  &row = &z
  if (&ZCMD = &Z)

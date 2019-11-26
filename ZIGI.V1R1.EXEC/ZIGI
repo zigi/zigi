@@ -1151,7 +1151,7 @@ Clone_Repo:
       cmd = 'cd' localrep '&& mv' zigirep newrep
       x = bpxwunix(cmd,,so.,se.)
       clonerep = localrep'/'newrep
-      'Addpop row(4) column(8)'
+      'Addpop row(4) column(7)'
       'Display Panel(zigipopn)'
       'Rempop'
       'Select pgm(isptutor) parm(ziginman)'

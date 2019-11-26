@@ -10,7 +10,7 @@
 +
 %Confirm ===>_rolla   +ROLLBACK in upper case
 +
-                %F3+to cancel
+      %ENTER+to continue, or%F3+to cancel
 )Init
  &zwinttl = 'zIGI Prompt Popup'
 )Proc
