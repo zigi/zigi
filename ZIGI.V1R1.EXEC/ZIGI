@@ -676,6 +676,7 @@ Work_With_Repo:
           statfile = subword(statfile,qualignr+1)
           statfile = translate(statfile,'.',' ')
           cmd = 'cd' localrep'/'zigirep'/.zigi/'
+          statfile = statfile
           x = docmd(cmd '&& git add -v 'statfile)
           call update_repo_metadata
         end
@@ -964,6 +965,7 @@ Do_Resetid:
     statfile = translate(statfile,'.',' ')
     statpath = localrep'/'zigirep'/.zigi/'statfile
     x = zigistat(fulldsn statpath 'S')
+    statfile = statfile
     x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfile)
   end
   return
@@ -1055,12 +1057,15 @@ fixup_userids:
     if word(so.i,1) = 'Untracked' then leave
     if word(so.i,1) = 'Changes not' then leave
     if left(so.i,1) /= '05'x then iterate
-    parse value so.i with . file .
+    if pos('new file',so.i) = 0
+    then parse value so.i with . file .
+    else parse value so.i with . . file .
     if left(file,1) = '.' then iterate
     parse value file with file'/'mem .
     if wordpos(file,dsns) = 0 then do
       dsns = dsns file
     end
+    mem = translate(mem,'#@$','._-')
     members.file = members.file mem
   end
   do iw = 1 to words(dsns)
@@ -1082,6 +1087,7 @@ fixup_userids:
     statfile = translate(strip(workdsn,'B',"'"),' ','.')
     statfile = subword(statfile,qualignr+1)
     statfile = translate(statfile,'.',' ')
+    statfile = statfile
     x = zigistat(workdsn localrep'/'zigirep'/.zigi/'statfile 'S')
     dir = localrep'/'zigirep
     x = docmd('cd' dir '&& git add .zigi/'statfile)
@@ -1344,6 +1350,7 @@ Work_with_repo_file:
             statfile = translate(strip(fulldsn,'B',"'"),' ','.')
             statfile = subword(statfile,qualignr+1)
             statfile = translate(statfile,'.',' ')
+            statfile = statfile
             cmd = 'cd' localrep'/'zigirep'/.zigi/'
             cmd = cmd '&& git add -v 'statfile
             x = docmd(cmd)
@@ -2008,7 +2015,7 @@ update_repo_metadata:
           x = debug('its a dir...lmmstat all the things')
           Address TSO
           statpath = localrep'/'zigirep'/.zigi/'root.i
-          statfile = usssafe(root.i)
+          statfile = root.i
           mem_delta = zigistat("'"edsn"'" statpath 'C')
           Address ISPExec
           mem_hit = 0
