@@ -1360,6 +1360,7 @@ Work_with_repo_file:
             x = docmd(cmd)
             x = zigistat(fulldsn ,
               localrep'/'zigirep'/.zigi/'statfile 'S')
+            x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfile)
             call update_repo_metadata
             call work_with_repo_file
           end
@@ -2039,7 +2040,7 @@ update_repo_metadata:
           end
           if mem_hit = 1 then do
             x = zigistat("'"edsn"'" localrep'/'zigirep'/.zigi/'statfile 'S')
-            x = docmd('cd' localdir'/'zigirep '&& git add .zigi/'statfile)
+            x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfile)
           end
         end
         else do
@@ -2345,7 +2346,7 @@ Do_Add_Copy:
     copycmd = "cp -U -M" copycmd" "DIR"/"pdss"/"
     x =bpxwunix(copycmd,,so.,se.)
     Address TSO '%zigistat' "'"pds"'" dir"/.zigi/"dsnb 'S'
-    x = docmd('cd' dir '&& git add .zigi/'pdss)
+    x = docmd('cd' dir '&& git add .zigi/'dsnb)
   end
   else do
     W = usssafe(WHAT)
