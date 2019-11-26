@@ -617,10 +617,11 @@ Work_With_Repo:
         else do
           parse var origin guser '@' host ':' rest
           cmd = 'touch 'home'/.ssh/known_hosts && '
-          cmd = cmd 'ssh-keyscan -t rsa,dsa 'host
-          cmd = cmd ' 2>&1 | sort -u - 'home'/.ssh/known_hosts >'
-          cmd = cmd ' 'home'/.ssh/tmp_hosts && '
-          cmd = cmd 'mv 'home'/.ssh/tmp_hosts 'home'/.ssh/known_hosts'
+          cmd = cmd 'if ! grep 'host
+          cmd = cmd home'/.ssh/known_hosts >/dev/null;'
+          cmd = cmd 'then ssh-keyscan -t rsa,dsa 'host
+          cmd = cmd ' 2>/dev/null >> 'home'/.ssh/known_hosts ;'
+          cmd = cmd 'fi'
           x = bpxwunix(cmd,,so.,se.)
           cmd = 'cd' localrep'/'zigirep
           x = docmd(cmd '&& git remote add origin 'origin)
