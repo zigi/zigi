@@ -1039,7 +1039,7 @@ Do_Commit:
       /* ------------------------------------- *
       | If cmsg.0 = 2 then use commit -m msg   |
       * -------------------------------------- */
-    else x = docmd(cmd "&& git commit -vm '"cmsg.1"'")
+    else x = docmd(cmd '&& git commit -vm "'cmsg.1'"')
     call view_std 'B'
       /* ------------------------------- *
       | If > 1 msg then delete the msg  |
