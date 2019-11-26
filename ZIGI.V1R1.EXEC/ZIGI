@@ -782,6 +782,7 @@ Do_Rollback:
         zerrsm = 'Cancelled.'
         zerrlm = 'Rollback cancelled.'
         'setmsg msg(isrz003)'
+        ztdsels = 0
       end
       leave
     end
@@ -1057,6 +1058,9 @@ fixup_userids:
     if word(so.i,1) = 'Untracked' then leave
     if word(so.i,1) = 'Changes not' then leave
     if left(so.i,1) /= '05'x then iterate
+    if pos('new file',so.i) = 0
+    then parse value so.i with . file .
+    else parse value so.i with . . file .
     if pos('new file',so.i) = 0
     then parse value so.i with . file .
     else parse value so.i with . . file .
@@ -1355,7 +1359,7 @@ Work_with_repo_file:
             cmd = cmd '&& git add -v 'statfile
             x = docmd(cmd)
             x = zigistat(fulldsn ,
-               localrep'/'zigirep'/.zigi/'statfile 'S')
+              localrep'/'zigirep'/.zigi/'statfile 'S')
             call update_repo_metadata
             call work_with_repo_file
           end
