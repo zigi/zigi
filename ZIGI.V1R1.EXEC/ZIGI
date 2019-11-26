@@ -676,8 +676,8 @@ Work_With_Repo:
           statfile = subword(statfile,qualignr+1)
           statfile = translate(statfile,'.',' ')
           cmd = 'cd' localrep'/'zigirep'/.zigi/'
-          statfile = statfile
-          x = docmd(cmd '&& git add -v 'statfile)
+          statfiles = usssafe(statfile)
+          x = docmd(cmd '&& git add -v 'statfiles)
           call update_repo_metadata
         end
       end
@@ -964,10 +964,9 @@ Do_Resetid:
     statfile = translate(strip(fulldsn,'B',"'"),' ','.')
     statfile = subword(statfile,qualignr+1)
     statfile = translate(statfile,'.',' ')
-    statpath = localrep'/'zigirep'/.zigi/'statfile
-    x = zigistat(fulldsn statpath 'S')
-    statfile = statfile
-    x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfile)
+    x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'statfile 'S')
+    statfiles = usssafe(statfile)
+    x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfiles)
   end
   return
 
@@ -1091,10 +1090,10 @@ fixup_userids:
     statfile = translate(strip(workdsn,'B',"'"),' ','.')
     statfile = subword(statfile,qualignr+1)
     statfile = translate(statfile,'.',' ')
-    statfile = statfile
     x = zigistat(workdsn localrep'/'zigirep'/.zigi/'statfile 'S')
     dir = localrep'/'zigirep
-    x = docmd('cd' dir '&& git add .zigi/'statfile)
+    statfiles = usssafe(statfile)
+    x = docmd('cd' dir '&& git add .zigi/'statfiles)
   end
   return
 
@@ -1354,13 +1353,14 @@ Work_with_repo_file:
             statfile = translate(strip(fulldsn,'B',"'"),' ','.')
             statfile = subword(statfile,qualignr+1)
             statfile = translate(statfile,'.',' ')
-            statfile = statfile
             cmd = 'cd' localrep'/'zigirep'/.zigi/'
-            cmd = cmd '&& git add -v 'statfile
+            statfiles = usssafe(statfile)
+            cmd = cmd '&& git add -v 'statfiles
             x = docmd(cmd)
             x = zigistat(fulldsn ,
               localrep'/'zigirep'/.zigi/'statfile 'S')
-            x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfile)
+            statfiles = usssafe(statfile)
+            x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfiles)
             call update_repo_metadata
             call work_with_repo_file
           end
@@ -2040,7 +2040,8 @@ update_repo_metadata:
           end
           if mem_hit = 1 then do
             x = zigistat("'"edsn"'" localrep'/'zigirep'/.zigi/'statfile 'S')
-            x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfile)
+            statfiles = usssafe(statfile)
+            x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfiles)
           end
         end
         else do
@@ -2412,7 +2413,6 @@ Save_dsninfo:
   'free f('sd_dd')'
   'delete' sd_dsn
   cmd = 'cd 'localrep'/'zigirep' && git add .zigi/dsn'
-  cmd = cmd ' && git commit -m "zigi dsn update"'
   x = docmd(cmd)
   call outtrap 'off'
   Address ISPExec
