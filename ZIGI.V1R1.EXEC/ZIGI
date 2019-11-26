@@ -162,6 +162,7 @@
   rtbb = 'ZIGB'random(9999)
   rtbl_open = 0
   rtll_open = 0
+  combine.0 = 0
 
   /* ------------------------------------ *
   | Let's try to find git.               |
@@ -668,8 +669,9 @@ Work_With_Repo:
         d = usssafe(dsn)
         cmd = 'cd' localrep'/'zigirep
         x = docmd(cmd '&& git add -v 'd)
-        call view_std 'B'
+        call combine_msgs
         if ztdsels = 1 then do
+          call view_std 'C'
           statfile = translate(strip(fulldsn,'B',"'"),' ','.')
           statfile = subword(statfile,qualignr+1)
           statfile = translate(statfile,'.',' ')
@@ -1810,6 +1812,7 @@ view_std:
   if stdopt = 'C' then do
     'Execio * diskw' dd '(finis stem combine.'
     drop combine.
+    combine.0 = 0
   end
   if stdopt /= 'C' then do
     if stdopt = null
