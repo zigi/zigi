@@ -891,7 +891,6 @@ do_grep:
           call outtrap 'off'
           if wordpos(gdsn,dsntbl) > 0
           then do
-say 'gdsn:' gdsn
             gcount = gcount + 1
             'tbmod' zgreptbl
           end
