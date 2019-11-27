@@ -209,9 +209,12 @@
   parse var so.1 'git' 'version' version'_'subversion
   version = strip(version,'B')
   if version < required_version then do
-    say "Your git version is not at the minimum required level"
-    say "Your level    : "version
-    say "Required level: "required_version
+    zs1 = "Your git version is not at the minimum required level"
+    zs2 = "Your level    : "version
+    zs3 = "Required level: "required_version
+    zs4 = 'Press Enter to exit and install the correct version.'
+    call do_popup4p
+    exit 8
   end
     /* ------------------------------------------ *
     | Check for GIT Userid and if not found      |
@@ -2542,16 +2545,6 @@ GETENV:
   cmd  = docmdx('env')
   rc = bpxwunix(cmd,,env.,se.)
   envc = env.0
-  /* Comment Start
-  do ci = 1 to so.0
-    if left(so.ci,3) = 'GIT' then call add_env so.ci
-    if left(so.ci,4) = 'HOME' then call add_env so.ci
-    if left(so.ci,4) = 'PATH' then call add_env so.ci
-    if left(so.ci,4) = 'MANP' then call add_env so.ci
-    if left(so.ci,4) = 'LIBP' then call add_env so.ci
-    if left(so.ci,3) = 'PWD' then call add_env so.ci
-  end
-     Comment End */
   call add_env '_BPX_SHAREAS=YES'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
   env.0 = envc
