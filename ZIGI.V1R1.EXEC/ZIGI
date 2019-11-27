@@ -21,6 +21,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            11/27/09 HBK - Check for minimal git version    |
   |            11/27/09 LBD - Translate ' and " from commit    |
   |                           1 line msg.                      |
   |                         - add -i (ignore case) to grep     |
@@ -203,6 +204,15 @@
     end
   end
 
+  x = docmd('git --version')
+  required_version = '2.14.4'
+  parse var so.1 'git' 'version' version'_'subversion
+  version = strip(version,'B')
+  if version < required_version then do
+    say "Your git version is not at the minimum required level"
+    say "Your level    : "version
+    say "Required level: "required_version
+  end
     /* ------------------------------------------ *
     | Check for GIT Userid and if not found      |
     | then prompt for it along with a GIT E-Mail |
