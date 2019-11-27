@@ -21,6 +21,11 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            11/27/09 LBD - Translate ' and " from commit    |
+  |                           1 line msg.                      |
+  |                         - add -i (ignore case) to grep     |
+  |                         - in grep dsn allow b/e/v of       |
+  |                           omvs files                       |
   |            11/26/09 HBK - Support site profile             |
   |            11/25/09 LBD - Add repository SET for defaults  |
   |                         - Support ROLLBACK of repo         |
@@ -843,7 +848,7 @@ do_grep:
     'display panel(zigigrep)'
     if rc > 0 then leave
     cmd = 'cd' grepdir
-    x = docmd(cmd '&& git grep "'grepstr'"')
+    x = docmd(cmd '&& git grep -i "'grepstr'"')
     select
       when x = 1 then do
         zerrsm = ''
@@ -858,13 +863,16 @@ do_grep:
         zgreptbl = 'ZG'time('s')
         'TBCreate' zgreptbl 'Keys(gdsn) Names(gstat gcount) nowrite share'
         do si = 1 to so.0
+          if left(so.si,1) = '.' then iterate
           if pos('/',so.si) = 0 then parse value so.si with gdsn":" .
           else do
             parse value so.si with gdsn'/'mem':' .
             gdsn = gdsn'('mem')'
           end
-
-          gdsn = "'"pdshlq"."strip(gdsn)"'"
+          gdsnt = "'"pdshlq"."strip(gdsn)"'"
+          call outtrap 'x.'
+          if sysdsn(gdsnt) = 'OK' then gdsn = gdsnt
+          call outtrap 'off'
           if wordpos(gdsn,dsntbl) > 0
           then do
             gcount = gcount + 1
@@ -898,24 +906,45 @@ do_grep:
           'Control display save'
           Select
             When zsel = 'B' then do
-              'Browse dataset('gdsn')'
-              gstat = '*Browse'
+              if left(gdsn,1) = "'"
+              then do
+                'Browse dataset('gdsn')'
+                gstat = '*Browse'
+              end
+              else do
+                Address TSO 'OBrowse' grepdir'/'gdsn
+                gstat = '*OBrowse'
+              end
               'tbmod' zgreptbl
             end
             When zsel = 'E' then do
-              'edit dataset('gdsn')'
-              gstat = '*Edit'
+              if left(gdsn,1) = "'"
+              then do
+                'Edit dataset('gdsn')'
+                gstat = '*Edit'
+              end
+              else do
+                Address TSO 'OEdit' grepdir'/'gdsn
+                gstat = '*OEdit'
+              end
               'tbmod' zgreptbl
             end
             When zsel = 'V' then do
-              'view dataset('gdsn')'
-              gstat = '*View'
+              if left(gdsn,1) = "'"
+              then do
+                'View dataset('gdsn')'
+                gstat = '*View'
+              end
+              else do
+                Address TSO 'OEdit' grepdir'/'gdsn
+                gstat = '*OEdit'
+              end
               'tbmod' zgreptbl
             end
             Otherwise nop
           end
           'Control display restore'
-          zsel = ''
+           zsel = ''
         end
         'tbend' zgreptbl
       end
@@ -2485,7 +2514,7 @@ Do_Popup4p:
 
     /* ----------------------------------------------------- *
     | Get the users current OMVS enviornment for use in the |
-    | bpxwunix commands. Being selective.                   |
+    | bpxwunix commands.                                    |
     * ----------------------------------------------------- */
 GETENV:
   x = debug('Starting collection of env variables')
