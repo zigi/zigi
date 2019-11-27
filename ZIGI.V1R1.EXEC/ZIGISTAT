@@ -273,7 +273,6 @@ add_env:
 docmd:
   parse arg cmd
   drop so. se.
-  cmd = 'bash &&' cmd
   x = bpxwunix(cmd,,so.,se.,env.)
   return x
 
@@ -290,7 +289,7 @@ docmdx:
       rx = rx '. 'home'/.profile > /dev/null 2>&1 && '
     end
   end
-  r = rx 'bash && ' cmd
+  r = rx cmd
   return r
 
   /* ----------------------------- *

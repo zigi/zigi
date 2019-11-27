@@ -1039,14 +1039,18 @@ Do_Commit:
     end
       /* ------------------------------------- *
       | If cmsg.0 = 2 then use commit -m msg   |
+      | remove quotes for this msg             |
       * -------------------------------------- */
-    else x = docmd(cmd '&& git commit -vm "'cmsg.1'"')
+    else do
+      cmsg.1 = translate(cmsg.1,' ',"'" '"')
+      x = docmd(cmd "&& git commit -vm '"cmsg.1"'")
+    end
     call view_std 'B'
       /* ------------------------------- *
-      | If > 1 msg then delete the msg  |
+      | If > 2 msg then delete the msg  |
       | file from omvs                  |
       * ------------------------------- */
-    if io > 1 then
+    if io > 2 then
     cmd = 'rm' file
     x = bpxwunix(cmd,,do.,de.)
     if zpush = 'Y' then call do_push 'x'
@@ -1071,9 +1075,6 @@ fixup_userids:
     if word(so.i,1) = 'Untracked' then leave
     if word(so.i,1) = 'Changes not' then leave
     if left(so.i,1) /= '05'x then iterate
-    if pos('new file',so.i) = 0
-    then parse value so.i with . file .
-    else parse value so.i with . . file .
     if pos('new file',so.i) = 0
     then parse value so.i with . file .
     else parse value so.i with . . file .
