@@ -861,6 +861,9 @@ do_grep:
         call View_std 'B'
       end
       when grepopt = 'D' then do
+        pdshlqt = translate(pdshlq,' ','.')
+        pdshlqt = subword(pdshlqt,1,qualignr)
+        pdshlqt = translate(pdshlqt,'.',' ')
         parse value '' with dsntbl gstat gcount
         zgreptbl = 'ZG'time('s')
         'TBCreate' zgreptbl 'Keys(gdsn) Names(gstat gcount) nowrite share'
@@ -869,14 +872,16 @@ do_grep:
           if pos('/',so.si) = 0 then parse value so.si with gdsn":" .
           else do
             parse value so.si with gdsn'/'mem':' .
+            mem = translate(mem,'#@$','._-')
             gdsn = gdsn'('mem')'
           end
-          gdsnt = "'"pdshlq"."strip(gdsn)"'"
+          gdsnt = "'"pdshlqt"."strip(gdsn)"'"
           call outtrap 'x.'
           if sysdsn(gdsnt) = 'OK' then gdsn = gdsnt
           call outtrap 'off'
           if wordpos(gdsn,dsntbl) > 0
           then do
+say 'gdsn:' gdsn
             gcount = gcount + 1
             'tbmod' zgreptbl
           end
