@@ -1802,7 +1802,8 @@ Create_Repo:
 
     Address ISPExec
     zigikey = localrep'/'zigirep
-    'tbadd zigirepo order'
+    'tbadd zigirepo order save(defcpush defruid)'
+    zpush = defcpush
     "TBSort zigirepo Fields(zigirep,C,A)"
     'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
     leave
