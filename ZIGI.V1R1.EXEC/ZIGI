@@ -21,6 +21,11 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            11/27/09 LBD - Translate ' and " from commit    |
+  |                           1 line msg.                      |
+  |                         - add -i (ignore case) to grep     |
+  |                         - in grep dsn allow b/e/v of       |
+  |                           omvs files                       |
   |            11/26/09 HBK - Support site profile             |
   |            11/25/09 LBD - Add repository SET for defaults  |
   |                         - Support ROLLBACK of repo         |
@@ -127,7 +132,7 @@
     /* --------------------------------------- *
     | Make sure we are under the ZIGI applid  |
     * --------------------------------------- */
-    "Select CMD(%zigi) Newappl(ZIGI) Passlib"
+    "Select CMD(%zigi) Newappl(ZIGI) Passlib scrname(zigi)"
     if panels /= null then
     'libdef ispplib'
     if exec /= null then
@@ -368,6 +373,7 @@
       Address TSO '%githelp'
       When abbrev('CREATE',zcmd,2) = 1 then do
         x = Create_Repo()
+        crflag = 1
         if x = 0 then
         call work_with_repo
         zsel = null
@@ -453,6 +459,7 @@ Create_zigirepo:
 Work_With_Repo:
   parse value '' with dsn dsnstat zsel ztdsels rtop
   call update_repo_metadata
+  crflag = 0
   'tbsort' rtbl 'Fields(fulldsn,c,a)'
   'tbtop' rtbl
     /* -------------------------------- *
@@ -527,7 +534,7 @@ Work_With_Repo:
         if lcnt /= null then lopts = '-n' lcnt
         if logdfrom /= null then lopts = lopts '--after="'logdfrom'"'
         if logdto   /= null then lopts = lopts '--until="'logdto'"'
-        if greplog /= null then lopts = lopts '--grep='greplog
+        if greplog /= null then lopts = lopts '--grep='greplog '-i'
         lopts = translate(lopts,'-','/')
         cmd = 'cd' localdir' && git log --cc -m' lopts
         'vput (lcnt logdfrom logdto greplog) profile'
@@ -843,7 +850,7 @@ do_grep:
     'display panel(zigigrep)'
     if rc > 0 then leave
     cmd = 'cd' grepdir
-    x = docmd(cmd '&& git grep "'grepstr'"')
+    x = docmd(cmd '&& git grep -i "'grepstr'"')
     select
       when x = 1 then do
         zerrsm = ''
@@ -854,19 +861,27 @@ do_grep:
         call View_std 'B'
       end
       when grepopt = 'D' then do
+        pdshlqt = translate(pdshlq,' ','.')
+        pdshlqt = subword(pdshlqt,1,qualignr)
+        pdshlqt = translate(pdshlqt,'.',' ')
         parse value '' with dsntbl gstat gcount
         zgreptbl = 'ZG'time('s')
         'TBCreate' zgreptbl 'Keys(gdsn) Names(gstat gcount) nowrite share'
         do si = 1 to so.0
+          if left(so.si,1) = '.' then iterate
           if pos('/',so.si) = 0 then parse value so.si with gdsn":" .
           else do
             parse value so.si with gdsn'/'mem':' .
+            mem = translate(mem,'#@$','._-')
             gdsn = gdsn'('mem')'
           end
-
-          gdsn = "'"pdshlq"."strip(gdsn)"'"
+          gdsnt = "'"pdshlqt"."strip(gdsn)"'"
+          call outtrap 'x.'
+          if sysdsn(gdsnt) = 'OK' then gdsn = gdsnt
+          call outtrap 'off'
           if wordpos(gdsn,dsntbl) > 0
           then do
+say 'gdsn:' gdsn
             gcount = gcount + 1
             'tbmod' zgreptbl
           end
@@ -898,18 +913,39 @@ do_grep:
           'Control display save'
           Select
             When zsel = 'B' then do
-              'Browse dataset('gdsn')'
-              gstat = '*Browse'
+              if left(gdsn,1) = "'"
+              then do
+                'Browse dataset('gdsn')'
+                gstat = '*Browse'
+              end
+              else do
+                Address TSO 'OBrowse' grepdir'/'gdsn
+                gstat = '*OBrowse'
+              end
               'tbmod' zgreptbl
             end
             When zsel = 'E' then do
-              'edit dataset('gdsn')'
-              gstat = '*Edit'
+              if left(gdsn,1) = "'"
+              then do
+                'Edit dataset('gdsn')'
+                gstat = '*Edit'
+              end
+              else do
+                Address TSO 'OEdit' grepdir'/'gdsn
+                gstat = '*OEdit'
+              end
               'tbmod' zgreptbl
             end
             When zsel = 'V' then do
-              'view dataset('gdsn')'
-              gstat = '*View'
+              if left(gdsn,1) = "'"
+              then do
+                'View dataset('gdsn')'
+                gstat = '*View'
+              end
+              else do
+                Address TSO 'OEdit' grepdir'/'gdsn
+                gstat = '*OEdit'
+              end
               'tbmod' zgreptbl
             end
             Otherwise nop
@@ -1039,14 +1075,18 @@ Do_Commit:
     end
       /* ------------------------------------- *
       | If cmsg.0 = 2 then use commit -m msg   |
+      | remove quotes for this msg             |
       * -------------------------------------- */
-    else x = docmd(cmd '&& git commit -vm "'cmsg.1'"')
+    else do
+      cmsg.1 = translate(cmsg.1,' ',"'" '"')
+      x = docmd(cmd "&& git commit -vm '"cmsg.1"'")
+    end
     call view_std 'B'
       /* ------------------------------- *
-      | If > 1 msg then delete the msg  |
+      | If > 2 msg then delete the msg  |
       | file from omvs                  |
       * ------------------------------- */
-    if io > 1 then
+    if io > 2 then
     cmd = 'rm' file
     x = bpxwunix(cmd,,do.,de.)
     if zpush = 'Y' then call do_push 'x'
@@ -1071,9 +1111,6 @@ fixup_userids:
     if word(so.i,1) = 'Untracked' then leave
     if word(so.i,1) = 'Changes not' then leave
     if left(so.i,1) /= '05'x then iterate
-    if pos('new file',so.i) = 0
-    then parse value so.i with . file .
-    else parse value so.i with . . file .
     if pos('new file',so.i) = 0
     then parse value so.i with . file .
     else parse value so.i with . . file .
@@ -1128,7 +1165,7 @@ Do_Push:
     | Clone a remote repo           |
     * ----------------------------- */
 Clone_Repo:
-  parse value '' with localrep pdshlq remotebr
+  parse value '' with pdshlq remotebr
   do forever
     zcmd = null
     remote = null
@@ -1640,7 +1677,7 @@ Branch_it:
 
 Create_Repo:
   do forever
-    parse value '' with zerrsm zcmd zigirep cc_rc pdshlq localrep ,
+    parse value '' with zerrsm zcmd zigirep cc_rc pdshlq ,
       defcpush defruid
     'Display Panel(ziginew)'
     if rc > 0 then return 8
@@ -1770,7 +1807,8 @@ Create_Repo:
 
     Address ISPExec
     zigikey = localrep'/'zigirep
-    'tbadd zigirepo order'
+    'tbadd zigirepo order save(defcpush defruid)'
+    zpush = defcpush
     "TBSort zigirepo Fields(zigirep,C,A)"
     'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
     leave
@@ -1966,14 +2004,16 @@ update_repo_metadata:
   'TBCreate' rtbl 'Keys(fulldsn) Names(dsnstat dsn pdshlq) Replace NoWrite'
   rtbl_open = 1
     /* We always fetch when we start to work on a repo */
-  x = debug('fetching remote')
-  zs1 = 'Fetching Remote info'
-  zs2 = 'Patience . . .'
-  call do_popup
+  if crflag = 0 then do
+    x = debug('fetching remote')
+    zs1 = 'Fetching Remote info'
+    zs2 = 'Patience . . .'
+    call do_popup
     /* get the remote info.....but */
     /* we have to get rid of the tab in git output */
-  x = debug('getting the remotes')
-  gitcmd = 'git remote -v | sed -e "s/[[:space:]]\+/ /g"'
+    x = debug('getting the remotes')
+    gitcmd = 'git remote -v | sed -e "s/[[:space:]]\+/ /g"'
+  end
   localdir = localrep'/'zigirep
   x = docmd('cd 'localdir' && 'gitcmd)
   if so.0 > 0 then
@@ -1988,11 +2028,13 @@ update_repo_metadata:
   x = docmd(cmd '&& git fetch')
   x = debug('...done')
     /* now we get the status for all in the repo */
-  if se.0 > 1 then fetchmsg = "Remote updates, check status"
-  else fetchmsg = "No remote updates"
-  zs1 = 'Updating Repo and/or Getting Stats'
-  zs2 = 'Patience . . .'
-  call do_popup
+  if crflag = 0 then  do
+    if se.0 > 1 then fetchmsg = "Remote updates, check status"
+    else fetchmsg = "No remote updates"
+    zs1 = 'Updating Repo and/or Getting Stats'
+    zs2 = 'Patience . . .'
+    call do_popup
+  end
     /* get all the files that are in the repo */
   x = debug('getting all files in repo-1')
   address syscall
@@ -2489,8 +2531,9 @@ Do_Popup4p:
 GETENV:
   x = debug('Starting collection of env variables')
   cmd  = docmdx('env')
-  rc = bpxwunix(cmd,,so.,se.)
-  envc = 0
+  rc = bpxwunix(cmd,,env.,se.)
+  envc = env.0
+  /* Comment Start
   do ci = 1 to so.0
     if left(so.ci,3) = 'GIT' then call add_env so.ci
     if left(so.ci,4) = 'HOME' then call add_env so.ci
@@ -2499,6 +2542,7 @@ GETENV:
     if left(so.ci,4) = 'LIBP' then call add_env so.ci
     if left(so.ci,3) = 'PWD' then call add_env so.ci
   end
+     Comment End */
   call add_env '_BPX_SHAREAS=YES'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
   env.0 = envc

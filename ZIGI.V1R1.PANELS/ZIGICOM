@@ -9,7 +9,7 @@
 %Command ===>_zcmd                                                             +
 +
 + Commit Title: _msg1                                             +
-+ Don't use double quotes, use a . for a blank like)        %Push after:@z+(Y/N)
++ Comment Explanation: (. in 1st position for blank line)   +Push after:@z+(Y/N)
  _msg2                                                                    +
  _msg3                                                                    +
  _msg4                                                                    +
