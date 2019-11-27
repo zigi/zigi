@@ -458,7 +458,6 @@ Create_zigirepo:
     * --------------------------------- */
 Work_With_Repo:
   parse value '' with dsn dsnstat zsel ztdsels rtop
-  if crflag /= 1 then
   call update_repo_metadata
   crflag = 0
   'tbsort' rtbl 'Fields(fulldsn,c,a)'
@@ -1999,14 +1998,16 @@ update_repo_metadata:
   'TBCreate' rtbl 'Keys(fulldsn) Names(dsnstat dsn pdshlq) Replace NoWrite'
   rtbl_open = 1
     /* We always fetch when we start to work on a repo */
-  x = debug('fetching remote')
-  zs1 = 'Fetching Remote info'
-  zs2 = 'Patience . . .'
-  call do_popup
+  if crflag = 0 then do
+    x = debug('fetching remote')
+    zs1 = 'Fetching Remote info'
+    zs2 = 'Patience . . .'
+    call do_popup
     /* get the remote info.....but */
     /* we have to get rid of the tab in git output */
-  x = debug('getting the remotes')
-  gitcmd = 'git remote -v | sed -e "s/[[:space:]]\+/ /g"'
+    x = debug('getting the remotes')
+    gitcmd = 'git remote -v | sed -e "s/[[:space:]]\+/ /g"'
+  end
   localdir = localrep'/'zigirep
   x = docmd('cd 'localdir' && 'gitcmd)
   if so.0 > 0 then
@@ -2021,11 +2022,13 @@ update_repo_metadata:
   x = docmd(cmd '&& git fetch')
   x = debug('...done')
     /* now we get the status for all in the repo */
-  if se.0 > 1 then fetchmsg = "Remote updates, check status"
-  else fetchmsg = "No remote updates"
-  zs1 = 'Updating Repo and/or Getting Stats'
-  zs2 = 'Patience . . .'
-  call do_popup
+  if crflag = 0 then  do
+    if se.0 > 1 then fetchmsg = "Remote updates, check status"
+    else fetchmsg = "No remote updates"
+    zs1 = 'Updating Repo and/or Getting Stats'
+    zs2 = 'Patience . . .'
+    call do_popup
+  end
     /* get all the files that are in the repo */
   x = debug('getting all files in repo-1')
   address syscall
