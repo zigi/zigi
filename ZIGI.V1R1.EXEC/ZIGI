@@ -2485,7 +2485,7 @@ Do_Popup4p:
 
     /* ----------------------------------------------------- *
     | Get the users current OMVS enviornment for use in the |
-    | bpxwunix commands.                                    |
+    | bpxwunix commands. Being selective.                   |
     * ----------------------------------------------------- */
 GETENV:
   x = debug('Starting collection of env variables')

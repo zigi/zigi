@@ -262,7 +262,7 @@ pfshow:
 
   /* ----------------------------------------------------- *
   | Get the users current OMVS enviornment for use in the |
-  | bpxwunix commands.                                    |
+  | bpxwunix commands. Needed for git.                    |
   * ----------------------------------------------------- */
 GETENV:
   cmd = 'pwd'

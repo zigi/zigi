@@ -241,7 +241,7 @@ Check_Stats_File:
 
   /* ----------------------------------------------------- *
   | Get the users current OMVS enviornment for use in the |
-  | bpxwunix commands.                                    |
+  | bpxwunix commands. Being selective.                   |
   * ----------------------------------------------------- */
 GETENV:
   cmd  = docmdx('env')
