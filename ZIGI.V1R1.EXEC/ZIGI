@@ -373,6 +373,7 @@
       Address TSO '%githelp'
       When abbrev('CREATE',zcmd,2) = 1 then do
         x = Create_Repo()
+        crflag = 1
         if x = 0 then
         call work_with_repo
         zsel = null
@@ -457,7 +458,9 @@ Create_zigirepo:
     * --------------------------------- */
 Work_With_Repo:
   parse value '' with dsn dsnstat zsel ztdsels rtop
+  if crflag /= 1 then
   call update_repo_metadata
+  crflag = 0
   'tbsort' rtbl 'Fields(fulldsn,c,a)'
   'tbtop' rtbl
     /* -------------------------------- *
@@ -944,7 +947,7 @@ do_grep:
             Otherwise nop
           end
           'Control display restore'
-           zsel = ''
+          zsel = ''
         end
         'tbend' zgreptbl
       end
