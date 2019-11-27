@@ -132,7 +132,7 @@
     /* --------------------------------------- *
     | Make sure we are under the ZIGI applid  |
     * --------------------------------------- */
-    "Select CMD(%zigi) Newappl(ZIGI) Passlib"
+    "Select CMD(%zigi) Newappl(ZIGI) Passlib scrname(zigi)"
     if panels /= null then
     'libdef ispplib'
     if exec /= null then
