@@ -1792,6 +1792,11 @@ Merge_it:
     if zsel = "M" then do
       tmp_bname = 'trial'RANDOM(9999)
       x = docmd('cd 'localdir' && git merge --no-commit --no-ff' bname)
+      if so.1 = 'Already up-to-date.' then
+        say "Merge not needed, branches are the same"
+        leave
+      if so.1 > 'Automatic merge went well;' then
+        say "That looks promising"
       call view_std 'B'
       /*
       call update_repo_metadata
