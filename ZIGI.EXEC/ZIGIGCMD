@@ -1,0 +1,267 @@
+  /*%NOcomment ----------  rexx procedure  -------------------- *
+  | Name:      zigigcmd                                        |
+  |                                                            |
+  | Function:  Issue any git command and browse the results    |
+  |                                                            |
+  | Syntax:    %zigigcmd                                       |
+  |                                                            |
+  | Usage Notes: display a prompt panel with table of recent   |
+  |              the localrep ispf variable must be available  |
+  |                                                            |
+  | Author:    Lionel B. Dyck                                  |
+  |                                                            |
+  | History:  (most recent on top)                             |
+  |            11/27/19 LBD - Creation                         |
+  |                                                            |
+  * ---------------------------------------------------------- */
+  parse arg cmd
+
+  /* ----------------------------- *
+  | Get env vars and set defaults |
+  * ----------------------------- */
+  call getenv
+  dd = 'ZC'time('s')
+  parse value '' with null gsel
+  zerrhm = 'zigih0'
+  zerralrm = 'NO'
+  zerrtp   = 'NOTIFY'
+
+  /* ---------------------------------------------------- *
+  | Set ISPExec                                          |
+  | Get the ISPF vars from ZIGI for localrep and zigirep |
+  | Define localdir as a composite variable              |
+  * ---------------------------------------------------- */
+  Address ISPExec
+  'Control Errors Return'
+  'vget (localrep zigirep)'
+  localdir = localrep'/'zigirep
+
+  /* ------------------------------------ *
+  | Check if we actually have a localrep |
+  * ------------------------------------ */
+  if localrep = null then do
+     zerrsm = 'Error.'
+     zerrlm = 'The zigi git Command dialog will only work while in' ,
+       'a repository.'
+     'Setmsg msg(isrz003)'
+     exit
+  end
+
+  /* -------------------------------------------------- *
+  | Check to see if the user has ISPTABL allocated and |
+  | if not then use ISPPROF as our table DD            |
+  * -------------------------------------------------- */
+  isptabl = 'ISPTABL'
+  x = listdsi(isptabl 'FILE')
+  if x > 0 then isptabl = 'ISPPROF'
+
+  /* ----------------------------------------------------- *
+  | Open the table but if it doesn't exist then create it |
+  * ----------------------------------------------------- */
+  'TBOpen zigigcmd Library('isptabl') Write Share'
+  if rc > 0 then
+  'tbcreate zigigcmd keys(gitcmde) library('isptabl') write share'
+
+  /* -------------------- *
+  | Setup table defaults |
+  * -------------------- */
+  ztdtop = 0
+  ztdsels = 0
+
+  /* ---------------------------------------------------------------- *
+  | Process the table.                                               |
+  |                                                                  |
+  | All row selections will be processed and if none then the git    |
+  | command will be executed.                                        |
+  |                                                                  |
+  | Row selections:  S to copy the command to the git command  entry |
+  |                  D to delete the command (supports multipe row   |
+  |                    selections)                                   |
+  |                  X to execute the command now and update the     |
+  |                    git command entry field                       |
+  * ---------------------------------------------------------------- */
+  do forever
+     if ztdsels = 0 then do
+        'tbtop zigigcmd'
+        'tbskip zigigcmd number('ztdtop')'
+        'tbdispl zigigcmd panel(zigigcmd) cursor(gitcmd)'
+     end
+     else
+     'tbdispl zigigcmd'
+     if rc > 4 then leave
+     if row = 0 then gsel = null
+     if row <> null then
+     if row > 0 then do
+       'TBTop zigigcmd'
+       'TBSkip zigigcmd Number('row')'
+     end
+     Select
+        When gsel = 'D' then 'tbdelete zigigcmd'
+        When gsel = 'S' then do
+           gitcmd = gitcmde
+           ztdsels = 0
+        end
+        When gsel = 'X' then do
+           gitcmd = gitcmde
+           ztdsels = 0
+           call do_gitcmd
+        end
+        When gitcmd /= null then call do_gitcmd
+        Otherwise nop
+     end
+     gsel = null
+  end
+
+  /* -------------- *
+  | Close and exit |
+  * -------------- */
+  'tbclose zigigcmd replcopy library('isptabl')'
+  exit
+
+  /* ------------------------------------------------------------- *
+  | Execute the git command                                       |
+  | But 1st - check and remove git from the user provided command |
+  * ------------------------------------------------------------- */
+do_gitcmd:
+  gitcmde = gitcmd
+  if translate(word(gitcmde,1)) = 'GIT' then
+  gitcmd = subword(gitcmd,2)
+  gitcmde = gitcmd
+  'tbadd zigigcmd'
+  cmd = 'cd' localdir '&& git' gitcmde
+  x = bpxwunix(cmd,,so.,se.,env.)
+  call view_std
+  return
+
+  /* ------------------------------------- *
+  * Name:     Lower                       *
+  *                                       *
+  * Function: Lowercase the provided data *
+  *                                       *
+  * Syntax:   x=lower(input)              *
+  *                                       *
+  * History:                              *
+  *           08/17/07: created           *
+  * ------------------------------------- */
+Lower: Procedure
+  parse arg input
+  out = translate(input,"abcdefghijklmnopqrstuvwxyz",,
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+  return out
+
+  /* ----------------------------------------------------- *
+  | Get the users current OMVS enviornment for use in the |
+  | bpxwunix commands.                                    |
+  * ----------------------------------------------------- */
+GETENV: procedure expose env.
+  cmd = 'pwd'
+  x = bpxwunix(cmd,,so.,se.)
+  home    = strip(so.1)
+  cmd  = docmd('env')
+  rc = bpxwunix(cmd,,env.,se.)
+  envc = env.0
+  call add_env '_BPX_SHAREAS=YES'
+  call add_env '_BPX_SPAWN_SCRIPT=YES'
+  env.0 = envc
+  return
+
+  /* -------------------- *
+  | Add info to env stem |
+  * -------------------- */
+add_env:
+  parse arg env_val
+  envc = envc + 1
+  env.envc = env_val
+  return
+
+  /* ------------------------- *
+  | Execute the  omvs command |
+  | Used by GETENV only.      |
+  * ------------------------- */
+docmd:
+  rx = null
+  /* quircky thing, we need to export HOME as we are
+  not running a login shell via bpxwunix */
+  parse arg cmd
+  if rx = null then do
+     rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && '
+     c = "[[ -f "home"/.profile ]] && echo f"
+     x = bpxwunix(c,,o.,e.)
+     if o.0 = 1 & o.1 = "f" then do
+        rx = rx '. 'home'/.profile > /dev/null 2>&1 && '
+     end
+  end
+  r = rx cmd
+  return r
+
+  /* ---------------------------------------------------------- *
+  | Generalized routine to view stdout. (so.) or stderr. (se.) |
+  | based on the parm passed                                   |
+  * ---------------------------------------------------------- */
+view_std:
+  stdopt = 'B'
+  'Control Display Save'
+  /* ------------------------------- *
+  | Randomly define a DDName to use |
+  * ------------------------------- */
+  dd = 'dd'random(9999)
+  /* --------------------------------------- *
+  | Get lrecl to determine dcb for temp d/s |
+  * --------------------------------------- */
+  vlrecl = 80
+  do li  = 1 to so.0
+     so.li = strip(so.li)
+     if length(so.li) > vlrecl then vlrecl = length(so.li)
+     if so.li = null then so.li = ' '
+  end
+  do li  = 1 to se.0
+     se.li = strip(se.li)
+     if length(se.li) > vlrecl then vlrecl = length(se.li)
+     if se.li = null then se.li = ' '
+  end
+  sec = so.0 + se.0
+  if vlrecl < 81 then vlrecl = 80
+  else vlrecl = vlrecl + 4
+  if vlrecl = 80 then vrecfm = 'f b'
+  else vrecfm = 'v b'
+  /* ------------------------------------------ *
+  | Allocate a temporary data set for our data |
+  * ------------------------------------------ */
+  Address TSO
+  'Alloc f('dd') new spa(5,5) tr' ,
+    'recfm('vrecfm') lrecl('vlrecl') blksize(0)'
+  stdopt = null
+  sc = so.0
+  do xi = 1 to se.0
+     sc = sc + 1
+     so.sc = se.xi
+  end
+  so.0 = sc
+  drop se.
+  /* ----------------------- *
+  | Write out the stem data |
+  * ----------------------- */
+  if stdopt = null
+  then do
+     'Execio * diskw' dd '(finis stem so.'
+     drop so.
+  end
+  /* -------------------------------------------------- *
+  | Access the Temporary Data Set using ISPF           |
+  | Library Services.                                  |
+  | Then using ISPF Browse service to browse the data. |
+  | And use Library Services to Free the Data Set.     |
+  * -------------------------------------------------- */
+  Address ISPExec
+  if sec > 0 then do
+     'lminit dataid(ddb) ddname('dd')'
+     'browse dataid('ddb') panel(zigibrow)'
+     'lmfree dataid('ddb')'
+  end
+  /* ----------------------------- *
+  | Last Free the z/OS Allocation |
+  * ----------------------------- */
+  Address TSO ,
+    'Free f('dd')'
+  'Control Display Restore'
+  return
