@@ -728,7 +728,7 @@ Work_With_Repo:
           x = listdsi(fulldsn)
           trace i
           if sysdsorg /= 'PS' then
-          x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'statfile 'S')
+          x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'statfiles'S')
           trace off
           x = docmd(cmd '&& git add -v 'statfiles)
           call update_repo_metadata
