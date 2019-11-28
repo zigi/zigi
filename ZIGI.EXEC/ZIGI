@@ -21,37 +21,37 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            11/27/09 HBK - Check for minimal git version    |
-  |            11/27/09 LBD - Translate ' and " from commit    |
+  |            11/27/19 HBK - Check for minimal git version    |
+  |            11/27/19 LBD - Translate ' and " from commit    |
   |                           1 line msg.                      |
   |                         - add -i (ignore case) to grep     |
   |                         - in grep dsn allow b/e/v of       |
   |                           omvs files                       |
-  |            11/26/09 HBK - Support site profile             |
-  |            11/25/09 LBD - Add repository SET for defaults  |
+  |            11/26/19 HBK - Support site profile             |
+  |            11/25/19 LBD - Add repository SET for defaults  |
   |                         - Support ROLLBACK of repo         |
   |                         - Enhance GITLOG and GREP          |
   |                         - Update member uids if default id |
   |                           set during commit                |
-  |            11/21/09 LBD - Check for ISPTABL and use it     |
+  |            11/21/19 LBD - Check for ISPTABL and use it     |
   |                           otherwise use ISPPROF for our    |
   |                           table.                           |
-  |            11/18/09 LBD - Support F3 in ZIGIOSEL and       |
+  |            11/18/19 LBD - Support F3 in ZIGIOSEL and       |
   |                           skip clone.                      |
   |                         - Replace LMMSTATS with LMMFIND    |
   |                           to get member stats              |
   |                         - Add -v (verbose) where ok        |
-  |            11/16/09 LBD - Convert to using zigitstat       |
+  |            11/16/19 LBD - Convert to using zigitstat       |
   |                           to save/update/compare           |
   |                           ispf stats on PDS members.       |
-  |            11/13/09 LBD - Enhance the debug routine:       |
+  |            11/13/19 LBD - Enhance the debug routine:       |
   |                           Return a return code             |
   |                           check for ZIGIDEBG DD enable     |
   |                           log is in users home dir         |
-  |            11/11/09 LBD - Add GITHELP as a command from    |
+  |            11/11/19 LBD - Add GITHELP as a command from    |
   |                           all panels (except browse)       |
-  |            11/10/09 HBK - Fix qualignr edge-cases          |
-  |            11/09/09 HBK - My history keeps dissapearing    |
+  |            11/10/19 HBK - Fix qualignr edge-cases          |
+  |            11/09/19 HBK - My history keeps dissapearing    |
   |                           see git :)                       |
   |            11/06/19 LBD - Numerous changes including       |
   |                           - Improve bpxwunix performance   |
@@ -728,16 +728,10 @@ Work_With_Repo:
           statfile = translate(statfile,'.',' ')
           cmd = 'cd' localrep'/'zigirep'/.zigi/'
           stats = usssafe(statfile)
-          /* TOCHECK: Lionel, I added a zigistat before the add
-             so the statfile is recreated when it's a PO
-          */
           x = listdsi(fulldsn)
           if sysdsorg /= 'PS' then
           x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'stats 'S')
           x = docmd(cmd '&& git add -v 'stats)
-          /*
-          x = docmd(cmd '&& git commit -m "Added stats file (add_full)"')
-          */
           call update_repo_metadata
         end
       end
@@ -1957,7 +1951,7 @@ Create_Repo:
 
     x = docmd('cd 'reporoot' && git add .zigi/dsn')
 
-    commitmsg = "added by zigi v1r1"
+    commitmsg = "added by zigi v1r2"
     x = docmd('cd 'reporoot' && git commit -m "'commitmsg'"')
 
     Address ISPExec
