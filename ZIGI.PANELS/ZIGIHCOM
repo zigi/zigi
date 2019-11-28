@@ -1,0 +1,28 @@
+)Attr
+ $ type(output) caps(off)
+ # type(output) hilite(reverse) color(turq) caps(off)
+ _ type(input) caps(off) hilite(uscore) intens(low)
+ + type(text ) intens(low) skip(on)
+ @ type(input) caps(on ) hilite(uscore) intens(low)
+)Body Expand(\\)
++Tutorial-\-\#zigtitle   +-\-\-Tutorial
+%Command ===>_zcmd                                                             +
++
+%git commit+processing takes the changes that have been made in the managed
++datasets and adds them to git management.
++
++Commit allows for, and it is encouraged, to provide a short summary of the
++changes to be captured in the git log for historical tracking. The summary
++typically consists of up to a 50 character title, followed by up to 72
++character lines of explanation. This dialog allows up to 16 lines of
++explanation.
++
++Blank lines are indicated by a period (.) in column 1.
++
++Optionally, after the commit, a%git push+can be automatically initiated by
++entering a%Y+in the Push after field.
++
+)Init
+ &zcont = zigihcom
+)Proc
+)end
