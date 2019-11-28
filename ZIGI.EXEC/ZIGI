@@ -727,16 +727,17 @@ Work_With_Repo:
           statfile = subword(statfile,qualignr+1)
           statfile = translate(statfile,'.',' ')
           cmd = 'cd' localrep'/'zigirep'/.zigi/'
-          statfiles = usssafe(statfile)
+          stats = usssafe(statfile)
           /* TOCHECK: Lionel, I added a zigistat before the add
              so the statfile is recreated when it's a PO
           */
           x = listdsi(fulldsn)
-          trace i
           if sysdsorg /= 'PS' then
-          x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'statfiles'S')
-          trace off
-          x = docmd(cmd '&& git add -v 'statfiles)
+          x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'stats 'S')
+          x = docmd(cmd '&& git add -v 'stats)
+          /*
+          x = docmd(cmd '&& git commit -m "Added stats file (add_full)"')
+          */
           call update_repo_metadata
         end
       end
@@ -1054,6 +1055,7 @@ Do_Resetid:
     x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'statfile 'S')
     statfiles = usssafe(statfile)
     x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfiles)
+    x = docmd('cd' localrep'/'zigirep '&& git commit -m "Resetting IDs"')
   end
   return
 
@@ -1182,6 +1184,7 @@ fixup_userids:
     dir = localrep'/'zigirep
     statfiles = usssafe(statfile)
     x = docmd('cd' dir '&& git add .zigi/'statfiles)
+    x = docmd('cd' dir '&& git commit -m "Fix userids"')
   end
   return
 
@@ -1442,9 +1445,12 @@ Work_with_repo_file:
             x = cmd '&& git add -v 'statfiles
             x = docmd(cmd)
             x = zigistat(fulldsn ,
-              localrep'/'zigirep'/.zigi/'statfile 'S')
+              localrep'/'zigirep'/.zigi/'statfiles 'S')
             statfiles = usssafe(statfile)
             x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfiles)
+            /*
+            x = docmd('cd' localrep'/'zigirep '&& git commit -m "Statfile"')
+            */
             call update_repo_metadata
             call work_with_repo_file
           end
@@ -1675,6 +1681,7 @@ Branch_it:
         * ----------------------------- */
       localdir = localrep'/'zigirep
       x = docmd('cd 'localdir' && git checkout -b 'newb)
+      /* TODO only do this when there is a remote? */
       x = docmd('cd 'localdir' && git push -u origin 'newb)
       branch = newb
       leave
@@ -1798,17 +1805,24 @@ Merge_it:
     if zsel = "M" then do
       tmp_bname = 'trial'RANDOM(9999)
       x = docmd('cd 'localdir' && git merge --no-commit --no-ff' bname)
-      if so.1 = 'Already up-to-date.' then
+      if so.1 = 'Already up-to-date.' then do
+        /* No need to merge! */
         say "Merge not needed, branches are the same"
         leave
-      if so.1 > 'Automatic merge went well;' then
-        say "That looks promising"
+      end
+      parse var se.1 "Automatic merge went well; stopped" rest
+      if rest /= "" then do
+        /* No issues. Commit the merge then execute a refresh */
+        /* Maybe popup a panel here for the commit message? */
+        x = docmd('cd 'localdir' && git commit -m "Merge 'bname'"')
+        call Refresh localrep zigirep pdshlq qualignr
+        call update_repo_metadata
+      end
+      else do
+        /* Merge went fubar */
+        say "Your merge totally failed, we need a revert here..."
+      end
       call view_std 'B'
-      /*
-      call update_repo_metadata
-      call Refresh localrep zigirep pdshlq qualignr
-      branch = bname
-      */
       leave
     end
   end
@@ -2231,11 +2245,6 @@ update_repo_metadata:
             copycmd = copycmd || "/"r"/"
             call bpxwunix copycmd
             mem_hit = 1
-          end
-          if mem_hit = 1 then do
-            x = zigistat("'"edsn"'" localrep'/'zigirep'/.zigi/'statfile 'S')
-            statfiles = usssafe(statfile)
-            x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfiles)
           end
         end
         else do
