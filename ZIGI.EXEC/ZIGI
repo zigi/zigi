@@ -530,6 +530,20 @@ Work_With_Repo:
       end
       When abbrev('BRANCH',zcmd,2) = 1 then call Branch_it
         /* -------------------------------- *
+        | Merge a branch into current branch|
+        * -------------------------------- */
+      When abbrev('MERGE',zcmd,2) = 1 then call Merge_it
+        /* -------------------------------- *
+        | Show the network graph            |
+        * -------------------------------- */
+      When abbrev('NETWORK',zcmd,2) = 1 then do
+        cmd = 'cd' localdir' && git log --graph --oneline'
+        cmd = cmd '--format="%h %<(50,trunc)%f"'
+        x = docmd(cmd)
+        if so.0 + se.0 > 1
+        then call view_std
+      end
+        /* -------------------------------- *
         | View output of git log           |
         * -------------------------------- */
       When abbrev('GITLOG',zcmd,2) = 1 then do
@@ -708,6 +722,14 @@ Work_With_Repo:
           statfile = translate(statfile,'.',' ')
           cmd = 'cd' localrep'/'zigirep'/.zigi/'
           statfiles = usssafe(statfile)
+          /* TOCHECK: Lionel, I added a zigistat before the add
+             so the statfile is recreated when it's a PO
+          */
+          x = listdsi(fulldsn)
+          trace i
+          if sysdsorg /= 'PS' then
+          x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'statfile 'S')
+          trace off
           x = docmd(cmd '&& git add -v 'statfiles)
           call update_repo_metadata
         end
@@ -1667,8 +1689,8 @@ Branch_it:
         call view_std 'B'
       end
       x = docmd('cd 'localdir' && git checkout 'bname)
-      call update_repo_metadata
       call Refresh localrep zigirep pdshlq qualignr
+      call update_repo_metadata
       branch = bname
       leave
     end
@@ -1681,6 +1703,105 @@ Branch_it:
     end
   end
   'tbend' rtbb
+  ztdsels = 0
+  return
+
+    /* ----------------------------- *
+    | Merging things...             |
+    * ----------------------------- */
+Merge_it:
+  'tbquery' rtbm
+  if rc = 0 then 'tbend' rtbm
+  'TBCreate' rtbm 'keys(bname) Names(brstatus) Replace NoWrite'
+  localdir = localrep'/'zigirep
+  cmd = ' && git remote prune origin > /dev/null 2>&1 && git branch -a'
+  x = docmd('cd 'localdir cmd)
+  if so.0 + se.0 = 0 then do
+    cmd = '&& git branch -a'
+    x = docmd('cd 'localdir cmd)
+  end
+  bl. = null
+  bl.0 = 0
+  do i = 1 to so.0
+    b1 = strip(so.i,'B')
+    if pos('/',b1) > 0 then do
+        /* this is a remote branch we (maybe) have never checked out */
+      seen_this_branch = 0
+      parse var b1 remotes'/'origin'/'bname zooi
+      bname = strip(bname)
+      do ii = 1 to bl.0
+        if bl.ii = bname then seen_this_branch = 1
+      end
+      if seen_this_branch = 1 then do
+        sbname = bname
+        'tbtop' rtbm
+        do forever
+          'tbskip' rtbm
+          if rc > 0 then leave
+          if sbname = bname then do
+            brstatus = 'Local/Remote'
+            'tbmod' rtbm
+            leave
+          end
+        end
+      end
+        /* but only add it to table if we haven't yet */
+      if seen_this_branch = 0 then do
+        if bname <> branch & bname <> "HEAD" then do
+          ni = bl.0 + 1
+          bl.ni = bname
+          bl.0 = ni
+          brstatus = 'Remote'
+          'tbadd' rtbm
+        end
+      end
+    end
+    else do
+        /* this is already a local branch */
+      if pos('*',b1) = 0 then do
+          /* Add it to the table if it's not the current (*) branch */
+        bname = strip(so.i)
+        ni = bl.0 + 1
+        bl.ni = b1
+        bl.0 = ni
+        brstatus = 'Local'
+        'tbadd' rtbm
+      end
+    end
+  end
+  'tbsort' rtbm 'fields(bname,c,a)'
+  'tbtop' rtbm
+  save_btop = 0
+  do forever
+    zcmd = null
+    cc_rc = 0
+    newb = null
+    zsel = null
+    if save_btop > 0 then do
+      'tbtop' rtbm
+      'tbskip' rtbm 'number('save_btop')'
+    end
+    'tbdispl' rtbm 'panel(zigimer)'
+    if rc > 4 then leave
+    save_btop = ztdtop
+    if abbrev('GITHELP',zcmd,4) = 1 then
+    Address TSO '%githelp'
+      /* ----------------------------- *
+      | Checkout the selected bname   |
+      * ----------------------------- */
+    if zsel = "M" then do
+      tmp_bname = 'trial'RANDOM(9999)
+      x = docmd('cd 'localdir' && git merge --no-commit --no-ff' bname)
+      call view_std 'B'
+      /*
+      call update_repo_metadata
+      call Refresh localrep zigirep pdshlq qualignr
+      branch = bname
+      */
+      leave
+    end
+  end
+  'tbend' rtbm
   ztdsels = 0
   return
 
