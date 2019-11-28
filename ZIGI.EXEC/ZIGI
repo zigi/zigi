@@ -473,9 +473,9 @@ Create_zigirepo:
     * --------------------------------- */
 Work_With_Repo:
   parse value '' with dsn dsnstat zsel ztdsels rtop
+  crflag = 0
   call update_repo_metadata
   'vput (localrep zigirep) shared'
-  crflag = 0
   'tbsort' rtbl 'Fields(fulldsn,c,a)'
   'tbtop' rtbl
     /* -------------------------------- *
@@ -2028,14 +2028,14 @@ update_repo_metadata:
     /* we have to get rid of the tab in git output */
     x = debug('getting the remotes')
     gitcmd = 'git remote -v | sed -e "s/[[:space:]]\+/ /g"'
-  end
-  localdir = localrep'/'zigirep
-  x = docmd('cd 'localdir' && 'gitcmd)
-  if so.0 > 0 then
-  remote1 = word(so.1,1) ' ' word(so.1,2)
-  if so.0 = 0 then do
-    remote1 = "<no remote defined>"
-    remote2 = null
+    localdir = localrep'/'zigirep
+    x = docmd('cd 'localdir' && 'gitcmd)
+    if so.0 > 0 then
+    remote1 = word(so.1,1) ' ' word(so.1,2)
+    if so.0 = 0 then do
+      remote1 = "<no remote defined>"
+      remote2 = null
+    end
   end
   cmd = 'cd' localrep'/'zigirep
     /* Fetch only if there's a remote */
