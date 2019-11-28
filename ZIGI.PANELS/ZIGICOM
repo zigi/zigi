@@ -8,8 +8,8 @@
 +-\-\#zigtitle   +-\-\
 %Command ===>_zcmd                                                             +
 +
-+ Commit Title: _msg1                                             +
-+ Comment Explanation: (. in 1st position for blank line)   +Push after:@z+(Y/N)
++Commit Title: _msg1                                             +
++Comment Explanation: (. in 1st position for blank line)    +Push after:@z+(Y/N)
  _msg2                                                                    +
  _msg3                                                                    +
  _msg4                                                                    +
