@@ -362,6 +362,8 @@
     parse value '' with zsel zcmd row
     'TBTop zigirepo'
     'tbskip zigirepo number('repo_top')'
+    localrep = null
+    'vput (localrep) shared'
     'tbdispl zigirepo panel('primpanl')'
     if rc > 4 then leave
 
@@ -472,6 +474,7 @@ Create_zigirepo:
 Work_With_Repo:
   parse value '' with dsn dsnstat zsel ztdsels rtop
   call update_repo_metadata
+  'vput (localrep zigirep) shared'
   crflag = 0
   'tbsort' rtbl 'Fields(fulldsn,c,a)'
   'tbtop' rtbl
@@ -1451,8 +1454,8 @@ Work_with_repo_file:
             * -------------------------------- */
           d = usssafe(dsn)
           cmd = 'cd' localrep'/'zigirep'/'d
-            /* These cp -M issues are really getting annoying */
-          m = translate(mem,'#@$','._-')
+          /* These cp -M issues are really getting annoying */
+          m = translate(mem,'._-','#@$')
           x = docmd(cmd ' && git diff 'm)
           if so.0 + se.0 > 0
           then call View_std

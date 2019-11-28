@@ -32,6 +32,7 @@
   .zvars = '(zpush)'
   if (&zpush EQ &Z)
       &zpush = 'N'
+  .help = zigihcom
 )Proc
  ver (&msg1,nb)
  ver (&zpush,list,Y,N,&Z)
