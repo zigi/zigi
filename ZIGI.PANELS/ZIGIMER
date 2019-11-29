@@ -2,6 +2,7 @@
   _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
   @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
   $ type(output) intens(low ) caps(off) just(left )
+  [ type(output) intens(high) caps(off) just(left )
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
@@ -11,9 +12,8 @@
 %
 %Current Repository : $zigirep
 %Current HLQ        : $pdshlq
-%Current Branch     : $branch
 %
-+Type%M+to merge that branch into the current branch
++Type%M+to merge that branch into[branch
 +Press%F3+to exit
 +
 +

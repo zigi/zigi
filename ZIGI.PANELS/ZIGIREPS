@@ -16,7 +16,8 @@
 %                !bstat                                                     +
 %                $baction                                                   +
 %
-+Commands:[Add[Basic[Br[Com[GitH[GitL[Grep[Pull[Push[Ref[Rem[Roll[Set[St[View
++Commands:[Add[Basic[Br[Com[GitC[GitH[GitL[Grep[Merg[Net+
+          [Pull[Push[Ref[Rem[Roll[Set[St[View
 +Options: %S+Select%A+Add%B+Browse%V+View
 +
 %S  Status                    Dataset Name
@@ -27,9 +28,12 @@
  &Basic   = 'Basic'
  &Br      = 'Br'
  &Com     = 'Com'
+ &Gitc    = 'GitC'
  &Gith    = 'GitH'
  &Gitl    = 'GitL'
  &Grep    = 'Grep'
+ &Merg    = 'Merg'
+ &Net     = 'Net'
  &Pull    = 'Pull'
  &Push    = 'Push'
  &Ref     = 'Ref'
@@ -64,9 +68,12 @@
  FIELD(BASIC) VAR(ZCMD) VAL('BASIC')
  FIELD(BR) VAR(ZCMD) VAL('BRANCH')
  FIELD(COM) VAR(ZCMD) VAL('COMMIT')
+ FIELD(GITC) VAR(ZCMD) VAL('GITCMD')
  FIELD(GITH) VAR(ZCMD) VAL('GITHELP')
  FIELD(GITL) VAR(ZCMD) VAL('GITLOG')
  FIELD(GREP) VAR(ZCMD) VAL('GREP')
+ FIELD(MERGE) VAR(ZCMD) VAL('MERGE')
+ FIELD(NETWORK) VAR(ZCMD) VAL('NETWORK')
  FIELD(PULL) VAR(ZCMD) VAL('PULL')
  FIELD(PUSH) VAR(ZCMD) VAL('PUSH')
  FIELD(REF) VAR(ZCMD) VAL('REFRESH')
