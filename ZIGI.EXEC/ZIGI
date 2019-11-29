@@ -1136,13 +1136,19 @@ Do_Commit:
       cmsg.1 = translate(cmsg.1,' ',"'" '"')
       x = docmd(cmd "&& git commit -vm '"cmsg.1"'")
     end
-    call view_std 'B'
+    if zpush = 'Y'
+    then call combine_msgs
+    else call view_std 'B'
     /* ------------------------------- *
     | If zpush is Y then push aand    |
     | then update repo data           |
     * ------------------------------- */
-    if zpush = 'Y' then call do_push 'x'
-    call update_repo_metadata
+    if zpush = 'Y' then do
+      call do_push 'x'
+      call combine_msgs
+      if combine.0 > 0 then call view_std 'C'
+    end
+    else call update_repo_metadata
   end
   return
 
