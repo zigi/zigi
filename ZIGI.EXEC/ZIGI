@@ -1197,9 +1197,6 @@ fixup_userids:
     dir = localrep'/'zigirep
     statfiles = usssafe(statfile)
     x = docmd('cd' dir '&& git add .zigi/'statfiles)
-    /* Comment Start
-    x = docmd('cd' dir '&& git commit -m "Fix userids"')
-       Comment End */
   end
   return
 
