@@ -1141,10 +1141,7 @@ Do_Commit:
     | If zpush is Y then push aand    |
     | then update repo data           |
     * ------------------------------- */
-    if zpush = 'Y' then do
-      call do_push 'x'
-      call view_std 'B'
-    end
+    if zpush = 'Y' then call do_push 'x'
     else call update_repo_metadata
   end
   return
