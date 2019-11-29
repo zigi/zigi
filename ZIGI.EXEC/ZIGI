@@ -1137,16 +1137,14 @@ Do_Commit:
       x = docmd(cmd "&& git commit -vm '"cmsg.1"'")
     end
     if zpush = 'Y'
-    then call combine_msgs
-    else call view_std 'B'
+    call view_std 'B'
     /* ------------------------------- *
     | If zpush is Y then push aand    |
     | then update repo data           |
     * ------------------------------- */
     if zpush = 'Y' then do
       call do_push 'x'
-      call combine_msgs
-      if combine.0 > 0 then call view_std 'C'
+      call view_std 'B'
     end
     else call update_repo_metadata
   end
