@@ -752,6 +752,7 @@ Work_With_Repo:
           if sysdsorg /= 'PS' then
           x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'stats 'S')
           x = docmd(cmd '&& git add -v 'stats)
+          if x > 0 then call view_std 'B'
           call update_repo_metadata
         end
       end
@@ -1462,9 +1463,6 @@ Work_with_repo_file:
               localrep'/'zigirep'/.zigi/'statfiles 'S')
             statfiles = usssafe(statfile)
             x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfiles)
-            /*
-            x = docmd('cd' localrep'/'zigirep '&& git commit -m "Statfile"')
-            */
             call update_repo_metadata
             call work_with_repo_file
           end
@@ -2404,6 +2402,8 @@ porcelain:
 usssafe: procedure
   parse arg dsn
   if pos('$',dsn) = 0 then return dsn
+  /* Let's not usssafe it twice :) */
+  if pos('\$',dsn) > 0 then return dsn
   dsn = strreplace(dsn, '$', '\$')
   return dsn
 
@@ -2582,8 +2582,8 @@ Do_Add_Copy:
     copycmd = '"'copycmd'"'
     copycmd = "cp -U -M" copycmd" "DIR"/"pdss"/"
     x =bpxwunix(copycmd,,so.,se.)
-    Address TSO '%zigistat' "'"pds"'" dir"/.zigi/"dsnb 'S'
-    x = docmd('cd' dir '&& git add .zigi/'dsnb)
+    Address TSO '%zigistat' "'"pds"'" dir"/.zigi/"pdss 'S'
+    x = docmd('cd' dir '&& git add .zigi/'pdss)
   end
   else do
     W = usssafe(WHAT)

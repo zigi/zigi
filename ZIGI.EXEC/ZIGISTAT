@@ -299,7 +299,9 @@ Write_Stats:
   call syscalls 'ON'
   address syscall
   /* Fill dsn file with the comments */
-  'open' filepath O_rdwr+O_creat+O_trunc 660
+  /* look like the 'open' command does the escaping for us... */
+  fpok = strreplace(filepath,'\$', '$')
+  'open' fpok O_rdwr+O_creat+O_trunc 660
   if retval = -1 then do
     Address ISPExec
     zs1 = "Something bad when creating"
@@ -364,3 +366,22 @@ debug:
     zigidebg_use = 1
   end
   return 0
+
+/* sorry lionel need the full strreplace here */
+STRREPLACE:
+ORIGINAL = ARG(1)
+OLDTXT = ARG(2)
+NEWTXT = ARG(3)
+/* YOU CAN CHANGE THE BELOW KEY (TMPTXT), WHICH IS USED AS A TEMPORARY
+POINTER TO IDENTIFY THE TEXT TO BE REPLACED */
+TMPTXT = '6A53CD2EW1F'
+NEWSTR = ORIGINAL
+DO WHILE POS(OLDTXT,NEWSTR) > 0
+NEWSTR = SUBSTR(NEWSTR, 1 , POS(OLDTXT,NEWSTR)-1) ||,
+TMPTXT || SUBSTR(NEWSTR, POS(OLDTXT,NEWSTR) + LENGTH(OLDTXT))
+END
+DO WHILE POS(TMPTXT,NEWSTR) > 0
+NEWSTR = SUBSTR(NEWSTR, 1 , POS(TMPTXT,NEWSTR)-1) ||,
+NEWTXT || SUBSTR(NEWSTR, POS(TMPTXT,NEWSTR) + LENGTH(TMPTXT))
+END
+RETURN NEWSTR
