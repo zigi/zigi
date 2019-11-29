@@ -9,7 +9,7 @@
  [ type(output) caps(off) pas(on) intens(high) color(white)
 )Body  Expand(\\)
 +-\-\#zigtitle   +-\-\
-%Command ===>_zcmd            \ \ %Scroll ===>_zscr+
+%Command ===>_zcmd            \ \  %Scroll ===>_zscr+
 %Local dir      :$localdir
 %Remote path    :$remote1
 %Current Branch :$branch                                      +

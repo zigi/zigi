@@ -1111,7 +1111,7 @@ Do_Commit:
       if sysvar('syspref') = null
       then filem = sysvar('sysuid')'.'file
       else filem = file
-      file = localrep
+      file = localrep'/'file
       file = "'"file"'"
       address tso
       'alloc f('fdd') new spa(1,1) tr recfm(f b) lrecl(72) blksize(0)',
@@ -1197,7 +1197,9 @@ fixup_userids:
     dir = localrep'/'zigirep
     statfiles = usssafe(statfile)
     x = docmd('cd' dir '&& git add .zigi/'statfiles)
+    /* Comment Start
     x = docmd('cd' dir '&& git commit -m "Fix userids"')
+       Comment End */
   end
   return
 
