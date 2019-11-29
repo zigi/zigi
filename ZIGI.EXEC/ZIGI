@@ -1136,7 +1136,6 @@ Do_Commit:
       cmsg.1 = translate(cmsg.1,' ',"'" '"')
       x = docmd(cmd "&& git commit -vm '"cmsg.1"'")
     end
-    if zpush = 'Y'
     call view_std 'B'
     /* ------------------------------- *
     | If zpush is Y then push aand    |
