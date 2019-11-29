@@ -59,7 +59,6 @@ echo "- prefix.ZIGI.V1R2.PANELS";
 echo "";
 
 
-
 read PREFIX?"Prefix (or ENTER for no prefix) : "
 
 PREFIX=` echo $PREFIX  | tr '[a-z]' '[A-Z]'`

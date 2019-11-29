@@ -2336,6 +2336,14 @@ update_repo_metadata:
         if left(root.i,1) /= '.' then do
           dsn = root.i
           fulldsn = dsn
+          do ii = 1 to so.0
+            stat = substr(so.ii,1,2)
+            PATH = substr(so.ii,4)
+            if pos(dsn, PATH) = 1 then do
+              dsnstat = porcelain(stat)
+              leave
+            end
+          end
           'tbadd' rtbl
         end
       end
