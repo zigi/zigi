@@ -1142,7 +1142,7 @@ Do_Commit:
     | then update repo data           |
     * ------------------------------- */
     if zpush = 'Y' then call do_push 'x'
-    else call update_repo_metadata
+    call update_repo_metadata
   end
   return
 
