@@ -2543,6 +2543,8 @@ Do_Add_Copy:
     copycmd = '"'copycmd'"'
     copycmd = "cp -U -M" copycmd" "DIR"/"pdss"/"
     x =bpxwunix(copycmd,,so.,se.)
+    Address TSO '%zigistat' "'"pds"'" dir"/.zigi/"pdss 'S'
+    x = docmd('cd' dir '&& git add .zigi/'pdss)
   end
   else do
     W = usssafe(WHAT)
