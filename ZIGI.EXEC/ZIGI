@@ -689,39 +689,39 @@ Work_With_Repo:
       When zsel = 'B' then do
         'control display save'
         if left(fulldsn,1) = "'" then do
-        x = listdsi(fulldsn)
-        if sysdsorg = 'PO' then do
-          'LMInit Dataid(zigdid) Dataset('fulldsn')'
-          "Memlist Dataid("zigdid") Default(B)"
-          "LMfree Dataid("zigdid")"
+          x = listdsi(fulldsn)
+          if sysdsorg = 'PO' then do
+            'LMInit Dataid(zigdid) Dataset('fulldsn')'
+            "Memlist Dataid("zigdid") Default(B)"
+            "LMfree Dataid("zigdid")"
+          end
+          else 'Browse Dataset('fulldsn')'
         end
-        else 'Browse Dataset('fulldsn')'
-      end
-      else Address TSO 'Obrowse' localrep'/'zigirep'/'fulldsn
+        else Address TSO 'Obrowse' localrep'/'zigirep'/'fulldsn
         'control display restore'
       end
       When zsel = 'V' then do
         'control display save'
         if left(fulldsn,1) = "'" then do
-        x = listdsi(fulldsn)
-        if sysdsorg = 'PO' then do
-          'LMInit Dataid(zigdid) Dataset('fulldsn')'
-          "Memlist Dataid("zigdid") Default(V)"
-          "LMfree Dataid("zigdid")"
+          x = listdsi(fulldsn)
+          if sysdsorg = 'PO' then do
+            'LMInit Dataid(zigdid) Dataset('fulldsn')'
+            "Memlist Dataid("zigdid") Default(V)"
+            "LMfree Dataid("zigdid")"
+          end
+          else 'View Dataset('fulldsn')'
         end
-        else 'View Dataset('fulldsn')'
-      end
-      else Address TSO 'Oedit' localrep'/'zigirep'/'fulldsn
+        else Address TSO 'Oedit' localrep'/'zigirep'/'fulldsn
         'control display restore'
       end
       /* -------------------------------- *
       | Work with a repo item            |
       * -------------------------------- */
       When zsel = 'S' & left(fulldsn,1) /= "'" then do
-           'control display save'
-           Address TSO 'Oedit' localrep'/'zigirep'/'fulldsn
-           'control display restore'
-           end
+        'control display save'
+        Address TSO 'Oedit' localrep'/'zigirep'/'fulldsn
+        'control display restore'
+      end
       When zsel = 'S' & sysdsn(fulldsn) /= 'OK' then do
         zerrsm = 'Error'
         zerrlm = fulldsn 'does not exist. This should not have happened.' ,
@@ -1111,7 +1111,7 @@ Do_Commit:
       if sysvar('syspref') = null
       then filem = sysvar('sysuid')'.'file
       else filem = file
-      file = localrep'/'zigirep'/'file
+      file = localrep
       file = "'"file"'"
       address tso
       'alloc f('fdd') new spa(1,1) tr recfm(f b) lrecl(72) blksize(0)',
@@ -1125,6 +1125,8 @@ Do_Commit:
       address ispexec
       cmd = 'cd' localrep'/'zigirep
       x = docmd(cmd '&& git commit -F' file)
+      cmd = 'rm' file
+      x = bpxwunix(cmd,,do.,de.)
     end
     /* ------------------------------------- *
     | If cmsg.0 = 2 then use commit -m msg   |
@@ -1136,12 +1138,9 @@ Do_Commit:
     end
     call view_std 'B'
     /* ------------------------------- *
-    | If > 2 msg then delete the msg  |
-    | file from omvs                  |
+    | If zpush is Y then push aand    |
+    | then update repo data           |
     * ------------------------------- */
-    if io > 2 then
-    cmd = 'rm' file
-    x = bpxwunix(cmd,,do.,de.)
     if zpush = 'Y' then call do_push 'x'
     call update_repo_metadata
   end
