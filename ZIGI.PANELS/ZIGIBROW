@@ -3,7 +3,7 @@
    ` type(text) intens(high) caps(off) just(asis) color(turq)
    | area(dynamic) extend(on) scroll(on)
    } type(output) intens(high) just(asis) caps(off)
-)BODY   WIDTH(80) EXPAND(//)
+)BODY Width(&zscreenw) EXPAND(//)
 %Browse+                     }title          / /%Lines }zlinex    +
 %Command ===>_zcmd                 / /                        %Scroll ===>_Z   +
 |ZDATA ----------------------------/-/-----------------------------------------|

@@ -1,0 +1,45 @@
+)Attr
+ @ type(input ) caps(off) hilite(uscore) intens(low)
+ $ type(input ) caps(on ) hilite(uscore)
+ [ type(output) caps(off) intens(low)
+ # type(output) hilite(reverse) color(turq) caps(off)
+)Body Expand(\\) Width(&zscreenw)
++-\-\#zigtitle   +-\-\
++Command ===>_zcmd                             \ \+Scroll ===>_gscr
++
++Local directory:[localrep
++
++Enter any git command (without git):
+%git@gitcmd
+
+
++
++Hint: Use the GitHelp command to review the available git commands and syntax.
++
++S+Command history (%D+delete%S+Select for edit and use%X+eXecute now)
+)Model
+$z+[gitcmde              \ \ [gs
+)Init
+ .zvars = '(gsel)'
+ .help = zigihgc
+ &gscr = CSR
+)Proc
+ &row = &z
+ if (&ZCMD = &Z)
+     if (&ztdsels = 0000)
+        &row = .csrrow
+        if (&row ^= &z)
+            if (&gsel = &z)
+                &gsel = S
+     if (&ztdsels ^= 0000)
+         &row = &z
+     if (&gsel ^= &Z)
+       if (&gsel = '=')
+           &gsel = &osel
+     &osel = &gsel
+ if (&row = 0)
+     &gsel = &z
+ ver (&gsel,list,D,S,X)
+)Field
+ Field(gitcmde) ind(gs,'<>') len(255)
+)End

@@ -43,7 +43,7 @@ if [ -n "$GOON" ]
     exit
 fi
 
-echo "MVS datsets used by zigi are:";
+echo "z/OS datsets used by zigi are:";
 echo "- ZIGI.V1R2.EXEC";
 echo "- ZIGI.V1R2.PANELS";
 echo "";
@@ -57,7 +57,6 @@ echo "- prefix.ZIGI.V1R2.EXEC";
 echo "- prefix.ZIGI.V1R2.PANELS";
 
 echo "";
-
 
 
 read PREFIX?"Prefix (or ENTER for no prefix) : "

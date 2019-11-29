@@ -33,7 +33,8 @@ Zigi needs to find the git executable in the 'PATH'. To determine the 'PATH' zig
 Make sure one of these files contains the correct EXPORT statements.
 
 ### Weird Certificate Errors
-When faced with a "SSL Certificate problem: unable to get local issuer" this might 'fix' it.
+When faced with a "SSL Certificate problem: unable to get local issuer" this might 'fix' it. Please note that this will 
+disable encryption for all uses of git and this is strongly discouraged in non-sandbox environments.
 
     git config --global http.sslVerify false
 

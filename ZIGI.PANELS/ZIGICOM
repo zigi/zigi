@@ -8,8 +8,8 @@
 +-\-\#zigtitle   +-\-\
 %Command ===>_zcmd                                                             +
 +
-+ Commit Title: _msg1                                             +
-+ Comment Explanation: (. in 1st position for blank line)   +Push after:@z+(Y/N)
++Commit Title: _msg1                                             +
++Comment Explanation: (. in 1st position for blank line)    +Push after:@z+(Y/N)
  _msg2                                                                    +
  _msg3                                                                    +
  _msg4                                                                    +
@@ -32,6 +32,7 @@
   .zvars = '(zpush)'
   if (&zpush EQ &Z)
       &zpush = 'N'
+  .help = zigihcom
 )Proc
  ver (&msg1,nb)
  ver (&zpush,list,Y,N,&Z)
