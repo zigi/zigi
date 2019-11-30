@@ -7,7 +7,7 @@
 +-\-\#zigtitle   +-\-\
 +Command ===>_zcmd                             \ \+Scroll ===>_gscr
 +
-+Git repo dir:[localdir
++Local directory:[localrep
 +
 +Enter any git command (without git):
 %git@gitcmd

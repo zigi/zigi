@@ -21,6 +21,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            11/30/19 LBD - Use Edit and View for OMVS files |
   |            11/27/19 HBK - Check for minimal git version    |
   |            11/27/19 LBD - Translate ' and " from commit    |
   |                           1 line msg.                      |
@@ -711,7 +712,10 @@ Work_With_Repo:
           end
           else 'View Dataset('fulldsn')'
         end
-        else Address TSO 'Oedit' localrep'/'zigirep'/'fulldsn
+        else do
+          ofile = localrep'/'zigirep'/'fulldsn
+          'View File(ofile)'
+        end
         'control display restore'
       end
       /* -------------------------------- *
@@ -719,7 +723,8 @@ Work_With_Repo:
       * -------------------------------- */
       When zsel = 'S' & left(fulldsn,1) /= "'" then do
         'control display save'
-        Address TSO 'Oedit' localrep'/'zigirep'/'fulldsn
+        ofile = localrep'/'zigirep'/'fulldsn
+        'Edit file(ofile)'
         'control display restore'
       end
       When zsel = 'S' & sysdsn(fulldsn) /= 'OK' then do
@@ -985,8 +990,9 @@ do_grep:
                 gstat = '*Edit'
               end
               else do
-                Address TSO 'OEdit' grepdir'/'gdsn
-                gstat = '*OEdit'
+                ofile = grepdir'/'gdsn
+                'Edit file(ofile)'
+                gstat = '*Edit'
               end
               'tbmod' zgreptbl
             end
@@ -997,8 +1003,9 @@ do_grep:
                 gstat = '*View'
               end
               else do
-                Address TSO 'OEdit' grepdir'/'gdsn
-                gstat = '*OEdit'
+                ofile = grepdir'/'gdsn
+                'View file(ofile)'
+                gstat = '*View'
               end
               'tbmod' zgreptbl
             end
