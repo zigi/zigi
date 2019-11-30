@@ -637,7 +637,7 @@ Work_With_Repo:
       /* -------------------------------- *
       | GIT GREP                         |
       * -------------------------------- */
-      When abbrev('GREP',zcmd,3) = 1 then do
+      When abbrev('GREP',zcmd,2) = 1 then do
         parse value  '' with zcmd grepstr grepopt
         grepdir = localrep'/'zigirep
         call do_grep grepdir
@@ -936,9 +936,10 @@ do_grep:
         'TBCreate' zgreptbl 'Keys(gdsn) Names(gstat gcount) nowrite share'
         do si = 1 to so.0
           if left(so.si,1) = '.' then iterate
-          if pos('/',so.si) = 0 then parse value so.si with gdsn":" .
-          else do
-            parse value so.si with gdsn'/'mem':' .
+          mem = null
+          parse value so.si with gdsn":" .
+          if pos('/',gdsn) > 0 then do
+            parse value gdsn with gdsn'/'mem':' .
             mem = translate(mem,'#@$','._-')
             gdsn = gdsn'('mem')'
           end
@@ -1022,6 +1023,7 @@ do_grep:
           zsel = ''
         end
         'tbend' zgreptbl
+        zsel = ''
       end
       otherwise nop
     end
