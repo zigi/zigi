@@ -481,7 +481,7 @@ Work_With_Repo:
   crflag = 0
   call update_repo_metadata
   'vput (localrep zigirep) shared'
-  'tbsort' rtbl 'Fields(fulldsn,c,a)'
+  'tbsort' rtbl 'Fields(dsn,c,a)'
   'tbtop' rtbl
   /* -------------------------------- *
   | Process the Repository Data Sets |
