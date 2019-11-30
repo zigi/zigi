@@ -31,7 +31,5 @@
 )PROC
  if(&githup = &Z)
     &githup = ZIGIH150
-    &githnext = ZIGIH200
  &ZUP = &githup
- &ZCONT = &githnext
 )END
