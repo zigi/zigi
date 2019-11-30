@@ -1087,7 +1087,9 @@ Do_Resetid:
     x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'statfile 'S')
     statfiles = usssafe(statfile)
     x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfiles)
+    /* Comment Start
     x = docmd('cd' localrep'/'zigirep '&& git commit -m "Resetting IDs"')
+       Comment End */
   end
   return
 

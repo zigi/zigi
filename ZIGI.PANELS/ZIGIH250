@@ -1,0 +1,37 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                                 %GITLOG+
++
+%GITLOG+will Browse the git log which is like SYSLOG for git commit messages.
++
++There are 4 filtering options provided:
++
++%Number of Commits:+is the number of commits to list.
++%        From Date:+a date in the format yyyy/mm/dd
++%       Until Date:+a date in the format yyyy/mm/dd
++%           Filter:+any text to filter on
++
++
+       +"If you're not making mistakes, then you're not doing anything.
+           +I'm positive that a doer makes mistakes." - John Wooden
++
++
++
++
+         +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+ vget (loghup loghnext)
+ if (&loghup EQ &Z)
+     &loghup   = ZIGIH160
+     &loghnext = ZIGIH260
+)PROC
+ &zup = &loghup
+ &zcont = &loghnext
+)END

@@ -1,0 +1,33 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                                   %SORT+
++
+%SORT+will sort the member list panel using the provided parameters or will
++popup with a prompting panel if no parameters are provided on the command.
++
++The available Sort Fields are:%MEMBER STATUS SIZE DATE TIME+and%USERID
++
++The availble sort order options are%A+(ascending) and%D+(descending)
++The default sort order is A (ascending)
++
++
++
++
++
+        +"Whatever you do in life, surround yourself with smart
+        +people who'll argue with you."   John Wooden
++
++
+           +Press the%Enter+key to begin your zigi tutorial journey.
+)Init
+ .cursor = &zcmd
+)PROC
+ &ZUP = ZIGIH320
+ &ZCONT = ZIGIH2F0
+)END

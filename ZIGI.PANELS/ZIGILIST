@@ -24,7 +24,7 @@
 )Init
   .zvars = '(zsel mem memstat zlcnorc zlmdate zlmtime zluser)'
   .cursor = &zcmd
-  .help = zigihr0
+  .help = zigih300
   &zscr = CSR
   &Commit = 'Commit'
   &gitlog = 'Gitlog'

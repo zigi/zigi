@@ -1,0 +1,37 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                                 %Grep+
++
+%Grep+will search, case senstive (-i), using the provided text string.
++
++Result options:
++
+%D+display a selection list of datasets and files for:
++
++  %S+or%E+to edit the dataset or file
++  %B+to Browse the dataset or file
++  %V+to View the dataset or file
++
+%R+to browse the grep report.
++
++
++
+    +"It's what you learn after you know it all that counts." - John Wooden
++
+         +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+ vget (grhup grhnext)
+ if (&grhup EQ &Z)
+     &grhup = ZIGIH250
+     &grhnext = ZIGIH270
+)PROC
+ &zup = &grhup
+ &zcont = &grhnext
+)END

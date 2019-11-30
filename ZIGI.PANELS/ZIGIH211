@@ -1,0 +1,34 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD        \ \ %Scroll ===>_zcsr
++
+                                 %Add+
++
+%Ignore 1st n qualifiers in prefix:+1
++
++ The ignore qualifiers is used to generate the file names, or directory names,
++ of the z/OS datasets in the repository.
++
++ For example a prefix of GITUSER.DEV with a ignore value of 2, will define a
++ dataset with a name of GITUSER.DEV.BOGUS.COBOL in the repository as
++ BOGUS.COBOL.  This is very useful as other users will be cloning the
++ repository and they will not want to have the file names with some other HLQ.
++
+%Row selection options:
+
+ %S+Select the dataset to add it
+ %A+Select the dataset to add it
+ %B+Browse the dataset
+
+         +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+ &zscr = CSR
+)PROC
+ &zup = zigih210
+ &zcont = zigih212
+)END

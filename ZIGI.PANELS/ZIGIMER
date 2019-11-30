@@ -24,7 +24,7 @@
   .zvars = '(zsel bname brstatus)'
   &newb=''
   .cursor = &zcmd
-  .help = zigihr0
+  .help = zigih270
   &zscr = CSR
 )Proc
  ver (&zsel,list,M)

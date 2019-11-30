@@ -23,7 +23,7 @@
 @z+$z                                          $z
 )Init
   .zvars = '(qualignr zsel dsna dastat)'
-  .help = zigihad0
+  .help = zigih210
   &zscr = CSR
 )Reinit
  if (&qualignr EQ &Z)

@@ -28,7 +28,7 @@
 +
                   +Press%Enter+to continue, or%F3+to cancel
 )Init
- .help = zigihp1
+ .help = zigihint
 )Proc
   ver (&gitenv,nb)
 )end

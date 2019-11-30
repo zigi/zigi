@@ -1,0 +1,33 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                              %Messages+
++
++The message browse display uses standard ISPF Browse with a customzied
++Browse panel. All ISPF Browse commands are available for use.
++
+%
++
++
+%
++
++
++
++
++
+          +"Just try to be the best you can be; never cease trying to
+          +be the best you can be. That's in your power."   John Wooden
++
++
+         +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+)PROC
+ &ZUP = ZIGIH110
+ &ZCONT = ZIGIH130
+)END

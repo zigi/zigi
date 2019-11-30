@@ -1,0 +1,69 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore) caps(on)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on) color(white)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                             %Primary Panel+
++
+%Commands available+(select for more information or press%Enter+to see each):
++
+  [Clone+  Make a local copy of a remote repository
+  [Create+ Create a new local repository
+  [SSH+    Review your SSH public key
+  [Config+ Review/Update your name and e-mail for%git+
+  [Pro+    Change from%Basic+(verbose) to%Pro+minimal command text
+  [Githelp+Create a new local repository
++
+%Row selections:
++
+  %S+Select a repository to open and work with
+  %V+View the OMVS file system for the local repository
+  %D+Delete the local repositories OMVS file system
+     (the z/OS datasets will not be deleted)
++
++Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+ &clone   = 'Clone'
+ &create  = 'Create'
+ &ssh     = 'SSH'
+ &config  = 'Config'
+ &pro     = 'Pro'
+ &githelp = 'GitHelp'
+)PROC
+*REXX(* zcmd zsel)
+  Select
+    When abbrev('CLONE',zcmd,2) = 1 then zcmd = 1
+    When abbrev('CREATE',zcmd,2) = 1 then zcmd = 2
+    When abbrev('SSH',zcmd,2) = 1 then zcmd = 3
+    When abbrev('CONFIG',zcmd,2) = 1 then zcmd = 4
+    When abbrev('PRO',zcmd,2) = 1 then zcmd = 5
+    When abbrev('GITHELP',zcmd,2) = 1 then zcmd = 6
+    Otherwise nop
+  end
+*Endrexx
+ &githup   = ZIGIH150
+ &githnext = ZIGIH200
+ &prohup   = ZIGIH140
+ &prohnext = ZIGIH160
+ vput (githup githnext prohup prohnext)
+ &ZSEL = TRANS( &ZCMD
+           1,zigih110    /*  CLONE               */
+           2,zigih120    /*  CREATE              */
+           3,zigih130    /*  SSH                 */
+           4,zigih140    /*  CONFIG              */
+           5,zigih150    /*  PRO                 */
+           6,zigih160    /*  GITHELP             */
+           *,'?'
+           )
+)PNTS
+ Field(clone)   var(zcmd) val('1')
+ Field(create)  var(zcmd) val('2')
+ Field(ssh   )  var(zcmd) val('3')
+ Field(config)  var(zcmd) val('4')
+ Field(pro   )  var(zcmd) val('5')
+ Field(githelp) var(zcmd) val('6')
+)END
