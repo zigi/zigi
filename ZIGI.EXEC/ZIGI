@@ -2788,6 +2788,9 @@ debug:
   end
   return 0
 
+  /* --------------------------------- *
+   | Add a message to the combine stem |
+   * --------------------------------- */
 Add_Combine: procedure expose combine.
   parse arg msg
   c = combine.0
