@@ -22,6 +22,7 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            11/30/19 LBD - Use Edit and View for OMVS files |
+  |                         - Test if Edit OMVS file changed   |
   |            11/27/19 HBK - Check for minimal git version    |
   |            11/27/19 LBD - Translate ' and " from commit    |
   |                           1 line msg.                      |
@@ -724,8 +725,14 @@ Work_With_Repo:
       When zsel = 'S' & left(fulldsn,1) /= "'" then do
         'control display save'
         ofile = localrep'/'zigirep'/'fulldsn
+        cur_date = get_fd_date(ofile)
         'Edit file(ofile)'
+        new_date = get_fd_date(ofile)
         'control display restore'
+        if cur_date /= new_date then do
+          dsnstat = '[M ] Modified'
+          'tbmod' rtbl
+        end
       end
       When zsel = 'S' & sysdsn(fulldsn) /= 'OK' then do
         zerrsm = 'Error'
@@ -2804,3 +2811,12 @@ Combine_msgs: procedure expose so. se. combine. null
   end
   combine.0 = c
   return
+
+  /* -------------------------------------------- *
+  | Get the date/time for the provided omvs file |
+  * -------------------------------------------- */
+get_fd_date: procedure
+  parse arg file_var
+  x = bpxwunix('ls -la' file_var,,so.,se.)
+  fdate = subword(so.1,6,3)
+  return fdate
