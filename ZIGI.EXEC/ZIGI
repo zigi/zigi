@@ -1158,9 +1158,8 @@ Do_Commit:
       cmd = cmd '&& git commit -F' file
       if zpush = 'Y' then
          cmd = cmd '&& git push -v'
+      cmd = cmd '&& rm' file
       x = docmd(cmd)
-      cmd = 'rm' file
-      x = bpxwunix(cmd,,do.,de.)
     end
     /* ------------------------------------- *
     | If cmsg.0 = 2 then use commit -m msg   |
