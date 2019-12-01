@@ -51,7 +51,7 @@
  &comhup   = ZIGIH300
  &comhnext = ZIGIH250
  &sthup    = ZIGIH330
- &sthnext  = ZIGIH400
+ &sthnext  = ZIGIH300
  &loghup   = ZIGIH230
  &loghnext = ZIGIH260
  &grhup    = ZIGIH250
