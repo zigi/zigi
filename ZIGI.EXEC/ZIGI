@@ -733,8 +733,7 @@ Work_With_Repo:
         new_date = get_fd_date(ofile)
         'control display restore'
         if cur_date /= new_date then do
-          dsnstat = '[M ] Modified'
-          'tbmod' rtbl
+          call update_repo_metadata
         end
       end
       When zsel = 'S' & zosflg = 1 then do
@@ -757,7 +756,6 @@ Work_With_Repo:
         cmd = 'cd' localrep'/'zigirep
         x = docmd(cmd '&& git add -v 'd)
         call combine_msgs
-        if left(fulldsn,1) = "'" then
         if ztdsels = 1 then do
           call view_std 'C'
           statfile = translate(strip(fulldsn,'B',"'"),' ','.')
@@ -766,9 +764,11 @@ Work_With_Repo:
           cmd = 'cd' localrep'/'zigirep'/.zigi/'
           stats = usssafe(statfile)
           x = listdsi(fulldsn)
-          if sysdsorg /= 'PS' then do
-            x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'stats 'S')
-            x = docmd(cmd '&& git add -v 'stats)
+          if x = 0 then do
+            if sysdsorg /= 'PS' then do
+              x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'stats 'S')
+              x = docmd(cmd '&& git add -v 'stats)
+            end
           end
           if x > 0 then call view_std 'B'
           call update_repo_metadata
@@ -1092,9 +1092,6 @@ Do_Resetid:
     x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'statfile 'S')
     statfiles = usssafe(statfile)
     x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfiles)
-    /* Comment Start
-    x = docmd('cd' localrep'/'zigirep '&& git commit -m "Resetting IDs"')
-       Comment End */
   end
   return
 
