@@ -11,7 +11,7 @@
 +The message browse display uses standard ISPF Browse with a customzied
 +Browse panel. All ISPF Browse commands are available for use.
 +
-%
++This panel is used for many purposes within zigi as it is generalized.
 +
 +
 %
