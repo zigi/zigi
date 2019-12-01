@@ -15,7 +15,7 @@
   [SSH+    Review your SSH public key
   [Config+ Review/Update your name and e-mail for%git+
   [Pro+    Change from%Basic+(verbose) to%Pro+minimal command text
-  [Githelp+Create a new local repository
+  [Githelp+Navigate the git help output via ISPF panels
 +
 %Row selections:
 +

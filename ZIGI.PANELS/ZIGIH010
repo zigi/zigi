@@ -16,12 +16,12 @@
 +  %2.+There must be a dsn file in the .zigi directory that has the basic
 +     DCB information for the managed z/OS datasets.
 +  %3.+A directory for each z/OS partitioned dataset in which each of the
-+     PDS members have been stored, without any extension. Both the directory
-+     name and the member file names must be in UPPER case.
++     PDS members have been stored, without any extension.
++     Members with a $,# or @ in them shoule be renamed according to 'cp -M'.
++     Both the directory name and the member file names must be in UPPER case.
 +  %4.+The easy way to do this is to use zigi to create the repository, then
 +     add the datasets to it. The created repository can then be connected to
 +     a remote repository and pushed.
-+
 +
 +
            +Press the%Enter+key to begin your zigi tutorial journey.
