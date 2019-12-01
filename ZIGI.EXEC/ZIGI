@@ -686,6 +686,8 @@ Work_With_Repo:
       end
     end
 
+    /* flag for USS file or ZOS dataset */
+    zosflg = 1
     if zsel /= null then
     Select
       When zsel = 'B' then do
@@ -723,6 +725,7 @@ Work_With_Repo:
       | Work with a repo item            |
       * -------------------------------- */
       When zsel = 'S' & left(fulldsn,1) /= "'" then do
+        zosflg = 0
         'control display save'
         ofile = localrep'/'zigirep'/'fulldsn
         cur_date = get_fd_date(ofile)
@@ -734,13 +737,15 @@ Work_With_Repo:
           'tbmod' rtbl
         end
       end
-      When zsel = 'S' & sysdsn(fulldsn) /= 'OK' then do
-        zerrsm = 'Error'
-        zerrlm = fulldsn 'does not exist. This should not have happened.' ,
-          'Somehow it may have been deleted.'
-        'Setmsg msg(isrz003)'
+      When zsel = 'S' & zosflg = 1 then do
+        if sysdsn(fulldsn) /= 'OK' then do
+          zerrsm = 'Error'
+          zerrlm = fulldsn 'does not exist. This should not have happened.' ,
+            'Somehow it may have been deleted.'
+          'Setmsg msg(isrz003)'
+        end
+        else call work_with_repo_file
       end
-      When zsel = 'S' then call work_with_repo_file
       /* -------------------------------- *
       | Add repo item to staging area    |
       * -------------------------------- */
@@ -2244,15 +2249,15 @@ update_repo_metadata:
         x = debug('   done')
         if qualignr = 0 then do
           if pdshlq /= '' then
-          fulldsn = "'"pdshlq"."r"'"
+          fulldsn = "'"pdshlq"."root.i"'"
           else
-          fulldsn = "'"r"'"
+          fulldsn = "'"root.i"'"
         end
         else do
           fulldsn = translate(pdshlq,' ','.')
           fulldsn = subword(fulldsn,1,qualignr)
           fulldsn = translate(fulldsn,'.',' ')
-          fulldsn = "'"fulldsn'.'r"'"
+          fulldsn = "'"fulldsn'.'root.i"'"
         end
         edsn = strip(fulldsn,'B',"'")
         if so.1 = "DIR" & x = 0 then do
