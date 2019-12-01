@@ -1,13 +1,13 @@
   /*%NOcomment ----------  rexx procedure  ------------------- */
-  ver = 'v1r2'
+  ver = 'v1r3'
   /*Name:      zigi  (z ISPF Git Interface)                    |
   |                                                            |
-  | Version:   V1R2                                            |
+  | Version:   V1R3                                            |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
   |            management                                      |
   |                                                            |
-  | Syntax:    ex 'zigi.v1r2.exec(zigi)'                       |
+  | Syntax:    ex 'zigi.v1r3.exec(zigi)'                       |
   |                                                            |
   | NOTE:      ZIGI MUST NEVER be started under the ZIGI       |
   |            ISPF Applications ID.                           |
@@ -2005,7 +2005,7 @@ Create_Repo:
 
     x = docmd('cd 'reporoot' && git add .zigi/dsn')
 
-    commitmsg = "added by zigi v1r2"
+    commitmsg = "added by zigi v1r3"
     x = docmd('cd 'reporoot' && git commit -m "'commitmsg'"')
 
     Address ISPExec

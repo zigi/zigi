@@ -44,8 +44,8 @@ if [ -n "$GOON" ]
 fi
 
 echo "z/OS datsets used by zigi are:";
-echo "- ZIGI.V1R2.EXEC";
-echo "- ZIGI.V1R2.PANELS";
+echo "- ZIGI.V1R3.EXEC";
+echo "- ZIGI.V1R3.PANELS";
 echo "";
 echo "If you like (or have) to install zigi with another";
 echo "HLQ please provide a PREFIX. Otherwise press ENTER";
@@ -53,8 +53,8 @@ echo ""
 echo "If you do provide a PREFIX, don't end in a dot.";
 echo "Should you decide to use the PREFIX zigi will be";
 echo "installed to:";
-echo "- prefix.ZIGI.V1R2.EXEC";
-echo "- prefix.ZIGI.V1R2.PANELS";
+echo "- prefix.ZIGI.V1R3.EXEC";
+echo "- prefix.ZIGI.V1R3.PANELS";
 
 echo "";
 
@@ -65,17 +65,17 @@ PREFIX=` echo $PREFIX  | tr '[a-z]' '[A-Z]'`
 
 if [ -z $PREFIX ]
   then
-    EXEC=ZIGI.V1R2.EXEC
-    PANELS=ZIGI.V1R2.PANELS
-    GPL=ZIGI.V1R2.GPLLIC
-    README=ZIGI.V1R2.README
-    HLQ=ZIGI.V1R2
+    EXEC=ZIGI.V1R3.EXEC
+    PANELS=ZIGI.V1R3.PANELS
+    GPL=ZIGI.V1R3.GPLLIC
+    README=ZIGI.V1R3.README
+    HLQ=ZIGI.V1R3
   else
-    EXEC=${PREFIX}.ZIGI.V1R2.EXEC
-    PANELS=${PREFIX}.ZIGI.V1R2.PANELS
-    GPL=${PREFIX}.ZIGI.V1R2.GPLLIC
-    README=${PREFIX}.ZIGI.V1R2.README
-    HLQ=${PREFIX}.ZIGI.V1R2
+    EXEC=${PREFIX}.ZIGI.V1R3.EXEC
+    PANELS=${PREFIX}.ZIGI.V1R3.PANELS
+    GPL=${PREFIX}.ZIGI.V1R3.GPLLIC
+    README=${PREFIX}.ZIGI.V1R3.README
+    HLQ=${PREFIX}.ZIGI.V1R3
 fi
 
 
