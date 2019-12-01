@@ -10,8 +10,8 @@
 +
 %Clone+will clone a%Remote Repository+and then create a set of z/OS Datasets
 +based on the%files+and%folders+from the remote repository (optionally prefixed
-+with your%PREFIX+.
-+Requires access to the remote repository via public key.
++with your%PREFIX+. For the remote repository the 'clone with ssh' url should
++be used. Requires access to the remote repository via public key.
 +
 %Optional:+is the name of a specific branch to clone. The default is master.
 +
