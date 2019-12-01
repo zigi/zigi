@@ -31,5 +31,11 @@
 )PROC
  if(&githup = &Z)
     &githup = ZIGIH150
+    &githnext = ZIGIH100
  &ZUP = &githup
+ &zcont = &githnext
+*REXX(* githup githnext)
+  say 'githup:' githup
+  say 'githnext:' githnext
+*Endrexx
 )END

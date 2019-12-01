@@ -29,9 +29,9 @@
 )Init
  .cursor  = &zcmd
 )PROC
- &githup   = 'ZIGIH240'
- &githnext = 'ZIGIH250'
+ &githup   = ZIGIH230
+ &githnext = ZIGIH250
  vput (githup githnext)
- &zup = zigih230
- &zcont = zigih160
+ &zup = &githup
+ &zcont = &githnext
 )END

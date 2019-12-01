@@ -29,7 +29,7 @@
  .cursor  = &zcmd
  vget (loghup loghnext)
  if (&loghup EQ &Z)
-     &loghup   = ZIGIH160
+     &loghup   = ZIGIH240
      &loghnext = ZIGIH260
 )PROC
  &zup = &loghup

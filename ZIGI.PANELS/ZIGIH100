@@ -46,7 +46,7 @@
   end
 *Endrexx
  &githup   = ZIGIH150
- &githnext = ZIGIH200
+ &githnext = ZIGIH100
  &prohup   = ZIGIH140
  &prohnext = ZIGIH160
  vput (githup githnext prohup prohnext)
