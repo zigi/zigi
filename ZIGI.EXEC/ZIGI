@@ -2377,7 +2377,7 @@ update_repo_metadata:
   else do
     parse value '' with branch_status bstat baction
   end
-  'tbsort' rtbl 'fields(fulldsn)'
+  'tbsort' rtbl 'fields(dsn,c,a)'
   fulldsn = save_fulldsn
   dsn = save_dsn
   x = debug('Done with update_repo_metadata' fulldsn dsn)
@@ -2493,7 +2493,7 @@ Add_Dataset:
       zsel = null
       'tbput' rtbl
       'tbend' dsnatbl
-      'tbsort' rtbl 'fields(fulldsn,c,a)'
+      'tbsort' rtbl 'fields(dsn,c,a)'
       'tbtop' rtbl
       if add_count > 0 then
       'tbmod zigirepo'
