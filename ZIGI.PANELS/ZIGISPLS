@@ -30,6 +30,6 @@
 +
 +               !ENTER+to continue!F1+for Release Information
 )Init
- .help = zigirln
+ .help = zigihrln
 )Proc
 )end

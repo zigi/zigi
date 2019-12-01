@@ -23,7 +23,7 @@ _z+  $z              + +$z                     + +$z
  &config  = 'Config'
  &zscr = CSR
  .zvars = '(zsel zigirep pdshlq localrep)'
- .help = zigih100
+ .help = zigihint
 )Proc
  &row = &z
  if (&ZCMD = &Z)
