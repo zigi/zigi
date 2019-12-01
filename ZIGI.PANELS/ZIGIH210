@@ -12,11 +12,11 @@
 +
 + When a dataset is added, a copy of it will be made to the OMVS filesystem
 + where the local repository is located. If the dataset is a PDS, then the ISPF
-+ statistics will be collected and stored in the .zigi location.
++ statistics will be collected and stored in the .zigi location. A%git add+is
++ performed for the dataset and the ISPF statistics file, making them ready to
++ be committed.
 +
-+
-+The Add Panel will prompt for two values:%Fixed Dataset Prefix+and%Ignore count
-+
++The Add Panel will prompt for two values:
 +
 %Fixed Dataset Prefix:+
 +
