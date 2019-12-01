@@ -756,7 +756,7 @@ Work_With_Repo:
         cmd = 'cd' localrep'/'zigirep
         x = docmd(cmd '&& git add -v 'd)
         call combine_msgs
-        if dsnvalid("'"fulldsn"'") = "OK" then do
+        if dsnvalid(fulldsn) = "OK" then do
           /* Only get the stats if it's a z/OS dataset
              Don't do it for the USS files
           */
@@ -1849,7 +1849,11 @@ Merge_it:
       x = docmd('cd 'localdir' && git merge --no-commit --no-ff' bname)
       if so.1 = 'Already up-to-date.' then do
         /* No need to merge! */
-        call pop "Merge not needed, branches are the same"
+        zs1 = "Merge not needed"
+        zs2 = "Branches are the same"
+        zs3 = ""
+        zs4 = "Press Enter/F3 to continue"
+        call do_popup4p
         leave
       end
       parse var se.1 "Automatic merge went well; stopped" rest
@@ -1862,7 +1866,12 @@ Merge_it:
       end
       else do
         /* Merge went fubar */
-        call pop "Your merge totally failed, we need a revert here..."
+        x = docmd('cd 'localdir' && git merge --abort')
+        zs1 = "Merge Failed"
+        zs2 = "The merge has been aborted"
+        zs3 = ""
+        zs4 = "Press Enter/F3 to continue"
+        call do_popup4p
       end
       call view_std 'B'
       leave
