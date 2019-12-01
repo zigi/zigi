@@ -1155,7 +1155,10 @@ Do_Commit:
       call outtrap 'off'
       address ispexec
       cmd = 'cd' localrep'/'zigirep
-      x = docmd(cmd '&& git commit -F' file)
+      cmd = cmd '&& git commit -F' file
+      if zpush = 'Y' then
+         cmd = cmd '&& git push -v'
+      x = docmd(cmd)
       cmd = 'rm' file
       x = bpxwunix(cmd,,do.,de.)
     end
