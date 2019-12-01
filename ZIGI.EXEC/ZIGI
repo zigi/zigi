@@ -1547,20 +1547,17 @@ Work_with_repo_file:
 Edit_PS:
   arg noedit
   edsn = strip(fulldsn,'B',"'")
-  if noedit = null then do
-    /* Do this if it's a regular file (sequential in z/OS) */
-    "Edit Dataset('"edsn"')"
-    /* so after the edit, we should update it to working directory */
-  end
-  else rc = 0
+  /* Do this if it's a regular file (sequential in z/OS) */
+  "Edit Dataset('"edsn"')"
+  /* so after the edit, we should update it to working directory */
   if rc = 0 then do
     edsn = usssafe(edsn)
     copcm = "//'"edsn"'"
     copcm = 'cp -U -M "'copcm'" 'localrep'/'zigirep'/'dsn
     x = bpxwunix(copcm,,so.,se.)
     call view_std 'B'
+    call update_repo_metadata
   end
-  call update_repo_metadata
   return
 
   /* ------------------------------- *
