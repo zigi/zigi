@@ -21,7 +21,7 @@
 $z+[gitcmde              \ \ [gs
 )Init
  .zvars = '(gsel)'
- .help = zigihgc
+ .help = zigih240
  &gscr = CSR
 )Proc
  &row = &z

@@ -481,7 +481,7 @@ Work_With_Repo:
   crflag = 0
   call update_repo_metadata
   'vput (localrep zigirep) shared'
-  'tbsort' rtbl 'Fields(fulldsn,c,a)'
+  'tbsort' rtbl 'Fields(dsn,c,a)'
   'tbtop' rtbl
   /* -------------------------------- *
   | Process the Repository Data Sets |
@@ -637,7 +637,7 @@ Work_With_Repo:
       /* -------------------------------- *
       | GIT GREP                         |
       * -------------------------------- */
-      When abbrev('GREP',zcmd,3) = 1 then do
+      When abbrev('GREP',zcmd,2) = 1 then do
         parse value  '' with zcmd grepstr grepopt
         grepdir = localrep'/'zigirep
         call do_grep grepdir
@@ -686,6 +686,8 @@ Work_With_Repo:
       end
     end
 
+    /* flag for USS file or ZOS dataset */
+    zosflg = 1
     if zsel /= null then
     Select
       When zsel = 'B' then do
@@ -723,6 +725,7 @@ Work_With_Repo:
       | Work with a repo item            |
       * -------------------------------- */
       When zsel = 'S' & left(fulldsn,1) /= "'" then do
+        zosflg = 0
         'control display save'
         ofile = localrep'/'zigirep'/'fulldsn
         cur_date = get_fd_date(ofile)
@@ -730,17 +733,18 @@ Work_With_Repo:
         new_date = get_fd_date(ofile)
         'control display restore'
         if cur_date /= new_date then do
-          dsnstat = '[M ] Modified'
-          'tbmod' rtbl
+          call update_repo_metadata
         end
       end
-      When zsel = 'S' & sysdsn(fulldsn) /= 'OK' then do
-        zerrsm = 'Error'
-        zerrlm = fulldsn 'does not exist. This should not have happened.' ,
-          'Somehow it may have been deleted.'
-        'Setmsg msg(isrz003)'
+      When zsel = 'S' & zosflg = 1 then do
+        if sysdsn(fulldsn) /= 'OK' then do
+          zerrsm = 'Error'
+          zerrlm = fulldsn 'does not exist. This should not have happened.' ,
+            'Somehow it may have been deleted.'
+          'Setmsg msg(isrz003)'
+        end
+        else call work_with_repo_file
       end
-      When zsel = 'S' then call work_with_repo_file
       /* -------------------------------- *
       | Add repo item to staging area    |
       * -------------------------------- */
@@ -752,20 +756,26 @@ Work_With_Repo:
         cmd = 'cd' localrep'/'zigirep
         x = docmd(cmd '&& git add -v 'd)
         call combine_msgs
-        if left(fulldsn,1) = "'" then
+        if dsnvalid(fulldsn) = "OK" then do
+          /* Only get the stats if it's a z/OS dataset
+             Don't do it for the USS files
+          */
+          x = listdsi(fulldsn)
+          if x = 0 then do
+            if sysdsorg /= 'PS' then do
+              statfile = translate(strip(fulldsn,'B',"'"),' ','.')
+              statfile = subword(statfile,qualignr+1)
+              statfile = translate(statfile,'.',' ')
+              cmd = 'cd' localrep'/'zigirep'/.zigi/'
+              stats = usssafe(statfile)
+              x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'stats 'S')
+              x = docmd(cmd '&& git add -v 'stats)
+              if x > 0 then call view_std 'B'
+            end
+          end
+        end
         if ztdsels = 1 then do
           call view_std 'C'
-          statfile = translate(strip(fulldsn,'B',"'"),' ','.')
-          statfile = subword(statfile,qualignr+1)
-          statfile = translate(statfile,'.',' ')
-          cmd = 'cd' localrep'/'zigirep'/.zigi/'
-          stats = usssafe(statfile)
-          x = listdsi(fulldsn)
-          if sysdsorg /= 'PS' then do
-            x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'stats 'S')
-            x = docmd(cmd '&& git add -v 'stats)
-          end
-          if x > 0 then call view_std 'B'
           call update_repo_metadata
         end
       end
@@ -936,9 +946,10 @@ do_grep:
         'TBCreate' zgreptbl 'Keys(gdsn) Names(gstat gcount) nowrite share'
         do si = 1 to so.0
           if left(so.si,1) = '.' then iterate
-          if pos('/',so.si) = 0 then parse value so.si with gdsn":" .
-          else do
-            parse value so.si with gdsn'/'mem':' .
+          mem = null
+          parse value so.si with gdsn":" .
+          if pos('/',gdsn) > 0 then do
+            parse value gdsn with gdsn'/'mem':' .
             mem = translate(mem,'#@$','._-')
             gdsn = gdsn'('mem')'
           end
@@ -959,6 +970,7 @@ do_grep:
         end
         ztdsels = 0
         ztdtop = 1
+        file_changed = 0
         'tbtop' zgreptbl
         'tbsort' zgreptbl 'fields(gdsn,c,a)'
         do forever
@@ -995,11 +1007,13 @@ do_grep:
               then do
                 'Edit dataset('gdsn')'
                 gstat = '*Edit'
+                if rc = 0 then file_changed = 1
               end
               else do
                 ofile = grepdir'/'gdsn
                 'Edit file(ofile)'
                 gstat = '*Edit'
+                if rc = 0 then file_changed = 1
               end
               'tbmod' zgreptbl
             end
@@ -1022,6 +1036,8 @@ do_grep:
           zsel = ''
         end
         'tbend' zgreptbl
+        zsel = ''
+        if file_changed = 1 then call update_repo_metadata
       end
       otherwise nop
     end
@@ -1085,7 +1101,6 @@ Do_Resetid:
     x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'statfile 'S')
     statfiles = usssafe(statfile)
     x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfiles)
-    x = docmd('cd' localrep'/'zigirep '&& git commit -m "Resetting IDs"')
   end
   return
 
@@ -1834,7 +1849,11 @@ Merge_it:
       x = docmd('cd 'localdir' && git merge --no-commit --no-ff' bname)
       if so.1 = 'Already up-to-date.' then do
         /* No need to merge! */
-        call pop "Merge not needed, branches are the same"
+        zs1 = "Merge not needed"
+        zs2 = "Branches are the same"
+        zs3 = ""
+        zs4 = "Press Enter/F3 to continue"
+        call do_popup4p
         leave
       end
       parse var se.1 "Automatic merge went well; stopped" rest
@@ -1847,7 +1866,12 @@ Merge_it:
       end
       else do
         /* Merge went fubar */
-        call pop "Your merge totally failed, we need a revert here..."
+        x = docmd('cd 'localdir' && git merge --abort')
+        zs1 = "Merge Failed"
+        zs2 = "The merge has been aborted"
+        zs3 = ""
+        zs4 = "Press Enter/F3 to continue"
+        call do_popup4p
       end
       call view_std 'B'
       leave
@@ -2240,15 +2264,15 @@ update_repo_metadata:
         x = debug('   done')
         if qualignr = 0 then do
           if pdshlq /= '' then
-          fulldsn = "'"pdshlq"."r"'"
+          fulldsn = "'"pdshlq"."root.i"'"
           else
-          fulldsn = "'"r"'"
+          fulldsn = "'"root.i"'"
         end
         else do
           fulldsn = translate(pdshlq,' ','.')
           fulldsn = subword(fulldsn,1,qualignr)
           fulldsn = translate(fulldsn,'.',' ')
-          fulldsn = "'"fulldsn'.'r"'"
+          fulldsn = "'"fulldsn'.'root.i"'"
         end
         edsn = strip(fulldsn,'B',"'")
         if so.1 = "DIR" & x = 0 then do
@@ -2373,7 +2397,7 @@ update_repo_metadata:
   else do
     parse value '' with branch_status bstat baction
   end
-  'tbsort' rtbl 'fields(fulldsn)'
+  'tbsort' rtbl 'fields(dsn,c,a)'
   fulldsn = save_fulldsn
   dsn = save_dsn
   x = debug('Done with update_repo_metadata' fulldsn dsn)
@@ -2489,7 +2513,7 @@ Add_Dataset:
       zsel = null
       'tbput' rtbl
       'tbend' dsnatbl
-      'tbsort' rtbl 'fields(fulldsn,c,a)'
+      'tbsort' rtbl 'fields(dsn,c,a)'
       'tbtop' rtbl
       if add_count > 0 then
       'tbmod zigirepo'
@@ -2784,6 +2808,9 @@ debug:
   end
   return 0
 
+  /* --------------------------------- *
+   | Add a message to the combine stem |
+   * --------------------------------- */
 Add_Combine: procedure expose combine.
   parse arg msg
   c = combine.0

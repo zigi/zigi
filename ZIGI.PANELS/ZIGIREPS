@@ -44,7 +44,7 @@
  &View    = 'View'
  .zvars = '(zsel dsnstat fulldsn)'
  .cursor = &zcmd
- .help = zigihr0
+ .help = zigih200
  &zscr = CSR
 )Proc
  &row = &z

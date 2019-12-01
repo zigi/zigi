@@ -1,0 +1,33 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                                 %Merge+
++
+%Merge+will merge a local, or remote, repository with the current repository.
++
++Select the branch to merge into the current branch using the%M+row selection.
++
++
+%
++
+%
++
++
+%
++
+            +"Never mistake activity for achievement." - John Wooden
++
++
++
+         +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+)PROC
+ &zup = zigih260
+ &zcont = zigih280
+)END

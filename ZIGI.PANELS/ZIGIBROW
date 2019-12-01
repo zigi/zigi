@@ -10,7 +10,7 @@
 |                                  / /                                         |
 | ---------------------------------/-/-----------------------------------------|
 )INIT
-  .HELP = ISR10000
+  .HELP = ZIGIHMSG
   .ZVARS = 'ZSCBR'
   &Title = 'zIGI Git Messages'
 )Reinit

@@ -21,7 +21,7 @@
 +
                   +Press%Enter+to continue, or%F3+to cancel
 )Init
- .help = zigihp1
+ .help = zigih120
 )Proc
   ver (&zigirep,nb)
   ver (&localrep,nb)

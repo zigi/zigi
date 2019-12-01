@@ -1,0 +1,33 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) color(white)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                            %Introduction to zigi+
++
+%Getting Started:+
++
+%zigi+is designed to make working with%git+very easy for the ISPF developer but
++you should still have a basic understanding of%git+and how your organization
++uses it. While you can use it solely with open source tools found on GitHub,
++and other%git+sites, the most cost effective use is to use it as a free
++source code management (SCM) tool.
++
++The%zigi+Primary menu is where you will find a table of all%git+repositories
++that you have cloned or created. It is also the place where you can easily
++Clone an existing repository  or Create a new repository.
++
++
++
++
++
+           +Press the%Enter+key to begin your zigi tutorial journey.
+)Init
+ .cursor = &zcmd
+)PROC
+ &ZUP = ZIGIHINT
+ &ZCONT = ZIGIH010
+)END

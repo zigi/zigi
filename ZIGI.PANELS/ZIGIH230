@@ -1,0 +1,37 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                                 %Commit+
++
+%Commit+processing takes the changes that have been made in the managed
++datasets and adds them to git management.
++
++Commit allows for, and it is encouraged, to provide a short summary of the
++changes to be captured in the git log for historical tracking. The summary
++typically consists of up to a 50 character title, followed by up to 72
++character lines of explanation. This dialog allows up to 16 lines of
++explanation.
++
++Blank lines are indicated by a period (.) in column 1.
++
++Optionally, after the commit, a%git push+can be automatically initiated by
++entering a%Y+in the Push after field.
++
++
++
+         +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+ vget (comhup comhnext)
+ if (&comhup = &z)
+     &comhup = ZIGIH220
+     &comhnext = ZIGIH240
+)PROC
+ &zup = &comhup
+ &zcont = &comhnext
+)END

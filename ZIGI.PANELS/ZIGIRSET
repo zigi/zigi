@@ -31,7 +31,7 @@
 )Init
  .zvars = '(defcpush)'
  .cursor = zcmd
- .help = zigihr0
+ .help = zigih2e0
  &zscr = CSR
 )Proc
 )End

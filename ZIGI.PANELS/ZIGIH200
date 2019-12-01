@@ -1,0 +1,128 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore) caps(on)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on) color(white)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                              %Respository Table
++
+%Commands available+(select for more information or press%Enter+to see each):
++
+[Add+    Add dataset        [Grep+   Find Strings     [Refresh+Replace Datasets
+[Br    + Change Branch      [Merge+  Merge Repos      [Remote+ Add remote
+[Commit+ Execute commit -m  [Network+Network Report   [Rollback+Revert
+[GitCMD +Git Command Prompt [Pro+    Pro Panel version[Set+    Set Defaults
+[Githelp+Git Help           [Pull+   Pull from origin [Status+ Git Status
+[GitLog+ Show git log output[Push+   Push to origin   [View+   OMVS Dir
++
+%Row selections:
++
+  %S+Select a repository to open and work with
+  %V+View the OMVS file system for the local repository
+  %D+Delete the local repositories OMVS file system
+     (the z/OS datasets will not be deleted)
++
++Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+ &Add     = 'Add'
+ &Br      = 'Branch'
+ &Commit  = 'Commit'
+ &Gitcmd  = 'GitCmd'
+ &Githelp = 'Githelp'
+ &GitLog  = 'Gitlog'
+ &Grep    = 'Grep'
+ &Merge   = 'Merge'
+ &Network = 'Network'
+ &Pro     = 'Pro'
+ &Pull    = 'Pull'
+ &Push    = 'Push'
+ &Refresh = 'Refresh'
+ &Remote  = 'Remote'
+ &Rollback  = 'Rollback'
+ &Set     = 'Set'
+ &Status  = 'Status'
+ &View    = 'View'
+)PROC
+*REXX(* zcmd zsel)
+  Select
+    When abbrev('ADD',zcmd,2)     = 1 then zcmd ='1'
+    When abbrev('BRANCH',zcmd,2)  = 1 then zcmd ='2'
+    When abbrev('COMMIT',zcmd,2)  = 1 then zcmd ='3'
+    When abbrev('GITCMD',zcmd,4)  = 1 then zcmd ='4'
+    When abbrev('GITHELP',zcmd,4) = 1 then zcmd ='5'
+    When abbrev('GITLOG',zcmd,4)  = 1 then zcmd ='6'
+    When abbrev('GREP',zcmd,2)    = 1 then zcmd ='7'
+    When abbrev('MERGE',zcmd,2)   = 1 then zcmd ='8'
+    When abbrev('NETWORK',zcmd,2) = 1 then zcmd ='9'
+    When abbrev('PRO',zcmd,2)     = 1 then zcmd ='10'
+    When abbrev('PULL',zcmd,3)    = 1 then zcmd ='11'
+    When abbrev('PUSH',zcmd,3)    = 1 then zcmd ='12'
+    When abbrev('REFRESH',zcmd,3) = 1 then zcmd ='13'
+    When abbrev('REMOTE',zcmd,3)  = 1 then zcmd ='14'
+    When abbrev('ROLLBACK',zcmd,2) = 1 then zcmd ='15'
+    When abbrev('SET',zcmd,2)     = 1 then zcmd ='16'
+    When abbrev('STATUS',zcmd,2)  = 1 then zcmd ='17'
+    When abbrev('VIEW',zcmd,1)    = 1 then zcmd ='18'
+    Otherwise nop
+  end
+*Endrexx
+ &githup   = ZIGIH150
+ &githnext = ZIGIH250
+ &prohup   = ZIGIH140
+ &prohnext = ZIGIH160
+ &comhup   = ZIGIH220
+ &comhnext = ZIGIH240
+ &cmdhup   = ZIGIH230
+ &cmdhnext = ZIGIH160
+ &sthup    = ZIGIH2E0
+ &sthnext  = ZIGIH2G0
+ &loghup   = ZIGIH160
+ &loghnext = ZIGIH260
+ &grhup    = ZIGIH250
+ &grhnext  = ZIGIH270
+ vput (githup githnext prohup prohnext comhup comhnext cmdhup cmdhnext)
+ vput (sthup sthnext loghup loghnext grhup grhnext)
+ &ZSEL = TRANS( &ZCMD
+           1,zigih210  /* ADD            */
+           2,zigih220  /* BRANCH         */
+           3,zigih230  /* COMMIT         */
+           4,zigih240  /* GITCMD         */
+           5,zigih160  /* GITHELP        */
+           6,zigih250  /* GITLOG         */
+           7,zigih260  /* GREP           */
+           8,zigih270  /* MERGE          */
+           9,zigih280  /* NETWORK        */
+          10,zigih150  /* PRO            */
+          11,zigih290  /* PULL           */
+          12,zigih2A0  /* PUSH           */
+          13,zigih2B0  /* REFRESH        */
+          14,zigih2C0  /* REMOTE         */
+          15,zigih2D0  /* ROLLBACK       */
+          16,zigih2E0  /* SET            */
+          17,zigih2F0  /* STATUS         */
+          18,zigih2G0  /* VIEW           */
+           *,'?'
+           )
+)PNTS
+ FIELD(ADD   )  VAR(ZCMD) VAL('1')
+ FIELD(BR    )  VAR(ZCMD) VAL('2')
+ FIELD(COMMIT)  VAR(ZCMD) VAL('3')
+ FIELD(GITCMD)  VAR(ZCMD) VAL('4')
+ FIELD(GITHELP) VAR(ZCMD) VAL('5')
+ FIELD(GITLOG)  VAR(ZCMD) VAL('6')
+ FIELD(GREP  )  VAR(ZCMD) VAL('7')
+ FIELD(MERGE)   VAR(ZCMD) VAL('8')
+ FIELD(NETWORK) VAR(ZCMD) VAL('9')
+ FIELD(PRO   )  VAR(ZCMD) VAL('10')
+ FIELD(PULL  )  VAR(ZCMD) VAL('11')
+ FIELD(PUSH  )  VAR(ZCMD) VAL('12')
+ FIELD(REFRESH) VAR(ZCMD) VAL('13')
+ FIELD(REMOTE)  VAR(ZCMD) VAL('14')
+ FIELD(ROLLBACK) VAR(ZCMD) VAL('15')
+ FIELD(SET   )  VAR(ZCMD) VAL('16')
+ FIELD(STATUS)  VAR(ZCMD) VAL('17')
+ FIELD(VIEW  )  VAR(ZCMD) VAL('18')
+)END

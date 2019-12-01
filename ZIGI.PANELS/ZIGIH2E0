@@ -1,0 +1,33 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                                 %SET+
++
+%SET+will bring up a panel that allows the user to set two default values
++specific to the current repository:
++
++Configure the default push option on a Commit. This option can be over-ridden
++on the Commit panel for any individual Commit if desired.
+%
++Configure a userid to be set for all PDS Members that have been Added and are
++ready to be Committed. The userid will be changed prior to the Commit process,
++including updating the ISPF statistics file that is part of the repository.
++
+%
++
++
++
++
++
+         +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+)PROC
+ &zup = zigih2d0
+ &zcont = zigih2f0
+)END

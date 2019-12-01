@@ -1,0 +1,37 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                                 %Status+
++
+%Status+will display the current%git status+information. This will report
++the status of the local repository, any files that are new (untracked), any
++files that have been modified but not added to the index (not ready to be
++Committed), and files which have been added and are ready to be Committed.
++
+%
++
+%
++
++
+%
++
+                +"Do not let what you cannot do interfere with
+                +what you can do." - John Wooden
++
++
+         +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+ vget (sthup sthnext)
+ if (&sthup EQ &Z)
+    &sthup = ZIGIH2E0
+    &sthnext = ZIGIH2G0
+)PROC
+ &zup = &sthup
+ &zcont = &sthnext
+)END

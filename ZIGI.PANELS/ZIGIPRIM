@@ -26,7 +26,7 @@ _z+  $z              + +$z                     + +$z
  &githelp = 'GitHelp'
  &zscr = CSR
  .zvars = '(zsel zigirep pdshlq localrep)'
- .help = zigihp0
+ .help = zigihint
 )Proc
  &row = &z
  if (&ZCMD = &Z)

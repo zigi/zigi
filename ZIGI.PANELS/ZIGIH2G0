@@ -1,0 +1,32 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                                 %View+
++
+%View+will open up the ISPF USS Data List (UDLIST) application (ISPF 3.17)
++on the current local repository.
++
++
++
+%
++
+%
++
++
+%
++
++
+    +"Failure is not fatal, but failure to change might be."   John Wooden
++
++
+         +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+)PROC
+ &zup = zigih2f0
+)END

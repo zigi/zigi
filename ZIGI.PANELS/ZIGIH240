@@ -1,0 +1,37 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                                 %GitCMD+
++
++The git command panel supports entering any git command to be executed with
++the results displayed using ISPF Browse. All commands will be executed in the
++directory of the local git repository.
++
++The first command does not require%git+to be specified. Additional command may
++be entered using%&&+as a separator and will require%git+to be coded. Here is
++an example with a git log command followed by a git status command (e.g.):
++
+   %git@log --cc -m -n 10 && git status
++
++All commands will be saved in a command history table, with the most recent on
++top. Use these line commands with the table rows:
++
+   %S+to select and place it in the git command field for editing
+   %D+to delete a command from the table. Multiple rows may be selected for%D+
+   %X+to execute the command and place it into the command entry field
++
++Press%Enter+to execute the command after entering or editing it.
+)Init
+ .cursor  = &zcmd
+)PROC
+ &githup   = ZIGIH230
+ &githnext = ZIGIH250
+ vput (githup githnext)
+ &zup = &githup
+ &zcont = &githnext
+)END

@@ -1,0 +1,33 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                        %Keyboard and Mouse Navigation
++
++The zigi application has been designed to support both the traditional
++ISPF Panel navigation by entering the desired commands and table row
++selections. It has also been designed to support%point-and-shoot+fields
++for use by those more comfortable with that approach.
++
++Enabling%Tab to point-and-shoot fields+in the ISPF Settings (option 0 on
++the ISPF Primary Menu) will make these fields easier to use with both the
++keyboard and mouse.
++
++Use the keyboard tab key, or newline key, to move to the point and shoot fields
++and then just press the%Enter+key to execute that command or table row
++selection.
++
++Or move the mouse pointer to the command or row and double left click.
++
++
+           +Press the%Enter+key to begin your zigi tutorial journey.
+)Init
+ .cursor = &zcmd
+)PROC
+ &ZUP = ZIGIH010
+ &zcont = zigih030
+)END

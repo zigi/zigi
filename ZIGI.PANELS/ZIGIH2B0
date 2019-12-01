@@ -1,0 +1,33 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                                 %Refresh+
++
+%Refresh+will recreate ALL of the z/OS datasets in the local repository using
++the files in the OMVS filesystem.
++
++ALL updates that have NOT been committed and pushed will be lost.
++
+%
++
+%
++
++
++
+                  +"It's what you learn after you know it all
+                  +that counts." - John Wooden
++
++
++
+         +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+)PROC
+ &zup = zigih2a0
+ &zcont = zigih2c0
+)END
