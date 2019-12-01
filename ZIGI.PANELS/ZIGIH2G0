@@ -8,8 +8,8 @@
 +
                                  %View+
 +
-%View+will open up the ISPF USS Data List (UDLIST) application (ISPF 3.17)
-+on the current local repository.
+%View+will open up the ISPF OMVS (USS) Data List (UDLIST) application
++(ISPF 3.17) on the current local repository.
 +
 +
 +
