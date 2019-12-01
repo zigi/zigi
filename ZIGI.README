@@ -2,8 +2,8 @@
 
 Version : v01.02 / December 2019
 
-zIGI is the zdevops ISPF Git Interface application that enables the
-traditional ISPF user to utilize many of the facilities of Git without
+zIGI is the open source z/OS ISPF Git Interface application that enables
+the traditional ISPF user to utilize many of the facilities of Git without
 having to "fully" learn Git while avoiding the need to use the OMVS
 environment.
 
