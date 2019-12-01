@@ -756,21 +756,21 @@ Work_With_Repo:
         cmd = 'cd' localrep'/'zigirep
         x = docmd(cmd '&& git add -v 'd)
         call combine_msgs
+        statfile = translate(strip(fulldsn,'B',"'"),' ','.')
+        statfile = subword(statfile,qualignr+1)
+        statfile = translate(statfile,'.',' ')
+        cmd = 'cd' localrep'/'zigirep'/.zigi/'
+        stats = usssafe(statfile)
+        x = listdsi(fulldsn)
+        if x = 0 then do
+          if sysdsorg /= 'PS' then do
+            x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'stats 'S')
+            x = docmd(cmd '&& git add -v 'stats)
+            if x > 0 then call view_std 'B'
+          end
+        end
         if ztdsels = 1 then do
           call view_std 'C'
-          statfile = translate(strip(fulldsn,'B',"'"),' ','.')
-          statfile = subword(statfile,qualignr+1)
-          statfile = translate(statfile,'.',' ')
-          cmd = 'cd' localrep'/'zigirep'/.zigi/'
-          stats = usssafe(statfile)
-          x = listdsi(fulldsn)
-          if x = 0 then do
-            if sysdsorg /= 'PS' then do
-              x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'stats 'S')
-              x = docmd(cmd '&& git add -v 'stats)
-            end
-          end
-          if x > 0 then call view_std 'B'
           call update_repo_metadata
         end
       end
@@ -1032,7 +1032,7 @@ do_grep:
         end
         'tbend' zgreptbl
         zsel = ''
-       if file_changed = 1 then call update_repo_metadata
+        if file_changed = 1 then call update_repo_metadata
       end
       otherwise nop
     end
