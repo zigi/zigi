@@ -649,7 +649,7 @@ Work_With_Repo:
       /* -------------------------------- *
       | Rollback to a Commit Tab         |
       * -------------------------------- */
-      When abbrev('ROLLBACK',zcmd,3) = 1 then call do_rollback
+      When abbrev('ROLLBACK',zcmd,2) = 1 then call do_rollback
       /* -------------------------------- *
       | Add/replace remote URI (origin)  |
       * -------------------------------- */
@@ -857,6 +857,8 @@ Do_Rollback:
       prc = rc
       'Rempop'
       call pfshow 'reset'         /* restore pfshow setting */
+      if prc = 0 then
+      if newbr /= null then
       if rolla = 'ROLLBACK' then do
         cmd = 'cd' localrep'/'zigirep
         drop combine.
