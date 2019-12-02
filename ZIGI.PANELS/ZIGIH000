@@ -29,5 +29,5 @@
  .cursor = &zcmd
 )PROC
  &ZUP = ZIGIHINT
- &ZCONT = ZIGIH010
+ &ZCONT = ZIGIH004
 )END
