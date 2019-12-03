@@ -562,31 +562,7 @@ Work_With_Repo:
       /* -------------------------------- *
       | View output of git log           |
       * -------------------------------- */
-      When abbrev('GITLOG',zcmd,2) = 1 then do
-        zcmd = null
-        call pfshow 'off'           /* make sure pfshow is off */
-        'vget (lcnt logdfrom logdto greplog) profile'
-        'Addpop row(4) column(6)'
-        'Display Panel(zigilog)'
-        'Rempop'
-        call pfshow 'reset'         /* restore pfshow setting */
-        lopts = null
-        if lcnt /= null then lopts = '-n' lcnt
-        if logdfrom /= null then lopts = lopts '--after="'logdfrom'"'
-        if logdto   /= null then lopts = lopts '--until="'logdto'"'
-        if greplog /= null then lopts = lopts '--grep='greplog '-i'
-        lopts = translate(lopts,'-','/')
-        cmd = 'cd' localdir' && git log --cc -m' lopts
-        'vput (lcnt logdfrom logdto greplog) profile'
-        x = docmd(cmd)
-        if so.0 + se.0 > 1
-        then call view_std
-        else do
-          zerrsm = ''
-          zerrlm = 'GitLog filters resulted in an empty report.'
-          'setmsg msg(isrz003)'
-        end
-      end
+      When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
       /* -------------------------------- *
       | Push current branch to origin    |
       * -------------------------------- */
@@ -1191,9 +1167,31 @@ Do_Status:
   * ------------------- */
 Do_GitLog:
   zcmd = null
-  cmd = 'cd' localdir' && git log'
-  x = docmd(cmd)
-  call view_std
+  call pfshow 'off'           /* make sure pfshow is off */
+  'vget (lcnt logdfrom logdto greplog) profile'
+  'Addpop row(4) column(6)'
+  'Display Panel(zigilog)'
+  drc = rc
+  'Rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
+  if drc = 0 then do
+    lopts = null
+    if lcnt /= null then lopts = '-n' lcnt
+    if logdfrom /= null then lopts = lopts '--after="'logdfrom'"'
+    if logdto   /= null then lopts = lopts '--until="'logdto'"'
+    if greplog /= null then lopts = lopts '--grep='greplog '-i'
+    lopts = translate(lopts,'-','/')
+    cmd = 'cd' localdir' && git log --cc -m' lopts
+    'vput (lcnt logdfrom logdto greplog) profile'
+    x = docmd(cmd)
+    if so.0 + se.0 > 1
+    then call view_std
+    else do
+      zerrsm = ''
+      zerrlm = 'GitLog filters resulted in an empty report.'
+      'setmsg msg(isrz003)'
+    end
+  end
   return
 
   /* ----------------------------------------------- *
