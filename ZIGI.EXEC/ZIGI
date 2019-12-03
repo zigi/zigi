@@ -722,6 +722,75 @@ Work_With_Repo:
         'control display restore'
       end
       /* -------------------------------- *
+      | Remove a Dataset or File         |
+      | - git rm -f file                 |
+      | - OMVS file just rm -fv file     |
+      | - PS Dataset                     |
+      |   Delete dataset                 |
+      |   rm -fv file                    |
+      | - PDS Dataset                    |
+      |   Delete dataset                 |
+      |   rm -frv file                   |
+      |   rm -fv .zigi/file (ispf stats) |
+      |    - git rm -f .zigi/file        |
+      * -------------------------------- */
+      When zsel = 'R' then do
+        rc = confirm_remove(fulldsn)
+        if rc > 0 then do
+          zerrsm = 'Cancelled.'
+          zerrlm = 'Removal of' fulldsn 'cancelled.'
+          'setmsg msg(isrz003)'
+        end
+        else do
+          rtype = null
+          localdir =  localrep'/'zigirep
+          if left(fulldsn,1) /= "'" then rtype = 'OMVS'
+          /* only listdsi on zOs datsets */
+          if rtype = null then do
+            x = listdsi(fulldsn)
+            if rc = 0 & sysdsorg = 'PS' then rtype = 'PS'
+            if rc = 0 & sysdsorg = 'PO' then rtype = 'PO'
+          end
+          if rtype = null then do
+            zs1 = fulldsn 'is not recogizned.'
+            zs2 = sysdsn(fulldsn)
+            zs3 = ''
+            zs4 = 'Press Enter to continue.'
+            call do_popup4p
+          end
+          else Select
+            when rtype = 'OMVS' then do
+              cmd = 'cd' localdir '&& git rm -r' fulldsn
+              cmd = cmd '&& git add -u'
+              x = docmd(cmd,,so.,se.)
+              call view_std 'B'
+            end
+            when rtype = 'PS' then do
+              call outtrap 'x.'
+              Address TSO ,
+                'Delete' fulldsn
+              call outtrap 'off'
+              cmd = 'cd' localdir '&& git rm' dsn
+              x = docmd(cmd,,so.,se.)
+              call view_std 'B'
+            end
+            when rtype = 'PO' then do
+              call outtrap 'x.'
+              Address TSO ,
+                'Delete' fulldsn
+              call outtrap 'off'
+              cmd = 'cd' localdir '&& git rm -r' dsn
+              cmd = cmd '&& rm -fv .zigi/'dsn
+              x = docmd(cmd,,so.,se.)
+              call view_std 'B'
+            end
+            Otherwise nop
+          end
+          dsnstat = '*Removed'
+          'tbmod' rtbl
+        end
+      end
+      /* -------------------------------- *
       | Work with a repo item            |
       * -------------------------------- */
       When zsel = 'S' & left(fulldsn,1) /= "'" then do
@@ -758,7 +827,7 @@ Work_With_Repo:
         call combine_msgs
         if dsnvalid(fulldsn) = "OK" then do
           /* Only get the stats if it's a z/OS dataset
-             Don't do it for the USS files
+          Don't do it for the USS files
           */
           x = listdsi(fulldsn)
           if x = 0 then do
@@ -1159,7 +1228,7 @@ Do_Commit:
       cmd = 'cd' localrep'/'zigirep
       cmd = cmd '&& git commit -F' file
       if zpush = 'Y' then
-         cmd = cmd '&& git push -v'
+      cmd = cmd '&& git push -v'
       cmd = cmd '&& rm' file
       x = docmd(cmd)
     end
@@ -1171,7 +1240,7 @@ Do_Commit:
       cmsg.1 = translate(cmsg.1,' ',"'" '"')
       cmd = cmd "&& git commit -vm '"cmsg.1"'"
       if zpush = 'Y' then
-         cmd = cmd '&& git push -v'
+      cmd = cmd '&& git push -v'
       x = docmd(cmd)
     end
     call view_std 'B'
@@ -1472,6 +1541,40 @@ Work_with_repo_file:
               call update_repo_metadata
               call work_with_repo_file
             end
+          end
+        end
+        when zsel = 'R' then do
+          /* --------------------------------- *
+          | Remove a PDS member from the Repo |
+          * --------------------------------- */
+          localdir =  localrep'/'zigirep'/'dsn
+          call outtrap 'x.'
+          rdsn = strip(fulldsn,'B',"'")
+          rdsn = "'"rdsn"("mem")'"
+          rc = confirm_remove(rdsn)
+          if rc = 0 then do
+            Address TSO ,
+              'Delete' rdsn
+            call outtrap 'off'
+            /* make sure the member name conforms to the cp -M way */
+            m = translate(mem,'._-','#@$')
+            xldir = usssafe(localdir)
+            cmd = 'cd' xldir    '&& git rm "'m'"'
+            x = docmd(cmd,,so.,se.)
+            call view_std 'B'
+            memstat = '*Removed'
+            'tbmod' rtll
+            statfile = translate(strip(fulldsn,'B',"'"),' ','.')
+            statfile = subword(statfile,qualignr+1)
+            statfile = translate(statfile,'.',' ')
+            cmd = 'cd' localrep'/'zigirep'/.zigi/'
+            stats = usssafe(statfile)
+            x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'stats 'S')
+          end
+          else do
+            zerrsm = 'Cancelled.'
+            zerrlm = 'Removal of' rdsn 'cancelled.'
+            'setmsg msg(isrz003)'
           end
         end
         when zsel = 'A' then do
@@ -2698,6 +2801,21 @@ Write_FD:
   'write' fd 'string' length(string)
   return
 
+/* ---------------------------------------- *
+ | Confirm removal of the requested element |
+ * ---------------------------------------- */
+Confirm_Remove:
+  parse arg rxdsn
+  rema = null
+  call pfshow 'off'           /* make sure pfshow is off */
+  'Addpop row(4) column(12)'
+  'Display Panel(zigiremq)'
+  if rema /= 'YES' then rrc = 4
+                   else rrc = 0
+  'Rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
+  return rrc
+
   /* ----------------------- *
   | Generalized Pop Message |
   | with msg passed         |
@@ -2808,8 +2926,8 @@ debug:
   return 0
 
   /* --------------------------------- *
-   | Add a message to the combine stem |
-   * --------------------------------- */
+  | Add a message to the combine stem |
+  * --------------------------------- */
 Add_Combine: procedure expose combine.
   parse arg msg
   c = combine.0

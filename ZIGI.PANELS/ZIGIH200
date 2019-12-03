@@ -10,19 +10,19 @@
 +
 %Commands available+(select for more information or press%Enter+to see each):
 +
-[Add+    Add dataset        [Grep+   Find Strings     [Refresh+Replace Datasets
-[Br    + Change Branch      [Merge+  Merge Repos      [Remote+ Add remote
+[Add+    Add dataset        [Grep+   Find Strings     [Refresh+ Replace Datasets
+[Br    + Change Branch      [Merge+  Merge Repos      [Remote+  Add remote
 [Commit+ Execute commit -m  [Network+Network Report   [Rollback+Revert
-[GitCMD +Git Command Prompt [Pro+    Pro Panel version[Set+    Set Defaults
-[Githelp+Git Help           [Pull+   Pull from origin [Status+ Git Status
-[GitLog+ Show git log output[Push+   Push to origin   [View+   OMVS Dir
+[GitCMD +Git Command Prompt [Pro+    Pro Panel version[Set+     Set Defaults
+[Githelp+Git Help           [Pull+   Pull from origin [Status+  Git Status
+[GitLog+ Show git log output[Push+   Push to origin   [View+    OMVS Dir
 +
 %Row selections:
 +
   %S+Select a repository to open and work with
   %V+View the OMVS file system for the local repository
   %D+Delete the local repositories OMVS file system
-     (the z/OS datasets will not be deleted)
+  %R+Remove from the repository and from OMVS and/or z/OS
 +
 +Press the%Enter+key to continue your zigi tutorial journey.
 )Init

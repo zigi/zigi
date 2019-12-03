@@ -19,7 +19,7 @@
   %D+Show the difference (compare) the current with the commit level if
      an Add has been performed but no commit.
   %S+Select a member and Edit it
-+
+  %R+Remove a member from the PDS and the repository
 +
 +
       +"The best competition I have is against myself to become better."
