@@ -1639,6 +1639,12 @@ Work_with_repo_file:
               memstat = '*Renamed'
               mem = newmem
               'tbadd' rtll 'Order'
+              statfile = translate(strip(fulldsn,'B',"'"),' ','.')
+              statfile = subword(statfile,qualignr+1)
+              statfile = translate(statfile,'.',' ')
+              x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'statfile 'S')
+              cmd = 'cd' localrep'/'zigirep
+              x = docmd(cmd '&&git add .zigi/'statfile)
               leave
             end
           end
