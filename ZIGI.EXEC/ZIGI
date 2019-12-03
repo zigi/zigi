@@ -721,6 +721,67 @@ Work_With_Repo:
         end
         'control display restore'
       end
+      /* ------------------------ *
+      | Newname (rename) request |
+      * ------------------------ */
+      When zsel = 'N' then do
+        newdsn = fulldsn
+        do forever
+          'control display save'
+          'Addpop row(4) column(6)'
+          'display panel(zigirena)'
+          drc = rc
+          'rempop'
+          'control display restore'
+          if drc > 0 then leave
+          x = listdsi(newdsn)
+          if x = 0 then do
+            zerrsm = 'Error'
+            zerrlm = newdsn 'currently exists. Select a different' ,
+              'dataset name for the rename operation.'
+            'setmsg msg(isrz003)'
+          end
+          else do
+            if left(fulldsn,1) = "'"  /* z/OS rename */
+            then Address TSO 'Rename' fulldsn newdsn
+            else do
+              cmd = 'cd' localrep'/'zigirep
+              cmd = cmd '&& mv' fulldsn newdsn
+              x = bpxwunix(cmd,,so.,se.)
+              drop combine.
+              combine.0 = 0
+              call add_combine cmd
+            end
+            cmd = 'cd' localrep'/'zigirep
+            if left(fulldsn,1) /= "'"
+            then cmd = cmd '&& git mv' fulldsn newdsn
+            else do
+              oldfile = translate(strip(fulldsn,'B',"'"),' ','.')
+              oldfile = subword(oldfile,qualignr+1)
+              oldfile = translate(oldfile,'.',' ')
+              newfile = translate(strip(newdsn,'B',"'"),' ','.')
+              newfile = subword(newfile,qualignr+1)
+              newfile = translate(newfile,'.',' ')
+              cmd = cmd '&& git mv' oldfile newfile
+            end
+            x = docmd(cmd)
+            call add_combine cmd
+            x = listdsi(fulldsn)
+            if sysdsorg = 'PO' then do
+              cmd = 'cd' localrep'/'zigirep'/.zigi'
+              x = docmd(cmd '&& rm' oldfile)
+              x = zigistat(newdsn localrep'/'zigirep'/.zigi/'newfile 'S')
+            end
+            call view_std 'B'
+            'tbdelete' rtbl
+            fulldsn = newdsn
+            dsn = newfile
+            dsnstat = '*Renamed'
+            'tbadd' rtbl 'Order'
+            leave
+          end
+        end
+      end
       /* -------------------------------- *
       | Remove a Dataset or File         |
       | - git rm -f file                 |
@@ -1540,6 +1601,45 @@ Work_with_repo_file:
             if ztdsels = 1 then do
               call update_repo_metadata
               call work_with_repo_file
+            end
+          end
+        end
+        when zsel = 'N' then do
+          /* ------------------- *
+          | reName a PDS Member |
+          * ------------------- */
+          do forever
+            newmem = mem
+            'control display save'
+            'Addpop row(4) column(6)'
+            'display panel(zigirenm)'
+            drc = rc
+            'rempop'
+            'control display restore'
+            if drc > 0 then leave
+            olddsn = "'"strip(fulldsn,'B',"'")"("mem")'"
+            newdsn = "'"strip(fulldsn,'B',"'")"("newmem")'"
+            call outtrap 'x.'
+            rc = sysdsn(newdsn)
+            call outtrap 'off'
+            if rc = 'OK' then do
+              zerrsm = 'Error'
+              zerrlm = newmem 'currently exists. Select a different' ,
+                'member name for the rename operation.'
+              'setmsg msg(isrz003)'
+            end
+            else do
+              Address TSO 'Rename' olddsn newdsn
+              cmd = 'cd' localrep'/'zigirep'/'dsn
+              cmd = cmd '&& git mv' mem newmem
+              cmd = usssafe(cmd)
+              x = docmd(cmd)
+              call view_std 'B'
+              'tbdelete' rtll
+              memstat = '*Renamed'
+              mem = newmem
+              'tbadd' rtll 'Order'
+              leave
             end
           end
         end
@@ -2801,9 +2901,9 @@ Write_FD:
   'write' fd 'string' length(string)
   return
 
-/* ---------------------------------------- *
- | Confirm removal of the requested element |
- * ---------------------------------------- */
+  /* ---------------------------------------- *
+  | Confirm removal of the requested element |
+  * ---------------------------------------- */
 Confirm_Remove:
   parse arg rxdsn
   rema = null
@@ -2811,7 +2911,7 @@ Confirm_Remove:
   'Addpop row(4) column(12)'
   'Display Panel(zigiremq)'
   if rema /= 'YES' then rrc = 4
-                   else rrc = 0
+  else rrc = 0
   'Rempop'
   call pfshow 'reset'         /* restore pfshow setting */
   return rrc

@@ -23,7 +23,7 @@
 [Githelp+Git Help           [Pull+   Pull from origin [Status+ Git Status
 [GitLog+ Show git log output[Push+   Push to origin   [View+   OMVS Dir
 +
-%S+Select (Edit)%A+Add to index%B+Browse%V+View%R+Remove from Repo
+%S+Select (Edit)%A+Add to index%B+Browse%N+reName%R+Remove from Repo%V+View
 +
 %S  Status                    Dataset Name
 )Model
@@ -67,7 +67,7 @@
      &osel = &zsel
  if (&row = 0)
      &zsel = &z
- ver (&zsel,list,S,A,U,B,V,R)
+ ver (&zsel,list,S,A,U,B,V,R,N)
 )PNTS
  FIELD(ADD   )  VAR(ZCMD) VAL('ADD')
  FIELD(BR    )  VAR(ZCMD) VAL('BRANCH')

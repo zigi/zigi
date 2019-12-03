@@ -1,0 +1,13 @@
+)Attr
+ $ type(output) caps(on )
+ _ type(input)  caps(on ) hilite(uscore) intens(low)
+)Body Window(32,4)
++Current Member:$mem
++New Member:    _newmem  +
++
+%Enter+to continue%F3+to cancel.
+)Init
+ &zwinttl = 'zIGI PDS Member Rename'
+)Proc
+  ver (&newmem,nb,dsname)
+)end

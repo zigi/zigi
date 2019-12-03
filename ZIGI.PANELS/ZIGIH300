@@ -18,12 +18,11 @@
   %A+Add the member to the%git index+so that it can be Committed
   %D+Show the difference (compare) the current with the commit level if
      an Add has been performed but no commit.
-  %S+Select a member and Edit it
-  %R+Remove a member from the PDS and the repository
+  %N+reName the member
+  %S+Select the member and Edit it
+  %R+Remove the member from the PDS and the repository
 +
 +
-      +"The best competition I have is against myself to become better."
-      +  - John Wooden
 +
 +Press the%Enter+key to continue your zigi tutorial journey.
 )Init

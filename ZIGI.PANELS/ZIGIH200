@@ -19,10 +19,10 @@
 +
 %Row selections:
 +
-  %S+Select a repository to open and work with
-  %V+View the OMVS file system for the local repository
-  %D+Delete the local repositories OMVS file system
-  %R+Remove from the repository and from OMVS and/or z/OS
+%S+Edit the dataset/file    %A+Add the dataset/file for Commit
+%B+Browse the dataset/file  %N+reName the dataset/file
+%R+Remove the dataset/file from the repository and from OMVS and/or z/OS
+%V+View the local repository files in OMVS
 +
 +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
