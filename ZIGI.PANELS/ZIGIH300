@@ -18,9 +18,9 @@
   %A+Add the member to the%git index+so that it can be Committed
   %D+Show the difference (compare) the current with the commit level if
      an Add has been performed but no commit.
-  %N+reName the member
+  %RM+Remove the member from the PDS and the repository
+  %RN+reName the member
   %S+Select the member and Edit it
-  %R+Remove the member from the PDS and the repository
 +
 +
 +
