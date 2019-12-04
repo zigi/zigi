@@ -1826,10 +1826,6 @@ Refresh:
   zs1 = "Refreshing from repository"
   zs2 = "   OMVS -> z/OS      "
   call do_popup
-  /*
-  address 'SYSCALL' 'SLEEP (2)'
-  x = docmd('cd 'localrep' && git clone 'remote)
-  */
   ckotdir = localrep'/'zigirep
   if datatype(qualignr) /= 'NUM' then qualignr = 0
   if qualignr = 0
@@ -2072,12 +2068,8 @@ Merge_it:
       end
       else do
         /* Merge went fubar */
+        call view_std 'B'
         x = docmd('cd 'localdir' && git merge --abort')
-        zs1 = "Merge Failed"
-        zs2 = "The merge has been aborted"
-        zs3 = ""
-        zs4 = "Press Enter/F3 to continue"
-        call do_popup4p
       end
       call view_std 'B'
       leave
