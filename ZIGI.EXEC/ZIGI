@@ -21,6 +21,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            12/04/19 LBD - Support Remove (RM) and          |
+  |                           Rename (RN) options              |
   |            11/30/19 LBD - Use Edit and View for OMVS files |
   |                         - Test if Edit OMVS file changed   |
   |            11/27/19 HBK - Check for minimal git version    |
@@ -698,9 +700,10 @@ Work_With_Repo:
         'control display restore'
       end
       /* ------------------------ *
-      | Newname (rename) request |
+      | Rename the element in git|
+      | and OMVS and z/OS        |
       * ------------------------ */
-      When zsel = 'N' then do
+      When zsel = 'RN' then do
         newdsn = fulldsn
         do forever
           'control display save'
@@ -771,7 +774,7 @@ Work_With_Repo:
       |   rm -fv .zigi/file (ispf stats) |
       |    - git rm -f .zigi/file        |
       * -------------------------------- */
-      When zsel = 'R' then do
+      When zsel = 'RM' then do
         rc = confirm_remove(fulldsn)
         if rc > 0 then do
           zerrsm = 'Cancelled.'
@@ -1606,7 +1609,7 @@ Work_with_repo_file:
             end
           end
         end
-        when zsel = 'N' then do
+        when zsel = 'RN' then do
           /* ------------------- *
           | reName a PDS Member |
           * ------------------- */
@@ -1651,7 +1654,7 @@ Work_with_repo_file:
             end
           end
         end
-        when zsel = 'R' then do
+        when zsel = 'RM' then do
           /* --------------------------------- *
           | Remove a PDS member from the Repo |
           * --------------------------------- */

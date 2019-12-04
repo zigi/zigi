@@ -18,11 +18,11 @@
 %
 +Commands:[Add[Basic[Br[Com[GitC[GitH[GitL[Grep[Merg[Net+
           [Pull[Push[Ref[Rem[Roll[Set[St[View
-+Options: %S+Select%A+Add%B+Browse%N+reName%R+Remove%V+View
++Options: %S+Select%A+Add%B+Browse%RM+Remove%RN+Rename%V+View
 +
 %S  Status                    Dataset Name
 )Model
-@z+$z                        $z
+@z +$z                       $z
 )Init
  &Add     = 'Add'
  &Basic   = 'Basic'
@@ -62,7 +62,7 @@
      &osel = &zsel
  if (&row = 0)
      &zsel = &z
- ver (&zsel,list,S,A,U,B,V,R,N)
+ ver (&zsel,list,S,A,U,B,V,RM,RN)
 )PNTS
  FIELD(ADD) VAR(ZCMD) VAL('ADD')
  FIELD(BASIC) VAR(ZCMD) VAL('BASIC')
