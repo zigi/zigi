@@ -1379,6 +1379,8 @@ Do_Push:
   * ----------------------------- */
 Clone_Repo:
   parse value '' with pdshlq remotebr
+  'vget (saverep) profile'
+  if saverep /= null then localrep = saverep
   do forever
     zcmd = null
     remote = null
@@ -1394,6 +1396,8 @@ Clone_Repo:
       'Setmsg msg(isrz003)'
       return
     end
+    saverep = localrep
+    'vput (saverep) profile'
     parse var remote site ':' user '/' zigirep '.git'
     parse var site guser '@' host
     /* Let's clone the remote repo... */
@@ -2080,6 +2084,8 @@ Merge_it:
   return
 
 Create_Repo:
+  'vget (saverep) profile'
+  if saverep /= null then localrep = saverep
   do forever
     parse value '' with zerrsm zcmd zigirep cc_rc pdshlq ,
       defcpush defruid
@@ -2106,6 +2112,8 @@ Create_Repo:
         leave
       end
     end
+    saverep = localrep
+    'vput (saverep) profile'
     /* If we made it here, we can freely git init */
     zs1 = 'Creating your repository'
     zs2 = 'Please standby'
