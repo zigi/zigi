@@ -750,6 +750,7 @@ Work_With_Repo:
               cmd = 'cd' localrep'/'zigirep'/.zigi'
               x = docmd(cmd '&& rm' oldfile)
               x = zigistat(newdsn localrep'/'zigirep'/.zigi/'newfile 'S')
+              x = docmd(cmd '&& git add' newfile)
             end
             call view_std 'B'
             'tbdelete' rtbl
