@@ -747,17 +747,21 @@ Work_With_Repo:
             call add_combine cmd
             x = listdsi(fulldsn)
             if sysdsorg = 'PO' then do
-              cmd = 'cd' localrep'/'zigirep'/.zigi'
-              x = docmd(cmd '&& rm' oldfile)
               x = zigistat(newdsn localrep'/'zigirep'/.zigi/'newfile 'S')
-              x = docmd(cmd '&& git add' newfile)
+              cmd = 'cd' localrep'/'zigirep
+              x = docmd(cmd '&& git add .zigi/'newfile)
+              x = docmd(cmd '&& git rm .zigi/'oldfile)
             end
             call view_std 'B'
             'tbdelete' rtbl
             fulldsn = newdsn
             dsn = newfile
-            dsnstat = '*Renamed'
+            dsnstat = '[R ] Renamed in index'
             'tbadd' rtbl 'Order'
+            rtop = 0
+            bstat = 'Changes to be committed:'
+            baction = null
+            ztdsels = ztdsels -1
             leave
           end
         end
@@ -1642,9 +1646,12 @@ Work_with_repo_file:
               x = docmd(cmd)
               call view_std 'B'
               'tbdelete' rtll
-              memstat = '*Renamed'
+              memstat = '[R ] Renamed in index'
               mem = newmem
+              bstat = 'Changes to be committed:'
+              baction = null
               'tbadd' rtll 'Order'
+            ztdsels = ztdsels -1
               statfile = translate(strip(fulldsn,'B',"'"),' ','.')
               statfile = subword(statfile,qualignr+1)
               statfile = translate(statfile,'.',' ')
