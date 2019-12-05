@@ -1,0 +1,34 @@
+)Attr
+ $ type(output) caps(off)
+ _ type(input) caps(off) hilite(uscore) intens(low)
+ @ type(input) caps(on ) hilite(uscore) intens(low)
+ # type(output) hilite(reverse) color(turq) caps(off)
+)Body Expand(\\)
++-\-\#zigtitle   +-\-\
+%Command ===>_zcmd                                                            +
++
++
++Git grep: _grepstr                                                   +
++
++Dataset or Report View:@z+(D or R)
++
++Note: The grep is case sensitive.
++
++
++
++
++
++
++
++
++
++
++
++
++\ \Press%F3+to exit grep prompt \ \
+)Init
+ .zvars = '(grepopt)'
+)Proc
+ ver (&grepstr,nb)
+ ver (&grepopt,nb,list,D,R)
+)end

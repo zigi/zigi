@@ -1,0 +1,33 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                                %Create+
++
+%Create+will execute a 'git init' in the specified path creating a Local
++Repository. A basic .gitattributes will be commited to this repository.
++
+%Name+is the name for the new local repository to be created. It will be
++created as a directory within the%Local Repository+defined next.
++
+%Local Repository+is the location where the%Clone+will create a directory or
++where%Create+will initilialize the git repo.
++
++
++
++
++
++
++
++
+         +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+)PROC
+ &ZUP = ZIGIH110
+ &ZCONT = ZIGIH121
+)END

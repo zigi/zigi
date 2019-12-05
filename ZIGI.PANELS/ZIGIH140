@@ -1,0 +1,33 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                                %Config+
++
+%Config+displays, and allows changing your user name and e-mail address which
++are used by%git+when commits are made.
++
++Both are required, and the user name can be anything, as can the e-mail.
++However, it may be something that your organization requires to be accurate.
++
+%
++
++
++
++
+             +"A good beginning makes a good end" - Louis L'Amour
++
++
++
++
+         +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+)PROC
+ &ZUP = ZIGIH130
+ &ZCONT = ZIGIH150
+)END

@@ -1,0 +1,37 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                                %GITHELP+
++
+%GITHELP+displays all the available%git+commands, along with other%git+pages
++with more information. This will help the git novice, and%git+guru to better
++use%git+and%zigi.
+%
+%Commands:+
++   %Only+removes all rows that do not have the provided string:
++         e.g.  o git
++   %Refresh+is used after Only to rebuild the table
++
+%Selection:+
++   %S+Display the manpage for the selected row.
++   (may also put cursor on the row and press enter or double click)
++
++
++
++
+         +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+ vget (githup githnext)
+)PROC
+ if(&githup = &Z)
+    &githup = ZIGIH150
+ &ZUP = &githup
+ if (&githnext NE &Z)
+     &zcont = &githnext
+)END

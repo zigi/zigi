@@ -1,0 +1,79 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore) caps(on)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on) color(white)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                              %Member List Panel+
++
+%Commands available+(select for more information or press%Enter+to see each):
++
+  [Commit+       [Grep+         [Reset    +    [Status+
+  [Gitlog+       [Locate+       [Sort+
+
+%Row selections:
++
+  %A+Add the member to the%git index+so that it can be Committed
+  %D+Show the difference (compare) the current with the commit level if
+     an Add has been performed but no commit.
+  %S+Select a member and Edit it
++
++
++
+      +"The best competition I have is against myself to become better."
+      +  - John Wooden
++
++Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+ &commit  = 'Commit'
+ &gitlog  = 'Gitlog'
+ &grep    = 'Grep'
+ &locate  = 'Locate'
+ &reset   = 'Reset-IDs'
+ &sort    = 'Sort'
+ &status  = 'Status'
+)PROC
+*REXX(* zcmd zsel)
+  Select
+    When abbrev('COMMIT',zcmd,2) = 1 then zcmd = 1
+    When abbrev('GITLOG',zcmd,4) = 1 then zcmd = 2
+    When abbrev('GREP',zcmd,2) = 1 then zcmd = 3
+    When abbrev('LOCATE',zcmd,1) = 1 then zcmd = 4
+    When abbrev('RESET',zcmd,2) = 1 then zcmd = 5
+    When abbrev('SORT',zcmd,2) = 1 then zcmd = 6
+    When abbrev('STATUS',zcmd,2) = 1 then zcmd = 6
+    Otherwise nop
+  end
+*Endrexx
+ &comhup   = ZIGIH300
+ &comhnext = ZIGIH250
+ &sthup    = ZIGIH330
+ &sthnext  = ZIGIH300
+ &loghup   = ZIGIH230
+ &loghnext = ZIGIH260
+ &grhup    = ZIGIH250
+ &grhnext  = ZIGIH310
+ vput (comhup comhnext cmdhup cmdhnext loghup loghnext sthup sthnext)
+ vput (grhup grhnext)
+ &ZSEL = TRANS( &ZCMD
+           1,zigih230  /*   COMMIT            */
+           2,zigih250  /*   GITLOG            */
+           3,zigih260  /*   GREP              */
+           4,zigih310  /*   LOCATE            */
+           5,zigih320  /*   RESET             */
+           6,zigih330  /*   SORT              */
+           7,zigih2f0  /*   STATUS            */
+           *,'?'
+           )
+)PNTS
+ Field(COMMIT)  var(zcmd) val('1')
+ Field(GITLOG)  var(zcmd) val('2')
+ Field(GREP  )  var(zcmd) val('3')
+ Field(LOCATE)  var(zcmd) val('4')
+ Field(RESET )  var(zcmd) val('5')
+ Field(SORT  )  var(zcmd) val('6')
+ Field(STATUS)  var(zcmd) val('7')
+)END

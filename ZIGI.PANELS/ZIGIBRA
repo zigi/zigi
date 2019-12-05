@@ -1,0 +1,34 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+  @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+)Body  Expand(\\)
++-\-\#zigtitle   +-\-\
+%Command ===>_zcmd   \ \ %Scroll ===>_zscr+
+%
+%Current Repository : $zigirep
+%Current HLQ        : $pdshlq
+%Current Branch     : $branch
+%
++Type%C+to checkout an existing branch
++Type%D+to locally delete a branch
++Press%F3+to exit
++
++Or create a new branch: _newb                                     +
++
++
++S  Branch                                      Status
+)Model
+@z+$z                                         +$z
+)Init
+  .zvars = '(zsel bname brstatus)'
+  &newb=''
+  .cursor = &zcmd
+  .help = zigih220
+  &zscr = CSR
+)Proc
+ ver (&zsel,list,C,D)
+)End

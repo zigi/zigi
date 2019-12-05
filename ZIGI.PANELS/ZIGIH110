@@ -1,0 +1,33 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                                 %Clone+
++
+%Clone+will clone a%Remote Repository+and then create a set of z/OS Datasets
++based on the%files+and%folders+from the remote repository (optionally prefixed
++with your%PREFIX+. For the remote repository the 'clone with ssh' url should
++be used. Requires access to the remote repository via public key.
++
+%Optional:+is the name of a specific branch to clone. The default is master.
++
+%Local Repository+is the location where the%Clone+will create a directory or
++where%Create+will initilialize the git repo.
++
+%PREFIX+is a set of high level qualifiers (0,n) that will be prefixed
++to the Datasets from the remote repository. This%does not+change the names
++of the files and folders in OMVS.
++
++
++
+         +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+)PROC
+ &zup = zigih100
+ &zcont = zigih120
+)END

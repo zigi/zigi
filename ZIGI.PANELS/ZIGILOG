@@ -1,0 +1,19 @@
+)Attr
+ $ type(input)  caps(on ) hilite(uscore) intens(low)
+ @ type(input)  caps(off) hilite(uscore) intens(low)
+ + type(text) skip(on) intens(low)
+)Body Window(53,8)
++
++Enter/Review Log Filter:  (use any, all, or none)
++   Number of Commits:$lcnt+       1 to 9999
++           From Date:$logdfrom   +yyyy/mm/dd
++          Until Date:$logdto     +yyyy/mm/dd
++              Filter:@greplog    +element name or
++                                  pattern
+)Init
+ &zwinttl = 'zIGI Log Filter'
+)Proc
+  ver (&lcnt,range,1,9999)
+  ver (&logdfrom,stddate)
+  ver (&logdto,stddate)
+)end

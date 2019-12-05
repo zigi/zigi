@@ -1,0 +1,85 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+  @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  $ type(output) intens(low ) caps(off) just(left )
+  ! type(output) intens(high) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+ [ type(output) caps(off) pas(on) intens(high) color(white)
+)Body  Expand(\\)
++-\-\#zigtitle   +-\-\
+%Command ===>_zcmd            \ \  %Scroll ===>_zscr+
+%Local dir      :$localdir
+%Remote path    :$remote1
+%Current Branch :$branch                                      +
+%                !bstat                                                     +
+%                $baction                                                   +
+%
++Commands:[Add[Basic[Br[Com[GitC[GitH[GitL[Grep[Merg[Net+
+          [Pull[Push[Ref[Rem[Roll[Set[St[View
++Options: %S+Select%A+Add%B+Browse%V+View
++
+%S  Status                    Dataset Name
+)Model
+@z+$z                        $z
+)Init
+ &Add     = 'Add'
+ &Basic   = 'Basic'
+ &Br      = 'Br'
+ &Com     = 'Com'
+ &Gitc    = 'GitC'
+ &Gith    = 'GitH'
+ &Gitl    = 'GitL'
+ &Grep    = 'Grep'
+ &Merg    = 'Merg'
+ &Net     = 'Net'
+ &Pull    = 'Pull'
+ &Push    = 'Push'
+ &Ref     = 'Ref'
+ &Rem     = 'Rem'
+ &Roll    = 'Roll'
+ &Set     = 'Set'
+ &St      = 'St'
+ &View    = 'View'
+ .zvars = '(zsel dsnstat fulldsn)'
+ .cursor = &zcmd
+ .help = zigih200
+ &zscr = CSR
+)Proc
+ &row = &z
+ if (&ZCMD = &Z)
+     if (&ztdsels = 0000)
+        &row = .csrrow
+        if (&row ^= &z)
+            if (&zsel = &z)
+                &zsel = S
+     if (&ztdsels ^= 0000)
+         &row = &z
+     if (&ZSEL ^= &Z)
+       if (&Zsel = '=')
+           &Zsel = &osel
+     &osel = &zsel
+ if (&row = 0)
+     &zsel = &z
+ ver (&zsel,list,S,A,U,B,V)
+)PNTS
+ FIELD(ADD) VAR(ZCMD) VAL('ADD')
+ FIELD(BASIC) VAR(ZCMD) VAL('BASIC')
+ FIELD(BR) VAR(ZCMD) VAL('BRANCH')
+ FIELD(COM) VAR(ZCMD) VAL('COMMIT')
+ FIELD(GITC) VAR(ZCMD) VAL('GITCMD')
+ FIELD(GITH) VAR(ZCMD) VAL('GITHELP')
+ FIELD(GITL) VAR(ZCMD) VAL('GITLOG')
+ FIELD(GREP) VAR(ZCMD) VAL('GREP')
+ FIELD(MERGE) VAR(ZCMD) VAL('MERGE')
+ FIELD(NETWORK) VAR(ZCMD) VAL('NETWORK')
+ FIELD(PULL) VAR(ZCMD) VAL('PULL')
+ FIELD(PUSH) VAR(ZCMD) VAL('PUSH')
+ FIELD(REF) VAR(ZCMD) VAL('REFRESH')
+ FIELD(REM) VAR(ZCMD) VAL('REMOTE')
+ FIELD(ROLL) VAR(ZCMD) VAL('ROLL')
+ FIELD(SET) VAR(ZCMD) VAL('SET')
+ FIELD(ST) VAR(ZCMD) VAL('STATUS')
+ FIELD(VIEW) VAR(ZCMD) VAL('VIEW')
+)End

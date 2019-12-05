@@ -1,0 +1,33 @@
+)attr default(@+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+@Tutorial -\-\~The z ISPF Git Interface (zigi)@\-\- Tutorial
+@Selection ===>_ZCMD                                                          +
++
+                                 @Network+
++
+@Network+will draw a text-based graphical representation of the commit and
++branch/merge histor for the current branch +using the following command:
++
+   @git log --graph --oneline --format="%h %<(50,trunc)%f"
++
++
++
++
+               +"Success is never final, failure is never fatal.
+                   +It's courage that counts." - John Wooden
++
++
++
++
++
++
+         +Press the@Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+)PROC
+ &zup = zigih270
+ &zcont = zigih150
+)END

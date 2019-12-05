@@ -1,0 +1,33 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                                 %Remote+
++
+%Remote+will add a remote repository to the current local repository.
++
++This will execute a%git remote add origin+followed by a
+%git push -u origin master+
++
+%Make sure the remote repository exists and you're authorized to
++push to master.
+%
+%Note:+This is best done on a%brand new+repository.
++
+%
++
++
++
++
++
+         +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+)PROC
+ &zup = zigih2b0
+ &zcont = zigih2d0
+)END

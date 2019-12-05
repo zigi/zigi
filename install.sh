@@ -30,7 +30,7 @@ echo "      ZZZZZZZZZg               The git interface for the rest of us";
 echo "     ZZZZZZig ";
 echo "    ZZZZZZi                         Henri Kuiper & Lionel Dyck ";
 echo " "
-echo "Welcome to the installer for zigi v1r1";
+echo "Welcome to the installer for zigi v1r2";
 echo "";
 echo "This will install zigi on your mainframe.";
 echo "See https://github.com/wizardofzos/zigi/wiki for more information"
@@ -43,9 +43,9 @@ if [ -n "$GOON" ]
     exit
 fi
 
-echo "MVS datsets used by zigi are:";
-echo "- ZIGI.V1R1.EXEC";
-echo "- ZIGI.V1R1.PANELS";
+echo "z/OS datsets used by zigi are:";
+echo "- ZIGI.V1R3.EXEC";
+echo "- ZIGI.V1R3.PANELS";
 echo "";
 echo "If you like (or have) to install zigi with another";
 echo "HLQ please provide a PREFIX. Otherwise press ENTER";
@@ -53,11 +53,10 @@ echo ""
 echo "If you do provide a PREFIX, don't end in a dot.";
 echo "Should you decide to use the PREFIX zigi will be";
 echo "installed to:";
-echo "- prefix.ZIGI.V1R1.EXEC";
-echo "- prefix.ZIGI.V1R1.PANELS";
+echo "- prefix.ZIGI.V1R3.EXEC";
+echo "- prefix.ZIGI.V1R3.PANELS";
 
 echo "";
-
 
 
 read PREFIX?"Prefix (or ENTER for no prefix) : "
@@ -66,17 +65,17 @@ PREFIX=` echo $PREFIX  | tr '[a-z]' '[A-Z]'`
 
 if [ -z $PREFIX ]
   then
-    EXEC=ZIGI.V1R1.EXEC
-    PANELS=ZIGI.V1R1.PANELS
-    GPL=ZIGI.V1R1.GPLLIC
-    README=ZIGI.V1R1.README
-    HLQ=ZIGI.V1R1
+    EXEC=ZIGI.V1R3.EXEC
+    PANELS=ZIGI.V1R3.PANELS
+    GPL=ZIGI.V1R3.GPLLIC
+    README=ZIGI.V1R3.README
+    HLQ=ZIGI.V1R3
   else
-    EXEC=${PREFIX}.ZIGI.V1R1.EXEC
-    PANELS=${PREFIX}.ZIGI.V1R1.PANELS
-    GPL=${PREFIX}.ZIGI.V1R1.GPLLIC
-    README=${PREFIX}.ZIGI.V1R1.README
-    HLQ=${PREFIX}.ZIGI.V1R1
+    EXEC=${PREFIX}.ZIGI.V1R3.EXEC
+    PANELS=${PREFIX}.ZIGI.V1R3.PANELS
+    GPL=${PREFIX}.ZIGI.V1R3.GPLLIC
+    README=${PREFIX}.ZIGI.V1R3.README
+    HLQ=${PREFIX}.ZIGI.V1R3
 fi
 
 
@@ -111,13 +110,13 @@ then
 fi
 
 echo "Copying execs"
-cp -U -M ZIGI.V1R1.EXEC/* "//'$EXEC'";
+cp -U -M ZIGI.EXEC/* "//'$EXEC'";
 echo "Copying panels"
-cp -U -M ZIGI.V1R1.PANELS/* "//'$PANELS'";
+cp -U -M ZIGI.PANELS/* "//'$PANELS'";
 echo "Copying GPL-License"
-cp -U -M ZIGI.V1R1.GPLLIC "//'$GPL'";
+cp -U -M ZIGI.GPLLIC "//'$GPL'";
 echo "Copying README"
-cp -U -M ZIGI.V1R1.README "//'$README'";
+cp -U -M ZIGI.README "//'$README'";
 
 
 

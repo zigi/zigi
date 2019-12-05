@@ -1,0 +1,33 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                                 %Branch+
++
+%Branch+enables the user to create a new branch or to switch (checkout) an
++existing branch.
++
++If the user enters the name of a new branch then that branch is created from
++the current branch, pushed to remote (if present) and checked-out.
++
++The row selection options are:
++
++ %C+to checkout, or switch to the selected branch.
++    This will replace all existing repository, and z/OS datasets, with
++    the current state of the selected branch. The current branch is
++    untouched.
++
++ %D+to delete from the local system any branch that is no longer needed.
++    The remote branch is untouched.
++
++        +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+)PROC
+ &zup = zigih212
+ &zcont = zigih230
+)END
