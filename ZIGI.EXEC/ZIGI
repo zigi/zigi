@@ -21,6 +21,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            12/05/19 LBD - Support multiple RN selects      |
   |            12/04/19 LBD - Support Remove (RM) and          |
   |                           Rename (RN) options              |
   |            11/30/19 LBD - Use Edit and View for OMVS files |
@@ -2222,7 +2223,7 @@ Create_Repo:
 
     x = docmd('cd 'reporoot' && git add .zigi/dsn')
 
-    commitmsg = "added by zigi v1r4"
+    commitmsg = "added by zigi"
     x = docmd('cd 'reporoot' && git commit -m "'commitmsg'"')
 
     Address ISPExec
