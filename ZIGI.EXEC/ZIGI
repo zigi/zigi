@@ -493,7 +493,7 @@ Work_With_Repo:
   rtop = 0
   do forever
     parse value '' with zsel zcmd row
-    if ztdsels > 0
+    if ztdsels > 1
     then 'TBdispl' rtbl
     else do
       'tbtop' rtbl
@@ -705,6 +705,7 @@ Work_With_Repo:
       * ------------------------ */
       When zsel = 'RN' then do
         newdsn = fulldsn
+        fulldsnq = fulldsn
         do forever
           'control display save'
           'Addpop row(4) column(6)'
@@ -752,16 +753,13 @@ Work_With_Repo:
               x = docmd(cmd '&& git add .zigi/'newfile)
               x = docmd(cmd '&& git rm .zigi/'oldfile)
             end
-            call view_std 'B'
             'tbdelete' rtbl
             fulldsn = newdsn
             dsn = newfile
             dsnstat = '[R ] Renamed in index'
             'tbadd' rtbl 'Order'
-            rtop = 0
             bstat = 'Changes to be committed:'
             baction = null
-            ztdsels = ztdsels -1
             leave
           end
         end
@@ -1525,11 +1523,11 @@ Work_with_repo_file:
     | Process the Member list until done |
     * ---------------------------------- */
     save_top = 0
-    ztdsels  = 0
+    ztdsels  = 1
     Do Forever
       if rtll_open = 0 then leave
       parse value '' with zsel zcmd row
-      if ztdsels = 0 then do
+      if ztdsels = 1 then do
         'tbtop' rtll
         'tbskip' rtll 'number('save_top')'
         'TBdispl' rtll 'Panel(zigilist)'
@@ -1651,7 +1649,6 @@ Work_with_repo_file:
               bstat = 'Changes to be committed:'
               baction = null
               'tbadd' rtll 'Order'
-            ztdsels = ztdsels -1
               statfile = translate(strip(fulldsn,'B',"'"),' ','.')
               statfile = subword(statfile,qualignr+1)
               statfile = translate(statfile,'.',' ')
