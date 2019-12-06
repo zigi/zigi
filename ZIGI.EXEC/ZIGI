@@ -1,13 +1,13 @@
   /*%NOcomment ----------  rexx procedure  ------------------- */
-  ver = 'v1r4'
+  ver = 'v2r0'
   /*Name:      zigi  (z ISPF Git Interface)                    |
   |                                                            |
-  | Version:   V1R4                                            |
+  | Version:   V2R0                                            |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
   |            management                                      |
   |                                                            |
-  | Syntax:    ex 'zigi.v1r4.exec(zigi)'                       |
+  | Syntax:    ex 'zigi.v2r0.exec(zigi)'                       |
   |                                                            |
   | NOTE:      ZIGI MUST NEVER be started under the ZIGI       |
   |            ISPF Applications ID.                           |
@@ -21,7 +21,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            12/05/19 LBD - Support multiple RN selects      |
+  |            12/06/19 LBD - Define top tutorial panel        |
   |            12/04/19 LBD - Support Remove (RM) and          |
   |                           Rename (RN) options              |
   |            11/30/19 LBD - Use Edit and View for OMVS files |
@@ -158,6 +158,7 @@
   /* ------------------------------------ *
   | define our working default variables |
   * ------------------------------------ */
+  zhtop = 'ZIGIHINT'
   zerrhm   = 'zigih00'
   zerralrm = 'NO'
   zerrtp   = 'NOTIFY'
