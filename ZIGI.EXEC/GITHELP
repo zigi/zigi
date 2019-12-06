@@ -1,4 +1,4 @@
-  /*%NOcomment ----------  rexx procedure  -------------------- *
+  /*---------------------  rexx procedure  -------------------- *
   | Name:      GitHelp                                         |
   |                                                            |
   | Function:  Display a menu (table) of git commands and      |
@@ -16,8 +16,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
-  |            12/06/19 LBD - Allow entry with a help page(s)  |
-  |                           inspired by William Schoen       |
+  |            12/06/19 WJS - Allow help page(s) on command    |
+  |                           Thx to William Schoen            |
   |            11/21/19 LBD - Test after Only for 0 rows       |
   |            11/20/19 LBD - Enable a wide screen table       |
   |                         - Save/Restore before browse       |
@@ -28,6 +28,13 @@
   * ---------------------------------------------------------- */
 
   parse value '' with rx null status
+
+  arg gitfuncs   /* wjs*/
+  do forever
+     parse var gitfuncs pre 'GIT-' suf
+     if suf='' then leave
+     gitfuncs=pre suf  /* ignore git- command prefixes */
+  end
 
   /* -------------------------------------- *
   | Get into ISPF and load the ISPF panels |
@@ -42,32 +49,6 @@
   | Get the git OMVS environment |
   * ---------------------------- */
   call getenv
-
-  /* --------------------------------- *
-  | Get any passed help pages to view |
-  * --------------------------------- */
-  helps = null
-  arg uhelp
-  do until length(uhelp) = 0
-    parse value uhelp with help uhelp
-    if left(help,4) = 'GIT-' then
-    help = substr(help,5)
-    helps = helps help
-  end
-  /* -------------------------------- *
-  | Now process passed help requests |
-  * -------------------------------- */
-  if words(helps) > 0 then do
-    helps = lower(helps)
-    do hi = 1 to words(helps)
-      gitcmd = 'git help ' word(helps,hi)
-      x = tcmd(gitcmd)
-      call browse_cmd
-      drop so. se.
-    end
-    x = dropispf(load_info)
-    exit
-  end
 
   /* -------------- *
   | Open our table |
@@ -88,6 +69,7 @@
   * ---------------------- */
   cmd = 'git help -g'
   x = tcmd(cmd)
+  help=0                 /* wjs*/
   do i = 1 to so.0
     if strip(so.i) = null then iterate
     if left(so.i,1) /= ' ' then iterate
@@ -99,6 +81,11 @@
     gitc = gitc + 1
     git.gitc = gitcmd gitcat
     'tbadd githelp'
+    if wordpos(translate(gitcmd),gitfuncs)>0 then /* wjs*/
+       do
+       help=help+1
+       help.help=gitcmd
+       end
   end
 
   /* -------------------------------------------- *
@@ -118,9 +105,23 @@
     gitc = gitc + 1
     git.gitc = gitcmd gitcat
     'tbadd githelp'
+    if wordpos(translate(substr(gitcmd,5)),gitfuncs)>0 then /* wjs*/
+       do
+       help=help+1
+       help.help=gitcmd
+       end
   end
   git.0 = gitc
 
+  help.0=help  /* wjs */
+  do help=1 to help.0
+     x = tcmd('git help' help.help)
+     call browse_cmd
+     drop so. se.
+  end
+
+  if help.0=0 then  /* skip table display if specific help wjs*/
+  do
   /* ----------------- *
   | process the table |
   * ----------------- */
@@ -195,27 +196,12 @@
       vsel = null
     end
   end
+  end  /* wjs*/
 
   'tbend githelp'
 
   x = dropispf(load_info)
   exit
-
-Lower:
- /* ------------------------------------- *
-  * Name:     Lower                       *
-  *                                       *
-  * Function: Lowercase the provided data *
-  *                                       *
-  * Syntax:   x=lower(input)              *
-  *                                       *
-  * History:                              *
-  *           08/17/07: created           *
-  * ------------------------------------- */
-  parse arg input
-  out = translate(input,"abcdefghijklmnopqrstuvwxyz",,
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-  return out
 
   /* --------------------- *
   | Create our ISPF Table |
@@ -336,7 +322,7 @@ docmd:
   r = rx cmd
   return r
 
-  /*
+/*
 >Start
 >Panel tgithelp
 )Attr
