@@ -6,7 +6,7 @@
   |            filtering using Only xxx and a Refresh          |
   |            options are provided.                           |
   |                                                            |
-  | Syntax:   %Githelp                                         |
+  | Syntax:   %Githelp help-page(s)                            |
   |                                                            |
   | Usage Notes:                                               |
   |       1. git must be installed on the local OMVS           |
@@ -16,6 +16,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            12/06/19 LBD - Allow entry with a help page(s)  |
+  |                           inspired by William Schoen       |
   |            11/21/19 LBD - Test after Only for 0 rows       |
   |            11/20/19 LBD - Enable a wide screen table       |
   |                         - Save/Restore before browse       |
@@ -40,6 +42,32 @@
   | Get the git OMVS environment |
   * ---------------------------- */
   call getenv
+
+  /* --------------------------------- *
+  | Get any passed help pages to view |
+  * --------------------------------- */
+  helps = null
+  arg uhelp
+  do until length(uhelp) = 0
+    parse value uhelp with help uhelp
+    if left(help,4) = 'GIT-' then
+    help = substr(help,5)
+    helps = helps help
+  end
+  /* -------------------------------- *
+  | Now process passed help requests |
+  * -------------------------------- */
+  if words(helps) > 0 then do
+    helps = lower(helps)
+    do hi = 1 to words(helps)
+      gitcmd = 'git help ' word(helps,hi)
+      x = tcmd(gitcmd)
+      call browse_cmd
+      drop so. se.
+    end
+    x = dropispf(load_info)
+    exit
+  end
 
   /* -------------- *
   | Open our table |
@@ -173,6 +201,22 @@
   x = dropispf(load_info)
   exit
 
+Lower:
+ /* ------------------------------------- *
+  * Name:     Lower                       *
+  *                                       *
+  * Function: Lowercase the provided data *
+  *                                       *
+  * Syntax:   x=lower(input)              *
+  *                                       *
+  * History:                              *
+  *           08/17/07: created           *
+  * ------------------------------------- */
+  parse arg input
+  out = translate(input,"abcdefghijklmnopqrstuvwxyz",,
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+  return out
+
   /* --------------------- *
   | Create our ISPF Table |
   * --------------------- */
@@ -292,7 +336,7 @@ docmd:
   r = rx cmd
   return r
 
-/*
+  /*
 >Start
 >Panel tgithelp
 )Attr
