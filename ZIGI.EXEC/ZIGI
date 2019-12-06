@@ -1985,6 +1985,7 @@ Merge_it:
   if rc = 0 then 'tbend' rtbm
   'TBCreate' rtbm 'keys(bname) Names(brstatus) Replace NoWrite'
   localdir = localrep'/'zigirep
+  zsel = null
   cmd = ' && git remote prune origin > /dev/null 2>&1 && git branch -a'
   x = docmd('cd 'localdir cmd)
   if so.0 + se.0 = 0 then do
@@ -2082,15 +2083,103 @@ Merge_it:
       end
       else do
         /* Merge went fubar */
+/* ------------------------------------------------------- *
+ | This process NEEDS work.                                |
+ |                                                         |
+ | What to do after the omvs files are updated needs to be |
+ | looked at:                                              |
+ | 1. copy to z/OS (refresh)                               |
+ | 2. how to finalize the merge                            |
+ * ------------------------------------------------------- */
+        pdshlqt = translate(pdshlq,' ','.')
+        pdshlqt = subword(pdshlqt,1,qualignr)
+        pdshlqt = translate(pdshlqt,'.',' ')
+        parse value '' with dsntbl mstat gcount
+        zmergtbl = 'ZG'time('s')
+        'TBCreate' zmergtbl 'Keys(mdsn) Names(mfile mstat gcount) nowrite share'
+        mrgdir = localrep'/'zigirep
+        do si = 1 to so.0
+          mem = null
+          if word(so.si,1) /= 'CONFLICT' then iterate
+          mrgm = 'Merge conflict in'
+          parse value so.si with x (mrgm) mdsn .
+          mfile = mrgdir'/'mdsn
+          if wordpos(mdsn,dsntbl) > 0
+          then do
+            gcount = gcount + 1
+            'tbmod' zmergtbl
+          end
+          else do
+            gcount = 1
+            'tbadd' zmergtbl
+            dsntbl = dsntbl mdsn
+          end
+        end
+        ztdsels = 0
+        ztdtop = 1
+        zsel = null
+        file_changed = 0
+        'tbtop' zmergtbl
+        'tbsort' zmergtbl 'fields(mdsn,c,a)'
+        do forever
+          if ztdsels > 1
+          then 'tbdispl' zmergtbl
+          else do
+            'tbtop' zmergtbl
+            'tbskip' zmergtbl 'number('ztdtop')'
+            'tbdispl' zmergtbl 'panel(zigimrds)'
+          end
+          if rc > 4 then leave
+          if zsel = null then iterate
+          if row /= null then do
+            'tbtop' zmergtbl
+            'tbskip' zmergtbl  'number('row')'
+          end
+          if zsel = 'S' then zsel = 'E'
+          'Control display save'
+          Select
+            When zsel = 'B' then do
+                Address TSO 'OBrowse' mrgdir'/'mdsn
+                mstat = '*OBrowse'
+              'tbmod' zmergtbl
+            end
+            When zsel = 'E' then do
+                ofile = mrgdir'/'mdsn
+                'Edit file(ofile)'
+                mstat = '*Edit'
+                if rc = 0 then file_changed = 1
+                cmd = 'cd' mrgdir '&& git add' mdsn
+                x = docmd(cmd)
+              'tbmod' zmergtbl
+            end
+            When zsel = 'V' then do
+                ofile = mrgdir'/'mdsn
+                'View file(ofile)'
+                mstat = '*View'
+              'tbmod' zmergtbl
+            end
+            Otherwise nop
+          end
+          'Control display restore'
+          zsel = ''
+        end
+        'tbend' zmergtbl
+        zsel = ''
+        if file_changed = 1 then do
+        cmd = 'cd' mrgdir '&& git commit -m "Resolve merge conflicts"'
+        x = docmd(cmd)
         call view_std 'B'
-        x = docmd('cd 'localdir' && git merge --abort')
+        call Refresh localrep zigirep pdshlq qualignr
+        call update_repo_metadata
+        end
       end
       call view_std 'B'
       leave
     end
   end
   'tbend' rtbm
-  ztdsels = 0
+  ztdsels = 1
+  zsel = null
   return
 
 Create_Repo:
