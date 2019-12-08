@@ -737,8 +737,10 @@ Work_With_Repo:
               call add_combine cmd
             end
             cmd = 'cd' localrep'/'zigirep
+            newdsns = usssafe(newdsn)
+            fulldsns = usssafe(fulldsn)
             if left(fulldsn,1) /= "'"
-            then cmd = cmd '&& git mv' fulldsn newdsn
+            then cmd = cmd '&& git mv' fulldsns newdsns
             else do
               oldfile = translate(strip(fulldsn,'B',"'"),' ','.')
               oldfile = subword(oldfile,qualignr+1)
@@ -746,16 +748,19 @@ Work_With_Repo:
               newfile = translate(strip(newdsn,'B',"'"),' ','.')
               newfile = subword(newfile,qualignr+1)
               newfile = translate(newfile,'.',' ')
-              cmd = cmd '&& git mv' oldfile newfile
+              oldfiles = usssafe(oldfile)
+              newfiles = usssafe(newfile)
+              cmd = cmd '&& git mv' oldfiles newfiles
             end
             x = docmd(cmd)
             call add_combine cmd
             x = listdsi(fulldsn)
             if sysdsorg = 'PO' then do
-              x = zigistat(newdsn localrep'/'zigirep'/.zigi/'newfile 'S')
+              /* still weird with rename of statsfile? */
+              x = zigistat(newdsn localrep'/'zigirep'/.zigi/'newfiles'S')
               cmd = 'cd' localrep'/'zigirep
-              x = docmd(cmd '&& git add .zigi/'newfile)
-              x = docmd(cmd '&& git rm .zigi/'oldfile)
+              x = docmd(cmd '&& git add .zigi/'newfiles)
+              x = docmd(cmd '&& git rm .zigi/'oldfiles)
             end
             'tbdelete' rtbl
             fulldsn = newdsn
@@ -842,14 +847,26 @@ Work_With_Repo:
       * -------------------------------- */
       When zsel = 'S' & left(fulldsn,1) /= "'" then do
         zosflg = 0
-        'control display save'
         ofile = localrep'/'zigirep'/'fulldsn
         cur_date = get_fd_date(ofile)
-        'Edit file(ofile)'
-        new_date = get_fd_date(ofile)
-        'control display restore'
-        if cur_date /= new_date then do
+        if filetype /= 'D' then do
+          'control display save'
+          'Edit file(ofile)'
+          'control display restore'
+          new_date = get_fd_date(ofile)
+          if cur_date /= new_date then do
+            call update_repo_metadata
+          end
+        end
+        /* -------------------------------------- *
+        | NEEDS WORK but Supports SubDirectories |
+        * -------------------------------------- */
+        else do
+          save_zigirep = zigirep
+          zigirep = zigirep'/'dsn
           call update_repo_metadata
+          call work_with_repo
+          zigirep = save_zigirep
         end
       end
       When zsel = 'S' & zosflg = 1 then do
@@ -873,7 +890,7 @@ Work_With_Repo:
         x = docmd(cmd '&& git add -v 'd)
         /* Comment Start
         call combine_msgs
-           Comment End */
+        Comment End */
         if dsnvalid(fulldsn) = "OK" then do
           /* Only get the stats if it's a z/OS dataset
           Don't do it for the USS files
@@ -1645,7 +1662,8 @@ Work_with_repo_file:
             else do
               Address TSO 'Rename' olddsn newdsn
               cmd = 'cd' localrep'/'zigirep'/'dsn
-              cmd = cmd '&& git mv' mem newmem
+              newmemokforuss = translate(newmem,'._-','#@$')
+              cmd = cmd '&& git mv' mem newmemokforuss
               cmd = usssafe(cmd)
               x = docmd(cmd)
               call view_std 'B'
@@ -1658,9 +1676,10 @@ Work_with_repo_file:
               statfile = translate(strip(fulldsn,'B',"'"),' ','.')
               statfile = subword(statfile,qualignr+1)
               statfile = translate(statfile,'.',' ')
-              x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'statfile 'S')
+              statfiles = usssafe(statfile)
+              x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'statfiles 'S')
               cmd = 'cd' localrep'/'zigirep
-              x = docmd(cmd '&&git add .zigi/'statfile)
+              x = docmd(cmd '&&git add .zigi/'statfiles)
               leave
             end
           end
@@ -2543,7 +2562,8 @@ update_repo_metadata:
     rtop = 0
   end
   if rtbl_open = 0 then
-  'TBCreate' rtbl 'Keys(fulldsn) Names(dsnstat dsn pdshlq) Replace NoWrite'
+  'TBCreate' rtbl 'Keys(fulldsn) Names(dsnstat dsn pdshlq filetype)' ,
+    'Replace NoWrite'
   rtbl_open = 1
   /* We always fetch when we start to work on a repo */
   if crflag = 0 then do
@@ -2597,7 +2617,7 @@ update_repo_metadata:
         cmd = '[ -d 'localrep'/'zigirep'/'r' ] && echo "DIR"'
         so.1 = null
         x = bpxwunix(cmd,,so.,se.)
-        x = debug('   done')
+        y = debug('   done')
         if qualignr = 0 then do
           if pdshlq /= '' then
           fulldsn = "'"pdshlq"."root.i"'"
@@ -2709,6 +2729,8 @@ update_repo_metadata:
           do ii = 1 to so.0
             stat = substr(so.ii,1,2)
             PATH = substr(so.ii,4)
+            filetype = null
+            if right(path,1) = '/' then filetype = 'D'
             if pos(dsn, PATH) = 1 then do
               dsnstat = porcelain(stat)
               leave
