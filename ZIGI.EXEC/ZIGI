@@ -1,13 +1,13 @@
   /*%NOcomment ----------  rexx procedure  ------------------- */
-  ver = 'v1r3'
+  ver = 'v2r0'
   /*Name:      zigi  (z ISPF Git Interface)                    |
   |                                                            |
-  | Version:   V1R3                                            |
+  | Version:   V2R0                                            |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
   |            management                                      |
   |                                                            |
-  | Syntax:    ex 'zigi.v1r3.exec(zigi)'                       |
+  | Syntax:    ex 'zigi.v2r0.exec(zigi)'                       |
   |                                                            |
   | NOTE:      ZIGI MUST NEVER be started under the ZIGI       |
   |            ISPF Applications ID.                           |
@@ -21,6 +21,11 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            12/07/19 LBD - Implement a git merge conflict   |
+  |                           resolution process.              |
+  |            12/06/19 LBD - Define top tutorial panel        |
+  |            12/04/19 LBD - Support Remove (RM) and          |
+  |                           Rename (RN) options              |
   |            11/30/19 LBD - Use Edit and View for OMVS files |
   |                         - Test if Edit OMVS file changed   |
   |            11/27/19 HBK - Check for minimal git version    |
@@ -155,6 +160,7 @@
   /* ------------------------------------ *
   | define our working default variables |
   * ------------------------------------ */
+  zhtop = 'ZIGIHINT'
   zerrhm   = 'zigih00'
   zerralrm = 'NO'
   zerrtp   = 'NOTIFY'
@@ -491,7 +497,7 @@ Work_With_Repo:
   rtop = 0
   do forever
     parse value '' with zsel zcmd row
-    if ztdsels > 0
+    if ztdsels > 1
     then 'TBdispl' rtbl
     else do
       'tbtop' rtbl
@@ -562,31 +568,7 @@ Work_With_Repo:
       /* -------------------------------- *
       | View output of git log           |
       * -------------------------------- */
-      When abbrev('GITLOG',zcmd,2) = 1 then do
-        zcmd = null
-        call pfshow 'off'           /* make sure pfshow is off */
-        'vget (lcnt logdfrom logdto greplog) profile'
-        'Addpop row(4) column(6)'
-        'Display Panel(zigilog)'
-        'Rempop'
-        call pfshow 'reset'         /* restore pfshow setting */
-        lopts = null
-        if lcnt /= null then lopts = '-n' lcnt
-        if logdfrom /= null then lopts = lopts '--after="'logdfrom'"'
-        if logdto   /= null then lopts = lopts '--until="'logdto'"'
-        if greplog /= null then lopts = lopts '--grep='greplog '-i'
-        lopts = translate(lopts,'-','/')
-        cmd = 'cd' localdir' && git log --cc -m' lopts
-        'vput (lcnt logdfrom logdto greplog) profile'
-        x = docmd(cmd)
-        if so.0 + se.0 > 1
-        then call view_std
-        else do
-          zerrsm = ''
-          zerrlm = 'GitLog filters resulted in an empty report.'
-          'setmsg msg(isrz003)'
-        end
-      end
+      When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
       /* -------------------------------- *
       | Push current branch to origin    |
       * -------------------------------- */
@@ -721,6 +703,140 @@ Work_With_Repo:
         end
         'control display restore'
       end
+      /* ------------------------ *
+      | Rename the element in git|
+      | and OMVS and z/OS        |
+      * ------------------------ */
+      When zsel = 'RN' then do
+        newdsn = fulldsn
+        fulldsnq = fulldsn
+        do forever
+          'control display save'
+          'Addpop row(4) column(6)'
+          'display panel(zigirena)'
+          drc = rc
+          'rempop'
+          'control display restore'
+          if drc > 0 then leave
+          x = listdsi(newdsn)
+          if x = 0 then do
+            zerrsm = 'Error'
+            zerrlm = newdsn 'currently exists. Select a different' ,
+              'dataset name for the rename operation.'
+            'setmsg msg(isrz003)'
+          end
+          else do
+            if left(fulldsn,1) = "'"  /* z/OS rename */
+            then Address TSO 'Rename' fulldsn newdsn
+            else do
+              cmd = 'cd' localrep'/'zigirep
+              cmd = cmd '&& mv' fulldsn newdsn
+              x = bpxwunix(cmd,,so.,se.)
+              drop combine.
+              combine.0 = 0
+              call add_combine cmd
+            end
+            cmd = 'cd' localrep'/'zigirep
+            if left(fulldsn,1) /= "'"
+            then cmd = cmd '&& git mv' fulldsn newdsn
+            else do
+              oldfile = translate(strip(fulldsn,'B',"'"),' ','.')
+              oldfile = subword(oldfile,qualignr+1)
+              oldfile = translate(oldfile,'.',' ')
+              newfile = translate(strip(newdsn,'B',"'"),' ','.')
+              newfile = subword(newfile,qualignr+1)
+              newfile = translate(newfile,'.',' ')
+              cmd = cmd '&& git mv' oldfile newfile
+            end
+            x = docmd(cmd)
+            call add_combine cmd
+            x = listdsi(fulldsn)
+            if sysdsorg = 'PO' then do
+              x = zigistat(newdsn localrep'/'zigirep'/.zigi/'newfile 'S')
+              cmd = 'cd' localrep'/'zigirep
+              x = docmd(cmd '&& git add .zigi/'newfile)
+              x = docmd(cmd '&& git rm .zigi/'oldfile)
+            end
+            'tbdelete' rtbl
+            fulldsn = newdsn
+            dsn = newfile
+            dsnstat = '[R ] Renamed in index'
+            'tbadd' rtbl 'Order'
+            bstat = 'Changes to be committed:'
+            baction = null
+            leave
+          end
+        end
+      end
+      /* -------------------------------- *
+      | Remove a Dataset or File         |
+      | - git rm -f file                 |
+      | - OMVS file just rm -fv file     |
+      | - PS Dataset                     |
+      |   Delete dataset                 |
+      |   rm -fv file                    |
+      | - PDS Dataset                    |
+      |   Delete dataset                 |
+      |   rm -frv file                   |
+      |   rm -fv .zigi/file (ispf stats) |
+      |    - git rm -f .zigi/file        |
+      * -------------------------------- */
+      When zsel = 'RM' then do
+        rc = confirm_remove(fulldsn)
+        if rc > 0 then do
+          zerrsm = 'Cancelled.'
+          zerrlm = 'Removal of' fulldsn 'cancelled.'
+          'setmsg msg(isrz003)'
+        end
+        else do
+          rtype = null
+          localdir =  localrep'/'zigirep
+          if left(fulldsn,1) /= "'" then rtype = 'OMVS'
+          /* only listdsi on zOs datsets */
+          if rtype = null then do
+            x = listdsi(fulldsn)
+            if rc = 0 & sysdsorg = 'PS' then rtype = 'PS'
+            if rc = 0 & sysdsorg = 'PO' then rtype = 'PO'
+          end
+          if rtype = null then do
+            zs1 = fulldsn 'is not recogizned.'
+            zs2 = sysdsn(fulldsn)
+            zs3 = ''
+            zs4 = 'Press Enter to continue.'
+            call do_popup4p
+          end
+          else Select
+            when rtype = 'OMVS' then do
+              cmd = 'cd' localdir '&& git rm -r' fulldsn
+              cmd = cmd '&& git add -u'
+              x = docmd(cmd,,so.,se.)
+              call view_std 'B'
+            end
+            when rtype = 'PS' then do
+              call outtrap 'x.'
+              Address TSO ,
+                'Delete' fulldsn
+              call outtrap 'off'
+              cmd = 'cd' localdir '&& git rm' dsn
+              x = docmd(cmd,,so.,se.)
+              call view_std 'B'
+            end
+            when rtype = 'PO' then do
+              call outtrap 'x.'
+              Address TSO ,
+                'Delete' fulldsn
+              call outtrap 'off'
+              cmd = 'cd' localdir '&& git rm -r' dsn
+              cmd = cmd '&& rm -fv .zigi/'dsn
+              x = docmd(cmd,,so.,se.)
+              call view_std 'B'
+            end
+            Otherwise nop
+          end
+          dsnstat = '*Removed'
+          'tbmod' rtbl
+        end
+      end
       /* -------------------------------- *
       | Work with a repo item            |
       * -------------------------------- */
@@ -755,10 +871,12 @@ Work_With_Repo:
         d = usssafe(dsn)
         cmd = 'cd' localrep'/'zigirep
         x = docmd(cmd '&& git add -v 'd)
+        /* Comment Start
         call combine_msgs
+           Comment End */
         if dsnvalid(fulldsn) = "OK" then do
           /* Only get the stats if it's a z/OS dataset
-             Don't do it for the USS files
+          Don't do it for the USS files
           */
           x = listdsi(fulldsn)
           if x = 0 then do
@@ -1061,9 +1179,31 @@ Do_Status:
   * ------------------- */
 Do_GitLog:
   zcmd = null
-  cmd = 'cd' localdir' && git log'
-  x = docmd(cmd)
-  call view_std
+  call pfshow 'off'           /* make sure pfshow is off */
+  'vget (lcnt logdfrom logdto greplog) profile'
+  'Addpop row(4) column(6)'
+  'Display Panel(zigilog)'
+  drc = rc
+  'Rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
+  if drc = 0 then do
+    lopts = null
+    if lcnt /= null then lopts = '-n' lcnt
+    if logdfrom /= null then lopts = lopts '--after="'logdfrom'"'
+    if logdto   /= null then lopts = lopts '--until="'logdto'"'
+    if greplog /= null then lopts = lopts '--grep='greplog '-i'
+    lopts = translate(lopts,'-','/')
+    cmd = 'cd' localdir' && git log --cc -m' lopts
+    'vput (lcnt logdfrom logdto greplog) profile'
+    x = docmd(cmd)
+    if so.0 + se.0 > 1
+    then call view_std
+    else do
+      zerrsm = ''
+      zerrlm = 'GitLog filters resulted in an empty report.'
+      'setmsg msg(isrz003)'
+    end
+  end
   return
 
   /* ----------------------------------------------- *
@@ -1159,7 +1299,7 @@ Do_Commit:
       cmd = 'cd' localrep'/'zigirep
       cmd = cmd '&& git commit -F' file
       if zpush = 'Y' then
-         cmd = cmd '&& git push -v'
+      cmd = cmd '&& git push -v'
       cmd = cmd '&& rm' file
       x = docmd(cmd)
     end
@@ -1171,7 +1311,7 @@ Do_Commit:
       cmsg.1 = translate(cmsg.1,' ',"'" '"')
       cmd = cmd "&& git commit -vm '"cmsg.1"'"
       if zpush = 'Y' then
-         cmd = cmd '&& git push -v'
+      cmd = cmd '&& git push -v'
       x = docmd(cmd)
     end
     call view_std 'B'
@@ -1251,6 +1391,8 @@ Do_Push:
   * ----------------------------- */
 Clone_Repo:
   parse value '' with pdshlq remotebr
+  'vget (saverep) profile'
+  if saverep /= null then localrep = saverep
   do forever
     zcmd = null
     remote = null
@@ -1266,6 +1408,8 @@ Clone_Repo:
       'Setmsg msg(isrz003)'
       return
     end
+    saverep = localrep
+    'vput (saverep) profile'
     parse var remote site ':' user '/' zigirep '.git'
     parse var site guser '@' host
     /* Let's clone the remote repo... */
@@ -1385,11 +1529,11 @@ Work_with_repo_file:
     | Process the Member list until done |
     * ---------------------------------- */
     save_top = 0
-    ztdsels  = 0
+    ztdsels  = 1
     Do Forever
       if rtll_open = 0 then leave
       parse value '' with zsel zcmd row
-      if ztdsels = 0 then do
+      if ztdsels = 1 then do
         'tbtop' rtll
         'tbskip' rtll 'number('save_top')'
         'TBdispl' rtll 'Panel(zigilist)'
@@ -1472,6 +1616,87 @@ Work_with_repo_file:
               call update_repo_metadata
               call work_with_repo_file
             end
+          end
+        end
+        when zsel = 'RN' then do
+          /* ------------------- *
+          | reName a PDS Member |
+          * ------------------- */
+          do forever
+            newmem = mem
+            'control display save'
+            'Addpop row(4) column(6)'
+            'display panel(zigirenm)'
+            drc = rc
+            'rempop'
+            'control display restore'
+            if drc > 0 then leave
+            olddsn = "'"strip(fulldsn,'B',"'")"("mem")'"
+            newdsn = "'"strip(fulldsn,'B',"'")"("newmem")'"
+            call outtrap 'x.'
+            rc = sysdsn(newdsn)
+            call outtrap 'off'
+            if rc = 'OK' then do
+              zerrsm = 'Error'
+              zerrlm = newmem 'currently exists. Select a different' ,
+                'member name for the rename operation.'
+              'setmsg msg(isrz003)'
+            end
+            else do
+              Address TSO 'Rename' olddsn newdsn
+              cmd = 'cd' localrep'/'zigirep'/'dsn
+              cmd = cmd '&& git mv' mem newmem
+              cmd = usssafe(cmd)
+              x = docmd(cmd)
+              call view_std 'B'
+              'tbdelete' rtll
+              memstat = '[R ] Renamed in index'
+              mem = newmem
+              bstat = 'Changes to be committed:'
+              baction = null
+              'tbadd' rtll 'Order'
+              statfile = translate(strip(fulldsn,'B',"'"),' ','.')
+              statfile = subword(statfile,qualignr+1)
+              statfile = translate(statfile,'.',' ')
+              x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'statfile 'S')
+              cmd = 'cd' localrep'/'zigirep
+              x = docmd(cmd '&&git add .zigi/'statfile)
+              leave
+            end
+          end
+        end
+        when zsel = 'RM' then do
+          /* --------------------------------- *
+          | Remove a PDS member from the Repo |
+          * --------------------------------- */
+          localdir =  localrep'/'zigirep'/'dsn
+          call outtrap 'x.'
+          rdsn = strip(fulldsn,'B',"'")
+          rdsn = "'"rdsn"("mem")'"
+          rc = confirm_remove(rdsn)
+          if rc = 0 then do
+            Address TSO ,
+              'Delete' rdsn
+            call outtrap 'off'
+            /* make sure the member name conforms to the cp -M way */
+            m = translate(mem,'._-','#@$')
+            xldir = usssafe(localdir)
+            cmd = 'cd' xldir    '&& git rm "'m'"'
+            x = docmd(cmd,,so.,se.)
+            call view_std 'B'
+            memstat = '*Removed'
+            'tbmod' rtll
+            statfile = translate(strip(fulldsn,'B',"'"),' ','.')
+            statfile = subword(statfile,qualignr+1)
+            statfile = translate(statfile,'.',' ')
+            cmd = 'cd' localrep'/'zigirep'/.zigi/'
+            stats = usssafe(statfile)
+            x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'stats 'S')
+          end
+          else do
+            zerrsm = 'Cancelled.'
+            zerrlm = 'Removal of' rdsn 'cancelled.'
+            'setmsg msg(isrz003)'
           end
         end
         when zsel = 'A' then do
@@ -1619,10 +1844,6 @@ Refresh:
   zs1 = "Refreshing from repository"
   zs2 = "   OMVS -> z/OS      "
   call do_popup
-  /*
-  address 'SYSCALL' 'SLEEP (2)'
-  x = docmd('cd 'localrep' && git clone 'remote)
-  */
   ckotdir = localrep'/'zigirep
   if datatype(qualignr) /= 'NUM' then qualignr = 0
   if qualignr = 0
@@ -1768,6 +1989,7 @@ Merge_it:
   if rc = 0 then 'tbend' rtbm
   'TBCreate' rtbm 'keys(bname) Names(brstatus) Replace NoWrite'
   localdir = localrep'/'zigirep
+  zsel = null
   cmd = ' && git remote prune origin > /dev/null 2>&1 && git branch -a'
   x = docmd('cd 'localdir cmd)
   if so.0 + se.0 = 0 then do
@@ -1865,22 +2087,135 @@ Merge_it:
       end
       else do
         /* Merge went fubar */
-        x = docmd('cd 'localdir' && git merge --abort')
-        zs1 = "Merge Failed"
-        zs2 = "The merge has been aborted"
-        zs3 = ""
-        zs4 = "Press Enter/F3 to continue"
-        call do_popup4p
+        zcmd = null
+        'Display Panel(zigimrgq)'
+        if rc > 0 then zcmd = 3
+        if zcmd = 3 then do
+          cmd = 'cd' localdir'/'zigirep
+          cmd = cmd '&& git merge --abort'
+          x = docmd(cmd)
+        end
+        if zcmd = 1 then do
+          pdshlqt = translate(pdshlq,' ','.')
+          pdshlqt = subword(pdshlqt,1,qualignr)
+          pdshlqt = translate(pdshlqt,'.',' ')
+          parse value '' with dsntbl mstat gcount
+          zmergtbl = 'ZG'time('s')
+          zmcount = 0
+          'TBCreate' zmergtbl 'Keys(mdsn)' ,
+            'Names(mfile mstat gcount) nowrite share'
+          mrgdir = localrep'/'zigirep
+          do si = 1 to so.0
+            mem = null
+            if word(so.si,1) /= 'CONFLICT' then iterate
+            mrgm = 'Merge conflict in'
+            parse value so.si with x (mrgm) mdsn .
+            mfile = mrgdir'/'mdsn
+            if wordpos(mdsn,dsntbl) > 0
+            then do
+              gcount = gcount + 1
+              'tbmod' zmergtbl
+            end
+            else do
+              gcount = 1
+              'tbadd' zmergtbl
+              dsntbl = dsntbl mdsn
+              zmcount = zmcount + 1
+            end
+          end
+          ztdsels = 0
+          ztdtop = 1
+          zsel = null
+          file_changed = 0
+          'tbtop' zmergtbl
+          'tbsort' zmergtbl 'fields(mdsn,c,a)'
+          do forever
+            if ztdsels > 1
+            then 'tbdispl' zmergtbl
+            else do
+              'tbtop' zmergtbl
+              'tbskip' zmergtbl 'number('ztdtop')'
+              'tbdispl' zmergtbl 'panel(zigimrds)'
+            end
+            if rc > 4 then leave
+            if zsel = null then iterate
+            if row /= null then do
+              'tbtop' zmergtbl
+              'tbskip' zmergtbl  'number('row')'
+            end
+            if zsel = 'S' then zsel = 'E'
+            'Control display save'
+            Select
+              When zsel = 'B' then do
+                Address TSO 'OBrowse' mrgdir'/'mdsn
+                mstat = '*OBrowse'
+                'tbmod' zmergtbl
+              end
+              When zsel = 'E' then do
+                ofile = mrgdir'/'mdsn
+                mrgfile = '/tmp/'userid()'.'translate(mdsn,'.','/')
+                cmd = 'cd' mrgdir '&& cp' mdsn mrgfile
+                x = bpxwunix(cmd,,so.,se.)
+                parm = 'M'
+                'vput (mrgdir mdsn mrgfile) shared'
+                'Edit file(mrgfile) macro(zigimrgm) parm(parm)'
+                'Edit file(ofile) macro(zigimrgm)'
+                mstat = '*Edit'
+                if rc = 0 then do
+                  file_changed = 1
+                  zmcount = zmcount - 1
+                  cmd = 'cd' mrgdir '&& git add' mdsn
+                  x = docmd(cmd)
+                  mstat = '*Updated'
+                end
+                'tbmod' zmergtbl
+                cmd = 'cd' mrgdir '&& rm' mrgfile
+                x = bpxwunix(cmd,,so.,se.)
+              end
+              When zsel = 'V' then do
+                ofile = mrgdir'/'mdsn
+                'View file(ofile)'
+                mstat = '*View'
+                'tbmod' zmergtbl
+              end
+              Otherwise nop
+            end
+            'Control display restore'
+            zsel = ''
+          end
+          'tbend' zmergtbl
+          zsel = ''
+          if zmcount = 0 then do
+            cmd = 'cd' mrgdir '&& git commit -m "Resolve merge conflicts"'
+            x = docmd(cmd)
+            call view_std 'B'
+            call Refresh localrep zigirep pdshlq qualignr
+            call update_repo_metadata
+          end
+          else do
+            zs1 = 'Not all conflicts have been resolved.'
+            zs2 = 'Merge request is now aborted.'
+            zs3 = null
+            zs4 = 'Press Enter to exit merge.'
+            call do_popup4p
+            cmd = 'cd' localdir'/'zigirep
+            cmd = cmd  '&& git merge --abort'
+            x = docmd(cmd)
+            call view_std 'B'
+          end
+        end
       end
-      call view_std 'B'
       leave
     end
   end
   'tbend' rtbm
-  ztdsels = 0
+  ztdsels = 1
+  zsel = null
   return
 
 Create_Repo:
+  'vget (saverep) profile'
+  if saverep /= null then localrep = saverep
   do forever
     parse value '' with zerrsm zcmd zigirep cc_rc pdshlq ,
       defcpush defruid
@@ -1907,6 +2242,8 @@ Create_Repo:
         leave
       end
     end
+    saverep = localrep
+    'vput (saverep) profile'
     /* If we made it here, we can freely git init */
     zs1 = 'Creating your repository'
     zs2 = 'Please standby'
@@ -2007,7 +2344,7 @@ Create_Repo:
 
     x = docmd('cd 'reporoot' && git add .zigi/dsn')
 
-    commitmsg = "added by zigi v1r3"
+    commitmsg = "added by zigi"
     x = docmd('cd 'reporoot' && git commit -m "'commitmsg'"')
 
     Address ISPExec
@@ -2698,6 +3035,21 @@ Write_FD:
   'write' fd 'string' length(string)
   return
 
+  /* ---------------------------------------- *
+  | Confirm removal of the requested element |
+  * ---------------------------------------- */
+Confirm_Remove:
+  parse arg rxdsn
+  rema = null
+  call pfshow 'off'           /* make sure pfshow is off */
+  'Addpop row(4) column(12)'
+  'Display Panel(zigiremq)'
+  if rema /= 'YES' then rrc = 4
+  else rrc = 0
+  'Rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
+  return rrc
+
   /* ----------------------- *
   | Generalized Pop Message |
   | with msg passed         |
@@ -2808,8 +3160,8 @@ debug:
   return 0
 
   /* --------------------------------- *
-   | Add a message to the combine stem |
-   * --------------------------------- */
+  | Add a message to the combine stem |
+  * --------------------------------- */
 Add_Combine: procedure expose combine.
   parse arg msg
   c = combine.0

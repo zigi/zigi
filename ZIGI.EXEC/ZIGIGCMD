@@ -59,8 +59,10 @@
   | Open the table but if it doesn't exist then create it |
   * ----------------------------------------------------- */
   'TBOpen zigigcmd Library('isptabl') Write Share'
-  if rc > 0 then
+  if rc > 0 then do
   'tbcreate zigigcmd keys(gitcmde) library('isptabl') write share'
+  call populate
+  end
 
   /* -------------------- *
   | Setup table defaults |
@@ -264,4 +266,12 @@ view_std:
   Address TSO ,
     'Free f('dd')'
   'Control Display Restore'
+  return
+
+/* ---------------------------------- *
+ | Pre-Populate the git command table |
+ * ---------------------------------- */
+Populate:
+  gitcmde = 'shortlog HEAD  --format="%<(80,trunc)%f"'
+  'tbadd zigigcmd'
   return

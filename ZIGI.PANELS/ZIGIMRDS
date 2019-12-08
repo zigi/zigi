@@ -1,0 +1,40 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  @ type(output) intens(high) caps(off) just(left )
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+)Body  Expand(\\)
++-\-\#zigtitle   +-\-\
+%Command ===>_zcmd        \ \ %Scroll ===>_zscr+
++
++Merge Conflict Resolution - Fix what's broke and Merge will Retry
++
++Options:%S+Edit%E+Edit%B+Browse%V+View
++
++Sel      Status     Dataset                                     Count
++
+)Model
+_z+      $z         $z                                          $z
+)Init
+  .ZVARS = '(zsel mstat mdsn mcount)'
+  &zscr = CSR
+)Proc
+ &row = &z
+ if (&ZCMD = &Z)
+     if (&ztdsels = 0000)
+        &row = .csrrow
+        if (&row ^= &z)
+            if (&zsel = &z)
+                &zsel = S
+     if (&ztdsels ^= 0000)
+         &row = &z
+     if (&ZSEL ^= &Z)
+       if (&Zsel = '=')
+           &Zsel = &osel
+     &osel = &zsel
+ if (&row = 0)
+     &zsel = &z
+ ver (&zsel,list,S,B,E,V)
+)End

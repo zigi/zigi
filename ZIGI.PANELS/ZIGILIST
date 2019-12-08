@@ -16,11 +16,11 @@
 %Current Branch     : $branch
 %
 %Commands:  %L+Locate    ]Commit+]Gitlog+]Grep+]Sort+]Status+]Reset    +
-%Selections:%S+Edit%A+Add for commit%D+Show Diff
+%Selections:%S+Edit%A+Add for commit%D+Show Diff%RN+Rename%RM+Remove from Repo
 %
 %S  Member     Status                     Size    Mod-Date  Mod-Time  Userid
 )Model
-@z+$z        +$z                      [z      +  [z       +[z       +$z
+@z +$z        +$z                     [z      +  [z       +[z       +$z
 )Init
   .zvars = '(zsel mem memstat zlcnorc zlmdate zlmtime zluser)'
   .cursor = &zcmd
@@ -48,7 +48,7 @@
      &osel = &zsel
  if (&row = 0)
     &zsel = &z
- ver (&zsel,list,S,A,D,U)
+ ver (&zsel,list,S,A,D,U,RN,RM)
 )PNTS
  FIELD(COMMIT) VAR(ZCMD) VAL('COMMIT')
  FIELD(GITLOG) VAR(ZCMD) VAL('GITLOG')
