@@ -737,8 +737,10 @@ Work_With_Repo:
               call add_combine cmd
             end
             cmd = 'cd' localrep'/'zigirep
+            newdsns = usssafe(newdsn)
+            fulldsns = usssafe(fulldsn)
             if left(fulldsn,1) /= "'"
-            then cmd = cmd '&& git mv' fulldsn newdsn
+            then cmd = cmd '&& git mv' fulldsns newdsns
             else do
               oldfile = translate(strip(fulldsn,'B',"'"),' ','.')
               oldfile = subword(oldfile,qualignr+1)
@@ -746,16 +748,19 @@ Work_With_Repo:
               newfile = translate(strip(newdsn,'B',"'"),' ','.')
               newfile = subword(newfile,qualignr+1)
               newfile = translate(newfile,'.',' ')
-              cmd = cmd '&& git mv' oldfile newfile
+              oldfiles = usssafe(oldfile)
+              newfiles = usssafe(newfile)
+              cmd = cmd '&& git mv' oldfiles newfiles
             end
             x = docmd(cmd)
             call add_combine cmd
             x = listdsi(fulldsn)
             if sysdsorg = 'PO' then do
-              x = zigistat(newdsn localrep'/'zigirep'/.zigi/'newfile 'S')
+              /* still weird with rename of statsfile? */
+              x = zigistat(newdsn localrep'/'zigirep'/.zigi/'newfiles'S')
               cmd = 'cd' localrep'/'zigirep
-              x = docmd(cmd '&& git add .zigi/'newfile)
-              x = docmd(cmd '&& git rm .zigi/'oldfile)
+              x = docmd(cmd '&& git add .zigi/'newfiles)
+              x = docmd(cmd '&& git rm .zigi/'oldfiles)
             end
             'tbdelete' rtbl
             fulldsn = newdsn
@@ -1645,7 +1650,8 @@ Work_with_repo_file:
             else do
               Address TSO 'Rename' olddsn newdsn
               cmd = 'cd' localrep'/'zigirep'/'dsn
-              cmd = cmd '&& git mv' mem newmem
+              newmemokforuss = translate(newmem,'._-','#@$')
+              cmd = cmd '&& git mv' mem newmemokforuss
               cmd = usssafe(cmd)
               x = docmd(cmd)
               call view_std 'B'
@@ -1658,9 +1664,10 @@ Work_with_repo_file:
               statfile = translate(strip(fulldsn,'B',"'"),' ','.')
               statfile = subword(statfile,qualignr+1)
               statfile = translate(statfile,'.',' ')
-              x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'statfile 'S')
+              statfiles = usssafe(statfile)
+              x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'statfiles 'S')
               cmd = 'cd' localrep'/'zigirep
-              x = docmd(cmd '&&git add .zigi/'statfile)
+              x = docmd(cmd '&&git add .zigi/'statfiles)
               leave
             end
           end
