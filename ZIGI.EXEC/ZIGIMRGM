@@ -59,6 +59,7 @@
         hit = 0
       end
       when pos('=======',data) > 0 then do
+        'delete' i
         hit = 1
       end
       when pos('>>>>>>>',data) > 0 then do
