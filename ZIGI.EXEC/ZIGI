@@ -21,6 +21,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            12/07/19 LBD - Implement a git merge conflict   |
+  |                           resolution process.              |
   |            12/06/19 LBD - Define top tutorial panel        |
   |            12/04/19 LBD - Support Remove (RM) and          |
   |                           Rename (RN) options              |
@@ -869,7 +871,9 @@ Work_With_Repo:
         d = usssafe(dsn)
         cmd = 'cd' localrep'/'zigirep
         x = docmd(cmd '&& git add -v 'd)
+        /* Comment Start
         call combine_msgs
+           Comment End */
         if dsnvalid(fulldsn) = "OK" then do
           /* Only get the stats if it's a z/OS dataset
           Don't do it for the USS files
@@ -2083,97 +2087,124 @@ Merge_it:
       end
       else do
         /* Merge went fubar */
-/* ------------------------------------------------------- *
- | This process NEEDS work.                                |
- |                                                         |
- | What to do after the omvs files are updated needs to be |
- | looked at:                                              |
- | 1. copy to z/OS (refresh)                               |
- | 2. how to finalize the merge                            |
- * ------------------------------------------------------- */
-        pdshlqt = translate(pdshlq,' ','.')
-        pdshlqt = subword(pdshlqt,1,qualignr)
-        pdshlqt = translate(pdshlqt,'.',' ')
-        parse value '' with dsntbl mstat gcount
-        zmergtbl = 'ZG'time('s')
-        'TBCreate' zmergtbl 'Keys(mdsn) Names(mfile mstat gcount) nowrite share'
-        mrgdir = localrep'/'zigirep
-        do si = 1 to so.0
-          mem = null
-          if word(so.si,1) /= 'CONFLICT' then iterate
-          mrgm = 'Merge conflict in'
-          parse value so.si with x (mrgm) mdsn .
-          mfile = mrgdir'/'mdsn
-          if wordpos(mdsn,dsntbl) > 0
-          then do
-            gcount = gcount + 1
-            'tbmod' zmergtbl
-          end
-          else do
-            gcount = 1
-            'tbadd' zmergtbl
-            dsntbl = dsntbl mdsn
-          end
+        zcmd = null
+        'Display Panel(zigimrgq)'
+        if rc > 0 then zcmd = 3
+        if zcmd = 3 then do
+          cmd = 'cd' localdir'/'zigirep
+          cmd = cmd '&& git merge --abort'
+          x = docmd(cmd)
         end
-        ztdsels = 0
-        ztdtop = 1
-        zsel = null
-        file_changed = 0
-        'tbtop' zmergtbl
-        'tbsort' zmergtbl 'fields(mdsn,c,a)'
-        do forever
-          if ztdsels > 1
-          then 'tbdispl' zmergtbl
-          else do
-            'tbtop' zmergtbl
-            'tbskip' zmergtbl 'number('ztdtop')'
-            'tbdispl' zmergtbl 'panel(zigimrds)'
+        if zcmd = 1 then do
+          pdshlqt = translate(pdshlq,' ','.')
+          pdshlqt = subword(pdshlqt,1,qualignr)
+          pdshlqt = translate(pdshlqt,'.',' ')
+          parse value '' with dsntbl mstat gcount
+          zmergtbl = 'ZG'time('s')
+          zmcount = 0
+          'TBCreate' zmergtbl 'Keys(mdsn)' ,
+            'Names(mfile mstat gcount) nowrite share'
+          mrgdir = localrep'/'zigirep
+          do si = 1 to so.0
+            mem = null
+            if word(so.si,1) /= 'CONFLICT' then iterate
+            mrgm = 'Merge conflict in'
+            parse value so.si with x (mrgm) mdsn .
+            mfile = mrgdir'/'mdsn
+            if wordpos(mdsn,dsntbl) > 0
+            then do
+              gcount = gcount + 1
+              'tbmod' zmergtbl
+            end
+            else do
+              gcount = 1
+              'tbadd' zmergtbl
+              dsntbl = dsntbl mdsn
+              zmcount = zmcount + 1
+            end
           end
-          if rc > 4 then leave
-          if zsel = null then iterate
-          if row /= null then do
-            'tbtop' zmergtbl
-            'tbskip' zmergtbl  'number('row')'
-          end
-          if zsel = 'S' then zsel = 'E'
-          'Control display save'
-          Select
-            When zsel = 'B' then do
+          ztdsels = 0
+          ztdtop = 1
+          zsel = null
+          file_changed = 0
+          'tbtop' zmergtbl
+          'tbsort' zmergtbl 'fields(mdsn,c,a)'
+          do forever
+            if ztdsels > 1
+            then 'tbdispl' zmergtbl
+            else do
+              'tbtop' zmergtbl
+              'tbskip' zmergtbl 'number('ztdtop')'
+              'tbdispl' zmergtbl 'panel(zigimrds)'
+            end
+            if rc > 4 then leave
+            if zsel = null then iterate
+            if row /= null then do
+              'tbtop' zmergtbl
+              'tbskip' zmergtbl  'number('row')'
+            end
+            if zsel = 'S' then zsel = 'E'
+            'Control display save'
+            Select
+              When zsel = 'B' then do
                 Address TSO 'OBrowse' mrgdir'/'mdsn
                 mstat = '*OBrowse'
-              'tbmod' zmergtbl
-            end
-            When zsel = 'E' then do
+                'tbmod' zmergtbl
+              end
+              When zsel = 'E' then do
                 ofile = mrgdir'/'mdsn
-                'Edit file(ofile)'
+                mrgfile = '/tmp/'userid()'.'translate(mdsn,'.','/')
+                cmd = 'cd' mrgdir '&& cp' mdsn mrgfile
+                x = bpxwunix(cmd,,so.,se.)
+                parm = 'M'
+                'vput (mrgdir mdsn mrgfile) shared'
+                'Edit file(mrgfile) macro(zigimrgm) parm(parm)'
+                'Edit file(ofile) macro(zigimrgm)'
                 mstat = '*Edit'
-                if rc = 0 then file_changed = 1
-                cmd = 'cd' mrgdir '&& git add' mdsn
-                x = docmd(cmd)
-              'tbmod' zmergtbl
-            end
-            When zsel = 'V' then do
+                if rc = 0 then do
+                  file_changed = 1
+                  zmcount = zmcount - 1
+                  cmd = 'cd' mrgdir '&& git add' mdsn
+                  x = docmd(cmd)
+                  mstat = '*Updated'
+                end
+                'tbmod' zmergtbl
+                cmd = 'cd' mrgdir '&& rm' mrgfile
+                x = bpxwunix(cmd,,so.,se.)
+              end
+              When zsel = 'V' then do
                 ofile = mrgdir'/'mdsn
                 'View file(ofile)'
                 mstat = '*View'
-              'tbmod' zmergtbl
+                'tbmod' zmergtbl
+              end
+              Otherwise nop
             end
-            Otherwise nop
+            'Control display restore'
+            zsel = ''
           end
-          'Control display restore'
+          'tbend' zmergtbl
           zsel = ''
-        end
-        'tbend' zmergtbl
-        zsel = ''
-        if file_changed = 1 then do
-        cmd = 'cd' mrgdir '&& git commit -m "Resolve merge conflicts"'
-        x = docmd(cmd)
-        call view_std 'B'
-        call Refresh localrep zigirep pdshlq qualignr
-        call update_repo_metadata
+          if zmcount = 0 then do
+            cmd = 'cd' mrgdir '&& git commit -m "Resolve merge conflicts"'
+            x = docmd(cmd)
+            call view_std 'B'
+            call Refresh localrep zigirep pdshlq qualignr
+            call update_repo_metadata
+          end
+          else do
+            zs1 = 'Not all conflicts have been resolved.'
+            zs2 = 'Merge request is now aborted.'
+            zs3 = null
+            zs4 = 'Press Enter to exit merge.'
+            call do_popup4p
+            cmd = 'cd' localdir'/'zigidir
+            cmd = cmd  '&& git merge --abort'
+            x = docmd(cmd)
+            call view_std 'B'
+          end
         end
       end
-      call view_std 'B'
       leave
     end
   end
