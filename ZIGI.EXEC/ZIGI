@@ -2198,7 +2198,7 @@ Merge_it:
             zs3 = null
             zs4 = 'Press Enter to exit merge.'
             call do_popup4p
-            cmd = 'cd' localdir'/'zigidir
+            cmd = 'cd' localdir'/'zigirep
             cmd = cmd  '&& git merge --abort'
             x = docmd(cmd)
             call view_std 'B'
