@@ -1597,16 +1597,18 @@ Work_with_repo_file:
         When abbrev('STATUS',zcmd,2) = 1 then call do_status
         When abbrev('RESET',zcmd,2) = 1 then call do_resetid
         When abbrev('SORT',word(zcmd,1),2) = 1 then call do_lsort
-        When abbrev("L",translate(word(zcmd,1)),1) = 1 then do
+        When abbrev("LOCATE",translate(word(zcmd,1)),1) = 1 then do
           mem = translate(word(zcmd,2))
+          zcmd = null
           'tbtop' rtll
           'tbsarg' rtll
           'tbscan' rtll 'arglist(mem) position(scanrow) condlist(ge)'
           if rc = 0 then do
             save_top = scanrow
             zerrsm = null
-            zerrlm = word(zcmd,2) 'was found in row' ztdtop
+            zerrlm = word(zcmd,2) 'was found in row' scanrow
             'Setmsg msg(isrz003)'
+            ztdsels = 1
           end
           else do
             zerrsm = null
