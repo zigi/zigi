@@ -98,7 +98,7 @@
   if zigidebg = 0 then
   "Control Errors Return"
 
-  parse value '' with null rx zigidebg_flag
+  parse value '' with null rx zigidebg_flag save_zigirep
   /* ----------------------------------------------------- *
   | Get the Active HLQ for use with the ALTLIB and LIBDEF |
   | of the zIGI libraries.                                |
@@ -858,15 +858,20 @@ Work_With_Repo:
             call update_repo_metadata
           end
         end
-        /* -------------------------------------- *
+        /* ------------- $$$$$$$$$ -------------- *
         | NEEDS WORK but Supports SubDirectories |
-        * -------------------------------------- */
+        * -------------- $$$$$$$$$ ------------- */
         else do
-          save_zigirep = zigirep
+          save_zigirep = save_zigirep zigirep
           zigirep = zigirep'/'dsn
+          'tbend' rtbl
+          rtbl_open = 0
           call update_repo_metadata
           call work_with_repo
-          zigirep = save_zigirep
+          zigirep = word(save_zigirep,words(save_zigirep))
+          save_zigirep = subword(save_zigirep,1,words(save_zigirep)-1)
+          call update_repo_metadata
+          call work_with_repo
         end
       end
       When zsel = 'S' & zosflg = 1 then do
@@ -2516,6 +2521,7 @@ Upper:
 dsnvalid: Procedure
   /* Tests for a 'potentially valid' z/OS datasetname */
   parse arg val_dsn
+  if strip(val_dsn) = '' then return 'NO'
   upp = TRANSLATE(val_dsn,".ABCDEFGHIJKLMNOPQRSTUVWXYZ",,
     ".abcdefghijklmnopqrstuvwxyz")
   if upp = val_dsn then do
@@ -2526,9 +2532,7 @@ dsnvalid: Procedure
     end
     call outtrap 'off'
   end
-  else do
-    return "NO"
-  end
+  else return "NO"
 
   /* ------------------------------------------------- *
   |                                                  |
@@ -2676,7 +2680,7 @@ update_repo_metadata:
   /* get the stuff from the repo-file */
   x = debug('get all the files (again?)')
   address syscall
-  'readdir 'localrep'/'zigirep' root.'
+  'readdir 'localrep'/'zigirep' root. rstat.'
   address ispexec
   x = debug('done')
   x = debug('iterate the files')
@@ -2730,13 +2734,14 @@ update_repo_metadata:
             stat = substr(so.ii,1,2)
             PATH = substr(so.ii,4)
             filetype = null
-            if right(path,1) = '/' then filetype = 'D'
+            if rstat.i.1 = 1 then filetype = 'D'
             if pos(dsn, PATH) = 1 then do
               dsnstat = porcelain(stat)
               leave
             end
           end
           'tbadd' rtbl
+          filetype = null
         end
       end
     end
