@@ -2124,6 +2124,23 @@ Merge_it:
           cmd = 'cd' localdir
           cmd = cmd '&& git merge --abort'
           x = docmd(cmd)
+          zerrsm = 'Cancelled.'
+          zerrlm = "Merge cancelled and git merge --abort executed."
+          'setmsg msg(isrz003)'
+        end
+        if zcmd = 2 then do
+          zerrsm = null
+          zs = "You have elected to leave the git merge conflict records"
+          zerrlm = left(zs,76,' ')
+          zs = "in the OMVS respository files. These must be removed or"
+          zerrlm = zerrlm left(zs,76,' ')
+          zs = 'the files will be corrupted.'
+          zerrlm = zerrlm left(zs,76,' ')
+          zs = 'Use git merge --abort will fix.'
+          zerrlm = zerrlm left(zs,76,' ')
+          zs = 'Press Enter to exit and correct.'
+          zerrlm = zerrlm zs
+          'setmsg msg(isrz003)'
         end
         if zcmd = 1 then do
           pdshlqt = translate(pdshlq,' ','.')
@@ -2731,7 +2748,7 @@ update_repo_metadata:
       /* -------------------------------------------------- *
       | If NOT a z/OS dataset then it must be an OMVS file |
       | make sure it isn't a . file and then add it        |
-      * -------------------------------------------------- */
+            * -------------------------------------------------- */
       else do
         if left(root.i,1) /= '.' then do
           dsn = root.i
