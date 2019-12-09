@@ -670,7 +670,7 @@ Work_With_Repo:
 
     /* flag for USS file or ZOS dataset */
     zosflg = 1
-    if filetype = 'D' then do
+    if filetype = '(D)' then do
       if zsel = 'B' then zsel = 'S'
       if zsel = 'V' then zsel = 'S'
     end
@@ -853,7 +853,7 @@ Work_With_Repo:
         zosflg = 0
         ofile = localrep'/'zigirep'/'fulldsn
         cur_date = get_fd_date(ofile)
-        if filetype /= 'D' then do
+        if filetype /= '(D)' then do
           'control display save'
           'Edit file(ofile)'
           'control display restore'
@@ -2740,7 +2740,7 @@ update_repo_metadata:
             stat = substr(so.ii,1,2)
             PATH = substr(so.ii,4)
             filetype = null
-            if rstat.i.1 = 1 then filetype = 'D'
+            if rstat.i.1 = 1 then filetype = '(D)'
             if pos(dsn, PATH) = 1 then do
               dsnstat = porcelain(stat)
               leave

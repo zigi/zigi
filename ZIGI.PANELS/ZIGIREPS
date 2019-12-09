@@ -22,7 +22,7 @@
 +
 %S  Status                    Dataset Name
 )Model
-@z +$z                       $z
+@z +$z                       $z                                            $z
 )Init
  &Add     = 'Add'
  &Basic   = 'Basic'
@@ -42,7 +42,7 @@
  &Set     = 'Set'
  &St      = 'St'
  &View    = 'View'
- .zvars = '(zsel dsnstat fulldsn)'
+ .zvars = '(zsel dsnstat fulldsn filetype)'
  .cursor = &zcmd
  .help = zigih200
  &zscr = CSR
