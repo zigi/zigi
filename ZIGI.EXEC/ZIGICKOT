@@ -15,6 +15,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            12/09/19 LBD - Support (ignore) omvs files and  |
+  |                           subdirectories                   |
   |            11/16/19 LBD - Change to use ZIGISTAT routine   |
   |            10/30/19 LBD - Get DCB info from /.zigi/dsn     |
   |            10/28/19 LBD - Support sequential files         |
@@ -156,12 +158,16 @@
   /* -------------------------------------------- *
   | Process the sub-directories and initiate the |
   | Allocation and Copy                          |
+  | Ignore subdirectories                        |
   * -------------------------------------------- */
   do i = 1 to words(subs)
     parse value '' with zs1 zs2 zs3 zs4 zs5 zs6 zs7 zs8
     zs9 = 'Patience while the data is copied from OMVS files' ,
       'to a z/OS PDS.'
     sub = word(subs,i)
+    fx = translate(sub,'??????????????????????????', ,
+      'abcdefghijklmnopqrstuvwxyz')
+    if pos('?',fx) > 0 then iterate
     zs1 = 'Processing subdirectory:' sub
     zs2 = 'Members:                ' dir.sub
     zs3 = 'Total bytes (k):        ' size.sub

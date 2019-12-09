@@ -2121,7 +2121,7 @@ Merge_it:
         'Display Panel(zigimrgq)'
         if rc > 0 then zcmd = 3
         if zcmd = 3 then do
-          cmd = 'cd' localdir'/'zigirep
+          cmd = 'cd' localdir
           cmd = cmd '&& git merge --abort'
           x = docmd(cmd)
         end
@@ -2735,12 +2735,12 @@ update_repo_metadata:
       else do
         if left(root.i,1) /= '.' then do
           dsn = root.i
+          filetype = null
+          if rstat.i.1 = 1 then filetype = '(D)'
           fulldsn = dsn
           do ii = 1 to so.0
             stat = substr(so.ii,1,2)
             PATH = substr(so.ii,4)
-            filetype = null
-            if rstat.i.1 = 1 then filetype = '(D)'
             if pos(dsn, PATH) = 1 then do
               dsnstat = porcelain(stat)
               leave
