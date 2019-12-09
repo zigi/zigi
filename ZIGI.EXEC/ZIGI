@@ -21,6 +21,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            12/09/19 LBD - Improve OMVS directory support   |
   |            12/07/19 LBD - Implement a git merge conflict   |
   |                           resolution process.              |
   |            12/06/19 LBD - Define top tutorial panel        |
@@ -2129,18 +2130,9 @@ Merge_it:
           'setmsg msg(isrz003)'
         end
         if zcmd = 2 then do
-          zerrsm = null
-          zs = "You have elected to leave the git merge conflict records"
-          zerrlm = left(zs,76,' ')
-          zs = "in the OMVS respository files. These must be removed or"
-          zerrlm = zerrlm left(zs,76,' ')
-          zs = 'the files will be corrupted.'
-          zerrlm = zerrlm left(zs,76,' ')
-          zs = 'Use git merge --abort will fix.'
-          zerrlm = zerrlm left(zs,76,' ')
-          zs = 'Press Enter to exit and correct.'
-          zerrlm = zerrlm zs
-          'setmsg msg(isrz003)'
+          'Addpop row(4) column(6)'
+          'Display Panel(zigipopm)'
+          'rempop'
         end
         if zcmd = 1 then do
           pdshlqt = translate(pdshlq,' ','.')
