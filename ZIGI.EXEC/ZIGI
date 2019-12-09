@@ -670,6 +670,10 @@ Work_With_Repo:
 
     /* flag for USS file or ZOS dataset */
     zosflg = 1
+    if filetype = 'D' then do
+      if zsel = 'B' then zsel = 'S'
+      if zsel = 'V' then zsel = 'S'
+    end
     if zsel /= null then
     Select
       When zsel = 'B' then do
