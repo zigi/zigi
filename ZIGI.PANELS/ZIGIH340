@@ -6,23 +6,22 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                             %Special Characters+
+                               %Row Selections+
 +
-+Special characters in z/OS datasets and member names will be converted
-+when moved to the repository.
++The following row selection options are available:
 +
-+This is done via the -M option for the cp command.
-+
-+In the%status+log you will see the 'OMVS'-names (as this is from the
-+OMVS-side of things.
-+
+  %A+ Add the member to the%git index+so that it can be Committed
+  %D+ Show the difference (compare) the current with the commit level if
+      an Add has been performed but no commit.
+  %RM+Remove the member from the PDS and the repository
+  %RN+reName the member
+  %S+ Select the member and Edit it
 +
 +
 +
 +
      "The best competition I have is against myself to become better."
-         - John Wooden
-+
+      - John Wooden
 +
 +
            +Press the%Enter+key to begin your zigi tutorial journey.

@@ -29,6 +29,5 @@
  .cursor  = &zcmd
  &zscr = CSR
 )PROC
- &zup = zigih200
  &zcont = zigih211
 )END

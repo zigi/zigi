@@ -35,6 +35,8 @@
    &L5 = '5'
    &LA = 'A'
  .cursor = &zcmd
+ &ztut = 'HINT'
+ vput (ztut)
 )PROC
  &ZSEL = TRANS( &ZCMD
            0,zigih000   /* Introduction (Getting Started) */

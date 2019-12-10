@@ -1,0 +1,31 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                               %Row Selections+
++
++The following row selection options are available:
++
+%A+ Add the dataset/file to the git index so it can be Committed
+%B+ Browse the dataset/file using ISPF Browse
+%RM+Remove the dataset/file
++   the OMVS files will be deleted
++   the z/OS datasets will be deleted
++   the element will be removed from git management
+%RN+Rename the dataset/file
++   the z/OS dataset will be renamed
++       if a PDS then the ISPF Statistics OMVS file will be renamed
++   the OMVS file will be renamed
+%S+ Edit the dataset/file using ISPF Edit
+%V+ View the local repository files in OMVS
++   Using the ISPF UDList (ISPF 3.17) interface
++
+         +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+)PROC
+)END

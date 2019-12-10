@@ -33,7 +33,10 @@
  &config  = 'Config'
  &pro     = 'Pro'
  &githelp = 'GitHelp'
+ &ztut = '100'
+ vput (ztut)
 )PROC
+ &zup = zigihint
 *REXX(* zcmd zsel)
   Select
     When abbrev('CLONE',zcmd,2) = 1 then zcmd = 1
@@ -45,11 +48,6 @@
     Otherwise nop
   end
 *Endrexx
- &githup   = ZIGIH150
- &githnext = &Z
- &prohup   = ZIGIH140
- &prohnext = ZIGIH160
- vput (githup githnext prohup prohnext)
  &ZSEL = TRANS( &ZCMD
            1,zigih110    /*  CLONE               */
            2,zigih120    /*  CREATE              */

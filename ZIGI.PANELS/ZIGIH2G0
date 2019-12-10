@@ -28,5 +28,6 @@
 )Init
  .cursor  = &zcmd
 )PROC
- &zup = zigih2f0
+ if (&ztut EQ '200')
+    &zcont = ZIGIH2H0
 )END

@@ -45,6 +45,8 @@
  &Set     = 'Set'
  &Status  = 'Status'
  &View    = 'View'
+ &ztut = '200'
+ vput (ztut)
 )PROC
 *REXX(* zcmd zsel)
   Select
@@ -69,22 +71,6 @@
     Otherwise nop
   end
 *Endrexx
- &githup   = ZIGIH150
- &githnext = ZIGIH250
- &prohup   = ZIGIH140
- &prohnext = ZIGIH160
- &comhup   = ZIGIH220
- &comhnext = ZIGIH240
- &cmdhup   = ZIGIH230
- &cmdhnext = ZIGIH160
- &sthup    = ZIGIH2E0
- &sthnext  = ZIGIH2G0
- &loghup   = ZIGIH160
- &loghnext = ZIGIH260
- &grhup    = ZIGIH250
- &grhnext  = ZIGIH270
- vput (githup githnext prohup prohnext comhup comhnext cmdhup cmdhnext)
- vput (sthup sthnext loghup loghnext grhup grhnext)
  &ZSEL = TRANS( &ZCMD
            1,zigih210  /* ADD            */
            2,zigih220  /* BRANCH         */
@@ -104,6 +90,7 @@
           16,zigih2E0  /* SET            */
           17,zigih2F0  /* STATUS         */
           18,zigih2G0  /* VIEW           */
+          19,zigih2H0  /* Row            */
            *,'?'
            )
 )PNTS

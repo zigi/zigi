@@ -27,7 +27,9 @@
            +Press the%Enter+key to begin your zigi tutorial journey.
 )Init
  .cursor = &zcmd
+ &ztut = '000'
+ vput (ztut)
 )PROC
  &ZUP = ZIGIHINT
- &ZCONT = ZIGIH004
+ &zcont = zigih004
 )END

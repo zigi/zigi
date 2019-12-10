@@ -27,11 +27,10 @@
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
- vget (loghup loghnext)
- if (&loghup EQ &Z)
-     &loghup   = ZIGIH240
-     &loghnext = ZIGIH260
+ vget (ztut)
 )PROC
- &zup = &loghup
- &zcont = &loghnext
+ if (&ztut = '200')
+     &zcont = ZIGIH260
+ if (&ztut = '300')
+     &zcont = ZIGIH260
 )END

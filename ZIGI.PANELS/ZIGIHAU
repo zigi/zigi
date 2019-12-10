@@ -33,5 +33,4 @@
  &zscr = CSR
 )PROC
  &ZUP = ZIGIHINT
- &ZCONT = ZIGIH100
 )END

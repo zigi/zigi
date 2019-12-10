@@ -27,11 +27,10 @@ The%Basic+version is more verbose and is ideal for those learning%zigi+for the
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
- vget (prohup prohnext)
- if (&prohup = &Z)
-    &prohup = ZIGIH140
-    &prohnext = ZIGIH160
+ vget (ztut)
 )PROC
- &ZUP = &prohup
- &ZCONT = &prohnext
+ if (&ztut = '100')
+    &zcont    = ZIGIH160
+ if (&ztut = '200')
+    &zcont    = ZIGIH290
 )END
