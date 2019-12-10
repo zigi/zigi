@@ -22,6 +22,7 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            12/10/19 LBD - Add FIND/RFIND for Repo table    |
+  |                           and in the dataset/file table    |
   |            12/09/19 LBD - Improve OMVS directory support   |
   |            12/07/19 LBD - Implement a git merge conflict   |
   |                           resolution process.              |
@@ -157,7 +158,7 @@
   zigtitle = '(zigi' ver')'
   'vput (zigtitle ver)'
   'display panel(zigispls)'
-  if rc = 8 then Exit
+  if rc = 8 then exit
 
   /* ------------------------------------ *
   | define our working default variables |
@@ -547,6 +548,51 @@ Work_With_Repo:
     if row > 0 then do
       "TBTop " rtbl
       "TBSkip" rtbl "Number("row")"
+    end
+
+    /* -------------- *
+    | Process a Find |
+    * -------------- */
+    if zcmd = 'RFIND' then do
+      zcmd = 'FIND' fstring
+      rfs  = rowcnt
+    end
+    else rfs = 0
+    if abbrev('FIND',word(zcmd,1),1) = 1 then do
+      fstring = translate(word(zcmd,2))
+      zcmd = null
+      rowcnt = 0
+      'tbtop' rtbl
+      if rfs > 0 then do
+        'tbskip' rtbl 'number('rfs')'
+        rowcnt = rfs
+      end
+      do forever
+        'tbskip' rtbl
+        if rc > 0 then do
+          if rfs > 0 then do
+            rfs = 0
+            'tbtop' rtbl
+            'tbskip' rtbl
+            rowcnt = 0
+          end
+          else do
+            zerrsm = 'Not Found'
+            zerrlm = fstring 'not found.'
+            'setmsg msg(isrz003)'
+            leave
+          end
+        end
+        rowcnt = rowcnt + 1
+        'tbget' rtbl
+        if pos(fstring,translate(fulldsn)) > 0 then do
+          rtop = rowcnt
+          zerrsm = 'Found'
+          zerrlm = fstring 'found in row' rowcnt '-' fulldsn
+          'setmsg msg(isrz003)'
+          leave
+        end
+      end
     end
 
     if abbrev('BASIC',zcmd,2) = 1 then zcmd = 'PRO'
