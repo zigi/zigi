@@ -2134,6 +2134,19 @@ Merge_it:
           'Display Panel(zigipopm)'
           'rempop'
         end
+        /* --------------------------------------------------------------- *
+        | If option 1 then setup for the user to resolve the conflicts    |
+        | using ispf edit.                                                |
+        |                                                                 |
+        | 1. parse merge conflict messages for the merge files            |
+        | 2. if a file is a PDS then process then add the file name       |
+        |    to fix_stats for later and edit to retain only merge records |
+        | 3. display the files for selection and correction               |
+        | 4. if ALL files have been resolved (edit saved) then            |
+        |    process any fix_stats files:                                 |
+        |    - run zigistat 'S'                                           |
+        |    - git add it                                                 |
+        * --------------------------------------------------------------- */
         if zcmd = 1 then do
           pdshlqt = translate(pdshlq,' ','.')
           pdshlqt = subword(pdshlqt,1,qualignr)
@@ -2141,6 +2154,7 @@ Merge_it:
           parse value '' with dsntbl mstat gcount
           zmergtbl = 'ZG'time('s')
           zmcount = 0
+          fix_stats = null
           'TBCreate' zmergtbl 'Keys(mdsn)' ,
             'Names(mfile mstat gcount) nowrite share'
           mrgdir = localrep'/'zigirep
@@ -2150,6 +2164,15 @@ Merge_it:
             mrgm = 'Merge conflict in'
             parse value so.si with x (mrgm) mdsn .
             mfile = mrgdir'/'mdsn
+            if mdsn /= '.zigi/dsn' then
+            if left(mdsn,6) = '.zigi/' then do
+              if pos(mfile,fix_stats) = 0 then
+              fix_stats = fix_stats mfile
+              parm = 'M'
+              'vput (mrgdir mdsn mfile) shared'
+              'Edit file(mfile) macro(zigimrgm) parm(parm)'
+              iterate
+            end
             if wordpos(mdsn,dsntbl) > 0
             then do
               gcount = gcount + 1
@@ -2225,6 +2248,13 @@ Merge_it:
           'tbend' zmergtbl
           zsel = ''
           if zmcount = 0 then do
+            if fix_stats /= null
+            then do fs = 1 to words(fix_stats)
+              sfile = word(fix_stats,fs)
+              pds = pdshlqt'.'substr(sfile,7)
+              Address TSO '%zigistat' "'"pds"'" sfile 'S'
+              x = docmd('cd' localrep'/'zigirep '&& git add' sfile)
+            end
             cmd = 'cd' mrgdir '&& git commit -m "Resolve merge conflicts"'
             x = docmd(cmd)
             call view_std 'B'
@@ -2740,7 +2770,7 @@ update_repo_metadata:
       /* -------------------------------------------------- *
       | If NOT a z/OS dataset then it must be an OMVS file |
       | make sure it isn't a . file and then add it        |
-            * -------------------------------------------------- */
+      * -------------------------------------------------- */
       else do
         if left(root.i,1) /= '.' then do
           dsn = root.i
