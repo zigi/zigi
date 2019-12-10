@@ -2216,7 +2216,8 @@ Merge_it:
               When zsel = 'E' then do
                 ofile = mrgdir'/'mdsn
                 mrgfile = '/tmp/'userid()'.merge'
-                cmd = 'cd' mrgdir '&& cp' mdsn mrgfile
+                md = usssafe(mrgdir)
+                cmd = 'cd' md '&& cp' mdsn mrgfile
                 x = bpxwunix(cmd,,so.,se.)
                 parm = 'M'
                 'vput (mrgdir mdsn mrgfile) shared'
@@ -2231,7 +2232,7 @@ Merge_it:
                   mstat = '*Updated'
                 end
                 'tbmod' zmergtbl
-                cmd = 'cd' mrgdir '&& rm' mrgfile
+                cmd = 'rm' mrgfile
                 x = bpxwunix(cmd,,so.,se.)
               end
               When zsel = 'V' then do
@@ -2250,8 +2251,8 @@ Merge_it:
           if zmcount = 0 then do
             if fix_stats /= null
             then do fs = 1 to words(fix_stats)
-              sfile = word(fix_stats,fs)
-              pds = pdshlqt'.'substr(sfile,7)
+              sfile = usssafe(word(fix_stats,fs))
+              pds = usssafe(pdshlqt'.'substr(sfile,7))
               Address TSO '%zigistat' "'"pds"'" sfile 'S'
               x = docmd('cd' localrep'/'zigirep '&& git add' sfile)
             end
