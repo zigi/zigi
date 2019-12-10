@@ -274,4 +274,8 @@ view_std:
 Populate:
   gitcmde = 'shortlog HEAD  --format="%<(80,trunc)%f"'
   'tbadd zigigcmd'
+  gitcmde = 'merge --abort'
+  'tbadd zigigcmd'
+  gitcmde = 'status'
+  'tbadd zigigcmd'
   return

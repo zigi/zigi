@@ -18,7 +18,7 @@
 )Model
 _z+      $z         $z                                          $z
 )Init
-  .ZVARS = '(zsel mstat mdsn mcount)'
+  .ZVARS = '(zsel mstat mdsn zmcount)'
   &zscr = CSR
 )Proc
  &row = &z
