@@ -157,7 +157,7 @@
   zigtitle = '(zigi' ver')'
   'vput (zigtitle ver)'
   'display panel(zigispls)'
-  if rc = 8 then exit
+  if rc = 8 then Exit
 
   /* ------------------------------------ *
   | define our working default variables |
