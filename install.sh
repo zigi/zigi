@@ -30,7 +30,7 @@ echo "      ZZZZZZZZZg               The git interface for the rest of us";
 echo "     ZZZZZZig ";
 echo "    ZZZZZZi                         Henri Kuiper & Lionel Dyck ";
 echo " "
-echo "Welcome to the installer for zigi v1r2";
+echo "Welcome to the installer for zigi v2r0";
 echo "";
 echo "This will install zigi on your mainframe.";
 echo "See https://github.com/wizardofzos/zigi/wiki for more information"
