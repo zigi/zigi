@@ -2155,12 +2155,12 @@ Merge_it:
         pdshlqt = translate(pdshlq,' ','.')
         pdshlqt = subword(pdshlqt,1,qualignr)
         pdshlqt = translate(pdshlqt,'.',' ')
-        parse value '' with dsntbl mstat gcount
+        parse value '' with dsntbl mstat
         zmergtbl = 'ZG'time('s')
         zmcount = 0
         fix_stats = null
         'TBCreate' zmergtbl 'Keys(mdsn)' ,
-          'Names(mfile mstat gcount) nowrite share'
+          'Names(mfile mstat) nowrite share'
         mrgdir = localrep'/'zigirep
         do si = 1 to so.0
           mem = null
@@ -2179,11 +2179,9 @@ Merge_it:
           end
           if wordpos(mdsn,dsntbl) > 0
           then do
-            gcount = gcount + 1
             'tbmod' zmergtbl
           end
           else do
-            gcount = 1
             'tbadd' zmergtbl
             dsntbl = dsntbl mdsn
             zmcount = zmcount + 1
