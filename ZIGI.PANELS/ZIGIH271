@@ -28,5 +28,6 @@
 )Init
  .cursor  = &zcmd
 )PROC
- &zcont = zigih280
+ &zup   = zigih270
+ &zcont = zigih272
 )END
