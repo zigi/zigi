@@ -15,6 +15,7 @@
 +Press%Enter+to continue%F3+to cancel
 +
 )Init
+ .help = zigih270
 )Proc
  ver (&zcmd,nb,list,1,2,3)
 )end

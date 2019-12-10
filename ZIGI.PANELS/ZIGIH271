@@ -21,8 +21,8 @@
 +If the file is a PDS member then after the merge is resolved the ISPF
 +statistics file is recreated using the updated information.
 +
-+
-+
++Using%F3+or not updating ALL the conflict files will result in a
+%git merge --abort+being processed.
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init

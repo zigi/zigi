@@ -18,9 +18,9 @@
 +
 +If the merge is not successful a popup with three options will be presented:
 +
-+  %1+Continue and attempt to resolve using ISPF
-+  %2+Exit Merge but leave the Merge records in the OMVS repository files
-+  %3+Abort the Merge
++   %1+Continue and attempt to resolve using ISPF Compare
++   %2+Continue and attempt to resolve using ISPF Edit
+    %3+Abort the Merge
 +
             +"Never mistake activity for achievement." - John Wooden
 +
