@@ -2297,7 +2297,8 @@ Merge_it:
                 if mrgtype = 1 then do
                   mrgfile = '/tmp/'userid()'.merge'
                   md = usssafe(mrgdir)
-                  cmd = 'cd' md '&& cp' mdsn mrgfile
+                  mdsns = usssafe(mdsn)
+                  cmd = 'cd' md '&& cp' mdsns mrgfile
                   x = bpxwunix(cmd,,so.,se.)
                   parm = 'M'
                   'vput (mrgdir mdsn mrgfile) shared'
