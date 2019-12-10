@@ -1,4 +1,4 @@
-  /*%NOcomment ----------  rexx procedure  -------------------- *
+  /* --------------------  rexx procedure  -------------------- *
   | Name:      zigistat                                        |
   |                                                            |
   | Function:  Collect or Compare the ISPF Stats for all       |

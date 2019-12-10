@@ -1,4 +1,4 @@
-  /*%NOcomment ----------  rexx procedure  -------------------- *
+  /* --------------------  rexx procedure  -------------------- *
   | Name:      zigigcmd                                        |
   |                                                            |
   | Function:  Issue any git command and browse the results    |

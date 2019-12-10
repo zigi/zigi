@@ -1,4 +1,4 @@
-  /*%NOcomment ----------  rexx procedure  ------------------- */
+  /* --------------------  rexx procedure  ------------------- */
   ver = 'v2r0'
   /*Name:      zigi  (z ISPF Git Interface)                    |
   |                                                            |
@@ -503,7 +503,7 @@
   * ------------------------------ */
 Create_zigirepo:
   "TBCreate zigirepo Keys(zigikey)",
-    "Names(zigirep localrep pdshlq qualignr zigidate)",
+    "Names(zigirep localrep pdshlq qualignr zigidate defcpush defruid)",
     'Library('isptabl') Write Share'
   "TBSort zigirepo Fields(zigirep,C,A)"
   'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
@@ -602,7 +602,10 @@ Work_With_Repo:
         zcmd = null
         'Display Panel(zigirset)'
         if rc > 0 then leave
-        'tbmod zigirepo save(defcpush defruid)'
+        'TBQuery zigirepo names(names)'
+        if wordpos('DEFCPUSH',names) = 0
+           then 'Tbmod zigirepo save(defcpush defruid)'
+           else 'tbmod zigirepo'
         'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
         if defcpush = 'Y' then zpush = 'Y'
         else zpush = 'N'
