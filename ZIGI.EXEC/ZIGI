@@ -858,14 +858,14 @@ Work_With_Repo:
       /* -------------------------------- *
       | Remove a Dataset or File         |
       | - git rm -f file                 |
-      | - OMVS file just rm -fv file     |
+      | - OMVS file just rm -f file      |
       | - PS Dataset                     |
       |   Delete dataset                 |
-      |   rm -fv file                    |
+      |   rm -f file                     |
       | - PDS Dataset                    |
       |   Delete dataset                 |
       |   rm -frv file                   |
-      |   rm -fv .zigi/file (ispf stats) |
+      |   rm -f .zigi/file (ispf stats)  |
       |    - git rm -f .zigi/file        |
       * -------------------------------- */
       When zsel = 'RM' then do
@@ -914,7 +914,7 @@ Work_With_Repo:
                 'Delete' fulldsn
               call outtrap 'off'
               cmd = 'cd' localdir '&& git rm -r' dsn
-              cmd = cmd '&& rm -fv .zigi/'dsn
+              cmd = cmd '&& rm -f .zigi/'dsn
               x = docmd(cmd,,so.,se.)
               call view_std 'B'
             end

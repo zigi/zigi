@@ -11,7 +11,7 @@
 +
 +Primary commands:  @Clone+remote remote repository    @Pro+
 +                   @Create+a local repo from scratch  @githelp+
-+                   @SSH+View your SSH public key
++                   @SSH+View your SSH public key      %Find
 +                   @Config+View git configuration
 +
 +Repo options:      %S+Work with repo%V+View repo OMVS files+%D+Delete repo
