@@ -17,16 +17,17 @@
 [Githelp+Git Help           [Pull+   Pull from origin [Status+  Git Status
 [GitLog+ Show git log output[Push+   Push to origin   [View+    OMVS Dir
 +
-%Row selections:
+%
+%Find+   Find/RFind a string in the dataset or file name.
+
+%
+[Row+selection options.
 +
-%S+Edit the dataset/file    %A+Add the dataset/file for Commit
-%B+Browse the dataset/file  %RN+Rename the dataset/file
-%RM+Remove the dataset/file from the repository and from OMVS and/or z/OS
-%V+View the local repository files in OMVS
 +
 +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
+ &Row     = 'Row'
  &Add     = 'Add'
  &Br      = 'Branch'
  &Commit  = 'Commit'
@@ -50,6 +51,7 @@
 )PROC
 *REXX(* zcmd zsel)
   Select
+    When abbrev('ROW',zcmd,3)     = 1 then zcmd ='0'
     When abbrev('ADD',zcmd,2)     = 1 then zcmd ='1'
     When abbrev('BRANCH',zcmd,2)  = 1 then zcmd ='2'
     When abbrev('COMMIT',zcmd,2)  = 1 then zcmd ='3'
@@ -72,6 +74,7 @@
   end
 *Endrexx
  &ZSEL = TRANS( &ZCMD
+           0,zigih201  /* Row Select     */
            1,zigih210  /* ADD            */
            2,zigih220  /* BRANCH         */
            3,zigih230  /* COMMIT         */
@@ -90,10 +93,10 @@
           16,zigih2E0  /* SET            */
           17,zigih2F0  /* STATUS         */
           18,zigih2G0  /* VIEW           */
-          19,zigih2H0  /* Row            */
            *,'?'
            )
 )PNTS
+ FIELD(ROW   )  VAR(ZCMD) VAL('0')
  FIELD(ADD   )  VAR(ZCMD) VAL('1')
  FIELD(BR    )  VAR(ZCMD) VAL('2')
  FIELD(COMMIT)  VAR(ZCMD) VAL('3')
