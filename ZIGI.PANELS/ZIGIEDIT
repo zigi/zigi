@@ -205,27 +205,27 @@ IF (&ZSCED = ' ') &ZSCED = 'PAGE'  /* Blank with page    */
          len = substr(zdata,i+8,zwidth-8)
          len = translate(len,' ','00'x)
          len = length(strip(len))
-         zshadow = overlay(color,zshadow,i+8,len)
+         zshadow = overlay(color,zshadow,i+8,len+1)
          end
      when substr(zdata,i+8,7) = '<<<<<<<' then do
-         zshadow = overlay('WWWWWW',zshadow,i+1,6)
+         zshadow = overlay(color,zshadow,i+1,6)
          len = substr(zdata,i+8,zwidth-8)
          len = translate(len,' ','00'x)
          len = length(strip(len))
-         zshadow = overlay(color,zshadow,i+8,len)
+         zshadow = overlay(color,zshadow,i+8,len+1)
          end
      when substr(zdata,i+8,7) = '=======' then do
-         zshadow = overlay('WWWWWW',zshadow,i+1,6)
+         zshadow = overlay(color,zshadow,i+1,6)
          len = substr(zdata,i+8,zwidth-8)
          len = translate(len,' ','00'x)
          len = length(strip(len))
-         zshadow = overlay(color,zshadow,i+8,len)
+         zshadow = overlay(color,zshadow,i+8,len+1)
          end
      otherwise do
          len = substr(zdata,i+8,zwidth-8)
          len = translate(len,' ','00'x)
          len = length(strip(len))
-         zshadow = overlay(blank,zshadow,i+8,len)
+         zshadow = overlay(blank,zshadow,i+8,len+1)
          end
      end
      end
