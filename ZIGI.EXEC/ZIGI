@@ -3369,15 +3369,16 @@ Test_Repo_Table_State:
     do forever
       'tbskip zigirepo'
       if rc > 0 then leave
+      'tbget zigirepo'
       tc = tc + 1
-      key.tc = localrep pdshlq qualignr zigirep
+      key.tc = localrep pdshlq qualignr zigirep defcpush defruid
     end
     tc.0 = tc
     'tbend zigirepo'
     'TBErase zigirepo Library('isptabl')'
     call create_zigirepo
     do i = 1 to tc.0
-      parse value key.i with localrep pdshlq qualignr zigirep
+      parse value key.i with localrep pdshlq qualignr zigirep defcpush defruid
       zigikey = localrep'/'zigirep
       zigidate = date('n')
       'tbadd zigirepo order'
