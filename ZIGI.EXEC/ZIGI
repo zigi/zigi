@@ -1900,6 +1900,7 @@ Edit_PS:
   * ------------------------------- */
 Do_LSort:
   parse value zcmd with x sort_field sort_order sf sc
+  zcmd = null
   if sort_field = null then do
     call pfshow 'off'           /* make sure pfshow is off */
     'Addpop row(4) column(6)'
