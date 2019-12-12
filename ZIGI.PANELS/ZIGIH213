@@ -1,0 +1,33 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD        \ \ %Scroll ===>_zcsr
++
+                                 %Add+
++
++Adding a OMVS file or directory requires the following considerations:
++
++ %1.+The OMVS file or directory must be copied into the zigi managed
++     repository directory.
++ %2.+File names that are UPPER CASE will be considered z/OS datasets
++     and will be copied to z/OS upon a Refresh or Clone.
++ %3.+If the files are not to be copied to z/OS the file, or directory,
++     names must be mixed or lower case.
++ %4.+After the copy, use zigi to ADD the now un-tracked file, or directory,
++     to git management.
++
++
+          +  "It's the little details that are vital.
+          +   Little things make big things happen."  -- John Wooden
++
++
+         +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+ &zscr = CSR
+)PROC
+ &zcont = zigih220
+)END
