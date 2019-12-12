@@ -3359,8 +3359,10 @@ get_fd_date: procedure
 
 Test_Repo_Table_State:
   /* --------------------------------------------- *
-  | Test to see if the ZIGIREPO table is for V1R3 |
+  | Test to see if the ZIGIREPO table is for V2R0 |
+  | and if not upgrade it.                        |
   * --------------------------------------------- */
+  'TBQuery zigirepo Names(names)'
   if pos('ZIGIDATE',names) = 0 then do
     'tbtop zigirepo'
     tc = 0
