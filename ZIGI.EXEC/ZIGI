@@ -405,7 +405,7 @@
         if pos(fstring,translate(zigirep pdshlq)) > 0 then do
           repo_top = rowcnt
           zerrsm = 'Found'
-          zerrlm = fstring 'found in row' rowcnt
+          zerrlm = fstring 'found in row' rowcnt + 0
           'setmsg msg(isrz003)'
           leave
         end
@@ -1688,7 +1688,7 @@ Work_with_repo_file:
           if rc = 0 then do
             save_top = scanrow
             zerrsm = null
-            zerrlm = word(zcmd,2) 'was found in row' scanrow
+            zerrlm = word(zcmd,2) 'was found in row' scanrow + 0
             'Setmsg msg(isrz003)'
             ztdsels = 1
           end
