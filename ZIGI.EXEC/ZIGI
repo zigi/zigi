@@ -469,18 +469,36 @@
         'SELECT PGM(ISRDSLST) PARM(UDL' localrep'/'zigirep') SUSPEND'
       end
       When zsel = 'D' then do
-        /* delete the repo. Maybe needs a 'are you sure' :)
-        for now. we delete the table from ispfprof and
-        make sure we cleanup the repodir...
-        does not touch z/OS datasets                   */
-        cmd = 'cd' localrep' && rm -rf 'zigirep
-        x = bpxwunix(cmd,,so.,se.)
-        'tbdelete zigirepo'
-        zerrsm = 'Deleted.'
-        zerrlm = 'The local repository has been deleted from zIGI' ,
-          'and all OMVS files and directory were deleted. The z/OS' ,
-          'datasets remain.' localrep'/'zigirep
-        'setmsg msg(isrz003)'
+        parse value '' with delcg delco
+        'Addpop row(4) column(12)'
+        'Display panel(zigidelc)'
+        drc = rc
+        'rempop'
+        if drc = 0 then do
+          if delco''delcg = 'NN'
+          then zerrsm = 'Retained.'
+          else zerrsm = 'Deleted.'
+          if delcg = 'Y' then do
+            'tbdelete zigirepo'
+            delcg = 'The local repository has been deleted from zigi.'
+          end
+          else delcg = 'The local repository was NOT deleted from zigi.'
+          if delco = 'Y' then do
+            cmd = 'cd' localrep' && rm -rf 'zigirep
+            x = bpxwunix(cmd,,so.,se.)
+            delco = 'The local repository has been deleted from OMVS.'
+          end
+          else delco = 'The local repository was NOT deleted from OMVS.'
+          zerrlm = left(delcg,76) left(delco,76) left(localrep'/'zigirep,76) ,
+            'And the z/OS datasets were NOT deleted.'
+          'setmsg msg(isrz003)'
+        end
+        else do
+          zerrsm = 'Retained.'
+          zerrlm = 'The local repository was NOT deleted from zigi or OMVS:' ,
+            localrep'/'zigirep
+          'setmsg msg(isrz003)'
+        end
       end
       Otherwise do
         zerrsm = 'Unknown'

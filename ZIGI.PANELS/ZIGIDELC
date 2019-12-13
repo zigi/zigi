@@ -1,0 +1,21 @@
+)Attr
+ $ type(output) caps(off)
+ @ type(input ) hilite(uscore) intens(low)
+)Body Window(53,8)
++Enter to confirm repository delete:
++
++Delete from git       @z+(Y or N)
++Delete the OMVS files @z+(Y or N)
++
++If delete from git is%N+then delete from OMVS is%N.
++
++Press%Enter+to continue or%F3+to cancel.
+)Init
+ .zvars = '(delcg delco)'
+ &zwinttl = 'zIGI Delete Confirmation'
+)Proc
+ ver (&delcg,nb,list,Y,N)
+ ver (&delco,nb,list,Y,N)
+ if (&delcg EQ N)
+     ver (&delco,nb,list,N)
+)end
