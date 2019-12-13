@@ -1306,7 +1306,7 @@ Do_Status:
 Do_GitLog:
   zcmd = null
   call pfshow 'off'           /* make sure pfshow is off */
-  'vget (lcnt logdfrom logdto greplog) profile'
+  'vget (lcnt logdfrom logdto greplog lbv) profile'
   'Addpop row(4) column(6)'
   'Display Panel(zigilog)'
   drc = rc
@@ -1320,10 +1320,10 @@ Do_GitLog:
     if greplog /= null then lopts = lopts '--grep='greplog '-i'
     lopts = translate(lopts,'-','/')
     cmd = 'cd' localdir' && git log --cc -m' lopts
-    'vput (lcnt logdfrom logdto greplog) profile'
+    'vput (lcnt logdfrom logdto greplog lbv) profile'
     x = docmd(cmd)
     if so.0 + se.0 > 1
-    then call view_std
+    then call view_std 'X' lbv
     else do
       zerrsm = ''
       zerrlm = 'GitLog filters resulted in an empty report.'
@@ -2540,7 +2540,8 @@ Create_Repo:
   | based on the parm passed                                   |
   * ---------------------------------------------------------- */
 view_std:
-  arg stdopt
+  arg stdopt viewopt
+  if stdopt = 'X' then stdopt = null
   'Control Display Save'
   /* ------------------------------- *
   | Randomly define a DDName to use |
@@ -2615,7 +2616,9 @@ view_std:
   Address ISPExec
   if sec > 0 then do
     'lminit dataid(ddb) ddname('dd')'
-    'browse dataid('ddb') panel(zigibrow)'
+    if viewopt = 'B'
+    then 'browse dataid('ddb') panel(zigibrow)'
+    else 'view   dataid('ddb') panel(zigiview)'
     'lmfree dataid('ddb')'
   end
   /* ----------------------------- *
