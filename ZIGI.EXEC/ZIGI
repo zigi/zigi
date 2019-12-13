@@ -2330,7 +2330,7 @@ Merge_it:
                   mstat = '*Edit'
                 end
                 else do
-                  'Edit file(ofile) panel(zigiedit)'
+                  'Edit file(ofile) panel(zigiedit) macro(zigiem)'
                 end
                 if rc = 0 then do
                   file_changed = 1

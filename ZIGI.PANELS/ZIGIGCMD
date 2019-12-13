@@ -9,7 +9,7 @@
 +
 +Git repo dir:[localdir
 +
-+Enter any git command (without git):
++Enter any git command (without git):    Browse/View:$z+(B or V)
 %git@gitcmd
 
 
@@ -20,7 +20,7 @@
 )Model
 $z+[gitcmde              \ \ [gs
 )Init
- .zvars = '(gsel)'
+ .zvars = '(gopt gsel)'
  .help = zigih240
  &gscr = CSR
 )Proc
@@ -39,6 +39,7 @@ $z+[gitcmde              \ \ [gs
      &osel = &gsel
  if (&row = 0)
      &gsel = &z
+ ver (&gopt,list,B,V)
  ver (&gsel,list,D,S,X)
 )Field
  Field(gitcmde) ind(gs,'<>') len(255)
