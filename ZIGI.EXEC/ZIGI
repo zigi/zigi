@@ -604,8 +604,8 @@ Work_With_Repo:
         if rc > 0 then leave
         'TBQuery zigirepo names(names)'
         if wordpos('DEFCPUSH',names) = 0
-           then 'Tbmod zigirepo save(defcpush defruid)'
-           else 'tbmod zigirepo'
+        then 'Tbmod zigirepo save(defcpush defruid)'
+        else 'tbmod zigirepo'
         'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
         if defcpush = 'Y' then zpush = 'Y'
         else zpush = 'N'
@@ -3372,15 +3372,18 @@ Test_Repo_Table_State:
       if rc > 0 then leave
       'tbget zigirepo'
       tc = tc + 1
-      key.tc = localrep pdshlq qualignr zigirep defcpush defruid
+      key.tc = localrep pdshlq qualignr zigirep ,
+        '\'defcpush '\'defruid'\'zigidate
     end
     tc.0 = tc
     'tbend zigirepo'
     'TBErase zigirepo Library('isptabl')'
     call create_zigirepo
     do i = 1 to tc.0
-      parse value key.i with localrep pdshlq qualignr zigirep defcpush defruid
+      parse value key.i with localrep pdshlq qualignr zigirep ,
+        '\'defcpush'\'defruid'\'zigidate
       zigikey = localrep'/'zigirep
+      if zigidate = null then
       zigidate = date('n')
       'tbadd zigirepo order'
     end
