@@ -9,7 +9,7 @@
 +-\-\#zigtitle   +-\-\
 %Command ===>_zcmd       \ \ %Scroll ===>_zscr+
 +
-+Primary commands:  @Clone+remote remote repository    @Pro+
++Primary commands:  @Clone+remote repository           @Pro+
 +                   @Create+a local repo from scratch  @githelp+
 +                   @SSH+View your SSH public key      %Find
 +                   @Config+View git configuration

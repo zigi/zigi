@@ -1193,12 +1193,16 @@ do_grep:
           if pos('/',gdsn) > 0 then do
             parse value gdsn with gdsn'/'mem':' .
             mem = translate(mem,'#@$','._-')
-            gdsn = gdsn'('mem')'
+            if dsnvalid(gdsn) = 'OK'
+            then gdsn = gdsn'('mem')'
+            else gdsn = gdsn'/'mem
           end
           gdsnt = "'"pdshlqt"."strip(gdsn)"'"
-          call outtrap 'x.'
-          if sysdsn(gdsnt) = 'OK' then gdsn = gdsnt
-          call outtrap 'off'
+          if pos('/',gdsnt) = 0 then do
+            call outtrap 'x.'
+            if sysdsn(gdsnt) = 'OK' then gdsn = gdsnt
+            call outtrap 'off'
+          end
           if wordpos(gdsn,dsntbl) > 0
           then do
             gcount = gcount + 1
