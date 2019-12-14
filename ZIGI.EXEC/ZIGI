@@ -69,7 +69,7 @@
   |                           - fix lrecl for browse reports   |
   |                           - other bug fixes and cleanup    |
   |            11/02/19 LBD - Add shorten ZIGIREPO panel       |
-  |                           ZIGIREPS if SHort command used   |
+  |                           ZIGIREPS if Short command used   |
   |            10/31/19 LBD - Various Fixes :)                 |
   |            10/29/19 LBD - Add MultiDCB Support             |
   |            10/24/19 HBK - Also source ~/.profile if exists |
@@ -772,6 +772,9 @@ Work_With_Repo:
     end
     if zsel /= null then
     Select
+      When zsel = 'H' then do
+           call do_history dsn
+           end
       When zsel = 'B' then do
         'control display save'
         if left(fulldsn,1) = "'" then do
@@ -1090,7 +1093,6 @@ Do_Rollback:
     end
     if zsel = 'R' then do
       zcmd  = null
-      rolla = 'Cancel'
       call pfshow 'off'           /* make sure pfshow is off */
       'Addpop row(4) column(12)'
       'Display Panel(zigipoph)'
@@ -1098,8 +1100,7 @@ Do_Rollback:
       'Rempop'
       call pfshow 'reset'         /* restore pfshow setting */
       if prc = 0 then
-      if newbr /= null then
-      if rolla = 'ROLLBACK' then do
+      if newbr /= null then do
         cmd = 'cd' localrep'/'zigirep
         drop combine.
         combine.0 = 0
@@ -1118,13 +1119,12 @@ Do_Rollback:
         call Refresh localrep zigirep pdshlq qualignr
         call work_with_repo
       end
-      else do
+      if prc > 0 then do
         zerrsm = 'Cancelled.'
         zerrlm = 'Rollback cancelled.'
         'setmsg msg(isrz003)'
-        ztdsels = 0
+        ztdsels = 1
       end
-      leave
     end
   end
   'tbend' zcrtbl
@@ -1746,6 +1746,9 @@ Work_with_repo_file:
             end
           end
         end
+        when zsel = 'H' then do
+            call do_history dsn'/'mem
+            end
         when zsel = 'RN' then do
           /* ------------------- *
           | reName a PDS Member |
@@ -3218,6 +3221,42 @@ Write_FD:
   string = string || ESC_R || ESC_N
   'write' fd 'string' length(string)
   return
+
+/* ------------------------- *
+ | Do History for an element |
+ * ------------------------- */
+ do_history:
+ parse arg element
+ zerrlm = null
+ select
+ When filetype = '(D)' then zerrlm = 'History does not work on directories'
+ When left(fulldsn,1) = "'" then do
+      x = listdsi(fulldsn)
+      if sysdsorg = 'PO' then
+          zerrlm = 'History does not work on Partitioned DataSets'
+      end
+ otherwise nop
+ end
+ if zerrlm /= null then do
+    zerrsm = 'Error.'
+    'setmsg msg(isrz003)'
+    return
+    end
+ x = docmd(cmd '&& git log --cc -m -n 9999')
+ hc = 0
+ do ih = 1 to so.0
+    if left(so.ih,7) = 'commit ' then hcommit = word(so.ih,2)
+    if left(so.ih,5) = 'Date:' then hdate = subword(so.ih,2)
+    if left(so.ih,4) /= '+++ ' then iterate
+    parse value so.ih with . '/'helement .
+    if element /= strip(helement) then iterate
+    hc = hc + 1
+    hist.hc = hdate
+    hist.0 = hc
+ end
+ if hist.0 > 0 then
+ do ih = 1 to hist.0;say ih hist.ih;end
+ return
 
   /* ---------------------------------------- *
   | Confirm removal of the requested element |
