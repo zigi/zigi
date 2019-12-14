@@ -3259,7 +3259,7 @@ do_history:
     return
   end
   cmd = 'cd' localrep'/'zigirep
-  cmd = cmd '&& git log --cc -m -n 9999'
+  cmd = cmd '&& git log --cc -m -n 9999 --unified=1'
   x = docmd(cmd)
   hhit = 0
   hist_tbl = 'ZHIST'random(999)
