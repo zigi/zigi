@@ -3260,6 +3260,10 @@ do_history:
     'setmsg msg(isrz003)'
     return
   end
+  if pos('/',zigirep) > 0 then do
+    parse value zigirep with x'/'zrep
+    element = zrep'/'element
+  end
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git log --cc -m -n 9999 --unified=1'
   x = docmd(cmd)
@@ -3276,6 +3280,12 @@ do_history:
     if element /= strip(helement) then iterate
     hhit = 1
     'tbadd' hist_tbl
+  end
+  if hhit = 0 then do
+    zerrsm = 'Warning'
+    zerrlm = 'There was no git commit history found.'
+    'setmsg msg(isrz003)'
+    return
   end
   if hhit = 1 then do
     'tbtop' hist_tbl
