@@ -1,6 +1,7 @@
 )Attr
  $ type(output) caps(off)
  @ type(input ) hilite(uscore) intens(low)
+ + type(text) skip(on) intens(low)
 )Body Window(53,8)
 +Enter to confirm repository delete:
 +
