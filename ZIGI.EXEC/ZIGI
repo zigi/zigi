@@ -773,6 +773,17 @@ Work_With_Repo:
     if zsel /= null then
     Select
       When zsel = 'H' then do
+        htest = 0
+        if left(fulldsn,1) = "'" then do
+          x = listdsi(fulldsn)
+          if sysdsorg = 'PO' then do
+            zerrlm = 'History does not work on Partitioned Datasets'
+            zerrsm = 'Error.'
+            'setmsg msg(isrz003)'
+            htest = 1
+          end
+        end
+        if htest = 0 then
         call do_history dsn
       end
       When zsel = 'B' then do
