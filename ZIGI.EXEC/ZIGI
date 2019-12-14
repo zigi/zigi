@@ -21,6 +21,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            12/13/19 LBD - Add new History selection        |
+  |                         - Add incldiff leed-dev            |
   |            12/10/19 LBD - Add FIND/RFIND for Repo table    |
   |                           and in the dataset/file table    |
   |            12/09/19 LBD - Improve OMVS directory support   |
@@ -1317,7 +1319,8 @@ Do_Status:
 Do_GitLog:
   zcmd = null
   call pfshow 'off'           /* make sure pfshow is off */
-  'vget (lcnt logdfrom logdto greplog lbv) profile'
+  'vget (lcnt logdfrom logdto greplog lbv incldiff) profile'
+  if incldiff = null then incldiff = 'N'
   'Addpop row(4) column(6)'
   'Display Panel(zigilog)'
   drc = rc
@@ -1325,13 +1328,14 @@ Do_GitLog:
   call pfshow 'reset'         /* restore pfshow setting */
   if drc = 0 then do
     lopts = null
-    if lcnt /= null then lopts = '-n' lcnt
+    if incldiff = 'Y' then lopts = '--cc -m'
+    if lcnt /= null then lopts = lopts '-n' lcnt
     if logdfrom /= null then lopts = lopts '--after="'logdfrom'"'
     if logdto   /= null then lopts = lopts '--until="'logdto'"'
     if greplog /= null then lopts = lopts '--grep='greplog '-i'
     lopts = translate(lopts,'-','/')
-    cmd = 'cd' localdir' && git log --cc -m' lopts
-    'vput (lcnt logdfrom logdto greplog lbv) profile'
+    cmd = 'cd' localdir' && git log' lopts
+    'vput (lcnt logdfrom logdto greplog lbv incldiff) profile'
     x = docmd(cmd)
     if so.0 + se.0 > 1
     then call view_std 'X' lbv
