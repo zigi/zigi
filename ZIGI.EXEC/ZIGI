@@ -622,10 +622,7 @@ Work_With_Repo:
         zcmd = null
         'Display Panel(zigirset)'
         if rc > 0 then leave
-        'TBQuery zigirepo names(names)'
-        if wordpos('DEFCPUSH',names) = 0
-        then 'Tbmod zigirepo save(defcpush defruid)'
-        else 'tbmod zigirepo'
+        'tbmod zigirepo'
         'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
         if defcpush = 'Y' then zpush = 'Y'
         else zpush = 'N'
@@ -1594,6 +1591,7 @@ Clone_Repo:
     qualignr = words(translate(pdshlq,' ','.'))
     call Refresh localrep zigirep pdshlq qualignr
     zigikey = localrep'/'zigirep
+     zigidate = date('n')
     'tbadd zigirepo order'
     "TBSort zigirepo Fields(zigirep,C,A)"
     'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
@@ -2547,7 +2545,8 @@ Create_Repo:
 
     Address ISPExec
     zigikey = localrep'/'zigirep
-    'tbadd zigirepo order save(defcpush defruid)'
+     zigidate = date('n')
+    'tbadd zigirepo order'
     zpush = defcpush
     "TBSort zigirepo Fields(zigirep,C,A)"
     'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
