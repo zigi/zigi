@@ -1762,7 +1762,9 @@ Work_with_repo_file:
           end
         end
         when zsel = 'H' then do
-          call do_history dsn'/'mem
+          /* translate the member name to fix special chars */
+          hm  = translate(mem,'._-','#@$')
+          call do_history dsn'/'hm
         end
         when zsel = 'RN' then do
           /* ------------------- *
