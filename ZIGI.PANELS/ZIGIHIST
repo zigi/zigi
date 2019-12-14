@@ -19,6 +19,7 @@ _z+ $z
 )Init
   .ZVARS = '(zsel hdate)'
   &zscr = CSR
+  .help = zigihhst
 )Proc
  &row = &z
  if (&ZCMD = &Z)
