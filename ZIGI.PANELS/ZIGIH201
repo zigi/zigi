@@ -6,14 +6,14 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                              %Respository Table
-+
-%Row Selections:
+                              %Row Selections
 +
   %A+Add the dataset/file for Commit
 +    - Inform git that this dataset/file is to be updated or added to the repo
   %B+Browse the dataset/file
 +    - Use ISPF Browse on the z/OS dataset or file%*+
+  %H+History to view a previous version of the selected dataset or file
++    - For a PDS the member must be selected
   %RM+Remove the dataset/file from the repository and from git management
 +     - Deletes both z/OS datasets and OMVS files
   %RN+Rename the dataset/file

@@ -773,8 +773,8 @@ Work_With_Repo:
     if zsel /= null then
     Select
       When zsel = 'H' then do
-           call do_history dsn
-           end
+        call do_history dsn
+      end
       When zsel = 'B' then do
         'control display save'
         if left(fulldsn,1) = "'" then do
@@ -900,7 +900,7 @@ Work_With_Repo:
           rtype = null
           localdir =  localrep'/'zigirep
           if left(fulldsn,1) /= "'" then rtype = 'OMVS'
-        /* only listdsi on zOs datsets */
+          /* only listdsi on zOs datsets */
           if rtype = null then do
             x = listdsi(fulldsn)
             if rc = 0 & sysdsorg = 'PS' then rtype = 'PS'
@@ -1001,7 +1001,7 @@ Work_With_Repo:
         Comment End */
         if dsnvalid(fulldsn) = "OK" then do
           /* Only get the stats if it's a z/OS dataset
-        Don't do it for the USS files
+          Don't do it for the USS files
           */
           x = listdsi(fulldsn)
           if x = 0 then do
@@ -1747,8 +1747,8 @@ Work_with_repo_file:
           end
         end
         when zsel = 'H' then do
-            call do_history dsn'/'mem
-            end
+          call do_history dsn'/'mem
+        end
         when zsel = 'RN' then do
           /* ------------------- *
           | reName a PDS Member |
@@ -3222,41 +3222,70 @@ Write_FD:
   'write' fd 'string' length(string)
   return
 
-/* ------------------------- *
- | Do History for an element |
- * ------------------------- */
- do_history:
- parse arg element
- zerrlm = null
- select
- When filetype = '(D)' then zerrlm = 'History does not work on directories'
- When left(fulldsn,1) = "'" then do
-      x = listdsi(fulldsn)
+  /* ------------------------- *
+  | Do History for an element |
+  * ------------------------- */
+do_history:
+  parse arg element
+  zerrlm = null
+  zsel = null
+  select
+    When filetype = '(D)' then zerrlm = 'History does not work on directories'
+    When left(element,1) = "'" then do
+      x = listdsi(element)
       if sysdsorg = 'PO' then
-          zerrlm = 'History does not work on Partitioned DataSets'
-      end
- otherwise nop
- end
- if zerrlm /= null then do
+      zerrlm = 'History does not work on Partitioned Datasets'
+    end
+    otherwise nop
+  end
+  if zerrlm /= null then do
     zerrsm = 'Error.'
     'setmsg msg(isrz003)'
     return
+  end
+  cmd = 'cd' localrep'/'zigirep
+  cmd = cmd '&& git log --cc -m -n 9999'
+  x = docmd(cmd)
+  hhit = 0
+  hist_tbl = 'ZHIST'random(999)
+  'tbcreate' hist_tbl 'Names(hdate hcommit) nowrite'
+  do ih = 1 to so.0
+    if left(so.ih,7) = 'commit ' then do
+      hcommit = word(so.ih,2)
     end
- x = docmd(cmd '&& git log --cc -m -n 9999')
- hc = 0
- do ih = 1 to so.0
-    if left(so.ih,7) = 'commit ' then hcommit = word(so.ih,2)
     if left(so.ih,5) = 'Date:' then hdate = subword(so.ih,2)
     if left(so.ih,4) /= '+++ ' then iterate
     parse value so.ih with . '/'helement .
     if element /= strip(helement) then iterate
-    hc = hc + 1
-    hist.hc = hdate
-    hist.0 = hc
- end
- if hist.0 > 0 then
- do ih = 1 to hist.0;say ih hist.ih;end
- return
+    hhit = 1
+    'tbadd' hist_tbl
+  end
+  if hhit = 1 then do
+    'tbtop' hist_tbl
+    save_top = ztdtop
+    top = 1
+    do forever
+      zsel = null
+      if ztdsels > 1 then 'tbdispl' hist_tbl
+      else do
+        'tbtop' hist_tbl
+        'tbskip' hist_tbl 'number('top')'
+        'tbdispl' hist_tbl 'Panel(zigihist)'
+      end
+      if rc > 0 then leave
+      top = ztdtop
+      if zsel = 'S' then do
+        cmd = 'cd' localrep'/'zigirep
+        cmd = cmd '&& git show' strip(hcommit)':'element
+        x = docmd(cmd)
+        call view_std 'B' 'V'
+      end
+    end
+  end
+  'tbend' hist_tbl
+  ztdsels = 1
+  ztdtop = save_top
+  return
 
   /* ---------------------------------------- *
   | Confirm removal of the requested element |
