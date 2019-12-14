@@ -261,7 +261,7 @@ view_std:
   Address ISPExec
   if sec > 0 then do
      'lminit dataid(ddb) ddname('dd')'
-     if gtop = 'B'
+     if gopt = 'B'
      then 'browse dataid('ddb') panel(zigibrow)'
      else 'view   dataid('ddb') panel(zigiview)'
      'lmfree dataid('ddb')'
