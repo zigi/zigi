@@ -55,6 +55,8 @@
 ZDATA,ZSHADOW/ /                                                              
 / /                                                                           
 )INIT
+vget (htitle)
+&ztitle = &htitle
 .ZVARS = '(ZVMODET ZTITLE ZCL ZCR ZCMD ZSCED)'
 &ZHIDEX = 'Y'
 .HELP = ZIGIH272
