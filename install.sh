@@ -30,7 +30,7 @@ echo "      ZZZZZZZZZg               The git interface for the rest of us";
 echo "     ZZZZZZig ";
 echo "    ZZZZZZi                         Henri Kuiper & Lionel Dyck ";
 echo " "
-echo "Welcome to the installer for zigi v1r2";
+echo "Welcome to the installer for zigi v1r4";
 echo "";
 echo "This will install zigi on your mainframe.";
 echo "See https://github.com/wizardofzos/zigi/wiki for more information"
@@ -44,8 +44,8 @@ if [ -n "$GOON" ]
 fi
 
 echo "z/OS datsets used by zigi are:";
-echo "- ZIGI.V1R3.EXEC";
-echo "- ZIGI.V1R3.PANELS";
+echo "- ZIGI.V1R4.EXEC";
+echo "- ZIGI.V1R4.PANELS";
 echo "";
 echo "If you like (or have) to install zigi with another";
 echo "HLQ please provide a PREFIX. Otherwise press ENTER";
@@ -65,17 +65,17 @@ PREFIX=` echo $PREFIX  | tr '[a-z]' '[A-Z]'`
 
 if [ -z $PREFIX ]
   then
-    EXEC=ZIGI.V1R3.EXEC
-    PANELS=ZIGI.V1R3.PANELS
-    GPL=ZIGI.V1R3.GPLLIC
-    README=ZIGI.V1R3.README
-    HLQ=ZIGI.V1R3
+    EXEC=ZIGI.V1R4.EXEC
+    PANELS=ZIGI.V1R4.PANELS
+    GPL=ZIGI.V1R4.GPLLIC
+    README=ZIGI.V1R4.README
+    HLQ=ZIGI.V1R4
   else
-    EXEC=${PREFIX}.ZIGI.V1R3.EXEC
-    PANELS=${PREFIX}.ZIGI.V1R3.PANELS
-    GPL=${PREFIX}.ZIGI.V1R3.GPLLIC
-    README=${PREFIX}.ZIGI.V1R3.README
-    HLQ=${PREFIX}.ZIGI.V1R3
+    EXEC=${PREFIX}.ZIGI.V1R4.EXEC
+    PANELS=${PREFIX}.ZIGI.V1R4.PANELS
+    GPL=${PREFIX}.ZIGI.V1R4.GPLLIC
+    README=${PREFIX}.ZIGI.V1R4.README
+    HLQ=${PREFIX}.ZIGI.V1R4
 fi
 
 
