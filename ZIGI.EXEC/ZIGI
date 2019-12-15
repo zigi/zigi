@@ -1,13 +1,13 @@
   /*%NOcomment ----------  rexx procedure  ------------------- */
-  ver = 'v1r3'
+  ver = 'v1r4'
   /*Name:      zigi  (z ISPF Git Interface)                    |
   |                                                            |
-  | Version:   V1R3                                            |
+  | Version:   V1R4                                            |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
   |            management                                      |
   |                                                            |
-  | Syntax:    ex 'zigi.v1r3.exec(zigi)'                       |
+  | Syntax:    ex 'zigi.v1r4.exec(zigi)'                       |
   |                                                            |
   | NOTE:      ZIGI MUST NEVER be started under the ZIGI       |
   |            ISPF Applications ID.                           |
