@@ -21,6 +21,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            12/14/19 LBD - Improve history log search       |
+  |                           using grep                       |
   |            12/13/19 LBD - Add new History selection        |
   |                         - Add incldiff leed-dev            |
   |            12/10/19 LBD - Add FIND/RFIND for Repo table    |
@@ -3265,6 +3267,7 @@ do_history:
   end
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git log --cc -m -n 9999 --unified=1'
+  cmd = cmd '| grep -e commit -e Date -e +++'
   x = docmd(cmd)
   hhit = 0
   hist_tbl = 'ZHIST'random(999)
