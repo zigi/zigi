@@ -17,20 +17,20 @@
 [Githelp+Git Help           [Pull+   Pull from origin [Status+  Git Status
 [GitLog+ Show git log output[Push+   Push to origin   [View+    OMVS Dir
 +
-%
-%Find+   Find/RFind a string in the dataset or file name.
-
+[Find+   Find/RFind a string in the dataset or file name.
 %
 [Row+selection options.
++
+%
 +
 +
 +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
- &Row     = 'Row'
  &Add     = 'Add'
  &Br      = 'Branch'
  &Commit  = 'Commit'
+ &Find    = 'Find'
  &Gitcmd  = 'GitCmd'
  &Githelp = 'Githelp'
  &GitLog  = 'Gitlog'
@@ -43,6 +43,7 @@
  &Refresh = 'Refresh'
  &Remote  = 'Remote'
  &Rollback  = 'Rollback'
+ &Row     = 'Row'
  &Set     = 'Set'
  &Status  = 'Status'
  &View    = 'View'
@@ -70,6 +71,7 @@
     When abbrev('SET',zcmd,2)     = 1 then zcmd ='16'
     When abbrev('STATUS',zcmd,2)  = 1 then zcmd ='17'
     When abbrev('VIEW',zcmd,1)    = 1 then zcmd ='18'
+    When abbrev('FIND',zcmd,1)    = 1 then zcmd ='19'
     Otherwise nop
   end
 *Endrexx
@@ -93,6 +95,7 @@
           16,zigih2E0  /* SET            */
           17,zigih2F0  /* STATUS         */
           18,zigih2G0  /* VIEW           */
+          19,zigih170  /* VIEW           */
            *,'?'
            )
 )PNTS
@@ -115,4 +118,5 @@
  FIELD(SET   )  VAR(ZCMD) VAL('16')
  FIELD(STATUS)  VAR(ZCMD) VAL('17')
  FIELD(VIEW  )  VAR(ZCMD) VAL('18')
+ FIELD(FIND  )  VAR(ZCMD) VAL('19')
 )END
