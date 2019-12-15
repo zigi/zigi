@@ -2594,7 +2594,10 @@ view_std:
   | Allocate a temporary data set for our data |
   * ------------------------------------------ */
   Address TSO
-  'Alloc f('dd') new spa(5,5) tr' ,
+  /* calculate space needed with avg 50 bytes per record */
+  prim = (((so.0 + se.0) * 50) % 56000) + 1
+  if prim < 2 then prim = 5
+  'Alloc f('dd') new spa('prim','prim') tr' ,
     'recfm(v b) lrecl('vlrecl+4') blksize(0)'
   /* ----------------------------- *
   | If stdopt is 'B' then do both |
