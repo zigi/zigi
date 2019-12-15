@@ -2,14 +2,13 @@
  $ type(input)  caps(on ) hilite(uscore) intens(low)
  @ type(input)  caps(off) hilite(uscore) intens(low)
  + type(text) skip(on) intens(low)
-)Body Window(53,10)
+)Body Window(53,9)
 +
 +Enter/Review Log Filter:  (use any, all, or none)
 +   Number of Commits:$lcnt+       1 to 9999
 +           From Date:$logdfrom   +yyyy/mm/dd
 +          Until Date:$logdto     +yyyy/mm/dd
-+              Filter:@greplog    +element name or
-+                                  pattern
++              Filter:@greplog    +in commit message
 +       Include diffs:$z+         +Y or N
 +      Browse or View:$z+         +B or V
 )Init
