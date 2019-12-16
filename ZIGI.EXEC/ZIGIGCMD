@@ -263,7 +263,7 @@ view_std:
      'lminit dataid(ddb) ddname('dd')'
      if gopt = 'B'
      then 'browse dataid('ddb') panel(zigibrow)'
-     else 'view   dataid('ddb') panel(zigiview)'
+     else 'view   dataid('ddb') panel(zigiview) macro(zigivmac)'
      'lmfree dataid('ddb')'
   end
   /* ----------------------------- *

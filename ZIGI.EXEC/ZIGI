@@ -3344,6 +3344,13 @@ do_history:
       end
       if rc > 0 then leave
       top = ztdtop
+      if zsel = 'C' then do
+         cmd = 'cd' localrep'/'zigirep
+         cmd = cmd '&& git log' hcommit '-n 1'
+         x = docmd(cmd)
+         call view_std
+         zsel = null
+         end
       if zsel = 'S' then do
         cmd = 'cd' localrep'/'zigirep
         cmd = cmd '&& git show' strip(hcommit)':'element

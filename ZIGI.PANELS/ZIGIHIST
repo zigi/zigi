@@ -9,7 +9,7 @@
 +-\-\#zigtitle   +-\-\
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
 +
-+Select the Commit to View the historical level of:
++Selections:%S+View historical source%C+Browse Commit Info
 + @element
 +
 +Sel Date/Time of Commit               Author
@@ -36,5 +36,5 @@ _z+ $z                                $z
      &osel = &zsel
  if (&row = 0)
      &zsel = &z
- ver (&zsel,list,S)
+ ver (&zsel,list,S,C)
 )End
