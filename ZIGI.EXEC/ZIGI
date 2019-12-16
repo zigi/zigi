@@ -1345,6 +1345,8 @@ Do_GitLog:
     cmd = 'cd' localdir' && git log' lopts
     'vput (lcnt logdfrom logdto greplog lbv incldiff) profile'
     x = docmd(cmd)
+    htitle = 'GitLog Results'
+    'vput (htitle)'
     if so.0 + se.0 > 1
     then call view_std 'X' lbv
     else do
@@ -2669,7 +2671,7 @@ view_std:
   end
   else do
   if vtitle /= null then vmac = 'Macro(zigivmac)'
-                    else vmac = null
+                    else vmac = 'Panel(zigiview) macro(zigivmac)'
   'view   dataset('vdsn')' vmac
   vtitle = null
   'verase vtitle'

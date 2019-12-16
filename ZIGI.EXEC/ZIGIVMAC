@@ -12,20 +12,21 @@
  * ---------------------------------------------------------- */
   Address ISREdit
   'Macro (options)'
+  'Reset ALL'
   Address ISPExec 'vget (vtitle)'
+  if vtitle = '' then exit
   parse value vtitle with element'\'hdate'\'hauthor'\'fulldsn .
   if left(fulldsn,1) = "'" then do
     parse value element with x'/'mem .
     fulldsn = strip(fulldsn,'B',"'")
     fulldsn = fulldsn'('mem')'
   end
-  'reset all'
   data = 'Historical view of element:' fulldsn
   'line_before 1 = msgline (data)'
   data = 'From:' strip(hauthor) 'on' strip(hdate)
   'line_before 1 = msgline (data)'
   data = 'All ISPF View commands are available, including Compare, Create' ,
-         'and Copy.'
+    'and Copy.'
   'line_before 1 = msgline (data)'
   data = left('-',72,'-')
   'line_before 1 = msgline (data)'
