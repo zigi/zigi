@@ -12,12 +12,12 @@
 +Select the Commit to View the historical level of:
 + @element
 +
-+Sel Date/Time of Commit
++Sel Date/Time of Commit        Author
 +
 )Model
-_z+ $z
+_z+ $z                         $z
 )Init
-  .ZVARS = '(zsel hdate)'
+  .ZVARS = '(zsel hdate hauthor)'
   &zscr = CSR
   .help = zigihhst
 )Proc

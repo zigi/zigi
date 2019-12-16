@@ -21,6 +21,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            12/15/19 LBD - Add Author  to History display   |
   |            12/14/19 LBD - Improve history log search       |
   |                           using grep                       |
   |            12/13/19 LBD - Add new History selection        |
@@ -3272,22 +3273,25 @@ do_history:
     'setmsg msg(isrz003)'
     return
   end
+  shelement = element
   if pos('/',zigirep) > 0 then do
     parse value zigirep with x'/'zrep
     element = zrep'/'element
   end
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git log --cc -m -n 9999 --unified=1'
-  cmd = cmd '| grep -e commit -e Date -e +++'
+  cmd = cmd '| grep -e commit -e Date -e +++ -e Author'
   x = docmd(cmd)
   hhit = 0
   hist_tbl = 'ZHIST'random(999)
-  'tbcreate' hist_tbl 'Names(hdate hcommit) nowrite'
+  'tbcreate' hist_tbl 'Names(hdate hcommit hauthor) nowrite'
   do ih = 1 to so.0
     if left(so.ih,7) = 'commit ' then do
       hcommit = word(so.ih,2)
     end
     if left(so.ih,5) = 'Date:' then hdate = subword(so.ih,2)
+    if left(so.ih,7) = 'Author:' then
+       parse value so.ih with . hauthor '<' .
     if left(so.ih,4) /= '+++ ' then iterate
     parse value so.ih with . '/'helement .
     if element /= strip(helement) then iterate
