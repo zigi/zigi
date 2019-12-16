@@ -2127,10 +2127,12 @@ Branch_it:
         call pfshow 'reset'         /* restore pfshow setting */
         call view_std 'B'
       end
-      x = docmd('cd 'localdir' && git checkout 'bname)
-      call Refresh localrep zigirep pdshlq qualignr
-      call update_repo_metadata
-      branch = bname
+      else do
+        x = docmd('cd 'localdir' && git checkout 'bname)
+        call Refresh localrep zigirep pdshlq qualignr
+        call update_repo_metadata
+        branch = bname
+      end
       leave
     end
     if zsel = "D" then do
