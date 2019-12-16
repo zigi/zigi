@@ -14,7 +14,7 @@
 +you should still have a basic understanding of%git+and how your organization
 +uses it. While you can use it solely with open source tools found on GitHub,
 +and other%git+sites, the most cost effective use is to use it as a free
-+source code management (SCM) tool.
++distributed version control system (VCS) for source code management (SCM).
 +
 +The%zigi+Primary menu is where you will find a table of all%git+repositories
 +that you have cloned or created. It is also the place where you can easily
