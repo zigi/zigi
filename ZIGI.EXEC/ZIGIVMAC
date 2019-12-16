@@ -21,6 +21,7 @@
     fulldsn = strip(fulldsn,'B',"'")
     fulldsn = fulldsn'('mem')'
   end
+  else fulldsn = element
   data = 'Historical view of element:' fulldsn
   'line_before 1 = msgline (data)'
   data = 'From:' strip(hauthor) 'on' strip(hdate)
