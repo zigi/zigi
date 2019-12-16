@@ -7,7 +7,7 @@
   | Function:  ISPF Interface to Git for source code           |
   |            management                                      |
   |                                                            |
-  | Syntax:    ex 'zigi.v2r0.exec(zigi)'                       |
+  | Syntax:    ex 'zigi.exec(zigi)'                            |
   |                                                            |
   | NOTE:      ZIGI MUST NEVER be started under the ZIGI       |
   |            ISPF Applications ID.                           |
@@ -2667,7 +2667,13 @@ view_std:
     'browse dataid('ddb') panel(zigibrow)'
     'lmfree dataid('ddb')'
   end
-  else  'view   dataset('vdsn')'
+  else do
+  if vtitle /= null then vmac = 'Macro(zigivmac)'
+                    else vmac = null
+  'view   dataset('vdsn')' vmac
+  vtitle = null
+  'verase vtitle'
+  end
   /* ----------------------------- *
   | Last Free the z/OS Allocation |
   * ----------------------------- */
@@ -3298,7 +3304,7 @@ do_history:
   end
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git log --cc -m -n 9999 --unified=1'
-  cmd = cmd '| grep -e commit -e Date -e +++ -e Author'
+  cmd = cmd '| grep -e commit -e Date -e Author -e' element
   x = docmd(cmd)
   hhit = 0
   hist_tbl = 'ZHIST'random(999)
@@ -3340,8 +3346,8 @@ do_history:
         cmd = 'cd' localrep'/'zigirep
         cmd = cmd '&& git show' strip(hcommit)':'element
         x = docmd(cmd)
-        htitle = element hdate
-        'vput (htitle)'
+        vtitle = element '\' hdate '\' hauthor '\' fulldsn
+        'vput (vtitle)'
         call view_std 'X' 'V'
       end
     end
