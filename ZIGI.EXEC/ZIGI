@@ -2673,11 +2673,11 @@ view_std:
     'lmfree dataid('ddb')'
   end
   else do
-  if vtitle /= null then vmac = 'Macro(zigivmac)'
-                    else vmac = 'Panel(zigiview) macro(zigivmac)'
-  'view   dataset('vdsn')' vmac
-  vtitle = null
-  'verase vtitle'
+    if vtitle /= null then vmac = 'Macro(zigivmac)'
+    else vmac = 'Panel(zigiview) macro(zigivmac)'
+    'view   dataset('vdsn')' vmac
+    vtitle = null
+    'verase vtitle'
   end
   /* ----------------------------- *
   | Last Free the z/OS Allocation |
@@ -3318,7 +3318,11 @@ do_history:
     if left(so.ih,7) = 'commit ' then do
       hcommit = word(so.ih,2)
     end
-    if left(so.ih,5) = 'Date:' then hdate = subword(so.ih,2)
+    if left(so.ih,5) = 'Date:' then do
+      parse value so.ih with . d1 d2 d3 time year gmt
+      /* now make it pretty */
+      hdate = d1 year d2 left(d3,2) time gmt
+    end
     if left(so.ih,7) = 'Author:' then
     parse value so.ih with . hauthor '<' .
     if left(so.ih,4) /= '+++ ' then iterate
@@ -3348,12 +3352,12 @@ do_history:
       if rc > 0 then leave
       top = ztdtop
       if zsel = 'C' then do
-         cmd = 'cd' localrep'/'zigirep
-         cmd = cmd '&& git log' hcommit '-n 1 --cc'
-         x = docmd(cmd)
-         call view_std
-         zsel = null
-         end
+        cmd = 'cd' localrep'/'zigirep
+        cmd = cmd '&& git log' hcommit '-n 1 --cc'
+        x = docmd(cmd)
+        call view_std
+        zsel = null
+      end
       if zsel = 'S' then do
         cmd = 'cd' localrep'/'zigirep
         cmd = cmd '&& git show' strip(hcommit)':'element
