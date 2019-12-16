@@ -11,8 +11,8 @@
 %Commands available+(select for more information or press%Enter+to see each):
 +
 [Add+    Add dataset        [Grep+   Find Strings     [Refresh+ Replace Datasets
-[Br    + Change Branch      [Merge+  Merge Repos      [Remote+  Add remote
-[Commit+ Execute commit -m  [Network+Network Report   [Rollback+Revert
+[Br    + Change Branch      [Merge+  Merge Branches   [Remote+  Add remote
+[Commit+ Record Changes     [Network+Network Report   [Rollback+Revert
 [GitCMD +Git Command Prompt [Pro+    Pro Panel version[Set+     Set Defaults
 [Githelp+Git Help           [Pull+   Pull from origin [Status+  Git Status
 [GitLog+ Show git log output[Push+   Push to origin   [View+    OMVS Dir

@@ -1,0 +1,19 @@
+zigi Release Notes
+Version 2.0
+
+New Features and Functions
+
+Rename an element will rename the z/OS dataset, z/OS PDS member, OMVS file,
+and any ISPF statistics file. It will also perform a git mv (rename) so
+all git information about the original will be retained with the new nam
+
+Remove an element will delete the z/OS dataset, z/OS PDS member, OMVS file,
+and any ISPF statistics file. It will also perform a git rm (remove) so
+all git information about the element will be deleted.
+
+History is a dataset, PDS member, or file selection option that will display
+a list of all commits for that element. From the table display the user
+can select using C to browse the commit entry, including the diffs.
+Selecting using S will view the historical version of the element. While in
+ISPF View the user has access to all ISPF Edit commands, including  Compare,
+Copy, and Create.
