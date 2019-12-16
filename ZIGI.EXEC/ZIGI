@@ -1602,7 +1602,7 @@ Clone_Repo:
     qualignr = words(translate(pdshlq,' ','.'))
     call Refresh localrep zigirep pdshlq qualignr
     zigikey = localrep'/'zigirep
-     zigidate = date('n')
+    zigidate = date('n')
     'tbadd zigirepo order'
     "TBSort zigirepo Fields(zigirep,C,A)"
     'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
@@ -2556,7 +2556,7 @@ Create_Repo:
 
     Address ISPExec
     zigikey = localrep'/'zigirep
-     zigidate = date('n')
+    zigidate = date('n')
     'tbadd zigirepo order'
     zpush = defcpush
     "TBSort zigirepo Fields(zigirep,C,A)"
@@ -2571,12 +2571,13 @@ Create_Repo:
   * ---------------------------------------------------------- */
 view_std:
   arg stdopt viewopt
+  if stdopt = null then viewopt = 'B'
   if stdopt = 'X' then stdopt = null
   'Control Display Save'
   /* ------------------------------- *
   | Randomly define a DDName to use |
   * ------------------------------- */
-  dd = 'dd'random(9999)
+  dd = 'zd'random(9999)
   /* --------------------------------------- *
   | Get lrecl to determine dcb for temp d/s |
   * --------------------------------------- */
@@ -2606,8 +2607,22 @@ view_std:
   /* calculate space needed with avg 50 bytes per record */
   prim = (((so.0 + se.0) * 50) % 56000) + 1
   if prim < 2 then prim = 5
+  if viewopt = 'V' then do
+    if sysvar('syspref') = null then pref = userid()'.'
+    else pref = null
+    vdsn = pref'work.zigi.data'
+  end
+  else vdsn = null
+  x = listdsi(vdsn)
+  if x = 0 then do
+    call outtrap 'x.'
+    'delete' vdsn
+    call outtrap 'off'
+  end
+  if vdsn /= null then vdsnp = 'da('vdsn') vol(3390)'
+  else vdsnp = null
   'Alloc f('dd') new spa('prim','prim') tr' ,
-    'recfm(v b) lrecl('vlrecl+4') blksize(0)'
+    'recfm(v b) lrecl('vlrecl+4') blksize(0)' vdsnp
   /* ----------------------------- *
   | If stdopt is 'B' then do both |
   * ----------------------------- */
@@ -2647,18 +2662,21 @@ view_std:
   | And use Library Services to Free the Data Set.     |
   * -------------------------------------------------- */
   Address ISPExec
-  if sec > 0 then do
+  if sec > 0 then if viewopt = 'B' then do
     'lminit dataid(ddb) ddname('dd')'
-    if viewopt = 'B'
-    then 'browse dataid('ddb') panel(zigibrow)'
-    else 'view   dataid('ddb') panel(zigiview)'
+    'browse dataid('ddb') panel(zigibrow)'
     'lmfree dataid('ddb')'
   end
+  else  'view   dataset('vdsn')'
   /* ----------------------------- *
   | Last Free the z/OS Allocation |
   * ----------------------------- */
+  call outtrap 'x.'
   Address TSO ,
     'Free f('dd')'
+  if vdsn /= null then
+  Address TSO 'Delete' vdsn
+  call outtrap 'off'
   'Control Display Restore'
   return
 
@@ -3291,7 +3309,7 @@ do_history:
     end
     if left(so.ih,5) = 'Date:' then hdate = subword(so.ih,2)
     if left(so.ih,7) = 'Author:' then
-       parse value so.ih with . hauthor '<' .
+    parse value so.ih with . hauthor '<' .
     if left(so.ih,4) /= '+++ ' then iterate
     parse value so.ih with . '/'helement .
     if element /= strip(helement) then iterate
@@ -3324,7 +3342,7 @@ do_history:
         x = docmd(cmd)
         htitle = element hdate
         'vput (htitle)'
-        call view_std 'B' 'V'
+        call view_std 'X' 'V'
       end
     end
   end

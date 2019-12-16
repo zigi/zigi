@@ -202,6 +202,7 @@ Alloc_Copy_PDS:
     'Blksize('blksize') Dsntype(Library,2) dsorg(po) dir(1)' ,
     'dsn('pds')'
   'Free ds('pds')'
+    zs8 = 'Re-Allocated'
   zs6 =  'Populating from:        ' odir
   call pop_status
   /* ---------------------------------------------------- *
