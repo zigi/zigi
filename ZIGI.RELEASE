@@ -37,3 +37,15 @@ Remove an element will delete the z/OS dataset, z/OS PDS member, OMVS file,
 and any ISPF statistics file. It will also perform a git rm (remove) so
 all git information about the element will be deleted.
 
+Added new row selection option of / to tables where it made sense. The /
+will bring up a popup menu for the available section options. These popups
+include an entry field and point-and-shoot capabilities.
+
+Added new menu toggle to Basic and Pro that will remove ALL menus. A new
+command option on those panels is O which will display a popup command
+selection panel that support both an entry field and point-and-shoot.
+
+When the git log is viewed the git diff's will not be colorized with blue
+for inserts and red for deletions. This only works when viewing and not with
+browsing.
+
