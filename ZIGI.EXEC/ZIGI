@@ -2678,9 +2678,8 @@ view_std:
     'lmfree dataid('ddb')'
   end
   else do
-    if vtitle /= null then vmac = 'Macro(zigivmac)'
-    else vmac = 'Panel(zigiview) macro(zigivmac)'
-    'view   dataset('vdsn')' vmac
+    vmac = 'Panel(zigiedit) macro(zigivmac)'
+    'view dataset('vdsn')' vmac
     vtitle = null
     'verase vtitle'
   end

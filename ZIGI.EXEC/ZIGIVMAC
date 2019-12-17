@@ -13,6 +13,7 @@
   Address ISREdit
   'Macro (options)'
   'Reset ALL'
+  'hilite off'
   Address ISPExec 'vget (vtitle)'
   if vtitle = '' then exit
   parse value vtitle with element'\'hdate'\'hauthor'\'fulldsn .
