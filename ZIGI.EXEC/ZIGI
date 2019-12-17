@@ -631,8 +631,11 @@ Work_With_Repo:
     Select
       When abbrev('SET',zcmd,1) = 1 then do forever
         zcmd = null
+        'Addpop row(4) column(6)'
         'Display Panel(zigirset)'
-        if rc > 0 then leave
+        drc = rc
+        'rempop'
+        if drc > 0 then leave
         'tbmod zigirepo'
         'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
         if defcpush = 'Y' then zpush = 'Y'
