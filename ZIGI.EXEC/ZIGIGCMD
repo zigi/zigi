@@ -1,4 +1,4 @@
-  /*%NOcomment ----------  rexx procedure  -------------------- *
+  /* --------------------  rexx procedure  -------------------- *
   | Name:      zigigcmd                                        |
   |                                                            |
   | Function:  Issue any git command and browse the results    |
@@ -11,6 +11,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            12/13/19 LBD - Add Browse / View options        |
   |            11/27/19 LBD - Creation                         |
   |                                                            |
   * ---------------------------------------------------------- */
@@ -33,6 +34,8 @@
   * ---------------------------------------------------- */
   Address ISPExec
   'Control Errors Return'
+  'vget (gopt) profile'
+  if gopt = null then gopt = 'B'
   'vget (localrep zigirep)'
   localdir = localrep'/'zigirep
 
@@ -91,6 +94,7 @@
      else
      'tbdispl zigigcmd'
      if rc > 4 then leave
+     'vput (gopt) profile'
      if row = 0 then gsel = null
      if row <> null then
      if row > 0 then do
@@ -257,7 +261,9 @@ view_std:
   Address ISPExec
   if sec > 0 then do
      'lminit dataid(ddb) ddname('dd')'
-     'browse dataid('ddb') panel(zigibrow)'
+     if gopt = 'B'
+     then 'browse dataid('ddb') panel(zigibrow)'
+     else 'view   dataid('ddb') panel(zigiedit) macro(zigivmac)'
      'lmfree dataid('ddb')'
   end
   /* ----------------------------- *
@@ -273,5 +279,9 @@ view_std:
  * ---------------------------------- */
 Populate:
   gitcmde = 'shortlog HEAD  --format="%<(80,trunc)%f"'
+  'tbadd zigigcmd'
+  gitcmde = 'merge --abort'
+  'tbadd zigigcmd'
+  gitcmde = 'status'
   'tbadd zigigcmd'
   return

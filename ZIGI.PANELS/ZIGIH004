@@ -14,7 +14,7 @@
 +ISPF to open source ISPF tool, and vendor tools.
 +
 %zigi+is however designed to make it easy to be the easy interface to git for
-+source code management (SCM) for your application development team.
++source code version control for your application development team.
 +
 +It is recommended that each team working with%zigi+develop a plan on how to
 +use it. This is no different from the plan  on how teams are to use any SCM.
@@ -28,6 +28,5 @@
 )Init
  .cursor = &zcmd
 )PROC
- &ZUP = ZIGIH000
  &ZCONT = ZIGIH010
 )END

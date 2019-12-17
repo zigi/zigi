@@ -21,13 +21,12 @@
 +rollback.
 %
 +A confirmation prompt will popup requiring the name of a new branch to be
-+created AND to have the word ROLLBACK, in upper case, entered into the confirm
-+entry field.
++created to prevent overlaying the current branch.
++
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
- &zup = zigih2c0
  &zcont = zigih2e0
 )END

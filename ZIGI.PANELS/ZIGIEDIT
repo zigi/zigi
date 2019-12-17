@@ -1,4 +1,7 @@
 )PANEL KEYLIST(ISRSPEC,ISR)
+/* Copied from IBM's ISREDDE2 Panel and modified with panel rexx */
+/* to support the git merge conflict data - zigi 2.0 LBD         */
+/* and to colorize git diff records - zigi 2.0 LBD               */
 )ATTR DEFAULT(àâ) FORMAT(MIX)            /* ISREDDE2 - ENGLISH - 7.3 */
  15 TYPE(AB)
  2A TYPE(ABSL) GE(ON)
@@ -27,7 +30,7 @@
  1D TYPE(DATAIN) INTENS(LOW) CAPS(IN) COLOR(BLUE) HILITE(USCORE)
       FORMAT(&MIXED)
  20 TYPE(DATAIN) INTENS(LOW) CAPS(IN) FORMAT(&MIXED)
- Z  TYPE(CHAR) COLOR(PINK) HILITE(REVERSE)
+ Z  TYPE(CHAR) COLOR(WHITE) HILITE(REVERSE)
  R  TYPE(CHAR) COLOR(RED)
  G  TYPE(CHAR) COLOR(GREEN)
  B  TYPE(CHAR) COLOR(BLUE)
@@ -46,136 +49,7 @@
  F  TYPE(CHAR) COLOR(&ZCF) HILITE(&ZHF)
  S  TYPE(CHAR) COLOR(&ZCS) HILITE(&ZHS)
  ‹  TYPE(NEF) CAPS(ON) PADC(USER)
-)ABC DESC('File') MNEM(1)
-PDC DESC('Save') UNAVAIL(ZEDF) MNEM(1) ACTION RUN(>SAVE)
-PDC DESC('Cancel') MNEM(1) ACTION RUN(CANCEL)
-PDC DESC('Exit') MNEM(1) ACTION RUN(END)
-)ABCINIT
-.ZVARS=EDITFILE
-   IF (&ZVMODET = 'VIEW') &zedf = 1
-   ELSE                   &zedf = 0
-)ABC DESC('Edit') MNEM(1)
-PDC DESC('Reset') MNEM(1) ACTION RUN(>RESET)
-PDC DESC('Undo') MNEM(1) ACTION RUN(>UNDO)
-PDC DESC('Hilite') UNAVAIL(ZEDE) MNEM(1) ACTION RUN(>HI)
-PDC DESC('Cut') MNEM(1) ACTION RUN(>CUT)
-PDC DESC('Paste') MNEM(1) ACTION RUN(>PASTE)
-)ABCINIT
-.ZVARS=EDITEDIT
-   IF (&ZEDHI ^= 'YES')  &zede = 1
-   ELSE &zede = 0
-)ABC DESC('Edit_Settings') MNEM(2)
-PDC DESC('Edit settings') MNEM(1) ACTION RUN(>EDSET)
-)ABCINIT
-.ZVARS=PDFCFM
-)ABC DESC('Menu') MNEM(1)
-PDC DESC('Settings') UNAVAIL(ZPM1) MNEM(1) ACC(CTRL+S)
- ACTION RUN(ISRROUTE) PARM('SET')
-PDC DESC('View') UNAVAIL(ZPM2) MNEM(1) ACC(CTRL+V)
- ACTION RUN(ISRROUTE) PARM('BR1')
-PDC DESC('Edit') UNAVAIL(ZPM3) MNEM(1) ACC(CTRL+E)
- ACTION RUN(ISRROUTE) PARM('ED1')
-PDC DESC('ISPF Command Shell') UNAVAIL(ZPM4) MNEM(6) ACC(CTRL+C)
- ACTION RUN(ISRROUTE) PARM('C1')
-PDC DESC('Dialog Test...') UNAVAIL(ZPM5) MNEM(8) ACC(CTRL+T)
- ACTION RUN(ISRROUTE) PARM('DAL')
-PDC DESC('Other IBM Products...') UNAVAIL(ZPM6) MNEM(1) ACC(CTRL+O)
- ACTION RUN(ISRROUTE) PARM('OIB')
-PDC DESC('SCLM') UNAVAIL(ZPM7) MNEM(3) ACC(CTRL+L)
- ACTION RUN(ISRROUTE) PARM('SCL')
-PDC DESC('ISPF Workplace') UNAVAIL(ZPM8) MNEM(6) ACC(CTRL+W)
- ACTION RUN(ISRROUTE) PARM('WRK')
-PDC DESC('Status Area...') UNAVAIL(ZPMS) MNEM(8) ACC(CTRL+A)
- ACTION RUN(ISRROUTE) PARM('SAM')
-PDC DESC('Exit') MNEM(2) PDSEP(ON) ACC(CTRL+X) ACTION RUN(EXIT)
-)ABCINIT
-.ZVARS=ISR@OPT
-)ABC DESC('Utilities') MNEM(1)
-PDC DESC('Library') UNAVAIL(ZUT1) MNEM(1) ACC(ALT+1)
- ACTION RUN(ISRROUTE) PARM('U1')
-PDC DESC('Data set') UNAVAIL(ZUT2) MNEM(1) ACC(ALT+2)
- ACTION RUN(ISRROUTE) PARM('U2')
-PDC DESC('Move/Copy') UNAVAIL(ZUT3) MNEM(1) ACC(ALT+3)
- ACTION RUN(ISRROUTE) PARM('U3')
-PDC DESC('Data Set List') UNAVAIL(ZUT4) MNEM(2) ACC(ALT+4)
- ACTION RUN(ISRROUTE) PARM('U4')
-PDC DESC('Reset Statistics') UNAVAIL(ZUT5) MNEM(5) ACC(ALT+5)
- ACTION RUN(ISRROUTE) PARM('U5')
-PDC DESC('Hardcopy') UNAVAIL(ZUT6) MNEM(1) ACC(ALT+6)
- ACTION RUN(ISRROUTE) PARM('U6')
-PDC DESC('Download...') UNAVAIL(ZUTDT) MNEM(2) ACC(ALT+7)
- ACTION RUN(ISRROUTE) PARM('UDT')
-PDC DESC('Outlist') UNAVAIL(ZUT7) MNEM(2) ACC(ALT+8)
- ACTION RUN(ISRROUTE) PARM('U8')
-PDC DESC('Commands...') UNAVAIL(ZUT8) MNEM(1) ACC(ALT+9)
- ACTION RUN(ISRROUTE) PARM('U9')
-PDC DESC('Reserved') UNAVAIL(ZUT9) MNEM(6) ACTION RUN(ISRROUTE) PARM('U10')
-PDC DESC('Format') UNAVAIL(ZUT10) MNEM(1) ACC(ALT+F1)
- ACTION RUN(ISRROUTE) PARM('U11')
-PDC DESC('SuperC') UNAVAIL(ZUT11) MNEM(1) PDSEP(ON) ACC(CTRL+F2)
- ACTION RUN(ISRROUTE) PARM('U12')
-PDC DESC('SuperCE') UNAVAIL(ZUT12) MNEM(3) ACC(CTRL+F3)
- ACTION RUN(ISRROUTE) PARM('U13')
-PDC DESC('Search-For') UNAVAIL(ZUT13) MNEM(2) ACC(CTRL+F4)
- ACTION RUN(ISRROUTE) PARM('U14')
-PDC DESC('Search-ForE') UNAVAIL(ZUT14) MNEM(4) ACC(CTRL+F5)
- ACTION RUN(ISRROUTE) PARM('U15')
-PDC DESC('Table Utility') UNAVAIL(ZUT15) MNEM(3) ACC(CTRL+F6)
- ACTION RUN(ISRROUTE) PARM('U16')
-PDC DESC('Directory List') UNAVAIL(ZUT16) MNEM(2) ACC(CTRL+F7)
- ACTION RUN(ISRROUTE) PARM('U17')
-)ABCINIT
-.ZVARS=PDFUTIL
-     &zut9 = '1'
-)ABC DESC('Compilers') MNEM(1)
-PDC DESC('Foreground Compilers') MNEM(1) ACTION RUN(ISRROUTE) PARM('FGD')
-PDC DESC('Background Compilers') MNEM(1) ACTION RUN(ISRROUTE) PARM('BKG')
-PDC DESC('ISPPREP Panel Utility...') MNEM(1) ACTION RUN(ISPPREP)
-PDC DESC('DTL Compiler...') MNEM(1) ACTION RUN(ISPDTLC)
-)ABCINIT
-.ZVARS=ISRLANG
-)ABC DESC('Test') MNEM(1)
-PDC DESC('Functions...') UNAVAIL(ZPM5) MNEM(1) ACTION RUN(ISRROUTE) PARM('DL1')
-PDC DESC('Panels...') UNAVAIL(ZPM5) MNEM(1) ACTION RUN(ISRROUTE) PARM('DL2')
-PDC DESC('Variables...') UNAVAIL(ZPM5) MNEM(1) ACTION RUN(ISRROUTE) PARM('DL3')
-PDC DESC('Tables...') UNAVAIL(ZPM5) MNEM(1) ACTION RUN(ISRROUTE) PARM('DL4')
-PDC DESC('Log') UNAVAIL(ZPM5) MNEM(1) ACTION RUN(ISRROUTE) PARM('DL5')
-PDC DESC('Services...') UNAVAIL(ZPM5) MNEM(1) ACTION RUN(ISRROUTE) PARM('DL6')
-PDC DESC('Traces...') UNAVAIL(ZPM5) MNEM(2) ACTION RUN(ISRROUTE) PARM('DL7')
-PDC DESC('Break Points...') UNAVAIL(ZPM5) MNEM(1)
- ACTION RUN(ISRROUTE) PARM('DL8')
-PDC DESC('Dialog Test...') UNAVAIL(ZPM5) MNEM(1)
- ACTION RUN(ISRROUTE) PARM('DAL')
-PDC DESC('Dialog Test appl ID...') MNEM(2) ACTION RUN(ISRROUTE) PARM('DAP')
-)ABCINIT
-.ZVARS=DIATEST
-)ABC DESC('Help') MNEM(1)
-PDC DESC('General') MNEM(1) ACTION RUN(TUTOR) PARM('ISR2A000')
-PDC DESC('Display screen format') MNEM(1) ACTION RUN(TUTOR) PARM('ISR2E000')
-PDC DESC('Scrolling data') MNEM(1) ACTION RUN(TUTOR) PARM('ISR2F000')
-PDC DESC('Sequence numbering') MNEM(2) ACTION RUN(TUTOR) PARM('ISR2G000')
-PDC DESC('Display modes') MNEM(2) ACTION RUN(TUTOR) PARM('ISR2H000')
-PDC DESC('Tabbing') MNEM(1) ACTION RUN(TUTOR) PARM('ISR2I000')
-PDC DESC('Automatic recovery') MNEM(1) ACTION RUN(TUTOR) PARM('ISR2J000')
-PDC DESC('Edit profiles') MNEM(6) ACTION RUN(TUTOR) PARM('ISR2K000')
-PDC DESC('Edit line commands') MNEM(6) ACTION RUN(TUTOR) PARM('ISR2L000')
-PDC DESC('Edit primary commands') MNEM(7) ACTION RUN(TUTOR) PARM('ISR2M000')
-PDC DESC('Labels and line ranges') MNEM(3) ACTION RUN(TUTOR) PARM('ISR2Q000')
-PDC DESC('Ending an edit session') MNEM(2) ACTION RUN(TUTOR) PARM('ISR2N000')
-PDC DESC('Appendices') MNEM(8) ACTION RUN(TUTOR) PARM('ISR00004')
-PDC DESC('Index') MNEM(5) ACTION RUN(TUTOR) PARM('ISR91000')
-)ABCINIT
-.ZVARS=EDMHELP
 )BODY  EXPAND(//) WIDTH(&ZWIDTH)  CMD(ZCMD)
-ù
- File
- Edit
- Edit_Settings
- Menu
- Utilities
- Compilers
- Test
- Helpù
 ä--/-/-------------------------------------------------------------------------
 Z         Z/ /                                           ColumnsZ    Z    ù
 Command ===>èZ/ /                                            Scroll ===>‹Z   ù
@@ -184,48 +58,68 @@ PDC DESC('Index') MNEM(5) ACTION RUN(TUTOR) PARM('ISR91000')
 )INIT
 .ZVARS = '(ZVMODET ZTITLE ZCL ZCR ZCMD ZSCED)'
 &ZHIDEX = 'Y'
-IF (&ZVMODET = 'VIEW') .HELP = ISR10000  /* DEFAULT TUTORIAL NAME */
-ELSE                   .HELP = ISR20000  /* DEFAULT TUTORIAL NAME */
+.HELP = ZIGIH272
 &zpm3 = 0
 VGET (ZSCED) PROFILE        /* Fill Scroll Vars if       */
 IF (&ZSCED = ' ') &ZSCED = 'PAGE'  /* Blank with page    */
 &MIXED = TRANS(&ZPDMIX N,EBCDIC *,MIX) /* set mixed format */
- &zhead = 0
- &zmiddle = 0
- &ztrail = 0
-*REXX(* zdata zshadow zwidth zhead zmiddle ztrail)
+*REXX(* zdata zshadow zwidth)
+  colorr = left('R',zwidth,'R')
+  colorb = left('B',zwidth,'B')
+  colorw = left('W',zwidth,'W')
+  colorq = left('Z',zwidth,'Z')
+  blank = left(' ',zwidth,' ')
+  if datatype(zhead) /= 'NUM' then
+     parse value '0 0 0 ' with zhead zmiddle ztrail
   if length(zshadow) /= length(zdata) then
      zshadow = left(' ',length(zdata),' ')
   do i = 1 to length(zshadow) by zwidth
-     if substr(zdata,i+8,7) = '<<<<<<<' then do
-         parse value '1 0 0 ' with zhead zmiddle ztrail
-         zshadow = overlay('WWWWWW',zshadow,i+1,6)
+     Select
+     when substr(zdata,i+8,1) = '+' then do
+         len = substr(zdata,i+8,zwidth-8)
+         len = translate(len,' ','00'x)
+         len = length(strip(len))
+         zshadow = overlay(colorb,zshadow,i+8,len+1)
+     end
+     when substr(zdata,i+8,1) = '-' then do
+         len = substr(zdata,i+8,zwidth-8)
+         len = translate(len,' ','00'x)
+         len = length(strip(len))
+         zshadow = overlay(colorr,zshadow,i+8,len+1)
+     end
+     when substr(zdata,i+8,7) = '>>>>>>>' then do
+         zshadow = overlay(colorw,zshadow,i+1,6)
+         len = substr(zdata,i+8,zwidth-8)
+         len = translate(len,' ','00'x)
+         len = length(strip(len))
+         zshadow = overlay(colorq,zshadow,i+8,len+1)
          end
-     if substr(zdata,i+8,7) = '=======' then do
-         parse value '0 1 0 ' with zhead zmiddle ztrail
-         zshadow = overlay('WWWWWW',zshadow,i+1,6)
+     when substr(zdata,i+8,7) = '<<<<<<<' then do
+         zshadow = overlay(colorw,zshadow,i+1,6)
+         len = substr(zdata,i+8,zwidth-8)
+         len = translate(len,' ','00'x)
+         len = length(strip(len))
+         zshadow = overlay(colorq,zshadow,i+8,len+1)
          end
-     if substr(zdata,i+8,7) = '>>>>>>>' then do
-         parse value '0 0 1 ' with zhead zmiddle ztrail
-         zshadow = overlay('WWWWWW',zshadow,i+1,6)
+     when substr(zdata,i+8,7) = '=======' then do
+         zshadow = overlay(colorw,zshadow,i+1,6)
+         len = substr(zdata,i+8,zwidth-8)
+         len = translate(len,' ','00'x)
+         len = length(strip(len))
+         zshadow = overlay(colorq,zshadow,i+8,len+1)
          end
-     data = substr(zdata,i+8,zwidth-8)
-     data = strip(data,'T',x2c(00))
-     datal = length(data) - 1
-     if zhead = 1 then
-        zshadow = overlay(left('R',datal,'R'),zshadow,i+8,datal)
-     if zmiddle = 1 then
-        zshadow = overlay(left('B',datal,'B'),zshadow,i+8,datal)
-     if ztrail  = 1 then do
-        zshadow = overlay(left('B',datal,'B'),zshadow,i+8,datal)
-        ztrail = 0
-        end
+     otherwise do
+         len = substr(zdata,i+8,zwidth-8)
+         len = translate(len,' ','00'x)
+         len = length(strip(len))
+         zshadow = overlay(blank,zshadow,i+8,len+1)
+         end
+     end
      end
 *ENDREXX
 )REINIT
 REFRESH(*)
-IF (&ZVMODET = 'VIEW') .HELP = ISR10000  /* DEFAULT TUTORIAL NAME */
-ELSE                   .HELP = ISR20000  /* DEFAULT TUTORIAL NAME */
+.HELP = ZIGIH272
 )PROC
 REFRESH(*)
 &ZCURSOR = .CURSOR

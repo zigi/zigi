@@ -13,12 +13,12 @@
 +
 +Options:%S+Edit%E+Edit%B+Browse%V+View
 +
-+Sel      Status     Dataset                                     Count
++Sel      Status     Dataset
 +
 )Model
-_z+      $z         $z                                          $z
+_z+      $z         $z
 )Init
-  .ZVARS = '(zsel mstat mdsn mcount)'
+  .ZVARS = '(zsel mstat mdsn)'
   &zscr = CSR
 )Proc
  &row = &z

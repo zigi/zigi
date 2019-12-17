@@ -5,30 +5,18 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
-)Body  Expand(\\)
-+-\-\#zigtitle   +-\-\
+)Body  Expand(\\) Window(63,10)
 +Command ===>_zcmd   \ \ +
 %
 +Review/Update Repository Settings:
 %
-+Default Push on Confirm:@z+                      Y or N
++Default Push on Commit (Y or N):@z+
 +
 +Default Userid to set prior to Commit:@defruid + or blank
 +
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-        %ENTER+to register updates and%F3+to Cancel or Leave the panel.
+%ENTER+to register updates and%F3+to Cancel or Leave the panel.
 )Init
+&zwinttl = 'zigi Set Defaults for Commit'
  .zvars = '(defcpush)'
  .cursor = zcmd
  .help = zigih2e0

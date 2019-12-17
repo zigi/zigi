@@ -11,18 +11,18 @@
 %Commands available+(select for more information or press%Enter+to see each):
 +
   [Clone+  Make a local copy of a remote repository
-  [Create+ Create a new local repository
-  [SSH+    Review your SSH public key
   [Config+ Review/Update your name and e-mail for%git+
-  [Pro+    Change from%Basic+(verbose) to%Pro+minimal command text
+  [Create+ Create a new local repository
+  [Find+   Find/RFind a string in either the repository name or the prefix.
   [Githelp+Navigate the git help output via ISPF panels
+  [Pro+    Change from%Basic+(verbose) to%Pro+minimal command text
+  [SSH+    Review your SSH public key
 +
-%Row selections:
 +
-  %S+Select a repository to open and work with
-  %V+View the OMVS file system for the local repository
-  %D+Delete the local repositories OMVS file system
-     (the z/OS datasets will not be deleted)
++
++
++  "Nothing will work unless you do." - John Wooden
++
 +
 +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
@@ -33,7 +33,11 @@
  &config  = 'Config'
  &pro     = 'Pro'
  &githelp = 'GitHelp'
+ &find    = 'Find'
+ &ztut = '100'
+ vput (ztut)
 )PROC
+ &zup = zigihint
 *REXX(* zcmd zsel)
   Select
     When abbrev('CLONE',zcmd,2) = 1 then zcmd = 1
@@ -42,21 +46,19 @@
     When abbrev('CONFIG',zcmd,2) = 1 then zcmd = 4
     When abbrev('PRO',zcmd,2) = 1 then zcmd = 5
     When abbrev('GITHELP',zcmd,2) = 1 then zcmd = 6
+    When abbrev('FIND',zcmd,2) = 1 then zcmd = 7
     Otherwise nop
   end
 *Endrexx
- &githup   = ZIGIH150
- &githnext = &Z
- &prohup   = ZIGIH140
- &prohnext = ZIGIH160
- vput (githup githnext prohup prohnext)
  &ZSEL = TRANS( &ZCMD
+           0,zigih101    /*  Row Selections      */
            1,zigih110    /*  CLONE               */
            2,zigih120    /*  CREATE              */
            3,zigih130    /*  SSH                 */
            4,zigih140    /*  CONFIG              */
            5,zigih150    /*  PRO                 */
            6,zigih160    /*  GITHELP             */
+           7,zigih170    /*  Find                */
            *,'?'
            )
 )PNTS
@@ -66,4 +68,5 @@
  Field(config)  var(zcmd) val('4')
  Field(pro   )  var(zcmd) val('5')
  Field(githelp) var(zcmd) val('6')
+ Field(find   ) var(zcmd) val('7')
 )END

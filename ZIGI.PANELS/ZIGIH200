@@ -11,18 +11,18 @@
 %Commands available+(select for more information or press%Enter+to see each):
 +
 [Add+    Add dataset        [Grep+   Find Strings     [Refresh+ Replace Datasets
-[Br    + Change Branch      [Merge+  Merge Repos      [Remote+  Add remote
-[Commit+ Execute commit -m  [Network+Network Report   [Rollback+Revert
+[Br    + Change Branch      [Merge+  Merge Branches   [Remote+  Add remote
+[Commit+ Record Changes     [Network+Network Report   [Rollback+Revert
 [GitCMD +Git Command Prompt [Pro+    Pro Panel version[Set+     Set Defaults
 [Githelp+Git Help           [Pull+   Pull from origin [Status+  Git Status
 [GitLog+ Show git log output[Push+   Push to origin   [View+    OMVS Dir
 +
-%Row selections:
+[Find+   Find/RFind a string in the dataset or file name.
+%
+[Row+selection options.
 +
-%S+Edit the dataset/file    %A+Add the dataset/file for Commit
-%B+Browse the dataset/file  %RN+Rename the dataset/file
-%RM+Remove the dataset/file from the repository and from OMVS and/or z/OS
-%V+View the local repository files in OMVS
+%
++
 +
 +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
@@ -30,6 +30,7 @@
  &Add     = 'Add'
  &Br      = 'Branch'
  &Commit  = 'Commit'
+ &Find    = 'Find'
  &Gitcmd  = 'GitCmd'
  &Githelp = 'Githelp'
  &GitLog  = 'Gitlog'
@@ -42,12 +43,16 @@
  &Refresh = 'Refresh'
  &Remote  = 'Remote'
  &Rollback  = 'Rollback'
+ &Row     = 'Row'
  &Set     = 'Set'
  &Status  = 'Status'
  &View    = 'View'
+ &ztut = '200'
+ vput (ztut)
 )PROC
 *REXX(* zcmd zsel)
   Select
+    When abbrev('ROW',zcmd,3)     = 1 then zcmd ='0'
     When abbrev('ADD',zcmd,2)     = 1 then zcmd ='1'
     When abbrev('BRANCH',zcmd,2)  = 1 then zcmd ='2'
     When abbrev('COMMIT',zcmd,2)  = 1 then zcmd ='3'
@@ -66,26 +71,12 @@
     When abbrev('SET',zcmd,2)     = 1 then zcmd ='16'
     When abbrev('STATUS',zcmd,2)  = 1 then zcmd ='17'
     When abbrev('VIEW',zcmd,1)    = 1 then zcmd ='18'
+    When abbrev('FIND',zcmd,1)    = 1 then zcmd ='19'
     Otherwise nop
   end
 *Endrexx
- &githup   = ZIGIH150
- &githnext = ZIGIH250
- &prohup   = ZIGIH140
- &prohnext = ZIGIH160
- &comhup   = ZIGIH220
- &comhnext = ZIGIH240
- &cmdhup   = ZIGIH230
- &cmdhnext = ZIGIH160
- &sthup    = ZIGIH2E0
- &sthnext  = ZIGIH2G0
- &loghup   = ZIGIH160
- &loghnext = ZIGIH260
- &grhup    = ZIGIH250
- &grhnext  = ZIGIH270
- vput (githup githnext prohup prohnext comhup comhnext cmdhup cmdhnext)
- vput (sthup sthnext loghup loghnext grhup grhnext)
  &ZSEL = TRANS( &ZCMD
+           0,zigih201  /* Row Select     */
            1,zigih210  /* ADD            */
            2,zigih220  /* BRANCH         */
            3,zigih230  /* COMMIT         */
@@ -104,9 +95,11 @@
           16,zigih2E0  /* SET            */
           17,zigih2F0  /* STATUS         */
           18,zigih2G0  /* VIEW           */
+          19,zigih170  /* VIEW           */
            *,'?'
            )
 )PNTS
+ FIELD(ROW   )  VAR(ZCMD) VAL('0')
  FIELD(ADD   )  VAR(ZCMD) VAL('1')
  FIELD(BR    )  VAR(ZCMD) VAL('2')
  FIELD(COMMIT)  VAR(ZCMD) VAL('3')
@@ -125,4 +118,5 @@
  FIELD(SET   )  VAR(ZCMD) VAL('16')
  FIELD(STATUS)  VAR(ZCMD) VAL('17')
  FIELD(VIEW  )  VAR(ZCMD) VAL('18')
+ FIELD(FIND  )  VAR(ZCMD) VAL('19')
 )END

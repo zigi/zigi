@@ -7,8 +7,8 @@
 %Selection ===>_ZCMD                                                          +
 +
 %zigi+is the z/OS ISPF Git Interface designed to provide the z/OS community
-+with an easy to use interface to the git source code management system to
-+manage their traditional%z/OS datasets+and%OMVS files.
++with an easy to use interface to the git distributed version control
++system (VCS) to manage their traditional%z/OS datasets+and%OMVS files.
 +
 +This tutorial covers the following topics, presented in sequence or by
 +selecting number, or selected using point and shoot:
@@ -35,6 +35,8 @@
    &L5 = '5'
    &LA = 'A'
  .cursor = &zcmd
+ &ztut = 'HINT'
+ vput (ztut)
 )PROC
  &ZSEL = TRANS( &ZCMD
            0,zigih000   /* Introduction (Getting Started) */

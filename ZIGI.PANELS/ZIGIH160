@@ -27,11 +27,10 @@
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
- vget (githup githnext)
+ vget (ztut)
 )PROC
- if(&githup = &Z)
-    &githup = ZIGIH150
- &ZUP = &githup
- if (&githnext NE &Z)
-     &zcont = &githnext
+ if (&ztut = 100)
+     &zcont = ZIGIH170
+ if (&ztut = 200)
+     &zcont = ZIGIH250
 )END

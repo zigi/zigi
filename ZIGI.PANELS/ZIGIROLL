@@ -9,7 +9,7 @@
 +-\-\#zigtitle   +-\-\
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
 +
-+Commits to Review:_z +(1 to 99)
++Commits to Review:_z   +(1 to 9999)
 +
 +Options:%S+Display%R+RollBack
 +
@@ -38,6 +38,6 @@ _z+ $z                   $z
      &osel = &zsel
  if (&row = 0)
      &zsel = &z
- ver (&crcnt,nb,range,1,99)
+ ver (&crcnt,nb,range,1,9999)
  ver (&zsel,list,S,R)
 )End

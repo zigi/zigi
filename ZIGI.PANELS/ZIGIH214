@@ -1,0 +1,33 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD        \ \ %Scroll ===>_zcsr
++
+                                 %Add+
++
++Sample zigi managed git directory:
++
+% .git
++ --- git generated files and directories
+% .gitattributes+        (a zigi generated file for git)
+% .zigi+                 (a directory for key zigi files)
++ ---%dsn+               (a zigi required file)
++%Documentation+         (a directory)
++ ---%Users Guide.html+  (a file)
++%APP.C+                 (a directory as this is a z/OS PDS)
++ ---%KEYAPP+            (a PDS member)
++%README.ZOS+            (a sequential dataset)
++
++
++        "Today is the only day. Yesterday is gone." -- John Wooden
++
+         +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+ &zscr = CSR
+)PROC
+ &zcont = zigih220
+)END

@@ -1,0 +1,39 @@
+zigi Release Notes
+Version 2.0
+
+New Features and Functions
+
+A new GITCMD dialog that enables the execution of any valid git command
+within the active git repository. A command history is maintained so that
+commands may be reused. The command results are then browsed or viewed.
+
+Grep processing has been enhanced with an option to view the results in a
+report mode using the raw grep results or in a Dataset/File view where the
+results are presented summarized by dataset or file. The display allows
+selecting the individual dataset, or file, for Edit, Browse, or View.
+
+History is a dataset, PDS member, or file selection option that will display
+a list of all commits for that element. From the table display the user
+can select using C to view the commit entry, including the diffs.
+Selecting using S will view the historical version of the element. While in
+ISPF View the user has access to all ISPF Edit commands, including  Compare,
+Copy, and Create.
+
+Merge supports merging another local branch into the current branch. Merge
+conflicts can be resolved using ISPF Edit Compare or using a customized Edit
+display that highlights the merge conflicts using the git provided conflict
+markers.
+
+OMVS subdirectories with files are now supported. These directories and
+files must be added outside of zigi at this time and when zigi starts it
+will recognize those as untracked. The untracked directories, and/or files,
+must then be added to the git staging index for management by git.
+
+Rename an element will rename the z/OS dataset, z/OS PDS member, OMVS file,
+and any ISPF statistics file. It will also perform a git mv (rename) so
+all git information about the original will be retained with the new name.
+
+Remove an element will delete the z/OS dataset, z/OS PDS member, OMVS file,
+and any ISPF statistics file. It will also perform a git rm (remove) so
+all git information about the element will be deleted.
+

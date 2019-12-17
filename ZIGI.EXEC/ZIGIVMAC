@@ -1,0 +1,34 @@
+/* --------------------  rexx procedure  -------------------- *
+ | Name:      zigivmac                                        |
+ |                                                            |
+ | Function:  ISPF Edit Macro to insert messages at the top   |
+ |            of the viewed data.                             |
+ |                                                            |
+ | Author:    Lionel B. Dyck                                  |
+ |                                                            |
+ | History:  (most recent on top)                             |
+ |            12/16/19 LBD - creation                         |
+ |                                                            |
+ * ---------------------------------------------------------- */
+  Address ISREdit
+  'Macro (options)'
+  'Reset ALL'
+  'hilite off'
+  Address ISPExec 'vget (vtitle)'
+  if vtitle = '' then exit
+  parse value vtitle with element'\'hdate'\'hauthor'\'fulldsn .
+  if left(fulldsn,1) = "'" then do
+    parse value element with x'/'mem .
+    fulldsn = strip(fulldsn,'B',"'")
+    fulldsn = fulldsn'('mem')'
+  end
+  else fulldsn = element
+  data = 'Historical view of element:' fulldsn
+  'line_before 1 = msgline (data)'
+  data = 'From:' strip(hauthor) 'on' strip(hdate)
+  'line_before 1 = msgline (data)'
+  data = 'All ISPF View commands are available, including Compare, Create' ,
+    'and Copy.'
+  'line_before 1 = msgline (data)'
+  data = left('-',72,'-')
+  'line_before 1 = msgline (data)'

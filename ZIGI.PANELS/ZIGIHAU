@@ -1,37 +1,44 @@
-)attr default(%+_)
+)attr default(@+_)
   _ type( input) intens(low ) just(left ) hilite(uscore)
   ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
   [ type(output) intens(high) caps(off) just(left) pas(on) color(white)
   } area(SCRL) Extend(ON)
 )Body Expand(\\)
-%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+@Tutorial -\-\~The z ISPF Git Interface (zigi)@\-\- Tutorial
 +Command ===>_ZCMD                    \ \+Scroll ===>_zscr
 +
-                        %zigi Authors and Contributors+
+                        @zigi Authors and Contributors+
 +
 }help -----------------------------------------------------------------------}
 )Area Help
-%Authors+
+@Authors+
 +
-%Henri Kuiper+of zDevOps (www.zdevops.com, www.zigi.rocks and
+@Henri Kuiper+of zDevOps (www.zdevops.com, www.zigi.rocks and
 +github.com/wizardofzos)
 +
 +Henri is the instigator and initial developer of zigi. Without his epiphany
 +there wouldn't be a zigi as you see it. He provided the insights, logic, and
 +code for 99% of the git processing.
 +
-%Lionel B. Dyck+21st Century Software (www.21stcenturysoftware.com)
+@Lionel B. Dyck+21st Century Software (www.21stcenturysoftware.com)
 +
 +Lionel nudged Henri to get the project rolling beyond Henri's initial efforts
 +and is the impetus for the ISPF elements and other features. Lionel is
 +a prolific tool creator who has been blessed with management allowing him to
 +share his creations, which can be found at www.lbdsoftware.com.
 +
+@Special Thanks To:
++
+  +Davide Girardi
+  +David Crayford
+  +Jim Taylor
+  +Kadima
+  +Lee Bochicchio
+  +William Schoen
 +
 )Init
  .cursor = &zcmd
  &zscr = CSR
 )PROC
  &ZUP = ZIGIHINT
- &ZCONT = ZIGIH100
 )END

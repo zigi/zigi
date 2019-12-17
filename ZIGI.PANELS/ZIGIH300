@@ -10,18 +10,18 @@
 +
 %Commands available+(select for more information or press%Enter+to see each):
 +
-  [Commit+       [Grep+         [Reset    +    [Status+
-  [Gitlog+       [Locate+       [Sort+
+  [Commit+   git Commit all elements that have been added
+  [Gitlog+   view the git log with filtering options
+  [Grep+     search all repository elements for a string
+  [Locate+   locate a member in the member list
+  [Reset    +change the userid for all members
+  [Sort+     sort the member table - prompting if no parms given
+  [Status+   display the git status for the repository
 
-%Row selections:
 +
-  %A+Add the member to the%git index+so that it can be Committed
-  %D+Show the difference (compare) the current with the commit level if
-     an Add has been performed but no commit.
-  %RM+Remove the member from the PDS and the repository
-  %RN+reName the member
-  %S+Select the member and Edit it
-+
+     +    "Don't measure yourself by what you have accomplished,
+     +     but by what you should have accomplished with your
+     +     ability." - John Wooden
 +
 +
 +Press the%Enter+key to continue your zigi tutorial journey.
@@ -34,6 +34,8 @@
  &reset   = 'Reset-IDs'
  &sort    = 'Sort'
  &status  = 'Status'
+ &ztut = '300'
+ vput (ztut)
 )PROC
 *REXX(* zcmd zsel)
   Select
@@ -47,16 +49,6 @@
     Otherwise nop
   end
 *Endrexx
- &comhup   = ZIGIH300
- &comhnext = ZIGIH250
- &sthup    = ZIGIH330
- &sthnext  = ZIGIH300
- &loghup   = ZIGIH230
- &loghnext = ZIGIH260
- &grhup    = ZIGIH250
- &grhnext  = ZIGIH310
- vput (comhup comhnext cmdhup cmdhnext loghup loghnext sthup sthnext)
- vput (grhup grhnext)
  &ZSEL = TRANS( &ZCMD
            1,zigih230  /*   COMMIT            */
            2,zigih250  /*   GITLOG            */
@@ -65,6 +57,7 @@
            5,zigih320  /*   RESET             */
            6,zigih330  /*   SORT              */
            7,zigih2f0  /*   STATUS            */
+           8,zigih340  /*   Row options       */
            *,'?'
            )
 )PNTS

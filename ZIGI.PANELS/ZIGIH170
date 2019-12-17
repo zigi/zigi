@@ -1,0 +1,36 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                                     %FIND+
++
+%Find+and%Repeat Find+search for the provided string in all of the fields in
++the row. The table will then be positioned so that row is the top row.
++
++The find string is case insensitive.
++
+%Syntax:+Find string
++    or  F5 for repeat find
++
++
+%
++
++
++  "The whole point of getting things done is knowing what to leave undone."
++       - Oswald Chambers
++
++
+         +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+ vget (ztut)
+)PROC
+ if (&ztut = 100)
+     &zcont = ZIGIH200
+ if (&ztut = 200)
+     &zcont = ZIGIH300
+)END

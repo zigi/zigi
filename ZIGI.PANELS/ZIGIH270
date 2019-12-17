@@ -8,26 +8,25 @@
 +
                                  %Merge+
 +
-%Merge+will merge a (local) branch into the current branch.
-+When the two branches are the same, nothing happes. In case of a merge%conflict
-+the merge will be 'aborted' and the current branch stays untouched.
+%Merge+will merge a (local) branch into the current branch.  When the two
++branches are the same, nothing happes.
++
++Select the branch to merge into the current branch from a list of available
++branches using the%M+row selection.
 +
 +If the merge is succesfull, it will be commited to the current branch.
 +
-+Select the branch to merge into the current branch using the%M+row selection.
-%
-%
++If the merge is not successful a popup with three options will be presented:
 +
-%
++   %1+Continue and attempt to resolve using ISPF Compare
++   %2+Continue and attempt to resolve using ISPF Edit
+    %3+Abort the Merge
 +
             +"Never mistake activity for achievement." - John Wooden
-+
-+
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
- &zup = zigih260
- &zcont = zigih280
+ &zcont = zigih271
 )END
