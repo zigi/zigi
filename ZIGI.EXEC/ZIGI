@@ -3359,7 +3359,7 @@ do_history:
         cmd = 'cd' localrep'/'zigirep
         cmd = cmd '&& git log' hcommit '-n 1 --cc'
         x = docmd(cmd)
-        call view_std
+        call view_std 'X' 'V'
         zsel = null
       end
       if zsel = 'S' then do

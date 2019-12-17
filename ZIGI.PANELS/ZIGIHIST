@@ -9,7 +9,7 @@
 +-\-\#zigtitle   +-\-\
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
 +
-+Selections:%S+View historical source%C+Browse Commit Info
++Selections:%S+View historical source%C+View Commit Info
 + @element
 +
 +Sel Date/Time of Commit               Author
