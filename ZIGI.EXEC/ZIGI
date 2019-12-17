@@ -1114,7 +1114,7 @@ Do_Rollback:
         so.0 = soo
       end
       se.0 = 0
-      call view_std
+      call view_std 'X' 'V'
     end
     if zsel = 'R' then do
       zcmd  = null
