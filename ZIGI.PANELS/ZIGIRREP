@@ -33,12 +33,14 @@
  &rename  = 'Rename'
  &view    = 'View'
 )Proc
- ver (&zsel,list,A,B,D,E,H,RM,RN,V)
+ if (&zsel = 'E')
+     &zsel = 'S'
+ ver (&zsel,list,A,B,D,E,H,RM,RN,V,S)
 )PNTS
   Field(add    ) var(zsel) val('A')
   Field(browse ) var(zsel) val('B')
   Field(diff   ) var(zsel) val('D')
-  Field(edit   ) var(zsel) val('E')
+  Field(edit   ) var(zsel) val('S')
   Field(history) var(zsel) val('H')
   Field(remove ) var(zsel) val('RM')
   Field(rename ) var(zsel) val('RN')

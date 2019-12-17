@@ -803,6 +803,12 @@ Work_With_Repo:
       end
     end
 
+    if zsel = '/' then do
+      'Addpop row(4) column(10)'
+      'Display Panel(zigirrep)'
+      'rempop'
+    end
+
     /* flag for USS file or ZOS dataset */
     zosflg = 1
     if filetype = '(D)' then do
