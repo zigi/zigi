@@ -29,11 +29,11 @@
  &remove  = 'Remove'
  &rename  = 'Rename'
 )Proc
- ver (&zsel,list,A,E,D,H,RM,RN)
+ ver (&zsel,list,A,E,D,H,RM,RN,S)
 )PNTS
-  Field(edit   ) var(zsel) val('A')
-  Field(add    ) var(zsel) val('E')
+  Field(add    ) var(zsel) val('A')
   Field(diff   ) var(zsel) val('D')
+  Field(edit   ) var(zsel) val('S')
   Field(history) var(zsel) val('H')
   Field(remove ) var(zsel) val('RM')
   Field(rename ) var(zsel) val('RN')
