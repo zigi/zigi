@@ -10,19 +10,19 @@
 +
   %A+Add the dataset/file for Commit
 +    - Inform git that this dataset/file is to be updated or added to the repo
-  %B+Browse the dataset/file
-+    - Use ISPF Browse on the z/OS dataset or file%*+
+  %B+Browse the dataset or file%*+
   %H+History to view a previous version of the selected dataset or file
 +    - For a PDS the member must be selected
   %RM+Remove the dataset/file from the repository and from git management
 +     - Deletes both z/OS datasets and OMVS files
   %RN+Rename the dataset/file
 +     - Renames the dataset or file and informs git of the rename
-  %S+Edit the dataset/file
-+    - Use ISPF Edit on the z/OS dataset or file%*+
-  %V+View the local repository files in OMVS
-+    - Use ISPF View on the z/OS dataset or file%*+
-%*+  If the selection is a directory then convert%B%S%V+to work with it
+  %S+Edit the dataset or file%*+
+  %V+View the dataset or file%*+
+  %/+Display a popup selection menu
++
+  %*+If the selection is a directory then convert%B%S%V+to work with it
++
 +
 +Press the%Enter+key to continue your zigi tutorial journey.
 )Init

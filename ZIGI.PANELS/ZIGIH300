@@ -14,15 +14,15 @@
   [Gitlog+   view the git log with filtering options
   [Grep+     search all repository elements for a string
   [Locate+   locate a member in the member list
+  [Menu+     hide the menu - use%O+to view a popup command menu
   [Reset    +change the userid for all members
   [Sort+     sort the member table - prompting if no parms given
   [Status+   display the git status for the repository
-
++
 +
      +    "Don't measure yourself by what you have accomplished,
      +     but by what you should have accomplished with your
      +     ability." - John Wooden
-+
 +
 +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
@@ -30,6 +30,7 @@
  &commit  = 'Commit'
  &gitlog  = 'Gitlog'
  &grep    = 'Grep'
+ &menu    = 'Menu'
  &locate  = 'Locate'
  &reset   = 'Reset-IDs'
  &sort    = 'Sort'
@@ -43,9 +44,10 @@
     When abbrev('GITLOG',zcmd,4) = 1 then zcmd = 2
     When abbrev('GREP',zcmd,2) = 1 then zcmd = 3
     When abbrev('LOCATE',zcmd,1) = 1 then zcmd = 4
-    When abbrev('RESET',zcmd,2) = 1 then zcmd = 5
-    When abbrev('SORT',zcmd,2) = 1 then zcmd = 6
-    When abbrev('STATUS',zcmd,2) = 1 then zcmd = 6
+    When abbrev('MENU',zcmd,1) = 1 then zcmd = 5
+    When abbrev('RESET',zcmd,2) = 1 then zcmd = 6
+    When abbrev('SORT',zcmd,2) = 1 then zcmd = 7
+    When abbrev('STATUS',zcmd,2) = 1 then zcmd = 8
     Otherwise nop
   end
 *Endrexx
@@ -54,10 +56,11 @@
            2,zigih250  /*   GITLOG            */
            3,zigih260  /*   GREP              */
            4,zigih310  /*   LOCATE            */
-           5,zigih320  /*   RESET             */
-           6,zigih330  /*   SORT              */
-           7,zigih2f0  /*   STATUS            */
-           8,zigih340  /*   Row options       */
+           5,zigih315  /*   MENU              */
+           6,zigih320  /*   RESET             */
+           7,zigih330  /*   SORT              */
+           8,zigih2f0  /*   STATUS            */
+           9,zigih340  /*   Row options       */
            *,'?'
            )
 )PNTS

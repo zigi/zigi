@@ -363,6 +363,7 @@
   "TBSort zigirepo Fields(zigirep,C,A)"
   'vget (primpanl) profile'
   if primpanl = null then primpanl = 'zigiprim'
+  'vput (primpanl) profile'
   do forever
     parse value '' with zsel zcmd row
     'TBTop zigirepo'
@@ -431,6 +432,12 @@
     if defcpush = 'Y' then zpush = 'Y'
     else zpush = 'N'
 
+    if zcmd = 'O' then do
+      'Addpop row(4) column(6)'
+      'Display Panel(zigioprm)'
+      'rempop'
+    end
+
     if abbrev('BASIC',zcmd,2) = 1 then zcmd = 'PRO'
     if zcmd /= null then
     Select
@@ -454,9 +461,12 @@
         if rc = 0 | rc = 8 then leave
       end
       When abbrev('PRO',zcmd,2) = 1 then do
-        if primpanl = 'zigiprim'
-        then primpanl = 'zigiprms'
-        else primpanl = 'zigiprim'
+        select
+          when primpanl = 'zigiprim' then primpanl = 'zigiprms'
+          when primpanl = 'zigiprms' then primpanl = 'zigiprmz'
+          when primpanl = 'zigiprmz' then primpanl = 'zigiprim'
+          otherwise primpanl = 'zigiprim'
+        end
         'vput (primpanl) profile'
       end
       When abbrev('SSH',zcmd,2) = 1 then do forever
@@ -469,6 +479,12 @@
         zerrlm = zcmd 'is not a recognized command.'
         'setmsg msg(isrz003)'
       end
+    end
+
+    if zsel = '/' then do
+      'Addpop row(4) column(6)'
+      'Display Panel(zigirprm)'
+      'rempop'
     end
 
     if zsel /= null then
@@ -626,6 +642,12 @@ Work_With_Repo:
       end
     end
 
+    if zcmd = 'O' then do
+      'Addpop row(4) column(10)'
+      'Display Panel(zigiorep)'
+      'rempop'
+    end
+
     if abbrev('BASIC',zcmd,2) = 1 then zcmd = 'PRO'
     if zcmd /= null then
     Select
@@ -649,9 +671,12 @@ Work_With_Repo:
       When abbrev('GITHELP',zcmd,4) = 1 then
       Address TSO '%githelp'
       When abbrev('PRO',zcmd,2) = 1 then do
-        if repopan = 'zigirepo'
-        then repopan = 'zigireps'
-        else repopan = 'zigirepo'
+        select
+          when repopan = 'zigirepo' then repopan = 'zigireps'
+          when repopan = 'zigireps' then repopan = 'zigirepz'
+          when repopan = 'zigirepz' then repopan = 'zigirepo'
+          otherwise nop
+        end
         'vput (repopan) profile'
       end
       When abbrev('BRANCH',zcmd,2) = 1 then call Branch_it
@@ -1258,6 +1283,11 @@ do_grep:
             'tbtop' zgreptbl
             'tbskip' zgreptbl  'number('row')'
           end
+          if zsel = '/' then do
+            'Addpop row(4) column(6)'
+            'Display Panel(zigirgrp)'
+            'rempop'
+          end
           if zsel = 'S' then zsel = 'E'
           'Control display save'
           Select
@@ -1686,13 +1716,16 @@ Work_with_repo_file:
     * ---------------------------------- */
     save_top = 0
     ztdsels  = 1
+    'vget (listpnl) profile'
+    if listpnl = null then listpnl = 'ZIGILIST'
+    'vput (listpnl) profile'
     Do Forever
       if rtll_open = 0 then leave
       parse value '' with zsel zcmd row
-      if ztdsels = 1 then do
+      if ztdsels < 2 then do
         'tbtop' rtll
         'tbskip' rtll 'number('save_top')'
-        'TBdispl' rtll 'Panel(zigilist)'
+        'TBdispl' rtll 'Panel('listpnl')'
       end
       else 'tbdispl' rtll
       if rc > 4 then do
@@ -1713,8 +1746,21 @@ Work_with_repo_file:
         'TBSkip' rtll 'Number('row')'
       end
 
+      if zcmd = 'O' then do
+        'Addpop row(4) column(6)'
+        'Display Panel(zigiolst)'
+        'rempop'
+      end
+
       if zcmd /= null then
       Select
+        When abbrev('MENU',zcmd,2) = 1 then do
+          if listpnl = 'ZIGILIST'
+          then listpnl = 'ZIGILSTZ'
+          else listpnl = 'ZIGILIST'
+          'vput (listpnl) profile'
+          zcmd = null
+        end
         When abbrev('GITHELP',zcmd,4) = 1 then
         'Select cmd(%githelp)'
         When abbrev('COMMIT',zcmd,3) = 1 then do
@@ -1757,6 +1803,13 @@ Work_with_repo_file:
           'setmsg msg(isrz003)'
         end
         zsel = null
+        zcmd = null
+      end
+
+      if zsel = '/' then do
+        'Addpop row(4) column(6)'
+        'Display Panel(zigirlst)'
+        'rempop'
       end
 
       if zsel /= null then
@@ -2344,6 +2397,11 @@ Merge_it:
             if row /= null then do
               'tbtop' zmergtbl
               'tbskip' zmergtbl  'number('row')'
+            end
+            if zsel = '/' then do
+              'Addpop row(4) column(6)'
+              'Display Panel(zigirmrg)'
+              'rempop'
             end
             if zsel = 'S' then zsel = 'E'
             'Control display save'
@@ -3355,6 +3413,11 @@ do_history:
       end
       if rc > 0 then leave
       top = ztdtop
+      if zsel = '/' then do
+        'Addpop row(4) column(6)'
+        'Display Panel(zigirhst)'
+        'rempop'
+      end
       if zsel = 'C' then do
         cmd = 'cd' localrep'/'zigirep
         cmd = cmd '&& git log' hcommit '-n 1 --cc'

@@ -1,0 +1,28 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  @ type(output) intens(high) caps(off) just(left )
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+  ] type(output) caps(off) pas(on) intens(high) color(white)
+)Body  window(36,6)
++
++Enter Selection:_z+
++
++]Select+(S) Browse the dataset/file
++]Commit+(C) View Commit history
++
+)Init
+ &zwinttl = 'zigi History Selection Options'
+ .zvars = '(zsel)'
+ .cursor = zsel
+ &zsel  = &z
+ &select = 'Select'
+ &commit = 'Commit'
+)Proc
+ ver (&zsel,list,S,C)
+)PNTS
+  Field(commit) var(zsel) val('C')
+  Field(select) var(zsel) val('S')
+)End

@@ -10,7 +10,8 @@
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
 +
 +Selections:%S+View historical source%C+View Commit Info
-+ @element
++
++Dataset/File:@element
 +
 +Sel Date/Time of Commit               Author
 +
@@ -36,5 +37,5 @@ _z+ $z                                $z
      &osel = &zsel
  if (&row = 0)
      &zsel = &z
- ver (&zsel,list,S,C)
+ ver (&zsel,list,S,C,/)
 )End

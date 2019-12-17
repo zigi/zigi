@@ -42,7 +42,7 @@ _z+  $z              +  $z                                 +    ]z
      &osel = &zsel
  if (&row = 0)
      &zsel = &z
- ver (&zsel,list,S,D,V)
+ ver (&zsel,list,S,D,V,/)
 )PNTS
  FIELD(CLONE   ) VAR(ZCMD) VAL('CLONE')
  FIELD(CREATE  ) VAR(ZCMD) VAL('CREATE')
