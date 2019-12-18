@@ -1,7 +1,10 @@
-zigi Release Notes
-Version 2.0
+                             zigi Release Notes
+                                Version 2.0
 
-New Features and Functions
+                         New Features and Functions
+                         --------------------------
+
+Update to the GITLOG prompt to include, or exclude, diff's in the report.
 
 A new GITCMD dialog that enables the execution of any valid git command
 within the active git repository. A command history is maintained so that
@@ -41,8 +44,9 @@ Added new row selection option of / to tables where it made sense. The /
 will bring up a popup menu for the available section options. These popups
 include an entry field and point-and-shoot capabilities.
 
-Added new menu toggle to Basic and Pro that will remove ALL menus. A new
-command option on those panels is O which will display a popup command
+Added new menu toggle to Basic and Pro that will remove ALL menus.
+
+A new command option on those panels is O which will display a popup command
 selection panel that support both an entry field and point-and-shoot.
 
 When the git log is viewed the git diff's will not be colorized with blue
