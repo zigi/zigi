@@ -12,7 +12,7 @@
 +   %2+Continue and attempt to resolve using ISPF Edit
     %3+Abort the Merge
 +
-+Press%Enter+to continue%F3+to cancel
+           +Select an option or%F3+to cancel
 +
 )Init
  .help = zigih270
