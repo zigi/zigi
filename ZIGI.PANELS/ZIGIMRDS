@@ -20,6 +20,7 @@ _z+      $z         $z
 )Init
   .ZVARS = '(zsel mstat mdsn)'
   &zscr = CSR
+  .help = zigih270
 )Proc
  &row = &z
  if (&ZCMD = &Z)

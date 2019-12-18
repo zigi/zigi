@@ -10,6 +10,7 @@
  | Author:    Lionel B. Dyck                                  |
  |                                                            |
  | History:  (most recent on top)                             |
+ |            12/18/19 LBD - turn off hilite                  |
  |            12/13/19 LBD - creation                         |
  |                                                            |
  * ---------------------------------------------------------- */
@@ -18,6 +19,7 @@
 
   "RECOVERY ON"
   "PACK OFF"
+  'Hilite Off'
   "DEFINE ZIGIEME MACRO CMD"
   "DEFINE ZIGIEMS MACRO CMD"
   "DEFINE SAVE ALIAS ZIGIEMS"

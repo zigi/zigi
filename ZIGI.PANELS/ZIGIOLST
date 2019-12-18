@@ -6,7 +6,7 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white)
-)Body  window(46,12)
+)Body  Window(46,12)
 +
 +Enter Selection:_z                        +
 +
@@ -22,7 +22,6 @@
  &zwinttl = 'zigi PDS Member Commands'
  .zvars = '(zcmd)'
  .cursor = zcmd
- &zcmd  = &z
   &Locate = 'Locate'
   &Commit = 'Commit'
   &gitlog = 'Gitlog'
@@ -33,6 +32,11 @@
   &reset  = 'Reset-IDs'
   .help = zigih300
 )Proc
+*REXX(*)
+ say 'zcmd: *'zcmd'*'
+ if abbrev('LOCATE',zcmd,1) = 1 then
+    zcmd = 'LOCATE' lstloc
+*ENDREXX
  if (&zcmd EQ 'LOCATE')
     ver (&lstloc,nb)
 )PNTS

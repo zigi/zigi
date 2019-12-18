@@ -106,7 +106,7 @@
   if zigidebg = 0 then
   "Control Errors Return"
 
-  parse value '' with null rx zigidebg_flag
+  parse value '' with null rx zigidebg_flag save_zigirep
   /* ----------------------------------------------------- *
   | Get the Active HLQ for use with the ALTLIB and LIBDEF |
   | of the zIGI libraries.                                |
@@ -168,6 +168,7 @@
   /* ------------------------------------ *
   | define our working default variables |
   * ------------------------------------ */
+  zhtop = 'ZIGIHINT'
   zerrhm   = 'zigih00'
   zerralrm = 'NO'
   zerrtp   = 'NOTIFY'
@@ -197,8 +198,9 @@
 
   x   = docmd('command -v git')
 
-  if so.0 = 1 then do
-    zigigitl = strip(so.1)
+  x = so.0
+  if so.0 > 0 then do
+    zigigitl = strip(so.x)
     'vput (zigigitl) profile'
   end
   else do
@@ -206,8 +208,9 @@
     'vput (gitenv) profile'
     call getenv
     x = docmd('command -v git')
-    if so.0 = 1 then do
-      zigigitl = strip(so.1)
+    if so.0 > 0 then do
+      x = so.0
+      zigigitl = strip(so.x)
       'vput (zigigitl) profile'
     end
     else do
@@ -378,6 +381,15 @@
       'TBSkip zigirepo Number('row')'
     end
 
+    findstr = null
+    if zcmd = 'O' then do
+      'Addpop row(4) column(6)'
+      'Display Panel(zigioprm)'
+      'rempop'
+    end
+    if findstr /= null
+    then zcmd = 'F' findstr
+
     /* -------------- *
     | Process a Find |
     * -------------- */
@@ -429,13 +441,8 @@
     if defcpush = 'Y' then zpush = 'Y'
     else zpush = 'N'
 
-    if zcmd = 'O' then do
-      'Addpop row(4) column(6)'
-      'Display Panel(zigioprm)'
-      'rempop'
-    end
-
     if abbrev('BASIC',zcmd,2) = 1 then zcmd = 'PRO'
+    if abbrev('MENU',zcmd,2)  = 1 then zcmd = 'PRO'
     if zcmd /= null then
     Select
       When abbrev('GITHELP',zcmd,4) = 1 then
@@ -646,6 +653,7 @@ Work_With_Repo:
     end
 
     if abbrev('BASIC',zcmd,2) = 1 then zcmd = 'PRO'
+    if abbrev('MENU',zcmd,2)  = 1 then zcmd = 'PRO'
     if zcmd /= null then
     Select
       When abbrev('SET',zcmd,1) = 1 then do forever
@@ -1003,7 +1011,6 @@ Work_With_Repo:
       * -------------------------------- */
       When zsel = 'S' & left(fulldsn,1) /= "'" then do
         zosflg = 0
-        'control display save'
         ofile = localrep'/'zigirep'/'fulldsn
         cur_date = get_fd_date(ofile)
         if filetype /= '(D)' then do
@@ -1752,12 +1759,16 @@ Work_with_repo_file:
         'TBSkip' rtll 'Number('row')'
       end
 
+      lstloc = null
       if zcmd = 'O' then do
+        zcmd = null
         'Addpop row(4) column(6)'
         'Display Panel(zigiolst)'
         'rempop'
       end
 
+      if abbrev('BASIC',zcmd,2) = 1 then zcmd = 'MENU'
+      if abbrev('PRO',zcmd,2)   = 1 then zcmd = 'MENU'
       if zcmd /= null then
       Select
         When abbrev('MENU',zcmd,2) = 1 then do
