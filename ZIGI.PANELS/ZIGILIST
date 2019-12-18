@@ -15,8 +15,8 @@
 %Current Repository : $localdir
 %Current Branch     : $branch
 %
-%Commands:  %L+Locate    ]Commit+]Gitlog+]Grep+]Sort+]Status+]Reset    +
-%Selections:%S+Edit%A+Add%D+Show Diff%H+History%RN+Rename%RM+Remove from Repo
+%Commands:  %L+Locate  ]Commit]Gitlog]Grep]Sort]Status]Reset    ]Menu+
+%Selections:%S+Edit%A+Add%D+Show Diff%H+History%RM+Remove from Repo%RN+Rename
 %
 %S  Member     Status                     Size    Mod-Date  Mod-Time  Userid
 )Model
@@ -29,6 +29,7 @@
   &Commit = 'Commit'
   &gitlog = 'Gitlog'
   &grep   = 'Grep'
+  &menu   = 'Menu'
   &sort   = 'Sort'
   &status = 'Status'
   &reset  = 'Reset-IDs'
@@ -48,7 +49,7 @@
      &osel = &zsel
  if (&row = 0)
     &zsel = &z
- ver (&zsel,list,S,A,D,U,RN,RM,H)
+ ver (&zsel,list,S,A,D,U,RN,RM,H,/)
 )PNTS
  FIELD(COMMIT) VAR(ZCMD) VAL('COMMIT')
  FIELD(GITLOG) VAR(ZCMD) VAL('GITLOG')
@@ -56,4 +57,5 @@
  FIELD(RESET ) VAR(ZCMD) VAL('RESET')
  FIELD(SORT )  VAR(ZCMD) VAL('SORT')
  FIELD(GREP )  VAR(ZCMD) VAL('GREP')
+ FIELD(MENU )  VAR(ZCMD) VAL('MENU')
 )End

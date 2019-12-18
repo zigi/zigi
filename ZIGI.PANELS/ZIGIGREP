@@ -10,7 +10,7 @@
 +
 +Git grep: _grepstr                                                   +
 +
-+Dataset or Report View:@z+(D or R)
++Dataset/File or Report View:@z+(D or R)
 +
 +Note: The grep is case sensitive.
 +

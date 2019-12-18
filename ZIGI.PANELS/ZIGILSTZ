@@ -1,24 +1,27 @@
 )Attr Default(%+_)
   _ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
-  @ type(output) intens(high) caps(off) just(left )
+  @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
   $ type(output) intens(low ) caps(off) just(left )
+  [ type(output) intens(low ) caps(off) just(right)
+  ] type(output) caps(off) pas(on) intens(high) color(white)
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
 )Body  Expand(\\)
 +-\-\#zigtitle   +-\-\
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
-+
-+Grep Command:@grepstr
-+
-+Options:%S+Edit%E+Edit%B+Browse%V+View
-+
-+Sel      Status    $gds                                         Count
-+
+%
+%Current Dataset    : $fulldsn
+%Current Repository : $localdir
+%Current Branch     : $branch
+%
+%S  Member     Status                     Size    Mod-Date  Mod-Time  Userid
 )Model
-_z+      $z         $z                                          $z
+@z +$z        +$z                     [z      +  [z       +[z       +$z
 )Init
-  .ZVARS = '(zsel gstat gdsn gcount)'
+  .zvars = '(zsel mem memstat zlcnorc zlmdate zlmtime zluser)'
+  .cursor = &zcmd
+  .help = zigih300
   &zscr = CSR
 )Proc
  &row = &z
@@ -35,6 +38,6 @@ _z+      $z         $z                                          $z
            &Zsel = &osel
      &osel = &zsel
  if (&row = 0)
-     &zsel = &z
- ver (&zsel,list,S,B,E,V,/)
+    &zsel = &z
+ ver (&zsel,list,S,A,D,U,RN,RM,H,/)
 )End

@@ -1,0 +1,46 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  @ type(output) intens(high) caps(off) just(left )
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+  ] type(output) caps(off) pas(on) intens(high) color(white)
+)Body  window(46,12)
++
++Enter Selection:_z                        +
++
++]Commit+   Register all changes with git
++]Gitlog+   Review the git log
++]Grep+     Search the repository for a string
++]Locate+  _lstloc  +Locate a member
++]Menu+     Toggle the menu on and off
++]Reset    +Reset all userids
++]Sort+     Sort the member list
++]Status+   Get current git status
+)Init
+ &zwinttl = 'zigi PDS Member Commands'
+ .zvars = '(zcmd)'
+ .cursor = zcmd
+ &zcmd  = &z
+  &Locate = 'Locate'
+  &Commit = 'Commit'
+  &gitlog = 'Gitlog'
+  &grep   = 'Grep'
+  &menu   = 'Menu'
+  &sort   = 'Sort'
+  &status = 'Status'
+  &reset  = 'Reset-IDs'
+  .help = zigih300
+)Proc
+ if (&zcmd EQ 'LOCATE')
+    ver (&lstloc,nb)
+)PNTS
+ FIELD(COMMIT) VAR(ZCMD) VAL('COMMIT')
+ FIELD(GITLOG) VAR(ZCMD) VAL('GITLOG')
+ FIELD(GREP )  VAR(ZCMD) VAL('GREP')
+ FIELD(MENU )  VAR(ZCMD) VAL('MENU')
+ FIELD(RESET ) VAR(ZCMD) VAL('RESET')
+ FIELD(SORT )  VAR(ZCMD) VAL('SORT')
+ FIELD(STATUS) VAR(ZCMD) VAL('STATUS')
+)End

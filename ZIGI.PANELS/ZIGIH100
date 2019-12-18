@@ -15,10 +15,10 @@
   [Create+ Create a new local repository
   [Find+   Find/RFind a string in either the repository name or the prefix.
   [Githelp+Navigate the git help output via ISPF panels
-  [Pro+    Change from%Basic+(verbose) to%Pro+minimal command text
+  [Pro+    Change from%Basic+(verbose) to%Pro+minimal command text to No Menu
   [SSH+    Review your SSH public key
 +
-+
++Use%O+to display a command popup selection menu if the menu has been hidden.
 +
 +
 +  "Nothing will work unless you do." - John Wooden

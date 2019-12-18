@@ -9,23 +9,10 @@
 +-\-\#zigtitle   +-\-\
 %Command ===>_zcmd       \ \ %Scroll ===>_zscr+
 +
-+Primary commands:  @Clone+remote repository           @Pro+
-+                   @Create+a local repo from scratch  @githelp+
-+                   @SSH+View your SSH public key      %Find
-+                   @Config+View git configuration
-+
-+Repo options:      %S+Work with repo%V+View repo OMVS files+%D+Delete repo
-+
 %    [Repository+       [Prefix+                                [Last Access+
 )Model
 _z+  $z              +  $z                                 +    ]z
 )Init
- &clone   = 'Clone'
- &create  = 'Create'
- &pro     = 'Pro'
- &ssh     = 'SSH'
- &config  = 'Config'
- &githelp = 'GitHelp'
  &zscr = CSR
  .zvars = '(zsel zigirep pdshlq zigidate)'
  .help = zigihint
@@ -46,11 +33,4 @@ _z+  $z              +  $z                                 +    ]z
  if (&row = 0)
      &zsel = &z
  ver (&zsel,list,S,D,V,/)
-)PNTS
- FIELD(CLONE   ) VAR(ZCMD) VAL('CLONE')
- FIELD(CREATE  ) VAR(ZCMD) VAL('CREATE')
- FIELD(PRO     ) VAR(ZCMD) VAL('PRO')
- FIELD(SSH     ) VAR(ZCMD) VAL('SSH')
- FIELD(CONFIG  ) VAR(ZCMD) VAL('CONFIG')
- FIELD(GITHELP ) VAR(ZCMD) VAL('GITHELP')
 )end

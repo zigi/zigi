@@ -6,13 +6,11 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                                   %Locate+
+                                    %Menu+
 +
-%Locate+will scroll the table to the member that closely matches the member
-+name provided. The member name can be a partial member name (no wild cards).
-+
-%Syntax:+   Locate member
-+           L member
+%Menu+ will hide the command and row selection menus to provide more space
++on the screen for usable data. Use command%Menu+to toggle the menu back or
++use command%O+to display a popup menu from which to select.
 +
 +
 +
@@ -20,8 +18,10 @@
 +
 +
 +
-            +"If you don't have time to do it right,
-            + when will you have time to do it over?"   John Wooden
++
++
+            +"Reputation is for time; character is for eternity."
+            + -- J. B. Gough
 +
 +
            +Press the%Enter+key to begin your zigi tutorial journey.

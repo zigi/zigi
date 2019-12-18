@@ -1,0 +1,43 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  @ type(output) intens(high) caps(off) just(left )
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+  ] type(output) caps(off) pas(on) intens(high) color(white)
+)Body  window(44,10)
++
++Enter Selection:_z                        +
++
+ ]Clone+   remote repository
+ ]Config+  View git configuration
+ ]Create+a local repo from scratch
+ ]Find+string in table fields:_findstr +
+ ]Githelp+ Display menu of git Help pages
+ ]Menu+    Toggle Menu, Basic->Pro->None
+ ]SSH+     View your SSH public key
+)Init
+ &zwinttl = 'zigi Primary Menu Commands'
+ .zvars = '(zcmd)'
+ .cursor = zcmd
+ &zcmd  = &z
+ &clone   = 'Clone'
+ &create  = 'Create'
+ &pro     = 'Pro'
+ &ssh     = 'SSH'
+ &find    = 'FIND'
+ &config  = 'Config'
+ &githelp = 'GitHelp'
+ .help = zigih100
+)Proc
+ if (&zcmd EQ 'FIND')
+    ver (&findstr,nb)
+)PNTS
+ FIELD(CLONE   ) VAR(ZCMD) VAL('CLONE')
+ FIELD(CREATE  ) VAR(ZCMD) VAL('CREATE')
+ FIELD(MENU    ) VAR(ZCMD) VAL('PRO')
+ FIELD(SSH     ) VAR(ZCMD) VAL('SSH')
+ FIELD(CONFIG  ) VAR(ZCMD) VAL('CONFIG')
+ FIELD(GITHELP ) VAR(ZCMD) VAL('GITHELP')
+)End
