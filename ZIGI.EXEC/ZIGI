@@ -442,6 +442,7 @@
     else zpush = 'N'
 
     if abbrev('BASIC',zcmd,2) = 1 then zcmd = 'PRO'
+    if abbrev('MENU',zcmd,2)  = 1 then zcmd = 'PRO'
     if zcmd /= null then
     Select
       When abbrev('GITHELP',zcmd,4) = 1 then
@@ -652,6 +653,7 @@ Work_With_Repo:
     end
 
     if abbrev('BASIC',zcmd,2) = 1 then zcmd = 'PRO'
+    if abbrev('MENU',zcmd,2)  = 1 then zcmd = 'PRO'
     if zcmd /= null then
     Select
       When abbrev('SET',zcmd,1) = 1 then do forever
@@ -1765,6 +1767,8 @@ Work_with_repo_file:
         'rempop'
       end
 
+      if abbrev('BASIC',zcmd,2) = 1 then zcmd = 'MENU'
+      if abbrev('PRO',zcmd,2)   = 1 then zcmd = 'MENU'
       if zcmd /= null then
       Select
         When abbrev('MENU',zcmd,2) = 1 then do
