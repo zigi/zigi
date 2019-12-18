@@ -31,6 +31,9 @@
  &githelp = 'GitHelp'
  .help = zigih100
 )Proc
+*REXX(*)
+ if abbrev('FIND',zcmd,1) = 1 then zcmd = 'FIND'
+*ENDREXX
  if (&zcmd EQ 'FIND')
     ver (&findstr,nb)
 )PNTS

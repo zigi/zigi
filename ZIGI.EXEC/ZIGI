@@ -381,6 +381,15 @@
       'TBSkip zigirepo Number('row')'
     end
 
+    findstr = null
+    if zcmd = 'O' then do
+      'Addpop row(4) column(6)'
+      'Display Panel(zigioprm)'
+      'rempop'
+    end
+    if findstr /= null
+    then zcmd = 'F' findstr
+
     /* -------------- *
     | Process a Find |
     * -------------- */
@@ -431,12 +440,6 @@
     'tbget zigirepo'
     if defcpush = 'Y' then zpush = 'Y'
     else zpush = 'N'
-
-    if zcmd = 'O' then do
-      'Addpop row(4) column(6)'
-      'Display Panel(zigioprm)'
-      'rempop'
-    end
 
     if abbrev('BASIC',zcmd,2) = 1 then zcmd = 'PRO'
     if zcmd /= null then
@@ -1752,7 +1755,9 @@ Work_with_repo_file:
         'TBSkip' rtll 'Number('row')'
       end
 
+      lstloc = null
       if zcmd = 'O' then do
+        zcmd = null
         'Addpop row(4) column(6)'
         'Display Panel(zigiolst)'
         'rempop'
