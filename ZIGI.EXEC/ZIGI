@@ -106,7 +106,7 @@
   if zigidebg = 0 then
   "Control Errors Return"
 
-  parse value '' with null rx zigidebg_flag save_zigirep
+  parse value '' with null rx zigidebg_flag
   /* ----------------------------------------------------- *
   | Get the Active HLQ for use with the ALTLIB and LIBDEF |
   | of the zIGI libraries.                                |
@@ -168,7 +168,6 @@
   /* ------------------------------------ *
   | define our working default variables |
   * ------------------------------------ */
-  zhtop = 'ZIGIHINT'
   zerrhm   = 'zigih00'
   zerralrm = 'NO'
   zerrtp   = 'NOTIFY'
@@ -198,9 +197,8 @@
 
   x   = docmd('command -v git')
 
-  x = so.0
-  if so.0 > 0 then do
-    zigigitl = strip(so.x)
+  if so.0 = 1 then do
+    zigigitl = strip(so.1)
     'vput (zigigitl) profile'
   end
   else do
@@ -208,9 +206,8 @@
     'vput (gitenv) profile'
     call getenv
     x = docmd('command -v git')
-    if so.0 > 0 then do
-      x = so.0
-      zigigitl = strip(so.x)
+    if so.0 = 1 then do
+      zigigitl = strip(so.1)
       'vput (zigigitl) profile'
     end
     else do
@@ -1006,6 +1003,7 @@ Work_With_Repo:
       * -------------------------------- */
       When zsel = 'S' & left(fulldsn,1) /= "'" then do
         zosflg = 0
+        'control display save'
         ofile = localrep'/'zigirep'/'fulldsn
         cur_date = get_fd_date(ofile)
         if filetype /= '(D)' then do
@@ -1149,6 +1147,7 @@ Do_Rollback:
     end
     if zsel = 'R' then do
       zcmd  = null
+      rolla = 'Cancel'
       call pfshow 'off'           /* make sure pfshow is off */
       'Addpop row(4) column(12)'
       'Display Panel(zigipoph)'
@@ -1181,6 +1180,7 @@ Do_Rollback:
         'setmsg msg(isrz003)'
         ztdsels = 1
       end
+      leave
     end
   end
   'tbend' zcrtbl
@@ -2070,6 +2070,7 @@ Refresh:
   zs1 = "Refreshing from repository"
   zs2 = "   OMVS -> z/OS      "
   call do_popup
+
   ckotdir = localrep'/'zigirep
   if datatype(qualignr) /= 'NUM' then qualignr = 0
   if qualignr = 0
