@@ -1009,7 +1009,6 @@ Work_With_Repo:
       * -------------------------------- */
       When zsel = 'S' & left(fulldsn,1) /= "'" then do
         zosflg = 0
-        'control display save'
         ofile = localrep'/'zigirep'/'fulldsn
         cur_date = get_fd_date(ofile)
         if filetype /= '(D)' then do
