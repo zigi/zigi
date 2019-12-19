@@ -33,7 +33,6 @@
   .help = zigih300
 )Proc
 *REXX(*)
- say 'zcmd: *'zcmd'*'
  if abbrev('LOCATE',zcmd,1) = 1 then
     zcmd = 'LOCATE' lstloc
 *ENDREXX

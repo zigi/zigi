@@ -5,7 +5,7 @@
  + type(text ) intens(low) skip(on)
  @ type(input) caps(on ) hilite(uscore) intens(low)
 )Body Expand(\\)
-+-\-\#zigtitle   +-\-\
++Git Commit+----------------------#zigtitle   +---------------------------------
 %Command ===>_zcmd                                                             +
 +
 %Commit Title: _msg1                                             +
