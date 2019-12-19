@@ -6,7 +6,7 @@
  @ type(output) caps(off) pas(on) intens(high) color(white)
  [ type(text) intens(low) hilite(uscore)
 )Body Expand(\\)
-+-\-\#zigtitle   +-\-\
++Local Repositories+--------------#zigtitle   +---------------------------------
 %Command ===>_zcmd       \ \ %Scroll ===>_zscr+
 +
 +Primary commands:  @Clone+remote repository           @Pro+

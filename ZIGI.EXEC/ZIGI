@@ -2515,6 +2515,7 @@ Create_Repo:
     if rc > 0 then return 8
     if localrep = '?' then
     localrep = zigiosel()
+    localrep = strip(localrep,'T','/')
     /* ---------------------------------------------------- *
     | We do some basic git repo setup here...              |
     | Fair warning, it's going to be very verbose.         |
@@ -3646,7 +3647,10 @@ Test_Repo_Table_State:
     do i = 1 to tc.0
       parse value key.i with localrep pdshlq qualignr zigirep ,
         '\'defcpush'\'defruid'\'zigidate
+      if right(localrep,1) = '/' then localrep = strip(localrep,'T','/')
+      zigirep = strip(zigirep)
       zigikey = localrep'/'zigirep
+      if zigidate = 'ZIGIDATE' then zigidate = null
       if zigidate = null then
       zigidate = date('n')
       'tbadd zigirepo order'

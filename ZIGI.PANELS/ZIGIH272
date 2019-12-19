@@ -27,7 +27,11 @@
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
+ vget (ztut)
 )PROC
  &zup   = zigih271
- &zcont = zigih280
+ if (&ztut EQ 'mrg')
+     &zcont = zigih270
+ if (&ztut NE 'mrg')
+     &zcont = zigih280
 )END

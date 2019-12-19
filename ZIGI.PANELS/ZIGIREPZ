@@ -8,7 +8,7 @@
   # type(output) hilite(reverse) color(turq) caps(off)
  [ type(output) caps(off) pas(on) intens(high) color(white)
 )Body  Expand(\\)
-+-\-\#zigtitle   +-\-\
++Current Repository+--------------#zigtitle   +---------------------------------
 %Command ===>_zcmd            \ \  %Scroll ===>_zscr+
 %Local dir      :$localdir
 %Remote path    :$remote1
