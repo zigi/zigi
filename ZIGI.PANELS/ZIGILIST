@@ -18,7 +18,7 @@
 %Commands:  %L+Locate  ]Commit]Gitlog]Grep]Sort]Status]Reset    ]Menu+
 %Selections:%S+Edit%A+Add%D+Show Diff%H+History%RM+Remove from Repo%RN+Rename
 %
-%S  Member     Status                     Size    Mod-Date  Mod-Time  Userid
+%S   Member    Status                     Size    Mod-Date  Mod-Time  Userid
 )Model
 @z +$z        +$z                     [z      +  [z       +[z       +$z
 )Init

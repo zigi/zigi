@@ -15,7 +15,7 @@
 %Current Repository : $localdir
 %Current Branch     : $branch
 %
-%S  Member     Status                     Size    Mod-Date  Mod-Time  Userid
+%S   Member    Status                     Size    Mod-Date  Mod-Time  Userid
 )Model
 @z +$z        +$z                     [z      +  [z       +[z       +$z
 )Init
