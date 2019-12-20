@@ -2,6 +2,7 @@
   _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
   @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
   $ type(output) intens(low ) caps(off) just(left )
+  ] type(output) intens(low ) caps(off) just(left ) color(green)
   ! type(output) intens(high) caps(off) just(left )
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
@@ -22,7 +23,7 @@
 +
 %S  Status                    Dataset/File Name
 )Model
-@z +$z                       $z                                            $z
+@z +$z                       $z                                            ]z
 )Init
  &Add     = 'Add'
  &Basic   = 'Basic'
