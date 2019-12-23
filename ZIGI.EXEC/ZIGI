@@ -22,6 +22,7 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            12/23/19 HBK - One more fix for file status     |
+  |                     LBD - Use View for DIFF for hilite     |
   |            12/22/19 HBK - Correct stats for subdirectories |
   |            12/15/19 LBD - Add Author  to History display   |
   |            12/14/19 LBD - Improve history log search       |
@@ -2021,7 +2022,7 @@ Work_with_repo_file:
           m = translate(mem,'._-','#@$')
           x = docmd(cmd ' && git diff 'm)
           if so.0 + se.0 > 0
-          then call View_std
+          then call View_std 'X' 'V'
           else do
             zerrsm = 'No Diff'
             zerrlm = 'No differnce found.'
