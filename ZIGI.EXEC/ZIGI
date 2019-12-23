@@ -773,6 +773,7 @@ Work_With_Repo:
           prc = rc
           'Rempop'
           call pfshow 'reset'         /* restore pfshow setting */
+          if prc > 0 then refa = 'NO'
           if refa = 'YES' then do
             call Refresh localrep zigirep pdshlq qualignr
             call update_repo_metadata
