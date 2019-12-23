@@ -21,6 +21,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            12/22/19 HBK - Correct stats for subdirectories |
   |            12/15/19 LBD - Add Author  to History display   |
   |            12/14/19 LBD - Improve history log search       |
   |                           using grep                       |
@@ -684,11 +685,25 @@ Work_With_Repo:
         end
         'vput (repopan) profile'
       end
-      When abbrev('BRANCH',zcmd,2) = 1 then call Branch_it
+      When abbrev('BRANCH',zcmd,2) = 1 then do
+        if words(save_zigirep) > 0 then do
+          zerrsm = 'Invalid.'
+          zerrlm = 'Branch is not supported in subdirectories.'
+          'setmsg msg(isrz003)'
+        end
+        else call Branch_it
+      end
       /* -------------------------------- *
       | Merge a branch into current branch|
       * -------------------------------- */
-      When abbrev('MERGE',zcmd,2) = 1 then call Merge_it
+      When abbrev('MERGE',zcmd,2) = 1 then do
+        if words(save_zigirep) > 0 then do
+          zerrsm = 'Invalid.'
+          zerrlm = 'Merge is not supported in subdirectories.'
+          'setmsg msg(isrz003)'
+        end
+        else call Merge_it
+      end
       /* ----------------- *
       | Git command prompt |
       * ------------------ */
@@ -727,7 +742,12 @@ Work_With_Repo:
       | Add a PDS or a Sequential File to "Working Directory"     |
       * --------------------------------------------------------- */
       When abbrev('ADD',zcmd,3) = 1 then do
-        call Add_Dataset
+        if words(save_zigirep) > 0 then do
+          zerrsm = 'Invalid.'
+          zerrlm = 'Add is not supported in subdirectories.'
+          'setmsg msg(isrz003)'
+        end
+        else call Add_Dataset
       end
       /* -------------------------------- *
       | View output of git status        |
@@ -737,22 +757,29 @@ Work_With_Repo:
       | Refresh z/OS datasets            |
       * -------------------------------- */
       When abbrev('REFRESH',zcmd,3) = 1 then do
-        zcmd = null
-        refa = 'NO'
-        call pfshow 'off'           /* make sure pfshow is off */
-        'Addpop row(4) column(12)'
-        'Display Panel(zigipopr)'
-        prc = rc
-        'Rempop'
-        call pfshow 'reset'         /* restore pfshow setting */
-        if refa = 'YES' then do
-          call Refresh localrep zigirep pdshlq qualignr
-          call update_repo_metadata
+        if words(save_zigirep) > 0 then do
+          zerrsm = 'Invalid.'
+          zerrlm = 'Refresh is not supported in subdirectories.'
+          'setmsg msg(isrz003)'
         end
         else do
-          zerrsm = 'Cancelled.'
-          zerrlm = 'Refresh cancelled.'
-          'setmsg msg(isrz003)'
+          zcmd = null
+          refa = 'NO'
+          call pfshow 'off'           /* make sure pfshow is off */
+          'Addpop row(4) column(12)'
+          'Display Panel(zigipopr)'
+          prc = rc
+          'Rempop'
+          call pfshow 'reset'         /* restore pfshow setting */
+          if refa = 'YES' then do
+            call Refresh localrep zigirep pdshlq qualignr
+            call update_repo_metadata
+          end
+          else do
+            zerrsm = 'Cancelled.'
+            zerrlm = 'Refresh cancelled.'
+            'setmsg msg(isrz003)'
+          end
         end
       end
       /* -------------------------------- *
@@ -771,7 +798,14 @@ Work_With_Repo:
       /* -------------------------------- *
       | Rollback to a Commit Tab         |
       * -------------------------------- */
-      When abbrev('ROLLBACK',zcmd,2) = 1 then call do_rollback
+      When abbrev('ROLLBACK',zcmd,2) = 1 then do
+        if words(save_zigirep) > 0 then do
+          zerrsm = 'Invalid.'
+          zerrlm = 'Rollback is not supported in subdirectories.'
+          'setmsg msg(isrz003)'
+        end
+        else call do_rollback
+      end
       /* -------------------------------- *
       | Add/replace remote URI (origin)  |
       * -------------------------------- */
@@ -1022,19 +1056,14 @@ Work_With_Repo:
             call update_repo_metadata
           end
         end
-        /* ------------- $$$$$$$$$ -------------- *
-        | NEEDS WORK but Supports SubDirectories |
-        * -------------- $$$$$$$$$ ------------- */
         else do
           save_zigirep = save_zigirep zigirep
           zigirep = zigirep'/'dsn
           'tbend' rtbl
           rtbl_open = 0
-          call update_repo_metadata
           call work_with_repo
           zigirep = word(save_zigirep,words(save_zigirep))
           save_zigirep = subword(save_zigirep,1,words(save_zigirep)-1)
-          call update_repo_metadata
           call work_with_repo
         end
       end
@@ -3029,13 +3058,13 @@ update_repo_metadata:
       else do
         if left(root.i,1) /= '.' then do
           dsn = root.i
-          filetype = null
           if rstat.i.1 = 1 then filetype = '(D)'
+          else filetype = null
           fulldsn = dsn
           do ii = 1 to so.0
             stat = substr(so.ii,1,2)
             PATH = substr(so.ii,4)
-            if pos(dsn, PATH) = 1 then do
+            if pos(dsn, PATH) > 0 then do
               dsnstat = porcelain(stat)
               leave
             end
@@ -3067,7 +3096,7 @@ update_repo_metadata:
   return
 
 porcelain:
-  parse arg status
+  parse arg stat
 
   /* parse git status --short as documented in
   https://www.git-scm.com/docs/git-status#_short_format */
@@ -3099,7 +3128,7 @@ porcelain:
     When stat == "!!" then res = "Ignored"
     Otherwise res = null
   end
-  return '[' || status || '] ' || res
+  return '[' || stat || '] ' || res
 
 usssafe: procedure
   parse arg dsn

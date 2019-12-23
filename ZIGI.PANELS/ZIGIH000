@@ -16,9 +16,9 @@
 +and other%git+sites, the most cost effective use is to use it as a free
 +distributed version control system (VCS) for source code management (SCM).
 +
-+The%zigi+Primary menu is where you will find a table of all%git+repositories
-+that you have cloned or created. It is also the place where you can easily
-+Clone an existing repository  or Create a new repository.
++The%zigi+Local Repositories Panel is where you will find a table of all%git+
++repositories that you have cloned or created. It is also the place where you
++can easily Clone an existing repository or Create a new repository.
 +
 +
 + "Though a program be but three lines long, someday it will have to be
