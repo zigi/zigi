@@ -21,6 +21,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            12/23/19 HBK - One more fix for file status     |
   |            12/22/19 HBK - Correct stats for subdirectories |
   |            12/15/19 LBD - Add Author  to History display   |
   |            12/14/19 LBD - Improve history log search       |
@@ -3064,7 +3065,14 @@ update_repo_metadata:
           do ii = 1 to so.0
             stat = substr(so.ii,1,2)
             PATH = substr(so.ii,4)
-            if pos(dsn, PATH) > 0 then do
+            spos = POS('/',zigirep)
+            cutrep = substr(zigirep,spos+1)
+            trywith = cutrep'/'fulldsn
+            if pos(dsn, PATH) = 1 then do
+              dsnstat = porcelain(stat)
+              leave
+            end
+            if pos(trywith, PATH) = 1 then do
               dsnstat = porcelain(stat)
               leave
             end
