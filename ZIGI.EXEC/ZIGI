@@ -21,6 +21,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            12/24/19 HBK - Correct URL parse                |
   |            12/23/19 HBK - One more fix for file status     |
   |                     LBD - Use View for DIFF for hilite     |
   |            12/22/19 HBK - Correct stats for subdirectories |
@@ -821,11 +822,14 @@ Work_With_Repo:
           'setmsg msg(isrz003)'
         end
         else do
-          parse var origin guser '@' host ':' rest
+          parsedURI = parseGitURI(origin)
+          parse var parsedURI user host port repo
+          if port /= 22 then extrabits = '-p 'port
+          else extrabits = ''
           cmd = 'touch 'home'/.ssh/known_hosts && '
           cmd = cmd 'if ! grep 'host
           cmd = cmd home'/.ssh/known_hosts >/dev/null;'
-          cmd = cmd 'then ssh-keyscan -t rsa,dsa 'host
+          cmd = cmd 'then ssh-keyscan 'extrabits' -t rsa,dsa 'host
           cmd = cmd ' 2>/dev/null >> 'home'/.ssh/known_hosts ;'
           cmd = cmd 'fi'
           x = bpxwunix(cmd,,so.,se.)
@@ -1640,14 +1644,16 @@ Clone_Repo:
     end
     saverep = localrep
     'vput (saverep) profile'
-    parse var remote site ':' user '/' zigirep '.git'
-    parse var site guser '@' host
+    parsedURI = parseGitURI(remote)
+    parse var parsedURI guser host port zigirep '.git'
+    if port /= 22 then extrabits = '-p 'port
+    else extrabits = ''
     /* Let's clone the remote repo... */
     zs1 = "Cloning "zigirep" by "user
     zs2 = "from "host
     call do_popup
     cmd = 'touch 'home'/.ssh/known_hosts && '
-    cmd = cmd 'ssh-keyscan -t rsa,dsa 'host
+    cmd = cmd 'ssh-keyscan 'extrabits' -t rsa,dsa 'host
     cmd = cmd ' 2>&1 | sort -u - 'home'/.ssh/known_hosts >'
     cmd = cmd ' 'home'/.ssh/tmp_hosts && '
     cmd = cmd 'mv 'home'/.ssh/tmp_hosts 'home'/.ssh/known_hosts'
@@ -3696,3 +3702,21 @@ Test_Repo_Table_State:
     end
   end
   Return
+
+parseGitURI:
+  /* --------------------------------------------- *
+  | Parse the various forms of git repo uri's into|
+  | <user> <site> <port> <repo>                   |
+  * --------------------------------------------- */
+  parse arg uri
+  if pos('ssh://',uri) = 1 then
+    uri = substr(uri,pos('ssh://', uri) + 6)
+
+  parse var uri user '@' site ':' portorrealuser '/' repo
+  if datatype(portorrealuser) = 'NUM' then port = portorrealuser
+  else do
+    port = 22
+    user = portorrealuser
+  end
+
+  return user site port repo
