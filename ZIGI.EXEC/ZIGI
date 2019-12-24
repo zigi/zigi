@@ -22,6 +22,7 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            12/24/19 HBK - Correct URL parse                |
+  |                     LBD - Enable O.xxx commands            |
   |            12/23/19 HBK - One more fix for file status     |
   |                     LBD - Use View for DIFF for hilite     |
   |            12/22/19 HBK - Correct stats for subdirectories |
@@ -386,6 +387,8 @@
     end
 
     findstr = null
+    if pos('.',zcmd) > 0 then
+       parse value zcmd with x'.'zcmd
     if zcmd = 'O' then do
       'Addpop row(4) column(6)'
       'Display Panel(zigioprm)'
@@ -650,6 +653,8 @@ Work_With_Repo:
       end
     end
 
+    if pos('.',zcmd) > 0 then
+       parse value zcmd with x'.'zcmd
     if zcmd = 'O' then do
       'Addpop row(4) column(10)'
       'Display Panel(zigiorep)'
@@ -1797,6 +1802,8 @@ Work_with_repo_file:
         'TBSkip' rtll 'Number('row')'
       end
 
+      if pos('.',zcmd) > 0 then
+         parse value zcmd with x'.'zcmd
       lstloc = null
       if zcmd = 'O' then do
         zcmd = null
