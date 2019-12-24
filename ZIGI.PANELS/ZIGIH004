@@ -19,10 +19,10 @@
 +It is recommended that each team working with%zigi+develop a plan on how to
 +use it. This is no different from the plan  on how teams are to use any SCM.
 +
-+
+%Note+each developer should work with their own local repository and then
++commit and push updates to the remote repository.
 +
    +"By Failing to prepare, you are preparing to fail."   Benjamin Franklin
-+
 +
            +Press the%Enter+key to begin your zigi tutorial journey.
 )Init

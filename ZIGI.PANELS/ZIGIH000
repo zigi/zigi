@@ -10,7 +10,7 @@
 +
 %Getting Started:+
 +
-%zigi+is designed to make working with%git+very easy for the ISPF developer but
+%zigi+is designed to make working with%git+very easy for the ISPF developer, but
 +you should still have a basic understanding of%git+and how your organization
 +uses it. While you can use it solely with open source tools found on GitHub,
 +and other%git+sites, the most cost effective use is to use it as a free
