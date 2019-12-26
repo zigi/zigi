@@ -21,6 +21,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            12/26/19 LBD - Change temp dsn suffix: gitdata  |
   |            12/24/19 HBK - Correct URL parse                |
   |                     LBD - Enable O.xxx commands            |
   |            12/23/19 HBK - One more fix for file status     |
@@ -2742,7 +2743,7 @@ view_std:
   if viewopt = 'V' then do
     if sysvar('syspref') = null then pref = userid()'.'
     else pref = null
-    vdsn = pref'work.zigi.data'
+    vdsn = pref'work.zigi.gitdata'
   end
   else vdsn = null
   x = listdsi(vdsn)
