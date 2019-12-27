@@ -11,6 +11,7 @@
   %A+Add the dataset/file for Commit
 +    - Inform git that this dataset/file is to be updated or added to the repo
   %B+Browse the dataset or file%*+
+  %D+Diff the dataset or file (not directory or PDS)
   %H+History to view a previous version of the selected dataset or file
 +    - For a PDS the member must be selected
   %RM+Remove the dataset/file from the repository and from git management
@@ -22,7 +23,6 @@
   %/+Display a popup selection menu
 +
   %*+If the selection is a directory then convert%B%S%V+to work with it
-+
 +
 +Press the%Enter+key to continue your zigi tutorial journey.
 )Init

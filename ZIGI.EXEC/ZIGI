@@ -389,7 +389,7 @@
 
     findstr = null
     if pos('.',zcmd) > 0 then
-       parse value zcmd with x'.'zcmd
+    parse value zcmd with x'.'zcmd
     if zcmd = 'O' then do
       'Addpop row(4) column(6)'
       'Display Panel(zigioprm)'
@@ -655,7 +655,7 @@ Work_With_Repo:
     end
 
     if pos('.',zcmd) > 0 then
-       parse value zcmd with x'.'zcmd
+    parse value zcmd with x'.'zcmd
     if zcmd = 'O' then do
       'Addpop row(4) column(10)'
       'Display Panel(zigiorep)'
@@ -869,6 +869,38 @@ Work_With_Repo:
     end
     if zsel /= null then
     Select
+      when zsel = 'D' then do
+          /* -------------------------------- *
+          | Show the diff for the file       |
+          * -------------------------------- */
+        dtest = 0
+        if left(fulldsn,1) = "'" then do
+          x = listdsi(fulldsn)
+          if sysdsorg = 'PO' then do
+            zerrlm = 'Diff does not work on Partitioned Datasets'
+            zerrsm = 'Error.'
+            'setmsg msg(isrz003)'
+            dtest = 1
+          end
+        end
+        else if filetype = '(D)' then do
+            zerrlm = 'Diff does not work on directories'
+            zerrsm = 'Error.'
+            'setmsg msg(isrz003)'
+            dtest = 1
+          end
+        if dtest = 0 then do
+          cmd = 'cd' localrep'/'zigirep
+          x = docmd(cmd ' && git diff 'dsn)
+          if so.0 + se.0 > 0
+          then call View_std 'X' 'V'
+          else do
+            zerrsm = 'No Diff'
+            zerrlm = 'No differnce found.'
+            'Setmsg msg(isrz003)'
+          end
+        end
+      end
       When zsel = 'H' then do
         htest = 0
         if left(fulldsn,1) = "'" then do
@@ -1804,7 +1836,7 @@ Work_with_repo_file:
       end
 
       if pos('.',zcmd) > 0 then
-         parse value zcmd with x'.'zcmd
+      parse value zcmd with x'.'zcmd
       lstloc = null
       if zcmd = 'O' then do
         zcmd = null
@@ -3718,7 +3750,7 @@ parseGitURI:
   * --------------------------------------------- */
   parse arg uri
   if pos('ssh://',uri) = 1 then
-    uri = substr(uri,pos('ssh://', uri) + 6)
+  uri = substr(uri,pos('ssh://', uri) + 6)
 
   parse var uri user '@' site ':' portorrealuser '/' repo
   if datatype(portorrealuser) = 'NUM' then port = portorrealuser
