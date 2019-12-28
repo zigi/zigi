@@ -2067,6 +2067,7 @@ Work_with_repo_file:
           cmd = 'cd' localrep'/'zigirep'/'d
           /* These cp -M issues are really getting annoying */
           m = translate(mem,'._-','#@$')
+          m = './'m
           x = docmd(cmd ' && git diff 'm)
           if so.0 + se.0 > 0
           then call View_std 'X' 'V'
@@ -3742,6 +3743,18 @@ Test_Repo_Table_State:
     end
   end
   Return
+
+  /* ------------------------------------------------- *
+  | Translate a file name to or from unix conventions |
+  | to convert or restore the special characters      |
+  | #@$ to/from ._-                                   |
+  | Dynamically determine which direction to use...   |
+  * ------------------------------------------------- */
+to_from_unix2: procedure
+  arg file
+  if pos('{',translate(file,'{{{','._-')) = 0
+  then return translate(file,'._-','#@$')
+  else return translate(file,'#@$','._-')
 
 parseGitURI:
   /* --------------------------------------------- *
