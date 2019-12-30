@@ -7,6 +7,6 @@
   $zs2
   +Answer:_answer                     +
 )Init
- &zwinttl = 'zIGI Prompt Popup'
+ &zwinttl = 'zigi Prompt Popup'
 )Proc
 )end

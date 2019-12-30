@@ -15,7 +15,7 @@
 +Press%Enter+to continue or%F3+to cancel.
 )Init
  .zvars = '(delcg delco)'
- &zwinttl = 'zIGI Delete Confirmation'
+ &zwinttl = 'zigi Delete Confirmation'
  .help = zigihdel
 )Proc
  ver (&delcg,nb,list,Y,N)

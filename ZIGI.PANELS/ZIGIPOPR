@@ -7,7 +7,7 @@
   +===>_z  +(YES or NO or F3)
 )Init
  .zvars = '(refa)'
- &zwinttl = 'zIGI Prompt Popup'
+ &zwinttl = 'zigi Prompt Popup'
 )Proc
  ver (&refa,nb,list,YES,NO)
 )end

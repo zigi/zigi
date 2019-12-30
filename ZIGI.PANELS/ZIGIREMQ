@@ -10,7 +10,7 @@
 +===>_z  +(YES or NO or F3)
 )Init
  .zvars = '(rema)'
- &zwinttl = 'zIGI Remove Prompt'
+ &zwinttl = 'zigi Remove Prompt'
 )Proc
  ver (&rema,nb,list,YES,NO)
 )end

@@ -12,7 +12,7 @@
 +       Include diffs:$z+         +Y or N
 +      Browse or View:$z+         +B or V
 )Init
- &zwinttl = 'zIGI Log Filter'
+ &zwinttl = 'zigi Log Filter'
  .zvars = '(incldiff lbv)'
 )Proc
   ver (&lcnt,range,1,9999)
