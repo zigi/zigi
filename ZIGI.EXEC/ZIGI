@@ -1329,7 +1329,7 @@ do_grep:
           parse value so.si with gdsn":" .
           if pos('/',gdsn) > 0 then do
             parse value gdsn with gdsn'/'mem':' .
-            mem = translate(mem,'#@$','._-')
+            mem = to_from_unix(mem)
             if dsnvalid(gdsn) = 'OK'
             then gdsn = gdsn'('mem')'
             else gdsn = gdsn'/'mem
@@ -1616,7 +1616,7 @@ fixup_userids:
     if wordpos(file,dsns) = 0 then do
       dsns = dsns file
     end
-    mem = translate(mem,'#@$','._-')
+    mem = to_from_unix(mem)
     members.file = members.file mem
   end
   do iw = 1 to words(dsns)
@@ -1790,7 +1790,7 @@ Work_with_repo_file:
       |  So we fix the name before we save to table :)          |
       * ------------------------------------------------------- */
       ussmem = mem
-      mem = translate(mem,'#@$','._-')
+      mem = to_from_unix(mem)
       /* ---------------------------------------------- *
       | No get ISPF stats for each member for the list |
       * ---------------------------------------------- */
@@ -1927,7 +1927,7 @@ Work_with_repo_file:
         end
         when zsel = 'H' then do
           /* translate the member name to fix special chars */
-          hm  = translate(mem,'._-','#@$')
+          hm = to_from_unix(mem)
           call do_history dsn'/'hm
         end
         when zsel = 'RN' then do
@@ -1957,7 +1957,7 @@ Work_with_repo_file:
             else do
               Address TSO 'Rename' olddsn newdsn
               cmd = 'cd' localrep'/'zigirep'/'dsn
-              newmemokforuss = translate(newmem,'._-','#@$')
+              newmemokforuss = to_from_unix(newmem)
               cmd = cmd '&& git mv' mem newmemokforuss
               cmd = usssafe(cmd)
               x = docmd(cmd)
@@ -1993,7 +1993,7 @@ Work_with_repo_file:
               'Delete' rdsn
             call outtrap 'off'
             /* make sure the member name conforms to the cp -M way */
-            m = translate(mem,'._-','#@$')
+            m = to_from_unix(mem)
             xldir = usssafe(localdir)
             cmd = 'cd' xldir    '&& git rm "'m'"'
             x = docmd(cmd,,so.,se.)
@@ -2020,7 +2020,7 @@ Work_with_repo_file:
           d = usssafe(dsn)
           cmd = 'cd' localrep'/'zigirep'/'d
           /* These cp -M issues are really getting annoying */
-          m = translate(mem,'._-','#@$')
+          m = to_from_unix(mem)
           x = docmd(cmd || ' && git add -v 'm)
           if ztdsels = 1 then do
             statfile = translate(strip(fulldsn,'B',"'"),' ','.')
@@ -2066,7 +2066,7 @@ Work_with_repo_file:
           d = usssafe(dsn)
           cmd = 'cd' localrep'/'zigirep'/'d
           /* These cp -M issues are really getting annoying */
-          m = translate(mem,'._-','#@$')
+          m = to_from_unix(mem)
           m = './'m
           x = docmd(cmd ' && git diff 'm)
           if so.0 + se.0 > 0
@@ -3493,8 +3493,8 @@ do_history:
     if left(so.ih,7) = 'Author:' then
     parse value so.ih with . hauthor '<' .
     if left(so.ih,4) /= '+++ ' then iterate
-    parse value so.ih with . '/'helement .
-    if element /= strip(helement) then iterate
+    parse value so.ih with . '/'shelement .
+    if element /= strip(shelement) then iterate
     hhit = 1
     'tbadd' hist_tbl
   end
@@ -3505,6 +3505,11 @@ do_history:
     return
   end
   if hhit = 1 then do
+    delement = element
+    if pos('/',delement) > 0 then do
+       parse value delement with le'/'re
+       delement = le'/'to_from_unix(re)
+       end
     'tbtop' hist_tbl
     save_top = ztdtop
     top = 1
@@ -3750,7 +3755,7 @@ Test_Repo_Table_State:
   | #@$ to/from ._-                                   |
   | Dynamically determine which direction to use...   |
   * ------------------------------------------------- */
-to_from_unix2: procedure
+to_from_unix: procedure
   arg file
   if pos('{',translate(file,'{{{','._-')) = 0
   then return translate(file,'._-','#@$')
