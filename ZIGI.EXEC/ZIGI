@@ -3476,7 +3476,7 @@ do_history:
   end
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git log --cc -m -n 9999 --unified=1'
-  cmd = cmd '| grep -e commit -e Date -e Author -e' element
+  cmd = cmd '| grep -e commit -e Date -e Author -e' usssafe(element)
   x = docmd(cmd)
   hhit = 0
   hist_tbl = 'ZHIST'random(999)
