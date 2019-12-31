@@ -19,20 +19,21 @@
      [z+PDS Member List Panel
      [z+Getting Started   (tbd)
      [z+Common Scenarios  (tbd)
+     [z+zigi Repository Layout
      [z+zigi Authors and Contributing *
 +
 %Note:+the panels with command menus have an option of%O+for a popup menu
-+      which is useful if you toggle the menu to no menu.
 +
            +Press the%Enter+key to begin your zigi tutorial journey.
 )Init
-  .ZVARS = '(L0 L1 L2 L3 L4 L5 LA)'
+  .ZVARS = '(L0 L1 L2 L3 L4 L5 L6 LA)'
    &L0 = '0'
    &L1 = '1'
    &L2 = '2'
    &L3 = '3'
    &L4 = '4'
    &L5 = '5'
+   &L6 = '6'
    &LA = 'A'
  .cursor = &zcmd
  &ztut = 'HINT'
@@ -45,6 +46,7 @@
            3,zigih300   /* Member List Panel              */
     /*     4,zigih400   /* Getting Started   (tbd)        */
     /*     5,zigih500   /* Common Scenarios  (tbd)        */
+           6,zigih600   /* Repository Layout              */
            A,*zigihau   /* zigi Authors and Contributing  */
            *,'?'
            )
@@ -55,5 +57,6 @@
  Field(l3) var(zcmd) val(3)
  Field(l4) var(zcmd) val(4)
  Field(l5) var(zcmd) val(5)
+ Field(l6) var(zcmd) val(6)
  Field(lA) var(zcmd) val(A)
 )END

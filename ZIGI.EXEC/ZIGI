@@ -1719,7 +1719,7 @@ Clone_Repo:
       'Addpop row(4) column(7)'
       'Display Panel(zigipopn)'
       'Rempop'
-      'Select pgm(isptutor) parm(ziginman)'
+      'Select pgm(isptutor) parm(zigih600)'
       return
     end
     Address ISPExec
