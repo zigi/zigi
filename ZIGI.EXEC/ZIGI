@@ -22,6 +22,7 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            01/02/20 LBD - For clone/create set sets to null|
+  |                         - Add Select command for repo      |
   |            12/26/19 LBD - Change temp dsn suffix: gitdata  |
   |            12/24/19 HBK - Correct URL parse                |
   |                     LBD - Enable O.xxx commands            |
@@ -399,6 +400,37 @@
     if findstr /= null
     then zcmd = 'F' findstr
 
+    /* ------------------------ *
+    | Select a repo by command |
+    * ------------------------ */
+    if abbrev('SELECT',word(zcmd,1),1) = 1 then do
+      fstring = translate(word(zcmd,2))
+      zcmd = null
+      if fstring = null then do
+        zerrsm = 'Invalid.'
+        zerrlm = 'To use Select you must provide the name of a repository' ,
+          'case sensitive.'
+        'setmsg msg(isrz003)'
+      end
+      else do
+        'tbtop zigirepo'
+        do forever
+          'tbskip zigirepo'
+          if rc > 0 then do
+            zerrsm = 'Not Found'
+            zerrlm = fstring 'not found.'
+            'setmsg msg(isrz003)'
+            leave
+          end
+          if fstring /= translate(zigirep) then iterate
+          zigidate = date('n')
+          'tbmod zigirepo'
+          call Work_With_Repo
+          leave
+        end
+      end
+    end
+
     /* -------------- *
     | Process a Find |
     * -------------- */
@@ -752,7 +784,7 @@ Work_With_Repo:
           if left(pidsn,1) = '.' then iterate
           parse value pidsn with pidsn'/'.
           if wordpos(pidsn,pulldsns) = 0 then
-             pulldsns = pulldsns pidsn
+          pulldsns = pulldsns pidsn
         end
         call view_std 'B'
         call Refresh localrep zigirep pdshlq qualignr pulldsns
@@ -882,9 +914,9 @@ Work_With_Repo:
     if zsel /= null then
     Select
       when zsel = 'D' then do
-          /* -------------------------------- *
-          | Show the diff for the file       |
-          * -------------------------------- */
+        /* -------------------------------- *
+        | Show the diff for the file       |
+        * -------------------------------- */
         dtest = 0
         if left(fulldsn,1) = "'" then do
           x = listdsi(fulldsn)

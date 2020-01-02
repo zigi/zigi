@@ -6,22 +6,22 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                                     %FIND+
+                                     %SELECT+
 +
-%Find+and%Repeat Find+search for the provided string in all of the fields in
-+the row. The table will then be positioned so that row is the top row.
+%Select+as a command will select the repository passed as the parameter.
 +
-+The find string is case insensitive.
 +
-%Syntax:+Find string
-+    or  F5 for repeat find
+%Syntax:+Select repository-name
++    or:+S repository-name
++
++
 +
 +
 %
 +
 +
-+  "The whole point of getting things done is knowing what to leave undone."
-+       - Oswald Chambers
++  "The greatest teacher, failure is."   Master Yoda
++       - Master Yoda
 +
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
@@ -29,8 +29,5 @@
  .cursor  = &zcmd
  vget (ztut)
 )PROC
- if (&ztut = 100)
-     &zcont = ZIGIH180
- if (&ztut = 200)
-     &zcont = ZIGIH300
+ &zcont = ZIGIH300
 )END

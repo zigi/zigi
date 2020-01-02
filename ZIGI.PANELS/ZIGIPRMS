@@ -9,7 +9,7 @@
 +Local Repositories+--------------#zigtitle   +---------------------------------
 %Command ===>_zcmd       \ \ %Scroll ===>_zscr+
 +
-+Primary commands:  @Clone+@Create+@SSH+@Config+@Basic+@Githelp+%Find
++Primary commands:  @Clone+@Create+@SSH+@Config+@Basic+@Githelp+%Find+%Select
 +
 +Repo options:      %S+Work with repo%V+View repo OMVS files+%D+Delete repo
 +

@@ -16,13 +16,13 @@
   [Find+   Find/RFind a string in either the repository name or the prefix.
   [Githelp+Navigate the git help output via ISPF panels
   [Pro+    Change from%Basic+(verbose) to%Pro+minimal command text to No Menu
+  [Select+ Select a repository by name
   [SSH+    Review your SSH public key
 +
 +Use%O+to display a command popup selection menu if the menu has been hidden.
 +
 +
 +  "Nothing will work unless you do." - John Wooden
-+
 +
 +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
@@ -34,6 +34,7 @@
  &pro     = 'Pro'
  &githelp = 'GitHelp'
  &find    = 'Find'
+ &select  = 'Select'
  &ztut = '100'
  vput (ztut)
 )PROC
@@ -47,6 +48,7 @@
     When abbrev('PRO',zcmd,2) = 1 then zcmd = 5
     When abbrev('GITHELP',zcmd,2) = 1 then zcmd = 6
     When abbrev('FIND',zcmd,2) = 1 then zcmd = 7
+    When abbrev('SELECT',zcmd,2) = 1 then zcmd = 8
     Otherwise nop
   end
 *Endrexx
@@ -59,6 +61,7 @@
            5,zigih150    /*  PRO                 */
            6,zigih160    /*  GITHELP             */
            7,zigih170    /*  Find                */
+           8,zigih180    /*  Select              */
            *,'?'
            )
 )PNTS
@@ -69,4 +72,5 @@
  Field(pro   )  var(zcmd) val('5')
  Field(githelp) var(zcmd) val('6')
  Field(find   ) var(zcmd) val('7')
+ Field(select ) var(zcmd) val('8')
 )END
