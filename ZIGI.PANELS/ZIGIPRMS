@@ -1,13 +1,14 @@
 )Attr
  ] type(output) caps(off) intens(low)
  [ type(text) intens(low) hilite(uscore)
+ { type(input) caps(off) hilite(uscore) intens(low)
  $ type(output) caps(off)
  _ type(input) caps(on ) hilite(uscore) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
  @ type(output) caps(off) pas(on) intens(high) color(white)
 )Body Expand(\\)
 +Local Repositories+--------------#zigtitle   +---------------------------------
-%Command ===>_zcmd       \ \ %Scroll ===>_zscr+
+%Command ===>{zcmd       \ \ %Scroll ===>_zscr+
 +
 +Primary commands:  @Clone+@Create+@SSH+@Config+@Basic+@Githelp+%Find+%Select
 +

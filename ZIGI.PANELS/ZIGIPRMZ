@@ -1,13 +1,14 @@
 )Attr
  $ type(output) caps(off)
  ] type(output) caps(off) intens(low)
+ { type(input) caps(off) hilite(uscore) intens(low)
  _ type(input) caps(on ) hilite(uscore) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
  @ type(output) caps(off) pas(on) intens(high) color(white)
  [ type(text) intens(low) hilite(uscore)
 )Body Expand(\\)
 +Local Repositories+--------------#zigtitle   +---------------------------------
-%Command ===>_zcmd       \ \ %Scroll ===>_zscr+
+%Command ===>{zcmd       \ \ %Scroll ===>_zscr+
 +
 %    [Repository+       [Prefix+                                [Last Access+
 )Model

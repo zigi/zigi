@@ -389,6 +389,8 @@
       'TBSkip zigirepo Number('row')'
     end
 
+    zcmd = translate(word(zcmd,1)) subword(zcmd,2)
+
     findstr = null
     if pos('.',zcmd) > 0 then
     parse value zcmd with x'.'zcmd
@@ -404,7 +406,7 @@
     | Select a repo by command |
     * ------------------------ */
     if abbrev('SELECT',word(zcmd,1),1) = 1 then do
-      fstring = translate(word(zcmd,2))
+      fstring = word(zcmd,2)
       zcmd = null
       if fstring = null then do
         zerrsm = 'Invalid.'
@@ -418,11 +420,12 @@
           'tbskip zigirepo'
           if rc > 0 then do
             zerrsm = 'Not Found'
-            zerrlm = fstring 'not found.'
+            zerrlm = fstring 'repository not found. Verify the spelling and' ,
+                     'case.'
             'setmsg msg(isrz003)'
             leave
           end
-          if fstring /= translate(zigirep) then iterate
+          if fstring /= zigirep then iterate
           zigidate = date('n')
           'tbmod zigirepo'
           call Work_With_Repo
