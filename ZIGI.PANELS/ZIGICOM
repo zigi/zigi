@@ -30,6 +30,7 @@
                   +Press%Enter+to continue, or%F3+to cancel.
 )Init
   .zvars = '(zpush)'
+  .cursor = msg1
   if (&zpush EQ &Z)
       &zpush = 'N'
   .help = zigih230
