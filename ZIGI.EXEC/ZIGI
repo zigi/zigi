@@ -426,6 +426,9 @@
             leave
           end
           if fstring /= zigirep then iterate
+          'tbget zigirepo'
+          if defcpush = 'Y' then zpush = 'Y'
+          else zpush = 'N'
           zigidate = date('n')
           'tbmod zigirepo'
           call Work_With_Repo
@@ -480,7 +483,7 @@
     end
 
     parse value '' with fulldsn dsn defcpush defruid
-    /* Get the row after the clear to get ext variables */
+    /* Get the row after the clear to get variables */
     'tbget zigirepo'
     if defcpush = 'Y' then zpush = 'Y'
     else zpush = 'N'
