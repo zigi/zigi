@@ -21,6 +21,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            01/02/20 LBD - For clone/create set sets to null|
   |            12/26/19 LBD - Change temp dsn suffix: gitdata  |
   |            12/24/19 HBK - Correct URL parse                |
   |                     LBD - Enable O.xxx commands            |
@@ -743,8 +744,19 @@ Work_With_Repo:
         call pop 'Pulling from remote'
         cmd = 'cd' localdir' && git pull -v'
         x = docmd(cmd)
+        pulldsns = null
+        do pi = 1 to so.0
+          if left(so.pi,1) /= ' ' then iterate
+          if pos(' changed,',so.pi) > 0 then leave
+          pidsn = word(so.pi,1)
+          if left(pidsn,1) = '.' then iterate
+          parse value pidsn with pidsn'/'.
+          if wordpos(pidsn,pulldsns) = 0 then
+             pulldsns = pulldsns pidsn
+        end
         call view_std 'B'
-        call Refresh localrep zigirep pdshlq qualignr
+        call Refresh localrep zigirep pdshlq qualignr pulldsns
+        'Verase pulldsns Both'
         call update_repo_metadata
       end
       /* --------------------------------------------------------- *
@@ -884,11 +896,11 @@ Work_With_Repo:
           end
         end
         else if filetype = '(D)' then do
-            zerrlm = 'Diff does not work on directories'
-            zerrsm = 'Error.'
-            'setmsg msg(isrz003)'
-            dtest = 1
-          end
+          zerrlm = 'Diff does not work on directories'
+          zerrsm = 'Error.'
+          'setmsg msg(isrz003)'
+          dtest = 1
+        end
         if dtest = 0 then do
           cmd = 'cd' localrep'/'zigirep
           x = docmd(cmd ' && git diff 'dsn)
@@ -2156,7 +2168,7 @@ Do_LSort:
   | Refresh z/OS side of repo     |
   * ----------------------------- */
 Refresh:
-  parse arg localrep zigirep pdshlq qualignr .
+  parse arg localrep zigirep pdshlq qualignr pulldsns
   zs1 = "Refreshing from repository"
   zs2 = "   OMVS -> z/OS      "
   call do_popup
@@ -2170,7 +2182,7 @@ Refresh:
     ckothlq = subword(ckothlq,1,qualignr)
     ckothlq = translate(ckothlq,'.',' ')
   end
-  'vput (ckotdir ckothlq)'
+  'vput (ckotdir ckothlq pulldsns)'
   'Select cmd(%zigickot)'
   return
 
@@ -3507,9 +3519,9 @@ do_history:
   if hhit = 1 then do
     delement = element
     if pos('/',delement) > 0 then do
-       parse value delement with le'/'re
-       delement = le'/'to_from_unix(re)
-       end
+      parse value delement with le'/'re
+      delement = le'/'to_from_unix(re)
+    end
     'tbtop' hist_tbl
     save_top = ztdtop
     top = 1

@@ -15,6 +15,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            01/02/20 LBD - Support selective refresh        |
+  |                           with ispf var pulldsns           |
   |            12/09/19 LBD - Support (ignore) omvs files and  |
   |                           subdirectories                   |
   |            11/16/19 LBD - Change to use ZIGISTAT routine   |
@@ -30,7 +32,7 @@
   | Get the ISPF Variables with our instructions |
   * -------------------------------------------- */
   Address ISPExec
-  'vget (ckothlq ckotdir)'
+  'vget (ckothlq ckotdir pulldsns)'
   Address TSO
 
   /* -------------------- *
@@ -96,8 +98,11 @@
         if strip(sub) /= '' then do
           size.sub = 0
           dir.sub = 0
-          if left(sub,1) /= '.' then
-          subs = subs sub
+          if left(sub,1) /= '.' then do
+            if pulldsns = null then subs = subs sub
+            if wordpos(sub,pulldsns) > 0 then
+            subs = subs sub
+          end
         end
       end
       when word(stdout.i,1) = 'total' then do
@@ -114,8 +119,14 @@
         fx = translate(file,'??????????????????????????', ,
           'abcdefghijklmnopqrstuvwxyz')
         if pos('?',fx) > 0 then iterate
-        size.file =  word(stdout.i,5)
-        files = files file
+        if pulldsns = null then do
+          size.file =  word(stdout.i,5)
+          files = files file
+           end
+        if wordpos(file,pulldsns) > 0 then do
+          size.file =  word(stdout.i,5)
+          files = files file
+        end
       end
       otherwise nop
     end
@@ -149,7 +160,7 @@
     m = strreplace(fileg,'.','#')
     m = strreplace(m,'_','@')
     m = strreplace(m,'-','$')
-    m = translate(fileg,'.',' ')
+    m = translate(m,'.',' ')
     call outtrap 'x.'
     'oget' odir m 'text'
     call outtrap 'off'
@@ -202,7 +213,7 @@ Alloc_Copy_PDS:
     'Blksize('blksize') Dsntype(Library,2) dsorg(po) dir(1)' ,
     'dsn('pds')'
   'Free ds('pds')'
-    zs8 = 'Re-Allocated'
+  zs8 = 'Re-Allocated'
   zs6 =  'Populating from:        ' odir
   call pop_status
   /* ---------------------------------------------------- *
@@ -223,15 +234,30 @@ Alloc_Copy_PDS:
     end
     src = rdir'/'mems.ii
     /* fix the cp -M behavior on the way in */
+    /* Comment Start
     m = strreplace(mems.ii,'.','#')
     m = strreplace(m,'_','@')
     m = strreplace(m,'-','$')
+       Comment End */
+    m = to_from_unix(mems.ii)
     Address TSO
     'OGET' "'"src"'" "'"target"("m")'"
     Address ISPexec
   end
   call outtrap 'off'
   return
+
+  /* ------------------------------------------------- *
+  | Translate a file name to or from unix conventions |
+  | to convert or restore the special characters      |
+  | #@$ to/from ._-                                   |
+  | Dynamically determine which direction to use...   |
+  * ------------------------------------------------- */
+to_from_unix: procedure
+  arg file
+  if pos('{',translate(file,'{{{','._-')) = 0
+  then return translate(file,'._-','#@$')
+  else return translate(file,'#@$','._-')
 
 get_dcb:
   if def.sub /= null then do
