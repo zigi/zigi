@@ -192,7 +192,7 @@
   Exit
 
   /* ---------------------------------------------- *
-  | Allocate the PDS and perform the copy (OGETX)  |
+  | Allocate the PDS and perform the copy (OGET)   |
   | - the PDS will be allocated as a PDSE          |
   | - if the target PDS exists delete and realloc  |
   * ---------------------------------------------- */
