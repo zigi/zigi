@@ -1662,7 +1662,7 @@ Do_Push:
   | Clone a remote repo           |
   * ----------------------------- */
 Clone_Repo:
-  parse value '' with pdshlq remotebr
+  parse value '' with pdshlq remotebr defcpush defruid
   'vget (saverep) profile'
   if saverep /= null then localrep = saverep
   do forever
