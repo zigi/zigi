@@ -54,7 +54,7 @@
   /* ------------------------- *
   | Define our work variables |
   * ------------------------- */
-  parse value '' with subs files null
+  parse value '' with subs files null pullmems.
   hit = 0
 
   /* ------------------------------------ *
@@ -100,8 +100,13 @@
           dir.sub = 0
           if left(sub,1) /= '.' then do
             if pulldsns = null then subs = subs sub
-            if wordpos(sub,pulldsns) > 0 then
-            subs = subs sub
+            else if wordpos(sub,pulldsns) > 0 then do
+              subs = subs sub
+              wp = wordpos(sub,pulldsns)
+              Address ISPExec 'vget (zv'wp')'
+              interpret 'mems = zv'wp
+              pullmems.wp = mems
+            end
           end
         end
       end
@@ -122,7 +127,7 @@
         if pulldsns = null then do
           size.file =  word(stdout.i,5)
           files = files file
-           end
+        end
         if wordpos(file,pulldsns) > 0 then do
           size.file =  word(stdout.i,5)
           files = files file
@@ -179,6 +184,7 @@
     fx = translate(sub,'??????????????????????????', ,
       'abcdefghijklmnopqrstuvwxyz')
     if pos('?',fx) > 0 then iterate
+    if pullmems.i /= null then dir.sub = words(pullmems.i)
     zs1 = 'Processing subdirectory:' sub
     zs2 = 'Members:                ' dir.sub
     zs3 = 'Total bytes (k):        ' size.sub
@@ -200,20 +206,24 @@ Alloc_Copy_PDS:
   pds = "'"ckothlq"."sub"'"
   odir = "'"ckotdir"/"sub"/"
   zs8 = ''
+  if pullmems.i = null then
   if sysdsn(pds) = 'OK' then do
     zs8 = 'Re-Allocating'
     call outtrap 'x.'
     'delete' pds
     call outtrap 'off'
   end
+  else zs8 = 'Using existing allocation'
   zs5 = 'Allocating PDSE:        ' pds
   call pop_status
-  call get_dcb
-  'Alloc new spa('tracks','tracks') recfm('recfm') lrecl('lrecl')' ,
-    'Blksize('blksize') Dsntype(Library,2) dsorg(po) dir(1)' ,
-    'dsn('pds')'
-  'Free ds('pds')'
-  zs8 = 'Re-Allocated'
+  if pullmems.i = null then do
+    call get_dcb
+    'Alloc new spa('tracks','tracks') recfm('recfm') lrecl('lrecl')' ,
+      'Blksize('blksize') Dsntype(Library,2) dsorg(po) dir(1)' ,
+      'dsn('pds')'
+    'Free ds('pds')'
+    zs8 = 'Re-Allocated'
+  end
   zs6 =  'Populating from:        ' odir
   call pop_status
   /* ---------------------------------------------------- *
@@ -232,13 +242,15 @@ Alloc_Copy_PDS:
       /* skip the . and .. things */
       iterate
     end
+    if pullmems.i /= null then
+    if wordpos(mems.ii,pullmems.i) = 0 then iterate
     src = rdir'/'mems.ii
     /* fix the cp -M behavior on the way in */
     /* Comment Start
     m = strreplace(mems.ii,'.','#')
     m = strreplace(m,'_','@')
     m = strreplace(m,'-','$')
-       Comment End */
+    Comment End */
     m = to_from_unix(mems.ii)
     Address TSO
     'OGET' "'"src"'" "'"target"("m")'"

@@ -54,7 +54,9 @@ for inserts and red for deletions. This only works when viewing and not with
 browsing.
 
 Update Pull processing to only refresh the z/OS datasets that are updated
-during the pull process. Before ALL z/OS datasets were refreshed.
+during the pull process, and only the PDS members that were updated. If more
+than 25% of the PDS members are updated then the full PDS is refreshed.
+Before ALL z/OS datasets were refreshed.
 
 On the Local Repository panel the option to use 'S repo' to select a
 repository from the command line. The 'repo' is case sensitive. This

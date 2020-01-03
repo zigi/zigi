@@ -389,7 +389,7 @@
       'TBSkip zigirepo Number('row')'
     end
 
-    zcmd = Strip(translate(word(zcmd,1)) subword(zcmd,2))
+    zcmd = strip(translate(word(zcmd,1)) subword(zcmd,2))
 
     findstr = null
     if pos('.',zcmd) > 0 then
@@ -421,7 +421,7 @@
           if rc > 0 then do
             zerrsm = 'Not Found'
             zerrlm = fstring 'repository not found. Verify the spelling and' ,
-                     'case.'
+              'case.'
             'setmsg msg(isrz003)'
             leave
           end
@@ -783,19 +783,45 @@ Work_With_Repo:
         cmd = 'cd' localdir' && git pull -v'
         x = docmd(cmd)
         pulldsns = null
+        parse value '' with pulldsns pullmems
         do pi = 1 to so.0
           if left(so.pi,1) /= ' ' then iterate
           if pos(' changed,',so.pi) > 0 then leave
           pidsn = word(so.pi,1)
           if left(pidsn,1) = '.' then iterate
-          parse value pidsn with pidsn'/'.
-          if wordpos(pidsn,pulldsns) = 0 then
-          pulldsns = pulldsns pidsn
+          parse value pidsn with pidsn'/'pimem
+          if wordpos(pidsn,pulldsns) = 0 then do
+            pulldsns = pulldsns pidsn
+            pullmems.pidsn = pimem
+          end
+          else pullmems.pidsn = pullmems.pidsn pimem
         end
-        call view_std 'B'
-        call Refresh localrep zigirep pdshlq qualignr pulldsns
-        'Verase pulldsns Both'
-        call update_repo_metadata
+        /* create the ispf variable with member names for
+        the dataset using the dataset offset in pulldsns
+        for the variable suffix */
+        do zz = 1 to words(pulldsns)
+          zd = word(pulldsns,zz)
+          zw = words(pullmems.zd)
+          x = listdsi("'"pdshlq"."zd"' dir")
+          /* check of more than 25% of members being updated
+          and if so then nullify the member list so a
+          full refresh will occur for the dataset */
+          if x = 0 then
+          if sysmembers/zw < 4 then pullmems.zd = ''
+          interpret 'zv'zz '= (pullmems.zd)'
+          'vput zv'zz
+        end
+        if pulldsns /= null then do
+          call view_std 'B'
+          call Refresh localrep zigirep pdshlq qualignr pulldsns
+          'Verase pulldsns Both'
+          call update_repo_metadata
+        end
+        else do
+          zerrsm = 'Nothing'
+          zerrlm = 'Nothing to pull.'
+          'setmsg msg(isrz003)'
+        end
       end
       /* --------------------------------------------------------- *
       | Add a PDS or a Sequential File to "Working Directory"     |
