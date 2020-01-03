@@ -1,5 +1,6 @@
 )Attr
  ] type(output) caps(off) intens(low)
+ } type(output) caps(off) intens(low) just(right)
  [ type(text) intens(low) hilite(uscore)
  { type(input) caps(off) hilite(uscore) intens(low)
  $ type(output) caps(off)
@@ -16,7 +17,7 @@
 +
 %    [Repository+       [Prefix+                                [Last Access+
 )Model
-_z+  $z              +  $z                                 +    ]z
+_z+  $z              +  $z                                 +    }z          +
 )Init
  &clone   = 'Clone'
  &create  = 'Create'
