@@ -389,7 +389,7 @@
       'TBSkip zigirepo Number('row')'
     end
 
-    zcmd = translate(word(zcmd,1)) subword(zcmd,2)
+    zcmd = Strip(translate(word(zcmd,1)) subword(zcmd,2))
 
     findstr = null
     if pos('.',zcmd) > 0 then
