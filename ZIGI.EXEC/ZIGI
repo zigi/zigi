@@ -21,6 +21,14 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            01/03/20 LBD - On Pull only refresh updated     |
+  |                           datasets and/or members.         |
+  |                         - if > 25% members updated in pull |
+  |                           then refresh full pds.           |
+  |                         - Correct primary panel zcmd for   |
+  |                           upper case command, mixed other  |
+  |                         - Change sort order if Date to     |
+  |                           include Time                     |
   |            01/02/20 LBD - For clone/create set sets to null|
   |                         - Add Select command for repo      |
   |            12/26/19 LBD - Change temp dsn suffix: gitdata  |
@@ -2225,7 +2233,10 @@ Do_LSort:
   sort_field = subword('mem memstat zlcnorc zlmdate zlmtime zluser',sw,1)
   if sw = 3 then sort_type = 'N'
   else sort_type = 'C'
-  'tbsort' rtll 'fields('sort_field','sort_type','sort_order')'
+  if sort_field /= zlmdate
+  then 'tbsort' rtll 'fields('sort_field','sort_type','sort_order')'
+  else 'tbsort' rtll 'fields('sort_field','sort_type','sort_order',' ,
+                             'zlmtime,'sort_type','sort_order')'
   return
 
   /* ----------------------------- *
