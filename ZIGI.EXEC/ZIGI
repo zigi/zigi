@@ -317,6 +317,7 @@
   do forever
     if hit = 1 then leave
     'Display Panel(zigiset)'
+    if rc > 0 then leave
     /* dunno if we still need these in the profile?? */
     'VPut (zigiuid zigimail zigissh) Profile'
     /* maybe we could use the ispprof for some lazy caching */
