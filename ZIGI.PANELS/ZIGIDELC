@@ -5,10 +5,10 @@
 )Body Window(53,10)
 +Enter to confirm repository delete:
 +
-+Remove from Git mgmt  @z+(Y or N)
++Remove from git mgmt  @z+(Y or N)
 +Delete the OMVS files @z+(Y or N)
 +
-+If remove from Git is%N+then delete from OMVS is%N.
++If remove from git is%N+then delete from OMVS is%N.
 +
 %Note:+the z/OS datasets will not be deleted.
 +

@@ -2,7 +2,7 @@
  $ type(output) caps(off)
  _ type(input)  caps(off) hilite(uscore) intens(low)
 )Body Window(55,12)
-+The Git repository that you requested is not eligible
++The git repository that you requested is not eligible
 +to be managed by zigi.
 +
 +The clone did complete to:

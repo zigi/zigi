@@ -8,9 +8,9 @@
 +
                                 %GITHELP+
 +
-%GITHELP+displays all the available%Git+commands, along with other%Git+pages
-+with more information. This will help the Git novice, and%Git+guru to better
-+use%Git+and%zigi.
+%GITHELP+displays all the available%git+commands, along with other%git+pages
++with more information. This will help the git novice, and%git+guru to better
++use%git+and%zigi.
 %
 %Commands:+
 +   %Only+removes all rows that do not have the provided string:

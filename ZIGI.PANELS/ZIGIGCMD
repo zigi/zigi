@@ -10,12 +10,12 @@
 +
 +Git repo dir:[localdir
 +
-+Enter any Git command (without git):    Browse/View:$z+(B or V)
++Enter any git command (without git):    Browse/View:$z+(B or V)
 %git@gitcmd
 
 
 +
-+Hint: Use the GitHelp command to review the available Git commands and syntax.
++Hint: Use the GitHelp command to review the available git commands and syntax.
 +
 +S+Command history (%D+delete%S+Select for edit and use%X+eXecute now)
 )Model

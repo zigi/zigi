@@ -8,14 +8,14 @@ environment.
 
 To get started with this package:
 
-1. Install Git for OMVS via the great folks at Rocket Software
-1a. Go to this url for Git and the pre-requisite tools (bash, gzip,
+1. Install git for OMVS via the great folks at Rocket Software
+1a. Go to this url for git and the pre-requisite tools (bash, gzip,
     and perl):
     https://www.rocketsoftware.com/product-categories/mainframe/git-for-zos
-1b. Go to this url to get a simplified installer for Git and the
+1b. Go to this url to get a simplified installer for git and the
     pre-requisite tools:
     https://gist.github.com/wizardofzos/897b243d4cbe9fbc471ec1396fbbe174
-2. Make sure Git-related setups (PATH/LIB etc.) is set via
+2. Make sure git-related setups (PATH/LIB etc.) is set via
    /etc/profile
 3. From OMVS-shell invoke: git clone git@github.com/wizardofzos/zigi.git
 4. cd zigi

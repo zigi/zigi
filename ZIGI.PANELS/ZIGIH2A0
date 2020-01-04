@@ -13,7 +13,7 @@
 +That means that only updates processed by the Commit command will be pushed
 +to the remove repository.
 +
-%Git+will only push the discrete updates which saves time and bandwidth.
+%git+will only push the discrete updates which saves time and bandwidth.
 +
 %
 +

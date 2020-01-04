@@ -1,7 +1,6 @@
 )Attr
  $ type(output) caps(off)
  ] type(output) caps(off) intens(low)
- } type(output) caps(off) intens(low) just(right)
  { type(input) caps(off) hilite(uscore) intens(low)
  _ type(input) caps(on ) hilite(uscore) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
@@ -14,13 +13,13 @@
 +Primary commands:  @Clone+remote repository           @Pro+
 +                   @Create+a local repo from scratch  @githelp+
 +                   @SSH+View your SSH public key      %Find
-+                   @Config+View Git configuration     %Select
++                   @Config+View git configuration     %Select
 +
 +Repo options:      %S+Work with repo%V+View repo OMVS files+%D+Delete repo
 +
 %    [Repository+       [Prefix+                                [Last Access+
 )Model
-_z+  $z              +  $z                                 +    }z          +
+_z+  $z              +  $z                                 +    ]z
 )Init
  &clone   = 'Clone'
  &create  = 'Create'

@@ -11,10 +11,10 @@
 %Commands available+(select for more information or press%Enter+to see each):
 +
   [Clone+  Make a local copy of a remote repository
-  [Config+ Review/Update your name and e-mail for%Git+
+  [Config+ Review/Update your name and e-mail for%git+
   [Create+ Create a new local repository
   [Find+   Find/RFind a string in either the repository name or the prefix.
-  [Githelp+Navigate the Git help output via ISPF panels
+  [Githelp+Navigate the git help output via ISPF panels
   [Pro+    Change from%Basic+(verbose) to%Pro+minimal command text to No Menu
   [Select+ Select a repository by name
   [SSH+    Review your SSH public key

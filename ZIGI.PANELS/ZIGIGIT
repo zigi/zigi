@@ -14,7 +14,7 @@
 + Location of env-file: @gitenv                                             +
 +
 +
-+ Your Git installation should have an env-file located somewhere on your
++ Your git installation should have an env-file located somewhere on your
 + system. This file contains things like:
 +
 + export PATH=/zdo/rocket/bin:$PATH

@@ -4,7 +4,7 @@
  + type(text) skip(on) intens(low)
 )Body Window(55,10)
 +
-+Deleting a repository from Git will remove it from Git
++Deleting a repository from git will remove it from git
 +management but will%not+delete the OMVS files.
 +
 +Deleting the OMVS files will delete the OMVS directory

@@ -98,7 +98,6 @@
         if strip(sub) /= '' then do
           size.sub = 0
           dir.sub = 0
-          si = 0
           if left(sub,1) /= '.' then do
             if pulldsns = null then subs = subs sub
             else if wordpos(sub,pulldsns) > 0 then do
@@ -106,8 +105,7 @@
               wp = wordpos(sub,pulldsns)
               Address ISPExec 'vget (zv'wp')'
               interpret 'mems = zv'wp
-              si = si + 1
-              pullmems.si = mems
+              pullmems.wp = mems
             end
           end
         end
