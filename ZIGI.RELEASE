@@ -6,8 +6,8 @@
 
 Update to the GITLOG prompt to include, or exclude, diff's in the report.
 
-A new GITCMD dialog that enables the execution of any valid git command
-within the active git repository. A command history is maintained so that
+A new GITCMD dialog that enables the execution of any valid Git command
+within the active Git repository. A command history is maintained so that
 commands may be reused. The command results are then browsed or viewed.
 
 Grep processing has been enhanced with an option to view the results in a
@@ -24,17 +24,17 @@ Copy, and Create.
 
 Merge supports merging another local branch into the current branch. Merge
 conflicts can be resolved using ISPF Edit Compare or using a customized Edit
-display that highlights the merge conflicts using the git provided conflict
+display that highlights the merge conflicts using the Git provided conflict
 markers.
 
 OMVS subdirectories with files are now supported. These directories and
 files must be added outside of zigi at this time and when zigi starts it
 will recognize those as untracked. The untracked directories, and/or files,
-must then be added to the git staging index for management by git.
+must then be added to the Git staging index for management by Git.
 
 Rename an element will rename the z/OS dataset, z/OS PDS member, OMVS file,
 and any ISPF statistics file. It will also perform a git mv (rename) so
-all git information about the original will be retained with the new name.
+all Git information about the original will be retained with the new name.
 
 Remove an element will delete the z/OS dataset, z/OS PDS member, OMVS file,
 and any ISPF statistics file. It will also perform a git rm (remove) so
