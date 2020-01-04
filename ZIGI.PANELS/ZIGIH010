@@ -8,7 +8,7 @@
 +
                       %What is a zigi Managed Repository
 +
-+A git repository that can be managed by zigi has the following characteristics:
++A Git repository that can be managed by zigi has the following characteristics:
 +
    %1.+There must be a .zigi directory in the root directory of the
 +      repository.

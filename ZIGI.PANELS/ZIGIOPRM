@@ -11,10 +11,10 @@
 +Enter Selection:_z                        +
 +
  ]Clone+   remote repository
- ]Config+  View git configuration
+ ]Config+  View Git configuration
  ]Create+a local repo from scratch
  ]Find+string in table fields:_findstr +
- ]Githelp+ Display menu of git Help pages
+ ]Githelp+ Display menu of Git Help pages
  ]Menu+    Toggle Menu, Basic->Pro->None
  ]SSH+     View your SSH public key
 )Init
