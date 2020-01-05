@@ -10,13 +10,13 @@
 +
 %Getting Started:+
 +
-%zigi+is designed to make working with%git+very easy for the ISPF developer, but
-+you should still have a basic understanding of%git+and how your organization
+%zigi+is designed to make working with%Git+very easy for the ISPF developer, but
++you should still have a basic understanding of%Git+and how your organization
 +uses it. While you can use it solely with open source tools found on GitHub,
-+and other%git+sites, the most cost effective use is to use it as a free
++and other%Git+sites, the most cost effective use is to use it as a free
 +distributed version control system (VCS) for source code management (SCM).
 +
-+The%zigi+Local Repositories Panel is where you will find a table of all%git+
++The%zigi+Local Repositories Panel is where you will find a table of all%Git+
 +repositories that you have cloned or created. It is also the place where you
 +can easily Clone an existing repository or Create a new repository.
 +

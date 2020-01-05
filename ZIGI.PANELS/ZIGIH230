@@ -9,7 +9,7 @@
                                  %Commit+
 +
 %Commit+processing takes the changes that have been made in the managed
-+datasets and adds them to git management.
++datasets and adds them to Git management.
 +
 +Commit allows for, and it is encouraged, to provide a short summary of the
 +changes to be captured in the git log for historical tracking. The summary

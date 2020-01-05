@@ -15,7 +15,7 @@
 +created as a directory within the%Local Repository+defined next.
 +
 %Local Repository+is the location where the%Clone+will create a directory or
-+where%Create+will initilialize the git repo.
++where%Create+will initilialize the Git repo.
 +
 +
 +

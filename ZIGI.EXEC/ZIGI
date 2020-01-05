@@ -21,6 +21,18 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            01/03/20 LBD - On Pull only refresh updated     |
+  |                           datasets and/or members.         |
+  |                         - if > 25% members updated in pull |
+  |                           then refresh full pds.           |
+  |                         - Correct primary panel zcmd for   |
+  |                           upper case command, mixed other  |
+  |                         - Change sort order if Date to     |
+  |                           include Time                     |
+  |                         - On Edit_PS use usssafe for cp    |
+  |                           on the repository file name      |
+  |                         - Bypass update_repo_metadata if   |
+  |                           multiple rows selected           |
   |            01/02/20 LBD - For clone/create set sets to null|
   |                         - Add Select command for repo      |
   |            12/26/19 LBD - Change temp dsn suffix: gitdata  |
@@ -305,6 +317,7 @@
   do forever
     if hit = 1 then leave
     'Display Panel(zigiset)'
+    if rc > 0 then leave
     /* dunno if we still need these in the profile?? */
     'VPut (zigiuid zigimail zigissh) Profile'
     /* maybe we could use the ispprof for some lazy caching */
@@ -807,6 +820,7 @@ Work_With_Repo:
           and if so then nullify the member list so a
           full refresh will occur for the dataset */
           if x = 0 then
+          if sysmembers /= null then
           if sysmembers/zw < 4 then pullmems.zd = ''
           interpret 'zv'zz '= (pullmems.zd)'
           'vput zv'zz
@@ -1173,9 +1187,9 @@ Work_With_Repo:
           'Edit file(ofile)'
           'control display restore'
           new_date = get_fd_date(ofile)
-          if cur_date /= new_date then do
+          if cur_date /= new_date then
+            if ztdsels = 1 then
             call update_repo_metadata
-          end
         end
         else do
           save_zigirep = save_zigirep zigirep
@@ -2171,9 +2185,10 @@ Edit_PS:
   if rc = 0 then do
     edsn = usssafe(edsn)
     copcm = "//'"edsn"'"
-    copcm = 'cp -U -M "'copcm'" 'localrep'/'zigirep'/'dsn
+    copcm = 'cp -U -M "'copcm'" 'localrep'/'zigirep'/'usssafe(dsn)
     x = bpxwunix(copcm,,so.,se.)
     call view_std 'B'
+    if ztdsels = 1 then
     call update_repo_metadata
   end
   return
@@ -2225,7 +2240,10 @@ Do_LSort:
   sort_field = subword('mem memstat zlcnorc zlmdate zlmtime zluser',sw,1)
   if sw = 3 then sort_type = 'N'
   else sort_type = 'C'
-  'tbsort' rtll 'fields('sort_field','sort_type','sort_order')'
+  if sort_field /= zlmdate
+  then 'tbsort' rtll 'fields('sort_field','sort_type','sort_order')'
+  else 'tbsort' rtll 'fields('sort_field','sort_type','sort_order',' ,
+    'zlmtime,'sort_type','sort_order')'
   return
 
   /* ----------------------------- *

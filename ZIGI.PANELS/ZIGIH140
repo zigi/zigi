@@ -9,7 +9,7 @@
                                 %Config+
 +
 %Config+displays, and allows changing your user name and e-mail address which
-+are used by%git+when commits are made.
++are used by%Git+when commits are made.
 +
 +Both are required, and the user name can be anything, as can the e-mail.
 +However, it may be something that your organization requires to be accurate.

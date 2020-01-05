@@ -9,7 +9,7 @@
                                  %Merge+
 +
 %Merge+processing, when a conflict occurs, results in the current branch
-+repository file having git messages along with records from both the current
++repository file having Git messages along with records from both the current
 +branch and the merge branch. This is to make it easy to identify the areas of
 +conflict to resolve.
 +
