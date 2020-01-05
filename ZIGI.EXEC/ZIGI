@@ -1898,7 +1898,7 @@ Work_with_repo_file:
     | Process the Member list until done |
     * ---------------------------------- */
     save_top = 0
-    ztdsels  = 1
+    ztdsels  = 0
     'vget (listpnl) profile'
     if listpnl = null then listpnl = 'ZIGILIST'
     'vput (listpnl) profile'
@@ -3113,6 +3113,8 @@ update_repo_metadata:
         end
         edsn = strip(fulldsn,'B',"'")
         if so.1 = "DIR" & x = 0 then do
+/* $$$$ This routine needs to be worked on as it is copying more
+        members than it needs to for some unknown reason  */
           x = debug('its a dir...lmmstat all the things')
           Address TSO
           statpath = localrep'/'zigirep'/.zigi/'root.i
@@ -3131,7 +3133,7 @@ update_repo_metadata:
             copycmd = '"'copycmd'"'
             copycmd = "cp -U -M" copycmd" "localrep"/"zigirep
             copycmd = copycmd || "/"r"/"
-            call bpxwunix copycmd
+            x = bpxwunix(copycmd,,so.,se.)
             mem_hit = 1
           end
         end
