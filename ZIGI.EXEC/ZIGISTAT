@@ -231,7 +231,7 @@ zigistat:
   * -------------------------------------------- */
 Check_Stats_File:
   save_address = address()
-  address syscall 'lstat' usssafe(filepath) 'file.'
+  address syscall 'lstat' filepath 'file.'
   if file.0 = 0 then do
     ADDRESS value(save_address)
     return 20
