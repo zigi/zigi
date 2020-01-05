@@ -36,16 +36,14 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            01/05/20 LBD - Correct special chars in filepath|
+  |                           using usssafe routine            |
   |            11/22/19 LBD - If a member has no stats - add   |
   |            11/18/19 LBD - Many fixes and add Debug         |
   |            11/15/19 LBD - Creation                         |
   |                                                            |
   * ---------------------------------------------------------- */
 zigistat:
-  /* ---------------------- *
-  | Get the passed options |
-  * ---------------------- */
-  parse arg dsn filepath opt
 
   /* --------------- *
   | Define defaults |
@@ -161,7 +159,7 @@ zigistat:
     * ----------------------------------------------------- */
     When opt = 'S' then do
       x = debug('Saving stats begins to:' filepath)
-      x = bpxwunix('rm' filepath,,so.,se.)
+      x = bpxwunix('rm' usssafe(filepath),,so.,se.)
       call write_stats
       x = debug('Saving stats completed.')
       return 0
@@ -216,6 +214,7 @@ zigistat:
       /* now compare active to saved */
       do i = 1 to mem.0
         parse value mem.i with actmem data
+        data = strip(data)
         if m.actmem = null then string = string actmem
         else if data /= m.actmem then string = string actmem
       end
@@ -232,7 +231,7 @@ zigistat:
   * -------------------------------------------- */
 Check_Stats_File:
   save_address = address()
-  address syscall 'lstat' filepath 'file.'
+  address syscall 'lstat' usssafe(filepath) 'file.'
   if file.0 = 0 then do
     ADDRESS value(save_address)
     return 20
@@ -367,7 +366,29 @@ debug:
   end
   return 0
 
-/* sorry lionel need the full strreplace here */
+/* ---------------------------------- *
+ | Make the z/OS dsname safe for OMVS |
+ * ---------------------------------- */
+usssafe: procedure
+  parse arg dsn
+  if pos('$',dsn) = 0 then return dsn
+  /* Let's not usssafe it twice :) */
+  if pos('\$',dsn) > 0 then return dsn
+  dsn = strreplace(dsn, '$', '\$')
+  return dsn
+
+  /* ------------------------------------------------- *
+  | Translate a file name to or from unix conventions |
+  | to convert or restore the special characters      |
+  | #@$ to/from ._-                                   |
+  | Dynamically determine which direction to use...   |
+  * ------------------------------------------------- */
+to_from_unix: procedure
+  arg file
+  if pos('{',translate(file,'{{{','._-')) = 0
+  then return translate(file,'._-','#@$')
+  else return translate(file,'#@$','._-')
+
 STRREPLACE:
 ORIGINAL = ARG(1)
 OLDTXT = ARG(2)
