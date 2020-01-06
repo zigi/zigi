@@ -36,9 +36,10 @@
   'vget (ckothlq ckotdir pulldsns)'
   Address TSO
 
-  /* -------------------- *
-  | Issue the LS command |
-  * -------------------- */
+  /* -------------------------------------------------------- *
+   | Issue the ls command to get file names and sizes for all |
+   | files in the current directory and sub-directories.      |
+   * -------------------------------------------------------- */
   cmd = 'ls -laRk' ckotdir
   rc = bpxwunix(cmd,,stdout.,stderr.)
 

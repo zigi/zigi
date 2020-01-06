@@ -119,13 +119,13 @@ zigistat:
     * If RC 4 or more leave the do loop *
     * --------------------------------- */
     if rc > 3 then leave
-   /* -------------------------------- *
+    /* -------------------------------- *
     | Check if no stats then add them. |
     * -------------------------------- */
     if zlcdate = null then do
-       'LMMSTATS DATAID('status') Member('member') user('sysvar(sysuid)')'
-       "LMMFind DATAID("status") Member("member") STATS(YES)"
-       end
+      'LMMSTATS DATAID('status') Member('member') user('sysvar(sysuid)')'
+      "LMMFind DATAID("status") Member("member") STATS(YES)"
+    end
     /* ------------------------------ *
     * Add each member info to a stem *
     * ------------------------------ */
@@ -366,9 +366,9 @@ debug:
   end
   return 0
 
-/* ---------------------------------- *
- | Make the z/OS dsname safe for OMVS |
- * ---------------------------------- */
+  /* ---------------------------------- *
+  | Make the z/OS dsname safe for OMVS |
+  * ---------------------------------- */
 usssafe: procedure
   parse arg dsn
   if pos('$',dsn) = 0 then return dsn
@@ -390,19 +390,19 @@ to_from_unix: procedure
   else return translate(file,'#@$','._-')
 
 STRREPLACE:
-ORIGINAL = ARG(1)
-OLDTXT = ARG(2)
-NEWTXT = ARG(3)
-/* YOU CAN CHANGE THE BELOW KEY (TMPTXT), WHICH IS USED AS A TEMPORARY
-POINTER TO IDENTIFY THE TEXT TO BE REPLACED */
-TMPTXT = '6A53CD2EW1F'
-NEWSTR = ORIGINAL
-DO WHILE POS(OLDTXT,NEWSTR) > 0
-NEWSTR = SUBSTR(NEWSTR, 1 , POS(OLDTXT,NEWSTR)-1) ||,
-TMPTXT || SUBSTR(NEWSTR, POS(OLDTXT,NEWSTR) + LENGTH(OLDTXT))
-END
-DO WHILE POS(TMPTXT,NEWSTR) > 0
-NEWSTR = SUBSTR(NEWSTR, 1 , POS(TMPTXT,NEWSTR)-1) ||,
-NEWTXT || SUBSTR(NEWSTR, POS(TMPTXT,NEWSTR) + LENGTH(TMPTXT))
-END
-RETURN NEWSTR
+  ORIGINAL = ARG(1)
+  OLDTXT = ARG(2)
+  NEWTXT = ARG(3)
+  /* YOU CAN CHANGE THE BELOW KEY (TMPTXT), WHICH IS USED AS A TEMPORARY
+  POINTER TO IDENTIFY THE TEXT TO BE REPLACED */
+  TMPTXT = '6A53CD2EW1F'
+  NEWSTR = ORIGINAL
+  DO WHILE POS(OLDTXT,NEWSTR) > 0
+    NEWSTR = SUBSTR(NEWSTR, 1 , POS(OLDTXT,NEWSTR)-1) ||,
+      TMPTXT || SUBSTR(NEWSTR, POS(OLDTXT,NEWSTR) + LENGTH(OLDTXT))
+  END
+  DO WHILE POS(TMPTXT,NEWSTR) > 0
+    NEWSTR = SUBSTR(NEWSTR, 1 , POS(TMPTXT,NEWSTR)-1) ||,
+      NEWTXT || SUBSTR(NEWSTR, POS(TMPTXT,NEWSTR) + LENGTH(TMPTXT))
+  END
+  RETURN NEWSTR
