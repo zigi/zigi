@@ -833,7 +833,9 @@ Work_With_Repo:
           call view_std 'B'
           call Refresh localrep zigirep pdshlq qualignr pulldsns
           'Verase pulldsns Both'
+          /* Comment Start
           call update_repo_metadata
+             Comment End */
         end
         else do
           zerrsm = 'Nothing'
