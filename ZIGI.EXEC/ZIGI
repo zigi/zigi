@@ -825,7 +825,7 @@ Work_With_Repo:
           refresh will occur for the dataset */
           if x = 0 then
           if sysmembers /= null then
-          if ssyadirblk /= 'NO_LIM' then
+          if sysadirblk /= 'NO_LIM' then
           if sysmembers/zw < 4 then pullmems.zd = ''
           interpret 'zv'zz '= (pullmems.zd)'
           'vput zv'zz
