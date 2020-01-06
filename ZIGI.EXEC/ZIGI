@@ -21,6 +21,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            01/06/20 LBD - Small typo's                     |
   |            01/05/20 LBD - If PDSE then never do full       |
   |                           refresh on a pull                |
   |            01/03/20 LBD - On Pull only refresh updated     |
