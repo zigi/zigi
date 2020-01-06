@@ -21,7 +21,6 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            01/06/20 LBD - Small typo's                     |
   |            01/05/20 LBD - If PDSE then never do full       |
   |                           refresh on a pull                |
   |            01/03/20 LBD - On Pull only refresh updated     |
@@ -1193,8 +1192,8 @@ Work_With_Repo:
           'control display restore'
           new_date = get_fd_date(ofile)
           if cur_date /= new_date then
-            if ztdsels = 1 then
-            call update_repo_metadata
+          if ztdsels = 1 then
+          call update_repo_metadata
         end
         else do
           save_zigirep = save_zigirep zigirep
@@ -3114,8 +3113,6 @@ update_repo_metadata:
         end
         edsn = strip(fulldsn,'B',"'")
         if so.1 = "DIR" & x = 0 then do
-/* $$$$ This routine needs to be worked on as it is copying more
-        members than it needs to for some unknown reason  */
           x = debug('its a dir...lmmstat all the things')
           Address TSO
           statpath = localrep'/'zigirep'/.zigi/'root.i

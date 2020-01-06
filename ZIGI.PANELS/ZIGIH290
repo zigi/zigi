@@ -16,8 +16,8 @@
 +the current branch.
 +
 +Note that if a PDS is updated with more than 25% of the members it will be
-+re-allocated. If a PDSE then it will not be re-allocated.
-+
++re-allocated as a PDSE Version 2 with MAXGEN of 0.  If a PDSE then it will
++not be re-allocated.
 +
 +
          +"Be more concerned with your character than your reputation,
