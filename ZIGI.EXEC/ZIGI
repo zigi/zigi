@@ -3202,14 +3202,16 @@ update_repo_metadata:
           PATH = substr(so.ii,4)
           if pos(dsn, PATH) = 1 then do
             dsnstat = porcelain(stat)
+            /* Comment Start
             leave
+               Comment End */
           end
         end
         x = debug('done')
 
         if qualignr = null then do
-          qualignr = 0
           'tbmod zigirepo'
+          qualignr = 0
         end
         if qualignr = 0 then do
           if pdshlq /= '' then

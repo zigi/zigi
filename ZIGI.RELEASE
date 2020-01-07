@@ -61,3 +61,8 @@ Before ALL z/OS datasets were refreshed.
 On the Local Repository panel the option to use 'S repo' to select a
 repository from the command line. The 'repo' is case sensitive. This
 allows for faster access to a repository.
+
+Changed the debug logging when the ZIGIDEBG DD is present to log to a file
+in the users home directory named zigidebug.d(julian date).t(hhmmss). On
+exit from zigi a USS directory list (3.17) will be presented to the user
+with just these files from which the user can browse/edit/delete.
