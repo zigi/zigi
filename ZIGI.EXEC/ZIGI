@@ -24,6 +24,7 @@
   |            01/07/20 LBD - Additional debug calls           |
   |                         - debug file name date/time added  |
   |                         - change list debug files from B   |
+  |                         - don't copy PS if not new/changed |
   |            01/05/20 LBD - If PDSE then never do full       |
   |                           refresh on a pull                |
   |            01/03/20 LBD - On Pull only refresh updated     |
@@ -3163,12 +3164,17 @@ update_repo_metadata:
         end
         else do
           /* It must be a PS, just copy it over to OMVS */
-          s = usssafe(fulldsn)
-          copycmd = "//"s
-          copycmd = '"'copycmd'"'
-          copycmd = "cp -U -M" copycmd" "localrep"/"zigirep"/"r
-          x = debug('Copy:' copycmd)
-          x = bpxwunix(copycmd,,co.,ce.)
+          /* Check for the specific file if new or changed */
+          cmd = 'cd' localrep'/'zigirep '&& git status --porcelain | grep' r
+          x = docmd(cmd)
+          if so.0 > 0 then do
+            s = usssafe(fulldsn)
+            copycmd = "//"s
+            copycmd = '"'copycmd'"'
+            copycmd = "cp -U -M" copycmd" "localrep"/"zigirep"/"r
+            x = debug('Copy:' copycmd)
+            x = bpxwunix(copycmd,,co.,ce.)
+          end
         end
       end
     end
@@ -3794,10 +3800,26 @@ debug:
     parse arg msg
     msg = Date() Time()' : 'msg
     c = 'echo "'msg'" >> 'home'/'debug_file
+   /* ---------------------------------- *
+    | Save the default so. and se. stems |
+    * ---------------------------------- */
+    if so.0 > 0 then do
+      drop xo. xe.
+      do xc = 1 to so.0;xo.xc = so.xc;end;xo.0 = so.0
+      do xc = 1 to se.0;xe.xc = se.xc;end;xe.0 = se.0
+    end
     x = bpxwunix(c,,so.,se.)
     if so.0 + se.0 > 0 then
     call view_std 'B'
     zigidebg_use = 1
+   /* ------------------------------------- *
+    | Restore the default so. and se. stems |
+    * ------------------------------------- */
+    if xo.0 > 0 then do
+      do xc = 1 to xo.0;so.xc = xo.xc;end;so.0 = xo.0
+      do xc = 1 to xe.0;se.xc = xe.xc;end;se.0 = xe.0
+    drop xo. xe.
+    end
   end
   return 0
 
