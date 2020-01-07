@@ -7,7 +7,7 @@
 +SSH Key Review+------------------#zigtitle   +---------------------------------
 %Command ===>_zcmd
 +
-+  SSH Key File: @keyfile
++SSH Key File: @keyfile
 +
 $sshkey
 
@@ -28,7 +28,9 @@ $sshkey
 +Press%F3+when ready to continue.
 )Init
 *rexx(* zigissh sshkey)
- sshkey = left('Copy the records below and paste into Git SSH Key:',78) zigissh
+ sshkey = left('Copy the records below and paste into' ,
+               'your Git Account SSH Key:',78) zigissh
 *endrexx
+.help = zigih130
 )Proc
 )end
