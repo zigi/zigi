@@ -2138,10 +2138,10 @@ Work_with_repo_file:
           | Add member of PDS to staging area|
           * -------------------------------- */
           d = usssafe(dsn)
-          cmd = 'cd' localrep'/'zigirep'/'d
+          cmd = 'cd' localrep'/'zigirep
           /* These cp -M issues are really getting annoying */
           m = to_from_unix(mem)
-          x = docmd(cmd || ' && git add -v 'm)
+          x = docmd(cmd || ' && git add -v 'd'/'m)
           if ztdsels = 1 then do
             statfile = translate(strip(fulldsn,'B',"'"),' ','.')
             statfile = subword(statfile,qualignr+1)
