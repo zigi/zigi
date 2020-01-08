@@ -181,6 +181,7 @@ zigistat:
     When opt = 'U' then do
       x = debug('Performing ISPF Stats file update for:' dsn)
       'vget (statmems)'
+      statmems = to_from_unix(statmems)
       "LMINIT DATAID(zstats) DATASET("dsn")"
       "LMOPEN DATAID("zstats") OPTION(INPUT)"
       do i = 1 to stats.0
