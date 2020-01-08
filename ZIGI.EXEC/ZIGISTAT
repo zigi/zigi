@@ -18,6 +18,9 @@
   |            S - save stats                                  |
   |            U - update stats to those saved                 |
   |                used when creating/refreshing datasets      |
+  |                                                            |
+  | Vars:      statmems ispf variable for selective update     |
+  |                                                            |
   | Usage                                                      |
   |   Notes: Subroutine of zigi                                |
   |          Returns string of members changed                 |
@@ -36,6 +39,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            01/08/20 LBD - Selecitve stat update if statmems|
   |            01/05/20 LBD - Correct special chars in filepath|
   |                           using usssafe routine            |
   |            11/22/19 LBD - If a member has no stats - add   |
@@ -166,8 +170,9 @@ zigistat:
     end
     /* ---------------------------------------------------------- *
     | Update ISPF Stats:                                         |
-    |  - all members in the $zigi$ stats member will have their  |
+    |  - all members in the zigi stats member will have their    |
     |    ispf stats updated to reflect the saved stats           |
+    |  - Use statmems ispf var for selective stat updates        |
     |  - new members will not be updated as we don't know about  |
     |   them                                                     |
     |  - members with no stats will have stats added if they are |
@@ -175,12 +180,15 @@ zigistat:
     * ---------------------------------------------------------- */
     When opt = 'U' then do
       x = debug('Performing ISPF Stats file update for:' dsn)
+      'vget (statmems)'
       "LMINIT DATAID(zstats) DATASET("dsn")"
       "LMOPEN DATAID("zstats") OPTION(INPUT)"
       do i = 1 to stats.0
         parse value stats.i with member ZLCDATE ZLMDATE ZLVERS ZLMOD ,
           ZLMTIME ZLCNORC ZLINORC ZLMNORC ZLUSER ZLCNORCE ,
           ZLINORCE ZLMNORCE .
+        if statmems /= null then
+        if wordpos(member,statmems) = 0 then iterate
         if zlcdate = null then ,
           'LMMSTATS DATAID('zstats') Member('member') user('sysvar(sysuid)')'
         else ,

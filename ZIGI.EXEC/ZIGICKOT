@@ -15,6 +15,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            01/08/20 LBD - Pass updated mems to zigistat    |
   |            01/05/20 LBD - vErase passed variable           |
   |            01/02/20 LBD - Support selective refresh        |
   |                           with ispf var pulldsns           |
@@ -310,6 +311,8 @@ Add_Stats:
   zs7 = 'Adding ISPF Statistics  '
   call pop_status
   filepath = ckotdir'/.zigi/'sub
+  statmems = pullmems.i
+  Address ISPExec 'vput (statmems)'
   '%zigistat' pds filepath 'U'
   return
 
