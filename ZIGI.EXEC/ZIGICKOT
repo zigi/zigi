@@ -42,6 +42,10 @@
     if mg > 10 then mgen = mg
     else mgen = mg
   end
+  /* ----------------------------------------------- *
+   | Force Member Gens to 0 for now due to IBM issue |
+   * ----------------------------------------------- */
+  mgen = 0
 
   Address TSO
 

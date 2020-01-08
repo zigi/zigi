@@ -321,6 +321,7 @@
   /* end of save old values */
 
   'vget (mgen)'
+  mgen = 0   /* force to zero for now */
   Select
   When mgen = null then hit = 0
   when zigiuid = null then hit = 0
