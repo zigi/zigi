@@ -19,7 +19,7 @@
 [Githelp+Git Help        [Push+   Push to origin     [View+    OMVS Dir
 [GitLog+ Show git log    [Refresh+ Replace Datasets{*
 %
-{*+not supported in subdirectories.
+{*+not supported within subdirectories.
 +
 +Use%O+to display a popup for commands if the menu has been hidden.
 +

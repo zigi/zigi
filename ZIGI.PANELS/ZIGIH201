@@ -22,7 +22,7 @@
   %V+View the dataset or file%*+
   %/+Display a popup selection menu
 +
-  %*+If the selection is a directory then convert%B%S%V+to work with it
+  %*+If the selection is a directory then convert%B%S%V+to display files.
 +
 +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
