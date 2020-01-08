@@ -16,6 +16,8 @@
   |                                                            |
   | History:  (most recent on top)                             |
   |            01/08/20 LBD - Pass updated mems to zigistat    |
+  |                         - Honor mgen config setting for    |
+  |                           PDSE member gen allocation       |
   |            01/05/20 LBD - vErase passed variable           |
   |            01/02/20 LBD - Support selective refresh        |
   |                           with ispf var pulldsns           |
@@ -34,7 +36,13 @@
   | Get the ISPF Variables with our instructions |
   * -------------------------------------------- */
   Address ISPExec
-  'vget (ckothlq ckotdir pulldsns)'
+  'vget (ckothlq ckotdir pulldsns mgen)'
+  if datatype(mgen) /= 'NUM' then do
+    mg = mgen()
+    if mg > 10 then mgen = mg
+    else mgen = mg
+  end
+
   Address TSO
 
   /* -------------------------------------------------------- *
@@ -224,9 +232,11 @@ Alloc_Copy_PDS:
   call pop_status
   if pullmems.i = null then do
     call get_dcb
+    if mgen > 0 then gens = 'maxgens('mgen')'
+    else gens = null
     'Alloc new spa('tracks','tracks') recfm('recfm') lrecl('lrecl')' ,
       'Blksize('blksize') Dsntype(Library,2) dsorg(po) dir(1)' ,
-      'dsn('pds')'
+      'dsn('pds')' gens
     'Free ds('pds')'
     zs8 = 'Re-Allocated'
   end
@@ -351,3 +361,23 @@ strreplace: Procedure
     else  newstring = newstring''strto
   end
   return newstring
+
+MGEN: Procedure
+  /* ---------------------------------------------------------- |
+  | Name:      MGEN                                            |
+  |                                                            |
+  | Function:  Return the current system  MAXGENS_LIMIT        |
+  |            which is the system max generations value       |
+  |            for PDSE Version 2 libraries                    |
+  |                                                            |
+  | Syntax:    mgen=(mgen)                                     |
+  |                                                            |
+  | ---------------------------------------------------------- */
+  parse source source
+
+  Numeric Digits 10
+  CVT      = C2D(Storage(10,4))
+  CVTDFA   = C2D(Storage(D2X(CVT + 1216),4))   /* cvt + 4c0 */
+  DFAMGEN  = C2D(Storage(D2X(cvtdfa + 76),4))  /* dfa + 4c */
+
+  return dfamgen
