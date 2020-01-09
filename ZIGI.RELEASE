@@ -70,3 +70,7 @@ with just these files from which the user can browse/edit/delete.
 Update the Config panel to prompt the user for the default number of
 generations to use when allocating every Partitioned Dataset during Clone,
 Pull, or Refresh processing.
+
+Update the Repository Delete dialog to enable the deletions of the
+repositories z/OS datasets and add an additional entry field to confirm the
+repository delete is really wanted.

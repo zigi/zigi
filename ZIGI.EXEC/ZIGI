@@ -21,6 +21,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            01/09/20 LBD - Support Repo del of the z/OS     |
+  |                           datasets and more confirmation   |
   |            01/08/20 LBD - Update for PDSE generations      |
   |                           at allocation                    |
   |            01/07/20 LBD - Additional debug calls           |
@@ -554,20 +556,30 @@
         'SELECT PGM(ISRDSLST) PARM(UDL' localrep'/'zigirep') SUSPEND'
       end
       When zsel = 'D' then do
-        parse value '' with delcg delco
+        parse value '' with delcg delco delcf delzd
         'Addpop row(4) column(12)'
         'Display panel(zigidelc)'
         drc = rc
         'rempop'
-        if drc = 0 then do
-          if delco''delcg = 'NN'
-          then zerrsm = 'Retained.'
-          else zerrsm = 'Deleted.'
+        if drc = 0 & delcf = 'Y' then do
           if delcg = 'Y' then do
             'tbdelete zigirepo'
+            zerrsm = 'Deleted.'
             delcg = 'The local repository has been deleted from zigi.'
           end
-          else delcg = 'The local repository was NOT deleted from zigi.'
+          if delzd = 'Y' then do
+            delzd = 'The z/OS datasets have been deleted.'
+            address syscall 'readdir' localrep'/'zigirep d.
+            do id = 1 to d.0
+               if left(d.id,1) = '.' then iterate
+               deldsn = "'"pdshlq"."word(d.id,1)"'"
+               if dsnvalid(deldsn) = 'NO' then iterate
+               call outtrap 'x.'
+               address tso 'delete' deldsn
+               call outtrap 'off'
+               end
+             end
+          else delzd = 'The z/OS datasets were NOT deleted.'
           if delco = 'Y' then do
             cmd = 'cd' localrep' && rm -rf 'zigirep
             x = bpxwunix(cmd,,so.,se.)
@@ -575,13 +587,13 @@
           end
           else delco = 'The local repository was NOT deleted from OMVS.'
           zerrlm = left(delcg,76) left(delco,76) left(localrep'/'zigirep,76) ,
-            'And the z/OS datasets were NOT deleted.'
+             left(delzd,76)'.'
           'setmsg msg(isrz003)'
         end
         else do
           zerrsm = 'Retained.'
-          zerrlm = 'The local repository was NOT deleted from zigi or OMVS:' ,
-            localrep'/'zigirep
+          zerrlm = 'The local repository was NOT deleted from zigi, from' ,
+            'OMVS' localrep'/'zigirep', or from z/OS.'
           'setmsg msg(isrz003)'
         end
       end
