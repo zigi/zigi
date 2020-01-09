@@ -1,0 +1,35 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                              %Member Generations
++
++The use of PDSE Member Generations can provide additional recovery
++capabilities as it allows access to previous versions, up to the generation
++limit defined for the PDSE. However, to access a generation requires the use
++of a generations enabled application.
++
++Among the generation enabled applications are:
++   - PDSEGEN (free - www.lbdsoftware.com)    - File Manager (IBM)
++   - Data Set Commander (IBM)                - File-Aid (Compuware)
++   - EzyEdit (Broadcom)                      - PDSMAN  (Broadcom)
++   - SimpList (MacKinney Systems)
++
++Note: Generations may not be accessed from JCL or Dynamic Allocation.
++
++"Programming isn't about what you know; it's about what you can figure out."
++       - Chris Pine
++
+         +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+)PROC
+ if (&setcont EQ &Z)
+     &ZCONT = ZIGIH150
+ if (&setcont NE &Z)
+     &ZCONT = ZIGIH140
+)END

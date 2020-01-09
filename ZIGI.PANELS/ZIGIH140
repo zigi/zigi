@@ -14,8 +14,8 @@
 +Both are required, and the user name can be anything, as can the e-mail.
 +However, it may be something that your organization requires to be accurate.
 +
-+
-+
++Also required is the number of generations to be enabled for the Partitioned
++Datasets. Anything from 0 to the system limit. The default is 0.
 +
 +
 +
@@ -28,8 +28,5 @@
 )Init
  .cursor  = &zcmd
 )PROC
- if (&setcont EQ &Z)
-     &ZCONT = ZIGIH150
- if (&setcont NE &Z)
-     &ZCONT = ZIGIH140
+ &ZCONT = ZIGIH141
 )END

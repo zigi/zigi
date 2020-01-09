@@ -22,7 +22,7 @@
 +to the Datasets from the remote repository. This%does not+change the names
 +of the files and folders in OMVS.
 +
-%Note+Each PDS will be allocated as a PDSE Version 2 with 0 generations.
+%Note+Each PDS will be allocated as a PDSE with the user configured generations.
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init

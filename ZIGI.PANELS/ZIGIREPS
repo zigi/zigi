@@ -63,7 +63,7 @@
      &osel = &zsel
  if (&row = 0)
      &zsel = &z
- ver (&zsel,list,S,A,U,B,V,RM,RN,H,D,/)
+/*  ver (&zsel,list,S,A,U,B,V,RM,RN,H,D,/) */
 )PNTS
  FIELD(ADD) VAR(ZCMD) VAL('ADD')
  FIELD(BASIC) VAR(ZCMD) VAL('BASIC')

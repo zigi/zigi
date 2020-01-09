@@ -15,7 +15,7 @@
 +
 +Partitioned Dataset (PDSE) Defaults:
 +
-+
++  Member Generations :@z  +(0 to 999)  System Limit:{sl
 +
 %Notes:
 +
@@ -28,10 +28,14 @@
 +
 +Press%Enter+to save, or%F3+to cancel.
 )Init
+ if (&mgen = &Z)
+     &mgen = 0
+ .zvars = '(mgen)'
  &setcont = 'Y'
  .help = zigih140
 )Proc
   ver (&zigiuid,nb)
   ver (&zigimail,nb)
+  ver (&mgen,nb,range,0,&sl)
   &setcont = &Z
 )end

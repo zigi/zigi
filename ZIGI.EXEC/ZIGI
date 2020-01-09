@@ -321,7 +321,7 @@
   /* end of save old values */
 
   'vget (mgen)'
-  mgen = 0   /* force to zero for now */
+
   Select
   When mgen = null then hit = 0
   when zigiuid = null then hit = 0
@@ -3134,8 +3134,9 @@ update_repo_metadata:
             copycmd = '"'copycmd'"'
             copycmd = "cp -U -M" copycmd" "localrep"/"zigirep
             copycmd = copycmd || "/"r"/"
-            x = debug('Copy:' copycmd)
             x = bpxwunix(copycmd,,so.,se.)
+            if x > 0 then call view_std 'B'
+            x = debug('Copy:' copycmd)
             mem_hit = 1
           end
         end
@@ -3149,8 +3150,9 @@ update_repo_metadata:
             copycmd = "//"s
             copycmd = '"'copycmd'"'
             copycmd = "cp -U -M" copycmd" "localrep"/"zigirep"/"r
-            x = debug('Copy:' copycmd)
             x = bpxwunix(copycmd,,co.,ce.)
+            if x > 0 then call view_std 'B'
+            x = debug('Copy:' copycmd)
           end
         end
       end
@@ -3480,6 +3482,7 @@ Do_Add_Copy:
     copycmd = '"'copycmd'"'
     copycmd = "cp -U -M" copycmd" "DIR"/"pdss"/"
     x =bpxwunix(copycmd,,so.,se.)
+    if x > 0 then call view_std 'B'
     Address TSO '%zigistat' "'"pds"'" dir"/.zigi/"pdss 'S'
     x = docmd('cd' dir '&& git add .zigi/'pdss)
   end
@@ -3489,7 +3492,8 @@ Do_Add_Copy:
     copycmd = "//'"W"'"
     copycmd = '"'copycmd'"'
     copycmd = "cp -U -M" copycmd" "DIR"/"pss
-    call bpxwunix copycmd
+    x =bpxwunix(copycmd,,so.,se.)
+    if x > 0 then call view_std 'B'
   end
   dsnstat = '[??] Untracked'
   dsn = dsnb

@@ -37,15 +37,7 @@
   * -------------------------------------------- */
   Address ISPExec
   'vget (ckothlq ckotdir pulldsns mgen)'
-  if datatype(mgen) /= 'NUM' then do
-    mg = mgen()
-    if mg > 10 then mgen = mg
-    else mgen = mg
-  end
-  /* ----------------------------------------------- *
-   | Force Member Gens to 0 for now due to IBM issue |
-   * ----------------------------------------------- */
-  mgen = 0
+  if datatype(mgen) /= 'NUM' then mgen = 0
 
   Address TSO
 
