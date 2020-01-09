@@ -16,6 +16,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            01/09/20 LBD - Enhance Only to recurse if empty |
   |            12/06/19 WJS - Allow help page(s) on command    |
   |                           Thx to William Schoen            |
   |            11/21/19 LBD - Test after Only for 0 rows       |
@@ -28,12 +29,13 @@
   * ---------------------------------------------------------- */
 
   parse value '' with rx null status
+  passone = 0
 
   arg gitfuncs   /* wjs*/
   do forever
-     parse var gitfuncs pre 'GIT-' suf
-     if suf='' then leave
-     gitfuncs=pre suf  /* ignore git- command prefixes */
+    parse var gitfuncs pre 'GIT-' suf
+    if suf='' then leave
+    gitfuncs=pre suf  /* ignore git- command prefixes */
   end
 
   /* -------------------------------------- *
@@ -82,10 +84,10 @@
     git.gitc = gitcmd gitcat
     'tbadd githelp'
     if wordpos(translate(gitcmd),gitfuncs)>0 then /* wjs*/
-       do
-       help=help+1
-       help.help=gitcmd
-       end
+    do
+      help=help+1
+      help.help=gitcmd
+    end
   end
 
   /* -------------------------------------------- *
@@ -106,18 +108,18 @@
     git.gitc = gitcmd gitcat
     'tbadd githelp'
     if wordpos(translate(substr(gitcmd,5)),gitfuncs)>0 then /* wjs*/
-       do
-       help=help+1
-       help.help=gitcmd
-       end
+    do
+      help=help+1
+      help.help=gitcmd
+    end
   end
   git.0 = gitc
 
   help.0=help  /* wjs */
   do help=1 to help.0
-     x = tcmd('git help' help.help)
-     call browse_cmd
-     drop so. se.
+    x = tcmd('git help' help.help)
+    call browse_cmd
+    drop so. se.
   end
 
   if help.0=0 then  /* skip table display if specific help wjs*/
@@ -125,83 +127,96 @@
   /* ----------------- *
   | process the table |
   * ----------------- */
-  stop = 0           /* saved top of table */
-  ztdsels = 0
-  'tbtop githelp'
+    stop = 0           /* saved top of table */
+    ztdsels = 0
+    'tbtop githelp'
   /* ----------------- *
   | Display the table |
   * ----------------- */
-  if zscreenw = 80 then
-  gpanel = 'githelp'
-  else gpanel = 'githelpw'
-  do forever
-    zcmd = null
-    if stop > 0 then do
-      'tbtop githelp'
-      'tbskip githelp number('stop')'
-    end
-    if ztdsels > 0 then
-    'tbdispl githelp'
-    else 'tbdispl githelp panel('gpanel')'
-    if rc > 4 then leave
-    if row > 0 then do
-      'tbtop githelp'
-      'tbskip githelp number('row')'
-    end
+    if zscreenw = 80 then
+    gpanel = 'githelp'
+    else gpanel = 'githelpw'
+    do forever
+      zcmd = null
+      if stop > 0 then do
+        'tbtop githelp'
+        'tbskip githelp number('stop')'
+      end
+      if ztdsels > 0 then
+      'tbdispl githelp'
+      else 'tbdispl githelp panel('gpanel')'
+      if rc > 4 then leave
+      if row > 0 then do
+        'tbtop githelp'
+        'tbskip githelp number('row')'
+      end
 
     /* -------------------- *
     | Process any commands |
     * -------------------- */
-    if zcmd /= null then do
-      Select
-        When abbrev("REFRESH",word(zcmd,1),1) = 1 then call do_refresh
-        When abbrev("ONLY",word(zcmd,1),1) = 1 then do
-          ostring = translate(word(zcmd,2))
-          'tbtop githelp'
-          do forever
-            'tbskip githelp'
-            if rc > 0 then leave
-            if pos(ostring,translate(gitcmd gitcat)) = 0 then
-            'tbdelete githelp'
-          end
-          'tbquery githelp rownum(rows)'
-          if rows = 0 then do
-            call do_refresh
-            zerrhm   = 'zigih00'
-            zerralrm = 'NO'
-            zerrtp   = 'NOTIFY'
-            zerrsm = 'Empty.'
-    zerrlm = 'The Only request resulted in zero rows. Refreshing the table.'
-            'Setmsg msg(isrz003)'
-          end
+      if zcmd /= null then do
+        Select
+          When abbrev("REFRESH",word(zcmd,1),1) = 1 then call do_refresh
+          When abbrev("ONLY",word(zcmd,1),1) = 1 then call do_only
+          Otherwise nop
         end
-        Otherwise nop
+        vsel = null
       end
-      vsel = null
-    end
 
     /* -------------------------- *
     | Process any row selections |
     * -------------------------- */
-    if vsel /= null then do
-      if gitcmd = 'git' then do
-        x = tcmd('man git')
+      if vsel /= null then do
+        if gitcmd = 'git' then do
+          x = tcmd('man git')
+        end
+        else do
+          cmd = gitcmd
+          x = tcmd('git help' cmd)
+        end
+        call browse_cmd
+        drop so. se.
+        vsel = null
       end
-      else do
-        cmd = gitcmd
-        x = tcmd('git help' cmd)
-      end
-      call browse_cmd
-      drop so. se.
-      vsel = null
     end
-  end
   end  /* wjs*/
 
   'tbend githelp'
 
   x = dropispf(load_info)
   exit
+
+/* ---------------- *
+ | The Only routine |
+ * ---------------- */
+Do_Only:
+  ostring = translate(word(zcmd,2))
+  'tbtop githelp'
+  do forever
+    'tbskip githelp'
+    if rc > 0 then leave
+    if pos(ostring,translate(gitcmd gitcat)) = 0 then
+    'tbdelete githelp'
+  end
+  'tbquery githelp rownum(rows)'
+  if rows = 0 then do
+    call do_refresh
+    if passone = 0 then do
+      passone = 1
+      call do_only
+    end
+    else do
+      zerrhm   = 'zigih00'
+      zerralrm = 'NO'
+      zerrtp   = 'NOTIFY'
+      zerrsm = 'Empty.'
+      zerrlm = 'The Only request resulted in zero rows.' ,
+        'Refreshing the table.'
+      'Setmsg msg(isrz003)'
+    end
+  end
+  passone = 0
+  return
 
   /* --------------------- *
   | Create our ISPF Table |
