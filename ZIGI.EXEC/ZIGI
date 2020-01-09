@@ -587,7 +587,7 @@
           end
           else delco = 'The local repository was NOT deleted from OMVS.'
           zerrlm = left(delcg,76) left(delco,76) left(localrep'/'zigirep,76) ,
-             left(delzd,76)'.'
+             left(delzd,76)
           'setmsg msg(isrz003)'
         end
         else do
@@ -810,8 +810,7 @@ Work_With_Repo:
         call pop 'Pulling from remote'
         cmd = 'cd' localdir' && git pull -v'
         x = docmd(cmd)
-        pulldsns = null
-        parse value '' with pulldsns pullmems
+        parse value '' with pulldsns pullmems.
         do pi = 1 to so.0
           if left(so.pi,1) /= ' ' then iterate
           if pos(' changed,',so.pi) > 0 then leave
