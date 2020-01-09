@@ -2,17 +2,17 @@
  $ type(output) caps(off)
  @ type(input ) hilite(uscore) intens(low)
  + type(text) skip(on) intens(low)
-)Body Window(55,13)
+)Body Window(50,13)
 +
-+Deleting a repository from Git will remove it from Git
-+management but will%not+delete the OMVS files or z/OS
-+datasets.
++Deleting a repository from Git will remove it
++from Git management but will%not+delete the OMVS
++files or z/OS datasets.
 +
-+Deleting the OMVS files will delete the OMVS directory
-+and%all+OMVS files in the repository.
++Deleting the OMVS files will delete the OMVS
++directory and%all+OMVS files in the repository.
 +
-+Deleting the z/OS datasets will delete%all+the z/OS
-+datasets used in the repository.
++Deleting the z/OS datasets will delete%all+the
++z/OS datasets used in the repository.
 +
 +
                 +Press%F3+to continue.

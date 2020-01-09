@@ -9,7 +9,7 @@
 +Delete the OMVS files    @z+(Y or N)
 +Delete the z/OS Datasets @z+(Y or N)
 +
-+If remove from Git is%N+then delete cancelled.
++If remove from Git is%N+then Delete cancelled.
 +
 +Confirm Delete Request@z+(Y or N)
 +
