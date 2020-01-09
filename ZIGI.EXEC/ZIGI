@@ -2065,9 +2065,10 @@ Work_with_repo_file:
             else do
               Address TSO 'Rename' olddsn newdsn
               cmd = 'cd' localrep'/'zigirep'/'dsn
-              newmemokforuss = to_from_unix(newmem)
-              cmd = cmd '&& git mv' mem newmemokforuss
               cmd = usssafe(cmd)
+              oldmemforuss = usssafe(mem)
+              newmemokforuss = usssafe(newmem)
+              cmd = cmd '&& git mv' oldmemforuss newmemokforuss
               x = docmd(cmd)
               call view_std 'B'
               'tbdelete' rtll
