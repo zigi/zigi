@@ -181,7 +181,10 @@ zigistat:
     When opt = 'U' then do
       x = debug('Performing ISPF Stats file update for:' dsn)
       'vget (statmems)'
-      statmems = to_from_unix(statmems)
+      if statmems /= null then do
+        statmems = to_from_unix(statmems)
+        x = debug('Update Members:' statmems)
+      end
       "LMINIT DATAID(zstats) DATASET("dsn")"
       "LMOPEN DATAID("zstats") OPTION(INPUT)"
       do i = 1 to stats.0
@@ -227,7 +230,7 @@ zigistat:
         if m.actmem = null then string = string actmem
         else if data /= m.actmem then string = string actmem
       end
-      x = debug('ISPF Stats comparison complete.')
+      x = debug('ISPF Stats comparison complete:' string)
       return string
     end
     Otherwise nop  /* should never get here */
@@ -370,8 +373,7 @@ debug:
     parse arg msg
     msg = Date() Time()' : 'msg
     c = 'echo "'msg'" >> 'home'/zigidebug.txt'
-    x = bpxwunix(c,,so.,se.)
-    zigidebg_use = 1
+    x = bpxwunix(c,,dso.,dse.)
   end
   return 0
 

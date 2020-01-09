@@ -3792,26 +3792,7 @@ debug:
     parse arg msg
     msg = Date() Time()' : 'msg
     c = 'echo "'msg'" >> 'home'/'debug_file
-    /* ---------------------------------- *
-    | Save the default so. and se. stems |
-    * ---------------------------------- */
-    if so.0 > 0 then do
-      drop xo. xe.
-      do xc = 1 to so.0;xo.xc = so.xc;end;xo.0 = so.0
-      do xc = 1 to se.0;xe.xc = se.xc;end;xe.0 = se.0
-    end
-    x = bpxwunix(c,,so.,se.)
-    if so.0 + se.0 > 0 then
-    call view_std 'B'
-    zigidebg_use = 1
-    /* ------------------------------------- *
-    | Restore the default so. and se. stems |
-    * ------------------------------------- */
-    if xo.0 > 0 then do
-      do xc = 1 to xo.0;so.xc = xo.xc;end;so.0 = xo.0
-      do xc = 1 to xe.0;se.xc = xe.xc;end;se.0 = xe.0
-      drop xo. xe.
-    end
+    x = bpxwunix(c,,dso.,dse.)
   end
   return 0
 
