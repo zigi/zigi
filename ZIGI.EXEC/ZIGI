@@ -22,6 +22,7 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            01/10/20 LBD - Correct detection of renames     |
+  |                         - fix rename member with specials  |
   |            01/09/20 LBD - Support Repo del of the z/OS     |
   |                           datasets and more confirmation   |
   |            01/08/20 LBD - Update for PDSE generations      |
@@ -2067,9 +2068,7 @@ Work_with_repo_file:
               Address TSO 'Rename' olddsn newdsn
               cmd = 'cd' localrep'/'zigirep'/'dsn
               cmd = usssafe(cmd)
-              oldmemforuss = usssafe(mem)
-              newmemokforuss = usssafe(newmem)
-              cmd = cmd '&& git mv' oldmemforuss newmemokforuss
+              cmd = cmd '&& git mv' usssafe(mem) usssafe(newmem)
               x = docmd(cmd)
               call view_std 'B'
               'tbdelete' rtll
