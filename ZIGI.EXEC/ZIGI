@@ -1900,7 +1900,9 @@ Work_with_repo_file:
       |  So we fix the name before we save to table :)          |
       * ------------------------------------------------------- */
       ussmem = mem
+      /* Comment Start
       mem = to_from_unix(mem)
+         Comment End */
       /* ---------------------------------------------- *
       | No get ISPF stats for each member for the list |
       * ---------------------------------------------- */
