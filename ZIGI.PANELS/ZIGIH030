@@ -2,22 +2,22 @@
   ` type( input) intens(low ) just(left ) hilite(uscore)
   ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
   [ type(output) intens(high) caps(off) just(left) pas(on)
-)Body Expand(\\)
-%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+)Body Expand(}})
+%Tutorial -}-}~The z ISPF Git Interface (zigi)%}-}- Tutorial
 %Selection ===>`ZCMD                                                          +
 +
                              %Special Characters+
 +
-+Special characters in z/OS datasets and member names will be converted
-+when moved to, and from, the repository using the cp -M option.
++Special characters in z/OS datasets and member names will be escaped for
++OMVS processes using the \ escape character.
 +
 +The characters that are         OMVS   z/OS
-+translated are the%@#$+        %  _+<->%@
-+and are converted to%_.-+      %  .+<->%#
-+and back.                      %  -+<->%$
++challenges are the%@#$+        %  _+<->%@
++                               %  .+<->%#
++                               %  -+<->%$
 +
-+In the%status+log you will see the 'OMVS'-names (as this is from the
-+OMVS-side of things.
++
++
 +
 +
 +

@@ -166,22 +166,19 @@
   exec = "'"exec"'"
   panels = "'"zigihlq".PANELS'"
 
-  /* ---------------------------------------- *
-  | If panels/exec then libdef and/or altlib |
-  | but only if not under ZIGI applid.       |
-  * ---------------------------------------- */
-  if zapplid /= 'ZIGI' then do
-    if panels /= null then
-    'libdef ispplib dataset id('panels') stack'
-    if exec /= null then
-    Address TSO 'altlib act application(exec) dataset('exec')'
-  end
-
   /* ----------------------------------------------------------- *
   | Check for running under the ZIGI ISPF application ID and if |
   | not then recurse into it.                                   |
   * ----------------------------------------------------------- */
   if zapplid <> "ZIGI" then do
+    /* ---------------------------------------- *
+    | If panels/exec then libdef and/or altlib |
+    | but only if not under ZIGI applid.       |
+    * ---------------------------------------- */
+    if panels /= null then
+    'libdef ispplib dataset id('panels') stack'
+    if exec /= null then
+    Address TSO 'altlib act application(exec) dataset('exec')'
     /* --------------------------------------- *
     | Make sure we are under the ZIGI applid  |
     * --------------------------------------- */
@@ -327,10 +324,10 @@
   'vget (mgen)'
 
   Select
-  When mgen = null then hit = 0
-  when zigiuid = null then hit = 0
-  when zigimail = null then hit = 0
-  Otherwise hit = 1
+    When mgen = null then hit = 0
+    when zigiuid = null then hit = 0
+    when zigimail = null then hit = 0
+    Otherwise hit = 1
   end
   do forever
     if hit = 1 then leave
@@ -573,14 +570,14 @@
             delzd = 'The z/OS datasets have been deleted.'
             address syscall 'readdir' localrep'/'zigirep d.
             do id = 1 to d.0
-               if left(d.id,1) = '.' then iterate
-               deldsn = "'"pdshlq"."word(d.id,1)"'"
-               if dsnvalid(deldsn) = 'NO' then iterate
-               call outtrap 'x.'
-               address tso 'delete' deldsn
-               call outtrap 'off'
-               end
-             end
+              if left(d.id,1) = '.' then iterate
+              deldsn = "'"pdshlq"."word(d.id,1)"'"
+              if dsnvalid(deldsn) = 'NO' then iterate
+              call outtrap 'x.'
+              address tso 'delete' deldsn
+              call outtrap 'off'
+            end
+          end
           else delzd = 'The z/OS datasets were NOT deleted.'
           if delco = 'Y' then do
             cmd = 'cd' localrep' && rm -rf 'zigirep
@@ -589,7 +586,7 @@
           end
           else delco = 'The local repository was NOT deleted from OMVS.'
           zerrlm = left(delcg,76) left(delco,76) left(localrep'/'zigirep,76) ,
-             left(delzd,76)
+            left(delzd,76)
           'setmsg msg(isrz003)'
         end
         else do
@@ -1241,9 +1238,6 @@ Work_With_Repo:
         d = usssafe(dsn)
         cmd = 'cd' localrep'/'zigirep
         x = docmd(cmd '&& git add -v 'd)
-        /* Comment Start
-        call combine_msgs
-        Comment End */
         if dsnvalid(fulldsn) = "OK" then do
           /* Only get the stats if it's a z/OS dataset
           Don't do it for the USS files
@@ -1439,7 +1433,6 @@ do_grep:
           parse value so.si with gdsn":" .
           if pos('/',gdsn) > 0 then do
             parse value gdsn with gdsn'/'mem':' .
-            mem = to_from_unix(mem)
             if dsnvalid(gdsn) = 'OK'
             then gdsn = gdsn'('mem')'
             else gdsn = gdsn'/'mem
@@ -1726,7 +1719,6 @@ fixup_userids:
     if wordpos(file,dsns) = 0 then do
       dsns = dsns file
     end
-    mem = to_from_unix(mem)
     members.file = members.file mem
   end
   do iw = 1 to words(dsns)
@@ -1900,9 +1892,6 @@ Work_with_repo_file:
       |  So we fix the name before we save to table :)          |
       * ------------------------------------------------------- */
       ussmem = mem
-      /* Comment Start
-      mem = to_from_unix(mem)
-         Comment End */
       /* ---------------------------------------------- *
       | No get ISPF stats for each member for the list |
       * ---------------------------------------------- */
@@ -2038,9 +2027,7 @@ Work_with_repo_file:
           end
         end
         when zsel = 'H' then do
-          /* translate the member name to fix special chars */
-          hm = to_from_unix(mem)
-          call do_history dsn'/'hm
+          call do_history dsn'/'mem
         end
         when zsel = 'RN' then do
           /* ------------------- *
@@ -2103,10 +2090,9 @@ Work_with_repo_file:
             Address TSO ,
               'Delete' rdsn
             call outtrap 'off'
-            /* make sure the member name conforms to the cp -M way */
-            m = to_from_unix(mem)
+            m = usssafe(mem)
             xldir = usssafe(localdir)
-            cmd = 'cd' xldir    '&& git rm "'m'"'
+            cmd = 'cd' xldir '&& git rm "'m'"'
             x = docmd(cmd,,so.,se.)
             call view_std 'B'
             memstat = '*Removed'
@@ -2131,8 +2117,7 @@ Work_with_repo_file:
           d = usssafe(dsn)
           cmd = 'cd' localrep'/'zigirep
           /* These cp -M issues are really getting annoying */
-          m = to_from_unix(mem)
-          x = docmd(cmd || ' && git add -v 'd'/'m)
+          x = docmd(cmd || ' && git add -v 'd'/'usssafe(mem))
           if ztdsels = 1 then do
             statfile = translate(strip(fulldsn,'B',"'"),' ','.')
             statfile = subword(statfile,qualignr+1)
@@ -2176,9 +2161,7 @@ Work_with_repo_file:
           * -------------------------------- */
           d = usssafe(dsn)
           cmd = 'cd' localrep'/'zigirep'/'d
-          /* These cp -M issues are really getting annoying */
-          m = to_from_unix(mem)
-          m = './'m
+          m = './'usssafe(mem)
           x = docmd(cmd ' && git diff 'm)
           if so.0 + se.0 > 0
           then call View_std 'X' 'V'
@@ -2206,7 +2189,8 @@ Edit_PS:
   if rc = 0 then do
     edsn = usssafe(edsn)
     copcm = "//'"edsn"'"
-    copcm = 'cp -U -M "'copcm'" 'localrep'/'zigirep'/'usssafe(dsn)
+/* -M was replaced with -v in all CP commands */
+    copcm = 'cp -U -v "'copcm'" 'localrep'/'zigirep'/'usssafe(dsn)
     x = bpxwunix(copcm,,so.,se.)
     call view_std 'B'
     if ztdsels = 1 then
@@ -3146,7 +3130,7 @@ update_repo_metadata:
             /* TODO? Use Scottish Command here ? */
             copycmd = "//'"e"("m")'"
             copycmd = '"'copycmd'"'
-            copycmd = "cp -U -M" copycmd" "localrep"/"zigirep
+            copycmd = "cp -U -v" copycmd" "localrep"/"zigirep
             copycmd = copycmd || "/"r"/"
             x = bpxwunix(copycmd,,so.,se.)
             if x > 0 then call view_std 'B'
@@ -3163,7 +3147,7 @@ update_repo_metadata:
             s = usssafe(fulldsn)
             copycmd = "//"s
             copycmd = '"'copycmd'"'
-            copycmd = "cp -U -M" copycmd" "localrep"/"zigirep"/"r
+            copycmd = "cp -U -v" copycmd" "localrep"/"zigirep"/"r
             x = bpxwunix(copycmd,,so.,se.)
             if x > 0 then call view_std 'B'
             x = debug('Copy:' copycmd)
@@ -3494,7 +3478,7 @@ Do_Add_Copy:
     x = bpxwunix(mkdir,,so.,se.)
     copycmd = "//'"pdsc"'"
     copycmd = '"'copycmd'"'
-    copycmd = "cp -U -M" copycmd" "DIR"/"pdss"/"
+    copycmd = "cp -U -v" copycmd" "DIR"/"pdss"/"
     x =bpxwunix(copycmd,,so.,se.)
     if x > 0 then call view_std 'B'
     Address TSO '%zigistat' "'"pds"'" dir"/.zigi/"pdss 'S'
@@ -3505,7 +3489,7 @@ Do_Add_Copy:
     PSS = usssafe(dsnb)
     copycmd = "//'"W"'"
     copycmd = '"'copycmd'"'
-    copycmd = "cp -U -M" copycmd" "DIR"/"pss
+    copycmd = "cp -U -v" copycmd" "DIR"/"pss
     x =bpxwunix(copycmd,,so.,se.)
     if x > 0 then call view_std 'B'
   end
@@ -3636,7 +3620,6 @@ do_history:
     delement = element
     if pos('/',delement) > 0 then do
       parse value delement with le'/'re
-      delement = le'/'to_from_unix(re)
     end
     'tbtop' hist_tbl
     save_top = ztdtop
@@ -3884,6 +3867,7 @@ Test_Repo_Table_State:
   * ------------------------------------------------- */
 to_from_unix: procedure
   arg file
+  return usssafe(file)   /* ignore translation */
   if pos('{',translate(file,'{{{','._-')) = 0
   then return translate(file,'._-','#@$')
   else return translate(file,'#@$','._-')

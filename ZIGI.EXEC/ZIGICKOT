@@ -257,13 +257,7 @@ Alloc_Copy_PDS:
     if pullmems.i /= null then
     if wordpos(mems.ii,pullmems.i) = 0 then iterate
     src = rdir'/'mems.ii
-    /* fix the cp -M behavior on the way in */
-    /* Comment Start
-    m = strreplace(mems.ii,'.','#')
-    m = strreplace(m,'_','@')
-    m = strreplace(m,'-','$')
-    Comment End */
-    m = to_from_unix(mems.ii)
+    m = mems.ii    /* ignore the translation */
     Address TSO
     'OGET' "'"src"'" "'"target"("m")'"
     Address ISPexec

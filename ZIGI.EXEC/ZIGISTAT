@@ -182,7 +182,6 @@ zigistat:
       x = debug('Performing ISPF Stats file update for:' dsn)
       'vget (statmems)'
       if statmems /= null then do
-        statmems = to_from_unix(statmems)
         x = debug('Update Members:' statmems)
       end
       "LMINIT DATAID(zstats) DATASET("dsn")"
