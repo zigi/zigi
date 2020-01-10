@@ -3162,7 +3162,7 @@ update_repo_metadata:
             copycmd = "//"s
             copycmd = '"'copycmd'"'
             copycmd = "cp -U -M" copycmd" "localrep"/"zigirep"/"r
-            x = bpxwunix(copycmd,,co.,ce.)
+            x = bpxwunix(copycmd,,so.,se.)
             if x > 0 then call view_std 'B'
             x = debug('Copy:' copycmd)
           end
@@ -3749,6 +3749,7 @@ GETENV:
   envc = env.0
   call add_env '_BPX_SHAREAS=YES'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
+  call add_env 'export _EDC_ADD_ERRORNO2=1'
   env.0 = envc
   drop so. se.
   x = debug('Finished collection of env variables')
@@ -3794,6 +3795,7 @@ debug:
     msg = Date() Time()' : 'msg
     c = 'echo "'msg'" >> 'home'/'debug_file
     x = bpxwunix(c,,dso.,dse.)
+    zigidebg_use = 1
   end
   return 0
 
