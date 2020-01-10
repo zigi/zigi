@@ -21,6 +21,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            01/10/20 LBD - Correct detection of renames     |
   |            01/09/20 LBD - Support Repo del of the z/OS     |
   |                           datasets and more confirmation   |
   |            01/08/20 LBD - Update for PDSE generations      |
@@ -3197,7 +3198,7 @@ update_repo_metadata:
         do ii = 1 to so.0
           stat = substr(so.ii,1,2)
           PATH = substr(so.ii,4)
-          if pos(dsn, PATH) = 1 then do
+          if pos(dsn, PATH) > 0 then do
             dsnstat = porcelain(stat)
             /* Comment Start
             leave
