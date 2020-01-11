@@ -12,8 +12,6 @@
 %Fixed Dataset Prefix:             $dsnapfx                               +
 %Ignore 1st n qualifiers in prefix:$z+
 +
-+
-+Options:%S+Add+%A+Add+%B+Browse
 +The repository already exists, and datasets have already been added. You
 +may add more datasets to this repository but you may not change the dataset
 +prefix or the number of qualifiers in the prefix to ignore.
