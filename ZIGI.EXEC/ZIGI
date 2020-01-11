@@ -2199,7 +2199,7 @@ Edit_PS:
 /* -M was replaced with -v in all CP commands */
     copcm = 'cp -U -v "'copcm'" 'localrep'/'zigirep'/'usssafe(dsn)
     x = bpxwunix(copcm,,so.,se.)
-    call view_std 'B'
+    if x > 0 then call view_std 'B'
     if ztdsels = 1 then
     call update_repo_metadata
   end
