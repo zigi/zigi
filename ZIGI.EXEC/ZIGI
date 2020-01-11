@@ -21,6 +21,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            01/11/20 LBD - Do git add for stats after PDS   |
+  |                           member rm                        |
   |            01/10/20 LBD - Correct detection of renames     |
   |                         - fix rename member with specials  |
   |            01/09/20 LBD - Support Repo del of the z/OS     |
@@ -2103,6 +2105,10 @@ Work_with_repo_file:
             cmd = 'cd' localrep'/'zigirep'/.zigi/'
             stats = usssafe(statfile)
             x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'stats 'S')
+            cmd = 'cd' localrep'/'zigirep
+            cmd = cmd || '&& git add -v .zigi/'stats
+            x = docmd(cmd)
+            if x > 0 then call view_std 'B'
           end
           else do
             zerrsm = 'Cancelled.'
