@@ -23,6 +23,7 @@
   |                                                            |
   |            01/11/20 LBD - Do git add for stats after PDS   |
   |                           member rm                        |
+  |                         - Prompt for OK to delete branch   |
   |            01/10/20 LBD - Correct detection of renames     |
   |                         - fix rename member with specials  |
   |            01/09/20 LBD - Support Repo del of the z/OS     |
@@ -2393,14 +2394,27 @@ Branch_it:
       end
       leave
     end
-    if zsel = "D" then do
-      x = docmd('cd 'localdir' && git branch -D 'bname)
-      'tbdelete' rtbb
-      zerrsm = 'Deleted.'
-      zerrlm = 'Branch 'bname' succesfully deleted'
-      'Setmsg msg(isrz003)'
-    end
-  end
+     if zsel = "D" then do
+      'Addpop row(4) column(6)'
+       'display panel(zigibrdq)'
+       drc = rc
+       'Rempop'
+       if ans = 'N' then drc = 4
+       if drc > 0 then do
+          ans = 'N'
+          zerrsm = 'Cancelled.'
+          zerrlm = 'Branch delete cancelled.'
+         'setmsg msg(isrz003)'
+          end
+       if ans = 'Y' then do
+         x = docmd('cd 'localdir' && git branch -D 'bname)
+         'tbdelete' rtbb
+         zerrsm = 'Deleted.'
+         zerrlm = 'Branch 'bname' succesfully deleted'
+         'Setmsg msg(isrz003)'
+       end
+     end
+     end
   'tbend' rtbb
   ztdsels = 0
   return
