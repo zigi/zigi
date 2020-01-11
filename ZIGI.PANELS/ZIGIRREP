@@ -20,7 +20,7 @@
 +]View+   (V)+View the dataset/file
 +
 )Init
- &zwinttl = 'zigi Repository Selection Options'
+ &zwinttl = 'zigi Current Repository Selections'
  .zvars = '(zsel)'
  .cursor = zsel
  &zsel  = &z

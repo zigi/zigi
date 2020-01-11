@@ -6,23 +6,23 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                                %PRO/BASIC+
+                                %BASIC/PRO/MENU
 +
-+Both%PRO+and%BASIC+commands are actually toggle commands to change the panels
-+where they are used to, or from, a verbose description of the available
++The%Basic Menu+and%Pro+commands are actually toggle commands to change the
++panels where they are used to, or from, a verbose description of the available
 +commands on those panels.
-%
-The%Pro+version is very terse and is ideal for those who want more space on the
++
++The%Pro+version is very terse and is ideal for those who want more space on the
 +panel for other things. Even when in%Pro+mode it is easy to find out what the
 +commands are by using%F1+to view the tutorial panel.
 +
-The%Basic+version is more verbose and is ideal for those learning%zigi+for the
++The%Basic+version is more verbose and is ideal for those learning%zigi+for the
 +first time.
 +
++The 3rd toggle will remove both the command and row selection menus for a very
++terse panel providing more room for actual data.
 +
            +"Never mistake activity for achievement." - John Wooden
-+
-+
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init

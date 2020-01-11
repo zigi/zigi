@@ -15,7 +15,7 @@
 +]Delete+(D)+Delete the Repository
 +
 )Init
- &zwinttl = 'zigi Primary Menu Selection Options'
+ &zwinttl = 'zigi Local Repository Selections'
  .zvars = '(zsel)'
  &zsel  = &z
  .cursor = zsel

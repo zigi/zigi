@@ -7,7 +7,7 @@
 +
 %Enter+to continue%F3+to cancel.
 )Init
- &zwinttl = 'zIGI PDS Member Rename'
+ &zwinttl = 'zigi PDS Member Rename'
 )Proc
   ver (&newmem,nb,dsname)
 )end

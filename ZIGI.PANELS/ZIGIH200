@@ -2,26 +2,27 @@
   _ type( input) intens(low ) just(left ) hilite(uscore) caps(on)
   ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
   [ type(output) intens(high) caps(off) just(left) pas(on) skip(on) color(white)
+  { type(text) color(yellow) intens(low)
 )Body Expand(\\)
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                              %Respository Table
+                              %Current Respository
 +
 %Commands available+(select for more information or press%Enter+to see each):
 +
-[Add+    Add dataset        [Grep+   Find Strings     [Refresh+ Replace Datasets
-[Br    + Change Branch      [Merge+  Merge Branches   [Remote+  Add remote
-[Commit+ Record Changes     [Network+Network Report   [Rollback+Revert
-[GitCMD +Git Command Prompt [Pro+    Toggle Menu      [Set+     Set Defaults
-[Githelp+Git Help           [Pull+   Pull from origin [Status+  Git Status
-[GitLog+ Show git log output[Push+   Push to origin   [View+    OMVS Dir
-+
-[Find+   Find/RFind a string in the dataset or file name.
+[Add+    Add dataset{*   [Grep+   Find Strings       [Remote+  Add remote
+[Br    + Change Branch{* [Merge+  Merge Branches{*   [Rollback+Revert{*
+[Commit+ Record Changes  [Network+Network Report     [Row+     Options
+[Find+   Find in table   [Pro+    Toggle Menu        [Set+     Set Defaults
+[GitCMD +Git Commands    [Pull+   Pull from origin   [Status+  Git Status
+[Githelp+Git Help        [Push+   Push to origin     [View+    OMVS Dir
+[GitLog+ Show git log    [Refresh+ Replace Datasets{*
 %
-[Row+selection options.
+{*+not supported within subdirectories.
 +
 +Use%O+to display a popup for commands if the menu has been hidden.
++
 +
 +
 +Press the%Enter+key to continue your zigi tutorial journey.

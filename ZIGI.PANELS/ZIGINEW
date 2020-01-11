@@ -3,7 +3,7 @@
  $ type(input ) caps(on ) hilite(uscore)
  # type(output) hilite(reverse) color(turq) caps(off)
 )Body Expand(\\)
-+-\-\#zigtitle   +-\-\
++Create New Repository+-----------#zigtitle   +---------------------------------
 %Command ===>_zcmd
 +
 %Name:        @zigirep                         +

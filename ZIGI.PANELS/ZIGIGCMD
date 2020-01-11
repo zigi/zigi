@@ -1,20 +1,21 @@
 )Attr
  @ type(input ) caps(off) hilite(uscore) intens(low)
  $ type(input ) caps(on ) hilite(uscore)
- [ type(output) caps(off) intens(low)
+ [ type(output) caps(off) intens(low) skip(on)
  # type(output) hilite(reverse) color(turq) caps(off)
+ + type(text) intens(low) skip(on)
 )Body Expand(\\) Width(&zscreenw)
-+-\-\#zigtitle   +-\-\
++Git Commands+--------------------#zigtitle   +---------------------------------
 +Command ===>_zcmd                             \ \+Scroll ===>_gscr
 +
 +Git repo dir:[localdir
 +
-+Enter any git command (without git):    Browse/View:$z+(B or V)
++Enter any Git command (without git):    Browse/View:$z+(B or V)
 %git@gitcmd
 
 
 +
-+Hint: Use the GitHelp command to review the available git commands and syntax.
++Hint: Use the GitHelp command to review the available Git commands and syntax.
 +
 +S+Command history (%D+delete%S+Select for edit and use%X+eXecute now)
 )Model

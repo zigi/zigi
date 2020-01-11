@@ -9,13 +9,13 @@
                                 %Config+
 +
 %Config+displays, and allows changing your user name and e-mail address which
-+are used by%git+when commits are made.
++are used by%Git+when commits are made.
 +
 +Both are required, and the user name can be anything, as can the e-mail.
 +However, it may be something that your organization requires to be accurate.
 +
-%
-+
++Also required is the number of generations to be enabled for the Partitioned
++Datasets. Anything from 0 to the system limit (default=0).
 +
 +
 +
@@ -28,5 +28,5 @@
 )Init
  .cursor  = &zcmd
 )PROC
- &ZCONT = ZIGIH150
+ &ZCONT = ZIGIH141
 )END

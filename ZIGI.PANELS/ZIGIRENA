@@ -7,7 +7,7 @@
 +
              %Enter+to continue%F3+to cancel.
 )Init
- &zwinttl = 'zIGI Dataset/File Rename'
+ &zwinttl = 'zigi Dataset/File Rename'
 )Proc
   ver (&newdsn,nb,dsnameq)
 )end

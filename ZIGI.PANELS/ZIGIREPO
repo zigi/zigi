@@ -2,13 +2,14 @@
   _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
   @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
   $ type(output) intens(low ) caps(off) just(left )
+  ] type(output) intens(low ) caps(off) just(left ) color(green)
   ! type(output) intens(high) caps(off) just(left )
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
  [ type(output) caps(off) pas(on) intens(high) color(white)
 )Body  Expand(\\)
-+-\-\#zigtitle   +-\-\
++Current Repository+--------------#zigtitle   +---------------------------------
 %Command ===>_zcmd            \ \  %Scroll ===>_zscr+
 %Local dir      :$localdir
 %Remote path    :$remote1
@@ -23,11 +24,11 @@
 [Githelp+Git Help           [Pull+   Pull from origin [Status+  Git Status
 [GitLog+ Show git log output[Push+   Push to origin   [View+    OMVS Dir
 +
-%S+Select (Edit)%A+Add%B+Browse%H+History%RM+Remove%RN+Rename from Repo%V+View
+%S+Select (Edit)%A+Add%B+Browse%D+Diff%H+History%RM+Remove%RN+Rename%V+View
 +
 %S  Status                    Dataset/File Name
 )Model
-@z +$z                       $z                                            $z
+@z +$z                       $z                                            ]z
 )Init
  &Add     = 'Add'
  &Br      = 'Branch'
@@ -67,7 +68,7 @@
      &osel = &zsel
  if (&row = 0)
      &zsel = &z
- ver (&zsel,list,S,A,U,B,V,RM,RN,H,/)
+ /* ver (&zsel,list,S,A,U,B,V,RM,RN,H,D,/) */
 )PNTS
  FIELD(ADD   )  VAR(ZCMD) VAL('ADD')
  FIELD(BR    )  VAR(ZCMD) VAL('BRANCH')

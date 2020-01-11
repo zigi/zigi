@@ -2,18 +2,21 @@
  $ type(output) caps(off)
  @ type(input ) hilite(uscore) intens(low)
  + type(text) skip(on) intens(low)
-)Body Window(55,10)
+)Body Window(50,13)
 +
-+Deleting a repository from git will remove it from git
-+management but will%not+delete the OMVS files.
++Deleting a repository from Git will remove it
++from Git management but will%not+delete the OMVS
++files or z/OS datasets.
 +
-+Deleting the OMVS files will delete the OMVS directory
-+and%all+OMVS files in the repository.
++Deleting the OMVS files will delete the OMVS
++directory and%all+OMVS files in the repository.
 +
-%Note:+the z/OS datasets will%not+be deleted.
++Deleting the z/OS datasets will delete%all+the
++z/OS datasets used in the repository.
++
 +
                 +Press%F3+to continue.
 )Init
- &zwinttl = 'zIGI Delete Confirmation Tutorial'
+ &zwinttl = 'zigi Delete Confirmation Tutorial'
 )Proc
 )end

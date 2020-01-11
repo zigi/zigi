@@ -10,7 +10,7 @@
 +
       %ENTER+to continue, or%F3+to cancel
 )Init
- &zwinttl = 'zIGI Prompt Popup'
+ &zwinttl = 'zigi Prompt Popup'
 )Proc
  ver (&newbr,nb)
 )end

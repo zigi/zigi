@@ -10,14 +10,14 @@
 +
 +Enter Selection:_z                        +
 +
-+]Commit+   Register all changes with git
-+]Gitlog+   Review the git log
++]Commit+   Register all changes with Git
++]Gitlog+   Review the Git log
 +]Grep+     Search the repository for a string
 +]Locate+  _lstloc  +Locate a member
 +]Menu+     Toggle the menu on and off
 +]Reset    +Reset all userids
 +]Sort+     Sort the member list
-+]Status+   Get current git status
++]Status+   Get current Git status
 )Init
  &zwinttl = 'zigi PDS Member Commands'
  .zvars = '(zcmd)'
@@ -33,7 +33,6 @@
   .help = zigih300
 )Proc
 *REXX(*)
- say 'zcmd: *'zcmd'*'
  if abbrev('LOCATE',zcmd,1) = 1 then
     zcmd = 'LOCATE' lstloc
 *ENDREXX

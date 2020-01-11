@@ -2,8 +2,7 @@
  $ type(output) caps(off)
  _ type(input) caps(off) hilite(uscore) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
-)Body Expand(\\) Window(57,11)
-+-\-\#zigtitle   +-\-\
+)Body Expand(\\) Window(57,10)
 %Command ===>_zcmd
 +
 +Merge conflicts were encountered.
@@ -15,6 +14,9 @@
            +Select an option or%F3+to cancel
 +
 )Init
+&zwinttl = 'Git Merge Conflict Resolution'
+ &ztut = 'mrg'
+ vput (ztut)
  .help = zigih270
 )Proc
  ver (&zcmd,nb,list,1,2,3)

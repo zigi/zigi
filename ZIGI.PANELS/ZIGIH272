@@ -8,8 +8,8 @@
 +
                                  %Merge+
 +
-%Merge+resolution using the native git conflict records is performed using
-+ISPF Edit. The git records are highlighted in%white+to for easy identification.
+%Merge+resolution using the native Git conflict records is performed using
++ISPF Edit. The Git records are highlighted in%white+to for easy identification.
 +
 +The%<<<<<<<+marker begins the current branch set of records.
 +The%=======+marker separates the current branch from the merge branch records.
@@ -18,7 +18,7 @@
 +To resolve the conflict:
 +
 +  1. Remove the records that should NOT be in the merged file
-+  2. Remove the git marker records
++  2. Remove the Git marker records
 +  3. Save and exit Edit
 +
 +Using%F3+or not updating ALL the conflict files will result in a
@@ -27,7 +27,11 @@
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
+ vget (ztut)
 )PROC
  &zup   = zigih271
- &zcont = zigih280
+ if (&ztut EQ 'mrg')
+     &zcont = zigih270
+ if (&ztut NE 'mrg')
+     &zcont = zigih280
 )END

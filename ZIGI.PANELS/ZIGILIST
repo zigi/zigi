@@ -8,7 +8,7 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
 )Body  Expand(\\)
-+-\-\#zigtitle   +-\-\
++PDS Member List+-----------------#zigtitle   +---------------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
 %
 %Current Dataset    : $fulldsn
@@ -18,7 +18,7 @@
 %Commands:  %L+Locate  ]Commit]Gitlog]Grep]Sort]Status]Reset    ]Menu+
 %Selections:%S+Edit%A+Add%D+Show Diff%H+History%RM+Remove from Repo%RN+Rename
 %
-%S  Member     Status                     Size    Mod-Date  Mod-Time  Userid
+%S   Member    Status                     Size    Mod-Date  Mod-Time  Userid
 )Model
 @z +$z        +$z                     [z      +  [z       +[z       +$z
 )Init

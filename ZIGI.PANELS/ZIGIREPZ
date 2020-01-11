@@ -2,13 +2,14 @@
   _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
   @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
   $ type(output) intens(low ) caps(off) just(left )
+  ] type(output) intens(low ) caps(off) just(left ) color(green)
   ! type(output) intens(high) caps(off) just(left )
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
  [ type(output) caps(off) pas(on) intens(high) color(white)
 )Body  Expand(\\)
-+-\-\#zigtitle   +-\-\
++Current Repository+--------------#zigtitle   +---------------------------------
 %Command ===>_zcmd            \ \  %Scroll ===>_zscr+
 %Local dir      :$localdir
 %Remote path    :$remote1
@@ -18,7 +19,7 @@
 +
 %S  Status                    Dataset/File Name
 )Model
-@z +$z                       $z                                            $z
+@z +$z                       $z                                            ]z
 )Init
  .zvars = '(zsel dsnstat fulldsn filetype)'
  .cursor = &zcmd
@@ -40,5 +41,5 @@
      &osel = &zsel
  if (&row = 0)
      &zsel = &z
- ver (&zsel,list,S,A,U,B,V,RM,RN,H,/)
+/*  ver (&zsel,list,S,A,U,B,V,RM,RN,H,D,/) */
 )End

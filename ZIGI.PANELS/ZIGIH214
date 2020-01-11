@@ -8,11 +8,11 @@
 +
                                  %Add+
 +
-+Sample zigi managed git directory:
++Sample zigi managed Git directory:
 +
 % .git
-+ --- git generated files and directories
-% .gitattributes+        (a zigi generated file for git)
++ --- Git generated files and directories
+% .gitattributes+        (a zigi generated file for Git)
 % .zigi+                 (a directory for key zigi files)
 + ---%dsn+               (a zigi required file)
 +%Documentation+         (a directory)

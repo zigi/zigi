@@ -69,8 +69,6 @@ IF (&ZSCED = ' ') &ZSCED = 'PAGE'  /* Blank with page    */
   colorw = left('W',zwidth,'W')
   colorq = left('Z',zwidth,'Z')
   blank = left(' ',zwidth,' ')
-  if datatype(zhead) /= 'NUM' then
-     parse value '0 0 0 ' with zhead zmiddle ztrail
   if length(zshadow) /= length(zdata) then
      zshadow = left(' ',length(zdata),' ')
   do i = 1 to length(zshadow) by zwidth

@@ -6,27 +6,28 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                                 %Push+
+                                     %SELECT+
 +
-%Push+will update the remote repository with all the locally committed updates.
+%Select+as a command will select the repository passed as the parameter.
 +
-+That means that only updates processed by the Commit command will be pushed
-+to the remove repository.
 +
-%Git+will only push the discrete updates which saves time and bandwidth.
+%Syntax:+Select repository-name
++    or:+S repository-name
++
++
++
 +
 %
 +
 +
-            +"Don't measure yourself by what you have accomplished,
-            +but by what you should have accomplished with your
-            +ability." - John Wooden
-+
++  "The greatest teacher, failure is."   Master Yoda
++       - Master Yoda
 +
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
+ vget (ztut)
 )PROC
- &zcont = zigih2b0
+ &zcont = ZIGIH300
 )END
