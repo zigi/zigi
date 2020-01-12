@@ -21,6 +21,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            01/12/20 LBD - Always copy PS files and let     |
+  |                           git determine any changes        |
   |            01/11/20 LBD - Do git add for stats after PDS   |
   |                           member rm                        |
   |                         - Prompt for OK to delete branch   |
@@ -3161,9 +3163,12 @@ update_repo_metadata:
         else do
           /* It must be a PS, just copy it over to OMVS */
           /* Check for the specific file if new or changed */
+          /* Comment Start
           cmd = 'cd' localrep'/'zigirep '&& git status --porcelain | grep' r
           x = docmd(cmd)
+          so.0 = 1
           if so.0 > 0 then do
+             Comment End */
             s = usssafe(fulldsn)
             copycmd = "//"s
             copycmd = '"'copycmd'"'
@@ -3171,7 +3176,9 @@ update_repo_metadata:
             x = bpxwunix(copycmd,,so.,se.)
             if x > 0 then call view_std 'B'
             x = debug('Copy:' copycmd)
+          /* Comment Start
           end
+             Comment End */
         end
       end
     end
@@ -3878,19 +3885,6 @@ Test_Repo_Table_State:
     end
   end
   Return
-
-  /* ------------------------------------------------- *
-  | Translate a file name to or from unix conventions |
-  | to convert or restore the special characters      |
-  | #@$ to/from ._-                                   |
-  | Dynamically determine which direction to use...   |
-  * ------------------------------------------------- */
-to_from_unix: procedure
-  arg file
-  return usssafe(file)   /* ignore translation */
-  if pos('{',translate(file,'{{{','._-')) = 0
-  then return translate(file,'._-','#@$')
-  else return translate(file,'#@$','._-')
 
 parseGitURI:
   /* --------------------------------------------- *
