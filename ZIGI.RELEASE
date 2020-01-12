@@ -74,3 +74,7 @@ Pull, or Refresh processing.
 Update the Repository Delete dialog to enable the deletions of the
 repositories z/OS datasets and add an additional entry field to confirm the
 repository delete is really wanted.
+
+The former use of -M with CP to convert the @#$ special characters to/from
+z/OS for unix has been replaced by escaping those characters where required
+to preserve them.
