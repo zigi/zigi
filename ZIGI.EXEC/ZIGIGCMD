@@ -11,6 +11,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            01/12/20 LBD - Add CLEAR command to clear all   |
   |            12/13/19 LBD - Add Browse / View options        |
   |            11/27/19 LBD - Creation                         |
   |                                                            |
@@ -102,6 +103,12 @@
        'TBSkip zigigcmd Number('row')'
      end
      Select
+        When zcmd = 'CLEAR' then do
+             'tbclose zigigcmd replcopy library('isptabl')'
+             'tberase zigigcmd library('isptabl')'
+             'tbcreate zigigcmd keys(gitcmde) library('isptabl') write share'
+             gitcmd = null
+             end
         When gsel = 'D' then 'tbdelete zigigcmd'
         When gsel = 'S' then do
            gitcmd = gitcmde

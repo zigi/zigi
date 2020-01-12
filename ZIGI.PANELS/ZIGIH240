@@ -1,33 +1,32 @@
-)attr default(%+_)
+)attr default($+_)
   _ type( input) intens(low ) just(left ) hilite(uscore)
   ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
   [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
 )Body Expand(\\)
-%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
-%Selection ===>_ZCMD                                                          +
+$Tutorial -\-\~The z ISPF Git Interface (zigi)$\-\- Tutorial
+$Selection ===>_ZCMD                                                          +
 +
-                                 %GitCMD+
+                                 $GitCMD+
 +
 +The Git command panel supports entering any Git command to be executed with
 +the results displayed using ISPF Browse. All commands will be executed in the
 +directory of the local Git repository.
 +
-+The first command does not require%Git+to be specified. Additional command may
-+be entered using%&&+as a separator and will require%Git+to be coded. Here is
-+an example with a git log command followed by a git status command (e.g.):
++The first command does not require$Git+to be specified. Additional commands may
++be entered using$&&+as a separator and will require$git+to be coded. Thus:
 +
-   %git@log --cc -m -n 10 && git status
+   $git@log --cc -m -n 10 && git status
 +
-+All commands will be saved in a command history table, with the most recent on
-+top. Use these line commands with the table rows:
++All git commands are saved in a push-down stack except for duplicates.
 +
-   %S+to select and place it in the Git command field for editing
-   %D+to delete a command from the table. Multiple rows may be selected for%D+
-   %X+to execute the command and place it into the command entry field
++See the next tutorial panel for command and selection options.
 +
-+Press%Enter+to execute the command after entering or editing it.
++  "Life is 10% what happens to you and 90% how you react to it."
++        - Charles R. Swindoll
++
++Press$Enter+to execute the command after entering or editing it.
 )Init
  .cursor  = &zcmd
 )PROC
- &zcont    = ZIGIH160
+ &zcont    = ZIGIH241
 )END
