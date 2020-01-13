@@ -3474,6 +3474,9 @@ Add_Dataset:
     if zsel = 'S' | zsel = 'A' then do
       call do_add_copy
     end
+    if zsel = 'X' then do
+      call do_add_copy 'binary'
+    end
 
     if list = null then call get_list
     if lc_count = 0 then do
@@ -3520,6 +3523,8 @@ Get_List:
   | to the local repository.                     |
   * -------------------------------------------- */
 Do_Add_Copy:
+  parse arg option with ''
+  gabs = 'git-encoding=BINARY zos-working-tree-encoding=BINARY binary'
   zsel = null
   what = dsna
   if qualignr >= 0
@@ -3530,7 +3535,12 @@ Do_Add_Copy:
   end
   zs1 = 'Copying' dsna
   zs2 = 'to' dsnb 'in OMVS'
-  zs3 = ' '
+  if option = 'binary' then do
+    zs3 = ' '
+  end
+  else do
+    zs3 = '  BINARY'
+  end
   zs4 = 'Patience . . .'
   call do_popup4
   DIR = localrep'/'zigirep
@@ -3553,9 +3563,31 @@ Do_Add_Copy:
     pdsc = usssafe(pds)
     mkdir = "mkdir -p "DIR"/"pdss
     x = bpxwunix(mkdir,,so.,se.)
+    if option = 'binary' then do
+      binopt = '-B'
+      /* setting the gitattributes file */
+      /* first convert the ASCII atrtib file to ebcdic :( */
+      cmd = 'cd 'DIR' && iconv -f ISO8859-1 -t IBM-1047 '
+      cmd = cmd '.gitattributes > .gae'
+      /* then append the binary attrib for this file */
+      cmd = cmd '&& echo "'pdss'/*  'gabs'" >> .gae '
+      /* convert it back to ascii */
+      cmd = cmd '&& iconv -f IBM-1047 -t ISO8859-1 .gae '
+      cmd = cmd '> .gitattributes '
+      /* add (and commit) .gitattributes to the index */
+      cmd = cmd '&& git add .gitattributes '
+      cmd = cmd '&& git commit -m "zigi changed .gitattributes"'
+      /* finally remove the .gae file */
+      cmd = cmd '&& rm .gae'
+      x = docmd(cmd)
+    end
+    else do
+      binopt = ''
+    end
     copycmd = "//'"pdsc"'"
     copycmd = '"'copycmd'"'
-    copycmd = "cp -U -v" copycmd" "DIR"/"pdss"/"
+    copycmd = "cp -U -v "binopt copycmd" "DIR"/"pdss"/"
+    say copycmd
     x =bpxwunix(copycmd,,so.,se.)
     if x > 0 then call view_std 'B'
     Address TSO '%zigistat' "'"pds"'" dir"/.zigi/"pdss 'S'
@@ -3564,9 +3596,31 @@ Do_Add_Copy:
   else do
     W = usssafe(WHAT)
     PSS = usssafe(dsnb)
+    if option = 'binary' then do
+      binopt = '-B'
+      /* setting the gitattributes file */
+      /* first convert the ASCII atrtib file to ebcdic :( */
+      cmd = 'cd 'DIR' && iconv -f ISO8859-1 -t IBM-1047 '
+      cmd = cmd '.gitattributes > .gae'
+      /* then append the binary attrib for this file */
+      cmd = cmd '&& echo "'pss gabs'" >> .gae '
+      /* convert it back to ascii */
+      cmd = cmd '&& iconv -f IBM-1047 -t ISO8859-1 .gae '
+      cmd = cmd '> .gitattributes '
+      /* add (and commit) .gitattributes to the index */
+      cmd = cmd '&& git add .gitattributes '
+      cmd = cmd '&& git commit -m "zigi changed .gitattributes"'
+      /* finally remove the .gae file */
+      cmd = cmd '&& rm .gae'
+      x = docmd(cmd)
+    end
+    else do
+      binopt = ''
+    end
     copycmd = "//'"W"'"
     copycmd = '"'copycmd'"'
-    copycmd = "cp -U -v" copycmd" "DIR"/"pss
+    copycmd = "cp -U -v "binopt copycmd" "DIR"/"pss
+    say copycmd
     x =bpxwunix(copycmd,,so.,se.)
     if x > 0 then call view_std 'B'
   end

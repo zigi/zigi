@@ -46,5 +46,5 @@
      &zsel = &z
  ver (&dsnapfx,nb,dsname)
  ver (&qualignr,nb,range,0,8)
- ver (&zsel,list,S,B,A)
+ ver (&zsel,list,S,B,A,X)
 )End
