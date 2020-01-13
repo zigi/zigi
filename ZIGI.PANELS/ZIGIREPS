@@ -17,15 +17,15 @@
 %                !bstat                                                     +
 %                $baction                                                   +
 %
-+Commands:[Add[Basic[Br[Com[GitC[GitH[GitL[Grep[Merg[Net+
-          [Pull[Push[Ref[Rem[Roll[Set[St[View
++Commands:[Add   [Basic[Br[Com[GitC[GitH[GitL[Grep[Merg[Net+
+          [Pull[Push[Ref[Rem[Roll[Set[Snapshot[St[View
 +Options: %S+Select%A+Add%B+Browse%D+Diff%H+History%RM+Remove%RN+Rename%V+View
 +
 %S  Status                    Dataset/File Name
 )Model
 @z +$z                       $z                                            ]z
 )Init
- &Add     = 'Add'
+ &Add     = 'AddDsn'
  &Basic   = 'Basic'
  &Br      = 'Br'
  &Com     = 'Com'
@@ -41,6 +41,7 @@
  &Rem     = 'Rem'
  &Roll    = 'Roll'
  &Set     = 'Set'
+ &snapshot = 'SnapShot'
  &St      = 'St'
  &View    = 'View'
  .zvars = '(zsel dsnstat fulldsn filetype)'
@@ -81,6 +82,7 @@
  FIELD(REM) VAR(ZCMD) VAL('REMOTE')
  FIELD(ROLL) VAR(ZCMD) VAL('ROLL')
  FIELD(SET) VAR(ZCMD) VAL('SET')
+ FIELD(SNAPSHOT) VAR(ZCMD) VAL('SNAPSHOT')
  FIELD(ST) VAR(ZCMD) VAL('STATUS')
  FIELD(VIEW) VAR(ZCMD) VAL('VIEW')
 )End

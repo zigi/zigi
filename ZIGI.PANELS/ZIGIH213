@@ -6,7 +6,7 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD        \ \ %Scroll ===>_zcsr
 +
-                                 %Add+
+                                %AddDsn+
 +
 +Adding a OMVS file or directory requires the following considerations:
 +
@@ -16,7 +16,7 @@
 +     and will be copied to z/OS upon a Refresh or Clone.
   %3.+If the files are not to be copied to z/OS the file, or directory,
 +     names must be mixed or lower case.
-  %4.+After the copy, use zigi to ADD the now un-tracked file, or directory,
+  %4.+After the copy, use zigi to add the now un-tracked file, or directory,
 +     to Git management.
 +
 +

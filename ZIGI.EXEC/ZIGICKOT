@@ -265,18 +265,6 @@ Alloc_Copy_PDS:
   call outtrap 'off'
   return
 
-  /* ------------------------------------------------- *
-  | Translate a file name to or from unix conventions |
-  | to convert or restore the special characters      |
-  | #@$ to/from ._-                                   |
-  | Dynamically determine which direction to use...   |
-  * ------------------------------------------------- */
-to_from_unix: procedure
-  arg file
-  if pos('{',translate(file,'{{{','._-')) = 0
-  then return translate(file,'._-','#@$')
-  else return translate(file,'#@$','._-')
-
 get_dcb:
   if def.sub /= null then do
     parse value def.sub with dsorg recfm lrecl blksize

@@ -10,22 +10,22 @@
 +
 +Enter Selection:_z                     \ \ +
 +
-[Add+    Add dataset        [Network+ Network Report
-[Br    + Change Branch      [Pull+    Pull from origin
-[Commit+ Record Changes     [Push+    Push to origin
-[Githelp+Git Help           [Refresh+ Replace Datasets
-[GitCMD +Git Command Prompt [Remote+  Add remote
-[GitLog+ Query git log      [Rollback+Revert
-[Grep+   Find Strings       [Set+     Set Defaults
+[Add   + Add dataset        [Pull+    Pull from origin
+[Br    + Change Branch      [Push+    Push to origin
+[Commit+ Record Changes     [Refresh+ Replace Datasets
+[Githelp+Git Help           [Remote+  Add remote
+[GitCMD +Git Command Prompt [Rollback+Revert
+[GitLog+ Query git log      [Set+     Set Defaults
+[Grep+   Find Strings       [Snapshot+Create Escrow
 [Menu+   Menu version       [Status+  Git Status
 [Merge+  Merge Branches     [View+    OMVS Dir
-
+[Network+ Network Report
 )Init
  &zwinttl = 'zigi Resposity Commands'
  .zvars = '(zcmd)'
  &zcmd  = &z
  .cursor = zcmd
- &Add     = 'Add'
+ &Add     = 'AddDsn'
  &Br      = 'Branch'
  &Commit  = 'Commit'
  &Gitcmd  = 'GitCmd'
@@ -40,6 +40,7 @@
  &Refresh = 'Refresh'
  &Remote  = 'Remote'
  &Rollback  = 'Rollback'
+ &Snapshot  = 'SnapShot'
  &Set     = 'Set'
  &Status  = 'Status'
  &View    = 'View'
@@ -63,6 +64,7 @@
  FIELD(REFRESH) VAR(ZCMD) VAL('REFRESH')
  FIELD(REMOTE)  VAR(ZCMD) VAL('REMOTE')
  FIELD(ROLLBACK) VAR(ZCMD) VAL('ROLLBACK')
+ FIELD(SNAPSHOT) VAR(ZCMD) VAL('SNAPSHOT')
  FIELD(SET   )  VAR(ZCMD) VAL('SET')
  FIELD(STATUS)  VAR(ZCMD) VAL('STATUS')
  FIELD(VIEW  )  VAR(ZCMD) VAL('VIEW')

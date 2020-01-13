@@ -9,6 +9,8 @@ Update to the GITLOG prompt to include, or exclude, diff's in the report.
 A new GITCMD dialog that enables the execution of any valid Git command
 within the active Git repository. A command history is maintained so that
 commands may be reused. The command results are then browsed or viewed.
+If the command table grows beyond the point the user is comfortable with
+it then a CLEAR command is available to start over.
 
 Grep processing has been enhanced with an option to view the results in a
 report mode using the raw grep results or in a Dataset/File view where the
@@ -74,3 +76,17 @@ Pull, or Refresh processing.
 Update the Repository Delete dialog to enable the deletions of the
 repositories z/OS datasets and add an additional entry field to confirm the
 repository delete is really wanted.
+
+The former use of -M with CP to convert the @#$ special characters to/from
+z/OS for unix has been replaced by escaping those characters where required
+to preserve them.
+
+Change the Current Repository ADD command to ADDDSN since that is what it
+does to differentiate it from the Add selection option which performs a git
+add.
+
+Implement a new SNAPSHOT option for the Current Repository that creates an
+Escrow version of the repository - the z/OS datasets and the OMVS files. This
+is outside of zigi and git. It also generates a tag at the time of the
+snapshot to enable easy access to the git repository for reviewing
+information.

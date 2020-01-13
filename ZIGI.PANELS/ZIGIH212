@@ -6,7 +6,7 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD        \ \ %Scroll ===>_zcsr
 +
-                                 %Add+
+                                %AddDsn+
 +
 +Adding a dataset to the current repository requires the following
 +considerations:

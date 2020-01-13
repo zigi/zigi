@@ -6,7 +6,7 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD        \ \ %Scroll ===>_zcsr
 +
-                                 %Add+
+                                 %AddDsn+
 +
 %Ignore 1st n qualifiers in prefix:+1
 +
