@@ -80,3 +80,13 @@ repository delete is really wanted.
 The former use of -M with CP to convert the @#$ special characters to/from
 z/OS for unix has been replaced by escaping those characters where required
 to preserve them.
+
+Change the Current Repository ADD command to ADDDSN since that is what it
+does to differentiate it from the Add selection option which performs a git
+add.
+
+Implement a new SNAPSHOT option for the Current Repository that creates an
+Escrow version of the repository - the z/OS datasets and the OMVS files. This
+is outside of zigi and git. It also generates a tag at the time of the
+snapshot to enable easy access to the git repository for reviewing
+information.

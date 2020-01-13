@@ -22,6 +22,8 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            01/13/20 LBD - Implement repository Snapshot    |
+  |                         - Change current repo ADD to       |
+  |                           ADDDSN                           |
   |            01/12/20 LBD - Always copy PS files and let     |
   |                           git determine any changes        |
   |            01/11/20 LBD - Do git add for stats after PDS   |
@@ -3262,9 +3264,7 @@ update_repo_metadata:
           dsnstat = null
           if pos(dsn, PATH) > 0 then do
             dsnstat = porcelain(stat)
-            /* Comment Start
             leave
-            Comment End */
           end
         end
         x = debug('done')
