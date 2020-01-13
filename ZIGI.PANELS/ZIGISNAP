@@ -12,7 +12,6 @@
 +
 +Enter New HLQ for the Snapshot datasets:   _snaphlq                      +
 +                                           (no quotes required)
-+
 +Enter New Path for OMVS Files:@path                                        +
 +
 +Tag the current level of the repository as a milestone for easy future
@@ -22,11 +21,9 @@
 +OMVS files. The HLQ must be empty and the path should not exist (it will be
 +created).
 +
-+
-+
-+
-+
-+
++This snapshot may be considered an Escrow copy or a Locked Archive as it is
++not manageable by git. Use this when a milestone has been reached such as a
++version, release, maintenance level, or patch.
 +
 +
                   +Press%Enter+to proceed, or%F3+to cancel.
