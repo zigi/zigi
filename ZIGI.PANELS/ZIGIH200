@@ -11,24 +11,24 @@
 +
 %Commands available+(select for more information or press%Enter+to see each):
 +
-[Add+    Add dataset{*   [Grep+   Find Strings       [Remote+  Add remote
-[Br    + Change Branch{* [Merge+  Merge Branches{*   [Rollback+Revert{*
-[Commit+ Record Changes  [Network+Network Report     [Row+     Options
-[Find+   Find in table   [Pro+    Toggle Menu        [Set+     Set Defaults
-[GitCMD +Git Commands    [Pull+   Pull from origin   [Status+  Git Status
-[Githelp+Git Help        [Push+   Push to origin     [View+    OMVS Dir
-[GitLog+ Show git log    [Refresh+ Replace Datasets{*
-%
+[Add   + Add dataset{*   [Merge+  Merge Branches{*   [Row+     Options
+[Br    + Change Branch{* [Network+Network Report     [Set+     Set Defaults
+[Commit+ Record Changes  [Pro+    Toggle Menu        [Snapshot+Escrow
+[Find+   Find in table   [Pull+   Pull from origin   [Status+  Git Status
+[GitCMD +Git Commands    [Push+   Push to origin     [View+    OMVS Dir
+[Githelp+Git Help        [Refresh+ Replace Datasets{*
+[GitLog+ Show git log    [Remote+  Add remote
+[Grep+   Find Strings    [Rollback+Revert{*
++
 {*+not supported within subdirectories.
 +
 +Use%O+to display a popup for commands if the menu has been hidden.
 +
 +
-+
 +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
- &Add     = 'Add'
+ &Add     = 'AddDsn'
  &Br      = 'Branch'
  &Commit  = 'Commit'
  &Find    = 'Find'
@@ -44,6 +44,7 @@
  &Refresh = 'Refresh'
  &Remote  = 'Remote'
  &Rollback  = 'Rollback'
+ &Snapshot  = 'SnapShot'
  &Row     = 'Row'
  &Set     = 'Set'
  &Status  = 'Status'
@@ -70,15 +71,16 @@
     When abbrev('REMOTE',zcmd,3)  = 1 then zcmd ='14'
     When abbrev('ROLLBACK',zcmd,2) = 1 then zcmd ='15'
     When abbrev('SET',zcmd,2)     = 1 then zcmd ='16'
-    When abbrev('STATUS',zcmd,2)  = 1 then zcmd ='17'
-    When abbrev('VIEW',zcmd,1)    = 1 then zcmd ='18'
-    When abbrev('FIND',zcmd,1)    = 1 then zcmd ='19'
+    When abbrev('SNAPSHOT',zcmd,2) = 1 then zcmd ='17'
+    When abbrev('STATUS',zcmd,2)  = 1 then zcmd ='18'
+    When abbrev('VIEW',zcmd,1)    = 1 then zcmd ='19'
+    When abbrev('FIND',zcmd,1)    = 1 then zcmd ='20'
     Otherwise nop
   end
 *Endrexx
  &ZSEL = TRANS( &ZCMD
            0,zigih201  /* Row Select     */
-           1,zigih210  /* ADD            */
+           1,zigih210  /* ADDDSN         */
            2,zigih220  /* BRANCH         */
            3,zigih230  /* COMMIT         */
            4,zigih240  /* GITCMD         */
@@ -94,9 +96,10 @@
           14,zigih2C0  /* REMOTE         */
           15,zigih2D0  /* ROLLBACK       */
           16,zigih2E0  /* SET            */
-          17,zigih2F0  /* STATUS         */
-          18,zigih2G0  /* VIEW           */
-          19,zigih170  /* FIND           */
+          17,zigihsnp  /* Snapshot       */
+          18,zigih2F0  /* STATUS         */
+          19,zigih2G0  /* VIEW           */
+          20,zigih170  /* FIND           */
            *,'?'
            )
 )PNTS
@@ -117,7 +120,8 @@
  FIELD(REMOTE)  VAR(ZCMD) VAL('14')
  FIELD(ROLLBACK) VAR(ZCMD) VAL('15')
  FIELD(SET   )  VAR(ZCMD) VAL('16')
- FIELD(STATUS)  VAR(ZCMD) VAL('17')
- FIELD(VIEW  )  VAR(ZCMD) VAL('18')
- FIELD(FIND  )  VAR(ZCMD) VAL('19')
+ FIELD(SNAPSHOT)  VAR(ZCMD) VAL('17')
+ FIELD(STATUS)  VAR(ZCMD) VAL('18')
+ FIELD(VIEW  )  VAR(ZCMD) VAL('19')
+ FIELD(FIND  )  VAR(ZCMD) VAL('20')
 )END

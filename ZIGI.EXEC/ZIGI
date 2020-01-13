@@ -21,6 +21,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            01/13/20 LBD - Implement repository Snapshot    |
   |            01/12/20 LBD - Always copy PS files and let     |
   |                           git determine any changes        |
   |            01/11/20 LBD - Do git add for stats after PDS   |
@@ -860,10 +861,10 @@ Work_With_Repo:
       /* --------------------------------------------------------- *
       | Add a PDS or a Sequential File to "Working Directory"     |
       * --------------------------------------------------------- */
-      When abbrev('ADD',zcmd,3) = 1 then do
+      When abbrev('ADDDSN',zcmd,3) = 1 then do
         if words(save_zigirep) > 0 then do
           zerrsm = 'Invalid.'
-          zerrlm = 'Add is not supported in subdirectories.'
+          zerrlm = 'ADDDSN is not supported in subdirectories.'
           'setmsg msg(isrz003)'
         end
         else call Add_Dataset
@@ -957,6 +958,69 @@ Work_With_Repo:
           call View_std 'B'
           call update_repo_metadata
         end
+      end
+      /* -------------------------------- *
+      | Snapshot the current repository  |
+      * -------------------------------- */
+      When abbrev('SNAPSHOT',zcmd,2) = 1 then do
+      do forever
+         parse value '' with zcmd path snaphlq gtag sans
+         'display panel(zigisnap)'
+         if rc > 0 then leave
+         'Addpop row(4) column(10)'
+         'Display Panel(zigisnpq)'
+         drc = rc
+         'rempop'
+         if drc > 0 then leave
+         if sans = 'Y' then do
+            cmd = 'cd' localrep'/'zigirep
+            cmd = cmd '&& git tag' gtag
+            zs1 = 'Performing the git tag'
+            zs2 = 'Please standby'
+            call do_popup
+            x = docmd(cmd)
+            zs1 = 'Copying' localrep'/'zigirep
+            zs2 = 'To:' path
+            call do_popup
+            cmd = 'cp -rp' localrep'/'zigirep path
+            x = bpxwunix(cmd,,so.,se.)
+            if x > 0 then call view_std 'B'
+            zs1 = 'Performing the cleanup of git files'
+            zs2 = 'Please standby'
+            call do_popup
+            cmd = 'cd' path
+            cmd = cmd '&& rm .gitattributes && rm -rf .git && rm -rf .zigi'
+            x = bpxwunix(cmd,,so.,se.)
+            if x > 0 then call view_std 'B'
+            /*  create a git log in the snapshot directory */
+            cmd = 'cd' localrep'/'zigirep
+            cmd = cmd '&& git tag -l' gtag '>' path'gitlog.txt'
+            cmd = cmd '&& git log -n 10'
+            cmd = cmd '>>' path'gitlog.txt'
+            x = docmd(cmd)
+            if x > 0 then call view_std 'B'
+            call refresh localrep zigirep snaphlq 0
+            /* now view both the omvs directory and snaphlq */
+            sans = null
+            'Addpop row(4) column(10)'
+            'Display Panel(zigisnpr)'
+            drc = rc
+            'rempop'
+            if drc > 0 then sans = 'N'
+            if sans = 'N' then do
+               zerrsm = 'Completed.'
+               zerrlm = 'Snapshot completed - tag:' gtag
+               'setmsg msg(isrz003)'
+               leave
+               end
+            'SELECT PGM(ISRDSLST) PARM(UDL' path') SUSPEND'
+            "SELECT PGM(ISRDSLST) PARM(DSL '"snaphlq"') SUSPEND"
+            zerrsm = 'Completed.'
+            zerrlm = 'Snapshot completed - tag:' gtag
+            'setmsg msg(isrz003)'
+            leave
+            end
+         end
       end
       Otherwise do
         zerrsm = 'Unknown'
@@ -3002,22 +3066,6 @@ catsshk:
   else zigissh = null
   return
 
-
-  /* -------------------------- *
-  | Lowercase the input string |
-  * -------------------------- */
-Lower:
-  parse arg input
-  out = translate(input,"abcdefghijklmnopqrstuvwxyz",,
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-  return out
-
-Upper:
-  parse arg input
-  OUT = TRANSLATE(input,"ABCDEFGHIJKLMNOPQRSTUVWXYZ",,
-    "abcdefghijklmnopqrstuvwxyz")
-  return out
-
 dsnvalid: Procedure
   /* Tests for a 'potentially valid' z/OS datasetname */
   parse arg val_dsn
@@ -3141,6 +3189,7 @@ update_repo_metadata:
           statpath = localrep'/'zigirep'/.zigi/'root.i
           statfile = root.i
           mem_delta = zigistat("'"edsn"'" statpath 'C')
+          if mem_delta = 0 then mem_delta = null
           Address ISPExec
           mem_hit = 0
           do im = 1 to words(mem_delta)
@@ -3210,6 +3259,7 @@ update_repo_metadata:
         do ii = 1 to so.0
           stat = substr(so.ii,1,2)
           PATH = substr(so.ii,4)
+          dsnstat = null
           if pos(dsn, PATH) > 0 then do
             dsnstat = porcelain(stat)
             /* Comment Start
@@ -3761,7 +3811,7 @@ GETENV:
   envc = env.0
   call add_env '_BPX_SHAREAS=YES'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
-  call add_env 'export _EDC_ADD_ERRORNO2=1'
+  call add_env 'EXPORT _EDC_ADD_ERRORNO2=1'
   env.0 = envc
   drop so. se.
   x = debug('Finished collection of env variables')

@@ -17,12 +17,13 @@
 %                !bstat
 %                $baction                                                   +
 %
-[Add+    Add dataset        [Grep+   Find Strings     [Refresh+ Replace Datasets
-[Br    + Change Branch      [Merge+  Merge Branches   [Remote+  Add remote
-[Commit+ Record Changes     [Network+Network Report   [Rollback+Revert
-[GitCMD +Git Command Prompt [Pro+    Pro Panel version[Set+     Set Defaults
-[Githelp+Git Help           [Pull+   Pull from origin [Status+  Git Status
-[GitLog+ Show git log output[Push+   Push to origin   [View+    OMVS Dir
+[Add   + Add dataset   [Merge+  Merge Branches    [Rollback+Revert
+[Br    + Change Branch [Network+Network Report    [Set+     Set Defaults
+[Commit+ Record Changes[Pro+    Pro Panel         [SnapShot+Create Escrow
+[GitCMD +Git Commands  [Pull+   Pull from origin  [Status+  Git Status
+[Githelp+Git Help      [Push+   Push to origin    [View+    OMVS Dir
+[GitLog+ Show git log  [Refresh+ Replace Datasets
+[Grep+   Find Strings  [Remote+  Add remote
 +
 %S+Select (Edit)%A+Add%B+Browse%D+Diff%H+History%RM+Remove%RN+Rename%V+View
 +
@@ -30,7 +31,7 @@
 )Model
 @z +$z                       $z                                            ]z
 )Init
- &Add     = 'Add'
+ &Add     = 'AddDsn'
  &Br      = 'Branch'
  &Commit  = 'Commit'
  &Gitcmd  = 'GitCmd'
@@ -45,6 +46,7 @@
  &Refresh = 'Refresh'
  &Remote  = 'Remote'
  &Rollback  = 'Rollback'
+ &Snapshot  = 'Snapshot'
  &Set     = 'Set'
  &Status  = 'Status'
  &View    = 'View'
@@ -70,7 +72,7 @@
      &zsel = &z
  /* ver (&zsel,list,S,A,U,B,V,RM,RN,H,D,/) */
 )PNTS
- FIELD(ADD   )  VAR(ZCMD) VAL('ADD')
+ FIELD(ADD   )  VAR(ZCMD) VAL('ADDDSN')
  FIELD(BR    )  VAR(ZCMD) VAL('BRANCH')
  FIELD(COMMIT)  VAR(ZCMD) VAL('COMMIT')
  FIELD(GITCMD)  VAR(ZCMD) VAL('GITCMD')
@@ -85,6 +87,7 @@
  FIELD(REFRESH) VAR(ZCMD) VAL('REFRESH')
  FIELD(REMOTE)  VAR(ZCMD) VAL('REMOTE')
  FIELD(ROLLBACK) VAR(ZCMD) VAL('ROLLBACK')
+ FIELD(SNAPSHOT) VAR(ZCMD) VAL('SNAPSHOT')
  FIELD(SET   )  VAR(ZCMD) VAL('SET')
  FIELD(STATUS)  VAR(ZCMD) VAL('STATUS')
  FIELD(VIEW  )  VAR(ZCMD) VAL('VIEW')

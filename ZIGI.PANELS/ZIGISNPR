@@ -1,0 +1,17 @@
+)Attr
+ _ type(input ) hilite(uscore) caps(on) intens(low )
+ $ type(output)  caps(off)
+ + type(text) skip(on) caps(off) intens(low)
+)Body Window(50,5)
++
++Enter%Y+to Review the Snapshot datasets and files
++Review:_z+(Y or N)
++
++Press%Enter+to proceed or%F3+to Cancel.
+)Init
+ &zwinttl = ' SnapShot Review'
+ .zvars = '(sans)'
+ .help = zigihxxx
+)Proc
+ ver (&sans,nb,list,Y,N)
+)end

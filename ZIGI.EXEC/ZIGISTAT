@@ -387,18 +387,6 @@ usssafe: procedure
   dsn = strreplace(dsn, '$', '\$')
   return dsn
 
-  /* ------------------------------------------------- *
-  | Translate a file name to or from unix conventions |
-  | to convert or restore the special characters      |
-  | #@$ to/from ._-                                   |
-  | Dynamically determine which direction to use...   |
-  * ------------------------------------------------- */
-to_from_unix: procedure
-  arg file
-  if pos('{',translate(file,'{{{','._-')) = 0
-  then return translate(file,'._-','#@$')
-  else return translate(file,'#@$','._-')
-
 STRREPLACE:
   ORIGINAL = ARG(1)
   OLDTXT = ARG(2)
