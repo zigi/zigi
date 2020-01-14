@@ -379,6 +379,7 @@
   'vget (primpanl) profile'
   if primpanl = null then primpanl = 'zigiprim'
   'vput (primpanl) profile'
+
   do forever
     parse value '' with zsel zcmd row
     'TBTop zigirepo'
@@ -397,6 +398,9 @@
     end
 
     zcmd = strip(translate(word(zcmd,1)) subword(zcmd,2))
+
+    if word(zcmd,1) = 'L' then
+       zcmd = 'F' subword(zcmd,2)
 
     findstr = null
     if pos('.',zcmd) > 0 then
@@ -436,11 +440,7 @@
           'tbget zigirepo'
           if defcpush = 'Y' then zpush = 'Y'
           else zpush = 'N'
-          zigidate = date('n')
-          'tbmod zigirepo'
-          x = debug('Selecting repo:' zigirep time('L') )
-          call Work_With_Repo
-          x = debug('Return from repo:' zigirep time('L') )
+          call select_repo
           leave
         end
       end
@@ -562,17 +562,7 @@
 
     if zsel /= null then
     Select
-      When zsel = 'S' then do
-        zigidate = date('n')
-        'tbmod zigirepo'
-        x = debug('Getting binfiles:' zigirep time('L') )
-        binfiles. = ''
-        call get_binfiles
-        x = debug('Got 'binfiles.0' binfiles' time('L') )
-        x = debug('Selecting repo:' zigirep time('L') )
-        call Work_With_Repo
-        x = debug('Return from repo:' zigirep time('L') )
-      end
+      When zsel = 'S' then call select_repo
       When zsel = 'V' then do
         'SELECT PGM(ISRDSLST) PARM(UDL' localrep'/'zigirep') SUSPEND'
       end
@@ -643,6 +633,21 @@
     "Select Pgm(isrdslst) Parm(UDL ~/zigidebug*) SUSPEND"
   end
   Exit 0
+
+/* ------------------------------------- *
+ | Select the Current Repository Routine |
+ * ------------------------------------- */
+Select_Repo:
+  zigidate = date('n')
+  'tbmod zigirepo'
+  x = debug('Getting binfiles:' zigirep time('L') )
+  drop binfiles.
+  call get_binfiles
+  x = debug('Got 'binfiles.0' binfiles' time('L') )
+  x = debug('Selecting repo:' zigirep time('L') )
+  call Work_With_Repo
+  x = debug('Return from repo:' zigirep time('L') )
+  Return
 
   /* ------------------------------ *
   | Create the ZIGIREPO ISPF Table |
@@ -967,7 +972,7 @@ Work_With_Repo:
           parsedURI = parseGitURI(origin)
           parse var parsedURI user host port repo
           if port /= 22 then extrabits = '-p 'port
-          else extrabits = ''
+          else extrabits = null
           cmd = 'touch 'home'/.ssh/known_hosts && '
           cmd = cmd 'if ! grep 'host
           cmd = cmd home'/.ssh/known_hosts >/dev/null;'
@@ -1253,7 +1258,7 @@ Work_With_Repo:
           if rtype = null then do
             zs1 = fulldsn 'is not recogizned.'
             zs2 = sysdsn(fulldsn)
-            zs3 = ''
+            zs3 = null
             zs4 = 'Press Enter to continue.'
             call do_popup4p
           end
@@ -1513,7 +1518,7 @@ do_grep:
     x = docmd(cmd '&& git grep -i "'grepstr'"')
     select
       when x = 1 then do
-        zerrsm = ''
+        zerrsm = null
         zerrlm = 'grep search found nothing.'
         'setmsg msg(isrz003)'
       end
@@ -1624,10 +1629,10 @@ do_grep:
             Otherwise nop
           end
           'Control display restore'
-          zsel = ''
+          zsel = null
         end
         'tbend' zgreptbl
-        zsel = ''
+        zsel = null
         if file_changed = 1 then call update_repo_metadata
       end
       otherwise nop
@@ -1674,7 +1679,7 @@ Do_GitLog:
     if so.0 + se.0 > 1
     then call view_std 'X' lbv
     else do
-      zerrsm = ''
+      zerrsm = null
       zerrlm = 'GitLog filters resulted in an empty report.'
       'setmsg msg(isrz003)'
     end
@@ -1887,7 +1892,7 @@ Clone_Repo:
     parsedURI = parseGitURI(remote)
     parse var parsedURI guser host port zigirep '.git'
     if port /= 22 then extrabits = '-p 'port
-    else extrabits = ''
+    else extrabits = null
     /* Let's clone the remote repo... */
     zs1 = "Cloning "zigirep" by "user
     zs2 = "from "host
@@ -2761,10 +2766,10 @@ Merge_it:
               Otherwise nop
             end
             'Control display restore'
-            zsel = ''
+            zsel = null
           end
           'tbend' zmergtbl
-          zsel = ''
+          zsel = null
           if zmcount = 0 then do
             if fix_stats /= null
             then do fs = 1 to words(fix_stats)
@@ -3097,10 +3102,10 @@ catsshk:
   else zigissh = null
   return
 
-dsnvalid: Procedure
+dsnvalid: Procedure Expose null
   /* Tests for a 'potentially valid' z/OS datasetname */
   parse arg val_dsn
-  if strip(val_dsn) = '' then return 'NO'
+  if strip(val_dsn) = null then return 'NO'
   upp = TRANSLATE(val_dsn,".ABCDEFGHIJKLMNOPQRSTUVWXYZ",,
     ".abcdefghijklmnopqrstuvwxyz")
   if upp = val_dsn then do
@@ -3121,12 +3126,12 @@ dsnvalid: Procedure
   | to string                                        |
   | translate is input to from                       |
   * ------------------------------------------------- */
-strreplace: Procedure
+strreplace: Procedure Expose null
   string  = arg(1)
   strfrom = arg(2)
   strto   = arg(3)
   if pos(strfrom,string) = 0 then return string
-  newString = ''
+  newString = null
   do i = 1 to length(string)
     if substr(string,i,1) /= strfrom
     then newstring = newstring''substr(string,i,1)
@@ -3202,7 +3207,7 @@ update_repo_metadata:
         x = bpxwunix(cmd,,so.,se.)
         y = debug('   done')
         if qualignr = 0 then do
-          if pdshlq /= '' then
+          if pdshlq /= null then
           fulldsn = "'"pdshlq"."root.i"'"
           else
           fulldsn = "'"root.i"'"
@@ -3235,7 +3240,7 @@ update_repo_metadata:
               binopt = '-B'
             end
             else do
-              binopt = ''
+              binopt = null
             end
             copycmd = "//'"e"("m")'"
             copycmd = '"'copycmd'"'
@@ -3265,7 +3270,7 @@ update_repo_metadata:
             binopt = '-B'
           end
           else do
-            binopt = ''
+            binopt = null
           end
           copycmd = "//"s
           copycmd = '"'copycmd'"'
@@ -3325,7 +3330,7 @@ update_repo_metadata:
           qualignr = 0
         end
         if qualignr = 0 then do
-          if pdshlq /= '' then
+          if pdshlq /= null then
           fulldsn = "'"pdshlq"."dsn"'"
           else
           fulldsn = "'"dsn"'"
@@ -3494,7 +3499,7 @@ Add_Dataset:
     end
     if add_count > 0 then
     if qualignr = 0 then
-    pdshlq = ''
+    pdshlq = null
     else pdshlq  = dsnapfx
     if rc > 4 then do
       zsel = null
@@ -3538,6 +3543,7 @@ Add_Dataset:
     end
     'tbtop' dsnatbl
   end
+  call get_binfiles
   return
 
 tbcreate_dsnatbl:
@@ -3586,11 +3592,11 @@ Do_Add_Copy:
   end
   zs1 = 'Copying' dsna
   zs2 = 'to' dsnb 'in OMVS'
-  if option = 'binary' then do
-    zs3 = ' '
+  if translate(option) = 'BINARY' then do
+    zs3 = 'Binary'
   end
   else do
-    zs3 = '  BINARY'
+    zs3 = null
   end
   zs4 = 'Patience . . .'
   call do_popup4
@@ -3633,7 +3639,7 @@ Do_Add_Copy:
       x = docmd(cmd)
     end
     else do
-      binopt = ''
+      binopt = null
     end
     copycmd = "//'"pdsc"'"
     copycmd = '"'copycmd'"'
@@ -3671,7 +3677,7 @@ Do_Add_Copy:
       x = docmd(cmd)
     end
     else do
-      binopt = ''
+      binopt = null
     end
     copycmd = "//'"W"'"
     copycmd = '"'copycmd'"'
@@ -3944,7 +3950,7 @@ add_env:
 docmd:
   parse arg cmd
   drop so. se.
-  if gitenv /= '' then do
+  if gitenv /= null then do
     cmd = ". "gitenv" > /dev/null 2>&1 && "cmd
   end
   x = bpxwunix(cmd,,so.,se.,env.)
@@ -3979,7 +3985,7 @@ debug:
   /* --------------------------------- *
   | Add a message to the combine stem |
   * --------------------------------- */
-Add_Combine: procedure expose combine.
+Add_Combine: procedure expose combine. null
   parse arg msg
   c = combine.0
   combine.c = msg
@@ -4010,7 +4016,7 @@ Combine_msgs: procedure expose so. se. combine. null
   /* -------------------------------------------- *
   | Get the date/time for the provided omvs file |
   * -------------------------------------------- */
-get_fd_date: procedure
+get_fd_date: procedure expose null
   parse arg file_var
   x = bpxwunix('ls -la' file_var,,so.,se.)
   fdate = subword(so.1,6,3)
@@ -4085,7 +4091,7 @@ Update_Config:
       x = so.0
       zs2 = so.x
       zs3 = se.1
-      zs4 = ''
+      zs4 = null
       call do_popup4
     end
     x = docmd('git config --global user.email "'zigimail'"')
@@ -4094,7 +4100,7 @@ Update_Config:
       x = so.0
       zs2 = so.x
       zs3 = se.1
-      zs4 = ''
+      zs4 = null
       call do_popup4
     end
     /* Let's adopt the new style. Only push current branch */
@@ -4118,12 +4124,10 @@ MGEN: Procedure
   |                                                            |
   | ---------------------------------------------------------- */
   parse source source
-
   Numeric Digits 10
   CVT      = C2D(Storage(10,4))
   CVTDFA   = C2D(Storage(D2X(CVT + 1216),4))   /* cvt + 4c0 */
   DFAMGEN  = C2D(Storage(D2X(cvtdfa + 76),4))  /* dfa + 4c */
-
   return dfamgen
 
 get_binfiles:
@@ -4133,12 +4137,11 @@ get_binfiles:
   | Function:  Fills the global binfiles. stem with all        |
   |            current repo files that are added as binary.    |
   \---------------------------------------------------------- */
-
   cmd = 'cd 'localrep'/'zigirep' &&'
   cmd = cmd 'cat .gitattributes | grep git-encoding=BINARY'
   cmd = cmd '| cut -d" " -f1'
   x = docmd(cmd)
-  binfiles. = ''
+  binfiles. = null
   do b = 1 to so.0
     binfiles.b = so.b
   end
@@ -4152,13 +4155,11 @@ is_binfile:
   | Function:  Fills the global binfiles. stem with all        |
   |            current repo files that are added as binary.    |
   \---------------------------------------------------------- */
-
   parse arg file
   res = 0
   do bi = 1 to binfiles.0
     if binfiles.bi = file then do
-      res = 1
-      leave
+      return 1
     end
   end
   return res

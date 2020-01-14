@@ -16,11 +16,11 @@
 +below. Optionally change the number of qualifiers to ignore in the prefix
 +for the OMVS file name or directory.
 +
-+Options:%S+Add+%A+Add+%B+Browse
++Options:%S+Add+%A+Add+%B+Browse+%AB+Add binary
 +
-%S  Dataset Name                                Status
+%S   Dataset Name                                Status
 )Model
-@z+$z                                          $z
+@z +$z                                          $z
 )Init
   .zvars = '(qualignr zsel dsna dastat)'
   .help = zigih210
@@ -46,5 +46,5 @@
      &zsel = &z
  ver (&dsnapfx,nb,dsname)
  ver (&qualignr,nb,range,0,8)
- ver (&zsel,list,S,B,A,X)
+ ver (&zsel,list,S,B,A,AB)
 )End

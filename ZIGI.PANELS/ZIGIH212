@@ -13,7 +13,7 @@
 +
 + %1.+All datasets must be under the same High Level Qualifier (HLQ)
 + %2.+All datasets must be RECFM=FB or RECFM=VB
-+ %3.+All datasets must be text based
++ %3.+Partitioned datasets (PDS) must be all binary or all text
 +
 +Enter a valid HLQ and press Enter to view the datasets available under
 +that HLQ. Then select the individual datasets to add to the repository.
