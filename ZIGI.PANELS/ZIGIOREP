@@ -6,20 +6,21 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   [ type(output) caps(off) pas(on) intens(high) color(white)
-)Body  window(54,13) expand(\\)
+)Body  window(54,14)
 +
 +Enter Selection:_z                     \ \ +
 +
-[Add   + Add dataset        [Pull+    Pull from origin
-[Br    + Change Branch      [Push+    Push to origin
-[Commit+ Record Changes     [Refresh+ Replace Datasets
+[Add   + Add dataset        [Network+ Network Report
+[Br    + Change Branch      [Pull+    Pull from origin
+[Commit+ Record Changes     [Push+    Push to origin
+[Find+   Find in table      [Refresh+ Replace Datasets
 [Githelp+Git Help           [Remote+  Add remote
 [GitCMD +Git Command Prompt [Rollback+Revert
 [GitLog+ Query git log      [Set+     Set Defaults
 [Grep+   Find Strings       [Snapshot+Create Escrow
 [Menu+   Menu version       [Status+  Git Status
 [Merge+  Merge Branches     [View+    OMVS Dir
-[Network+ Network Report
++
 )Init
  &zwinttl = 'zigi Resposity Commands'
  .zvars = '(zcmd)'
@@ -28,6 +29,7 @@
  &Add     = 'AddDsn'
  &Br      = 'Branch'
  &Commit  = 'Commit'
+ &Find    = 'Find'
  &Gitcmd  = 'GitCmd'
  &Githelp = 'Githelp'
  &GitLog  = 'Gitlog'
@@ -53,6 +55,7 @@
  FIELD(BR    )  VAR(ZCMD) VAL('BRANCH')
  FIELD(COMMIT)  VAR(ZCMD) VAL('COMMIT')
  FIELD(GITCMD)  VAR(ZCMD) VAL('GITCMD')
+ FIELD(FIND  )  VAR(ZCMD) VAL('FIND')
  FIELD(GITHELP) VAR(ZCMD) VAL('GITHELP')
  FIELD(GITLOG)  VAR(ZCMD) VAL('GITLOG')
  FIELD(GREP  )  VAR(ZCMD) VAL('GREP')
