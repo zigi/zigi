@@ -693,6 +693,14 @@ Work_With_Repo:
       "TBSkip" rtbl "Number("row")"
     end
 
+    if pos('.',zcmd) > 0 then
+    parse value zcmd with x'.'zcmd
+    if zcmd = 'O' then do
+      'Addpop row(4) column(10)'
+      'Display Panel(zigiorep)'
+      'rempop'
+    end
+
     /* -------------- *
     | Process a Find |
     * -------------- */
@@ -745,14 +753,6 @@ Work_With_Repo:
           leave
         end
       end
-    end
-
-    if pos('.',zcmd) > 0 then
-    parse value zcmd with x'.'zcmd
-    if zcmd = 'O' then do
-      'Addpop row(4) column(10)'
-      'Display Panel(zigiorep)'
-      'rempop'
     end
 
     if abbrev('BASIC',zcmd,2) = 1 then zcmd = 'PRO'
