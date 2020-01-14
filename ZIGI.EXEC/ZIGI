@@ -457,6 +457,16 @@
     if abbrev('FIND',word(zcmd,1),1) = 1 then do
       fstring = translate(word(zcmd,2))
       zcmd = null
+      find = null
+      if fstring = null then do
+          'Addpop row(4) column(6)'
+          'Display Panel(zigifind)'
+          drc = rc
+          'rempop'
+          if drc > 0 then leave
+          if strip(find) = null then leave
+          fstring = find
+         end
       rowcnt = 0
       'tbtop zigirepo'
       if rfs > 0 then do
@@ -694,6 +704,15 @@ Work_With_Repo:
     if abbrev('FIND',word(zcmd,1),1) = 1 then do
       fstring = translate(word(zcmd,2))
       zcmd = null
+      find = null
+      if fstring = null then do
+          'Addpop row(4) column(6)'
+          'Display Panel(zigifind)'
+          drc = rc
+          'rempop'
+          if drc > 0 then find = null
+          fstring = find
+         end
       rowcnt = 0
       'tbtop' rtbl
       if rfs > 0 then do
@@ -996,7 +1015,12 @@ Work_With_Repo:
             if x > 0 then call view_std 'B'
             /*  create a git log in the snapshot directory */
             cmd = 'cd' localrep'/'zigirep
-            cmd = cmd '&& git tag -l' gtag '>' path'gitlog.txt'
+            cmd = cmd "&& echo 'Git Tag for this Snapshot is:' >" ,
+                  path'gitlog.txt'
+            cmd = cmd '&& git tag -l' gtag '>>' path'gitlog.txt'
+            cmd = cmd "&& echo ' ' >>" path'gitlog.txt'
+            cmd = cmd "&& echo 'Recent Git Log Entries:' >>" path'gitlog.txt'
+            cmd = cmd "&& echo ' ' >>" path'gitlog.txt'
             cmd = cmd '&& git log -n 10'
             cmd = cmd '>>' path'gitlog.txt'
             x = docmd(cmd)

@@ -11,7 +11,7 @@
 +Local Repositories+--------------#zigtitle   +---------------------------------
 %Command ===>{zcmd       \ \ %Scroll ===>_zscr+
 +
-+Primary commands:  @Clone+@Create+@SSH+@Config+@Basic+@Githelp+%Find+%Select
++Primary commands:  @Clone+@Create+@SSH+@Config+@Basic+@Githelp+@Find+%Select
 +
 +Repo options:      %S+Work with repo%V+View repo OMVS files+%D+Delete repo
 +
@@ -19,12 +19,13 @@
 )Model
 _z+  $z              +  $z                                 +    }z          +
 )Init
- &clone   = 'Clone'
- &create  = 'Create'
- &githelp = 'GitHelp'
  &basic   = 'Basic'
- &ssh     = 'SSH'
+ &clone   = 'Clone'
  &config  = 'Config'
+ &create  = 'Create'
+ &find    = 'Find'
+ &githelp = 'GitHelp'
+ &ssh     = 'SSH'
  &zscr = CSR
  .zvars = '(zsel zigirep pdshlq zigidate)'
  .help = zigihint
@@ -46,10 +47,11 @@ _z+  $z              +  $z                                 +    }z          +
      &zsel = &z
  ver (&zsel,list,S,D,V,/)
 )PNTS
- FIELD(CLONE   ) VAR(ZCMD) VAL('CLONE')
- FIELD(CREATE  ) VAR(ZCMD) VAL('CREATE')
  FIELD(BASIC   ) VAR(ZCMD) VAL('BASIC')
- FIELD(SSH     ) VAR(ZCMD) VAL('SSH')
+ FIELD(CLONE   ) VAR(ZCMD) VAL('CLONE')
  FIELD(CONFIG  ) VAR(ZCMD) VAL('CONFIG')
+ FIELD(CREATE  ) VAR(ZCMD) VAL('CREATE')
+ FIELD(FIND    ) VAR(ZCMD) VAL('FIND')
  FIELD(GITHELP ) VAR(ZCMD) VAL('GITHELP')
+ FIELD(SSH     ) VAR(ZCMD) VAL('SSH')
 )end
