@@ -565,6 +565,10 @@
       When zsel = 'S' then do
         zigidate = date('n')
         'tbmod zigirepo'
+        x = debug('Getting binfiles:' zigirep time('L') )
+        binfiles. = ''
+        call get_binfiles
+        x = debug('Got 'binfiles.0' binfiles' time('L') )
         x = debug('Selecting repo:' zigirep time('L') )
         call Work_With_Repo
         x = debug('Return from repo:' zigirep time('L') )
@@ -1332,7 +1336,8 @@ Work_With_Repo:
         call do_popup
         d = usssafe(dsn)
         cmd = 'cd' localrep'/'zigirep
-        x = docmd(cmd '&& git add -v 'd)
+        x = docmd(cmd ' && export && git add -v 'd)
+        call view_std 'C'
         if dsnvalid(fulldsn) = "OK" then do
           /* Only get the stats if it's a z/OS dataset
           Don't do it for the USS files
@@ -3224,14 +3229,25 @@ update_repo_metadata:
             m = usssafe(m)
             e = usssafe(edsn)
             r = usssafe(root.i)
-            /* TODO? Use Scottish Command here ? */
+            /* Binary v1, check if PDS is a bin, then copy binary */
+            /* No support for mixed PDS (bin/ebcdic) yet... */
+            if is_binfile(r'/*') = 1 then do
+              binopt = '-B'
+            end
+            else do
+              binopt = ''
+            end
             copycmd = "//'"e"("m")'"
             copycmd = '"'copycmd'"'
-            copycmd = "cp -U -v" copycmd" "localrep"/"zigirep
+            copycmd = "cp "binopt" -U -v" copycmd" "localrep"/"zigirep
             copycmd = copycmd || "/"r"/"
             x = bpxwunix(copycmd,,so.,se.)
             if x > 0 then call view_std 'B'
             x = debug('Copy:' copycmd)
+            if binopt = '-B' then do
+              tagcmd = 'chtag -b 'localrep'/'zigirep'/'r'/*'
+              x = bpxwunix(tagcmd,,so.,se.)
+            end
             mem_hit = 1
           end
         end
@@ -3244,13 +3260,24 @@ update_repo_metadata:
           so.0 = 1
           if so.0 > 0 then do
              Comment End */
-            s = usssafe(fulldsn)
-            copycmd = "//"s
-            copycmd = '"'copycmd'"'
-            copycmd = "cp -U -v" copycmd" "localrep"/"zigirep"/"r
-            x = bpxwunix(copycmd,,so.,se.)
-            if x > 0 then call view_std 'B'
-            x = debug('Copy:' copycmd)
+          s = usssafe(fulldsn)
+          if is_binfile(r) = 1 then do
+            binopt = '-B'
+          end
+          else do
+            binopt = ''
+          end
+          copycmd = "//"s
+          copycmd = '"'copycmd'"'
+          copycmd = "cp "binopt" -U -v" copycmd" "localrep"/"zigirep
+          copycmd = copycmd || "/"r
+          x = bpxwunix(copycmd,,so.,se.)
+          if x > 0 then call view_std 'B'
+          x = debug('Copy:' copycmd)
+          if binopt = '-B' then do
+            tagcmd = 'chtag -b 'localrep'/'zigirep'/'r
+            x = bpxwunix(tagcmd,,so.,se.)
+          end
           /* Comment Start
           end
              Comment End */
@@ -3611,9 +3638,14 @@ Do_Add_Copy:
     copycmd = "//'"pdsc"'"
     copycmd = '"'copycmd'"'
     copycmd = "cp -U -v "binopt copycmd" "DIR"/"pdss"/"
-    say copycmd
     x =bpxwunix(copycmd,,so.,se.)
-    if x > 0 then call view_std 'B'
+    if option = 'binary' then do
+      /* for some reason the git autotagging due to .gitattributes
+         does not work all the time (?? weird) so we tag it if binary
+      */
+      tagcmd = 'chtag -b 'DIR'/'pdss
+      x = bpxwunix(tagcmd,,so.,se.)
+    end
     Address TSO '%zigistat' "'"pds"'" dir"/.zigi/"pdss 'S'
     x = docmd('cd' dir '&& git add .zigi/'pdss)
   end
@@ -3646,7 +3678,13 @@ Do_Add_Copy:
     copycmd = "cp -U -v "binopt copycmd" "DIR"/"pss
     say copycmd
     x =bpxwunix(copycmd,,so.,se.)
-    if x > 0 then call view_std 'B'
+    if option = 'binary' then do
+      /* for some reason the git autotagging due to .gitattributes
+         does not work all the time (?? weird) so we tag it if binary
+      */
+      tagcmd = 'chtag -b 'DIR'/'pss
+      x =bpxwunix(tagcmd,,so.,se.)
+    end
   end
   dsnstat = '[??] Untracked'
   dsn = dsnb
@@ -4088,3 +4126,40 @@ MGEN: Procedure
   DFAMGEN  = C2D(Storage(D2X(cvtdfa + 76),4))  /* dfa + 4c */
 
   return dfamgen
+
+get_binfiles:
+  /* ---------------------------------------------------------\
+  | Name:      binfiles                                        |
+  |                                                            |
+  | Function:  Fills the global binfiles. stem with all        |
+  |            current repo files that are added as binary.    |
+  \---------------------------------------------------------- */
+
+  cmd = 'cd 'localrep'/'zigirep' &&'
+  cmd = cmd 'cat .gitattributes | grep git-encoding=BINARY'
+  cmd = cmd '| cut -d" " -f1'
+  x = docmd(cmd)
+  binfiles. = ''
+  do b = 1 to so.0
+    binfiles.b = so.b
+  end
+  binfiles.0 = so.0
+  return 0
+
+is_binfile:
+  /* ---------------------------------------------------------\
+  | Name:      binfiles                                        |
+  |                                                            |
+  | Function:  Fills the global binfiles. stem with all        |
+  |            current repo files that are added as binary.    |
+  \---------------------------------------------------------- */
+
+  parse arg file
+  res = 0
+  do bi = 1 to binfiles.0
+    if binfiles.bi = file then do
+      res = 1
+      leave
+    end
+  end
+  return res
