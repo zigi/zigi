@@ -3525,7 +3525,7 @@ Add_Dataset:
     if zsel = 'S' | zsel = 'A' then do
       call do_add_copy
     end
-    if zsel = 'X' then do
+    if zsel = 'AB' then do
       call do_add_copy 'binary'
     end
 
@@ -3676,7 +3676,6 @@ Do_Add_Copy:
     copycmd = "//'"W"'"
     copycmd = '"'copycmd'"'
     copycmd = "cp -U -v "binopt copycmd" "DIR"/"pss
-    say copycmd
     x =bpxwunix(copycmd,,so.,se.)
     if option = 'binary' then do
       /* for some reason the git autotagging due to .gitattributes
