@@ -16,6 +16,7 @@
   |                                                            |
   | History:  (most recent on top)                             |
   |            01/14/20 LBD - Incorporate Binary Support       |
+  |                         - Correct selective refresh bug    |
   |            01/08/20 LBD - Pass updated mems to zigistat    |
   |                         - Honor mgen config setting for    |
   |                           PDSE member gen allocation       |
