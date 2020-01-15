@@ -21,6 +21,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            01/15/20 LBD - Fix binary PDS member tag -R     |
   |            01/14/20 HBK - Binary support implemented       |
   |                     LBD - Correct selective refresh bug    |
   |            01/13/20 LBD - Implement repository Snapshot    |
@@ -3652,7 +3653,7 @@ Do_Add_Copy:
       /* for some reason the git autotagging due to .gitattributes
          does not work all the time (?? weird) so we tag it if binary
       */
-      tagcmd = 'chtag -b 'DIR'/'pdss
+      tagcmd = 'chtag -bR 'DIR'/'pdss
       x = bpxwunix(tagcmd,,so.,se.)
     end
     Address TSO '%zigistat' "'"pds"'" dir"/.zigi/"pdss 'S'
