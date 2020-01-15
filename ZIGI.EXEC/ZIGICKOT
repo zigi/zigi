@@ -15,6 +15,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            01/14/20 LBD - Incorporate Binary Support       |
   |            01/08/20 LBD - Pass updated mems to zigistat    |
   |                         - Honor mgen config setting for    |
   |                           PDSE member gen allocation       |
@@ -90,6 +91,13 @@
     end
   end
 
+/* ------------------------------- *
+ | Get the list of Binary Datasets |
+ * ------------------------------- */
+ Address ISPExec 'vget (gitenv) profile'
+ call getenv
+ call get_binfiles
+
   /* ---------------------------------------------------- *
   | Process the results of the ls command to:            |
   | 1. collect number of members per sub-directory       |
@@ -114,7 +122,7 @@
               Address ISPExec 'vget (zv'wp')'
               interpret 'mems = zv'wp
               si = si + 1
-              pullmems.si = mems
+              pullmems.sub = mems
               Address ISPExec 'verase zv'wp
             end
           end
@@ -161,12 +169,18 @@
     zs1 = 'Processing file:' sub
     zs2 = 'From:           ' odir
     zs3 = 'To:             ' fileg
+    bin = is_binfile(sub)
+    if bin = 1 then type = 'Binary'
+               else type = 'Text'
+    zs7 = 'Type            ' type
     call pop_status
     call outtrap 'x.'
     if sysdsn(fileg) = 'OK' then
     'delete' fileg
     tracks =  (size.sub%50000 + 1) * 2
+    /* Comment Start
     sub = fileg
+       Comment End */
     call get_dcb
     'alloc ds('fileg') new spa('tracks','tracks') tr dsorg(ps)' ,
       'recfm('recfm') lrecl('lrecl') blksize('blksize')'
@@ -177,7 +191,7 @@
     m = strreplace(m,'-','$')
     m = translate(m,'.',' ')
     call outtrap 'x.'
-    'oget' odir m 'text'
+    'oget' odir m type
     call outtrap 'off'
   end
 
@@ -191,10 +205,14 @@
     zs9 = 'Patience while the data is copied from OMVS files' ,
       'to a z/OS PDS.'
     sub = word(subs,i)
+    bin = is_binfile(sub)
+    if bin = 1 then type = 'Binary'
+                else type = 'Text'
+    zs7 = 'Type:                   ' type
     fx = translate(sub,'??????????????????????????', ,
       'abcdefghijklmnopqrstuvwxyz')
     if pos('?',fx) > 0 then iterate
-    if pullmems.i /= null then dir.sub = words(pullmems.i)
+    if pullmems.sub /= null then dir.sub = words(pullmems.i)
     zs1 = 'Processing subdirectory:' sub
     zs2 = 'Members:                ' dir.sub
     zs3 = 'Total bytes (k):        ' size.sub
@@ -216,7 +234,7 @@ Alloc_Copy_PDS:
   pds = "'"ckothlq"."sub"'"
   odir = "'"ckotdir"/"sub"/"
   zs8 = ''
-  if pullmems.i = null then
+  if pullmems.sub = null then
   if sysdsn(pds) = 'OK' then do
     zs8 = 'Re-Allocating'
     call outtrap 'x.'
@@ -226,7 +244,7 @@ Alloc_Copy_PDS:
   else zs8 = 'Using existing allocation'
   zs5 = 'Allocating PDSE:        ' pds
   call pop_status
-  if pullmems.i = null then do
+  if pullmems.sub = null then do
     call get_dcb
     if mgen > 0 then gens = 'maxgens('mgen')'
     else gens = null
@@ -254,12 +272,12 @@ Alloc_Copy_PDS:
       /* skip the . and .. things */
       iterate
     end
-    if pullmems.i /= null then
-    if wordpos(mems.ii,pullmems.i) = 0 then iterate
+    if pullmems.sub /= null then
+    if wordpos(mems.ii,pullmems.sub) = 0 then iterate
     src = rdir'/'mems.ii
     m = mems.ii    /* ignore the translation */
     Address TSO
-    'OGET' "'"src"'" "'"target"("m")'"
+    'OGET' "'"src"'" "'"target"("m")'" type
     Address ISPexec
   end
   call outtrap 'off'
@@ -299,7 +317,7 @@ Add_Stats:
   zs7 = 'Adding ISPF Statistics  '
   call pop_status
   filepath = ckotdir'/.zigi/'sub
-  statmems = pullmems.i
+  statmems = pullmems.sub
   Address ISPExec 'vput (statmems)'
   '%zigistat' pds filepath 'U'
   return
@@ -327,12 +345,12 @@ pfshow:
   end
   return
 
-strreplace: Procedure
+strreplace: Procedure Expose null
   string  = arg(1)
   strfrom = arg(2)
   strto   = arg(3)
   if pos(strfrom,string) = 0 then return string
-  newString = ''
+  newString = null
   do i = 1 to length(string)
     if substr(string,i,1) /= strfrom
     then newstring = newstring''substr(string,i,1)
@@ -340,22 +358,91 @@ strreplace: Procedure
   end
   return newstring
 
-MGEN: Procedure
-  /* ---------------------------------------------------------- |
-  | Name:      MGEN                                            |
+get_binfiles:
+  /* ---------------------------------------------------------\
+  | Name:      binfiles                                        |
   |                                                            |
-  | Function:  Return the current system  MAXGENS_LIMIT        |
-  |            which is the system max generations value       |
-  |            for PDSE Version 2 libraries                    |
-  |                                                            |
-  | Syntax:    mgen=(mgen)                                     |
-  |                                                            |
-  | ---------------------------------------------------------- */
-  parse source source
+  | Function:  Fills the global binfiles. stem with all        |
+  |            current repo files that are added as binary.    |
+  \---------------------------------------------------------- */
+  cmd = 'cd' ckotdir'/ &&'
+  cmd = 'cat -W filecodeset=UTF-8,pgmcodeset=IBM-1047' ckotdir'/.gitattributes'
+  cmd = cmd ' | grep git-encoding=BINARY'
+  cmd = cmd '| cut -d" " -f1'
+  x = docmd(cmd)
+  if so.0 = 0 then do
+     binfiles.0 = 0
+     return 0
+     end
+  do b = 1 to so.0
+    if pos('/*',so.b) > 0 then
+       parse value so.b with so.b'/'.
+    binfiles.b = so.b
+  end
+  binfiles.0 = so.0
+  return 0
 
-  Numeric Digits 10
-  CVT      = C2D(Storage(10,4))
-  CVTDFA   = C2D(Storage(D2X(CVT + 1216),4))   /* cvt + 4c0 */
-  DFAMGEN  = C2D(Storage(D2X(cvtdfa + 76),4))  /* dfa + 4c */
+is_binfile:
+  /* ---------------------------------------------------------\
+  | Name:      binfiles                                        |
+  |                                                            |
+  | Function:  Fills the global binfiles. stem with all        |
+  |            current repo files that are added as binary.    |
+  \---------------------------------------------------------- */
+  parse arg file
+  res = 0
+  do bi = 1 to binfiles.0
+    if binfiles.bi = file then do
+      return 1
+    end
+  end
+  return res
 
-  return dfamgen
+  /* ----------------------------------------------------- *
+  | Get the users current OMVS enviornment for use in the |
+  | bpxwunix commands.                                    |
+  * ----------------------------------------------------- */
+GETENV:
+  cmd  = docmdx('env')
+  rc = bpxwunix(cmd,,env.,se.)
+  envc = env.0
+  call add_env '_BPX_SHAREAS=YES'
+  call add_env '_BPX_SPAWN_SCRIPT=YES'
+  call add_env 'EXPORT _EDC_ADD_ERRORNO2=1'
+  env.0 = envc
+  drop so. se.
+  return
+
+  /* -------------------- *
+  | Add info to env stem |
+  * -------------------- */
+add_env:
+  parse arg env_val
+  envc = envc + 1
+  env.envc = env_val
+  return
+
+docmd:
+  parse arg cmd
+  drop so. se.
+  if gitenv /= null then do
+    cmd = ". "gitenv" > /dev/null 2>&1 && "cmd
+  end
+  x = bpxwunix(cmd,,so.,se.,env.)
+  return x
+
+docmdx:
+  /* quircky thing, we need to export HOME as we are
+  not running a login shell via bpxwunix */
+  parse arg cmd
+  drop so. se.
+  if rx = null then do
+    rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && '
+    c = "[[ -f "home"/.profile ]] && echo f"
+    x = bpxwunix(c,,o.,e.)
+    if o.0 = 1 & o.1 = "f" then do
+      rx = rx '. 'home'/.profile > /dev/null 2>&1 && '
+    end
+  end
+  r = rx ' ' cmd
+  return r
