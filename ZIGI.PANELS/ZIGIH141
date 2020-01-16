@@ -13,13 +13,13 @@
 +limit defined for the PDSE. However, to access a generation requires the use
 +of a generations enabled application.
 +
-+Among the generation enabled applications are:
-+   - PDSEGEN (free - www.lbdsoftware.com)    - File Manager (IBM)
-+   - Data Set Commander (IBM)                - File-Aid (Compuware)
-+   - EzyEdit (Broadcom)                      - PDSMAN  (Broadcom)
-+   - SimpList (MacKinney Systems)            - More each year
++Notes+1. Generations may not be accessed from JCL or Dynamic Allocation,
++         or from the majority of IBM and ISV ISPF applications.
++      2. Member Removes (delete) and Renames should be done within a
++         Generation enabled application if the member has generations.
++         Otherwise orphan members will remain as only the base is
++         deleted or renamed.
 +
-+Note: Generations may not be accessed from JCL or Dynamic Allocation.
 +
 +"Programming isn't about what you know; it's about what you can figure out."
 +       - Chris Pine
@@ -28,8 +28,5 @@
 )Init
  .cursor  = &zcmd
 )PROC
- if (&setcont EQ &Z)
-     &ZCONT = ZIGIH150
- if (&setcont NE &Z)
-     &ZCONT = ZIGIH140
+ &ZCONT = ZIGIH142
 )END
