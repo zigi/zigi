@@ -10,10 +10,10 @@
 +
 +Adding a OMVS file or directory requires the following considerations:
 +
-  %1.+The OMVS file or directory must be copied into the zigi managed
++ %1.+The OMVS file or directory must be copied into the zigi managed +
 +     repository directory.
-  %2.+File names that are UPPER CASE will be considered z/OS datasets
-+     and will be copied to z/OS upon a Refresh or Clone.
++ %2.+File names that are UPPER CASE in the repository root will be considered
++     z/OS datasets and will be copied to z/OS upon a Refresh or Clone.
   %3.+If the files are not to be copied to z/OS the file, or directory,
 +     names must be mixed or lower case.
   %4.+After the copy, use zigi to add the now un-tracked file, or directory,

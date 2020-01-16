@@ -13,7 +13,7 @@
 +
 +Primary commands:  @Clone+remote repository           @Pro+
 +                   @Create+a local repo from scratch  @githelp+
-+                   @SSH+View your SSH public key      %Find
++                   @SSH+View your SSH public key      @Find
 +                   @Config+View Git configuration     %Select
 +
 +Repo options:      %S+Work with repo%V+View repo OMVS files+%D+Delete repo
@@ -23,11 +23,12 @@
 _z+  $z              +  $z                                 +    }z          +
 )Init
  &clone   = 'Clone'
+ &config  = 'Config'
  &create  = 'Create'
+ &find    = 'Find'
+ &githelp = 'GitHelp'
  &pro     = 'Pro'
  &ssh     = 'SSH'
- &config  = 'Config'
- &githelp = 'GitHelp'
  &zscr = CSR
  .zvars = '(zsel zigirep pdshlq zigidate)'
  .help = zigihint
@@ -50,9 +51,10 @@ _z+  $z              +  $z                                 +    }z          +
  ver (&zsel,list,S,D,V,/)
 )PNTS
  FIELD(CLONE   ) VAR(ZCMD) VAL('CLONE')
+ FIELD(CONFIG  ) VAR(ZCMD) VAL('CONFIG')
  FIELD(CREATE  ) VAR(ZCMD) VAL('CREATE')
+ FIELD(FIND    ) VAR(ZCMD) VAL('FIND')
+ FIELD(GITHELP ) VAR(ZCMD) VAL('GITHELP')
  FIELD(PRO     ) VAR(ZCMD) VAL('PRO')
  FIELD(SSH     ) VAR(ZCMD) VAL('SSH')
- FIELD(CONFIG  ) VAR(ZCMD) VAL('CONFIG')
- FIELD(GITHELP ) VAR(ZCMD) VAL('GITHELP')
 )end

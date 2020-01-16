@@ -90,3 +90,10 @@ Escrow version of the repository - the z/OS datasets and the OMVS files. This
 is outside of zigi and git. It also generates a tag at the time of the
 snapshot to enable easy access to the git repository for reviewing
 information.
+
+Implemented binary support. On the 'Add Dataset' panel zigi now supports the
+'AB' command. This will do the same as the trusted 'A' command (add a dataset)
+to zigi, however this file will be treated as binary. This allows you to
+have zigi manage your XMIT files, or OBJECT files. Load modules obviously not
+supported. Take note, for a PDS this means ALL the members in the PDS will be
+treated as binary. (this also updates and commits the .gitattributes file)

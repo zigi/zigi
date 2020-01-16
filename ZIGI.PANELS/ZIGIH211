@@ -20,8 +20,8 @@
 +
 %Row selection options:
 
- %S+Select the dataset to add it
- %A+Select the dataset to add it
+ %S+or%A+Select the dataset to add it
+ %AB+Select the dataset to add it as Binary
  %B+Browse the dataset
 
          +Press the%Enter+key to continue your zigi tutorial journey.
