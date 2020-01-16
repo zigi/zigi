@@ -403,7 +403,7 @@
     zcmd = strip(translate(word(zcmd,1)) subword(zcmd,2))
 
     if word(zcmd,1) = 'L' then
-       zcmd = 'F' subword(zcmd,2)
+    zcmd = 'F' subword(zcmd,2)
 
     findstr = null
     if pos('.',zcmd) > 0 then
@@ -462,14 +462,14 @@
       zcmd = null
       find = null
       if fstring = null then do
-          'Addpop row(4) column(6)'
-          'Display Panel(zigifind)'
-          drc = rc
-          'rempop'
-          if drc > 0 then leave
-          if strip(find) = null then leave
-          fstring = find
-         end
+        'Addpop row(4) column(6)'
+        'Display Panel(zigifind)'
+        drc = rc
+        'rempop'
+        if drc > 0 then leave
+        if strip(find) = null then leave
+        fstring = find
+      end
       rowcnt = 0
       'tbtop zigirepo'
       if rfs > 0 then do
@@ -637,9 +637,9 @@
   end
   Exit 0
 
-/* ------------------------------------- *
- | Select the Current Repository Routine |
- * ------------------------------------- */
+  /* ------------------------------------- *
+  | Select the Current Repository Routine |
+  * ------------------------------------- */
 Select_Repo:
   zigidate = date('n')
   'tbmod zigirepo'
@@ -726,13 +726,13 @@ Work_With_Repo:
       zcmd = null
       find = null
       if fstring = null then do
-          'Addpop row(4) column(6)'
-          'Display Panel(zigifind)'
-          drc = rc
-          'rempop'
-          if drc > 0 then find = null
-          fstring = find
-         end
+        'Addpop row(4) column(6)'
+        'Display Panel(zigifind)'
+        drc = rc
+        'rempop'
+        if drc > 0 then find = null
+        fstring = find
+      end
       rowcnt = 0
       'tbtop' rtbl
       if rfs > 0 then do
@@ -872,7 +872,7 @@ Work_With_Repo:
           a PDSE then check of more than 25% of members being
           updated and if so then nullify the member list so a full
           refresh will occur for the dataset */
-trace '?i'
+          trace '?i'
           if x = 0 then
           if sysmembers /= null then
           if sysadirblk /= 'NO_LIM' then
@@ -997,16 +997,16 @@ trace '?i'
       | Snapshot the current repository  |
       * -------------------------------- */
       When abbrev('SNAPSHOT',zcmd,2) = 1 then do
-      do forever
-         parse value '' with zcmd path snaphlq gtag sans
-         'display panel(zigisnap)'
-         if rc > 0 then leave
-         'Addpop row(4) column(10)'
-         'Display Panel(zigisnpq)'
-         drc = rc
-         'rempop'
-         if drc > 0 then leave
-         if sans = 'Y' then do
+        do forever
+          parse value '' with zcmd path snaphlq gtag sans
+          'display panel(zigisnap)'
+          if rc > 0 then leave
+          'Addpop row(4) column(10)'
+          'Display Panel(zigisnpq)'
+          drc = rc
+          'rempop'
+          if drc > 0 then leave
+          if sans = 'Y' then do
             cmd = 'cd' localrep'/'zigirep
             cmd = cmd '&& git tag' gtag
             zs1 = 'Performing the git tag'
@@ -1029,7 +1029,7 @@ trace '?i'
             /*  create a git log in the snapshot directory */
             cmd = 'cd' localrep'/'zigirep
             cmd = cmd "&& echo 'Git Tag for this Snapshot is:' >" ,
-                  path'gitlog.txt'
+              path'gitlog.txt'
             cmd = cmd '&& git tag -l' gtag '>>' path'gitlog.txt'
             cmd = cmd "&& echo ' ' >>" path'gitlog.txt'
             cmd = cmd "&& echo 'Recent Git Log Entries:' >>" path'gitlog.txt'
@@ -1047,19 +1047,19 @@ trace '?i'
             'rempop'
             if drc > 0 then sans = 'N'
             if sans = 'N' then do
-               zerrsm = 'Completed.'
-               zerrlm = 'Snapshot completed - tag:' gtag
-               'setmsg msg(isrz003)'
-               leave
-               end
+              zerrsm = 'Completed.'
+              zerrlm = 'Snapshot completed - tag:' gtag
+              'setmsg msg(isrz003)'
+              leave
+            end
             'SELECT PGM(ISRDSLST) PARM(UDL' path') SUSPEND'
             "SELECT PGM(ISRDSLST) PARM(DSL '"snaphlq"') SUSPEND"
             zerrsm = 'Completed.'
             zerrlm = 'Snapshot completed - tag:' gtag
             'setmsg msg(isrz003)'
             leave
-            end
-         end
+          end
+        end
       end
       Otherwise do
         zerrsm = 'Unknown'
@@ -2302,7 +2302,7 @@ Edit_PS:
   if rc = 0 then do
     edsn = usssafe(edsn)
     copcm = "//'"edsn"'"
-/* -M was replaced with -v in all CP commands */
+    /* -M was replaced with -v in all CP commands */
     copcm = 'cp -U -v "'copcm'" 'localrep'/'zigirep'/'usssafe(dsn)
     x = bpxwunix(copcm,,so.,se.)
     if x > 0 then call view_std 'B'
@@ -2500,27 +2500,27 @@ Branch_it:
       end
       leave
     end
-     if zsel = "D" then do
+    if zsel = "D" then do
       'Addpop row(4) column(6)'
-       'display panel(zigibrdq)'
-       drc = rc
-       'Rempop'
-       if ans = 'N' then drc = 4
-       if drc > 0 then do
-          ans = 'N'
-          zerrsm = 'Cancelled.'
-          zerrlm = 'Branch delete cancelled.'
-         'setmsg msg(isrz003)'
-          end
-       if ans = 'Y' then do
-         x = docmd('cd 'localdir' && git branch -D 'bname)
-         'tbdelete' rtbb
-         zerrsm = 'Deleted.'
-         zerrlm = 'Branch 'bname' succesfully deleted'
-         'Setmsg msg(isrz003)'
-       end
-     end
-     end
+      'display panel(zigibrdq)'
+      drc = rc
+      'Rempop'
+      if ans = 'N' then drc = 4
+      if drc > 0 then do
+        ans = 'N'
+        zerrsm = 'Cancelled.'
+        zerrlm = 'Branch delete cancelled.'
+        'setmsg msg(isrz003)'
+      end
+      if ans = 'Y' then do
+        x = docmd('cd 'localdir' && git branch -D 'bname)
+        'tbdelete' rtbb
+        zerrsm = 'Deleted.'
+        zerrlm = 'Branch 'bname' succesfully deleted'
+        'Setmsg msg(isrz003)'
+      end
+    end
+  end
   'tbend' rtbb
   ztdsels = 0
   return
@@ -3268,7 +3268,7 @@ update_repo_metadata:
           x = docmd(cmd)
           so.0 = 1
           if so.0 > 0 then do
-             Comment End */
+          Comment End */
           s = usssafe(fulldsn)
           if is_binfile(r) = 1 then do
             binopt = '-B'
@@ -3289,7 +3289,7 @@ update_repo_metadata:
           end
           /* Comment Start
           end
-             Comment End */
+          Comment End */
         end
       end
     end
@@ -3651,7 +3651,7 @@ Do_Add_Copy:
     x =bpxwunix(copycmd,,so.,se.)
     if option = 'binary' then do
       /* for some reason the git autotagging due to .gitattributes
-         does not work all the time (?? weird) so we tag it if binary
+      does not work all the time (?? weird) so we tag it if binary
       */
       tagcmd = 'chtag -bR 'DIR'/'pdss
       x = bpxwunix(tagcmd,,so.,se.)
@@ -3689,7 +3689,7 @@ Do_Add_Copy:
     x =bpxwunix(copycmd,,so.,se.)
     if option = 'binary' then do
       /* for some reason the git autotagging due to .gitattributes
-         does not work all the time (?? weird) so we tag it if binary
+      does not work all the time (?? weird) so we tag it if binary
       */
       tagcmd = 'chtag -b 'DIR'/'pss
       x =bpxwunix(tagcmd,,so.,se.)
@@ -3841,20 +3841,86 @@ do_history:
         'Display Panel(zigirhst)'
         'rempop'
       end
-      if zsel = 'C' then do
-        cmd = 'cd' localrep'/'zigirep
-        cmd = cmd '&& git log' hcommit '-n 1 --cc'
-        x = docmd(cmd)
-        call view_std 'X' 'V'
-        zsel = null
-      end
-      if zsel = 'S' then do
-        cmd = 'cd' localrep'/'zigirep
-        cmd = cmd '&& git show' strip(hcommit)':'element
-        x = docmd(cmd)
-        vtitle = element '\' hdate '\' hauthor '\' fulldsn
-        'vput (vtitle)'
-        call view_std 'X' 'V'
+      Select
+        When zsel = 'C' then do
+          cmd = 'cd' localrep'/'zigirep
+          cmd = cmd '&& git log' hcommit '-n 1 --cc'
+          x = docmd(cmd)
+          call view_std 'X' 'V'
+          zsel = null
+        end
+        When zsel = 'R' then do   /* recovery */
+          cmd = 'cd' localrep'/'zigirep
+          cmd = cmd '&& git show' strip(hcommit)':'element
+          x = docmd(cmd)
+          if dsnvalid(fulldsn) = 'NO' then do
+            zerrsm = 'Error.'
+            zerrlm = 'The recovery of a non-z/OS dataset is not supported' ,
+              'at this time. You can use S to view the historical' ,
+              'data and then copy it into the clipboard to paste' ,
+              'into a OMVS file to recover it.'
+            'setmsg msg(isrz003)'
+          end
+          else do
+            if left(fulldsn,1) /= "'" then
+            relement = fulldsn
+            if left(fulldsn,1) = "'" then do
+              if pos('/',element) = 0
+              then relement = fulldsn
+              else do
+                parse value element with .'/'rcmem
+                relement = left(fulldsn,length(fulldsn)-1) ,
+                  || "("rcmem")'"
+              end
+            end
+            rdsn = relement
+            ralc = 'N'
+            rans = null
+            rover = null
+            'Control Display Save'
+            'Addpop row(4) column(12)'
+            'Display Panel(zigiresq)'
+            drc = rc
+            'Rempop'
+            'Control Display Restore'
+            if drc > 0 then leave
+            if rans = 'N' then leave
+            rcdd = 'RC'random(99999)
+            address tso
+            if sysdsn(rdsn) = 'DATASET NOT FOUND' then ralloc = 'Y'
+            else ralloc = 'N'
+            if ralloc = 'N'
+            then 'Alloc f('rcdd') shr reuse da('rdsn')'
+            else 'Alloc f('rcdd') new like('relement') da('rdsn')'
+            /* fix up the stem convert nulls to blanks lines */
+            do rc = 1 to so.0
+              if so.rc = null then so.rc = ' '
+            end
+            'Execio * diskw' rcdd '(finis stem so.'
+            'Free f('rcdd')'
+            address ispexec
+            if pos('(',rdsn) > 0 then do
+              parse value rdsn with rdsn"("mem")"
+              if left(rdsn,1) = "'" then rdsn = rdsn"'"
+              "LMINIT DATAID(zstats) DATASET("rdsn")"
+              "LMOPEN DATAID("zstats") OPTION(INPUT)"
+              'LMMSTATS DATAID('zstats') Member('mem') user('zluser')'
+              "LMClose Dataid("zstats")"
+            end
+            zerrsm = 'Completed.'
+            zerrlm = relement 'successfully recovered into' rdsn
+            'setmsg msg(isrz003)'
+          end
+        end
+        When zsel = 'S' then do
+          cmd = 'cd' localrep'/'zigirep
+          cmd = cmd '&& git show' strip(hcommit)':'element
+          x = docmd(cmd)
+          vtitle = element '\' hdate '\' hauthor '\' fulldsn
+          'vput (vtitle)'
+          call view_std 'X' 'V'
+        end
+        Otherwise nop
       end
     end
   end

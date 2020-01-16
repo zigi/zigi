@@ -92,8 +92,14 @@ snapshot to enable easy access to the git repository for reviewing
 information.
 
 Implemented binary support. On the 'Add Dataset' panel zigi now supports the
-'AB' command. This will do the same as the trusted 'A' command (add a dataset)
-to zigi, however this file will be treated as binary. This allows you to
-have zigi manage your XMIT files, or OBJECT files. Load modules obviously not
-supported. Take note, for a PDS this means ALL the members in the PDS will be
-treated as binary. (this also updates and commits the .gitattributes file)
+'AB' command. This will do the same as the trusted 'A' command (add a
+dataset) to zigi, however this file will be treated as binary. This allows
+you to have zigi manage your XMIT files, or OBJECT files. Load modules
+obviously not supported. Take note, for a PDS this means ALL the members in
+the PDS will be treated as binary. (this also updates and commits the
+.gitattributes file)
+
+In the element History view a new option to Recover the historical source is
+now available. It only works for z/OS datasets. Both PDS members and PS
+datasets may be recovered. OMVS historical recovery is not supported at this
+time.

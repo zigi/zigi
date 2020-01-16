@@ -11,7 +11,9 @@
 %H+row selection will display a list of all commits for the selected element.
 +
 +Select%S+the specific historical version to View from the table of commits.
-+Or select using%C+to browse the commit record.
++Or select using%C+to browse the commit record.%R+can be used to recover the
++historical version to a new, or existing dataset (OMVS files are not
++supported for recovery at this time).
 +
 +When in%View+any ISPF Edit command may be used:
 +
@@ -19,8 +21,6 @@
 +   %Create+to create a new dataset, member, or file from the current element
 +
 +Because it is%View+no permanent changes may be made in it.
-+
-+
 +
                    +"Well begun is half done.+  - Aristotle
 +
