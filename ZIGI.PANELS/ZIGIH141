@@ -18,8 +18,8 @@
 +      2. Member Removes (delete) and Renames should be done within a
 +         Generation enabled application if the member has generations.
 +         Otherwise orphan members will remain as only the base is
-+         deleted or renamed.
-+
++         deleted or renamed, but they are hidden to all but generation
++         enabled tools.
 +
 +"Programming isn't about what you know; it's about what you can figure out."
 +       - Chris Pine
