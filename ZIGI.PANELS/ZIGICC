@@ -9,7 +9,7 @@
 %Remote Repository: +URL for reference only
  @remote                                                                      +
 +
-%Optional:        : +Specific branch to clone (default is master)
+%Optional:          +Specific branch to clone (default is master)
  @remotebr                                   +
 +
 %Local Directory:   +? to browse omvs folder structure
