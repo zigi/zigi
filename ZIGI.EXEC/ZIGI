@@ -634,9 +634,6 @@
   * ----------------------------------------------------------- */
   if zigidebg = 1 then
   if zigidebg_use = 1 then do
-    /* Comment Start
-    "Select Cmd(OBrowse '"home"/"debug_file"')"
-    Comment End */
     "Select Pgm(isrdslst) Parm(UDL ~/zigidebug*) SUSPEND"
   end
   Exit 0
@@ -3298,13 +3295,6 @@ update_repo_metadata:
         end
         else do
           /* It must be a PS, just copy it over to OMVS */
-          /* Check for the specific file if new or changed */
-          /* Comment Start
-          cmd = 'cd' localrep'/'zigirep '&& git status --porcelain | grep' r
-          x = docmd(cmd)
-          so.0 = 1
-          if so.0 > 0 then do
-          Comment End */
           s = usssafe(fulldsn)
           if is_binfile(r) = 1 then do
             binopt = '-B'
@@ -3323,9 +3313,6 @@ update_repo_metadata:
             tagcmd = 'chtag -b 'localrep'/'zigirep'/'r
             x = bpxwunix(tagcmd,,so.,se.)
           end
-          /* Comment Start
-          end
-          Comment End */
         end
       end
     end
@@ -3915,7 +3902,7 @@ do_history:
             rans = null
             rover = null
             'Control Display Save'
-            'Addpop row(4) column(12)'
+            'Addpop row(4) column(8)'
             'Display Panel(zigiresq)'
             drc = rc
             'Rempop'
