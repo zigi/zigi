@@ -72,12 +72,12 @@ _rdsn                                                      +
   end
   if zedsmsg = null then do
     if pos(rans,'YN') = 0 then do
-      zedsmsg = 'Error.'
+      zedsmsg = 'Required.'
       zedlmsg = 'Confirm enter Y for Yes or N for No.'
       csr = 'RANS'
     end
     if pos(ralc,'YN') = 0 then do
-      zedsmsg = 'Error.'
+      zedsmsg = 'Required.'
       zedlmsg = 'Allocate enter Y for Yes or N for No.'
       csr = 'RALC'
     end
