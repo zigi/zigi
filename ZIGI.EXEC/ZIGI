@@ -21,6 +21,10 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            01/17/20 LBD - Support Only and Refresh in      |
+  |                           Rollback                         |
+  |            01/16/20 LBD - Support Recover in History for   |
+  |                           individual element               |
   |            01/15/20 LBD - Fix binary PDS member tag -R     |
   |            01/14/20 HBK - Binary support implemented       |
   |                     LBD - Correct selective refresh bug    |
@@ -1423,12 +1427,42 @@ Do_Rollback:
       zsel = null
       ztdsels = 0
     end
-    if zsel = null then iterate
     if row /= null then do
       'tbtop' zcrtbl
       'tbskip' zcrtbl    'number('row')'
     end
-    if zsel = 'S' then do
+    Select
+    When abbrev('REFRESH',word(zcmd,1),1) = 1 then do
+       'tbend' zcrtbl
+       call do_rollback_log
+       end
+    When abbrev('ONLY',word(zcmd,1),1) = 1 then do
+      'tbtop' zcrtbl
+      ohit = 0
+      fw = subword(zcmd,2)
+      ztdtop = 0
+      do forever
+         'tbskip' zcrtbl
+         if rc > 0 then
+            if ohit = 1 then do
+                 ztdtop = 1
+                 leave
+                 end
+         if rc > 0 then do
+            'tbend' zcrtbl
+            call do_rollback_log
+            zerrsm = 'Not Found.'
+            zerrlm = fw 'not found in the rollback log.'
+            'Setmsg msg(isrz003)'
+            ztdtop = 1
+            leave
+            end
+         ztdtop = ztdtop + 1
+         if pos(fw,translate(ctag ctitle)) = 0 then 'tbdelete' zcrtbl
+         else ohit = 1
+         end
+    end
+    when zsel = 'S' then do
       soo = 0
       drop so.
       do si = 1 to cr.ctag.0
@@ -1439,7 +1473,7 @@ Do_Rollback:
       se.0 = 0
       call view_std 'X' 'V'
     end
-    if zsel = 'R' then do
+    when zsel = 'R' then do
       zcmd  = null
       rolla = 'Cancel'
       call pfshow 'off'           /* make sure pfshow is off */
@@ -1475,6 +1509,8 @@ Do_Rollback:
         ztdsels = 1
       end
       leave
+    end
+    Otherwise nop
     end
   end
   'tbend' zcrtbl
