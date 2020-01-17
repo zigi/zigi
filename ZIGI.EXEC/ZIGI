@@ -3166,12 +3166,12 @@ dsnvalid: Procedure Expose null
   | to string                                        |
   | translate is input to from                       |
   * ------------------------------------------------- */
-strreplace: Procedure Expose null
+strreplace: Procedure
   string  = arg(1)
   strfrom = arg(2)
   strto   = arg(3)
   if pos(strfrom,string) = 0 then return string
-  newString = null
+  newString = ''
   do i = 1 to length(string)
     if substr(string,i,1) /= strfrom
     then newstring = newstring''substr(string,i,1)
