@@ -22,12 +22,11 @@ _rdsn                                                      +
  &rover = &Z
 )Proc
  &resp = .resp
-*rexx(* rdsn zedsmsg zedlmsg resp rover)
+*rexx(* rdsn zedsmsg zedlmsg resp rover csr rans ralc)
   if resp = 'END' then exit
   parse value '' with zedsmsg zedlmsg csr null
   msgvalue = msg()              /* Save the current TSO Message State */
   call msg 'off'                /* Turn off TSO Messages */
-  if rover = null then rans = null
   if rover /= 1 then
   if relement = rdsn then do
     rans = null
@@ -54,8 +53,8 @@ _rdsn                                                      +
         'dataset must be a PDS. A member name is required. Try again.'
       csr = 'RDSN'
     end
+    end
     if zedsmsg = null then
-    if ralc = 'N' then do
       x = listdsi(rdsn)
       if x > 0 then do
         zedsmsg = 'Error.'
@@ -69,8 +68,18 @@ _rdsn                                                      +
           'was specified - try again.'
         csr = 'RDSN'
       end
-    end
-  end
+  if zedsmsg = null then do
+  if pos(rans,'YN') = 0 then do
+        zedsmsg = 'Error.'
+        zedlmsg = 'Confirm enter Y for Yes or N for No.'
+        csr = 'RANS'
+      end
+  if pos(ralc,'YN') = 0 then do
+        zedsmsg = 'Error.'
+        zedlmsg = 'Allocate enter Y for Yes or N for No.'
+        csr = 'RALC'
+      end
+      end
   call msg msgvalue             /* Restore TSO Message State */
 *Endrexx
  if (&zedsmsg NE &Z)
@@ -78,8 +87,4 @@ _rdsn                                                      +
    .CURSOR = &csr
  if (&csr NE &Z)
    .CURSOR = &csr
- if (&csr EQ &Z)
-     ver (&rdsn,nb)
-     ver (&ralc,nb,list,Y,N)
-     ver (&rans,nb,list,Y,N)
-)end
+)End

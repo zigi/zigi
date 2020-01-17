@@ -3805,6 +3805,7 @@ do_history:
   parse arg element
   zerrlm = null
   zsel = null
+  update_flag = 0
   select
     When filetype = '(D)' then zerrlm = 'History does not work on directories'
     When left(element,1) = "'" then do
@@ -3946,6 +3947,7 @@ do_history:
             zerrsm = 'Completed.'
             zerrlm = relement 'successfully recovered into' rdsn
             'setmsg msg(isrz003)'
+          if fulldsn = rdsn then update_flag = 1
           end
         end
         When zsel = 'S' then do
@@ -3963,6 +3965,7 @@ do_history:
   'tbend' hist_tbl
   ztdsels = 1
   ztdtop = save_top
+  if update_flag = 1 then call update_repo_metadata
   return
 
   /* ---------------------------------------- *
