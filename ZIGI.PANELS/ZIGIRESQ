@@ -1,6 +1,6 @@
 )Attr
  $ type(output) caps(off)
- _ type(input)  caps(off) hilite(uscore) intens(low)
+ _ type(input)  caps(on ) hilite(uscore) intens(low)
  # type(input)  caps(on) hilite(uscore) intens(low)
 )Body Window(61,12)
 +
@@ -33,15 +33,15 @@ _rdsn                                                      +
     rover = 1
     zedsmsg = 'Warning.'
     zedlmsg = 'You are about to overlay the active element. You must confirm' ,
-              'a second time if you wish to proceed.'
+      'a second time if you wish to proceed.'
     csr = 'RDSN'
   end
   if zedsmsg = null then do
-  if left(rdsn,1) = '/' then do
-    zedsmsg = 'Error.'
-    zedlmsg = 'Recovery of history OMVS files is not supported at this time.'
-    csr = 'RDSN'
-  end
+    if left(rdsn,1) = '/' then do
+      zedsmsg = 'Error.'
+      zedlmsg = 'Recovery of history OMVS files is not supported at this time.'
+      csr = 'RDSN'
+    end
   end
   if zedsmsg = null then
   if ralc = 'Y' then do
@@ -53,33 +53,35 @@ _rdsn                                                      +
         'dataset must be a PDS. A member name is required. Try again.'
       csr = 'RDSN'
     end
+  end
+  if zedsmsg = null then
+  if ralc = 'N' then do
+    x = listdsi(rdsn)
+    if x > 0 then do
+      zedsmsg = 'Error.'
+      zedlmsg = SYSMSGLVL2
+      csr = 'RDSN'
     end
-    if zedsmsg = null then
-      x = listdsi(rdsn)
-      if x > 0 then do
-        zedsmsg = 'Error.'
-        zedlmsg = SYSMSGLVL2
-        csr = 'RDSN'
-      end
-      else
-      if sysdsorg = 'PO' then if pos('(',rdsn) = 0 then do
-        zedsmsg = 'Error.'
-        zedlmsg = 'The recovery dataset is a PDS and NO member name' ,
-          'was specified - try again.'
-        csr = 'RDSN'
-      end
+  end
+  else
+  if sysdsorg = 'PO' then if pos('(',rdsn) = 0 then do
+    zedsmsg = 'Error.'
+    zedlmsg = 'The recovery dataset is a PDS and NO member name' ,
+      'was specified - try again.'
+    csr = 'RDSN'
+  end
   if zedsmsg = null then do
-  if pos(rans,'YN') = 0 then do
-        zedsmsg = 'Error.'
-        zedlmsg = 'Confirm enter Y for Yes or N for No.'
-        csr = 'RANS'
-      end
-  if pos(ralc,'YN') = 0 then do
-        zedsmsg = 'Error.'
-        zedlmsg = 'Allocate enter Y for Yes or N for No.'
-        csr = 'RALC'
-      end
-      end
+    if pos(rans,'YN') = 0 then do
+      zedsmsg = 'Error.'
+      zedlmsg = 'Confirm enter Y for Yes or N for No.'
+      csr = 'RANS'
+    end
+    if pos(ralc,'YN') = 0 then do
+      zedsmsg = 'Error.'
+      zedlmsg = 'Allocate enter Y for Yes or N for No.'
+      csr = 'RALC'
+    end
+  end
   call msg msgvalue             /* Restore TSO Message State */
 *Endrexx
  if (&zedsmsg NE &Z)

@@ -102,7 +102,8 @@ the PDS will be treated as binary. (this also updates and commits the
 In the element History view a new option to Recover the historical source is
 now available. It only works for z/OS datasets. Both PDS members and PS
 datasets may be recovered. OMVS historical recovery is not supported at this
-time.
+time. A PDS member must be recovered to a PDS member, even if the recovery
+dataset is being allocated new.
 
 Update Rollback with two new commands. ONLY (O) will limit the display of
 commits to those with the provided string in the title (e.g. O roll) in a
