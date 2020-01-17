@@ -6,11 +6,12 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
 )Body  Expand(\\)
-+Repository Rollback+-------------#zigtitle   +---------------------------------
++Repository Rollback+----\-\------#zigtitle   +------\-\------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
 +
 +Commits to Review:_z   +(1 to 9999)
 +
++Commands%Only+limit table%Refresh+table
 +Options:%S+Display%R+RollBack
 +
 +Sel Date/Time            Tag
@@ -22,6 +23,7 @@ _z+ $z                   $z
 )Init
   .ZVARS = '(crcnt zsel cdatetim ctag ctitle)'
   &zscr = CSR
+  .help = zigih2d0
 )Proc
  &row = &z
  if (&ZCMD = &Z)
