@@ -1458,7 +1458,7 @@ Do_Rollback:
             leave
             end
          ztdtop = ztdtop + 1
-         if pos(fw,translate(ctag ctitle)) = 0 then 'tbdelete' zcrtbl
+         if pos(fw,translate(ctitle)) = 0 then 'tbdelete' zcrtbl
          else ohit = 1
          end
     end

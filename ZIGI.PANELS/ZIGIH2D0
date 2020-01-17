@@ -13,7 +13,7 @@
 +The command will bring up a list of the last 10 commits to select from. The
 +number of commits to review can be changed on the prompting panel.
 +
-+Commands%Only+will limit the table to the specified string.
++Commands%Only+will limit the table to the specified string in the title.
          %Refresh+will return the table to all entries.
 
 +Each commit is avialable to be%S+selected which will browse the commit

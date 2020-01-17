@@ -103,3 +103,8 @@ In the element History view a new option to Recover the historical source is
 now available. It only works for z/OS datasets. Both PDS members and PS
 datasets may be recovered. OMVS historical recovery is not supported at this
 time.
+
+Update Rollback with two new commands. ONLY (O) will limit the display of
+commits to those with the provided string in the title (e.g. O roll) in a
+case insensitive compare. REFRESH (R) will refresh the table back to all
+entries.
