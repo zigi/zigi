@@ -3965,7 +3965,7 @@ do_history:
   'tbend' hist_tbl
   ztdsels = 1
   ztdtop = save_top
-  if update_flag = 1 then call update_repo_metadata
+  if update_flag = 1 then call work_with_repo
   return
 
   /* ---------------------------------------- *
