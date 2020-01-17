@@ -8,21 +8,21 @@
 +
                                  %Rollback+
 +
-%Rollback+will rollback ALL changes to a specific Commit point into a new
-+branch.
+%Rollback+ALL changes to a specific Commit point into a new branch.
 +
 +The command will bring up a list of the last 10 commits to select from. The
 +number of commits to review can be changed on the prompting panel.
 +
++Commands%Only+will limit the table to the specified string in the title.
+         %Refresh+will return the table to all entries.
+
 +Each commit is avialable to be%S+selected which will browse the commit
 +to allow the user to fully understand what the commit consisted of.
 %
-+Once a specific commit is found, use the%R+selection to initiate the
-+rollback.
++The%R+selection will initiate the rollback process.
 %
 +A confirmation prompt will popup requiring the name of a new branch to be
 +created to prevent overlaying the current branch.
-+
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init

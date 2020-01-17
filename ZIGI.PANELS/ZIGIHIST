@@ -9,7 +9,7 @@
 +-\-\#zigtitle   +-\-\
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
 +
-+Selections:%S+View historical source%C+View Commit Info
++Selections:%S+View historical source%C+View Commit Info%R+Recover source
 +
 +Dataset/File:@delement
 +
@@ -37,5 +37,5 @@ _z+ $z                                $z
      &osel = &zsel
  if (&row = 0)
      &zsel = &z
- ver (&zsel,list,S,C,/)
+ ver (&zsel,list,R,S,C,/)
 )End
