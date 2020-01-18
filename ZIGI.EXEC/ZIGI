@@ -3739,6 +3739,9 @@ Do_Add_Copy:
   | dsn PS/PO recfm lrecl blksize                           |
   * ------------------------------------------------------- */
 Save_dsninfo:
+  /* better make sure sd. stem is empty before we start :) */
+  sd. = ''
+  sd.0 = 0
   x = listdsi(fulldsn)
   dsn_record = dsn sysdsorg sysrecfm syslrecl sysblksize
   if sysvar('syspref') = null then pref = sysvar('sysuid')'.'
@@ -3776,6 +3779,7 @@ Save_dsninfo:
   x = docmd(cmd)
   call outtrap 'off'
   Address ISPExec
+  trace off
   return
 
 Write_FD:
