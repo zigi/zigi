@@ -2280,25 +2280,33 @@ Work_with_repo_file:
           end
         end
         when zsel = 'U' then do
+          zerrsm = 'UnSupported'
+          zerrlm = 'Undo is not supported at this time.'
+          'Setmsg msg(isrz003)'
+          /* Not supported at this time so ignore the code
+             as undo will never be 1 at this point in time */
+          undo = 0
+          if undo = 1 then do
           /* -------------------------------- *
           | Undo a commit. eg checkout --    |
           * -------------------------------- */
-          d = usssafe(dsn)
-          cmd = 'cd' localrep'/'zigirep'/'d
+            d = usssafe(dsn)
+            cmd = 'cd' localrep'/'zigirep'/'d
           /* These cp -M issues are really getting annoying */
-          m = translate(mem,'#@$','._-')
-          m = translate(mem,'._-','#@$')
+            m = translate(mem,'#@$','._-')
+            m = translate(mem,'._-','#@$')
 
-          zs1 = 'Un-modiying 'mem
-          zs2 = 'This never happened...'
-          call do_popup
-          address 'SYSCALL' 'SLEEP (1)'
-          x = docmd(cmd || ' && git checkout -- 'm)
+            zs1 = 'Un-modiying 'mem
+            zs2 = 'This never happened...'
+            call do_popup
+            address 'SYSCALL' 'SLEEP (1)'
+            x = docmd(cmd || ' && git checkout -- 'm)
           /* after the checkout --, we better re-populate   */
           /* the z/OS datasets                              */
-          call Refresh localrep zigirep pdshlq qualignr
-          call update_repo_metadata
-          call work_with_repo_file
+            call Refresh localrep zigirep pdshlq qualignr
+            call update_repo_metadata
+            call work_with_repo_file
+          end
         end
         when zsel = 'D' then do
           /* -------------------------------- *
@@ -3779,7 +3787,6 @@ Save_dsninfo:
   x = docmd(cmd)
   call outtrap 'off'
   Address ISPExec
-  trace off
   return
 
 Write_FD:
