@@ -15,6 +15,9 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            01/18/20 LBD - Convert from individual OGETs    |
+  |                           to one OGETX for a PDS if no     |
+  |                           selective restores               |
   |            01/14/20 LBD - Incorporate Binary Support       |
   |                         - Correct selective refresh bug    |
   |            01/08/20 LBD - Pass updated mems to zigistat    |
@@ -179,9 +182,6 @@
     if sysdsn(fileg) = 'OK' then
     'delete' fileg
     tracks =  (size.sub%50000 + 1) * 2
-    /* Comment Start
-    sub = fileg
-       Comment End */
     call get_dcb
     'alloc ds('fileg') new spa('tracks','tracks') tr dsorg(ps)' ,
       'recfm('recfm') lrecl('lrecl') blksize('blksize')'
@@ -226,11 +226,15 @@
 
   Exit
 
-  /* ---------------------------------------------- *
-  | Allocate the PDS and perform the copy (OGET)   |
-  | - the PDS will be allocated as a PDSE          |
-  | - if the target PDS exists delete and realloc  |
-  * ---------------------------------------------- */
+/* ----------------------------------------------------------------- *
+ | Allocate the PDS and perform the copy using OGET for selective    |
+ | copies or OGETX for a full PDS                                    |
+ | - if the target PDS exists as a PDS, delete and realloc as a PDSE |
+ | - if the target is a PDSE then it will NOT be reallocated         |
+ | - The target PDS will be allocated as a PDSE version 2.           |
+ | - if maxgen (mgen) is provided then member generations will       |
+ |   also be defined at allocation                                   |
+ * ----------------------------------------------------------------- */
 Alloc_Copy_PDS:
   pds = "'"ckothlq"."sub"'"
   odir = "'"ckotdir"/"sub"/"
@@ -261,6 +265,12 @@ Alloc_Copy_PDS:
   | Read directory to get all member file names and then |
   | adjust according and then do individual oget         |
   * ---------------------------------------------------- */
+  if pullmems.sub = null then do
+     call outtrap 'x.'
+     Address TSO 'OGETX' odir pds type 'Quiet'
+     call outtrap 'off'
+     end
+  else do
   target = strip(pds,'B',"'")
   call syscalls 'ON'
   address syscall
@@ -282,6 +292,7 @@ Alloc_Copy_PDS:
     Address ISPexec
   end
   call outtrap 'off'
+  end
   return
 
 get_dcb:
