@@ -403,6 +403,7 @@ is_binfile:
   \---------------------------------------------------------- */
   parse arg file
   res = 0
+  if datatype(binfiles.0) /= 'NUM' then return res
   do bi = 1 to binfiles.0
     if binfiles.bi = file then do
       return 1
