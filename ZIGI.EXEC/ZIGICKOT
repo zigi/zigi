@@ -213,7 +213,7 @@
     fx = translate(sub,'??????????????????????????', ,
       'abcdefghijklmnopqrstuvwxyz')
     if pos('?',fx) > 0 then iterate
-    if pullmems.sub /= null then dir.sub = words(pullmems.i)
+    if pullmems.sub /= null then dir.sub = words(pullmems.sub)
     zs1 = 'Processing subdirectory:' sub
     zs2 = 'Members:                ' dir.sub
     zs3 = 'Total bytes (k):        ' size.sub
