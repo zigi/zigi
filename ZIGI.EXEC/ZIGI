@@ -873,7 +873,6 @@ Work_With_Repo:
           a PDSE then check of more than 25% of members being
           updated and if so then nullify the member list so a full
           refresh will occur for the dataset */
-          trace '?i'
           if x = 0 then
           if sysmembers /= null then
           if sysadirblk /= 'NO_LIM' then
