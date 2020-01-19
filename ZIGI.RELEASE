@@ -4,6 +4,12 @@
                          New Features and Functions
                          --------------------------
 
+  **************************************************************
+  * The former use of -M with CP to convert the @#$ special    *
+  * characters to/from z/OS for unix has been replaced by      *
+  * escaping those characters where required to preserve them. *
+  **************************************************************
+
 Update to the GITLOG prompt to include, or exclude, diff's in the report.
 
 A new GITCMD dialog that enables the execution of any valid Git command
@@ -76,10 +82,6 @@ Pull, or Refresh processing.
 Update the Repository Delete dialog to enable the deletions of the
 repositories z/OS datasets and add an additional entry field to confirm the
 repository delete is really wanted.
-
-The former use of -M with CP to convert the @#$ special characters to/from
-z/OS for unix has been replaced by escaping those characters where required
-to preserve them.
 
 Change the Current Repository ADD command to ADDDSN since that is what it
 does to differentiate it from the Add selection option which performs a git
