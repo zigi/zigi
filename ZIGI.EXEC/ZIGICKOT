@@ -16,6 +16,7 @@
   |                                                            |
   | History:  (most recent on top)                             |
   |            01/19/20 LBD - Use ckotqual (required)          |
+  |                           * for snapshot                   |
   |            01/18/20 LBD - Convert from individual OGETs    |
   |                           to one OGETX for a PDS if no     |
   |                           selective restores               |
@@ -129,7 +130,6 @@
               si = si + 1
               pullmems.sub = mems
               Address ISPExec 'verase zv'wp
-say 'sub:' sub 'pulldsns:' pulldsns 'pullmems.sub' pullmems.sub
             end
           end
         end
@@ -173,6 +173,7 @@ say 'sub:' sub 'pulldsns:' pulldsns 'pullmems.sub' pullmems.sub
     if ckotqual > 0
     then fileg = "'"ckothlq"."sub"'"
     else fileg = "'"sub"'"
+    if ckotqual = '*' then fileg = "'"ckothlq"."sub"'"
     odir = "'"ckotdir"/"sub"'"
     zs1 = 'Processing file:' sub
     zs2 = 'From:           ' odir
@@ -243,6 +244,7 @@ Alloc_Copy_PDS:
   if ckotqual > 0
   then pds = "'"ckothlq"."sub"'"
   else pds = "'"sub"'"
+  if ckotqual = '*' then pds = "'"ckothlq"."sub"'"
   odir = "'"ckotdir"/"sub"/"
   zs8 = ''
   if pullmems.sub = null then

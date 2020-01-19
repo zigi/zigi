@@ -1041,7 +1041,8 @@ Work_With_Repo:
             cmd = cmd '>>' path'gitlog.txt'
             x = docmd(cmd)
             if x > 0 then call view_std 'B'
-            call refresh localrep zigirep snaphlq 0
+
+            call refresh localrep zigirep snaphlq '*'
             /* now view both the omvs directory and snaphlq */
             sans = null
             'Addpop row(4) column(10)'
@@ -2412,11 +2413,13 @@ Refresh:
   call do_popup
 
   ckotdir = localrep'/'zigirep
+  if qualignr /= '*' then
   if datatype(qualignr) /= 'NUM' then qualignr = 0
   if qualignr = 0
   then ckothlq = pdshlq
   else do
     ckothlq = translate(pdshlq,' ','.')
+    if qualignr /= '*' then
     ckothlq = subword(ckothlq,1,qualignr)
     ckothlq = translate(ckothlq,'.',' ')
   end
