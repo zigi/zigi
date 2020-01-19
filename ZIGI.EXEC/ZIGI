@@ -3643,6 +3643,7 @@ Get_List:
     'tbadd' dsnatbl
     lc_count = lc_count + 1
   end
+  if lc_count > 0 then
   list = 1
   return
 
@@ -3981,10 +3982,10 @@ do_history:
             end
             zerrsm = 'Completed.'
             zerrlm = relement 'successfully recovered into' save_rdsn ,
-               left(' ',76) ,
-               'the recovered element will be in a Modified state and will' ,
-               'need to be added to the staging index and committed if' ,
-               'desired.'
+              left(' ',76) ,
+              'the recovered element will be in a Modified state and will' ,
+              'need to be added to the staging index and committed if' ,
+              'desired.'
             'setmsg msg(isrz003)'
             if fulldsn = rdsn then update_flag = 1
           end
