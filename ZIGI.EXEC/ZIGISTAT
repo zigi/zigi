@@ -201,6 +201,7 @@ zigistat:
           'MODRECS('zlmnorc') USER('zluser')'
       end
       "LMClose Dataid("zstats")"
+      "LMFree  Dataid("zstats")"
       x = debug('ISPF Stats file update complete.')
     end
     /* ----------------------------------------------------------- *
