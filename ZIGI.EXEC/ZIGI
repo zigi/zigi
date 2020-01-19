@@ -1317,7 +1317,7 @@ Work_With_Repo:
           'control display restore'
           new_date = get_fd_date(ofile)
           if cur_date /= new_date then
-          if ztdsels = 1 then
+          if ztdsels < 2 then
           call update_repo_metadata
         end
         else do
@@ -1372,7 +1372,7 @@ Work_With_Repo:
             end
           end
         end
-        if ztdsels = 1 then do
+        if ztdsels < 2 then do
           call view_std 'C'
           call update_repo_metadata
         end
