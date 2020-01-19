@@ -2339,9 +2339,8 @@ Work_with_repo_file:
               'vput (statmems)'
               Address TSO '%zigistat' fulldsn sfile 'U'
               memstat = null
-              'tbmod' rtll
-              dsnstat = null
               'tbmod' rtbl
+              call work_with_repo_file
             end
           end
         end
