@@ -15,6 +15,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            01/19/20 LBD - Use ckotqual (required)          |
   |            01/18/20 LBD - Convert from individual OGETs    |
   |                           to one OGETX for a PDS if no     |
   |                           selective restores               |
@@ -41,7 +42,7 @@
   | Get the ISPF Variables with our instructions |
   * -------------------------------------------- */
   Address ISPExec
-  'vget (ckothlq ckotdir pulldsns mgen)'
+  'vget (ckothlq ckotdir pulldsns mgen ckotqual)'
   if datatype(mgen) /= 'NUM' then mgen = 0
 
   Address TSO
@@ -128,6 +129,7 @@
               si = si + 1
               pullmems.sub = mems
               Address ISPExec 'verase zv'wp
+say 'sub:' sub 'pulldsns:' pulldsns 'pullmems.sub' pullmems.sub
             end
           end
         end
@@ -168,7 +170,9 @@
     zs9 = 'Patience while the data is copied from OMVS files' ,
       'to a z/OS PDS.'
     sub = word(files,i)
-    fileg = "'"ckothlq"."sub"'"
+    if ckotqual > 0
+    then fileg = "'"ckothlq"."sub"'"
+    else fileg = "'"sub"'"
     odir = "'"ckotdir"/"sub"'"
     zs1 = 'Processing file:' sub
     zs2 = 'From:           ' odir
@@ -236,7 +240,9 @@
  |   also be defined at allocation                                   |
  * ----------------------------------------------------------------- */
 Alloc_Copy_PDS:
-  pds = "'"ckothlq"."sub"'"
+  if ckotqual > 0
+  then pds = "'"ckothlq"."sub"'"
+  else pds = "'"sub"'"
   odir = "'"ckotdir"/"sub"/"
   zs8 = ''
   if pullmems.sub = null then

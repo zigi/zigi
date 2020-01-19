@@ -21,6 +21,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            01/19/20 LBD - Add LMFree after every LMClose   |
+  |                         - Pass qualignr to zigickot        |
+  |                         - Fix qualignr=0 issues            |
   |            01/17/20 LBD - Support Only and Refresh in      |
   |                           Rollback                         |
   |            01/16/20 LBD - Support Recover in History for   |
@@ -1199,9 +1202,11 @@ Work_With_Repo:
             then cmd = cmd '&& git mv' fulldsns newdsns
             else do
               oldfile = translate(strip(fulldsn,'B',"'"),' ','.')
+              if qualignr > 0 then
               oldfile = subword(oldfile,qualignr+1)
               oldfile = translate(oldfile,'.',' ')
               newfile = translate(strip(newdsn,'B',"'"),' ','.')
+              if qualignr > 0 then
               newfile = subword(newfile,qualignr+1)
               newfile = translate(newfile,'.',' ')
               oldfiles = usssafe(oldfile)
@@ -1355,6 +1360,7 @@ Work_With_Repo:
           if x = 0 then do
             if sysdsorg /= 'PS' then do
               statfile = translate(strip(fulldsn,'B',"'"),' ','.')
+              if qualignr > 0 then
               statfile = subword(statfile,qualignr+1)
               statfile = translate(statfile,'.',' ')
               cmd = 'cd' localrep'/'zigirep'/.zigi/'
@@ -1563,6 +1569,7 @@ do_grep:
       end
       when grepopt = 'D' then do
         pdshlqt = translate(pdshlq,' ','.')
+        if qualignr > 0 then
         pdshlqt = subword(pdshlqt,1,qualignr)
         pdshlqt = translate(pdshlqt,'.',' ')
         parse value '' with dsntbl gstat gcount
@@ -1755,6 +1762,7 @@ Do_Resetid:
     "LMFree  Dataid("zstats")"
     ztdtop = save_top
     statfile = translate(strip(fulldsn,'B',"'"),' ','.')
+    if qualignr > 0 then
     statfile = subword(statfile,qualignr+1)
     statfile = translate(statfile,'.',' ')
     x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'statfile 'S')
@@ -1847,6 +1855,7 @@ fixup_userids:
   dsns = null
   members. = null
   hlq = translate(pdshlq,' ','.')
+  if qualignr > 0 then
   hlq = subword(hlq,1,qualignr)
   hlq = translate(hlq,'.',' ')
   do i = 1 to so.0
@@ -1880,6 +1889,7 @@ fixup_userids:
     "LMClose Dataid("reset")"
     "LMFree  Dataid("reset")"
     statfile = translate(strip(workdsn,'B',"'"),' ','.')
+    if qualignr > 0 then
     statfile = subword(statfile,qualignr+1)
     statfile = translate(statfile,'.',' ')
     x = zigistat(workdsn localrep'/'zigirep'/.zigi/'statfile 'S')
@@ -2209,6 +2219,7 @@ Work_with_repo_file:
               baction = null
               'tbadd' rtll 'Order'
               statfile = translate(strip(fulldsn,'B',"'"),' ','.')
+              if qualignr > 0 then
               statfile = subword(statfile,qualignr+1)
               statfile = translate(statfile,'.',' ')
               statfiles = usssafe(statfile)
@@ -2240,6 +2251,7 @@ Work_with_repo_file:
             memstat = '*Removed'
             'tbmod' rtll
             statfile = translate(strip(fulldsn,'B',"'"),' ','.')
+            if qualignr > 0 then
             statfile = subword(statfile,qualignr+1)
             statfile = translate(statfile,'.',' ')
             cmd = 'cd' localrep'/'zigirep'/.zigi/'
@@ -2266,6 +2278,7 @@ Work_with_repo_file:
           x = docmd(cmd || ' && git add -v 'd'/'usssafe(mem))
           if ztdsels = 1 then do
             statfile = translate(strip(fulldsn,'B',"'"),' ','.')
+            if qualignr > 0 then
             statfile = subword(statfile,qualignr+1)
             statfile = translate(statfile,'.',' ')
             cmd = 'cd' localrep'/'zigirep'/.zigi/'
@@ -2407,7 +2420,8 @@ Refresh:
     ckothlq = subword(ckothlq,1,qualignr)
     ckothlq = translate(ckothlq,'.',' ')
   end
-  'vput (ckotdir ckothlq pulldsns)'
+  ckotqual = qualignr
+  'vput (ckotdir ckothlq pulldsns ckotqual)'
   'Select cmd(%zigickot)'
   return
 
@@ -2691,6 +2705,7 @@ Merge_it:
         * --------------------------------------------------------------- */
         if zcmd = 1 then do
           pdshlqt = translate(pdshlq,' ','.')
+          if qualignr > 0 then
           pdshlqt = subword(pdshlqt,1,qualignr)
           pdshlqt = translate(pdshlqt,'.',' ')
           parse value '' with dsntbl mstat
@@ -3236,13 +3251,14 @@ update_repo_metadata:
         x = bpxwunix(cmd,,so.,se.)
         y = debug('   done')
         if qualignr = 0 then do
-          if pdshlq /= null then
+          if pdshlq /= null & qualignr > 0 then
           fulldsn = "'"pdshlq"."root.i"'"
           else
           fulldsn = "'"root.i"'"
         end
         else do
           fulldsn = translate(pdshlq,' ','.')
+          if qualignr > 0 then
           fulldsn = subword(fulldsn,1,qualignr)
           fulldsn = translate(fulldsn,'.',' ')
           fulldsn = "'"fulldsn'.'root.i"'"
@@ -3349,13 +3365,14 @@ update_repo_metadata:
           qualignr = 0
         end
         if qualignr = 0 then do
-          if pdshlq /= null then
+          if pdshlq /= null & qualignr > 0 then
           fulldsn = "'"pdshlq"."dsn"'"
           else
           fulldsn = "'"dsn"'"
         end
         else do
           fulldsn = translate(pdshlq,' ','.')
+          if qualignr > 0 then
           fulldsn = subword(fulldsn,1,qualignr)
           fulldsn = translate(fulldsn,'.',' ')
           fulldsn = "'"fulldsn'.'dsn"'"
@@ -3517,9 +3534,12 @@ Add_Dataset:
       'tbdispl' dsnatbl 'panel('dsnapnl') cursor('csr')'
     end
     if add_count > 0 then
+    /* Comment Start
     if qualignr = 0 then
     pdshlq = null
     else pdshlq  = dsnapfx
+       Comment End */
+    pdshlq  = dsnapfx
     if rc > 4 then do
       zsel = null
       'tbput' rtbl
@@ -3604,12 +3624,13 @@ Do_Add_Copy:
   gabs = 'git-encoding=BINARY zos-working-tree-encoding=BINARY binary'
   zsel = null
   what = dsna
-  if qualignr >= 0
+  if qualignr > 0
   then do
     dsnb = translate(dsna,' ','.')
     dsnb = subword(dsnb,qualignr+1)
     dsnb = translate(dsnb,'.',' ')
   end
+  else dsnb = dsna
   zs1 = 'Copying' dsna
   zs2 = 'to' dsnb 'in OMVS'
   if translate(option) = 'BINARY' then do
