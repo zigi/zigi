@@ -1752,6 +1752,7 @@ Do_Resetid:
       'tbput' rtll
     end
     "LMClose Dataid("zstats")"
+    "LMFree  Dataid("zstats")"
     ztdtop = save_top
     statfile = translate(strip(fulldsn,'B',"'"),' ','.')
     statfile = subword(statfile,qualignr+1)
@@ -2290,59 +2291,7 @@ Work_with_repo_file:
           end
           /* Not supported at this time so ignore the code
           as undo will never be 1 at this point in time */
-          if undo = 1 then do
-            zerrsm = null
-            /* -------------------------------- *
-            | Undo a commit. eg checkout --    |
-            * -------------------------------- */
-            d = usssafe(dsn)
-            m = usssafe(mem)
-
-            zs1 = 'Un-modiying 'mem
-            zs2 = 'This never happened...'
-            call do_popup
-            address 'SYSCALL' 'SLEEP (1)'
-
-            parse value memstat with '['vm']' vt
-            if pos('M',vm) = 0 then do
-              zerrsm = 'Not Applicable'
-              zerrlm = 'Undo is only valid on a status of [M ] or [ M]' ,
-                'where the element is modified or Ready for commit.'
-              'setmsg msg(isrz003)'
-            end
-
-            if zerrsm = null then do
-              cmd = 'cd' localrep'/'zigirep
-              cmd = cmd '&& git status'
-              cmd2 = null
-              if pos('Ready to',vt) > 0 then do
-                cmd2 = '&& git reset HEAD' d'/'m
-                cmd2 = cmd2 '&& git reset HEAD .zigi/'d
-                cmd2 = cmd2 '&& git checkout -- .zigi/'d
-              end
-              cmd = cmd cmd2 ' && git checkout -- 'd'/'m
-              cmd = cmd '&& git status'
-              x = docmd(cmd)
-              call view_std 'B'
-              if is_binfile(d) = 1 then cpbin = '-B'
-              else cpbin = null
-              cmd = 'cd' localrep'/'zigirep'/'d
-              fdsn = strip(fulldsn,'B',"'")
-              cmd = cmd '&& cp -Uv' cpbin m ,
-                '"//' || "'"usssafe(fdsn)"("m")'" || '"'
-              cmd = cmd '&& echo' cmd
-              x = docmd(cmd)
-              call view_std 'B'
-              drop combine.
-              sfile = localrep'/'zigirep'/.zigi/'d
-              statmems = mem
-              'vput (statmems)'
-              Address TSO '%zigistat' fulldsn sfile 'U'
-              memstat = null
-              'tbmod' rtbl
-              call work_with_repo_file
-            end
-          end
+          if undo = 1 then call do_undo
         end
         when zsel = 'D' then do
           /* -------------------------------- *
@@ -3832,6 +3781,64 @@ Write_FD:
   'write' fd 'string' length(string)
   return
 
+  /* ----------------------------------------------------------- *
+  | Undo Routine to revert an element in a Modified state prior |
+  | to a commit.                                                |
+  * ----------------------------------------------------------- */
+Do_Undo:
+  zerrsm = null
+  /* -------------------------------- *
+  | Undo a commit. eg checkout --    |
+  * -------------------------------- */
+  d = usssafe(dsn)
+  m = usssafe(mem)
+
+  zs1 = 'Un-modiying 'mem
+  zs2 = 'This never happened...'
+  call do_popup
+  address 'SYSCALL' 'SLEEP (1)'
+
+  parse value memstat with '['vm']' vt
+  if pos('M',vm) = 0 then do
+    zerrsm = 'Not Applicable'
+    zerrlm = 'Undo is only valid on a status of [M ] or [ M]' ,
+      'where the element is modified or Ready for commit.'
+    'setmsg msg(isrz003)'
+  end
+
+  if zerrsm = null then do
+    cmd = 'cd' localrep'/'zigirep
+    cmd = cmd '&& git status'
+    cmd2 = null
+    if pos('Ready to',vt) > 0 then do
+      cmd2 = '&& git reset HEAD' d'/'m
+      cmd2 = cmd2 '&& git reset HEAD .zigi/'d
+      cmd2 = cmd2 '&& git checkout -- .zigi/'d
+    end
+    cmd = cmd cmd2 ' && git checkout -- 'd'/'m
+    cmd = cmd '&& git status'
+    x = docmd(cmd)
+    call view_std 'B'
+    if is_binfile(d) = 1 then cpbin = '-B'
+    else cpbin = null
+    cmd = 'cd' localrep'/'zigirep'/'d
+    fdsn = strip(fulldsn,'B',"'")
+    cmd = cmd '&& cp -Uv' cpbin m ,
+      '"//' || "'"usssafe(fdsn)"("m")'" || '"'
+    x = docmd(cmd)
+    call view_std 'B'
+    drop combine.
+    sfile = localrep'/'zigirep'/.zigi/'d
+    statmems = mem
+    'vput (statmems)'
+    Address TSO '%zigistat' fulldsn sfile 'U'
+    memstat = null
+    'tbmod' rtbl
+    call update_repo_metadata
+    call work_with_repo_file
+  end
+  return
+
   /* ------------------------- *
   | Do History for an element |
   * ------------------------- */
@@ -3913,6 +3920,9 @@ do_history:
         'rempop'
       end
       Select
+        /* -------------------------------------------- *
+        | View the commit log for this historical item |
+        * -------------------------------------------- */
         When zsel = 'C' then do
           cmd = 'cd' localrep'/'zigirep
           cmd = cmd '&& git log' hcommit '-n 1 --cc'
@@ -3920,6 +3930,13 @@ do_history:
           call view_std 'X' 'V'
           zsel = null
         end
+        /* ----------------------------------------------------------- *
+        | Recover the specific historical level of the element. This  |
+        | does NOT use git but copies the git level data into the     |
+        | provided (prompted) target dataset or dataset(member).      |
+        | If the element is a PDS member then it must be recovered to |
+        | a PDS member.                                               |
+        * ----------------------------------------------------------- */
         When zsel = 'R' then do   /* recovery */
           cmd = 'cd' localrep'/'zigirep
           cmd = cmd '&& git show' strip(hcommit)':'element
@@ -3978,6 +3995,7 @@ do_history:
               "LMOPEN DATAID("zstats") OPTION(INPUT)"
               'LMMSTATS DATAID('zstats') Member('mem') user('zluser')'
               "LMClose Dataid("zstats")"
+              "LMFree  Dataid("zstats")"
             end
             zerrsm = 'Completed.'
             zerrlm = relement 'successfully recovered into' save_rdsn ,
@@ -3989,6 +4007,10 @@ do_history:
             if fulldsn = rdsn then update_flag = 1
           end
         end
+        /* ---------------------------------------------------------- *
+        | View the Source for the element at the historical (commit) |
+        | point in time.                                             |
+        * ---------------------------------------------------------- */
         When zsel = 'S' then do
           cmd = 'cd' localrep'/'zigirep
           cmd = cmd '&& git show' strip(hcommit)':'element
