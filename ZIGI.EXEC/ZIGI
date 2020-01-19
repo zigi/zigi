@@ -2289,11 +2289,12 @@ Work_with_repo_file:
             'Setmsg msg(isrz003)'
           end
           /* Not supported at this time so ignore the code
-             as undo will never be 1 at this point in time */
+          as undo will never be 1 at this point in time */
           if undo = 1 then do
-          /* -------------------------------- *
-          | Undo a commit. eg checkout --    |
-          * -------------------------------- */
+            zerrsm = null
+            /* -------------------------------- *
+            | Undo a commit. eg checkout --    |
+            * -------------------------------- */
             d = usssafe(dsn)
             m = usssafe(mem)
 
@@ -2311,14 +2312,16 @@ Work_with_repo_file:
             end
 
             if zerrsm = null then do
-              cmd = 'cd' localrep'/'zigirep'/'d
+              cmd = 'cd' localrep'/'zigirep
+              cmd = cmd '&& git status'
               cmd2 = null
               if pos('Ready to',vt) > 0 then do
                 cmd2 = '&& git reset HEAD' d'/'m
                 cmd2 = cmd2 '&& git reset HEAD .zigi/'d
                 cmd2 = cmd2 '&& git checkout -- .zigi/'d
               end
-              cmd = cmd cmd2 ' && git checkout -- 'm
+              cmd = cmd cmd2 ' && git checkout -- 'd'/'m
+              cmd = cmd '&& git status'
               x = docmd(cmd)
               call view_std 'B'
               if is_binfile(d) = 1 then cpbin = '-B'
@@ -2326,7 +2329,8 @@ Work_with_repo_file:
               cmd = 'cd' localrep'/'zigirep'/'d
               fdsn = strip(fulldsn,'B',"'")
               cmd = cmd '&& cp -Uv' cpbin m ,
-                 '"//' || "'"usssafe(fdsn)"("m")'" || '"'
+                '"//' || "'"usssafe(fdsn)"("m")'" || '"'
+              cmd = cmd '&& echo' cmd
               x = docmd(cmd)
               call view_std 'B'
               drop combine.
@@ -2336,6 +2340,8 @@ Work_with_repo_file:
               Address TSO '%zigistat' fulldsn sfile 'U'
               memstat = null
               'tbmod' rtll
+              dsnstat = null
+              'tbmod' rtbl
             end
           end
         end
@@ -3974,7 +3980,11 @@ do_history:
               "LMClose Dataid("zstats")"
             end
             zerrsm = 'Completed.'
-            zerrlm = relement 'successfully recovered into' save_rdsn
+            zerrlm = relement 'successfully recovered into' save_rdsn ,
+               left(' ',76) ,
+               'the recovered element will be in a Modified state and will' ,
+               'need to be added to the staging index and committed if' ,
+               'desired.'
             'setmsg msg(isrz003)'
             if fulldsn = rdsn then update_flag = 1
           end
@@ -4301,7 +4311,7 @@ is_binfile:
   \---------------------------------------------------------- */
   parse arg file
   res = 0
-  if datatype(binfiles.0) /= 'NUM' then return 0
+  if datatype(binfiles.0) /= 'NUM' then return res
   do bi = 1 to binfiles.0
     if binfiles.bi = file then do
       return 1
