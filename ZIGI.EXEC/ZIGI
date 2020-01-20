@@ -21,6 +21,10 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            01/20/20 LBD - Put OMVS files in quotes for     |
+  |                           git add                          |
+  |                         - Add several binary filetypes     |
+  |                           to .gitattributes priming        |
   |            01/19/20 LBD - Add LMFree after every LMClose   |
   |                         - Pass qualignr to zigickot        |
   |                         - Fix qualignr=0 issues            |
@@ -1351,7 +1355,9 @@ Work_With_Repo:
         zs1 = 'Adding' fulldsn
         zs2 = 'Making it ready to Commit'
         call do_popup
-        d = usssafe(dsn)
+        if left(dsn,1) = "'"
+        then d = usssafe(dsn)
+        else d = "'"dsn"'"
         cmd = 'cd' localrep'/'zigirep
         x = docmd(cmd ' && export && git add -v 'd)
         call view_std 'C'
@@ -2920,6 +2926,18 @@ Create_Repo:
     ga4b = "git-encoding=iso8859-1 zos-working-tree-encoding=iso8859-1"
     ga4  = ga4a || ga4b
     call write_fd  ga4
+    ga   = "*.docm binary     "
+    call write_fd  ga
+    ga   = "*.docx binary     "
+    call write_fd  ga
+    ga   = "*.doc  binary     "
+    call write_fd  ga
+    ga   = "*.pdf  binary     "
+    call write_fd  ga
+    ga   = "*.epub binary     "
+    call write_fd  ga
+    ga   = "*.mobi binary     "
+    call write_fd  ga
     'close' fd
     /* -------------------- .gitattributes written ----------- */
     /*             UNFORTUNATELY, IT'S IN EBCDIC :(            */
@@ -3358,7 +3376,10 @@ update_repo_metadata:
           stat = substr(so.ii,1,2)
           PATH = substr(so.ii,4)
           dsnstat = null
-          if pos(dsn, PATH) > 0 then do
+          if pos('/',path) > 0
+             then parse value path with test'/'.
+             else test = path
+          if dsn = test then do
             dsnstat = porcelain(stat)
             leave
           end
