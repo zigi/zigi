@@ -871,7 +871,9 @@ Work_With_Repo:
         do zz = 1 to words(pulldsns)
           zd = word(pulldsns,zz)
           zw = words(pullmems.zd)
-          x = listdsi("'"pdshlq"."zd"' dir")
+          if qualignr = 0 then ldsn = "'"zd"'"
+                          else ldsn = "'"pdshlq"."zd"'"
+          x = listdsi(ldsn "dir")
           /* check if a PDSE and bypass the full refresh or if not
           a PDSE then check of more than 25% of members being
           updated and if so then nullify the member list so a full
