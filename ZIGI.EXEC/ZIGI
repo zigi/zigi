@@ -1388,8 +1388,17 @@ Work_With_Repo:
       /* -------------------------------- *
       | Un-Modify entire dataset         |
       * -------------------------------- */
-      When zsel = 'U' then call do_undo 'D'
-      Otherwise nop
+      When zsel = 'U' then do
+      x = listdsi(fulldsn)
+      if sysdsorg = 'PS' then call do_undo 'D'
+      else do
+        zerrsm = 'Invalid.'
+        zerrlm = 'Undo is not valid on a complete PDS - Select the PDS' ,
+          'and use Undo on the invididual members.'
+        'setmsg msg(isrz003)'
+      end
+    end
+    Otherwise nop
     end
   end
   if ztdsels = 1 then do
@@ -3811,9 +3820,9 @@ Write_FD:
   * ----------------------------------------------------------- */
 Do_Undo:
   arg uopt
- /* ********************************** */
- undo = 0  /* 0 = undo off 1 = undo on */
- /* ********************************** */
+ /* ******* Change to Enable ********** */
+  undo = 0  /* 0 = undo off 1 = undo on */
+ /* *********************************** */
   if undo = 0 then do
     zerrsm = 'UnSupported'
     zerrlm = 'Undo is not supported at this time.'
