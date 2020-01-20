@@ -876,7 +876,7 @@ Work_With_Repo:
           zd = word(pulldsns,zz)
           zw = words(pullmems.zd)
           if qualignr = 0 then ldsn = "'"zd"'"
-                          else ldsn = "'"pdshlq"."zd"'"
+          else ldsn = "'"pdshlq"."zd"'"
           x = listdsi(ldsn "dir")
           /* check if a PDSE and bypass the full refresh or if not
           a PDSE then check of more than 25% of members being
@@ -1388,18 +1388,7 @@ Work_With_Repo:
       /* -------------------------------- *
       | Un-Modify entire dataset         |
       * -------------------------------- */
-      When zsel = 'U' then do
-        zs1 = 'Un-modiying ' fulldsn
-        zs2 = 'This never happened...'
-        call do_popup
-        d = usssafe(dsn)
-        cmd = 'cd' localrep'/'zigirep
-        x = docmd(cmd '&& git checkout -- 'd)
-        call view_std 'B'
-        if ztdsels = 1 then do
-          call update_repo_metadata
-        end
-      end
+      When zsel = 'U' then call do_undo 'D'
       Otherwise nop
     end
   end
@@ -2302,19 +2291,7 @@ Work_with_repo_file:
             call work_with_repo_file
           end
         end
-        when zsel = 'U' then do
-          /* ********************************** */
-          undo = 0  /* 0 = undo off 1 = undo on */
-          /* ********************************** */
-          if undo = 0 then do
-            zerrsm = 'UnSupported'
-            zerrlm = 'Undo is not supported at this time.'
-            'Setmsg msg(isrz003)'
-          end
-          /* Not supported at this time so ignore the code
-          as undo will never be 1 at this point in time */
-          if undo = 1 then call do_undo
-        end
+        when zsel = 'U' then call do_undo 'M'
         when zsel = 'D' then do
           /* -------------------------------- *
           | Show the diff for the member     |
@@ -3377,8 +3354,8 @@ update_repo_metadata:
           PATH = substr(so.ii,4)
           dsnstat = null
           if pos('/',path) > 0
-             then parse value path with test'/'.
-             else test = path
+          then parse value path with test'/'.
+          else test = path
           if dsn = test then do
             dsnstat = porcelain(stat)
             leave
@@ -3833,6 +3810,17 @@ Write_FD:
   | to a commit.                                                |
   * ----------------------------------------------------------- */
 Do_Undo:
+  arg uopt
+ /* ********************************** */
+ undo = 0  /* 0 = undo off 1 = undo on */
+ /* ********************************** */
+  if undo = 0 then do
+    zerrsm = 'UnSupported'
+    zerrlm = 'Undo is not supported at this time.'
+    'Setmsg msg(isrz003)'
+    return
+  end
+  if uopt = 'D' then mem = null
   zerrsm = null
   /* -------------------------------- *
   | Undo a commit. eg checkout --    |
@@ -3858,29 +3846,43 @@ Do_Undo:
     cmd = cmd '&& git status'
     cmd2 = null
     if pos('Ready to',vt) > 0 then do
-      cmd2 = '&& git reset HEAD' d'/'m
-      cmd2 = cmd2 '&& git reset HEAD .zigi/'d
-      cmd2 = cmd2 '&& git checkout -- .zigi/'d
+      if m = null
+      then cmd2 = '&& git reset HEAD' d
+      else do
+        cmd2 = '&& git reset HEAD' d'/'m
+        cmd2 = cmd2 '&& git reset HEAD .zigi/'d
+        cmd2 = cmd2 '&& git checkout -- .zigi/'d
+      end
     end
-    cmd = cmd cmd2 ' && git checkout -- 'd'/'m
+    if m /= null
+    then cmd = cmd cmd2 ' && git checkout -- 'd'/'m
+    else cmd = cmd cmd2 ' && git checkout -- 'd
     cmd = cmd '&& git status'
     x = docmd(cmd)
     call view_std 'B'
     if is_binfile(d) = 1 then cpbin = '-B'
     else cpbin = null
-    cmd = 'cd' localrep'/'zigirep'/'d
-    fdsn = strip(fulldsn,'B',"'")
-    cmd = cmd '&& cp -Uv' cpbin m ,
-      '"//' || "'"usssafe(fdsn)"("m")'" || '"'
+    if m /= null then do
+      cmd = 'cd' localrep'/'zigirep'/'d
+      fdsn = strip(fulldsn,'B',"'")
+      cmd = cmd '&& cp -Uv' cpbin m ,
+        '"//' || "'"usssafe(fdsn)"("m")'" || '"'
+    end
+    else do
+      cmd = 'cd' localrep'/'zigirep
+      cmd = cmd '&& cp -Uv' cpbin d ,
+        '"//' || "'"usssafe(fdsn) || '"'
+    end
     x = docmd(cmd)
     call view_std 'B'
-    drop combine.
-    sfile = localrep'/'zigirep'/.zigi/'d
-    statmems = mem
-    'vput (statmems)'
-    Address TSO '%zigistat' fulldsn sfile 'U'
-    memstat = null
-    'tbmod' rtbl
+    if m /= null then do
+      sfile = localrep'/'zigirep'/.zigi/'d
+      statmems = mem
+      'vput (statmems)'
+      Address TSO '%zigistat' fulldsn sfile 'U'
+      memstat = null
+      'tbmod' rtbl
+    end
     call update_repo_metadata
     call work_with_repo_file
   end
