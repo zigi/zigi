@@ -6,18 +6,19 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white)
-)Body  window(45,12)
+)Body  window(46,13)
 +
 +Enter Selection:_z +
 +
-+]Add+    (A)+Add the member to the git Index
-+]Browse+ (B)+Browse the dataset/file
-+]Edit+   (E)+Edit the dataset/file
-+]Diff+   (D)+Show the Diff's
-+]History+(H)+Display Commit History
++]Add+    (A)+ Add the member to the git Index
++]Browse+ (B)+ Browse the dataset/file
++]Edit+   (E)+ Edit the dataset/file
++]Diff+   (D)+ Show the Diff's
++]History+(H)+ Display Commit History
 +]Remove+ (RM)+Remove the dataset/file
 +]Rename+ (RN)+Rename the dataset/file
-+]View+   (V)+View the dataset/file
++]Undo+   (U)+ Undo an UnCommitted change
++]View+   (V)+ View the dataset/file
 +
 )Init
  &zwinttl = 'zigi Current Repository Selections'
@@ -31,11 +32,12 @@
  &history = 'History'
  &remove  = 'Remove'
  &rename  = 'Rename'
+ &undo    = 'Undo'
  &view    = 'View'
 )Proc
  if (&zsel = 'E')
      &zsel = 'S'
- ver (&zsel,list,A,B,D,E,H,RM,RN,V,S)
+ ver (&zsel,list,A,B,D,E,H,RM,RN,V,S,U)
 )PNTS
   Field(add    ) var(zsel) val('A')
   Field(browse ) var(zsel) val('B')
@@ -44,5 +46,6 @@
   Field(history) var(zsel) val('H')
   Field(remove ) var(zsel) val('RM')
   Field(rename ) var(zsel) val('RN')
+  Field(undo   ) var(zsel) val('U')
   Field(view   ) var(zsel) val('V')
 )End

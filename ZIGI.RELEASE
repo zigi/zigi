@@ -33,7 +33,8 @@ Copy, and Create.
 Merge supports merging another local branch into the current branch. Merge
 conflicts can be resolved using ISPF Edit Compare or using a customized Edit
 display that highlights the merge conflicts using the Git provided conflict
-markers.
+markers. At this time a merge performs a full refresh of ALL datasets (this
+is planned to become a selective refresh in a future release).
 
 OMVS subdirectories with files are now supported. These directories and
 files must be added outside of zigi at this time and when zigi starts it
@@ -111,3 +112,7 @@ Update Rollback with two new commands. ONLY (O) will limit the display of
 commits to those with the provided string in the title (e.g. O roll) in a
 case insensitive compare. REFRESH (R) will refresh the table back to all
 entries.
+
+New Undo (U) selection for datasets, OMVS files, and PDS members. This will
+undo any changes made prior to a commit. After a commit the Rollback option
+or the History Recover option will be required.

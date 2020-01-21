@@ -21,6 +21,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            01/21/20 LBD - Undo now works for PS and PDS    |
+  |                         - Correct bug in RM for OMVS file  |
+  |                           with blanks in name              |
   |            01/20/20 LBD - Put OMVS files in quotes for     |
   |                           git add                          |
   |                         - Add several binary filetypes     |
@@ -1280,7 +1283,7 @@ Work_With_Repo:
           end
           else Select
             when rtype = 'OMVS' then do
-              cmd = 'cd' localdir '&& git rm -r' fulldsn
+              cmd = 'cd' localdir '&& git rm -r' '"'fulldsn'"'
               cmd = cmd '&& git add -u'
               x = docmd(cmd,,so.,se.)
               call view_std 'B'
@@ -3546,11 +3549,6 @@ Add_Dataset:
       'tbdispl' dsnatbl 'panel('dsnapnl') cursor('csr')'
     end
     if add_count > 0 then
-    /* Comment Start
-    if qualignr = 0 then
-    pdshlq = null
-    else pdshlq  = dsnapfx
-       Comment End */
     pdshlq  = dsnapfx
     if rc > 4 then do
       zsel = null
@@ -3820,15 +3818,6 @@ Write_FD:
   * ----------------------------------------------------------- */
 Do_Undo:
   arg uopt
- /* ******* Change to Enable ********** */
-  undo = 1  /* 0 = undo off 1 = undo on */
- /* *********************************** */
-  if undo = 0 then do
-    zerrsm = 'UnSupported'
-    zerrlm = 'Undo is not supported at this time.'
-    'Setmsg msg(isrz003)'
-    return
-  end
 
   if uopt = 'D' then mem = null
   zerrsm = null
@@ -3836,7 +3825,7 @@ Do_Undo:
   | Undo a commit. eg checkout --    |
   * -------------------------------- */
   d = usssafe(dsn)
-  if mem /= null then
+  if uopt = 'M' then
   m = usssafe(mem)
 
   zs1 = 'Un-modiying 'mem
@@ -3844,7 +3833,7 @@ Do_Undo:
   call do_popup
   address 'SYSCALL' 'SLEEP (1)'
 
-  if mem /= null
+  if uopt = 'M'
      then parse value memstat with '['vm']' vt
      else parse value dsnstat with '['vm']' vt
   if pos('M',vm) = 0 then do
@@ -3856,7 +3845,6 @@ Do_Undo:
 
   if zerrsm = null then do
     cmd = 'cd' localrep'/'zigirep
-    cmd = cmd '&& git status'
     cmd2 = null
     if pos('Ready to',vt) > 0 then do
       if mem = null
@@ -3867,29 +3855,36 @@ Do_Undo:
         cmd2 = cmd2 '&& git checkout -- .zigi/'d
       end
     end
-    if mem /= null
+    if uopt = 'M'
     then cmd = cmd cmd2 ' && git checkout -- 'd'/'m
     else cmd = cmd cmd2 ' && git checkout -- 'd
     cmd = cmd '&& echo "----------------------"'
-    cmd = cmd '&& echo " " && git status'
     x = docmd(cmd)
-    call view_std 'B'
+    drop combine.
+    combine.0 = 0
+    call combine_msgs
     if is_binfile(d) = 1 then cpbin = '-B'
     else cpbin = null
-    if mem /= null then do
+    if uopt = 'M' then do
       cmd = 'cd' localrep'/'zigirep'/'d
       fdsn = strip(fulldsn,'B',"'")
+      cmd = cmd '&& echo "Copy results:" && echo " "'
       cmd = cmd '&& cp -Uv' cpbin m ,
         '"//' || "'"usssafe(fdsn)"("m")'" || '"'
     end
     else do
       cmd = 'cd' localrep'/'zigirep
+      cmd = cmd '&& echo "Copy results:" && echo " "'
       cmd = cmd '&& cp -Uv' cpbin d ,
         '"//' || "'"usssafe(strip(fulldsn,'B',"'"))"'" || '"'
     end
+    cmd = cmd '&& echo " " && echo "after copy status:" && git status'
     x = docmd(cmd)
-    call view_std 'B'
-    if mem /= null then do
+    call combine_msgs
+    call view_std 'C'
+    drop combine.
+    combine.0 = 0
+    if uopt = 'M' then do
       sfile = localrep'/'zigirep'/.zigi/'d
       statmems = mem
       'vput (statmems)'
@@ -3898,7 +3893,9 @@ Do_Undo:
       'tbmod' rtbl
     end
     call update_repo_metadata
-    call work_with_repo_file
+    if uopt = 'D'
+     then call work_with_repo
+     else call work_with_repo_file
   end
   return
 

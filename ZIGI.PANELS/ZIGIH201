@@ -17,8 +17,8 @@
   %RM+Remove the dataset/file from the repository and from Git management
 +     - Deletes both z/OS datasets and OMVS files
   %RN+Rename the dataset/file
-+     - Renames the dataset or file and informs Git of the rename
   %S+Edit the dataset or file%*+
+  %U+Undo a non-Committed change
   %V+View the dataset or file%*+
   %/+Display a popup selection menu
 +

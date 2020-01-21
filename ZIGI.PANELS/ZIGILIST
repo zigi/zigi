@@ -16,7 +16,7 @@
 %Current Branch     : $branch
 %
 %Commands:  %L+Locate  ]Commit]Gitlog]Grep]Sort]Status]Reset    ]Menu+
-%Selections:%S+Edit%A+Add%D+Show Diff%H+History%RM+Remove from Repo%RN+Rename
+%Selections:%S+Edit%A+Add%D+Diff%H+History%RM+Remove%RN+Rename%U+Undo
 %
 %S   Member    Status                     Size    Mod-Date  Mod-Time  Userid
 )Model

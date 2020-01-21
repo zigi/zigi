@@ -25,7 +25,7 @@
 [Githelp+Git Help      [Push+   Push to origin  [View+    OMVS Dir
 [GitLog+ Show git log  [Refresh+Replace Datasetss
 +
-%S+Select (Edit)%A+Add%B+Browse%D+Diff%H+History%RM+Remove%RN+Rename%V+View
+%S+Select%A+Add%B+Browse%D+Diff%H+History%RM+Remove%RN+Rename%U+Undo%V+View
 +
 %S  Status                    Dataset/File Name
 )Model
