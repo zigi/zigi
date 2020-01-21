@@ -27,6 +27,7 @@
  &pro     = 'Pro'
  &ssh     = 'SSH'
  &find    = 'FIND'
+ &menu    = 'Menu'
  &config  = 'Config'
  &githelp = 'GitHelp'
  .help = zigih100
