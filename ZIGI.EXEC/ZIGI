@@ -26,6 +26,9 @@
   |                           with blanks in name              |
   |                         - On Pull correctly delete items   |
   |                           that have been removed.          |
+  |                         - After Commit if no push and a    |
+  |                           Remote issue message to remind   |
+  |                           to push.                         |
   |            01/20/20 LBD - Put OMVS files in quotes for     |
   |                           git add                          |
   |                         - Add several binary filetypes     |
@@ -1883,6 +1886,13 @@ Do_Commit:
     end
     call view_std 'B'
     call update_repo_metadata
+    if left(remote1,1) /= '<' then
+    if zpush = 'N' then do
+       zerrsm = 'Push Needed.'
+       zerrlm = 'The commit has completed and a push is now required to' ,
+                'update the Git remote repository.'
+      'setmsg msg(isrz003)'
+      end
   end
   return
 
