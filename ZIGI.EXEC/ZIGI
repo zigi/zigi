@@ -1401,7 +1401,7 @@ Work_With_Repo:
     Otherwise nop
     end
   end
-  if ztdsels = 1 then do
+  if ztdsels < 2 then do
     'tbend' rtbl
     rtbl_open = 0
     call work_with_repo
@@ -3821,7 +3821,7 @@ Write_FD:
 Do_Undo:
   arg uopt
  /* ******* Change to Enable ********** */
-  undo = 0  /* 0 = undo off 1 = undo on */
+  undo = 1  /* 0 = undo off 1 = undo on */
  /* *********************************** */
   if undo = 0 then do
     zerrsm = 'UnSupported'
@@ -3829,12 +3829,14 @@ Do_Undo:
     'Setmsg msg(isrz003)'
     return
   end
+
   if uopt = 'D' then mem = null
   zerrsm = null
   /* -------------------------------- *
   | Undo a commit. eg checkout --    |
   * -------------------------------- */
   d = usssafe(dsn)
+  if mem /= null then
   m = usssafe(mem)
 
   zs1 = 'Un-modiying 'mem
@@ -3842,7 +3844,9 @@ Do_Undo:
   call do_popup
   address 'SYSCALL' 'SLEEP (1)'
 
-  parse value memstat with '['vm']' vt
+  if mem /= null
+     then parse value memstat with '['vm']' vt
+     else parse value dsnstat with '['vm']' vt
   if pos('M',vm) = 0 then do
     zerrsm = 'Not Applicable'
     zerrlm = 'Undo is only valid on a status of [M ] or [ M]' ,
@@ -3855,7 +3859,7 @@ Do_Undo:
     cmd = cmd '&& git status'
     cmd2 = null
     if pos('Ready to',vt) > 0 then do
-      if m = null
+      if mem = null
       then cmd2 = '&& git reset HEAD' d
       else do
         cmd2 = '&& git reset HEAD' d'/'m
@@ -3863,15 +3867,16 @@ Do_Undo:
         cmd2 = cmd2 '&& git checkout -- .zigi/'d
       end
     end
-    if m /= null
+    if mem /= null
     then cmd = cmd cmd2 ' && git checkout -- 'd'/'m
     else cmd = cmd cmd2 ' && git checkout -- 'd
-    cmd = cmd '&& git status'
+    cmd = cmd '&& echo "----------------------"'
+    cmd = cmd '&& echo " " && git status'
     x = docmd(cmd)
     call view_std 'B'
     if is_binfile(d) = 1 then cpbin = '-B'
     else cpbin = null
-    if m /= null then do
+    if mem /= null then do
       cmd = 'cd' localrep'/'zigirep'/'d
       fdsn = strip(fulldsn,'B',"'")
       cmd = cmd '&& cp -Uv' cpbin m ,
@@ -3880,11 +3885,11 @@ Do_Undo:
     else do
       cmd = 'cd' localrep'/'zigirep
       cmd = cmd '&& cp -Uv' cpbin d ,
-        '"//' || "'"usssafe(fdsn) || '"'
+        '"//' || "'"usssafe(strip(fulldsn,'B',"'"))"'" || '"'
     end
     x = docmd(cmd)
     call view_std 'B'
-    if m /= null then do
+    if mem /= null then do
       sfile = localrep'/'zigirep'/.zigi/'d
       statmems = mem
       'vput (statmems)'
