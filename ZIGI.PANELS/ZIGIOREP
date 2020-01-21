@@ -22,7 +22,7 @@
 [Merge+  Merge Branches     [View+    OMVS Dir
 +
 )Init
- &zwinttl = 'zigi Resposity Commands'
+ &zwinttl = 'zigi Current Resposity Commands'
  .zvars = '(zcmd)'
  &zcmd  = &z
  .cursor = zcmd

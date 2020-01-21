@@ -17,9 +17,10 @@
 %                !bstat                                                     +
 %                $baction                                                   +
 %
-[Add   [Basic[Br[Com[Find[GitC[GitH[GitL[Grep[Merg[Net [Pull[Push[Ref[Rem+
-[Roll[Set[Snapshot[St[View+
-%S+Select%A+Add%B+Browse%D+Diff%H+History%RM+Remove%RN+Rename%U+Undo%V+View
++Command:[Add   [Basic[Br[Com[Find[GitC[GitH[GitL[Grep[Merg[Net [Pull[Push+
+         [Ref[Rem[Roll[Set[Snapshot[St[View+
++Line:   %S+Select%A+Add%B+Browse%D+Diff%H+History%RM+Remove%RN+Rename
+         %U+Undo%V+View
 
 %S  Status                    Dataset/File Name
 )Model

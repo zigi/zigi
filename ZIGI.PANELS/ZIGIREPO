@@ -17,15 +17,16 @@
 %                !bstat
 %                $baction                                                   +
 %
-[Add   + Add dataset   [Grep+   Find Strings    [Remote+ Add remote
-[Br    + Change Branch [Merge+  Merge Branches  [Rollback+Revert
-[Commit+ Record Changes[Network+Network Report  [Set+     Set Defaults
-[Find+   Find in Table [Pro+    Pro Panel       [SnapShot+Create Escrow
-[GitCMD +Git Commands  [Pull+   Pull from origin[Status+  Git Status
-[Githelp+Git Help      [Push+   Push to origin  [View+    OMVS Dir
-[GitLog+ Show git log  [Refresh+Replace Datasetss
++Command:[Add   + Add dataset   [Grep+   Find Strings    [Remote+  Add remote
+         [Br    + Change Branch [Merge+  Merge Branches  [Rollback+Revert
+         [Commit+ Record Changes[Network+Network Report  [Set+     Set Defaults
+         [Find+   Find in Table [Pro+    Pro Panel       [SnapShot+Create Escrow
+         [GitCMD +Git Commands  [Pull+   Pull from origin[Status+  Git Status
+         [Githelp+Git Help      [Push+   Push to origin  [View+    OMVS Dir
+         [GitLog+ Show git log  [Refresh+Replace Datasetss
 +
-%S+Select%A+Add%B+Browse%D+Diff%H+History%RM+Remove%RN+Rename%U+Undo%V+View
++Line:   %S+Select%A+Add%B+Browse%D+Diff%H+History%RM+Remove%RN+Rename
+         %U+Undo%V+View
 +
 %S  Status                    Dataset/File Name
 )Model
