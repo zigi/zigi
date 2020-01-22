@@ -18,7 +18,10 @@
 )Init
 &zwinttl = 'zigi Set Defaults for Commit'
  .zvars = '(defcpush)'
- .cursor = zcmd
+ if (&defcpush = &Z)
+    .cursor = DEFCPUSH
+ if (&defruid = &Z)
+    .cursor = DEFRUID
  .help = zigih2e0
  &zscr = CSR
 )Proc
