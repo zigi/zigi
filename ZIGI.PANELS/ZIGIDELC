@@ -2,8 +2,10 @@
  $ type(output) caps(off)
  @ type(input ) hilite(uscore) intens(low)
  + type(text) skip(on) intens(low)
-)Body Window(48,11)
+)Body Window(54,13)
 +Enter to confirm repository delete:
++
++Repository:$zigirep
 +
 +Remove from Git mgmt     @z+(Y or N)
 +Delete the OMVS files    @z+(Y or N)
