@@ -21,6 +21,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            01/23/20 LBD - Eliminate use of LISTC for ADDdsn|
+  |                           and call ZIGIRCSI                |
   |            01/21/20 LBD - Undo now works for PS and PDS    |
   |                         - Correct bug in RM for OMVS file  |
   |                           with blanks in name              |
@@ -538,9 +540,10 @@
       When abbrev('CREATE',zcmd,2) = 1 then do
         x = Create_Repo()
         crflag = 1
-        if x = 0 then
-        call work_with_repo
-        zsel = null
+        if x = 0 then do
+          call work_with_repo
+          zsel = null
+        end
       end
       When abbrev('CLONE',zcmd,2) = 1 then do
         call Clone_Repo
@@ -3694,12 +3697,12 @@ Merge_it:
     x = bpxwunix(cmd,,so.,se.)
     Address TSO
     call outtrap 'x.'
-    'listc level('dsnapfx')'
+    '%zigircsi 'dsnapfx'.**'
     call outtrap 'off'
     Address ISPExec
     do dsni = 1 to x.0
-      if left(x.dsni,7) /= 'NONVSAM' then iterate
-      parse value x.dsni with . . dsna .
+      if word(x.dsni,1) /= 'NONVSAM' then iterate
+      dsna = word(x.dsni,2)
       dastat = null
       do gl = 1 to so.0
         if right(dsna,length(word(so.gl,1))) = word(so.gl,1)
