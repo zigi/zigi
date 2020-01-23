@@ -18,13 +18,14 @@
 + BOGUS.COBOL.  This is very useful as other users will be cloning the
 + repository and they will not want to have the file names with some other HLQ.
 +
-%Row selection options:
-
- %S+or%A+Select the dataset to add it
- %AB+Select the dataset to add it as Binary
- %B+Browse the dataset
-
-         +Press the%Enter+key to continue your zigi tutorial journey.
++Command:%Find+to find a string in any dataset name and position the table.
++
++Line selection options:
++%S+or%A+Add the Dataset %AB+Add as Binary %B+Browse the dataset
++
++
++
+          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
  &zscr = CSR

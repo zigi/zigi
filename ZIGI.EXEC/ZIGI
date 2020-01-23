@@ -23,6 +23,7 @@
   |                                                            |
   |            01/23/20 LBD - Eliminate use of LISTC for ADDdsn|
   |                           and call ZIGIRCSI                |
+  |                         - Add FIND for ADDDSN routine      |
   |            01/21/20 LBD - Undo now works for PS and PDS    |
   |                         - Correct bug in RM for OMVS file  |
   |                           with blanks in name              |
@@ -3677,18 +3678,50 @@ Merge_it:
         'TBSkip' dsnatbl 'Number('row')'
       end
 
-      if zsel = 'B' then do
-        'control display save'
-        "LMInit Dataid(edvbr) dataset('"dsna"')"
-        "Memlist Dataid("edvbr") Default(B)"
-        "LMfree Dataid("edvbr")"
-        'control display restore'
+      zcmd = translate(zcmd)
+      if abbrev('FIND',word(zcmd,1),1) = 1 then do
+        finddsn = word(zcmd,2)
+        'tbskip' dsnatbl 'rowid(top)'
+        wrap = 0
+        save_top = top
+        do forever
+          if pos(finddsn,dsna) > 0 then do
+            zerrsm = 'Found.'
+            zerrlm = finddsn 'found in row' top
+            'setmsg msg(isrz003)'
+            leave
+          end
+          'tbskip' dsnatbl 'rowid(top)'
+          if rc > 0 then if wrap = 1 then do
+            zerrsm = 'Not Found.'
+            zerrlm = finddsn 'not found.'
+            'setmsg msg(isrz003)'
+            top = save_top
+            leave
+          end
+          else do
+          if rc > 0 then wrap = 1
+          'tbtop' dsnatbl
+        end
+        end
       end
-      if zsel = 'S' | zsel = 'A' then do
-        call do_add_copy
-      end
-      if zsel = 'AB' then do
-        call do_add_copy 'binary'
+
+      if zsel /= null then
+      Select
+        when zsel = 'B' then do
+          'control display save'
+          "LMInit Dataid(edvbr) dataset('"dsna"')"
+          "Memlist Dataid("edvbr") Default(B)"
+          "LMfree Dataid("edvbr")"
+          'control display restore'
+        end
+        when zsel = 'S' | zsel = 'A' then do
+          call do_add_copy
+        end
+        when zsel = 'AB' then do
+          call do_add_copy 'binary'
+        end
+        Otherwise nop
       end
 
       if list = null then call get_list
