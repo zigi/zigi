@@ -116,3 +116,6 @@ entries.
 New Undo (U) selection for datasets, OMVS files, and PDS members. This will
 undo any changes made prior to a commit. After a commit the Rollback option
 or the History Recover option will be required.
+
+Speeded up the ADDDSN dialog initialization by replacing the use of LISTC with
+IBM's sample IGGCSIRX code that was modified to return only the dataset names.
