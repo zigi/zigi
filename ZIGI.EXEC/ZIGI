@@ -1356,7 +1356,7 @@ Work_With_Repo:
               Address TSO ,
                 'Delete' fulldsn
               call outtrap 'off'
-              cmd = 'cd' localdir '&& git rm -r' dsn
+              cmd = 'cd' localdir '&& git rm -rf' dsn
               cmd = cmd '&& rm -f .zigi/'dsn
               x = docmd(cmd,,so.,se.)
               call view_std 'B'
@@ -2992,7 +2992,7 @@ Merge_it:
     if saverep /= null then localrep = saverep
     do forever
       parse value '' with zerrsm zcmd zigirep cc_rc pdshlq ,
-        defcpush defruid
+        defcpush defruid qualignr
       'Display Panel(ziginew)'
       if rc > 0 then return 8
       if localrep = '?' then
