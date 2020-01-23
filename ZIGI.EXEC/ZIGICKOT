@@ -15,6 +15,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            01/23/20 LBD - Fix if user is NOPREFIX          |
   |            01/19/20 LBD - Use ckotqual (required)          |
   |                           * for snapshot                   |
   |            01/18/20 LBD - Convert from individual OGETs    |
@@ -77,7 +78,7 @@
   call outtrap 'x.'
   ckdd = 'ck'time('s')
   if sysvar('syspref') = null then pref = sysvar('sysuid')'.'
-  else pref = null
+  else pref = sysvar('syspref')
   call outtrap 'x.'
   "oget '"ckotdir"/.zigi/dsn'" ckdd 'text'
   'Alloc f('ckdd') shr ds('ckdd')'
@@ -172,7 +173,7 @@
     sub = word(files,i)
     if ckotqual > 0
     then fileg = "'"ckothlq"."sub"'"
-    else fileg = "'"sub"'"
+    else fileg = "'"pref"."sub"'"
     if ckotqual = '*' then fileg = "'"ckothlq"."sub"'"
     odir = "'"ckotdir"/"sub"'"
     zs1 = 'Processing file:' sub
@@ -243,7 +244,7 @@
 Alloc_Copy_PDS:
   if ckotqual > 0
   then pds = "'"ckothlq"."sub"'"
-  else pds = "'"sub"'"
+  else pds = "'"pref"."sub"'"
   if ckotqual = '*' then pds = "'"ckothlq"."sub"'"
   odir = "'"ckotdir"/"sub"/"
   zs8 = ''
