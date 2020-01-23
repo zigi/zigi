@@ -11,9 +11,9 @@
 +Local Repositories+--------------#zigtitle   +---------------------------------
 %Command ===>{zcmd       \ \ %Scroll ===>_zscr+
 +
-+Primary commands:  @Clone+@Create+@SSH+@Config+@Basic+@Githelp+@Find+%Select
++Command:@Clone+@Create+@SSH+@Config+@Basic+@Githelp+@Find+%Select
 +
-+Repo options:      %S+Work with repo%V+View repo OMVS files+%D+Delete repo
++Line:   %S+Work with repo%V+View repo OMVS files+%D+Delete repo
 +
 %    [Repository+       [Prefix+                                [Last Access+
 )Model

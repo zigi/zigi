@@ -1,0 +1,171 @@
+/* REXX */                                                              00010000
+ /********************************************************************/ 00020000
+ /*                                                                  */ 00030000
+ /*       NAME: REXXCSI   (WAS IGGCSIRX)                             */ 00040000
+ /*DESCRIPTION: THIS REXX EXEC IS USED TO CALL THE CATALOG           */ 00050000
+ /*             SEARCH INTERFACE.                                    */ 00060000
+ /*      INPUT: FILTER KEY                                           */ 00070000
+ /*     OUTPUT: DSNTYPE  DSNAME  VOLSER                              */ 00080000
+ /*                                                                  */ 00090000
+ /* MODIFIED BY LBD TO REQUIRE A HLQ ON ENTRY AND RETURN JUST        */ 00100000
+ /*          THE DSNAMES                                             */ 00110000
+ /*                                                                  */ 00120000
+ /* CHANGE ACTIVITY:                                                 */ 00130000
+ /* $01=OW39593,HDZ11F0,990904,SJPLMET: BUMP WORK AREA TO        @01A*/ 00140000
+ /*              64,000 BYTES TO HANDLE CASES WHERE THE RETURN   @01A*/ 00150000
+ /*              DATA FOR A GDG BASE CANNOT FIT IN A WORKAREA    @01A*/ 00160000
+ /*              EVEN ON A RESUME.  THE EXAMPLE IS CHANGED TO    @01A*/ 00170000
+ /*              STOP WHEN THIS HAPPENS AND ISSUE A MESSAGE.     @01A*/ 00180000
+ /* $01=OW46614,HDZ11G0,010130,SJPLMET: CORRECT FAILURE TO       @02A*/ 00190000
+ /*             DISPLAY ALL INFO WHEN THE FILTER KEY CONTAINS A  @02A*/ 00200000
+ /*             GENERIC IN THE HLQ.                              @02A*/ 00210000
+ /*                                                                  */ 00220000
+ /********************************************************************/ 00230000
+ ARG KEY                                                                00240000
+ /********************************************************************/ 00250000
+ /*                                                                  */ 00260000
+ /*  INITIALIZE THE PARM LIST                                        */ 00270000
+ /*                                                                  */ 00280000
+ /********************************************************************/ 00290000
+MODRSNRC = SUBSTR(' ',1,4)          /*   CLEAR MODULE/RETURN/REASON  */ 00300000
+CSIFILTK = SUBSTR(KEY,1,44)         /*   MOVE FILTER KEY INTO LIST   */ 00310000
+CSICATNM = SUBSTR(' ',1,44)         /*   CLEAR CATALOG NAME          */ 00320000
+CSIRESNM = SUBSTR(' ',1,44)         /*   CLEAR RESUME NAME           */ 00330000
+CSIDTYPS = SUBSTR(' ',1,16)         /*   CLEAR ENTRY TYPES           */ 00340000
+CSICLDI  = SUBSTR('Y',1,1)          /*   INDICATE DATA AND INDEX     */ 00350000
+CSIRESUM = SUBSTR(' ',1,1)          /*   CLEAR RESUME FLAG           */ 00360000
+CSIS1CAT = SUBSTR(' ',1,1)          /*   INDICATE SEARCH > 1 CATALOGS*/ 00370000
+CSIRESRV = SUBSTR(' ',1,1)          /*   CLEAR RESERVE CHARACTER     */ 00380000
+CSINUMEN = '0001'X                  /*   INIT NUMBER OF FIELDS       */ 00390000
+CSIFLD1    = SUBSTR('VOLSER',1,8)   /*   INIT FIELD 1 FOR VOLSERS    */ 00400000
+ /********************************************************************/ 00410000
+ /*                                                                  */ 00420000
+ /*  BUILD THE SELECTION CRITERIA FIELDS PART OF PARAMETER LIST      */ 00430000
+ /*                                                                  */ 00440000
+ /********************************************************************/ 00450000
+CSIOPTS  = CSICLDI || CSIRESUM || CSIS1CAT || CSIRESRV                  00460000
+CSIFIELD = CSIFILTK || CSICATNM || CSIRESNM || CSIDTYPS || CSIOPTS      00470000
+CSIFIELD = CSIFIELD || CSINUMEN || CSIFLD1                              00480000
+                                                                        00490000
+ /********************************************************************/ 00500000
+ /*                                                                  */ 00510000
+ /*  INITIALIZE AND BUILD WORK ARE OUTPUT PART OF PARAMETER LIST     */ 00520000
+ /*                                                                  */ 00530000
+ /********************************************************************/ 00540000
+WORKLEN = 64000                                                /*@01C*/ 00550000
+DWORK = '0000FA00'X || COPIES('00'X,WORKLEN-4)                 /*@01C*/ 00560000
+                                                                        00570000
+ /********************************************************************/ 00580000
+ /*                                                                  */ 00590000
+ /*  INITIALIZE WORK VARIABLES                                       */ 00600000
+ /*                                                                  */ 00610000
+ /********************************************************************/ 00620000
+RESUME = 'Y'                                                            00630000
+PREVNAME = ''                     /* NO PREVIOUS NAME            @01A*/ 00640000
+CATNAMET = SUBSTR(' ',1,44)                                             00650000
+DNAMET = SUBSTR(' ',1,44)                                               00660000
+                                                                        00670000
+ /********************************************************************/ 00680000
+ /*                                                                  */ 00690000
+ /*  SET UP LOOP FOR RESUME (IF A RESUME IS NCESSARY)                */ 00700000
+ /*                                                                  */ 00710000
+ /********************************************************************/ 00720000
+DO WHILE RESUME = 'Y'                                                   00730000
+                                                                        00740000
+ /********************************************************************/ 00750000
+ /*                                                                  */ 00760000
+ /*  ISSUE LINK TO CATALOG GENERIC FILTER INTERFACE                  */ 00770000
+ /*                                                                  */ 00780000
+ /********************************************************************/ 00790000
+ ADDRESS LINKPGM 'IGGCSI00  MODRSNRC  CSIFIELD  DWORK'                  00800000
+                                                                        00810000
+ RESUME = SUBSTR(CSIFIELD,150,1)    /* GET RESUME FLAG FOR NEXT LOOP */ 00820000
+ USEDLEN = C2D(SUBSTR(DWORK,9,4))   /* GET AMOUNT OF WORK AREA USED  */ 00830000
+ POS1=15                            /* STARTING POSITION             */ 00840000
+                                                                        00850000
+ /********************************************************************/ 00860000
+ /*                                                                  */ 00870000
+ /*  PROCESS DATA RETURNED IN WORK AREA                              */ 00880000
+ /*                                                                  */ 00890000
+ /********************************************************************/ 00900000
+ DO WHILE POS1 < USEDLEN            /* DO UNTIL ALL DATA IS PROCESSED*/ 00910000
+   IF SUBSTR(DWORK,POS1+1,1) = '0'  /* IF CATALOG, EXTRACT CATALOG   */ 00920000
+    THEN DO                         /* NAME FOR LATER PRINTING   @02C*/ 00930000
+         CATNAME=SUBSTR(DWORK,POS1+2,44)                                00940000
+         POS1 = POS1 + 50                                               00950000
+         END                                                            00960000
+  IF POS1 < USEDLEN THEN             /* IF STILL MORE DATA       @02A*/ 00970000
+   DO                                /* CONTINUE WITH NEXT ENTRY @02A*/ 00980000
+    DNAME = SUBSTR(DWORK,POS1+2,44)  /* GET ENTRY NAME               */ 00990000
+                                                                        01000000
+ /********************************************************************/ 01010000
+ /*                                                                  */ 01020000
+ /*  ASSIGN ENTRY TYPE NAME                                          */ 01030000
+ /*                                                                  */ 01040000
+ /********************************************************************/ 01050000
+   IF SUBSTR(DWORK,POS1+1,1) = 'C' THEN DTYPE = 'CLUSTER '              01060000
+    ELSE                                                                01070000
+      IF SUBSTR(DWORK,POS1+1,1) = 'D' THEN DTYPE = 'DATA    '           01080000
+     ELSE                                                               01090000
+      IF SUBSTR(DWORK,POS1+1,1) = 'I' THEN DTYPE = 'INDEX   '           01100000
+     ELSE                                                               01110000
+      IF SUBSTR(DWORK,POS1+1,1) = 'A' THEN DTYPE = 'NONVSAM '           01120000
+     ELSE                                                               01130000
+      IF SUBSTR(DWORK,POS1+1,1) = 'H' THEN DTYPE = 'GDS     '           01140000
+     ELSE                                                               01150000
+      IF SUBSTR(DWORK,POS1+1,1) = 'B' THEN DTYPE = 'GDG     '           01160000
+     ELSE                                                               01170000
+      IF SUBSTR(DWORK,POS1+1,1) = 'R' THEN DTYPE = 'PATH    '           01180000
+     ELSE                                                               01190000
+      IF SUBSTR(DWORK,POS1+1,1) = 'G' THEN DTYPE = 'AIX     '           01200000
+     ELSE                                                               01210000
+      IF SUBSTR(DWORK,POS1+1,1) = 'X' THEN DTYPE = 'ALIAS   '           01220000
+     ELSE                                                               01230000
+      IF SUBSTR(DWORK,POS1+1,1) = 'U' THEN DTYPE = 'UCAT    '           01240000
+     ELSE                                                               01250000
+       IF SUBSTR(DWORK,POS1+1,1) = 'L' THEN DTYPE = 'ATLLIB  ' /*@02A*/ 01260000
+      ELSE                                                     /*@02A*/ 01270000
+       IF SUBSTR(DWORK,POS1+1,1) = 'W' THEN DTYPE = 'ATLVOL  ' /*@02A*/ 01280000
+      ELSE ,    /*  NO ENTRIES IN THE CATALOG - LOOK AT    */  /*@02A*/ 01290000
+        ITERATE   /*  NEXT CATALOG NAME - GENERIC HLQ ONLY */  /*@02A*/ 01300000
+ /********************************************************************/ 01310000
+ /*                                                                  */ 01320000
+ /*  HAVE NAME AND TYPE, GET VOLSER INFO.  IF WE FOUND A VALID TYPE  */ 01330000
+ /*  FOR THIS CATALOG, NOW PRINT THE CATALOG NAME (FIRST ENTRY ONLY).*/ 01340000
+ /*                                                                  */ 01350000
+ /********************************************************************/ 01360000
+     IF CATNAME ^= CATNAMET THEN /* IF RESUME NAME MAY ALREADY   @02C*/ 01370000
+      DO                         /*    BE PRINTED                    */ 01380000
+       SAY 'CATALOG ' CATNAME    /* IF NOT, PRINT IT             @02C*/ 01390000
+       SAY ' '                                                 /*@02C*/ 01400000
+       CATNAMET = CATNAME                                      /*@02C*/ 01410000
+      END                                                      /*@02C*/ 01420000
+    POS1 = POS1 + 46                                                    01430000
+    NUMVOL = C2D(SUBSTR(DWORK,POS1+4,2))/6 /* HOW MANY VOLSERS ?     */ 01440000
+                                    /*                               */ 01450000
+    POS2 = POS1+6                   /* POSITION ON DATA              */ 01460000
+    DO I=1 TO 3                     /* ONLY CLEAR 3 VOLSER FIELDS    */ 01470000
+      VOLSER.I = SUBSTR(' ',1,6)                                        01480000
+    END                                                                 01490000
+    DO I = 1 TO NUMVOL              /* MOVE VOLSERS TO OUTPUT FIELDS */ 01500000
+      VOLSER.I = SUBSTR(DWORK,POS2,6)                                   01510000
+      POS2 = POS2 + 6                                                   01520000
+    END                                                                 01530000
+     SAY COPIES(' ',8) DTYPE DNAME VOLSER.1 VOLSER.2 VOLSER.3           01540000
+ /********************************************************************/ 01550000
+ /*                                                                  */ 01560000
+ /*   GET POSITION OF NEXT ENTRY                                     */ 01570000
+ /*                                                                  */ 01580000
+ /********************************************************************/ 01590000
+    POS1 = POS1 + C2D(SUBSTR(DWORK,POS1,2))                             01600000
+  END                               /* OF ROOM LEFT IN WORKAREA  @02A*/ 01610000
+ END                                                                    01620000
+ IF RESUME = 'Y' &,                 /* IF WE'VE TRIED THIS ENTRY @01A*/ 01630000
+  PREVNAME = DNAME THEN             /* TWICE, WE'VE GOT TO QUIT  @01A*/ 01640000
+   DO                                                          /*@01A*/ 01650000
+     SAY STRIP(DNAME) 'CANNOT BE PROCESSED WITH THE WORK AREA SIZE ',   01660000
+         'PROVIDED - YOU MUST INCREASE THE WORK AREA AND RETRY'         01670000
+     RETURN                                                    /*@01A*/ 01680000
+   END                                                         /*@01A*/ 01690000
+ PREVNAME = DNAME                   /* SAVE FOR NEXT ITERATION   @01A*/ 01700000
+END                                                                     01710000

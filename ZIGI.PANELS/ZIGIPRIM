@@ -11,12 +11,12 @@
 +Local Repositories+--------------#zigtitle   +---------------------------------
 %Command ===>{zcmd       \ \ %Scroll ===>_zscr+
 +
-+Primary commands:  @Clone+remote repository           @Pro+
-+                   @Create+a local repo from scratch  @githelp+
-+                   @SSH+View your SSH public key      @Find
-+                   @Config+View Git configuration     %Select
++Command: @Clone +Remote repository        @Pro    +Toggle Menu
+          @Create+Local repository         @githelp+Git Help
+          @SSH   +View your SSH public key @Find   +text in table
+          @Config+View Git configuration   %Select +Repo from command
 +
-+Repo options:      %S+Work with repo%V+View repo OMVS files+%D+Delete repo
++Line:    %S+Work with repo%V+View repo OMVS files+%D+Delete repo
 +
 %    [Repository+       [Prefix+                                [Last Access+
 )Model

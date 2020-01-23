@@ -1,4 +1,5 @@
 )attr default(%+_)
+  @ type(input ) caps(off) hilite(uscore)
   _ type( input) intens(low ) just(left ) hilite(uscore)
   ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
   [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
@@ -17,12 +18,12 @@
 %Local Repository+is the location where the%Clone+will create a directory or
 +where%Create+will initilialize the Git repo.
 +
-+
-+
-+
-+
-+
-+
+%Notes:
++1. Don't use spaces in name field.
++2. Repository will be named (and stored) in OMVS as /localdirectory/name
++3. Fails if /localdirectory/name is present
++   Override with a%Y+
++4. Thirty-two characters should be enough for a repo-name :)
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init

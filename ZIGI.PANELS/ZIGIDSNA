@@ -16,7 +16,8 @@
 +below. Optionally change the number of qualifiers to ignore in the prefix
 +for the OMVS file name or directory.
 +
-+Options:%S+Add+%A+Add+%AB+Add binary+%B+Browse
++Command:%Find+
++Line:%S+Add+%A+Add+%AB+Add binary+%B+Browse
 +
 %S   Dataset Name                                Status
 )Model

@@ -17,7 +17,7 @@
   %RM+Remove the member from the PDS and the repository
   %RN+reName the member
   %S+ Select the member and Edit it
-+
+  %U+ Undo a non-Committed change
 +
 +
      "The best competition I have is against myself to become better."

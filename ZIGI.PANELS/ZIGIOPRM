@@ -18,7 +18,7 @@
  ]Menu+    Toggle Menu, Basic->Pro->None
  ]SSH+     View your SSH public key
 )Init
- &zwinttl = 'zigi Primary Menu Commands'
+ &zwinttl = 'zigi Local Repository Commands'
  .zvars = '(zcmd)'
  .cursor = zcmd
  &zcmd  = &z
@@ -27,6 +27,7 @@
  &pro     = 'Pro'
  &ssh     = 'SSH'
  &find    = 'FIND'
+ &menu    = 'Menu'
  &config  = 'Config'
  &githelp = 'GitHelp'
  .help = zigih100
