@@ -24,6 +24,7 @@
   |            01/23/20 LBD - Eliminate use of LISTC for ADDdsn|
   |                           and call ZIGIRCSI                |
   |                         - Add FIND for ADDDSN routine      |
+  |                         - Enable RFIND                     |
   |            01/21/20 LBD - Undo now works for PS and PDS    |
   |                         - Correct bug in RM for OMVS file  |
   |                           with blanks in name              |
@@ -204,6 +205,21 @@
   | not then recurse into it.                                   |
   * ----------------------------------------------------------- */
   if zapplid <> "ZIGI" then do
+    Address ISPExec
+    /* --------------------------------------- *
+    | Create the ISPF Commands table for      |
+    | to enable Left/Right commands           |
+    * --------------------------------------- */
+    'tbquery zigicmds rownum('rows')'
+    if rc > 0 then do
+      "TBCreate zigicmds names(zctverb zcttrunc zctact zctdesc)",
+        "replace share nowrite"
+      zctverb  = "RFIND"
+      zcttrunc = 0
+      zctact   = "&ZIGPASS"
+      zctdesc  = "RFIND for zigi Dialog"
+      "TBAdd zigicmds"
+    end
     /* ---------------------------------------- *
     | If panels/exec then libdef and/or altlib |
     | but only if not under ZIGI applid.       |
@@ -216,12 +232,15 @@
     | Make sure we are under the ZIGI applid  |
     * --------------------------------------- */
     "Select CMD(%zigi) Newappl(ZIGI) Passlib scrname(zigi)"
+    "TBClose zigicmds"
     if panels /= null then
     'libdef ispplib'
     if exec /= null then
     Address TSO 'altlib deact application(exec)'
     exit 0
   end
+  zigpass = null
+  'vput (zigpass) shared'
 
   /* ---------------------------------------------------------------- *
   | Running under the ZIGI ISPF Application ID so let's do some work |
@@ -407,12 +426,17 @@
 
   do forever
     parse value '' with zsel zcmd row
+    zigpass = 'PASSTHRU'
+    'vput (zigpass) shared'
     'TBTop zigirepo'
     'tbskip zigirepo number('repo_top')'
     localrep = null
     'vput (localrep) shared'
     'tbdispl zigirepo panel('primpanl')'
-    if rc > 4 then leave
+    trc = rc
+    zigpass = null
+    'vput (zigpass) shared'
+    if trc > 4 then leave
 
     repo_top = ztdtop
     if row = 0 then zsel = null
@@ -705,12 +729,17 @@ Work_With_Repo:
     if ztdsels > 1
     then 'TBdispl' rtbl
     else do
+      zigpass = 'PASSTHRU'
+      'vput (zigpass) shared'
       'tbtop' rtbl
       'tbskip' rtbl 'Number('rtop')'
       'TBdispl' rtbl 'Panel('repopan')'
       rtop = ztdtop
     end
-    if rc > 4 then do
+    trc = rc
+    zigpass = null
+    'vput (zigpass) shared'
+    if trc > 4 then do
       'tbend' rtbl
       rtbl_open = 0
       return
@@ -3630,7 +3659,9 @@ Merge_it:
     dsnapfx = pdshlq
     lc_count = 0
     add_count = 0
+    last_find = 0
     top = 0
+    save_top = 0
     dsnatbl = 'ZIGID'random(999)
     call tbcreate_dsnatbl
     if dsnapfx = null then qualignr = null
@@ -3653,10 +3684,17 @@ Merge_it:
           when qualignr = null then csr = 'QUALIGNR'
           otherwise csr = 'ZCMD'
         end
+        zigpass = 'PASSTHRU'
+        'vput (zigpass) shared'
         'tbtop' dsnatbl
         'tbskip' dsnatbl 'number('top')'
         'tbdispl' dsnatbl 'panel('dsnapnl') cursor('csr')'
+        trc = rc
+        zigpass = null
+        'vput (zigpass) shared'
+        rc = trc
       end
+      top = ztdtop
       if add_count > 0 then
       pdshlq  = dsnapfx
       if rc > 4 then do
@@ -3670,7 +3708,6 @@ Merge_it:
         'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
         return
       end
-      top = ztdtop
       if row = 0 then zsel = null
       if row <> null then
       if row > 0 then do
@@ -3679,19 +3716,32 @@ Merge_it:
       end
 
       zcmd = translate(zcmd)
+      rf = 0
+      if abbrev('RFIND',word(zcmd,1),2) = 1 then do
+        zcmd = 'FIND' finddsn
+        rf = 1
+        'TBTop' dsnatbl
+        'TBSkip' dsnatbl 'Number('last_find+1') rowid(row)'
+      end
       if abbrev('FIND',word(zcmd,1),1) = 1 then do
         finddsn = word(zcmd,2)
-        'tbskip' dsnatbl 'rowid(top)'
-        wrap = 0
-        save_top = top
+        if rf = 0 then do
+          'TBTop' dsnatbl
+          'TBSkip' dsnatbl 'Number('ztdtop') rowid(row)'
+          wrap = 0
+        end
+        save_top = row
         do forever
           if pos(finddsn,dsna) > 0 then do
             zerrsm = 'Found.'
-            zerrlm = finddsn 'found in row' top
+            zerrlm = finddsn 'found in row' row
             'setmsg msg(isrz003)'
+            last_find = row
+            top = row
             leave
           end
-          'tbskip' dsnatbl 'rowid(top)'
+          /* go to the next row */
+          'tbskip' dsnatbl 'rowid(row)'
           if rc > 0 then if wrap = 1 then do
             zerrsm = 'Not Found.'
             zerrlm = finddsn 'not found.'
@@ -3699,10 +3749,10 @@ Merge_it:
             top = save_top
             leave
           end
-          else do
-          if rc > 0 then wrap = 1
-          'tbtop' dsnatbl
-        end
+          else if rc > 0 then do
+            if rc > 0 then wrap = 1
+            'tbtop' dsnatbl
+          end
         end
       end
 
