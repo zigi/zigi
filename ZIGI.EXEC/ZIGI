@@ -2591,23 +2591,41 @@ Branch_it:
       leave
     end
     if zsel = "D" then do
-      'Addpop row(4) column(6)'
-      'display panel(zigibrdq)'
-      drc = rc
-      'Rempop'
-      if ans = 'N' then drc = 4
-      if drc > 0 then do
-        ans = 'N'
-        zerrsm = 'Cancelled.'
-        zerrlm = 'Branch delete cancelled.'
+      if brstatus = 'Remote' then do
+        zerrsm = 'Invalid.'
+        zerrlm = 'Unable to delete a remote only branch.' ,
+          'That can only be done at the remote server.'
         'setmsg msg(isrz003)'
       end
-      if ans = 'Y' then do
-        x = docmd('cd 'localdir' && git branch -D 'bname)
-        'tbdelete' rtbb
-        zerrsm = 'Deleted.'
-        zerrlm = 'Branch 'bname' succesfully deleted'
-        'Setmsg msg(isrz003)'
+      else do
+        'Addpop row(4) column(6)'
+        'display panel(zigibrdq)'
+        drc = rc
+        'Rempop'
+        if ans = 'N' then drc = 4
+        if drc > 0 then do
+          ans = 'N'
+          zerrsm = 'Cancelled.'
+          zerrlm = 'Branch delete cancelled.'
+          'setmsg msg(isrz003)'
+        end
+        if ans = 'Y' then do
+          x = docmd('cd 'localdir' && git branch -D 'bname)
+          if pos('Remote',brstatus) = 0 then do
+            'tbdelete' rtbb
+            zerrsm = 'Deleted.'
+            zerrlm = 'Branch 'bname' succesfully deleted'
+            'Setmsg msg(isrz003)'
+          end
+          else do
+            zerrsm = 'Local Deleted.'
+            zerrlm = 'Branch 'bname' succesfully deleted from the local' ,
+              'repository but remains on the remote.'
+            'Setmsg msg(isrz003)'
+            brstatus = 'Remote'
+            'tbmod' rtbb
+          end
+        end
       end
     end
   end
