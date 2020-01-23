@@ -3759,10 +3759,16 @@ Merge_it:
       if zsel /= null then
       Select
         when zsel = 'B' then do
+          x = listdsi("'"dsna"'")
           'control display save'
-          "LMInit Dataid(edvbr) dataset('"dsna"')"
-          "Memlist Dataid("edvbr") Default(B)"
-          "LMfree Dataid("edvbr")"
+          if sysdsorg = 'PO' then do
+            "LMInit Dataid(edvbr) dataset('"dsna"')"
+            "Memlist Dataid("edvbr") Default(B)"
+            mrc = rc
+            "LMfree Dataid("edvbr")"
+            if mrc > 0 then 'setmsg msg(isrz003)'
+          end
+          else "Browse Dataset('"dsna"')"
           'control display restore'
         end
         when zsel = 'S' | zsel = 'A' then do
