@@ -12,7 +12,7 @@
 %Optional:          +Specific branch to clone (default is master)
  @remotebr                                   +
 +
-%Local Directory:   +? to browse omvs folder structure
+%Local Directory:   +? to browse OMVS folder structure
  @localrep                                                                    +
 +
 %PREFIX for datasets: $pdshlq                  + (no quotes)

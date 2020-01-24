@@ -21,6 +21,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            01/24/20 LBD - Improve RFIND table entry setup  |
   |            01/23/20 LBD - Eliminate use of LISTC for ADDdsn|
   |                           and call ZIGIRCSI                |
   |                         - Add FIND for ADDDSN routine      |
@@ -206,20 +207,6 @@
   * ----------------------------------------------------------- */
   if zapplid <> "ZIGI" then do
     Address ISPExec
-    /* --------------------------------------- *
-    | Create the ISPF Commands table for      |
-    | to enable Left/Right commands           |
-    * --------------------------------------- */
-    'tbquery zigicmds rownum('rows')'
-    if rc > 0 then do
-      "TBCreate zigicmds names(zctverb zcttrunc zctact zctdesc)",
-        "replace share nowrite"
-      zctverb  = "RFIND"
-      zcttrunc = 0
-      zctact   = "&ZIGPASS"
-      zctdesc  = "RFIND for zigi Dialog"
-      "TBAdd zigicmds"
-    end
     /* ---------------------------------------- *
     | If panels/exec then libdef and/or altlib |
     | but only if not under ZIGI applid.       |
@@ -250,6 +237,24 @@
   'vput (zigtitle ver)'
   'display panel(zigispls)'
   if rc = 8 then exit
+
+  /* ---------------------------------------------------------- *
+  | Enable RFIND (Repeat Find) by adding an RFIND entry to the |
+  | active site command table with a symbolic that will be     |
+  | changed to PASSTHRU prior to each TBDISPL and back to null |
+  | after. This allows RFIND to be passed to our applicaiton.  |
+  * ---------------------------------------------------------- */
+  zctverb  = "RFIND"
+  zcttrunc = 0
+  zctact   = "&ZIGPASS"
+  zctdesc  = "RFIND for zigi Dialog"
+  'vget (zsctpref)'
+  ctab = zsctpref'cmds'
+  'tbtop' ctab
+  'tbscan' ctab 'arglist(zctdesc) condlist(EQ) Next'
+  if rc > 0 then 'tbadd' ctab
+  zigpass = null
+  'vput (zigpass)'
 
   /* ------------------------------------ *
   | define our working default variables |
@@ -489,6 +494,7 @@
           'tbget zigirepo'
           if defcpush = 'Y' then zpush = 'Y'
           else zpush = 'N'
+          zcmd = null
           call select_repo
           leave
         end

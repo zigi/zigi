@@ -26,9 +26,12 @@
   .zvars = '(qualignr zsel dsna dastat)'
   .help = zigih210
   &zscr = CSR
+ .CURSOR = ZCMD
 )Reinit
  if (&qualignr EQ &Z)
     .CURSOR = QUALIGNR
+ if (&qualignr NE &Z)
+    .CURSOR = ZCMD
 )Proc
  &row = &z
  if (&ZCMD = &Z)
