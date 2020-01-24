@@ -489,6 +489,7 @@
           'tbget zigirepo'
           if defcpush = 'Y' then zpush = 'Y'
           else zpush = 'N'
+          zcmd = null
           call select_repo
           leave
         end

@@ -171,10 +171,7 @@
     zs9 = 'Patience while the data is copied from OMVS files' ,
       'to a z/OS PDS.'
     sub = word(files,i)
-    if ckotqual > 0
-    then fileg = "'"ckothlq"."sub"'"
-    else fileg = "'"pref"."sub"'"
-    if ckotqual = '*' then fileg = "'"ckothlq"."sub"'"
+    fileg = "'"ckothlq"."sub"'"
     odir = "'"ckotdir"/"sub"'"
     zs1 = 'Processing file:' sub
     zs2 = 'From:           ' odir
@@ -242,10 +239,7 @@
  |   also be defined at allocation                                   |
  * ----------------------------------------------------------------- */
 Alloc_Copy_PDS:
-  if ckotqual > 0
-  then pds = "'"ckothlq"."sub"'"
-  else pds = "'"pref"."sub"'"
-  if ckotqual = '*' then pds = "'"ckothlq"."sub"'"
+  pds = "'"ckothlq"."sub"'"
   odir = "'"ckotdir"/"sub"/"
   zs8 = ''
   if pullmems.sub = null then
