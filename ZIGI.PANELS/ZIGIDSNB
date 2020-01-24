@@ -22,6 +22,7 @@
   .zvars = '(qualignr zsel dsna dastat)'
   .help = zigih210
   &zscr = CSR
+  .CURSOR = ZCMD
 )Proc
  &row = &z
  if (&ZCMD = &Z)
