@@ -16,7 +16,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
-  |            01/25/20 LBD - Support Find/RFIND commands      |
+  |            01/25/20 LBD - Support Find command             |
   |                         - Set default scroll to CSR        |
   |            01/09/20 LBD - Enhance Only to recurse if empty |
   |            12/06/19 WJS - Allow help page(s) on command    |
@@ -459,7 +459,7 @@ docmd:
     %S+Display the manpage for the selected row.
     (may also put cursor on the row and press enter or double click)
 +
-+
++  "Git knows what you did last summer!"
 +
 +
 +Press%F3+to return to the GitHelp application.
@@ -477,7 +477,7 @@ docmd:
 +\-\%git manpages+\-\
 %Command ===>_zcmd                  \ \                        %Scroll ===>_scrl
 +
-+Commands:%Find+%Only+%Refresh+
++Commands:%Find+string%Only+string%Refresh+
 +Line:%S+select to view
 +
 +S  Command                 Description
@@ -511,8 +511,8 @@ _z+@z                      $z
 +\-\%git manpages+\-\
 %Command ===>_zcmd                                             %Scroll ===>_scrl
 +
-+Commands:  %Only+display only rows with string%Refresh+after an Only
-+Selections:%S+select to view
++Commands:%Find+string%Only+string%Refresh+
++Line:%S+select to view
 +
 +S  Command / Description
 )Model
