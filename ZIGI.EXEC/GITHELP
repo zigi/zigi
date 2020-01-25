@@ -16,6 +16,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            01/25/20 LBD - Support Find/RFIND commands      |
+  |                         - Set default scroll to CSR        |
   |            01/09/20 LBD - Enhance Only to recurse if empty |
   |            12/06/19 WJS - Allow help page(s) on command    |
   |                           Thx to William Schoen            |
@@ -29,7 +31,10 @@
   * ---------------------------------------------------------- */
 
   parse value '' with rx null status
-  passone = 0
+  passone = 0                   /* determine wrap with only */
+  save_floc = 0                 /* Save last find location  */
+  save_find = null              /* save last find string   */
+  scrl = 'CSR'                  /* default scroll amt      */
 
   arg gitfuncs   /* wjs*/
   do forever
@@ -46,6 +51,33 @@
   load_info = loadispf()
 
   call popup 'Getting git OMVS environment variables.'
+
+  /* --------------> Enable Repeat Find <------------------- *
+  | This approach does not require recursion or creating an |
+  | ISPF table for the applications commands. This approach |
+  | updates the active site command table in memory.        |
+  |                                                         |
+  | This does:                                              |
+  | 1. Define the commmand table entry                      |
+  | 2. vget the variable with the prefix for the site ISPF  |
+  |    command table.                                       |
+  | 3. define a varable with the command table name         |
+  | 4. Move to the top of the command table                 |
+  | 5. Establish the table search                           |
+  | 6. if the entry is found then add it                    |
+  | 7. prime the variable to null                           |
+  * ------------------------------------------------------- */
+  zctverb = 'RFIND'
+  zctact = "&ZIGRFIND"
+  zctdesc = "User controlled Repeat Find (RFIND)"
+  zcttrunc = 0
+  'vget (zsctpref)'
+  ctab = zsctpref'cmds'
+  'tbtop' ctab
+  'tbscan' ctab 'arglist(zctdesc) condlist(EQ) Next'
+  if rc > 0 then 'tbadd' ctab
+  zigrfind = null
+  'vput (zigrfind)'
 
   /* ---------------------------- *
   | Get the git OMVS environment |
@@ -124,15 +156,15 @@
 
   if help.0=0 then  /* skip table display if specific help wjs*/
   do
-  /* ----------------- *
-  | process the table |
-  * ----------------- */
+    /* ----------------- *
+    | process the table |
+    * ----------------- */
     stop = 0           /* saved top of table */
     ztdsels = 0
     'tbtop githelp'
-  /* ----------------- *
-  | Display the table |
-  * ----------------- */
+    /* ----------------- *
+    | Display the table |
+    * ----------------- */
     if zscreenw = 80 then
     gpanel = 'githelp'
     else gpanel = 'githelpw'
@@ -142,30 +174,51 @@
         'tbtop githelp'
         'tbskip githelp number('stop')'
       end
+      /* -------------------------------------------- *
+      | Update ZIGRFIND for Passthru to enable RFIND |
+      * -------------------------------------------- */
+      zigrfind = 'PASSTHRU'
+      'vput (zigrfind)'
       if ztdsels > 0 then
       'tbdispl githelp'
       else 'tbdispl githelp panel('gpanel')'
-      if rc > 4 then leave
+      trc = rc
+      /* ----------------------- *
+      | Reset ZIGRFIND to blank |
+      * ----------------------- */
+      zigrfind = ''
+      'vput (zigrfind)'
+      /* ------------------------------------ *
+      | Test tbdispl return code and proceed |
+      * ------------------------------------ */
+      if trc > 4 then leave
       if row > 0 then do
         'tbtop githelp'
         'tbskip githelp number('row')'
       end
 
-    /* -------------------- *
-    | Process any commands |
-    * -------------------- */
+      /* -------------------- *
+      | Process any commands |
+      * -------------------- */
       if zcmd /= null then do
         Select
           When abbrev("REFRESH",word(zcmd,1),1) = 1 then call do_refresh
           When abbrev("ONLY",word(zcmd,1),1) = 1 then call do_only
+          When abbrev("FIND",word(zcmd,1),1) = 1 then call do_find
+          When abbrev("RFIND",word(zcmd,1),1) = 1 then do
+            zcmd = 'FIND' save_find
+            'tbtop githelp'
+            'tbskip githelp number('save_floc')'
+            call do_find
+          end
           Otherwise nop
         end
         vsel = null
       end
 
-    /* -------------------------- *
-    | Process any row selections |
-    * -------------------------- */
+      /* -------------------------- *
+      | Process any row selections |
+      * -------------------------- */
       if vsel /= null then do
         if gitcmd = 'git' then do
           x = tcmd('man git')
@@ -186,9 +239,56 @@
   x = dropispf(load_info)
   exit
 
-/* ---------------- *
- | The Only routine |
- * ---------------- */
+do_find:
+  /* ------------------------------------------------- *
+  | Find and Repeat Find processed.                   |
+  |                                                   |
+  |   Checks for the provided string in the specified |
+  |   row variables.                                  |
+  * ------------------------------------------------- */
+  find = translate(word(zcmd,2))
+  save_find = find
+  wrap   = 0
+  if save_floc > 0 then do
+    'tbtop githelp'
+    'tbskip githelp number('save_floc')'
+  end
+  do forever
+    'tbskip githelp'
+    if rc > 0 then do
+      'tbtop githelp'
+      'tbskip githelp'
+      if wrap = 1 then do
+        zerrsm = 'Not Found'
+        zerrlm = find 'string not found in any member' ,
+          'name. Try again.'
+        'setmsg msg(isrz003)'
+        leave
+      end
+      else wrap = 1
+    end
+    if pos(find,translate(gitcmd gitcat)) > 0 then do
+      'tbquery githelp position(row)'
+      crp = row
+      save_floc = row
+      if wrap = 1 then do
+        zerrsm = 'Wrapped'
+        zerrlm = 'Find restarted at the top of the table.'
+        'setmsg msg(isrz003)'
+      end
+      else do
+        zerrsm = 'Found'
+        zerrlm = 'Found in row:' row
+        'setmsg msg(isrz003)'
+      end
+      leave
+    end
+  end
+  return
+
+  /* ---------------- *
+  | The Only routine |
+  * ---------------- */
 Do_Only:
   ostring = translate(word(zcmd,2))
   'tbtop githelp'
@@ -350,6 +450,7 @@ docmd:
 +use git.
 +
 %Commands:+
+    %Find+scrolls to a row with the find string in the name or description
     %Only+removes all rows that do not have the provided string:
           e.g. %o git
     %Refresh+is used after Only to rebuild the table
@@ -357,6 +458,11 @@ docmd:
 %Selection:
     %S+Display the manpage for the selected row.
     (may also put cursor on the row and press enter or double click)
++
++
++
++
++Press%F3+to return to the GitHelp application.
 +
 )Init
  &zcont = tgithelp
@@ -371,8 +477,8 @@ docmd:
 +\-\%git manpages+\-\
 %Command ===>_zcmd                  \ \                        %Scroll ===>_scrl
 +
-+Commands:  %Only+display only rows with string%Refresh+after an Only
-+Selections:%S+select to view
++Commands:%Find+%Only+%Refresh+
++Line:%S+select to view
 +
 +S  Command                 Description
 )Model
