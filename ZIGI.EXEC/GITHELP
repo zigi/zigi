@@ -207,8 +207,7 @@
           When abbrev("FIND",word(zcmd,1),1) = 1 then call do_find
           When abbrev("RFIND",word(zcmd,1),1) = 1 then do
             zcmd = 'FIND' save_find
-            'tbtop githelp'
-            'tbskip githelp number('save_floc')'
+            save_floc = ztdtop
             call do_find
           end
           Otherwise nop
