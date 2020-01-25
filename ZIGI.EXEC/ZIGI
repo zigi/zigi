@@ -369,14 +369,8 @@
   end
   x = so.0
   zigissh = so.x
-  /* need these to see if changed, then we need to
-  redo the command...... @lionel: there's probably
-  a nicer way to do this (via the panel that sees if
-  the value has changed?
-  */
   old_zigiuid = zigiuid
   old_zigimail = zigimail
-  /* end of save old values */
 
   'vget (mgen)'
 
@@ -2371,7 +2365,6 @@ Work_with_repo_file:
           * -------------------------------- */
           d = usssafe(dsn)
           cmd = 'cd' localrep'/'zigirep
-          /* These cp -M issues are really getting annoying */
           x = docmd(cmd || ' && git add -v 'd'/'usssafe(mem))
           if ztdsels = 1 then do
             statfile = translate(strip(fulldsn,'B',"'"),' ','.')
