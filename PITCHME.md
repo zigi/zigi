@@ -7,7 +7,7 @@ Zigi is an ISPF Git Interface for z/OS
 
 # Some code
 
-'''  x = docmd('git --version')
+```x = docmd('git --version')
   required_version = '2.14.4'
   parse var so.1 'git' 'version' version'_'subversion
   version = strip(version,'B')
@@ -18,4 +18,4 @@ Zigi is an ISPF Git Interface for z/OS
     zs4 = 'Press Enter to exit and install the correct version.'
     call do_popup4p
     exit 8
-  end'''
+  end```
