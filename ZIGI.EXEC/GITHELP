@@ -69,7 +69,7 @@
   * ------------------------------------------------------- */
   zctverb = 'RFIND'
   zctact = "&ZIGRFIND"
-  zctdesc = "User controlled Repeat Find (RFIND)"
+  zctdesc  = "RFIND for zigi Dialog"
   zcttrunc = 0
   'vget (zsctpref)'
   ctab = zsctpref'cmds'
@@ -204,10 +204,12 @@
         Select
           When abbrev("REFRESH",word(zcmd,1),1) = 1 then call do_refresh
           When abbrev("ONLY",word(zcmd,1),1) = 1 then call do_only
-          When abbrev("FIND",word(zcmd,1),1) = 1 then call do_find
+          When abbrev("FIND",word(zcmd,1),1) = 1 then do
+            save_floc = ztdtop
+            call do_find
+            end
           When abbrev("RFIND",word(zcmd,1),1) = 1 then do
             zcmd = 'FIND' save_find
-            save_floc = ztdtop
             call do_find
           end
           Otherwise nop
