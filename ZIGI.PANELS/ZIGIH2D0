@@ -16,7 +16,7 @@
 +Commands%Only+will limit the table to the specified string in the title.
          %Refresh+will return the table to all entries.
 
-+Each commit is avialable to be%S+selected which will browse the commit
++Each commit is available to be%S+selected which will browse the commit
 +to allow the user to fully understand what the commit consisted of.
 %
 +The%R+selection will initiate the rollback process.

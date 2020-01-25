@@ -14,7 +14,7 @@
 +
 +2. Clone fails if the local repo already exists.
 +
-+3. A succesfull clone results in a copy of the repo in the local directory
++3. A successful clone results in a copy of the repo in the local directory
 +
 +4. All 'z/OS-datasets' from this repo will be copied to real z/OS datasets
 +   (prefixed if a PREFIX has been added).
