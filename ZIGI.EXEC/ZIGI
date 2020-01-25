@@ -249,6 +249,8 @@
   zctact   = "&ZIGPASS"
   zctdesc  = "RFIND for zigi Dialog"
   'vget (zsctpref)'
+  if zsctpref = null
+     then zsctpref = 'ISP'
   ctab = zsctpref'cmds'
   'tbtop' ctab
   'tbscan' ctab 'arglist(zctdesc) condlist(EQ) Next'
