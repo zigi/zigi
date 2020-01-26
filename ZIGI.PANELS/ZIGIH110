@@ -16,7 +16,7 @@
 %Optional:+is the name of a specific branch to clone. The default is master.
 +
 %Local Repository+is the location where the%Clone+will create a directory or
-+where%Create+will initializee the Git repo.
++where%Create+will initialize the Git repo.
 +
 %PREFIX+is a set of high level qualifiers (0,n) that will be prefixed
 +to the Datasets from the remote repository. This%does not+change the names
