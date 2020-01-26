@@ -9,12 +9,12 @@
                                  %Merge+
 +
 %Merge+will merge a (local) branch into the current branch.  When the two
-+branches are the same, nothing happes.
++branches are the same, nothing happens.
 +
 +Select the branch to merge into the current branch from a list of available
 +branches using the%M+row selection.
 +
-+If the merge is succesfull, it will be commited to the current branch.
++If the merge is successful, it will be committed to the current branch.
 +
 +If the merge is not successful a popup with three options will be presented:
 +

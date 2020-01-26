@@ -8,7 +8,7 @@
 +
                                  %Grep+
 +
-%Grep+will search, case senstive (-i), using the provided text string.
+%Grep+will search, case sensitive (-i), using the provided text string.
 +
 +Result options:
 +
