@@ -250,7 +250,7 @@
   zctdesc  = "RFIND for zigi Dialog"
   'vget (zsctpref)'
   if zsctpref = null
-     then zsctpref = 'ISP'
+  then zsctpref = 'ISP'
   ctab = zsctpref'cmds'
   'tbtop' ctab
   'tbscan' ctab 'arglist(zctdesc) condlist(EQ) Next'
@@ -3723,6 +3723,11 @@ Merge_it:
         rf = 1
         'TBTop' dsnatbl
         'TBSkip' dsnatbl 'Number('last_find+1') rowid(row)'
+        if rc > 0 then do
+          'TBTop' dsnatbl
+          last_find = 0
+          'TBSkip' dsnatbl 'Number('last_find+1') rowid(row)'
+        end
       end
       if abbrev('FIND',word(zcmd,1),1) = 1 then do
         finddsn = word(zcmd,2)
@@ -3730,22 +3735,25 @@ Merge_it:
           'TBTop' dsnatbl
           'TBSkip' dsnatbl 'Number('ztdtop') rowid(row)'
           wrap = 0
+          found = 0
         end
         save_top = row
         do forever
           if pos(finddsn,dsna) > 0 then do
+            found = 1
             zerrsm = 'Found.'
-            zerrlm = finddsn 'found in row' row
+            zerrlm = finddsn 'found in row' row +0
+            if wrap = 1 then zerrlm = zerrlm 'Wrap around.'
             'setmsg msg(isrz003)'
             last_find = row
             if datatype(last_find) /= 'NUM' then
-               last_find = 0
+            last_find = 0
             top = row
             leave
           end
           /* go to the next row */
           'tbskip' dsnatbl 'rowid(row)'
-          if rc > 0 then if wrap = 1 then do
+          if rc > 0 then if found = 0 then do
             zerrsm = 'Not Found.'
             zerrlm = finddsn 'not found.'
             'setmsg msg(isrz003)'
@@ -3753,10 +3761,11 @@ Merge_it:
             last_find = 0
             leave
           end
-          else if rc > 0 then do
-             wrap = 1
+          if rc > 0 then if found = 1 then do
+            wrap = 1
             'tbtop' dsnatbl
             'tbskip' dsnatbl 'rowid(row)'
+            say 'row:' row
             last_find = 0
           end
         end
