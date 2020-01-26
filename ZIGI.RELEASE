@@ -119,3 +119,8 @@ or the History Recover option will be required.
 
 Speeded up the ADDDSN dialog initialization by replacing the use of LISTC with
 IBM's sample IGGCSIRX code that was modified to return only the dataset names.
+
+Added to the ADDDSN dialog a Find/RFind capability to easily find the dataset
+names to be added. Find works with a string that is searched anywhere in the
+dataset name (e.g. F PDS will find the 1st occurence of a dataset with PDS in
+the name and repeat find (F5) find the next).

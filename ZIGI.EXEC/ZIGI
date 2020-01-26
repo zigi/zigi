@@ -3738,6 +3738,8 @@ Merge_it:
             zerrlm = finddsn 'found in row' row
             'setmsg msg(isrz003)'
             last_find = row
+            if datatype(last_find) /= 'NUM' then
+               last_find = 0
             top = row
             leave
           end
@@ -3748,11 +3750,14 @@ Merge_it:
             zerrlm = finddsn 'not found.'
             'setmsg msg(isrz003)'
             top = save_top
+            last_find = 0
             leave
           end
           else if rc > 0 then do
-            if rc > 0 then wrap = 1
+             wrap = 1
             'tbtop' dsnatbl
+            'tbskip' dsnatbl 'rowid(row)'
+            last_find = 0
           end
         end
       end
