@@ -3598,6 +3598,12 @@ Merge_it:
                 dsnstat = porcelain(stat)
                 leave
               end
+              /* Ugly fix for uss files with a space */
+              if pos('"'dsn'"', PATH) = 1 then do
+                dsnstat = porcelain(stat)
+                leave
+              end
+              /* end of ugly fix */
             end
             'tbadd' rtbl
             filetype = null
