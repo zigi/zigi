@@ -2283,6 +2283,29 @@ Work_with_repo_file:
           else "Edit Dataset('"edsn"("mem")'"
           if rc = 0 then do
             if ztdsels = 1 then do
+              m = strip(mem)
+              m = usssafe(m)
+              e = usssafe(edsn)
+              r = usssafe(dsn)
+              /* Binary v1, check if PDS is a bin, then copy binary */
+              /* No support for mixed PDS (bin/ebcdic) yet... */
+              if is_binfile(r'/*') = 1 then do
+                binopt = '-B'
+              end
+              else do
+                binopt = null
+              end
+              copycmd = "//'"e"("m")'"
+              copycmd = '"'copycmd'"'
+              copycmd = "cp "binopt" -U -v" copycmd" "localrep"/"zigirep
+              copycmd = copycmd || "/"r"/"
+              x = bpxwunix(copycmd,,so.,se.)
+              if x > 0 then call view_std 'B'
+              x = debug('Copy:' copycmd)
+              if binopt = '-B' then do
+                tagcmd = 'chtag -b 'localrep'/'zigirep'/'r'/*'
+                x = bpxwunix(tagcmd,,so.,se.)
+              end
               call update_repo_metadata
               call work_with_repo_file
             end
