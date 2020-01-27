@@ -159,7 +159,24 @@
   |            06/11/19 LBD - Creation                         |
   |                                                            |
   | ---------------------------------------------------------- |
-  |   Copyleft (C) 2019-2020                                   |
+  |    zigi - the z/OS ISPF Git Interface                      |
+  |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
+  |                                                            |
+  |    This program is free software: you can redistribute it  |
+  |    and/or modify it under the terms of the GNU General     |
+  |    Public License as published by the Free Software        |
+  |    Foundation, either version 3 of the License, or (at     |
+  |    your option) any later version.                         |
+  |                                                            |
+  |    This program is distributed in the hope that it will be |
+  |    useful, but WITHOUT ANY WARRANTY; without even the      |
+  |    implied warranty of MERCHANTABILITY or FITNESS FOR A    |
+  |    PARTICULAR PURPOSE.  See the GNU General Public License |
+  |    for more details.                                       |
+  |                                                            |
+  |    You should have received a copy of the GNU General      |
+  |    Public License along with this program.  If not, see    |
+  |    <https://www.gnu.org/licenses/>.                        |
   * ---------------------------------------------------------- */
   Address ISPExec
   'vget (zapplid)'
@@ -250,7 +267,7 @@
   zctdesc  = "RFIND for zigi Dialog"
   'vget (zsctpref)'
   if zsctpref = null
-     then zsctpref = 'ISP'
+  then zsctpref = 'ISP'
   ctab = zsctpref'cmds'
   'tbtop' ctab
   'tbscan' ctab 'arglist(zctdesc) condlist(EQ) Next'
@@ -2266,6 +2283,29 @@ Work_with_repo_file:
           else "Edit Dataset('"edsn"("mem")'"
           if rc = 0 then do
             if ztdsels = 1 then do
+              m = strip(mem)
+              m = usssafe(m)
+              e = usssafe(edsn)
+              r = usssafe(dsn)
+              /* Binary v1, check if PDS is a bin, then copy binary */
+              /* No support for mixed PDS (bin/ebcdic) yet... */
+              if is_binfile(r'/*') = 1 then do
+                binopt = '-B'
+              end
+              else do
+                binopt = null
+              end
+              copycmd = "//'"e"("m")'"
+              copycmd = '"'copycmd'"'
+              copycmd = "cp "binopt" -U -v" copycmd" "localrep"/"zigirep
+              copycmd = copycmd || "/"r"/"
+              x = bpxwunix(copycmd,,so.,se.)
+              if x > 0 then call view_std 'B'
+              x = debug('Copy:' copycmd)
+              if binopt = '-B' then do
+                tagcmd = 'chtag -b 'localrep'/'zigirep'/'r'/*'
+                x = bpxwunix(tagcmd,,so.,se.)
+              end
               call update_repo_metadata
               call work_with_repo_file
             end
@@ -3723,6 +3763,11 @@ Merge_it:
         rf = 1
         'TBTop' dsnatbl
         'TBSkip' dsnatbl 'Number('last_find+1') rowid(row)'
+        if rc > 0 then do
+          'TBTop' dsnatbl
+          last_find = 0
+          'TBSkip' dsnatbl 'Number('last_find+1') rowid(row)'
+        end
       end
       if abbrev('FIND',word(zcmd,1),1) = 1 then do
         finddsn = word(zcmd,2)
@@ -3730,29 +3775,38 @@ Merge_it:
           'TBTop' dsnatbl
           'TBSkip' dsnatbl 'Number('ztdtop') rowid(row)'
           wrap = 0
+          found = 0
         end
         save_top = row
         do forever
           if pos(finddsn,dsna) > 0 then do
+            found = 1
             zerrsm = 'Found.'
-            zerrlm = finddsn 'found in row' row
+            zerrlm = finddsn 'found in row' row +0
+            if wrap = 1 then zerrlm = zerrlm 'Wrap around.'
             'setmsg msg(isrz003)'
             last_find = row
+            if datatype(last_find) /= 'NUM' then
+            last_find = 0
             top = row
             leave
           end
           /* go to the next row */
           'tbskip' dsnatbl 'rowid(row)'
-          if rc > 0 then if wrap = 1 then do
+          if rc > 0 then if found = 0 then do
             zerrsm = 'Not Found.'
             zerrlm = finddsn 'not found.'
             'setmsg msg(isrz003)'
             top = save_top
+            last_find = 0
             leave
           end
-          else if rc > 0 then do
-            if rc > 0 then wrap = 1
+          if rc > 0 then if found = 1 then do
+            wrap = 1
             'tbtop' dsnatbl
+            'tbskip' dsnatbl 'rowid(row)'
+            say 'row:' row
+            last_find = 0
           end
         end
       end

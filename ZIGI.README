@@ -20,7 +20,7 @@ To get started with this package:
 3. From OMVS-shell invoke: git clone git@github.com/wizardofzos/zigi.git
 4. cd zigi
 5. ./install.sh (su and MVS HLQ access might be required)
-6. ISPF,3.4. Go to ZIGI.V1R1.EXEC and exec ZIGI
+6. ISPF,3.4. Go to ZIGI.EXEC and exec ZIGI
 
 More information in the wiki: https://github.com/wizardofzos/zigi/wiki
 

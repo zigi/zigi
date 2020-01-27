@@ -7,8 +7,6 @@
  ] type(text) hilite(blink) color(green) intens(high)
  } type(text) hilite(blink) color(blue) intens(high)
 )Body Expand(\\)
-+
-+
 +                                              .ZZ.     ZZ
 +                         ZZZZZZZZ           ZZZZZZZ
 +             ZZZZZZZZZZZZZZZZZZZZZZ   ZZ   ZZZ         ZZ
@@ -27,6 +25,8 @@
 +              ZZZZZZZZZZ              [The git interface for the rest of us+
 +             ZZZZZZZZ                 _                                    +
 +            ZZZZZZZ                   _    !Henri Kuiper+&!Lionel B. Dyck  +
++
++                    _ Copyright 2020 under GPL Version 3
 +
 +               !ENTER+to continue!F1+for Release Information
 )Init
