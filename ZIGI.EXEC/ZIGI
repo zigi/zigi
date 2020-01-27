@@ -1435,8 +1435,9 @@ Work_With_Repo:
         then d = usssafe(dsn)
         else d = "'"dsn"'"
         cmd = 'cd' localrep'/'zigirep
-        x = docmd(cmd ' && export && git add -v 'd)
-        call view_std 'C'
+        drop so. se.
+        x = docmd(cmd ' && git add -v 'd)
+        call view_std 'B'
         if dsnvalid(fulldsn) = "OK" then do
           /* Only get the stats if it's a z/OS dataset
           Don't do it for the USS files
@@ -3195,6 +3196,9 @@ Merge_it:
     if stdopt = null then viewopt = 'B'
     if viewopt = null then viewopt = 'B'
     if stdopt = 'X' then stdopt = null
+    if datatype(so.0) /= 'NUM' then so.0 = 0
+    if datatype(se.0) /= 'NUM' then se.0 = 0
+    if viewopt = 'B' then if so.0 + se.0 = 0 then return
     'Control Display Save'
     /* ------------------------------- *
     | Randomly define a DDName to use |
@@ -3811,7 +3815,6 @@ Merge_it:
             wrap = 1
             'tbtop' dsnatbl
             'tbskip' dsnatbl 'rowid(row)'
-            say 'row:' row
             last_find = 0
           end
         end
