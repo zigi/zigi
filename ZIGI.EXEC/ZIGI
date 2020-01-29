@@ -3095,18 +3095,12 @@ Merge_it:
       ga4b = "git-encoding=iso8859-1 zos-working-tree-encoding=iso8859-1"
       ga4  = ga4a || ga4b
       call write_fd  ga4
-      ga   = "*.docm binary     "
-      call write_fd  ga
-      ga   = "*.docx binary     "
-      call write_fd  ga
-      ga   = "*.doc  binary     "
-      call write_fd  ga
-      ga   = "*.pdf  binary     "
-      call write_fd  ga
-      ga   = "*.epub binary     "
-      call write_fd  ga
-      ga   = "*.mobi binary     "
-      call write_fd  ga
+      binaries = '*.docm *.docx *.doc *.pdf *.epub *.mobi *.azw3' ,
+        '*.jpg *.jpeg *.png *.gif'
+      do gai = 1 to words(binaries)
+        ga = word(binaries,gai) 'binary'
+        call write_fd ga
+      end
       'close' fd
       /* -------------------- .gitattributes written ----------- */
       /*             UNFORTUNATELY, IT'S IN EBCDIC :(            */
