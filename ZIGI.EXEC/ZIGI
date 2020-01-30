@@ -1051,6 +1051,7 @@ Work_With_Repo:
       * -------------------------------- */
       When abbrev('REMOTE',zcmd,3) = 1 then do
         zcmd = null
+        parse value '' with defruid defcpush
         'display panel(zigiremo)'
         if rc > 0 then do
           zerrsm = 'Cancelled.'
@@ -1058,6 +1059,8 @@ Work_With_Repo:
           'setmsg msg(isrz003)'
         end
         else do
+          'tbmod zigirepo'
+          'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
           parsedURI = parseGitURI(origin)
           parse var parsedURI user host port repo
           if port /= 22 then extrabits = '-p 'port
