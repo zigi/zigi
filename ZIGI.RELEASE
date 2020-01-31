@@ -4,11 +4,11 @@
                          New Features and Functions
                          --------------------------
 
-  **************************************************************
-  * The former use of -M with CP to convert the @#$ special    *
-  * characters to/from z/OS for unix has been replaced by      *
-  * escaping those characters where required to preserve them. *
-  **************************************************************
+  /------------------------------------------------------------\
+  | The former use of -M with CP to convert the @#$ special    |
+  | characters to/from z/OS for unix has been replaced by      |
+  | escaping those characters where required to preserve them. |
+  \------------------------------------------------------------/
 
 Update to the GITLOG prompt to include, or exclude, diff's in the report.
 
