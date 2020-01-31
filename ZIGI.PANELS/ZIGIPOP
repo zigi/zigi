@@ -6,6 +6,6 @@
   $zs2
 
 )Init
- &zwinttl = 'zIGI Status Popup'
+ &zwinttl = 'zigi Status Popup'
 )Proc
 )end

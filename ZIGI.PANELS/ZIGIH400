@@ -27,6 +27,8 @@
 +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
+ &ztut = '400'
+ vput (ztut)
 )PROC
  &ZSEL = TRANS( &ZCMD
            1,zigih000

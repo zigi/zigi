@@ -2,13 +2,14 @@
   _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
   @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
   $ type(output) intens(low ) caps(off) just(left )
+  ] type(output) intens(low ) caps(off) just(left ) color(green)
   ! type(output) intens(high) caps(off) just(left )
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
  [ type(output) caps(off) pas(on) intens(high) color(white)
 )Body  Expand(\\)
-+-\-\#zigtitle   +-\-\
++Current Repository+--------------#zigtitle   +---------------------------------
 %Command ===>_zcmd            \ \  %Scroll ===>_zscr+
 %Local dir      :$localdir
 %Remote path    :$remote1
@@ -16,22 +17,25 @@
 %                !bstat
 %                $baction                                                   +
 %
-[Add+    Add dataset        [Grep+   Find Strings     [Refresh+Replace Datasets
-[Br    + Change Branch      [Merge+  Merge Repos      [Remote+ Add remote
-[Commit+ Execute commit -m  [Network+Network Report   [Rollback+Revert
-[GitCMD +Git Command Prompt [Pro+    Pro Panel version[Set+    Set Defaults
-[Githelp+Git Help           [Pull+   Pull from origin [Status+ Git Status
-[GitLog+ Show git log output[Push+   Push to origin   [View+   OMVS Dir
++Command:[Add   + Add dataset   [Grep+   Find Strings    [Remote+  Add remote
+         [Br    + Change Branch [Merge+  Merge Branches  [Rollback+Revert
+         [Commit+ Record Changes[Network+Network Report  [Set+     Set Defaults
+         [Find+   Find in Table [Pro+    Pro Panel       [SnapShot+Create Escrow
+         [GitCMD +Git Commands  [Pull+   Pull from origin[Status+  Git Status
+         [Githelp+Git Help      [Push+   Push to origin  [View+    OMVS Dir
+         [GitLog+ Show git log  [Refresh+Replace Datasets
 +
-%S+Select (Edit)%A+Add to index%B+Browse%V+View
++Line:   %S+Select%A+Add%B+Browse%D+Diff%H+History%RM+Remove%RN+Rename
+         %U+Undo%V+View
 +
-%S  Status                    Dataset Name
+%S  Status                    Dataset/File Name
 )Model
-@z+$z                        $z
+@z +$z                       $z                                            ]z
 )Init
- &Add     = 'Add'
+ &Add     = 'AddDsn'
  &Br      = 'Branch'
  &Commit  = 'Commit'
+ &Find    = 'Find'
  &Gitcmd  = 'GitCmd'
  &Githelp = 'Githelp'
  &GitLog  = 'Gitlog'
@@ -44,10 +48,11 @@
  &Refresh = 'Refresh'
  &Remote  = 'Remote'
  &Rollback  = 'Rollback'
+ &Snapshot  = 'Snapshot'
  &Set     = 'Set'
  &Status  = 'Status'
  &View    = 'View'
- .zvars = '(zsel dsnstat fulldsn)'
+ .zvars = '(zsel dsnstat fulldsn filetype)'
  .cursor = &zcmd
  .help = zigih200
  &zscr = CSR
@@ -67,11 +72,12 @@
      &osel = &zsel
  if (&row = 0)
      &zsel = &z
- ver (&zsel,list,S,A,U,B,V)
+ /* ver (&zsel,list,S,A,U,B,V,RM,RN,H,D,/) */
 )PNTS
- FIELD(ADD   )  VAR(ZCMD) VAL('ADD')
+ FIELD(ADD   )  VAR(ZCMD) VAL('ADDDSN')
  FIELD(BR    )  VAR(ZCMD) VAL('BRANCH')
  FIELD(COMMIT)  VAR(ZCMD) VAL('COMMIT')
+ FIELD(FIND  )  VAR(ZCMD) VAL('FIND')
  FIELD(GITCMD)  VAR(ZCMD) VAL('GITCMD')
  FIELD(GITHELP) VAR(ZCMD) VAL('GITHELP')
  FIELD(GITLOG)  VAR(ZCMD) VAL('GITLOG')
@@ -84,6 +90,7 @@
  FIELD(REFRESH) VAR(ZCMD) VAL('REFRESH')
  FIELD(REMOTE)  VAR(ZCMD) VAL('REMOTE')
  FIELD(ROLLBACK) VAR(ZCMD) VAL('ROLLBACK')
+ FIELD(SNAPSHOT) VAR(ZCMD) VAL('SNAPSHOT')
  FIELD(SET   )  VAR(ZCMD) VAL('SET')
  FIELD(STATUS)  VAR(ZCMD) VAL('STATUS')
  FIELD(VIEW  )  VAR(ZCMD) VAL('VIEW')

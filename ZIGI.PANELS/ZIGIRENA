@@ -1,0 +1,13 @@
+)Attr
+ $ type(output) caps(on )
+ _ type(input)  caps(on ) hilite(uscore) intens(low)
+)Body Window(58,4)
++Rename:$fulldsnq
++New Name:_newdsn                                        +
++
+             %Enter+to continue%F3+to cancel.
+)Init
+ &zwinttl = 'zigi Dataset/File Rename'
+)Proc
+  ver (&newdsn,nb,dsnameq)
+)end

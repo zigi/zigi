@@ -1,0 +1,43 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  $ type(output) intens(low ) caps(off) just(left )
+  [ type(output) intens(low ) caps(off) just(right)
+  ] type(output) caps(off) pas(on) intens(high) color(white)
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+)Body  Expand(\\)
++PDS Member List+-----------------#zigtitle   +---------------------------------
+%Command ===>_zcmd        \ \ %Scroll ===>_zscr+
+%
+%Current Dataset    : $fulldsn
+%Current Repository : $localdir
+%Current Branch     : $branch
+%
+%S   Member    Status                     Size    Mod-Date  Mod-Time  Userid
+)Model
+@z +$z        +$z                     [z      +  [z       +[z       +$z
+)Init
+  .zvars = '(zsel mem memstat zlcnorc zlmdate zlmtime zluser)'
+  .cursor = &zcmd
+  .help = zigih300
+  &zscr = CSR
+)Proc
+ &row = &z
+ if (&ZCMD = &Z)
+     if (&ztdsels = 0000)
+        &row = .csrrow
+        if (&row ^= &z)
+            if (&zsel = &z)
+                &zsel = S
+     if (&ztdsels ^= 0000)
+         &row = &z
+     if (&ZSEL ^= &Z)
+       if (&Zsel = '=')
+           &Zsel = &osel
+     &osel = &zsel
+ if (&row = 0)
+    &zsel = &z
+ ver (&zsel,list,S,A,D,U,RN,RM,H,/)
+)End

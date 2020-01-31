@@ -6,7 +6,7 @@
 +Userid:$resetid +
 +
 )Init
- &zwinttl = 'zIGI Reset ID Prompt'
+ &zwinttl = 'zigi Reset ID Prompt'
 )Proc
   ver (&resetid,nb,dsname)
 )end

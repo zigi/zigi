@@ -6,7 +6,7 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
 )Body  Expand(\\)
-+-\-\#zigtitle   +-\-\
++Add Datasets+--------------------#zigtitle   +---------------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
 +
 %Fixed Dataset Prefix:             @dsnapfx                               +
@@ -16,18 +16,22 @@
 +below. Optionally change the number of qualifiers to ignore in the prefix
 +for the OMVS file name or directory.
 +
-+Options:%S+Add+%A+Add+%B+Browse
++Command:%Find+
++Line:%S+Add+%A+Add+%AB+Add binary+%B+Browse
 +
-%S  Dataset Name                                Status
+%S   Dataset Name                                Status
 )Model
-@z+$z                                          $z
+@z +$z                                          $z
 )Init
   .zvars = '(qualignr zsel dsna dastat)'
   .help = zigih210
   &zscr = CSR
+ .CURSOR = ZCMD
 )Reinit
  if (&qualignr EQ &Z)
     .CURSOR = QUALIGNR
+ if (&qualignr NE &Z)
+    .CURSOR = ZCMD
 )Proc
  &row = &z
  if (&ZCMD = &Z)
@@ -46,5 +50,5 @@
      &zsel = &z
  ver (&dsnapfx,nb,dsname)
  ver (&qualignr,nb,range,0,8)
- ver (&zsel,list,S,B,A)
+ ver (&zsel,list,S,B,A,AB)
 )End

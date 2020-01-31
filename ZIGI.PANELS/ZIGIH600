@@ -1,0 +1,34 @@
+)Attr
+ $ type(output) caps(off)
+ { type(output) hilite(reverse) color(turq) caps(off)
+ _ type(input) caps(off) hilite(uscore) intens(low)
+ + type(text ) intens(low) skip(on)
+ @ type(input) caps(on ) hilite(uscore) intens(low)
+)Body Expand(\\)
++Tutorial\-\{zigtitle                                      +-\-\Tutorial
+%Command ===>_zcmd                                                             +
++
++A zigi managed repository consists of the following characteristics:
++
+   1. A%.zigi+directory in the repository root directory
+   2. A file with the name of%dsn+in the .zigi directory with
+      information on the z/OS datasets managed by zigi:
++     # Default DSORG and DCB info
++     * PO FB 80 32720
++     SAMPLE.REXX PO VB 255 32760
++     SAMPLE.PDS PO FB 80 32760
++     SAMPLE.TEXT PS FB 121 27,951
++  3. Each z/OS sequential datasets must have a copy in the repository root
++     directory.
++  4. Each z/OS partitioned dataset must have a directory in the repository
++     root.
++  5. Each PDS member must have a copy in the directory associated with the
++     full PDS.
++  6. See the next tutorial page for OMVS naming standards for z/OS datasets.
++
+       +Press%Enter+to continue reading about the zigi repository layout.
+)Init
+ &zigtitle = '(Characteristics of a zigi Managed Repository)'
+)Proc
+ &zcont = zigih610
+)end

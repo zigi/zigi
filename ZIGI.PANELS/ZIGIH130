@@ -10,7 +10,7 @@
 +
 %SSH+will display your personal Public SSH Key location and key contents.
 +The key contents may be copied and pasted into your account security settings
-+at the remote%git+repository that you will be working with.
++at the remote%Git+repository that you will be working with.
 %
 +This is your personal key that was created by you prior to using the%zigi+
 +application, or during your first execution of the%zigi+application.
@@ -28,6 +28,5 @@
 )Init
  .cursor  = &zcmd
 )PROC
- &ZUP = ZIGIH122
  &ZCONT = ZIGIH140
 )END

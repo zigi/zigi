@@ -1,0 +1,14 @@
+)Attr
+ $ type(output) caps(off)
+ _ type(input)  caps(on ) hilite(uscore) intens(low)
+)Body Window(41,5)
++Command:_zcmd
++
++Enter the Find String:_find
++
++Press%Enter+to Continue, or%F3+to cancel
+)Init
+ &zwinttl = 'zigi Find Prompt'
+)Proc
+ ver (&find,nb)
+)end

@@ -1,0 +1,33 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                                     %SELECT+
++
+%Select+as a command will select the repository passed as the parameter.
++
++
+%Syntax:+Select repository-name
++    or:+S repository-name
++
++
++
++
+%
++
++
++  "The greatest teacher, failure is."   Master Yoda
++       - Master Yoda
++
++
+         +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+ vget (ztut)
+)PROC
+ &zcont = ZIGIH300
+)END

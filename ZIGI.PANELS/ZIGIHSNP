@@ -1,0 +1,32 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                                   %Snapshot+
++
+%Snapshot+is intended to be used when a project milestone is reached, such as a
++when the current branch is ready to release (patch, release, version, escrow).
++
++To initiate the Snapshot requires:
++   1) a tag (see githelp for tag)
++   2) a never used z/OS HLQ (e.g. HLQ.PRODUCT.VRM where HLQ.PRODUCT exist but
++      the VRM qualifier does not).
++   3) a OMVS path the does not exist (e.g. /products/product/vrm where
++      /products/product/ exist but vrm does not)
++
++The z/OS datasets will be created from the git repository and the OMVS path
++will be created (mkdir) and copied (cp) from the git repository.
++
++A gitlog.txt file with git log information for the tag level will be placed
++into the new path for reference as the Snapshot is not accessible with git.
++
+         +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+)PROC
+ &zcont = zigih2f0
+)END

@@ -2,30 +2,40 @@
  @ type(input ) hilite(uscore) caps(off) intens(low)
  _ type(input ) hilite(uscore) caps(on) intens(low )
  $ type(output) hilite(uscore) caps(off)
+ { type(output) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
 )Body Expand(\\)
-+-\-\#zigtitle   +-\-\
++Set Defaults +-------------------#zigtitle   +---------------------------------
 %Command ===>_zcmd                                                             +
 +
-+  user.name  : @zigiuid                                         +
-+  user.email : @zigimail                                        +
-
-
-
-+The user.name and user.email are used to set email and username
-+to your commits. The username does not need to be the same as your
-+username.
-
+%Git Defaults (used at Commit time):
++
++  user.name  :@zigiuid                                                        +
++  user.email :@zigimail                                                       +
++
++Partitioned Dataset (PDSE) Defaults:
++
++  Member Generations :@z  +(0 to 999)  System Limit:{sl
++
+%Notes:+   The user.name and user.email are used to set username and
++          email to your commits. The username does not need to be
++          the same as your z/OS username.
++
 +See : https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup
-
-
-
-
-
-
++
++
++
++
 +Press%Enter+to save, or%F3+to cancel.
 )Init
+ if (&mgen = &Z)
+     &mgen = 0
+ .zvars = '(mgen)'
+ &setcont = 'Y'
+ .help = zigih140
 )Proc
   ver (&zigiuid,nb)
   ver (&zigimail,nb)
+  ver (&mgen,nb,range,0,&sl)
+  &setcont = &Z
 )end
