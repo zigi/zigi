@@ -1440,7 +1440,6 @@ Work_With_Repo:
         cmd = 'cd' localrep'/'zigirep
         drop so. se.
         x = docmd(cmd ' && git add -v 'd)
-        call view_std 'B'
         if dsnvalid(fulldsn) = "OK" then do
           /* Only get the stats if it's a z/OS dataset
           Don't do it for the USS files
@@ -1461,7 +1460,6 @@ Work_With_Repo:
           end
         end
         if ztdsels < 2 then do
-          call view_std 'C'
           call update_repo_metadata
         end
       end
