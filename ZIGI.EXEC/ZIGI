@@ -2802,50 +2802,11 @@ Merge_it:
         call do_popup4p
         leave
       end
-      /* ------------ merge selective ---------------
-      call save_dovars
-      x = docmd('cd' localdir ,
-      '&& git log -m -1 --name-only --pretty="format:"')
-      merge_dsns = null
-      merge_mem. = null
-      do mc = 1 to so.0
-      if left(so.mc,1) = '.' then iterate
-      if pos('/',so.mc) = 0 then
-      merge_dsns = merge_dsns word(so.mc,1)
-      else do
-      parse value so.mc with mwdsn'/'mwmem
-      if wordpos(mwdsn,merge_dsns) = 0 then
-      merge_dsns = merge_dsns mwdsn
-      merge_mem.mwdsn = merge_mem.mwdsn mwmem
-      end
-      end
-      call rest_dovars
-      -------------- merge selective --------------- */
       parse var se.1 "Automatic merge went well; stopped" rest
       if rest /= "" then do
         /* No issues. Commit the merge then execute a refresh */
         /* Maybe popup a panel here for the commit message? */
         x = docmd('cd 'localdir' && git commit -m "Merge 'bname'"')
-        /* ----------- merge selective ---------------
-        do zz = 1 to words(merge_dsns)
-        zd = word(merge_dsns,zz)
-        zw = words(merge_mem.zd)
-        if qualignr > 0 then ldsn = "'"pdshlq"."zd"'"
-        else ldsn = "'"zd"'"
-        x = listdsi(ldsn "dir")
-        /* check if a PDSE and bypass the full refresh or if not
-        a PDSE then check of more than 25% of members being
-        updated and if so then nullify the member list so a full
-        refresh will occur for the dataset */
-        if x = 0 then
-        if sysmembers /= null then
-        if sysadirblk /= 'NO_LIM' then
-        if sysmembers/zw < 4 then merge_mem.zd = ''
-        interpret 'zv'zz '= (merge_mem.zd)'
-        'vput zv'zz
-      end
-      call Refresh localrep zigirep pdshlq qualignr merge_dsns
-      -------------- merge selective --------------- */
       call Refresh localrep zigirep pdshlq qualignr
       call update_repo_metadata
     end
