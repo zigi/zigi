@@ -17,8 +17,8 @@
 %                !bstat                                                     +
 %                $baction                                                   +
 %
-+Command:[Add   [Basic[Br[Com[Find[GitC[GitH[GitL[Grep[Merg[Net [Pull[Push+
-         [Ref[Rem[Roll[Set[Snapshot[St[View+
++Command:[Add   [Addall[Basic[Br[Com[Find[GitC[GitH[GitL[Grep[Merg[Net +
+         [pull[push[Ref[Rem[Roll[Set[Snapshot[St[View+
 +Line:   %S+Select%A+Add%B+Browse%D+Diff%H+History%RM+Remove%RN+Rename
          %U+Undo%V+View
 
@@ -27,6 +27,7 @@
 @z +$z                       $z                                            ]z
 )Init
  &Add     = 'AddDsn'
+ &Addall  = 'AddAll'
  &Basic   = 'Basic'
  &Br      = 'Br'
  &Com     = 'Com'
@@ -69,6 +70,7 @@
 /*  ver (&zsel,list,S,A,U,B,V,RM,RN,H,D,/) */
 )PNTS
  FIELD(ADD) VAR(ZCMD) VAL('ADD')
+ FIELD(ADDALL) VAR(ZCMD) VAL('ADDALL')
  FIELD(BASIC) VAR(ZCMD) VAL('BASIC')
  FIELD(BR) VAR(ZCMD) VAL('BRANCH')
  FIELD(COM) VAR(ZCMD) VAL('COMMIT')

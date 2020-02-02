@@ -11,14 +11,14 @@
 +
 %Commands available+(select for more information or press%Enter+to see each):
 +
-[Add   + Add dataset{*   [Merge+  Merge Branches{*   [Row+     Options
-[Br    + Change Branch{* [Network+Network Report     [Set+     Set Defaults
-[Commit+ Record Changes  [Pro+    Toggle Menu        [Snapshot+Escrow
-[Find+   Find in table   [Pull+   Pull from origin   [Status+  Git Status
-[GitCMD +Git Commands    [Push+   Push to origin     [View+    OMVS Dir
-[Githelp+Git Help        [Refresh+ Replace Datasets{*
-[GitLog+ Show git log    [Remote+  Add remote
-[Grep+   Find Strings    [Rollback+Revert{*
+[Add   + Add dataset{*    [Grep+   Find Strings       [Rollback+Revert{*
+[AddAll+ Add all to Git   [Merge+  Merge Branches{*   [Row+     Options
+[Br    + Change Branch{*  [Network+Network Report     [Set+     Set Defaults
+[Commit+ Record Changes   [Pro+    Toggle Menu        [Snapshot+Escrow
+[Find+   Find in table    [Pull+   Pull from origin   [Status+  Git Status
+[GitCMD +Git Commands     [Push+   Push to origin     [View+    OMVS Dir
+[Githelp+Git Help         [Refresh+ Replace Datasets{*
+[GitLog+ Show git log     [Remote+  Add remote
 +
 {*+not supported within subdirectories.
 +
@@ -29,6 +29,7 @@
 )Init
  .cursor  = &zcmd
  &Add     = 'AddDsn'
+ &AddAll  = 'AddAll'
  &Br      = 'Branch'
  &Commit  = 'Commit'
  &Find    = 'Find'
@@ -56,72 +57,75 @@
   Select
     When abbrev('ROW',zcmd,3)     = 1 then zcmd ='0'
     When abbrev('ADD',zcmd,2)     = 1 then zcmd ='1'
-    When abbrev('BRANCH',zcmd,2)  = 1 then zcmd ='2'
-    When abbrev('COMMIT',zcmd,2)  = 1 then zcmd ='3'
-    When abbrev('GITCMD',zcmd,4)  = 1 then zcmd ='4'
-    When abbrev('GITHELP',zcmd,4) = 1 then zcmd ='5'
-    When abbrev('GITLOG',zcmd,4)  = 1 then zcmd ='6'
-    When abbrev('GREP',zcmd,2)    = 1 then zcmd ='7'
-    When abbrev('MERGE',zcmd,2)   = 1 then zcmd ='8'
-    When abbrev('NETWORK',zcmd,2) = 1 then zcmd ='9'
-    When abbrev('PRO',zcmd,2)     = 1 then zcmd ='10'
-    When abbrev('PULL',zcmd,3)    = 1 then zcmd ='11'
-    When abbrev('PUSH',zcmd,3)    = 1 then zcmd ='12'
-    When abbrev('REFRESH',zcmd,3) = 1 then zcmd ='13'
-    When abbrev('REMOTE',zcmd,3)  = 1 then zcmd ='14'
-    When abbrev('ROLLBACK',zcmd,2) = 1 then zcmd ='15'
-    When abbrev('SET',zcmd,2)     = 1 then zcmd ='16'
-    When abbrev('SNAPSHOT',zcmd,2) = 1 then zcmd ='17'
-    When abbrev('STATUS',zcmd,2)  = 1 then zcmd ='18'
-    When abbrev('VIEW',zcmd,1)    = 1 then zcmd ='19'
-    When abbrev('FIND',zcmd,1)    = 1 then zcmd ='20'
+    When abbrev('ADDALL',zcmd,4)  = 1 then zcmd ='2'
+    When abbrev('BRANCH',zcmd,2)  = 1 then zcmd ='3'
+    When abbrev('COMMIT',zcmd,2)  = 1 then zcmd ='4'
+    When abbrev('GITCMD',zcmd,4)  = 1 then zcmd ='5'
+    When abbrev('GITHELP',zcmd,4) = 1 then zcmd ='6'
+    When abbrev('GITLOG',zcmd,4)  = 1 then zcmd ='7'
+    When abbrev('GREP',zcmd,2)    = 1 then zcmd ='8'
+    When abbrev('MERGE',zcmd,2)   = 1 then zcmd ='9'
+    When abbrev('NETWORK',zcmd,2) = 1 then zcmd ='10'
+    When abbrev('PRO',zcmd,2)     = 1 then zcmd ='11'
+    When abbrev('PULL',zcmd,3)    = 1 then zcmd ='12'
+    When abbrev('PUSH',zcmd,3)    = 1 then zcmd ='13'
+    When abbrev('REFRESH',zcmd,3) = 1 then zcmd ='14'
+    When abbrev('REMOTE',zcmd,3)  = 1 then zcmd ='15'
+    When abbrev('ROLLBACK',zcmd,2) = 1 then zcmd ='16'
+    When abbrev('SET',zcmd,2)     = 1 then zcmd ='17'
+    When abbrev('SNAPSHOT',zcmd,2) = 1 then zcmd ='18'
+    When abbrev('STATUS',zcmd,2)  = 1 then zcmd ='19'
+    When abbrev('VIEW',zcmd,1)    = 1 then zcmd ='20'
+    When abbrev('FIND',zcmd,1)    = 1 then zcmd ='21'
     Otherwise nop
   end
 *Endrexx
  &ZSEL = TRANS( &ZCMD
            0,zigih201  /* Row Select     */
            1,zigih210  /* ADDDSN         */
-           2,zigih220  /* BRANCH         */
-           3,zigih230  /* COMMIT         */
-           4,zigih240  /* GITCMD         */
-           5,zigih160  /* GITHELP        */
-           6,zigih250  /* GITLOG         */
-           7,zigih260  /* GREP           */
-           8,zigih270  /* MERGE          */
-           9,zigih280  /* NETWORK        */
-          10,zigih150  /* PRO            */
-          11,zigih290  /* PULL           */
-          12,zigih2A0  /* PUSH           */
-          13,zigih2B0  /* REFRESH        */
-          14,zigih2C0  /* REMOTE         */
-          15,zigih2D0  /* ROLLBACK       */
-          16,zigih2E0  /* SET            */
-          17,zigihsnp  /* Snapshot       */
-          18,zigih2F0  /* STATUS         */
-          19,zigih2G0  /* VIEW           */
-          20,zigih170  /* FIND           */
+           2,zigih218  /* ADDALL         */
+           3,zigih220  /* BRANCH         */
+           4,zigih230  /* COMMIT         */
+           5,zigih240  /* GITCMD         */
+           6,zigih160  /* GITHELP        */
+           7,zigih250  /* GITLOG         */
+           8,zigih260  /* GREP           */
+           9,zigih270  /* MERGE          */
+          10,zigih280  /* NETWORK        */
+          11,zigih150  /* PRO            */
+          12,zigih290  /* PULL           */
+          13,zigih2A0  /* PUSH           */
+          14,zigih2B0  /* REFRESH        */
+          15,zigih2C0  /* REMOTE         */
+          16,zigih2D0  /* ROLLBACK       */
+          17,zigih2E0  /* SET            */
+          18,zigihsnp  /* Snapshot       */
+          19,zigih2F0  /* STATUS         */
+          20,zigih2G0  /* VIEW           */
+          21,zigih170  /* FIND           */
            *,'?'
            )
 )PNTS
  FIELD(ROW   )  VAR(ZCMD) VAL('0')
  FIELD(ADD   )  VAR(ZCMD) VAL('1')
- FIELD(BR    )  VAR(ZCMD) VAL('2')
- FIELD(COMMIT)  VAR(ZCMD) VAL('3')
- FIELD(GITCMD)  VAR(ZCMD) VAL('4')
- FIELD(GITHELP) VAR(ZCMD) VAL('5')
- FIELD(GITLOG)  VAR(ZCMD) VAL('6')
- FIELD(GREP  )  VAR(ZCMD) VAL('7')
- FIELD(MERGE)   VAR(ZCMD) VAL('8')
- FIELD(NETWORK) VAR(ZCMD) VAL('9')
- FIELD(PRO   )  VAR(ZCMD) VAL('10')
- FIELD(PULL  )  VAR(ZCMD) VAL('11')
- FIELD(PUSH  )  VAR(ZCMD) VAL('12')
- FIELD(REFRESH) VAR(ZCMD) VAL('13')
- FIELD(REMOTE)  VAR(ZCMD) VAL('14')
- FIELD(ROLLBACK) VAR(ZCMD) VAL('15')
- FIELD(SET   )  VAR(ZCMD) VAL('16')
- FIELD(SNAPSHOT)  VAR(ZCMD) VAL('17')
- FIELD(STATUS)  VAR(ZCMD) VAL('18')
- FIELD(VIEW  )  VAR(ZCMD) VAL('19')
- FIELD(FIND  )  VAR(ZCMD) VAL('20')
+ FIELD(ADDALL)  VAR(ZCMD) VAL('2')
+ FIELD(BR    )  VAR(ZCMD) VAL('3')
+ FIELD(COMMIT)  VAR(ZCMD) VAL('4')
+ FIELD(GITCMD)  VAR(ZCMD) VAL('5')
+ FIELD(GITHELP) VAR(ZCMD) VAL('6')
+ FIELD(GITLOG)  VAR(ZCMD) VAL('7')
+ FIELD(GREP  )  VAR(ZCMD) VAL('8')
+ FIELD(MERGE)   VAR(ZCMD) VAL('9')
+ FIELD(NETWORK) VAR(ZCMD) VAL('10')
+ FIELD(PRO   )  VAR(ZCMD) VAL('11')
+ FIELD(PULL  )  VAR(ZCMD) VAL('12')
+ FIELD(PUSH  )  VAR(ZCMD) VAL('13')
+ FIELD(REFRESH) VAR(ZCMD) VAL('14')
+ FIELD(REMOTE)  VAR(ZCMD) VAL('15')
+ FIELD(ROLLBACK) VAR(ZCMD) VAL('16')
+ FIELD(SET   )  VAR(ZCMD) VAL('17')
+ FIELD(SNAPSHOT)  VAR(ZCMD) VAL('18')
+ FIELD(STATUS)  VAR(ZCMD) VAL('19')
+ FIELD(VIEW  )  VAR(ZCMD) VAL('20')
+ FIELD(FIND  )  VAR(ZCMD) VAL('21')
 )END
