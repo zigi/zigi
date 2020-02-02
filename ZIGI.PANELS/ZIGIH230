@@ -9,29 +9,28 @@
                                  %Commit+
 +
 %Commit+processing takes the changes that have been made in the managed
-+datasets and adds them to git management.
++datasets and adds them to Git management.
 +
 +Commit allows for, and it is encouraged, to provide a short summary of the
 +changes to be captured in the git log for historical tracking. The summary
 +typically consists of up to a 50 character title, followed by up to 72
-+character lines of explanation. This dialog allows up to 16 lines of
-+explanation.
++character lines of explanation. This dialog allows up to 16 lines of text.
++
++If there is a issue or ticket number it is suggested that it be included in
++the title (e.g. Ticket: title text).
 +
 +Blank lines are indicated by a period (.) in column 1.
 +
 +Optionally, after the commit, a%git push+can be automatically initiated by
 +entering a%Y+in the Push after field.
 +
-+
-+
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
- vget (comhup comhnext)
- if (&comhup = &z)
-     &comhup = ZIGIH220
-     &comhnext = ZIGIH240
+ vget (ztut)
 )PROC
- &zup = &comhup
- &zcont = &comhnext
+ if (&ztut = 200)
+     &zcont = zigih240
+ if (&ztut = 300)
+     &zcont = zigih250
 )END

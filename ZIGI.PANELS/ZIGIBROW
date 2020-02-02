@@ -12,7 +12,7 @@
 )INIT
   .HELP = ZIGIHMSG
   .ZVARS = 'ZSCBR'
-  &Title = 'zIGI Git Messages'
+  &Title = 'zigi Git Messages'
 )Reinit
   Refresh(ZCMD,ZSCBR,ZDATA,zlinex)
 )PROC

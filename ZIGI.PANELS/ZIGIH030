@@ -1,20 +1,21 @@
-)attr default(%+_)
-  _ type( input) intens(low ) just(left ) hilite(uscore)
+)attr default(%+`)
+  ` type( input) intens(low ) just(left ) hilite(uscore)
   ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
   [ type(output) intens(high) caps(off) just(left) pas(on)
-)Body Expand(\\)
-%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
-%Selection ===>_ZCMD                                                          +
+)Body Expand(}})
+%Tutorial -}-}~The z ISPF Git Interface (zigi)%}-}- Tutorial
+%Selection ===>`ZCMD                                                          +
 +
                              %Special Characters+
 +
-+Special characters in z/OS datasets and member names will be converted
-+when moved to the repository.
++Special characters in z/OS datasets and member names will be escaped for
++OMVS processes using the \ escape character.
 +
-+This is done via the -M option for the cp command.
++The characters that are         OMVS   z/OS
++challenges are the%@#$+        %  _+<->%@
++                               %  .+<->%#
++                               %  -+<->%$
 +
-+In the%status+log you will see the 'OMVS'-names (as this is from the
-+OMVS-side of things.
 +
 +
 +
@@ -23,11 +24,9 @@
      "The best competition I have is against myself to become better."
          - John Wooden
 +
-+
-+
            +Press the%Enter+key to begin your zigi tutorial journey.
 )Init
  .cursor = &zcmd
 )PROC
- &ZUP = ZIGIH020
+ &zcont = zigih100
 )END

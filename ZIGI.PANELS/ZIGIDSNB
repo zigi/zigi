@@ -6,27 +6,23 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
 )Body  Expand(\\)
-+-\-\#zigtitle   +-\-\
++Add Datasets+--------------------#zigtitle   +---------------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
 +
 %Fixed Dataset Prefix:             $dsnapfx                               +
 %Ignore 1st n qualifiers in prefix:$z+
 +
++Command:%Find+
++Line:%S+Add+%A+Add+%AB+Add binary+%B+Browse
 +
-+Options:%S+Add+%A+Add+%B+Browse
-+The repository already exists, and datasets have already been added. You
-+may add more datasets to this repository but you may not change the dataset
-+prefix or the number of qualifiers in the prefix to ignore.
-+
-+Options:%S+Add+%A+Add+%B+Browse
-+
-%S  Dataset Name                                Status
+%S   Dataset Name                                Status
 )Model
-@z+$z                                          $z
+@z +$z                                          $z
 )Init
   .zvars = '(qualignr zsel dsna dastat)'
   .help = zigih210
   &zscr = CSR
+  .CURSOR = ZCMD
 )Proc
  &row = &z
  if (&ZCMD = &Z)
@@ -43,5 +39,5 @@
      &osel = &zsel
  if (&row = 0)
      &zsel = &z
- ver (&zsel,list,S,B,A)
+ ver (&zsel,list,S,B,A,AB)
 )End

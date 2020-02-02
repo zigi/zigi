@@ -9,7 +9,7 @@
 +
 )Init
  .zvars = '(sfx sc)'
- &zwinttl = 'zIGI Sort Selections'
+ &zwinttl = 'zigi Sort Selections'
 )Proc
  ver (&sfx,nb,range,1,6)
  ver (&sc,nb,list,A,D)

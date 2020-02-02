@@ -6,22 +6,22 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD        \ \ %Scroll ===>_zcsr
 +
-                                 %Add+
+                                    %AddDsn+
 +
-%ADD+is used to add z/OS datasets to the repository.
+%AddDsn+is used to add z/OS datasets to the repository.
 +
-+ When a dataset is added, a copy of it will be made to the OMVS filesystem
-+ where the local repository is located. If the dataset is a PDS, then the ISPF
-+ statistics will be collected and stored in the .zigi location. A%git add+is
-+ performed for the dataset and the ISPF statistics file, making them ready to
-+ be committed.
++When a dataset is added, a copy of it will be made to the OMVS filesystem
++where the local repository is located. If the dataset is a PDS, then the ISPF
++statistics will be collected and stored in the .zigi location. A%git add+is
++performed for the dataset and the ISPF statistics file, making them ready to
++be committed.
 +
 +The Add Panel will prompt for two values:
 +
 %Fixed Dataset Prefix:+
 +
-+ This dataset prefix is used to generate a list of z/OS datasets under
-+ that prefix, or high-level-qualifier, from which to select datasets to add.
++This dataset prefix is used to generate a list of z/OS datasets under
++that prefix, or high-level-qualifier, from which to select datasets to add.
 +
 +
 +        +Press the%Enter+key to continue your zigi tutorial journey.
@@ -29,6 +29,5 @@
  .cursor  = &zcmd
  &zscr = CSR
 )PROC
- &zup = zigih200
  &zcont = zigih211
 )END

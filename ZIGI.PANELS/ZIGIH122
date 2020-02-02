@@ -33,7 +33,6 @@
    .zvars = '(til tilx)'
    &til  = '~'
    &tilx = '~/'
-   &zup  = zigih121
-   &zcont = zigih130
 )Proc
+   &zcont = zigih130
 )End

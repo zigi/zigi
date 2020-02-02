@@ -4,15 +4,15 @@
  @ type(input) caps(on ) hilite(uscore) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
 )Body Expand(\\)
-+-\-\#zigtitle   +-\-\
++Grep Command Entry+--------------#zigtitle   +---------------------------------
 %Command ===>_zcmd                                                            +
 +
 +
 +Git grep: _grepstr                                                   +
 +
-+Dataset or Report View:@z+(D or R)
++Dataset/File or Report View:@z+(D or R)
 +
-+Note: The grep is case sensitive.
++Note: The grep is NOT case sensitive.
 +
 +
 +

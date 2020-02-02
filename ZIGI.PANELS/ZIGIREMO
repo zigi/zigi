@@ -1,24 +1,34 @@
 )Attr
- $ type(output) caps(off)
+ $ type(input ) caps(on ) hilite(uscore) intens(low)
  _ type(input) caps(off) hilite(uscore) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
 )Body Expand(\\)
-+-\-\#zigtitle   +-\-\
++Add Remote+----------------------#zigtitle   +---------------------------------
 %Command ===>_zcmd
 +
 +Add remote _origin                                                         +
 +
++Default Push on Commit:$z+(Y or N)
++
++Default Userid to set prior to Commit:$defruid + or blank
++
 +This will execute a 'git remote add origin' followed by a
-+'git push -u origin master'
++'git push -u origin master'.
 +
 +Make sure the remote repository exists and you're authorized to
 +push to master.
 +
-              + This is best done on a 'brand new' repository :-)
+%Note:+This is best done on a 'brand new' repository :-)
++
++
++
++
 +
                      +Press%Enter+to continue%F3+to cancel
-+
 )Init
+ .zvars = '(defcpush)'
 )Proc
  ver (&origin,nb)
+  ver (&defcpush,nb,list,Y,N)
+  ver (&defruid,dsname)
 )end

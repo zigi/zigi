@@ -1,0 +1,16 @@
+)Attr
+ $ type(output) caps(off)
+ _ type(input)  caps(on ) hilite(uscore) intens(low)
+)Body Window(64,6)
++Confirm you really want to remove the dataset and/or file
++from the repository and from z/OS and OMVS:
++
++Requested removal:$rxdsn
++
++===>_z  +(YES or NO or F3)
+)Init
+ .zvars = '(rema)'
+ &zwinttl = 'zigi Remove Prompt'
+)Proc
+ ver (&rema,nb,list,YES,NO)
+)end

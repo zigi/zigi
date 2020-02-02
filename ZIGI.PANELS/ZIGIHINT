@@ -7,34 +7,38 @@
 %Selection ===>_ZCMD                                                          +
 +
 %zigi+is the z/OS ISPF Git Interface designed to provide the z/OS community
-+with an easy to use interface to the git source code management system to
-+manage their traditional%z/OS datasets+and%OMVS files.
++with an easy to use interface to the Git source code management
++system (SCM) to manage traditional%z/OS datasets+and%OMVS files.
 +
 +This tutorial covers the following topics, presented in sequence or by
 +selecting number, or selected using point and shoot:
 +
-     [z+Introduction (Getting Started)
-     [z+Primary Menu
-     [z+Repository Panel
-     [z+Member List Panel
-     [z+Getting Started   (tbd)
-     [z+Common Scenarios  (tbd)
-     [z+zigi Authors and Contributing *
+  [z+Introduction (Getting Started)   [z+Common Scenarios  (tbd)
+  [z+Local Repositories Panel         [z+zigi Repository Layout
+  [z+Current Repository Panel         [z+zigi Authors and Contributing *
+  [z+PDS Member List Panel            [z+GPL License
+  [z+Getting Started   (tbd)
 +
 +
 +
++
+%Note:+the panels with command menus have an option of%O+for a popup menu
 +
            +Press the%Enter+key to begin your zigi tutorial journey.
 )Init
-  .ZVARS = '(L0 L1 L2 L3 L4 L5 LA)'
+  .ZVARS = '(L0 L5 L1 L6 L2 LA L3 LG L4)'
    &L0 = '0'
    &L1 = '1'
    &L2 = '2'
    &L3 = '3'
    &L4 = '4'
    &L5 = '5'
+   &L6 = '6'
    &LA = 'A'
+   &LG = 'L'
  .cursor = &zcmd
+ &ztut = 'HINT'
+ vput (ztut)
 )PROC
  &ZSEL = TRANS( &ZCMD
            0,zigih000   /* Introduction (Getting Started) */
@@ -43,7 +47,9 @@
            3,zigih300   /* Member List Panel              */
     /*     4,zigih400   /* Getting Started   (tbd)        */
     /*     5,zigih500   /* Common Scenarios  (tbd)        */
+           6,zigih600   /* Repository Layout              */
            A,*zigihau   /* zigi Authors and Contributing  */
+           L,*zigigpl   /* GPL License                    */
            *,'?'
            )
 )PNTS
@@ -53,5 +59,7 @@
  Field(l3) var(zcmd) val(3)
  Field(l4) var(zcmd) val(4)
  Field(l5) var(zcmd) val(5)
+ Field(l6) var(zcmd) val(6)
  Field(lA) var(zcmd) val(A)
+ Field(lL) var(zcmd) val(L)
 )END

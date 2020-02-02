@@ -11,7 +11,7 @@
 %Reset+will change the ISPF statistics userid for all members to the userid
 +that is provided on the prompting panel.
 +
-+After the reset the ISPF statistics file is update and added to the git index
++After the reset the ISPF statistics file is update and added to the Git index
 +so it is ready for the next Commit to make it a permanent part of the local
 +repository.
 +
@@ -28,6 +28,5 @@
 )Init
  .cursor = &zcmd
 )PROC
- &ZUP = ZIGIH310
  &ZCONT = ZIGIH330
 )END

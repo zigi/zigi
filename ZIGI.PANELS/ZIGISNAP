@@ -1,0 +1,83 @@
+)Attr
+ @ type(input ) hilite(uscore) caps(off) intens(low)
+ _ type(input ) hilite(uscore) caps(on) intens(low )
+ $ type(output) hilite(uscore) caps(off)
+ { type(output) intens(low)
+ # type(output) hilite(reverse) color(turq) caps(off)
+)Body Expand(\\)
++SnapShot+------------------------#zigtitle   +---------------------------------
+%Command ===>_zcmd                                                             +
++
++Enter a git tag to identify this milestone:@gtag                            +
++
++Enter New HLQ for the Snapshot datasets:   _snaphlq                      +
++                                           (no quotes required)
++Enter New Path for OMVS Files:@path                                        +
++
++Tag the current level of the repository as a milestone for easy future
++reference.
++
++Create a snapshot of the entire repository consisting of all z/OS datasets and
++OMVS files. The HLQ must be empty and the path should not exist (it will be
++created).
++
++This snapshot may be considered an Escrow copy or a Locked Archive as it is
++not manageable by git. Use this when a milestone has been reached such as a
++version, release, maintenance level, or patch.
++
++
+                  +Press%Enter+to proceed, or%F3+to cancel.
+)Init
+ .help = zigihsnp
+)Proc
+ &zerrhm   = 'zigihxxx'
+ &zerralrm = 'NO'
+ &zerrtp   = 'Notify'
+ &zerrsm = &z
+ &cloc = ZCMD
+ &resp = .resp
+*REXX(* zerrsm zerrlm cloc resp gtag)
+  /* check for END or CANCEl */
+  if wordpos(resp,'END CANCEL') > 0 then exit
+  parse value '' with zerrsm zerrlm null
+  if pos(' ',gtag) > 0 then do
+    zerrsm = 'Error.'
+    zerrlm = 'The tag may not have any blanks.'
+    cloc = 'gtag'
+  end
+  /* Validate that the provided hlq does NOT exist */
+  if zerrsm = null then do
+  if left(snaphlq,1) = "'"
+     then snaphlq = strip(snaphlq,'B',"'")
+  call outtrap 'x.'
+  Address tso "listc level('"snaphlq"')"
+  call outtrap 'off'
+  if pos('NOT FOUND',x.1) = 0 then do
+    zerrsm = 'Error.'
+    zerrlm = 'The HLQ' snaphlq 'currently exists which is not' ,
+      'allowed. Select a new HLQ and try again.'
+    cloc = 'snaphlq'
+  end
+  end
+  /* Validate that the provided path does NOT exist */
+  if zerrsm = null then do
+    if path /= null then do
+      if right(path,1) /= '/'
+         then path = path'/'
+      address syscall readdir path d.
+      if d.0 > 0 then do
+        zerrsm = 'Error.'
+        zerrlm = 'The Path' path 'currently exists which is not' ,
+          'allowed. Select a new path and try again.'
+        cloc = 'path'
+      end
+    end
+  end
+*ENDREXX
+ ver (&gtag,nb)
+ ver (&snaphlq,nb,dsname)
+ ver (&path,nb)
+ .cursor = &cloc
+ if (&zerrsm NE &Z)
+    .msg = isrz003
+)end

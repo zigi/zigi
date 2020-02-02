@@ -1,0 +1,35 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                              %Member Generations
++
++To utilize PDS Member Generations use one of the following applications:
++
++   - PDSEGEN (free - www.lbdsoftware.com)
++   - PGLite  (free - www.cbttape.org File 182)
++   - Review  (free - www.cbttape.org File 134)
++   - Data Set Commander (IBM)
++   - EzyEdit (Broadcom)
++   - File Manager (IBM)
++   - File-Aid (Compuware)
++   - PDSMAN  (Broadcom)
++   - SimpList (MacKinney Systems)
++   - More each year
++
++ "Like car accidents, most hardware problems are due to driver error."
++     - unknown
++
+         +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+)PROC
+ if (&setcont EQ &Z)
+     &ZCONT = ZIGIH150
+ if (&setcont NE &Z)
+     &ZCONT = ZIGIH140
+)END

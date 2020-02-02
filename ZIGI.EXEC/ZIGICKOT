@@ -1,4 +1,4 @@
-  /*%NOcomment ----------  rexx procedure  -------------------- *
+  /* --------------------  rexx procedure  -------------------- *
   | Name:      zigickot                                        |
   |                                                            |
   | Function:  zigi Checkout                                   |
@@ -15,25 +15,63 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            01/24/20 HKB - Really fix it :)                 |
+  |            01/23/20 LBD - Fix if user is NOPREFIX          |
+  |            01/19/20 LBD - Use ckotqual (required)          |
+  |                           * for snapshot                   |
+  |            01/18/20 LBD - Convert from individual OGETs    |
+  |                           to one OGETX for a PDS if no     |
+  |                           selective restores               |
+  |            01/14/20 LBD - Incorporate Binary Support       |
+  |                         - Correct selective refresh bug    |
+  |            01/08/20 LBD - Pass updated mems to zigistat    |
+  |                         - Honor mgen config setting for    |
+  |                           PDSE member gen allocation       |
+  |            01/05/20 LBD - vErase passed variable           |
+  |            01/02/20 LBD - Support selective refresh        |
+  |                           with ispf var pulldsns           |
+  |            12/09/19 LBD - Support (ignore) omvs files and  |
+  |                           subdirectories                   |
   |            11/16/19 LBD - Change to use ZIGISTAT routine   |
   |            10/30/19 LBD - Get DCB info from /.zigi/dsn     |
   |            10/28/19 LBD - Support sequential files         |
   |            06/12/19 LBD - Correct to handle a git direcory |
   |            06/11/19 LBD - Add popup status                 |
   |            06/10/19 LBD - Creation                         |
+  | ---------------------------------------------------------- |
+  |    zigi - the z/OS ISPF Git Interface                      |
+  |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
   |                                                            |
+  |    This program is free software: you can redistribute it  |
+  |    and/or modify it under the terms of the GNU General     |
+  |    Public License as published by the Free Software        |
+  |    Foundation, either version 3 of the License, or (at     |
+  |    your option) any later version.                         |
+  |                                                            |
+  |    This program is distributed in the hope that it will be |
+  |    useful, but WITHOUT ANY WARRANTY; without even the      |
+  |    implied warranty of MERCHANTABILITY or FITNESS FOR A    |
+  |    PARTICULAR PURPOSE.  See the GNU General Public License |
+  |    for more details.                                       |
+  |                                                            |
+  |    You should have received a copy of the GNU General      |
+  |    Public License along with this program.  If not, see    |
+  |    <https://www.gnu.org/licenses/>.                        |
   * ---------------------------------------------------------- */
 
   /* -------------------------------------------- *
   | Get the ISPF Variables with our instructions |
   * -------------------------------------------- */
   Address ISPExec
-  'vget (ckothlq ckotdir)'
+  'vget (ckothlq ckotdir pulldsns mgen ckotqual)'
+  if datatype(mgen) /= 'NUM' then mgen = 0
+
   Address TSO
 
-  /* -------------------- *
-  | Issue the LS command |
-  * -------------------- */
+  /* -------------------------------------------------------- *
+   | Issue the ls command to get file names and sizes for all |
+   | files in the current directory and sub-directories.      |
+   * -------------------------------------------------------- */
   cmd = 'ls -laRk' ckotdir
   rc = bpxwunix(cmd,,stdout.,stderr.)
 
@@ -50,7 +88,7 @@
   /* ------------------------- *
   | Define our work variables |
   * ------------------------- */
-  parse value '' with subs files null
+  parse value '' with subs files null pullmems.
   hit = 0
 
   /* ------------------------------------ *
@@ -58,14 +96,15 @@
   * ------------------------------------ */
   call outtrap 'x.'
   ckdd = 'ck'time('s')
-  if sysvar('syspref') = null then pref = sysvar('sysuid')'.'
-  else pref = null
+  if sysvar('syspref') = null then pref = sysvar('sysuid')
+  else pref = sysvar('syspref')
+  tdsn = "'"pref"."ckdd"'"
   call outtrap 'x.'
-  "oget '"ckotdir"/.zigi/dsn'" ckdd 'text'
-  'Alloc f('ckdd') shr ds('ckdd')'
+  "oget '"ckotdir"/.zigi/dsn'" tdsn 'text'
+  'Alloc f('ckdd') shr ds('tdsn')'
   'Execio * diskr' ckdd '(finis stem ck.'
   'Free f('ckdd')'
-  'delete' ckdd
+  'delete' tdsn
   def. = null
   call outtrap 'off'
   do i = 1 to ck.0
@@ -78,6 +117,13 @@
       def.dsn = subword(ck.i,2)
     end
   end
+
+/* ------------------------------- *
+ | Get the list of Binary Datasets |
+ * ------------------------------- */
+ Address ISPExec 'vget (gitenv) profile'
+ call getenv
+ call get_binfiles
 
   /* ---------------------------------------------------- *
   | Process the results of the ls command to:            |
@@ -94,8 +140,19 @@
         if strip(sub) /= '' then do
           size.sub = 0
           dir.sub = 0
-          if left(sub,1) /= '.' then
-          subs = subs sub
+          si = 0
+          if left(sub,1) /= '.' then do
+            if pulldsns = null then subs = subs sub
+            else if wordpos(sub,pulldsns) > 0 then do
+              subs = subs sub
+              wp = wordpos(sub,pulldsns)
+              Address ISPExec 'vget (zv'wp')'
+              interpret 'mems = zv'wp
+              si = si + 1
+              pullmems.sub = mems
+              Address ISPExec 'verase zv'wp
+            end
+          end
         end
       end
       when word(stdout.i,1) = 'total' then do
@@ -112,8 +169,14 @@
         fx = translate(file,'??????????????????????????', ,
           'abcdefghijklmnopqrstuvwxyz')
         if pos('?',fx) > 0 then iterate
-        size.file =  word(stdout.i,5)
-        files = files file
+        if pulldsns = null then do
+          size.file =  word(stdout.i,5)
+          files = files file
+        end
+        if wordpos(file,pulldsns) > 0 then do
+          size.file =  word(stdout.i,5)
+          files = files file
+        end
       end
       otherwise nop
     end
@@ -133,12 +196,15 @@
     zs1 = 'Processing file:' sub
     zs2 = 'From:           ' odir
     zs3 = 'To:             ' fileg
+    bin = is_binfile(sub)
+    if bin = 1 then type = 'Binary'
+               else type = 'Text'
+    zs7 = 'Type            ' type
     call pop_status
     call outtrap 'x.'
     if sysdsn(fileg) = 'OK' then
     'delete' fileg
     tracks =  (size.sub%50000 + 1) * 2
-    sub = fileg
     call get_dcb
     'alloc ds('fileg') new spa('tracks','tracks') tr dsorg(ps)' ,
       'recfm('recfm') lrecl('lrecl') blksize('blksize')'
@@ -147,21 +213,30 @@
     m = strreplace(fileg,'.','#')
     m = strreplace(m,'_','@')
     m = strreplace(m,'-','$')
-    m = translate(fileg,'.',' ')
+    m = translate(m,'.',' ')
     call outtrap 'x.'
-    'oget' odir m 'text'
+    'oget' odir m type
     call outtrap 'off'
   end
 
   /* -------------------------------------------- *
   | Process the sub-directories and initiate the |
   | Allocation and Copy                          |
+  | Ignore subdirectories                        |
   * -------------------------------------------- */
   do i = 1 to words(subs)
     parse value '' with zs1 zs2 zs3 zs4 zs5 zs6 zs7 zs8
     zs9 = 'Patience while the data is copied from OMVS files' ,
       'to a z/OS PDS.'
     sub = word(subs,i)
+    bin = is_binfile(sub)
+    if bin = 1 then type = 'Binary'
+                else type = 'Text'
+    zs7 = 'Type:                   ' type
+    fx = translate(sub,'??????????????????????????', ,
+      'abcdefghijklmnopqrstuvwxyz')
+    if pos('?',fx) > 0 then iterate
+    if pullmems.sub /= null then dir.sub = words(pullmems.sub)
     zs1 = 'Processing subdirectory:' sub
     zs2 = 'Members:                ' dir.sub
     zs3 = 'Total bytes (k):        ' size.sub
@@ -174,34 +249,51 @@
 
   Exit
 
-  /* ---------------------------------------------- *
-  | Allocate the PDS and perform the copy (OGETX)  |
-  | - the PDS will be allocated as a PDSE          |
-  | - if the target PDS exists delete and realloc  |
-  * ---------------------------------------------- */
+/* ----------------------------------------------------------------- *
+ | Allocate the PDS and perform the copy using OGET for selective    |
+ | copies or OGETX for a full PDS                                    |
+ | - if the target PDS exists as a PDS, delete and realloc as a PDSE |
+ | - if the target is a PDSE then it will NOT be reallocated         |
+ | - The target PDS will be allocated as a PDSE version 2.           |
+ | - if maxgen (mgen) is provided then member generations will       |
+ |   also be defined at allocation                                   |
+ * ----------------------------------------------------------------- */
 Alloc_Copy_PDS:
   pds = "'"ckothlq"."sub"'"
   odir = "'"ckotdir"/"sub"/"
   zs8 = ''
+  if pullmems.sub = null then
   if sysdsn(pds) = 'OK' then do
     zs8 = 'Re-Allocating'
     call outtrap 'x.'
     'delete' pds
     call outtrap 'off'
   end
+  else zs8 = 'Using existing allocation'
   zs5 = 'Allocating PDSE:        ' pds
   call pop_status
-  call get_dcb
-  'Alloc new spa('tracks','tracks') recfm('recfm') lrecl('lrecl')' ,
-    'Blksize('blksize') Dsntype(Library,2) dsorg(po) dir(1)' ,
-    'dsn('pds')'
-  'Free ds('pds')'
+  if pullmems.sub = null then do
+    call get_dcb
+    if mgen > 0 then gens = 'maxgens('mgen')'
+    else gens = null
+    'Alloc new spa('tracks','tracks') recfm('recfm') lrecl('lrecl')' ,
+      'Blksize('blksize') Dsntype(Library,2) dsorg(po) dir(1)' ,
+      'dsn('pds')' gens
+    'Free ds('pds')'
+    zs8 = 'Re-Allocated'
+  end
   zs6 =  'Populating from:        ' odir
   call pop_status
   /* ---------------------------------------------------- *
   | Read directory to get all member file names and then |
   | adjust according and then do individual oget         |
   * ---------------------------------------------------- */
+  if pullmems.sub = null then do
+     call outtrap 'x.'
+     Address TSO 'OGETX' odir pds type 'Quiet'
+     call outtrap 'off'
+     end
+  else do
   target = strip(pds,'B',"'")
   call syscalls 'ON'
   address syscall
@@ -214,16 +306,16 @@ Alloc_Copy_PDS:
       /* skip the . and .. things */
       iterate
     end
+    if pullmems.sub /= null then
+    if wordpos(mems.ii,pullmems.sub) = 0 then iterate
     src = rdir'/'mems.ii
-    /* fix the cp -M behavior on the way in */
-    m = strreplace(mems.ii,'.','#')
-    m = strreplace(m,'_','@')
-    m = strreplace(m,'-','$')
+    m = mems.ii    /* ignore the translation */
     Address TSO
-    'OGET' "'"src"'" "'"target"("m")'"
+    'OGET' "'"src"'" "'"target"("m")'" type
     Address ISPexec
   end
   call outtrap 'off'
+  end
   return
 
 get_dcb:
@@ -260,6 +352,8 @@ Add_Stats:
   zs7 = 'Adding ISPF Statistics  '
   call pop_status
   filepath = ckotdir'/.zigi/'sub
+  statmems = pullmems.sub
+  Address ISPExec 'vput (statmems)'
   '%zigistat' pds filepath 'U'
   return
 
@@ -286,15 +380,105 @@ pfshow:
   end
   return
 
-strreplace: Procedure
+strreplace: Procedure Expose null
   string  = arg(1)
   strfrom = arg(2)
   strto   = arg(3)
   if pos(strfrom,string) = 0 then return string
-  newString = ''
+  newString = null
   do i = 1 to length(string)
     if substr(string,i,1) /= strfrom
     then newstring = newstring''substr(string,i,1)
     else  newstring = newstring''strto
   end
   return newstring
+
+get_binfiles:
+  /* ---------------------------------------------------------\
+  | Name:      binfiles                                        |
+  |                                                            |
+  | Function:  Fills the global binfiles. stem with all        |
+  |            current repo files that are added as binary.    |
+  \---------------------------------------------------------- */
+  cmd = 'cd' ckotdir'/ &&'
+  cmd = 'cat -W filecodeset=UTF-8,pgmcodeset=IBM-1047' ckotdir'/.gitattributes'
+  cmd = cmd ' | grep git-encoding=BINARY'
+  cmd = cmd '| cut -d" " -f1'
+  x = docmd(cmd)
+  if so.0 = 0 then do
+     binfiles.0 = 0
+     return 0
+     end
+  do b = 1 to so.0
+    if pos('/*',so.b) > 0 then
+       parse value so.b with so.b'/'.
+    binfiles.b = so.b
+  end
+  binfiles.0 = so.0
+  return 0
+
+is_binfile:
+  /* ---------------------------------------------------------\
+  | Name:      binfiles                                        |
+  |                                                            |
+  | Function:  Fills the global binfiles. stem with all        |
+  |            current repo files that are added as binary.    |
+  \---------------------------------------------------------- */
+  parse arg file
+  res = 0
+  if datatype(binfiles.0) /= 'NUM' then return res
+  do bi = 1 to binfiles.0
+    if binfiles.bi = file then do
+      return 1
+    end
+  end
+  return res
+
+  /* ----------------------------------------------------- *
+  | Get the users current OMVS enviornment for use in the |
+  | bpxwunix commands.                                    |
+  * ----------------------------------------------------- */
+GETENV:
+  cmd  = docmdx('env')
+  rc = bpxwunix(cmd,,env.,se.)
+  envc = env.0
+  call add_env '_BPX_SHAREAS=YES'
+  call add_env '_BPX_SPAWN_SCRIPT=YES'
+  call add_env 'EXPORT _EDC_ADD_ERRORNO2=1'
+  env.0 = envc
+  drop so. se.
+  return
+
+  /* -------------------- *
+  | Add info to env stem |
+  * -------------------- */
+add_env:
+  parse arg env_val
+  envc = envc + 1
+  env.envc = env_val
+  return
+
+docmd:
+  parse arg cmd
+  drop so. se.
+  if gitenv /= null then do
+    cmd = ". "gitenv" > /dev/null 2>&1 && "cmd
+  end
+  x = bpxwunix(cmd,,so.,se.,env.)
+  return x
+
+docmdx:
+  /* quircky thing, we need to export HOME as we are
+  not running a login shell via bpxwunix */
+  parse arg cmd
+  drop so. se.
+  if rx = null then do
+    rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && '
+    c = "[[ -f "home"/.profile ]] && echo f"
+    x = bpxwunix(c,,o.,e.)
+    if o.0 = 1 & o.1 = "f" then do
+      rx = rx '. 'home'/.profile > /dev/null 2>&1 && '
+    end
+  end
+  r = rx ' ' cmd
+  return r
