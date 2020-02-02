@@ -8,9 +8,9 @@
 +
                                 %GITHELP+
 +
-%GITHELP+displays all the available%git+commands, along with other%git+pages
-+with more information. This will help the git novice, and%git+guru to better
-+use%git+and%zigi.
+%GITHELP+displays all the available%Git+commands, along with other%Git+pages
++with more information. This will help the Git novice, and%Git+guru to better
++use%Git+and%zigi.
 %
 %Commands:+
 +   %Only+removes all rows that do not have the provided string:
@@ -27,11 +27,10 @@
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
- vget (githup githnext)
+ vget (ztut)
 )PROC
- if(&githup = &Z)
-    &githup = ZIGIH150
- &ZUP = &githup
- if (&githnext NE &Z)
-     &zcont = &githnext
+ if (&ztut = 100)
+     &zcont = ZIGIH170
+ if (&ztut = 200)
+     &zcont = ZIGIH250
 )END

@@ -13,7 +13,7 @@
 +selections. It has also been designed to support%point-and-shoot+fields
 +for use by those more comfortable with that approach.
 +
-+Enabling%Tab to point-and-shoot fields+in the ISPF Settings (option 0 on
++Enabling%Tab to Point-and-Shoot fields+in the ISPF Settings (option 0 on
 +the ISPF Primary Menu) will make these fields easier to use with both the
 +keyboard and mouse.
 +
@@ -28,6 +28,5 @@
 )Init
  .cursor = &zcmd
 )PROC
- &ZUP = ZIGIH010
  &zcont = zigih030
 )END

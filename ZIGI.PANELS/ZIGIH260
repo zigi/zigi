@@ -8,7 +8,7 @@
 +
                                  %Grep+
 +
-%Grep+will search, case senstive (-i), using the provided text string.
+%Grep+will search, case sensitive (-i), using the provided text string.
 +
 +Result options:
 +
@@ -27,11 +27,10 @@
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
- vget (grhup grhnext)
- if (&grhup EQ &Z)
-     &grhup = ZIGIH250
-     &grhnext = ZIGIH270
+ vget (ztut)
 )PROC
- &zup = &grhup
- &zcont = &grhnext
+ if (&ztut = 200)
+     &zcont = ZIGIH270
+ if (&ztut = 300)
+     &zcont = ZIGIH310
 )END

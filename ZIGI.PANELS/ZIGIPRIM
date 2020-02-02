@@ -1,31 +1,36 @@
 )Attr
  $ type(output) caps(off)
+ ] type(output) caps(off) intens(low)
+ } type(output) caps(off) intens(low) just(right)
+ { type(input) caps(off) hilite(uscore) intens(low)
  _ type(input) caps(on ) hilite(uscore) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
  @ type(output) caps(off) pas(on) intens(high) color(white)
+ [ type(text) intens(low) hilite(uscore)
 )Body Expand(\\)
-+-\-\#zigtitle   +-\-\
-%Command ===>_zcmd       \ \ %Scroll ===>_zscr+
++Local Repositories+--------------#zigtitle   +---------------------------------
+%Command ===>{zcmd       \ \ %Scroll ===>_zscr+
 +
-+Primary commands:  @Clone+remote remote repository    @Pro+
-+                   @Create+a local repo from scratch  @githelp+
-+                   @SSH+View your SSH public key
-+                   @Config+View git configuration
++Command: @Clone +Remote repository        @Pro    +Toggle Menu
+          @Create+Local repository         @githelp+Git Help
+          @SSH   +View your SSH public key @Find   +text in table
+          @Config+View Git configuration   %Select +Repo from command
 +
-+Repo options:      %S+Work with repo%V+View repo OMVS files+%D+Delete repo
++Line:    %S+Work with repo%V+View repo OMVS files+%D+Delete repo
 +
-%    +Repository         Prefix                    Repo Root (OMVS)
+%    [Repository+       [Prefix+                                [Last Access+
 )Model
-_z+  $z              + +$z                     + +$z
+_z+  $z              +  $z                                 +    }z          +
 )Init
  &clone   = 'Clone'
+ &config  = 'Config'
  &create  = 'Create'
+ &find    = 'Find'
+ &githelp = 'GitHelp'
  &pro     = 'Pro'
  &ssh     = 'SSH'
- &config  = 'Config'
- &githelp = 'GitHelp'
  &zscr = CSR
- .zvars = '(zsel zigirep pdshlq localrep)'
+ .zvars = '(zsel zigirep pdshlq zigidate)'
  .help = zigihint
 )Proc
  &row = &z
@@ -43,12 +48,13 @@ _z+  $z              + +$z                     + +$z
      &osel = &zsel
  if (&row = 0)
      &zsel = &z
- ver (&zsel,list,S,D,V)
+ ver (&zsel,list,S,D,V,/)
 )PNTS
  FIELD(CLONE   ) VAR(ZCMD) VAL('CLONE')
+ FIELD(CONFIG  ) VAR(ZCMD) VAL('CONFIG')
  FIELD(CREATE  ) VAR(ZCMD) VAL('CREATE')
+ FIELD(FIND    ) VAR(ZCMD) VAL('FIND')
+ FIELD(GITHELP ) VAR(ZCMD) VAL('GITHELP')
  FIELD(PRO     ) VAR(ZCMD) VAL('PRO')
  FIELD(SSH     ) VAR(ZCMD) VAL('SSH')
- FIELD(CONFIG  ) VAR(ZCMD) VAL('CONFIG')
- FIELD(GITHELP ) VAR(ZCMD) VAL('GITHELP')
 )end

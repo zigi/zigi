@@ -6,14 +6,14 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
 )Body  Expand(\\)
-+-\-\#zigtitle   +-\-\
++Grep Datasets/Files+-------------#zigtitle   +---------------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
 +
 +Grep Command:@grepstr
 +
 +Options:%S+Edit%E+Edit%B+Browse%V+View
 +
-+Sel      Status     Dataset                                     Count
++Sel      Status    $gds                                         Count
 +
 )Model
 _z+      $z         $z                                          $z
@@ -36,5 +36,5 @@ _z+      $z         $z                                          $z
      &osel = &zsel
  if (&row = 0)
      &zsel = &z
- ver (&zsel,list,S,B,E,V)
+ ver (&zsel,list,S,B,E,V,/)
 )End

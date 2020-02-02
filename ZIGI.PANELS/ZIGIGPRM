@@ -1,0 +1,30 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  @ type(output) intens(high) caps(off) just(left )
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+  ] type(output) caps(off) pas(on) intens(high) color(white)
+)Body  window(36,7)
++
++Enter Selection:_z+
++
++]Browse+(B)+Browse the dataset/file
++]Edit+  (E)+Edit the dataset/file
++]View+  (V)+View the dataset/file
++
+)Init
+ &zwinttl = 'zigi Grep Selection Options'
+ .zvars = '(zsel)'
+ &zsel  = &z
+ &edit   = 'Edit'
+ &browse = 'Browse'
+ &view   = 'View'
+)Proc
+ ver (&zsel,list,B,E,V)
+)PNTS
+  Field(browse) var(zsel) val('B')
+  Field(edit  ) var(zsel) val('E')
+  Field(view  ) var(zsel) val('V')
+)End

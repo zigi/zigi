@@ -1,0 +1,42 @@
+)Attr
+ $ type(output) caps(off)
+ @ type(input ) hilite(uscore) intens(low)
+ + type(text) skip(on) intens(low)
+)Body Window(54,13)
++Enter to confirm repository delete:
++
++Repository:$zigirep
++
++Remove from Git mgmt    @z+(Y or N)
++Delete the OMVS files   @z+(Y or N)
++Delete the z/OS Datasets@z+(Y or N)
++
++If remove from Git is%N+then Delete cancelled.
++
++Confirm Delete Request@z+(Y or N)
++
++Press%Enter+to continue or%F3+to cancel.
+)Init
+ .zvars = '(delcg delco delzd delcf)'
+ &zwinttl = 'zigi Delete Confirmation'
+ .help = zigihdel
+)Proc
+*REXX(*)
+ if delcg = 'N' then do
+    delco = 'N'
+    delzd = 'N'
+    delcf = 'N'
+    end
+ if delcf = 'N' then do
+    delco = 'N'
+    delzd = 'N'
+    delcg = 'N'
+    end
+*ENDREXX
+ ver (&delcg,nb,list,Y,N)
+ ver (&delco,nb,list,Y,N)
+ ver (&delzd,nb,list,Y,N)
+ ver (&delcf,nb,list,Y,N)
+ if (&delcg EQ N)
+     ver (&delco,nb,list,N)
+)end

@@ -2,7 +2,7 @@
  $ type(output) caps(off)
  _ type(input)  caps(off) hilite(uscore) intens(low)
 )Body Window(55,12)
-+The git repository that you requested is not eligible
++The Git repository that you requested is not eligible
 +to be managed by zigi.
 +
 +The clone did complete to:
@@ -15,7 +15,7 @@ $clonerep
 +on how to make a repository eligible for zigi.
 +
 )Init
- &zwinttl = 'zIGI Prompt Popup'
+ &zwinttl = 'zigi Prompt Popup'
 )Proc
  ver (&rolla,nb,list,ROLLBACK)
  ver (&newbr,nb)

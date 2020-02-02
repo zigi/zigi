@@ -2,13 +2,14 @@
   _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
   @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
   $ type(output) intens(low ) caps(off) just(left )
+  ] type(output) intens(low ) caps(off) just(left ) color(green)
   ! type(output) intens(high) caps(off) just(left )
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
  [ type(output) caps(off) pas(on) intens(high) color(white)
 )Body  Expand(\\)
-+-\-\#zigtitle   +-\-\
++Current Repository+--------------#zigtitle   +---------------------------------
 %Command ===>_zcmd            \ \  %Scroll ===>_zscr+
 %Local dir      :$localdir
 %Remote path    :$remote1
@@ -16,18 +17,20 @@
 %                !bstat                                                     +
 %                $baction                                                   +
 %
-+Commands:[Add[Basic[Br[Com[GitC[GitH[GitL[Grep[Merg[Net+
-          [Pull[Push[Ref[Rem[Roll[Set[St[View
-+Options: %S+Select%A+Add%B+Browse%V+View
-+
-%S  Status                    Dataset Name
++Command:[Add   [Basic[Br[Com[Find[GitC[GitH[GitL[Grep[Merg[Net [Pull[Push+
+         [Ref[Rem[Roll[Set[Snapshot[St[View+
++Line:   %S+Select%A+Add%B+Browse%D+Diff%H+History%RM+Remove%RN+Rename
+         %U+Undo%V+View
+
+%S  Status                    Dataset/File Name
 )Model
-@z+$z                        $z
+@z +$z                       $z                                            ]z
 )Init
- &Add     = 'Add'
+ &Add     = 'AddDsn'
  &Basic   = 'Basic'
  &Br      = 'Br'
  &Com     = 'Com'
+ &Find    = 'Find'
  &Gitc    = 'GitC'
  &Gith    = 'GitH'
  &Gitl    = 'GitL'
@@ -40,9 +43,10 @@
  &Rem     = 'Rem'
  &Roll    = 'Roll'
  &Set     = 'Set'
+ &snapshot = 'SnapShot'
  &St      = 'St'
  &View    = 'View'
- .zvars = '(zsel dsnstat fulldsn)'
+ .zvars = '(zsel dsnstat fulldsn filetype)'
  .cursor = &zcmd
  .help = zigih200
  &zscr = CSR
@@ -62,12 +66,13 @@
      &osel = &zsel
  if (&row = 0)
      &zsel = &z
- ver (&zsel,list,S,A,U,B,V)
+/*  ver (&zsel,list,S,A,U,B,V,RM,RN,H,D,/) */
 )PNTS
  FIELD(ADD) VAR(ZCMD) VAL('ADD')
  FIELD(BASIC) VAR(ZCMD) VAL('BASIC')
  FIELD(BR) VAR(ZCMD) VAL('BRANCH')
  FIELD(COM) VAR(ZCMD) VAL('COMMIT')
+ FIELD(FIND) VAR(ZCMD) VAL('FIND')
  FIELD(GITC) VAR(ZCMD) VAL('GITCMD')
  FIELD(GITH) VAR(ZCMD) VAL('GITHELP')
  FIELD(GITL) VAR(ZCMD) VAL('GITLOG')
@@ -80,6 +85,7 @@
  FIELD(REM) VAR(ZCMD) VAL('REMOTE')
  FIELD(ROLL) VAR(ZCMD) VAL('ROLL')
  FIELD(SET) VAR(ZCMD) VAL('SET')
+ FIELD(SNAPSHOT) VAR(ZCMD) VAL('SNAPSHOT')
  FIELD(ST) VAR(ZCMD) VAL('STATUS')
  FIELD(VIEW) VAR(ZCMD) VAL('VIEW')
 )End

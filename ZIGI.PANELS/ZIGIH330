@@ -13,7 +13,7 @@
 +
 +The available Sort Fields are:%MEMBER STATUS SIZE DATE TIME+and%USERID
 +
-+The availble sort order options are%A+(ascending) and%D+(descending)
++The available sort order options are%A+(ascending) and%D+(descending)
 +The default sort order is A (ascending)
 +
 +
@@ -28,6 +28,5 @@
 )Init
  .cursor = &zcmd
 )PROC
- &ZUP = ZIGIH320
  &ZCONT = ZIGIH2F0
 )END

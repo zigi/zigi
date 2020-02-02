@@ -1,28 +1,33 @@
 )Attr
+ ] type(output) caps(off) intens(low)
+ } type(output) caps(off) intens(low) just(right)
+ [ type(text) intens(low) hilite(uscore)
+ { type(input) caps(off) hilite(uscore) intens(low)
  $ type(output) caps(off)
  _ type(input) caps(on ) hilite(uscore) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
  @ type(output) caps(off) pas(on) intens(high) color(white)
 )Body Expand(\\)
-+-\-\#zigtitle   +-\-\
-%Command ===>_zcmd       \ \ %Scroll ===>_zscr+
++Local Repositories+--------------#zigtitle   +---------------------------------
+%Command ===>{zcmd       \ \ %Scroll ===>_zscr+
 +
-+Primary commands:  @Clone+@Create+@SSH+@Config+@Basic+@Githelp+
++Command:@Clone+@Create+@SSH+@Config+@Basic+@Githelp+@Find+%Select
 +
-+Repo options:      %S+Work with repo%V+View repo OMVS files+%D+Delete repo
++Line:   %S+Work with repo%V+View repo OMVS files+%D+Delete repo
 +
-%    +Repository         Prefix                    Repo Root (OMVS)
+%    [Repository+       [Prefix+                                [Last Access+
 )Model
-_z+  $z              + +$z                     + +$z
+_z+  $z              +  $z                                 +    }z          +
 )Init
- &clone   = 'Clone'
- &create  = 'Create'
- &githelp = 'GitHelp'
  &basic   = 'Basic'
- &ssh     = 'SSH'
+ &clone   = 'Clone'
  &config  = 'Config'
+ &create  = 'Create'
+ &find    = 'Find'
+ &githelp = 'GitHelp'
+ &ssh     = 'SSH'
  &zscr = CSR
- .zvars = '(zsel zigirep pdshlq localrep)'
+ .zvars = '(zsel zigirep pdshlq zigidate)'
  .help = zigihint
 )Proc
  &row = &z
@@ -40,12 +45,13 @@ _z+  $z              + +$z                     + +$z
      &osel = &zsel
  if (&row = 0)
      &zsel = &z
- ver (&zsel,list,S,D,V)
+ ver (&zsel,list,S,D,V,/)
 )PNTS
- FIELD(CLONE   ) VAR(ZCMD) VAL('CLONE')
- FIELD(CREATE  ) VAR(ZCMD) VAL('CREATE')
  FIELD(BASIC   ) VAR(ZCMD) VAL('BASIC')
- FIELD(SSH     ) VAR(ZCMD) VAL('SSH')
+ FIELD(CLONE   ) VAR(ZCMD) VAL('CLONE')
  FIELD(CONFIG  ) VAR(ZCMD) VAL('CONFIG')
+ FIELD(CREATE  ) VAR(ZCMD) VAL('CREATE')
+ FIELD(FIND    ) VAR(ZCMD) VAL('FIND')
  FIELD(GITHELP ) VAR(ZCMD) VAL('GITHELP')
+ FIELD(SSH     ) VAR(ZCMD) VAL('SSH')
 )end

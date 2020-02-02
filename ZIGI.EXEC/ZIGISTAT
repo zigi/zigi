@@ -1,4 +1,4 @@
-  /*%NOcomment ----------  rexx procedure  -------------------- *
+  /* --------------------  rexx procedure  -------------------- *
   | Name:      zigistat                                        |
   |                                                            |
   | Function:  Collect or Compare the ISPF Stats for all       |
@@ -18,6 +18,9 @@
   |            S - save stats                                  |
   |            U - update stats to those saved                 |
   |                used when creating/refreshing datasets      |
+  |                                                            |
+  | Vars:      statmems ispf variable for selective update     |
+  |                                                            |
   | Usage                                                      |
   |   Notes: Subroutine of zigi                                |
   |          Returns string of members changed                 |
@@ -36,16 +39,34 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            01/08/20 LBD - Selecitve stat update if statmems|
+  |            01/05/20 LBD - Correct special chars in filepath|
+  |                           using usssafe routine            |
   |            11/22/19 LBD - If a member has no stats - add   |
   |            11/18/19 LBD - Many fixes and add Debug         |
   |            11/15/19 LBD - Creation                         |
   |                                                            |
+  | ---------------------------------------------------------- |
+  |    zigi - the z/OS ISPF Git Interface                      |
+  |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
+  |                                                            |
+  |    This program is free software: you can redistribute it  |
+  |    and/or modify it under the terms of the GNU General     |
+  |    Public License as published by the Free Software        |
+  |    Foundation, either version 3 of the License, or (at     |
+  |    your option) any later version.                         |
+  |                                                            |
+  |    This program is distributed in the hope that it will be |
+  |    useful, but WITHOUT ANY WARRANTY; without even the      |
+  |    implied warranty of MERCHANTABILITY or FITNESS FOR A    |
+  |    PARTICULAR PURPOSE.  See the GNU General Public License |
+  |    for more details.                                       |
+  |                                                            |
+  |    You should have received a copy of the GNU General      |
+  |    Public License along with this program.  If not, see    |
+  |    <https://www.gnu.org/licenses/>.                        |
   * ---------------------------------------------------------- */
 zigistat:
-  /* ---------------------- *
-  | Get the passed options |
-  * ---------------------- */
-  parse arg dsn filepath opt
 
   /* --------------- *
   | Define defaults |
@@ -121,13 +142,13 @@ zigistat:
     * If RC 4 or more leave the do loop *
     * --------------------------------- */
     if rc > 3 then leave
-   /* -------------------------------- *
+    /* -------------------------------- *
     | Check if no stats then add them. |
     * -------------------------------- */
     if zlcdate = null then do
-       'LMMSTATS DATAID('status') Member('member') user('sysvar(sysuid)')'
-       "LMMFind DATAID("status") Member("member") STATS(YES)"
-       end
+      'LMMSTATS DATAID('status') Member('member') user('sysvar(sysuid)')'
+      "LMMFind DATAID("status") Member("member") STATS(YES)"
+    end
     /* ------------------------------ *
     * Add each member info to a stem *
     * ------------------------------ */
@@ -161,15 +182,16 @@ zigistat:
     * ----------------------------------------------------- */
     When opt = 'S' then do
       x = debug('Saving stats begins to:' filepath)
-      x = bpxwunix('rm' filepath,,so.,se.)
+      x = bpxwunix('rm' usssafe(filepath),,so.,se.)
       call write_stats
       x = debug('Saving stats completed.')
       return 0
     end
     /* ---------------------------------------------------------- *
     | Update ISPF Stats:                                         |
-    |  - all members in the $zigi$ stats member will have their  |
+    |  - all members in the zigi stats member will have their    |
     |    ispf stats updated to reflect the saved stats           |
+    |  - Use statmems ispf var for selective stat updates        |
     |  - new members will not be updated as we don't know about  |
     |   them                                                     |
     |  - members with no stats will have stats added if they are |
@@ -177,12 +199,18 @@ zigistat:
     * ---------------------------------------------------------- */
     When opt = 'U' then do
       x = debug('Performing ISPF Stats file update for:' dsn)
+      'vget (statmems)'
+      if statmems /= null then do
+        x = debug('Update Members:' statmems)
+      end
       "LMINIT DATAID(zstats) DATASET("dsn")"
       "LMOPEN DATAID("zstats") OPTION(INPUT)"
       do i = 1 to stats.0
         parse value stats.i with member ZLCDATE ZLMDATE ZLVERS ZLMOD ,
           ZLMTIME ZLCNORC ZLINORC ZLMNORC ZLUSER ZLCNORCE ,
           ZLINORCE ZLMNORCE .
+        if statmems /= null then
+        if wordpos(member,statmems) = 0 then iterate
         if zlcdate = null then ,
           'LMMSTATS DATAID('zstats') Member('member') user('sysvar(sysuid)')'
         else ,
@@ -192,6 +220,7 @@ zigistat:
           'MODRECS('zlmnorc') USER('zluser')'
       end
       "LMClose Dataid("zstats")"
+      "LMFree  Dataid("zstats")"
       x = debug('ISPF Stats file update complete.')
     end
     /* ----------------------------------------------------------- *
@@ -216,10 +245,11 @@ zigistat:
       /* now compare active to saved */
       do i = 1 to mem.0
         parse value mem.i with actmem data
+        data = strip(data)
         if m.actmem = null then string = string actmem
         else if data /= m.actmem then string = string actmem
       end
-      x = debug('ISPF Stats comparison complete.')
+      x = debug('ISPF Stats comparison complete:' string)
       return string
     end
     Otherwise nop  /* should never get here */
@@ -362,26 +392,35 @@ debug:
     parse arg msg
     msg = Date() Time()' : 'msg
     c = 'echo "'msg'" >> 'home'/zigidebug.txt'
-    x = bpxwunix(c,,so.,se.)
-    zigidebg_use = 1
+    x = bpxwunix(c,,dso.,dse.)
   end
   return 0
 
-/* sorry lionel need the full strreplace here */
+  /* ---------------------------------- *
+  | Make the z/OS dsname safe for OMVS |
+  * ---------------------------------- */
+usssafe: procedure
+  parse arg dsn
+  if pos('$',dsn) = 0 then return dsn
+  /* Let's not usssafe it twice :) */
+  if pos('\$',dsn) > 0 then return dsn
+  dsn = strreplace(dsn, '$', '\$')
+  return dsn
+
 STRREPLACE:
-ORIGINAL = ARG(1)
-OLDTXT = ARG(2)
-NEWTXT = ARG(3)
-/* YOU CAN CHANGE THE BELOW KEY (TMPTXT), WHICH IS USED AS A TEMPORARY
-POINTER TO IDENTIFY THE TEXT TO BE REPLACED */
-TMPTXT = '6A53CD2EW1F'
-NEWSTR = ORIGINAL
-DO WHILE POS(OLDTXT,NEWSTR) > 0
-NEWSTR = SUBSTR(NEWSTR, 1 , POS(OLDTXT,NEWSTR)-1) ||,
-TMPTXT || SUBSTR(NEWSTR, POS(OLDTXT,NEWSTR) + LENGTH(OLDTXT))
-END
-DO WHILE POS(TMPTXT,NEWSTR) > 0
-NEWSTR = SUBSTR(NEWSTR, 1 , POS(TMPTXT,NEWSTR)-1) ||,
-NEWTXT || SUBSTR(NEWSTR, POS(TMPTXT,NEWSTR) + LENGTH(TMPTXT))
-END
-RETURN NEWSTR
+  ORIGINAL = ARG(1)
+  OLDTXT = ARG(2)
+  NEWTXT = ARG(3)
+  /* YOU CAN CHANGE THE BELOW KEY (TMPTXT), WHICH IS USED AS A TEMPORARY
+  POINTER TO IDENTIFY THE TEXT TO BE REPLACED */
+  TMPTXT = '6A53CD2EW1F'
+  NEWSTR = ORIGINAL
+  DO WHILE POS(OLDTXT,NEWSTR) > 0
+    NEWSTR = SUBSTR(NEWSTR, 1 , POS(OLDTXT,NEWSTR)-1) ||,
+      TMPTXT || SUBSTR(NEWSTR, POS(OLDTXT,NEWSTR) + LENGTH(OLDTXT))
+  END
+  DO WHILE POS(TMPTXT,NEWSTR) > 0
+    NEWSTR = SUBSTR(NEWSTR, 1 , POS(TMPTXT,NEWSTR)-1) ||,
+      NEWTXT || SUBSTR(NEWSTR, POS(TMPTXT,NEWSTR) + LENGTH(TMPTXT))
+  END
+  RETURN NEWSTR

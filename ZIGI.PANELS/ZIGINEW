@@ -3,26 +3,35 @@
  $ type(input ) caps(on ) hilite(uscore)
  # type(output) hilite(reverse) color(turq) caps(off)
 )Body Expand(\\)
-+-\-\#zigtitle   +-\-\
++Create New Repository+-----------#zigtitle   +---------------------------------
 %Command ===>_zcmd
 +
 %Name:        @zigirep                         +
 +
-+
-%Local Directory:   +? to browse omvs folder structure
+%Local Directory:   +? to browse OMVS folder structure
  @localrep                                                                    +
 +
-+Notes:
-+1. Don't use spaces in name field.
-+2. Repository will be named (and stored) in OMVS as /localdirectory/name
-+3. Fails if /localdirectory/name is present
-+   Override with a Y@A+
-+4. Thirty-two characters should be enough for a repo-name :)
+%PREFIX for datasets: $pdshlq                  + (no quotes)
++
+%Default Push on Commit:$z+(Y or N)
++
+%Default Userid to set prior to Commit:$defruid + or blank
++
++
++
++
++
++
++
 +
                   +Press%Enter+to continue, or%F3+to cancel
 )Init
  .help = zigih120
+ .zvars = '(defcpush)'
 )Proc
   ver (&zigirep,nb)
   ver (&localrep,nb)
+  ver (&pdshlq,nb,dsname)
+  ver (&defcpush,nb,list,Y,N)
+  ver (&defruid,dsname)
 )end

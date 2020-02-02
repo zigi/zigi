@@ -2,34 +2,36 @@
   _ type( input) intens(low ) just(left ) hilite(uscore) caps(on)
   ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
   [ type(output) intens(high) caps(off) just(left) pas(on) skip(on) color(white)
+  { type(text) color(yellow) intens(low)
 )Body Expand(\\)
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                              %Respository Table
+                              %Current Repository
 +
 %Commands available+(select for more information or press%Enter+to see each):
 +
-[Add+    Add dataset        [Grep+   Find Strings     [Refresh+Replace Datasets
-[Br    + Change Branch      [Merge+  Merge Repos      [Remote+ Add remote
-[Commit+ Execute commit -m  [Network+Network Report   [Rollback+Revert
-[GitCMD +Git Command Prompt [Pro+    Pro Panel version[Set+    Set Defaults
-[Githelp+Git Help           [Pull+   Pull from origin [Status+ Git Status
-[GitLog+ Show git log output[Push+   Push to origin   [View+   OMVS Dir
+[Add   + Add dataset{*   [Merge+  Merge Branches{*   [Row+     Options
+[Br    + Change Branch{* [Network+Network Report     [Set+     Set Defaults
+[Commit+ Record Changes  [Pro+    Toggle Menu        [Snapshot+Escrow
+[Find+   Find in table   [Pull+   Pull from origin   [Status+  Git Status
+[GitCMD +Git Commands    [Push+   Push to origin     [View+    OMVS Dir
+[Githelp+Git Help        [Refresh+ Replace Datasets{*
+[GitLog+ Show git log    [Remote+  Add remote
+[Grep+   Find Strings    [Rollback+Revert{*
 +
-%Row selections:
+{*+not supported within subdirectories.
 +
-  %S+Select a repository to open and work with
-  %V+View the OMVS file system for the local repository
-  %D+Delete the local repositories OMVS file system
-     (the z/OS datasets will not be deleted)
++Use%O+to display a popup for commands if the menu has been hidden.
++
 +
 +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
- &Add     = 'Add'
+ &Add     = 'AddDsn'
  &Br      = 'Branch'
  &Commit  = 'Commit'
+ &Find    = 'Find'
  &Gitcmd  = 'GitCmd'
  &Githelp = 'Githelp'
  &GitLog  = 'Gitlog'
@@ -42,12 +44,17 @@
  &Refresh = 'Refresh'
  &Remote  = 'Remote'
  &Rollback  = 'Rollback'
+ &Snapshot  = 'SnapShot'
+ &Row     = 'Row'
  &Set     = 'Set'
  &Status  = 'Status'
  &View    = 'View'
+ &ztut = '200'
+ vput (ztut)
 )PROC
 *REXX(* zcmd zsel)
   Select
+    When abbrev('ROW',zcmd,3)     = 1 then zcmd ='0'
     When abbrev('ADD',zcmd,2)     = 1 then zcmd ='1'
     When abbrev('BRANCH',zcmd,2)  = 1 then zcmd ='2'
     When abbrev('COMMIT',zcmd,2)  = 1 then zcmd ='3'
@@ -64,29 +71,16 @@
     When abbrev('REMOTE',zcmd,3)  = 1 then zcmd ='14'
     When abbrev('ROLLBACK',zcmd,2) = 1 then zcmd ='15'
     When abbrev('SET',zcmd,2)     = 1 then zcmd ='16'
-    When abbrev('STATUS',zcmd,2)  = 1 then zcmd ='17'
-    When abbrev('VIEW',zcmd,1)    = 1 then zcmd ='18'
+    When abbrev('SNAPSHOT',zcmd,2) = 1 then zcmd ='17'
+    When abbrev('STATUS',zcmd,2)  = 1 then zcmd ='18'
+    When abbrev('VIEW',zcmd,1)    = 1 then zcmd ='19'
+    When abbrev('FIND',zcmd,1)    = 1 then zcmd ='20'
     Otherwise nop
   end
 *Endrexx
- &githup   = ZIGIH150
- &githnext = ZIGIH250
- &prohup   = ZIGIH140
- &prohnext = ZIGIH160
- &comhup   = ZIGIH220
- &comhnext = ZIGIH240
- &cmdhup   = ZIGIH230
- &cmdhnext = ZIGIH160
- &sthup    = ZIGIH2E0
- &sthnext  = ZIGIH2G0
- &loghup   = ZIGIH160
- &loghnext = ZIGIH260
- &grhup    = ZIGIH250
- &grhnext  = ZIGIH270
- vput (githup githnext prohup prohnext comhup comhnext cmdhup cmdhnext)
- vput (sthup sthnext loghup loghnext grhup grhnext)
  &ZSEL = TRANS( &ZCMD
-           1,zigih210  /* ADD            */
+           0,zigih201  /* Row Select     */
+           1,zigih210  /* ADDDSN         */
            2,zigih220  /* BRANCH         */
            3,zigih230  /* COMMIT         */
            4,zigih240  /* GITCMD         */
@@ -102,11 +96,14 @@
           14,zigih2C0  /* REMOTE         */
           15,zigih2D0  /* ROLLBACK       */
           16,zigih2E0  /* SET            */
-          17,zigih2F0  /* STATUS         */
-          18,zigih2G0  /* VIEW           */
+          17,zigihsnp  /* Snapshot       */
+          18,zigih2F0  /* STATUS         */
+          19,zigih2G0  /* VIEW           */
+          20,zigih170  /* FIND           */
            *,'?'
            )
 )PNTS
+ FIELD(ROW   )  VAR(ZCMD) VAL('0')
  FIELD(ADD   )  VAR(ZCMD) VAL('1')
  FIELD(BR    )  VAR(ZCMD) VAL('2')
  FIELD(COMMIT)  VAR(ZCMD) VAL('3')
@@ -123,6 +120,8 @@
  FIELD(REMOTE)  VAR(ZCMD) VAL('14')
  FIELD(ROLLBACK) VAR(ZCMD) VAL('15')
  FIELD(SET   )  VAR(ZCMD) VAL('16')
- FIELD(STATUS)  VAR(ZCMD) VAL('17')
- FIELD(VIEW  )  VAR(ZCMD) VAL('18')
+ FIELD(SNAPSHOT)  VAR(ZCMD) VAL('17')
+ FIELD(STATUS)  VAR(ZCMD) VAL('18')
+ FIELD(VIEW  )  VAR(ZCMD) VAL('19')
+ FIELD(FIND  )  VAR(ZCMD) VAL('20')
 )END
