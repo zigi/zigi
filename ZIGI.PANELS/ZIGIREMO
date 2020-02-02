@@ -18,10 +18,13 @@
 +Make sure the remote repository exists and you're authorized to
 +push to master.
 +
-              + This is best done on a 'brand new' repository :-)
+%Note:+This is best done on a 'brand new' repository :-)
++
++
++
++
 +
                      +Press%Enter+to continue%F3+to cancel
-+
 )Init
  .zvars = '(defcpush)'
 )Proc
