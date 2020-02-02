@@ -15,7 +15,7 @@
 %Current Repository : $localdir
 %Current Branch     : $branch
 %
-+Command:%L+Locate  ]Commit]Gitlog]Grep]Sort]Status]Reset    ]Menu+
++Command:%L+Locate  ]Addall]Commit]Gitlog]Grep]Sort]Status]Reset    ]Menu+
 +Line:   %S+Edit%A+Add%D+Diff%H+History%RM+Remove%RN+Rename%U+Undo
 %
 %S   Member    Status                     Size    Mod-Date  Mod-Time  Userid
@@ -26,6 +26,7 @@
   .cursor = &zcmd
   .help = zigih300
   &zscr = CSR
+  &AddAll = 'AddAll'
   &Commit = 'Commit'
   &gitlog = 'Gitlog'
   &grep   = 'Grep'
@@ -51,6 +52,7 @@
     &zsel = &z
  ver (&zsel,list,S,A,D,U,RN,RM,H,/)
 )PNTS
+ FIELD(ADDALL) VAR(ZCMD) VAL('ADDALL')
  FIELD(COMMIT) VAR(ZCMD) VAL('COMMIT')
  FIELD(GITLOG) VAR(ZCMD) VAL('GITLOG')
  FIELD(STATUS) VAR(ZCMD) VAL('STATUS')

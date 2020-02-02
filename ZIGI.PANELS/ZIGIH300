@@ -10,6 +10,7 @@
 +
 %Commands available+(select for more information or press%Enter+to see each):
 +
+  [Addall+   git add all untracked members
   [Commit+   git Commit all elements that have been added
   [Gitlog+   view the git log with filtering options
   [Grep+     search all repository elements for a string
@@ -18,15 +19,15 @@
   [Reset    +change the userid for all members
   [Sort+     sort the member table - prompting if no parms given
   [Status+   display the git status for the repository
+  [Row+      Line selection commands
 +
-+
-     +    "Don't measure yourself by what you have accomplished,
-     +     but by what you should have accomplished with your
-     +     ability." - John Wooden
++   "Don't measure yourself by what you have accomplished, but by what
++    you should have accomplished with your ability." - John Wooden
 +
 +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
+ &addall  = 'AddAll'
  &commit  = 'Commit'
  &gitlog  = 'Gitlog'
  &grep    = 'Grep'
@@ -35,11 +36,13 @@
  &reset   = 'Reset-IDs'
  &sort    = 'Sort'
  &status  = 'Status'
+ &row     = 'Row'
  &ztut = '300'
  vput (ztut)
 )PROC
 *REXX(* zcmd zsel)
   Select
+    When abbrev('ADDALL',zcmd,2) = 1 then zcmd = 0
     When abbrev('COMMIT',zcmd,2) = 1 then zcmd = 1
     When abbrev('GITLOG',zcmd,4) = 1 then zcmd = 2
     When abbrev('GREP',zcmd,2) = 1 then zcmd = 3
@@ -52,6 +55,7 @@
   end
 *Endrexx
  &ZSEL = TRANS( &ZCMD
+           0,zigih305  /*   ADDALL            */
            1,zigih230  /*   COMMIT            */
            2,zigih250  /*   GITLOG            */
            3,zigih260  /*   GREP              */
@@ -64,11 +68,14 @@
            *,'?'
            )
 )PNTS
+ Field(ADDALL)  var(zcmd) val('0')
  Field(COMMIT)  var(zcmd) val('1')
  Field(GITLOG)  var(zcmd) val('2')
  Field(GREP  )  var(zcmd) val('3')
  Field(LOCATE)  var(zcmd) val('4')
- Field(RESET )  var(zcmd) val('5')
- Field(SORT  )  var(zcmd) val('6')
- Field(STATUS)  var(zcmd) val('7')
+ Field(MENU  )  var(zcmd) val('5')
+ Field(RESET )  var(zcmd) val('6')
+ Field(SORT  )  var(zcmd) val('7')
+ Field(STATUS)  var(zcmd) val('8')
+ Field(ROW   )  var(zcmd) val('9')
 )END

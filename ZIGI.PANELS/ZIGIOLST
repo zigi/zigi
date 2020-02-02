@@ -6,10 +6,11 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white)
-)Body  Window(46,12)
+)Body  Window(46,13)
 +
 +Enter Selection:_z                        +
 +
++]Addall+   Add all Untracked to Git
 +]Commit+   Register all changes with Git
 +]Gitlog+   Review the Git log
 +]Grep+     Search the repository for a string
@@ -22,6 +23,7 @@
  &zwinttl = 'zigi PDS Member Commands'
  .zvars = '(zcmd)'
  .cursor = zcmd
+  &Addall = 'AddAll'
   &Locate = 'Locate'
   &Commit = 'Commit'
   &gitlog = 'Gitlog'
