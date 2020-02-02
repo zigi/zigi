@@ -435,6 +435,10 @@
     end
   end
 
+  /* --------------------------------------------- *
+  | Test to see if the ZIGIREPO table is for V2R0 |
+  | and if not upgrade it.                        |
+  * --------------------------------------------- */
   call test_repo_table_state
 
   repo_top = 1
@@ -443,6 +447,7 @@
   'vget (primpanl) profile'
   if primpanl = null then primpanl = 'zigiprim'
   'vput (primpanl) profile'
+
 
   do forever
     parse value '' with zsel zcmd row
@@ -1966,6 +1971,8 @@ Do_Commit:
     | remove quotes for this msg             |
     * -------------------------------------- */
     else do
+say 'save_zigirep:' save_zigirep
+say 'zigirep:' zigirep
       cmsg.1 = translate(cmsg.1,' ',"'" '"')
       cmd = cmd "&& git commit -vm '"cmsg.1"'"
       if zpush = 'Y' then
@@ -2090,6 +2097,7 @@ Clone_Repo:
     cmd = cmd ' 'home'/.ssh/tmp_hosts && '
     cmd = cmd 'mv 'home'/.ssh/tmp_hosts 'home'/.ssh/known_hosts'
     x = bpxwunix(cmd,,so.,se.)
+    localrep = strip(localrep,'T','/')
     cmd = 'cd 'localrep
     if remotebr = null
     then cmd = cmd ' && git clone -v 'remote
@@ -3058,7 +3066,6 @@ Create_Repo:
     if rc > 0 then return 8
     if localrep = '?' then
     localrep = zigiosel()
-    localrep = strip(localrep,'T','/')
     /* ---------------------------------------------------- *
     | We do some basic git repo setup here...              |
     | Fair warning, it's going to be very verbose.         |
@@ -4037,7 +4044,7 @@ Do_Add_Copy:
   | Format is:                                              |
   | dsn PS/PO recfm lrecl blksize                           |
   * ------------------------------------------------------- */
-Save_dsninfo:
+save_dsninfo:
   /* better make sure sd. stem is empty before we start :) */
   sd. = ''
   sd.0 = 0
