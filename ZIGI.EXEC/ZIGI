@@ -21,6 +21,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            02/03/20 LBD - Support mixed text/binary pds    |
   |            02/02/20 LBD - Add ADDALL to current repo and   |
   |                           PDS member list commands         |
   |            01/24/20 LBD - Improve RFIND table entry setup  |
@@ -1971,8 +1972,6 @@ Do_Commit:
     | remove quotes for this msg             |
     * -------------------------------------- */
     else do
-say 'save_zigirep:' save_zigirep
-say 'zigirep:' zigirep
       cmsg.1 = translate(cmsg.1,' ',"'" '"')
       cmd = cmd "&& git commit -vm '"cmsg.1"'"
       if zpush = 'Y' then
@@ -2343,8 +2342,13 @@ Work_with_repo_file:
               e = usssafe(edsn)
               r = usssafe(dsn)
               /* Binary v1, check if PDS is a bin, then copy binary */
-              /* No support for mixed PDS (bin/ebcdic) yet... */
               if is_binfile(r'/*') = 1 then do
+                binopt = '-B'
+              end
+              else do
+                binopt = null
+              end
+              if is_binfile(r'/'m) = 1 then do
                 binopt = '-B'
               end
               else do
@@ -3495,8 +3499,13 @@ update_repo_metadata:
             e = usssafe(edsn)
             r = usssafe(root.i)
             /* Binary v1, check if PDS is a bin, then copy binary */
-            /* No support for mixed PDS (bin/ebcdic) yet... */
             if is_binfile(r'/*') = 1 then do
+              binopt = '-B'
+            end
+            else do
+              binopt = null
+            end
+            if is_binfile(r'/'m) = 1 then do
               binopt = '-B'
             end
             else do
@@ -3861,6 +3870,9 @@ Add_Dataset:
       when zsel = 'AB' then do
         call do_add_copy 'binary'
       end
+      when zsel = 'SA' then do
+        call do_sel_mem_copy
+      end
       Otherwise nop
     end
 
@@ -3896,7 +3908,7 @@ Get_List:
     dsna = word(x.dsni,2)
     dastat = null
     do gl = 1 to so.0
-      if right(dsna,length(word(so.gl,1))) = word(so.gl,1)
+      if substr(dsna,length(dsnapfx)+2) = word(so.gl,1)
       then dastat = 'Added'
     end
     'tbadd' dsnatbl
@@ -3906,14 +3918,90 @@ Get_List:
   list = 1
   return
 
+/* --------------------------------------------------------------- *
+ | Prompt the user to select the members to add - primary intended |
+ | to add individual members as binary and then a full dataset     |
+ | add makes the rest text.                                        |
+ * --------------------------------------------------------------- */
+Do_Sel_Mem_Copy:
+  smtab = 'sm'random(9999)
+    'TBCreate' smtab 'Keys(smem) Names(smstat zlcnorc' ,
+      'zlmdate zlmtime zluser) Nowrite'
+  smem = null
+  smstat = null
+  "LMINIT DATAID(DID) Dataset('"dsna"')"
+  "LMOPEN DATAID("did") OPTION(INPUT)"
+  do forever
+    "LMMLIST Dataid("did") OPTION(LIST) MEMBER(smem)" ,
+            "STATS(YES)"
+    if rc > 0 then leave
+    smem = strip(smem)
+    'tbadd' smtab
+  end
+  "LMCLOSE DATAID("did")"
+  "LMFREE DATAID("did")"
+  save_ztd = ztdsels
+  save_stop = ztdtop
+  ztdsels = 0
+  seltop = 0
+  wdsna = dsna
+  do forever
+    zsel = null
+    smstat = null
+    dsnp = "'"wdsna"'"
+    if ztdsels < 2 then do
+      'tbtop' smtab
+      'tbskip' smtab 'number('seltop')'
+      'tbdispl' smtab 'panel(zigiadsa)'
+      trc = rc
+    end
+    else do
+      'tbdispl' smtab
+      trc = rc
+    end
+    if trc > 4 then do
+      'tbend' smtab
+      ztdsels = save_ztd
+      ztdtop = save_stop
+      return
+    end
+    seltop = ztdtop
+    if zsel /= null then Select
+      When zsel = 'A' then do
+        dsna = wdsna'('smem')'
+        call do_add_copy
+        smstat = 'Added Text'
+        'tbmod' smtab
+      end
+      When zsel = 'AB' then do
+        dsna = wdsna'('smem')'
+        call do_add_copy 'binary'
+        smstat = 'Added Binary'
+        'tbmod' smtab
+      end
+      When zsel = 'B' then do
+        dsna = wdsna'('smem')'
+        "Browse Dataset('"dsna"')"
+        smstat = 'Browsed'
+        'tbmod' smtab
+      end
+      Otherwise zsel = null
+    end
+  end
+  return
+
   /* -------------------------------------------- *
   | Perform the actual copy of the added dataset |
-  | to the local repository.                     |
+  | or member to the local repository.           |
   * -------------------------------------------- */
 Do_Add_Copy:
   parse arg option with ''
   gabs = 'git-encoding=BINARY zos-working-tree-encoding=BINARY binary'
   zsel = null
+  ac_mem = null
+  copy_dsna = dsna
+  if pos('(',dsna) > 0 then
+  parse value dsna with dsna'('ac_mem')'
   what = dsna
   if qualignr > 0
   then do
@@ -3922,7 +4010,8 @@ Do_Add_Copy:
     dsnb = translate(dsnb,'.',' ')
   end
   else dsnb = dsna
-  zs1 = 'Copying' dsna
+  if ac_mem /= null then dsnb = dsnb'/'ac_mem
+  zs1 = 'Copying' copy_dsna
   zs2 = 'to' dsnb 'in OMVS'
   if translate(option) = 'BINARY' then do
     zs3 = 'Binary'
@@ -3950,16 +4039,20 @@ Do_Add_Copy:
     PDS = strip(PDS,"B","'")
     pdss = usssafe(dsnb)
     pdsc = usssafe(pds)
+    if pos('/',pdss) > 0 then
+    parse value pdss with pdss'/'.
     mkdir = "mkdir -p "DIR"/"pdss
     x = bpxwunix(mkdir,,so.,se.)
     if option = 'binary' then do
       binopt = '-B'
+      if ac_mem = null then ga_mem = '*'
+      else ga_mem = ac_mem
       /* setting the gitattributes file */
       /* first convert the ASCII atrtib file to ebcdic :( */
       cmd = 'cd 'DIR' && iconv -f ISO8859-1 -t IBM-1047 '
       cmd = cmd '.gitattributes > .gae'
       /* then append the binary attrib for this file */
-      cmd = cmd '&& echo "'pdss'/*  'gabs'" >> .gae '
+      cmd = cmd '&& echo "'pdss'/'ga_mem' 'gabs'" >> .gae '
       /* convert it back to ascii */
       cmd = cmd '&& iconv -f IBM-1047 -t ISO8859-1 .gae '
       cmd = cmd '> .gitattributes '
@@ -3973,9 +4066,10 @@ Do_Add_Copy:
     else do
       binopt = null
     end
+    if ac_mem /= null then pdsc = pdsc"("ac_mem")"
     copycmd = "//'"pdsc"'"
     copycmd = '"'copycmd'"'
-    copycmd = "cp -U -v "binopt copycmd" "DIR"/"pdss"/"
+    copycmd = "cp -U -v "binopt copycmd" "DIR"/"pdss"/"ac_mem
     x =bpxwunix(copycmd,,so.,se.)
     if option = 'binary' then do
       /* for some reason the git autotagging due to .gitattributes
@@ -4696,10 +4790,10 @@ get_binfiles:
 
 is_binfile:
   /* ---------------------------------------------------------\
-  | Name:      binfiles                                        |
+  | Name:      is_binfile                                      |
   |                                                            |
-  | Function:  Fills the global binfiles. stem with all        |
-  |            current repo files that are added as binary.    |
+  | Function:  Checks the global binfiles. stem for the        |
+  |            provided dataset or dataset/member              |
   \---------------------------------------------------------- */
   parse arg file
   res = 0

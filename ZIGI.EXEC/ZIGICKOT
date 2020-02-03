@@ -69,9 +69,9 @@
   Address TSO
 
   /* -------------------------------------------------------- *
-   | Issue the ls command to get file names and sizes for all |
-   | files in the current directory and sub-directories.      |
-   * -------------------------------------------------------- */
+  | Issue the ls command to get file names and sizes for all |
+  | files in the current directory and sub-directories.      |
+  * -------------------------------------------------------- */
   cmd = 'ls -laRk' ckotdir
   rc = bpxwunix(cmd,,stdout.,stderr.)
 
@@ -118,12 +118,12 @@
     end
   end
 
-/* ------------------------------- *
- | Get the list of Binary Datasets |
- * ------------------------------- */
- Address ISPExec 'vget (gitenv) profile'
- call getenv
- call get_binfiles
+  /* ------------------------------- *
+  | Get the list of Binary Datasets |
+  * ------------------------------- */
+  Address ISPExec 'vget (gitenv) profile'
+  call getenv
+  call get_binfiles
 
   /* ---------------------------------------------------- *
   | Process the results of the ls command to:            |
@@ -198,7 +198,7 @@
     zs3 = 'To:             ' fileg
     bin = is_binfile(sub)
     if bin = 1 then type = 'Binary'
-               else type = 'Text'
+    else type = 'Text'
     zs7 = 'Type            ' type
     call pop_status
     call outtrap 'x.'
@@ -209,12 +209,8 @@
     'alloc ds('fileg') new spa('tracks','tracks') tr dsorg(ps)' ,
       'recfm('recfm') lrecl('lrecl') blksize('blksize')'
     'free ds('fileg')'
-    fileg = translate(fileg,' ','.')
-    m = strreplace(fileg,'.','#')
-    m = strreplace(m,'_','@')
-    m = strreplace(m,'-','$')
-    m = translate(m,'.',' ')
     call outtrap 'x.'
+    m = fileg
     'oget' odir m type
     call outtrap 'off'
   end
@@ -231,7 +227,7 @@
     sub = word(subs,i)
     bin = is_binfile(sub)
     if bin = 1 then type = 'Binary'
-                else type = 'Text'
+    else type = 'Text'
     zs7 = 'Type:                   ' type
     fx = translate(sub,'??????????????????????????', ,
       'abcdefghijklmnopqrstuvwxyz')
@@ -249,15 +245,15 @@
 
   Exit
 
-/* ----------------------------------------------------------------- *
- | Allocate the PDS and perform the copy using OGET for selective    |
- | copies or OGETX for a full PDS                                    |
- | - if the target PDS exists as a PDS, delete and realloc as a PDSE |
- | - if the target is a PDSE then it will NOT be reallocated         |
- | - The target PDS will be allocated as a PDSE version 2.           |
- | - if maxgen (mgen) is provided then member generations will       |
- |   also be defined at allocation                                   |
- * ----------------------------------------------------------------- */
+  /* ----------------------------------------------------------------- *
+  | Allocate the PDS and perform the copy using OGET for selective    |
+  | copies or OGETX for a full PDS                                    |
+  | - if the target PDS exists as a PDS, delete and realloc as a PDSE |
+  | - if the target is a PDSE then it will NOT be reallocated         |
+  | - The target PDS will be allocated as a PDSE version 2.           |
+  | - if maxgen (mgen) is provided then member generations will       |
+  |   also be defined at allocation                                   |
+  * ----------------------------------------------------------------- */
 Alloc_Copy_PDS:
   pds = "'"ckothlq"."sub"'"
   odir = "'"ckotdir"/"sub"/"
@@ -288,16 +284,19 @@ Alloc_Copy_PDS:
   | Read directory to get all member file names and then |
   | adjust according and then do individual oget         |
   * ---------------------------------------------------- */
+  /* $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
   if pullmems.sub = null then do
-     call outtrap 'x.'
-     Address TSO 'OGETX' odir pds type 'Quiet'
-     call outtrap 'off'
-     end
+  call outtrap 'x.'
+  Address TSO 'OGETX' odir pds type 'Quiet'
+  call outtrap 'off'
+  end
   else do
+  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ */
   target = strip(pds,'B',"'")
   call syscalls 'ON'
   address syscall
   rdir = strip(odir,'B',"'")
+  rdir = strip(rdir,'T','/')
   'readdir' rdir 'mems.'
   address ispexec
   call outtrap 'x.'
@@ -310,12 +309,15 @@ Alloc_Copy_PDS:
     if wordpos(mems.ii,pullmems.sub) = 0 then iterate
     src = rdir'/'mems.ii
     m = mems.ii    /* ignore the translation */
+    bin = is_binfile(sub'/'mems.ii)
+    if bin = 1 then type = 'Binary'
+    else type = 'Text'
     Address TSO
     'OGET' "'"src"'" "'"target"("m")'" type
     Address ISPexec
   end
   call outtrap 'off'
-  end
+  /*end  $$$$$$$$$$$$$$$$ */
   return
 
 get_dcb:
@@ -406,12 +408,12 @@ get_binfiles:
   cmd = cmd '| cut -d" " -f1'
   x = docmd(cmd)
   if so.0 = 0 then do
-     binfiles.0 = 0
-     return 0
-     end
+    binfiles.0 = 0
+    return 0
+  end
   do b = 1 to so.0
     if pos('/*',so.b) > 0 then
-       parse value so.b with so.b'/'.
+    parse value so.b with so.b'/'.
     binfiles.b = so.b
   end
   binfiles.0 = so.0

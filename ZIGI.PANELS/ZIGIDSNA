@@ -17,7 +17,7 @@
 +for the OMVS file name or directory.
 +
 +Command:%Find+
-+Line:%S+Add+%A+Add+%AB+Add binary+%B+Browse
++Line:%S+Add+%A+Add+%AB+Add binary+%B+Browse%SA+Selective Member Add
 +
 %S   Dataset Name                                Status
 )Model
@@ -50,5 +50,5 @@
      &zsel = &z
  ver (&dsnapfx,nb,dsname)
  ver (&qualignr,nb,range,0,8)
- ver (&zsel,list,S,B,A,AB)
+ ver (&zsel,list,S,B,A,AB,SA)
 )End
