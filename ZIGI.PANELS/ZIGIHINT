@@ -45,8 +45,8 @@
            1,zigih100   /* Primary Menu                   */
            2,zigih200   /* Repository Panel               */
            3,zigih300   /* Member List Panel              */
-    /*     4,zigih400   /* Getting Started   (tbd)        */
-    /*     5,zigih500   /* Common Scenarios  (tbd)        */
+           4,zigih400   /* Getting Started   (tbd)        */
+           5,zigih500   /* Common Scenarios  (tbd)        */
            6,zigih600   /* Repository Layout              */
            A,*zigihau   /* zigi Authors and Contributing  */
            L,*zigigpl   /* GPL License                    */
