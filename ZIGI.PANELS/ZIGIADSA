@@ -13,11 +13,11 @@
 %
 %Current Dataset:$dsnp
 %
-+Line:   %B+Browse%A+Add (Text)%AB+Add (Binary)
++Line:   %B+Browse%S+Add as Binary
 %
 %S   Member    Status                     Size    Mod-Date  Mod-Time  Userid
 )Model
-@z +$z        +$z                     [z      +  [z       +[z       +$z
+@z+ $z        +$z                     [z      +  [z       +[z       +$z
 )Init
   .zvars = '(zsel smem smstat zlcnorc zlmdate zlmtime zluser)'
   .cursor = &zcmd
@@ -39,5 +39,5 @@
      &osel = &zsel
  if (&row = 0)
     &zsel = &z
- ver (&zsel,list,B,A,AB)
+ ver (&zsel,list,B,S)
 )End
