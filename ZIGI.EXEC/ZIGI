@@ -2332,6 +2332,13 @@ Work_with_repo_file:
           * -------------------------------- */
           x = listdsi(fulldsn)
           edsn = strip(fulldsn,'B',"'")
+          r = usssafe(dsn)
+          if is_binfile(r'/'mem) = 1 then do
+             zerrsm = 'Invalid'
+             zerrlm = 'Unable to Edit a binary dataset.'
+             'setmsg msg(isrz003)'
+             leave
+             end
           if sysdsorg = 'PS'
           then "Edit Dataset('"edsn"')"
           else "Edit Dataset('"edsn"("mem")'"
@@ -2354,7 +2361,9 @@ Work_with_repo_file:
               else do
                 binopt = null
               end
-              copycmd = "//'"e"("m")'"
+              if sysdsorg = 'PS'
+              then copycmd = "//'"e"'"
+              else copycmd = "//'"e"("m")'"
               copycmd = '"'copycmd'"'
               copycmd = "cp "binopt" -U -v" copycmd" "localrep"/"zigirep
               copycmd = copycmd || "/"r"/"
@@ -2526,6 +2535,12 @@ Edit_PS:
   arg noedit
   edsn = strip(fulldsn,'B',"'")
   /* Do this if it's a regular file (sequential in z/OS) */
+  if is_binfile(dsn) = 1 then do
+     zerrsm = 'Invalid'
+     zerrlm = 'Unable to Edit a binary dataset.'
+     'setmsg msg(isrz003)'
+     return
+     end
   "Edit Dataset('"edsn"')"
   /* so after the edit, we should update it to working directory */
   if rc = 0 then do
@@ -3519,7 +3534,7 @@ update_repo_metadata:
             if x > 0 then call view_std 'B'
             x = debug('Copy:' copycmd)
             if binopt = '-B' then do
-              tagcmd = 'chtag -b 'localrep'/'zigirep'/'r'/*'
+              tagcmd = 'chtag -b 'localrep'/'zigirep'/'r'/'m
               x = bpxwunix(tagcmd,,so.,se.)
             end
             mem_hit = 1
@@ -3871,6 +3886,7 @@ Add_Dataset:
         call do_add_copy 'binary'
       end
       when zsel = 'SA' then do
+        call do_add_copy 'SA'
         call do_sel_mem_copy
       end
       Otherwise nop
@@ -3928,7 +3944,7 @@ Do_Sel_Mem_Copy:
     'TBCreate' smtab 'Keys(smem) Names(smstat zlcnorc' ,
       'zlmdate zlmtime zluser) Nowrite'
   smem = null
-  smstat = null
+  smstat = 'Added as Text'
   "LMINIT DATAID(DID) Dataset('"dsna"')"
   "LMOPEN DATAID("did") OPTION(INPUT)"
   do forever
@@ -3945,6 +3961,11 @@ Do_Sel_Mem_Copy:
   ztdsels = 0
   seltop = 0
   wdsna = dsna
+  zerrsm = null
+  zerrlm = 'All members have been added as text. Select those members' ,
+           'to be added as binary. These will be copied and added to' ,
+           'Git as binary members.'
+  'setmsg msg(isrz003)'
   do forever
     zsel = null
     smstat = null
@@ -3967,13 +3988,7 @@ Do_Sel_Mem_Copy:
     end
     seltop = ztdtop
     if zsel /= null then Select
-      When zsel = 'A' then do
-        dsna = wdsna'('smem')'
-        call do_add_copy
-        smstat = 'Added Text'
-        'tbmod' smtab
-      end
-      When zsel = 'AB' then do
+      When zsel = 'S' then do
         dsna = wdsna'('smem')'
         call do_add_copy 'binary'
         smstat = 'Added Binary'
@@ -4014,10 +4029,10 @@ Do_Add_Copy:
   zs1 = 'Copying' copy_dsna
   zs2 = 'to' dsnb 'in OMVS'
   if translate(option) = 'BINARY' then do
-    zs3 = 'Binary'
+    zs3 = 'Copy as Binary'
   end
   else do
-    zs3 = null
+    zs3 = 'Copy as Text'
   end
   zs4 = 'Patience . . .'
   call do_popup4
@@ -4075,7 +4090,7 @@ Do_Add_Copy:
       /* for some reason the git autotagging due to .gitattributes
       does not work all the time (?? weird) so we tag it if binary
       */
-      tagcmd = 'chtag -bR 'DIR'/'pdss
+      tagcmd = 'chtag -bR 'DIR'/'pdss'/'ac_mem
       x = bpxwunix(tagcmd,,so.,se.)
     end
     Address TSO '%zigistat' "'"pds"'" dir"/.zigi/"pdss 'S'
@@ -4799,8 +4814,11 @@ is_binfile:
   res = 0
   if datatype(binfiles.0) /= 'NUM' then return res
   do bi = 1 to binfiles.0
-    if binfiles.bi = file then do
-      return 1
-    end
+    if right(binfiles.bi,1) = '*' then do
+       parse value file with test'/'.
+       if left(binfiles.bi,length(binfiles.bi)-2) = test
+          then return 1
+       end
+    if binfiles.bi = file then return 1
   end
   return res
