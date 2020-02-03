@@ -28,10 +28,15 @@
 )Init
  .help = zigih110
  .zvars = '(defcpush)'
+)Reinit
+ REFRESH(REMOTE)
 )Proc
  &resp = .resp
 *REXX(* zedsmsg zedlmsg resp csr)
   zedsmsg = ''
+  if word(remote,1) = 'git' then do
+     remote = subword(remote,3)
+     end
   if length(defruid) = 8 then do
     CVT      = C2D(Storage(10,4))
     TVT      = C2D(Storage(D2X(CVT + 156),4))   /* cvt + 9c */
