@@ -8,7 +8,7 @@
 +
                                   %AddAll
 +
-%ADDALL+ will add all Untracked or Modified datasets to the Git
+%ADDALL+ will add all Untracked or Modified datasets and files to the Git
 +staging area so they are eligible to be Committed.
 +
 +

@@ -25,4 +25,23 @@
  .help = zigih2e0
  &zscr = CSR
 )Proc
+ &resp = .resp
+*REXX(* zedsmsg zedlmsg resp csr)
+  zedsmsg = ''
+  if length(defruid) = 8 then do
+    CVT      = C2D(Storage(10,4))
+    TVT      = C2D(Storage(D2X(CVT + 156),4))   /* cvt + 9c */
+    TSVTUMXL = C2D(Storage(D2X(tvt  + 6),1))  /* tvt + 6 */
+    if tsvtumxl < 8 then do
+      zedsmsg = 'Error'
+      zedlmsg = defruid 'is 8 characters and this system does not' ,
+        'support 8 character TSO userids at this time.'
+      csr = 'DEFRUID'
+    end
+  end
+*ENDREXX
+ if (&zedsmsg NE &Z)
+    .MSG = ISRZ001
+    .CURSOR = &CSR
+ if (&zedsmsg EQ &Z)
 )End

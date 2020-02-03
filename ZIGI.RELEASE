@@ -4,9 +4,146 @@
                          New Features and Functions
                          --------------------------
 
-Update to the Current Repository commands menu to add ADDALL. This
-command will do a git add for all Untracked or Modified datasets or
-files.
+  /--------------------- From zigi 2.0 ------------------------\
+  | The former use of -M with CP to convert the @#$ special    |
+  | characters to/from z/OS for unix has been replaced by      |
+  | escaping those characters where required to preserve them. |
+  \------------------------------------------------------------/
 
-Update to the PDS Member commands menu to add ADDALL. This command will
-do a git add for all Untracked or Modified members.
+Update to the Current Repository commands menu to add ADDALL. This command
+will do a git add for all Untracked or Modified datasets or files.
+
+Update to the PDS Member commands menu to add ADDALL. This command will do
+a git add for all Untracked or Modified members.
+
+Add a check to all ISPF panels asking for a userid to verify if the user
+enters an 8 character userid that the system supports the 8 character
+userid.
+
+=============================================================================
+                             zigi Release Notes
+                                Version 2.0
+
+                         New Features and Functions
+                         --------------------------
+
+  /------------------------------------------------------------\
+  | The former use of -M with CP to convert the @#$ special    |
+  | characters to/from z/OS for unix has been replaced by      |
+  | escaping those characters where required to preserve them. |
+  \------------------------------------------------------------/
+
+Update to the GITLOG prompt to include, or exclude, diff's in the report.
+
+A new GITCMD dialog that enables the execution of any valid Git command
+within the active Git repository. A command history is maintained so that
+commands may be reused. The command results are then browsed or viewed.
+If the command table grows beyond the point the user is comfortable with
+it then a CLEAR command is available to start over.
+
+Grep processing has been enhanced with an option to view the results in a
+report mode using the raw grep results or in a Dataset/File view where the
+results are presented summarized by dataset or file. The display allows
+selecting the individual dataset, or file, for Edit, Browse, or View.
+
+History is a dataset, PDS member, or file selection option that will display
+a list of all commits for that element. From the table display the user
+can select using C to view the commit entry, including the diffs.
+Selecting using S will view the historical version of the element. While in
+ISPF View the user has access to all ISPF Edit commands, including  Compare,
+Copy, and Create.
+
+Merge supports merging another local branch into the current branch. Merge
+conflicts can be resolved using ISPF Edit Compare or using a customized Edit
+display that highlights the merge conflicts using the Git provided conflict
+markers. At this time a merge performs a full refresh of ALL datasets (this
+is planned to become a selective refresh in a future release).
+
+OMVS subdirectories with files are now supported. These directories and
+files must be added outside of zigi at this time and when zigi starts it
+will recognize those as untracked. The untracked directories, and/or files,
+must then be added to the Git staging index for management by Git.
+
+Rename an element will rename the z/OS dataset, z/OS PDS member, OMVS file,
+and any ISPF statistics file. It will also perform a git mv (rename) so
+all Git information about the original will be retained with the new name.
+
+Remove an element will delete the z/OS dataset, z/OS PDS member, OMVS file,
+and any ISPF statistics file. It will also perform a git rm (remove) so
+all git information about the element will be deleted.
+
+Added new row selection option of / to tables where it made sense. The /
+will bring up a popup menu for the available section options. These popups
+include an entry field and point-and-shoot capabilities.
+
+Added new menu toggle to Basic and Pro that will remove ALL menus.
+
+A new command option on those panels is O which will display a popup command
+selection panel that support both an entry field and point-and-shoot.
+
+When the git log is viewed the git diff's will not be colorized with blue
+for inserts and red for deletions. This only works when viewing and not with
+browsing.
+
+Update Pull processing to only refresh the z/OS datasets that are updated
+during the pull process, and only the PDS members that were updated. If more
+than 25% of the PDS members are updated then the full PDS is refreshed.
+Before ALL z/OS datasets were refreshed.
+
+On the Local Repository panel the option to use 'S repo' to select a
+repository from the command line. The 'repo' is case sensitive. This
+allows for faster access to a repository.
+
+Changed the debug logging when the ZIGIDEBG DD is present to log to a file
+in the users home directory named zigidebug.d(julian date).t(hhmmss). On
+exit from zigi a USS directory list (3.17) will be presented to the user
+with just these files from which the user can browse/edit/delete.
+
+Update the Config panel to prompt the user for the default number of
+generations to use when allocating every Partitioned Dataset during Clone,
+Pull, or Refresh processing.
+
+Update the Repository Delete dialog to enable the deletions of the
+repositories z/OS datasets and add an additional entry field to confirm the
+repository delete is really wanted.
+
+Change the Current Repository ADD command to ADDDSN since that is what it
+does to differentiate it from the Add selection option which performs a git
+add.
+
+Implement a new SNAPSHOT option for the Current Repository that creates an
+Escrow version of the repository - the z/OS datasets and the OMVS files. This
+is outside of zigi and git. It also generates a tag at the time of the
+snapshot to enable easy access to the git repository for reviewing
+information.
+
+Implemented binary support. On the 'Add Dataset' panel zigi now supports the
+'AB' command. This will do the same as the trusted 'A' command (add a
+dataset) to zigi, however this file will be treated as binary. This allows
+you to have zigi manage your XMIT files, or OBJECT files. Load modules
+obviously not supported. Take note, for a PDS this means ALL the members in
+the PDS will be treated as binary. (this also updates and commits the
+.gitattributes file)
+
+In the element History view a new option to Recover the historical source is
+now available. It only works for z/OS datasets. Both PDS members and PS
+datasets may be recovered. OMVS historical recovery is not supported at this
+time. A PDS member must be recovered to a PDS member, even if the recovery
+dataset is being allocated new.
+
+Update Rollback with two new commands. ONLY (O) will limit the display of
+commits to those with the provided string in the title (e.g. O roll) in a
+case insensitive compare. REFRESH (R) will refresh the table back to all
+entries.
+
+New Undo (U) selection for datasets, OMVS files, and PDS members. This will
+undo any changes made prior to a commit. After a commit the Rollback option
+or the History Recover option will be required.
+
+Speeded up the ADDDSN dialog initialization by replacing the use of LISTC with
+IBM's sample IGGCSIRX code that was modified to return only the dataset names.
+
+Added to the ADDDSN dialog a Find/RFind capability to easily find the dataset
+names to be added. Find works with a string that is searched anywhere in the
+dataset name (e.g. F PDS will find the 1st occurence of a dataset with PDS in
+the name and repeat find (F5) find the next).
