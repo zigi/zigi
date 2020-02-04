@@ -20,6 +20,20 @@ Add a check to all ISPF panels asking for a userid to verify if the user
 enters an 8 character userid that the system supports the 8 character
 userid.
 
+On the PDS Member table a new line option of AB to add the member in binary
+format.
+
+On the ADDDSN table an option for a PDS of SA to selectively add members as
+binary. By default SA will add all members as text and then present a member
+list to allow individual members to be added as binary.
+
+Fix for Bitbucket users where the clone clipboard copy contains 'git clone'
+before the SSH info. The 'git clone' will now be automatically removed to allow
+the Bitbucket user to just copy from Bitbucket and paste into zigi for clone or
+remote add.
+
+
+
 =============================================================================
                              zigi Release Notes
                                 Version 2.0
@@ -145,5 +159,5 @@ IBM's sample IGGCSIRX code that was modified to return only the dataset names.
 
 Added to the ADDDSN dialog a Find/RFind capability to easily find the dataset
 names to be added. Find works with a string that is searched anywhere in the
-dataset name (e.g. F PDS will find the 1st occurence of a dataset with PDS in
+dataset name (e.g. F PDS will find the 1st occurrence of a dataset with PDS in
 the name and repeat find (F5) find the next).
