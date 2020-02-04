@@ -2476,6 +2476,19 @@ Work_with_repo_file:
           call git_add_member
           if ztdsels = 1 then call git_add_member_stats
         end
+        when zsel = 'AB' then do
+          /* --------------------------------- *
+          | Add member of PDS to staging area |
+          | as a binary member and copy/tag it|
+          * --------------------------------- */
+            dsna = translate(strip(fulldsn,'B',"'"),' ','.')
+            add_count = 0
+            dsnapfx = pdshlq
+            dsna = strip(fulldsn,'B',"'")'('mem')'
+            call do_add_copy 'binary'
+            call git_add_member
+            if ztdsels = 1 then call git_add_member_stats
+        end
         when zsel = 'U' then call do_undo 'M'
         when zsel = 'D' then do
           /* -------------------------------- *
@@ -4038,6 +4051,7 @@ Do_Sel_Mem_Copy:
   * -------------------------------------------- */
 Do_Add_Copy:
   parse arg option with ''
+  trace '?i'
   gabs = 'git-encoding=BINARY zos-working-tree-encoding=BINARY binary'
   zsel = null
   ac_mem = null
