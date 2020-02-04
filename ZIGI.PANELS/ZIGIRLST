@@ -6,11 +6,12 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white)
-)Body  window(46,11)
+)Body Window(56,12)
 +
 +Enter Selection:_z +
 +
-+]Add+    (A)+ Add the member to the git Index
++]Add+    (A)+ Add the member as Text to the git Index
++]AddBin+ (AB)+Add the member as Binary to the git Index
 +]Edit+   (E)+ Edit the dataset/file
 +]Diff+   (D)+ Show the Diff's
 +]History+(H)+ Display Commit History
@@ -25,6 +26,7 @@
  &zsel  = &z
  &edit    = 'Edit'
  &add     = 'Add'
+ &addbin  = 'AddBin'
  &diff    = 'Diff'
  &history = 'History'
  &remove  = 'Remove'
@@ -34,6 +36,7 @@
  ver (&zsel,list,A,E,D,H,RM,RN,S,U)
 )PNTS
   Field(add    ) var(zsel) val('A')
+  Field(addbin ) var(zsel) val('AB')
   Field(diff   ) var(zsel) val('D')
   Field(edit   ) var(zsel) val('S')
   Field(history) var(zsel) val('H')
