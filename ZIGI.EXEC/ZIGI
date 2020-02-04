@@ -2484,9 +2484,12 @@ Work_with_repo_file:
             dsna = translate(strip(fulldsn,'B',"'"),' ','.')
             add_count = 0
             dsnapfx = pdshlq
+            sa_dsna = dsna
             dsna = strip(fulldsn,'B',"'")'('mem')'
             call do_add_copy 'binary'
+            parse value dsn with dsn'/'mem
             call git_add_member
+            dsna = sa_dsna
             if ztdsels = 1 then call git_add_member_stats
         end
         when zsel = 'U' then call do_undo 'M'
@@ -2537,7 +2540,6 @@ Git_Add_Member_Stats:
     localrep'/'zigirep'/.zigi/'statfiles 'S')
   statfiles = usssafe(statfile)
   x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfiles)
-  call update_repo_metadata
   call work_with_repo_file
   return
 
@@ -4050,6 +4052,7 @@ Do_Sel_Mem_Copy:
   | or member to the local repository.           |
   * -------------------------------------------- */
 Do_Add_Copy:
+  arg acopt
   parse arg option with ''
   gabs = 'git-encoding=BINARY zos-working-tree-encoding=BINARY binary'
   zsel = null
@@ -4173,6 +4176,7 @@ Do_Add_Copy:
       x =bpxwunix(tagcmd,,so.,se.)
     end
   end
+  if acopt = 'SA' then return
   dsnstat = '[??] Untracked'
   dsn = dsnb
   fulldsn = "'"what"'"
@@ -4848,6 +4852,7 @@ bin_already:
   arg file
   if datatype(binfiles.0) /= 'NUM' then return 0
   do b = 1 to binfiles.0
+    if file = binfiles.b then return 1
     if pos('/',binfiles.b) = 0
     then test = binfiles.b
     else parse value binfiles.b with test'/'.
@@ -4863,9 +4868,9 @@ is_binfile:
   |            provided dataset or dataset/member              |
   \---------------------------------------------------------- */
   arg file
-  res = 0
-  if datatype(binfiles.0) /= 'NUM' then return res
+  if datatype(binfiles.0) /= 'NUM' then return 0
   do bi = 1 to binfiles.0
+    if binfiles.bi = file then return 1
     if right(binfiles.bi,1) = '*' then do
       parse value file with test'/'.
       if left(binfiles.bi,length(binfiles.bi)-2) = test
@@ -4873,4 +4878,4 @@ is_binfile:
     end
     if binfiles.bi = file then return 1
   end
-  return res
+  return 0
