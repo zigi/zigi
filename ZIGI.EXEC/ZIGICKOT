@@ -284,14 +284,6 @@ Alloc_Copy_PDS:
   | Read directory to get all member file names and then |
   | adjust according and then do individual oget         |
   * ---------------------------------------------------- */
-  /* $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-  if pullmems.sub = null then do
-  call outtrap 'x.'
-  Address TSO 'OGETX' odir pds type 'Quiet'
-  call outtrap 'off'
-  end
-  else do
-  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ */
   target = strip(pds,'B',"'")
   call syscalls 'ON'
   address syscall
@@ -310,6 +302,7 @@ Alloc_Copy_PDS:
     src = rdir'/'mems.ii
     m = mems.ii    /* ignore the translation */
     bin = is_binfile(sub'/'mems.ii)
+say 'sub/mem:' sub'/'mems.ii 'bin:' bin
     if bin = 1 then type = 'Binary'
     else type = 'Text'
     Address TSO
@@ -412,8 +405,6 @@ get_binfiles:
     return 0
   end
   do b = 1 to so.0
-    if pos('/*',so.b) > 0 then
-    parse value so.b with so.b'/'.
     binfiles.b = so.b
   end
   binfiles.0 = so.0
@@ -421,18 +412,21 @@ get_binfiles:
 
 is_binfile:
   /* ---------------------------------------------------------\
-  | Name:      binfiles                                        |
+  | Name:      is_binfile                                      |
   |                                                            |
-  | Function:  Fills the global binfiles. stem with all        |
-  |            current repo files that are added as binary.    |
+  | Function:  Checks the global binfiles. stem for the        |
+  |            provided dataset or dataset/member              |
   \---------------------------------------------------------- */
-  parse arg file
+  arg file
   res = 0
   if datatype(binfiles.0) /= 'NUM' then return res
   do bi = 1 to binfiles.0
-    if binfiles.bi = file then do
-      return 1
+    if right(binfiles.bi,1) = '*' then do
+      parse value file with test'/'.
+      if left(binfiles.bi,length(binfiles.bi)-2) = test
+      then return 1
     end
+    if binfiles.bi = file then return 1
   end
   return res
 

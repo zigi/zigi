@@ -4051,7 +4051,6 @@ Do_Sel_Mem_Copy:
   * -------------------------------------------- */
 Do_Add_Copy:
   parse arg option with ''
-  trace '?i'
   gabs = 'git-encoding=BINARY zos-working-tree-encoding=BINARY binary'
   zsel = null
   ac_mem = null
