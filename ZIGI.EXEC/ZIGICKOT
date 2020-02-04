@@ -302,7 +302,6 @@ Alloc_Copy_PDS:
     src = rdir'/'mems.ii
     m = mems.ii    /* ignore the translation */
     bin = is_binfile(sub'/'mems.ii)
-say 'sub/mem:' sub'/'mems.ii 'bin:' bin
     if bin = 1 then type = 'Binary'
     else type = 'Text'
     Address TSO
@@ -310,7 +309,6 @@ say 'sub/mem:' sub'/'mems.ii 'bin:' bin
     Address ISPexec
   end
   call outtrap 'off'
-  /*end  $$$$$$$$$$$$$$$$ */
   return
 
 get_dcb:
