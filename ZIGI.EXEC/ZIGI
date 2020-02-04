@@ -3155,8 +3155,9 @@ Create_Repo:
     ga4b = "git-encoding=iso8859-1 zos-working-tree-encoding=iso8859-1"
     ga4  = ga4a || ga4b
     call write_fd  ga4
-    binaries = '*.docm *.docx *.doc *.pdf *.epub *.mobi *.azw3' ,
-      '*.jpg *.jpeg *.png *.gif'
+    binaries = '*.docm *.docx *.doc *.dotx *.pdf *.epub *.mobi *.azw3' ,
+      '*.jpg *.jpeg *.png *.gif *.zip *.gzip *.tz *.z *.Z *.pax' ,
+      '*.ppt *.pptx *.xls *.xlsx *.xlsm'
     do gai = 1 to words(binaries)
       ga = word(binaries,gai) 'binary'
       call write_fd ga
