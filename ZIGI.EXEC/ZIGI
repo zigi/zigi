@@ -2334,11 +2334,11 @@ Work_with_repo_file:
           edsn = strip(fulldsn,'B',"'")
           r = usssafe(dsn)
           if is_binfile(r'/'mem) = 1 then do
-             zerrsm = 'Invalid'
-             zerrlm = 'Unable to Edit a binary dataset.'
-             'setmsg msg(isrz003)'
-             leave
-             end
+            zerrsm = 'Invalid'
+            zerrlm = 'Unable to Edit a binary dataset.'
+            'setmsg msg(isrz003)'
+            leave
+          end
           if sysdsorg = 'PS'
           then "Edit Dataset('"edsn"')"
           else "Edit Dataset('"edsn"("mem")'"
@@ -2536,11 +2536,11 @@ Edit_PS:
   edsn = strip(fulldsn,'B',"'")
   /* Do this if it's a regular file (sequential in z/OS) */
   if is_binfile(dsn) = 1 then do
-     zerrsm = 'Invalid'
-     zerrlm = 'Unable to Edit a binary dataset.'
-     'setmsg msg(isrz003)'
-     return
-     end
+    zerrsm = 'Invalid'
+    zerrlm = 'Unable to Edit a binary dataset.'
+    'setmsg msg(isrz003)'
+    return
+  end
   "Edit Dataset('"edsn"')"
   /* so after the edit, we should update it to working directory */
   if rc = 0 then do
@@ -3941,17 +3941,31 @@ Get_List:
  * --------------------------------------------------------------- */
 Do_Sel_Mem_Copy:
   smtab = 'sm'random(9999)
-    'TBCreate' smtab 'Keys(smem) Names(smstat zlcnorc' ,
-      'zlmdate zlmtime zluser) Nowrite'
+  'TBCreate' smtab 'Keys(smem) Names(smstat zlcnorc' ,
+    'zlmdate zlmtime zluser) Nowrite'
   smem = null
-  smstat = 'Added as Text'
+  smstat = null
   "LMINIT DATAID(DID) Dataset('"dsna"')"
   "LMOPEN DATAID("did") OPTION(INPUT)"
   do forever
     "LMMLIST Dataid("did") OPTION(LIST) MEMBER(smem)" ,
-            "STATS(YES)"
+      "STATS(YES)"
     if rc > 0 then leave
     smem = strip(smem)
+    if qualignr > 0
+    then do
+      dsnb = translate(dsna,' ','.')
+      dsnb = subword(dsnb,qualignr+1)
+      dsnb = translate(dsnb,'.',' ')
+    end
+    else dsnb = dsna
+    msg_stat = 0
+    if is_binfile(dsnb'/'smem) = 1
+    then do
+      smstat = 'Binary'
+      msg_stat = 1
+    end
+    else smstat = 'Text'
     'tbadd' smtab
   end
   "LMCLOSE DATAID("did")"
@@ -3962,9 +3976,15 @@ Do_Sel_Mem_Copy:
   seltop = 0
   wdsna = dsna
   zerrsm = null
+  if msg_stat = 0 then
   zerrlm = 'All members have been added as text. Select those members' ,
-           'to be added as binary. These will be copied and added to' ,
-           'Git as binary members.'
+    'to be added as binary. These will be copied and added to' ,
+    'Git as binary members.'
+  else ,
+    zerrlm = 'This dataset has previously been added. Some members are' ,
+    'text and some are binary. Select those text member that' ,
+    'should be binary. These will be copied and added to' ,
+    'Git as binary members.'
   'setmsg msg(isrz003)'
   do forever
     zsel = null
@@ -3989,10 +4009,17 @@ Do_Sel_Mem_Copy:
     seltop = ztdtop
     if zsel /= null then Select
       When zsel = 'S' then do
-        dsna = wdsna'('smem')'
-        call do_add_copy 'binary'
-        smstat = 'Added Binary'
-        'tbmod' smtab
+        if pos('Binary',smstat) > 0 then do
+          zerrsm = 'Invalid.'
+          zerrlm = smem 'has already been added as binary.'
+          'setmsg msg(isrz003)'
+        end
+        else do
+          dsna = wdsna'('smem')'
+          call do_add_copy 'binary'
+          smstat = 'Added Binary'
+          'tbmod' smtab
+        end
       end
       When zsel = 'B' then do
         dsna = wdsna'('smem')'
@@ -4026,6 +4053,7 @@ Do_Add_Copy:
   end
   else dsnb = dsna
   if ac_mem /= null then dsnb = dsnb'/'ac_mem
+  if bin_already(dsnb) = 1 then return 1
   zs1 = 'Copying' copy_dsna
   zs2 = 'to' dsnb 'in OMVS'
   if translate(option) = 'BINARY' then do
@@ -4803,6 +4831,17 @@ get_binfiles:
   binfiles.0 = so.0
   return 0
 
+bin_already:
+  arg file
+  if datatype(binfiles.0) /= 'NUM' then return 0
+  do b = 1 to binfiles.0
+    if pos('/',binfiles.b) = 0
+    then test = binfiles.b
+    else parse value binfiles.b with test'/'.
+    if file = test then return 1
+  end
+  return 0
+
 is_binfile:
   /* ---------------------------------------------------------\
   | Name:      is_binfile                                      |
@@ -4810,15 +4849,15 @@ is_binfile:
   | Function:  Checks the global binfiles. stem for the        |
   |            provided dataset or dataset/member              |
   \---------------------------------------------------------- */
-  parse arg file
+  arg file
   res = 0
   if datatype(binfiles.0) /= 'NUM' then return res
   do bi = 1 to binfiles.0
     if right(binfiles.bi,1) = '*' then do
-       parse value file with test'/'.
-       if left(binfiles.bi,length(binfiles.bi)-2) = test
-          then return 1
-       end
+      parse value file with test'/'.
+      if left(binfiles.bi,length(binfiles.bi)-2) = test
+      then return 1
+    end
     if binfiles.bi = file then return 1
   end
   return res

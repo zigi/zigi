@@ -8,22 +8,22 @@
 +
                                 %AddDsn+
 +
-+Adding a OMVS file or directory requires the following considerations:
++Using%SA+Selective Add to add members in binary format first adds all
++members as text members, then a list of all members is presented to allow
++the Selection%S+of members as binary.
 +
-+ %1.+The OMVS file or directory must be copied into the zigi managed +
-+     repository directory.
-+ %2.+File names that are UPPER CASE in the repository root will be considered
-+     z/OS datasets and will be copied to z/OS upon a Refresh or Clone.
-  %3.+If the files are not to be copied to z/OS the file, or directory,
-+     names must be mixed or lower case.
-  %4.+After the copy, use zigi to add the now un-tracked file, or directory,
-+     to Git management.
++The members selected as binary will be copied in binary format to the
++OMVS filesystem, they will be entered into the .gitattributes file with a
++binary designation, and they will be tagged in OMVS as binary files.
 +
 +
-          +  "It's the little details that are vital.
-          +   Little things make big things happen."  -- John Wooden
 +
 +
++  "When your work speaks for itself, don't interrupt."
++                  - Henry J. Kaiser
++
++
+
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
