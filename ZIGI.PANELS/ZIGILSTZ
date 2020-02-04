@@ -39,5 +39,5 @@
      &osel = &zsel
  if (&row = 0)
     &zsel = &z
- ver (&zsel,list,S,A,D,U,RN,RM,H,/)
+ ver (&zsel,list,S,A,D,U,RN,RM,H,/,AB)
 )End
