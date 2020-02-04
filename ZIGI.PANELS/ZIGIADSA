@@ -21,7 +21,7 @@
 )Init
   .zvars = '(zsel smem smstat zlcnorc zlmdate zlmtime zluser)'
   .cursor = &zcmd
-  .help = zigih300
+  .help = zigih213
   &zscr = CSR
 )Proc
  &row = &z
