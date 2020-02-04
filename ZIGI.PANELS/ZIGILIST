@@ -16,7 +16,7 @@
 %Current Branch     : $branch
 %
 +Command:%L+Locate  ]Addall]Commit]Gitlog]Grep]Sort]Status]Reset    ]Menu+
-+Line:   %S+Edit%A+Add%D+Diff%H+History%RM+Remove%RN+Rename%U+Undo
++Line:   %S+Edit%A+Add%AB+Add Bin%D+Diff%H+History%RM+Remove%RN+Rename%U+Undo
 %
 %S   Member    Status                     Size    Mod-Date  Mod-Time  Userid
 )Model
@@ -50,7 +50,7 @@
      &osel = &zsel
  if (&row = 0)
     &zsel = &z
- ver (&zsel,list,S,A,D,U,RN,RM,H,/)
+ ver (&zsel,list,S,A,D,U,RN,RM,H,/,AB)
 )PNTS
  FIELD(ADDALL) VAR(ZCMD) VAL('ADDALL')
  FIELD(COMMIT) VAR(ZCMD) VAL('COMMIT')
