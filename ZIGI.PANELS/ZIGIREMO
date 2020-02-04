@@ -27,10 +27,15 @@
                      +Press%Enter+to continue%F3+to cancel
 )Init
  .zvars = '(defcpush)'
+)Reinit
+ REFRESH(origin)
 )Proc
  &resp = .resp
 *REXX(* zedsmsg zedlmsg resp csr)
   zedsmsg = ''
+  if word(origin,1) = 'git' then
+     if word(origin,2) = 'clone' then
+     origin = subword(origin,3)
   if length(defruid) = 8 then do
     CVT      = C2D(Storage(10,4))
     TVT      = C2D(Storage(D2X(CVT + 156),4))   /* cvt + 9c */
