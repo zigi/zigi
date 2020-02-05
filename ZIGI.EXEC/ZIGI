@@ -1078,7 +1078,6 @@ Work_With_Repo:
       * -------------------------------- */
       When abbrev('REMOTE',zcmd,3) = 1 then do
         zcmd = null
-        parse value '' with defruid defcpush
         'display panel(zigiremo)'
         if rc > 0 then do
           zerrsm = 'Cancelled.'
