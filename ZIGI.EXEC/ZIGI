@@ -3683,6 +3683,8 @@ update_repo_metadata:
           do ii = 1 to so.0
             stat = substr(so.ii,1,2)
             PATH = substr(so.ii,4)
+            if left(path,1) = '"' then
+               path = strip(path,'B','"')
             spos = POS('/',zigirep)
             cutrep = substr(zigirep,spos+1)
             trywith = cutrep'/'fulldsn
