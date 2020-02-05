@@ -2155,29 +2155,32 @@ Work_with_repo_file:
     /* Do this if it's a PDS */
     localdir = localrep'/'zigirep
     'TBCreate' rtll 'Keys(mem) Names(memstat zlcnorc' ,
-      'zlmdate zlmtime zluser)',
+      'zlmdate zlmtime zluser mtype)',
       'replace NoWrite'
     rtll_open = 1
-    address syscall
-    'readdir 'localrep'/'zigirep'/'dsn' root.'
+    cmd = 'ls -laT' localrep'/'zigirep'/'dsn
+    x = bpxwunix(cmd,,root.,re.)
     address ispexec
     "LMINIT DATAID(DID) Dataset("fulldsn")"
     "LMOPEN DATAID("did")"
     cmd = 'cd' localrep'/'zigirep
     x = docmd(cmd '&& git status --porcelain')
+    dstat = dsnstat
     do i = 1 to root.0
-      /* for all files but not . or .. */
-      if root.i = "." | root.i = ".." then do
-        iterate
-      end
-      else do
-        mem = root.i
+      if left(root.i,1) = ' ' then iterate
+      if word(root.i,1) = 'total' then iterate
+      do
+        mem = word(root.i,12)
         memstat = null
+        if word(root.i,2) = 'binary'
+           then mtype = 'B'
+           else mtype = 'T'
         do ii = 1 to so.0
           /* see if we have this file in git status */
           stat = word(so.ii,1)
           thepath = word(so.ii,2)
-          parse var thepath FOLDER "/" MEMBER
+          parse var thepath FOLDER"/"MEMBER
+          if folder /= dsn then iterate
           if mem = MEMBER then do
             memstat = porcelain(stat)
             if FOLDER = "./" & stat = "??" then
@@ -2516,8 +2519,8 @@ Work_with_repo_file:
             dsna = strip(fulldsn,'B',"'")'('mem')'
             call do_add_copy 'binary'
             parse value dsn with dsn'/'mem
-            call git_add_member
             dsna = sa_dsna
+            call git_add_member
             if ztdsels = 1 then call git_add_member_stats
         end
         when zsel = 'U' then call do_undo 'M'
@@ -2549,7 +2552,7 @@ Work_with_repo_file:
 Git_Add_Member:
   d = usssafe(dsn)
   cmd = 'cd' localrep'/'zigirep
-  x = docmd(cmd || ' && git add -v 'd'/'usssafe(mem))
+  x = docmd(cmd ' && git add -v 'd'/'usssafe(mem))
   return
 
   /* ---------------------------------- *
@@ -3128,6 +3131,7 @@ Create_Repo:
     if rc > 0 then return 8
     if localrep = '?' then
     localrep = zigiosel()
+    localrep = strip(localrep,'T','/')
     /* ---------------------------------------------------- *
     | We do some basic git repo setup here...              |
     | Fair warning, it's going to be very verbose.         |
@@ -3929,10 +3933,6 @@ Add_Dataset:
       when zsel = 'AB' then do
         call do_add_copy 'binary'
       end
-      when zsel = 'SA' then do
-        call do_add_copy 'SA'
-        call do_sel_mem_copy
-      end
       Otherwise nop
     end
 
@@ -3956,6 +3956,12 @@ Get_List:
   'tbend' dsnatbl
   call tbcreate_dsnatbl
   dsnapfx = strip(dsnapfx)
+  if qualignr > 0 then do
+     prefix = translate(dsnapfx,' ','.')
+     prefix = subword(prefix,qualignr+1)
+     prefix = translate(prefix,'.',' ')
+     end
+  else prefix = dsnapfx
   cmd = 'ls' localrep'/'zigirep
   x = bpxwunix(cmd,,so.,se.)
   Address TSO
@@ -3968,7 +3974,7 @@ Get_List:
     dsna = word(x.dsni,2)
     dastat = null
     do gl = 1 to so.0
-      if substr(dsna,length(dsnapfx)+2) = word(so.gl,1)
+      if substr(dsna,length(prefix)+1) = word(so.gl,1)
       then dastat = 'Added'
     end
     'tbadd' dsnatbl
@@ -3976,104 +3982,6 @@ Get_List:
   end
   if lc_count > 0 then
   list = 1
-  return
-
-/* --------------------------------------------------------------- *
- | Prompt the user to select the members to add - primary intended |
- | to add individual members as binary and then a full dataset     |
- | add makes the rest text.                                        |
- * --------------------------------------------------------------- */
-Do_Sel_Mem_Copy:
-  smtab = 'sm'random(9999)
-  'TBCreate' smtab 'Keys(smem) Names(smstat zlcnorc' ,
-    'zlmdate zlmtime zluser) Nowrite'
-  smem = null
-  smstat = null
-  "LMINIT DATAID(DID) Dataset('"dsna"')"
-  "LMOPEN DATAID("did") OPTION(INPUT)"
-  do forever
-    "LMMLIST Dataid("did") OPTION(LIST) MEMBER(smem)" ,
-      "STATS(YES)"
-    if rc > 0 then leave
-    smem = strip(smem)
-    if qualignr > 0
-    then do
-      dsnb = translate(dsna,' ','.')
-      dsnb = subword(dsnb,qualignr+1)
-      dsnb = translate(dsnb,'.',' ')
-    end
-    else dsnb = dsna
-    msg_stat = 0
-    if is_binfile(dsnb'/'smem) = 1
-    then do
-      smstat = 'Binary'
-      msg_stat = 1
-    end
-    else smstat = 'Text'
-    'tbadd' smtab
-  end
-  "LMCLOSE DATAID("did")"
-  "LMFREE DATAID("did")"
-  save_ztd = ztdsels
-  save_stop = ztdtop
-  ztdsels = 0
-  seltop = 0
-  wdsna = dsna
-  zerrsm = null
-  if msg_stat = 0 then
-  zerrlm = 'All members have been added as text. Select those members' ,
-    'to be added as binary. These will be copied and added to' ,
-    'Git as binary members.'
-  else ,
-    zerrlm = 'This dataset has previously been added. Some members are' ,
-    'text and some are binary. Select those text member that' ,
-    'should be binary. These will be copied and added to' ,
-    'Git as binary members.'
-  'setmsg msg(isrz003)'
-  do forever
-    zsel = null
-    smstat = null
-    dsnp = "'"wdsna"'"
-    if ztdsels < 2 then do
-      'tbtop' smtab
-      'tbskip' smtab 'number('seltop')'
-      'tbdispl' smtab 'panel(zigiadsa)'
-      trc = rc
-    end
-    else do
-      'tbdispl' smtab
-      trc = rc
-    end
-    if trc > 4 then do
-      'tbend' smtab
-      ztdsels = save_ztd
-      ztdtop = save_stop
-      return
-    end
-    seltop = ztdtop
-    if zsel /= null then Select
-      When zsel = 'S' then do
-        if pos('Binary',smstat) > 0 then do
-          zerrsm = 'Invalid.'
-          zerrlm = smem 'has already been added as binary.'
-          'setmsg msg(isrz003)'
-        end
-        else do
-          dsna = wdsna'('smem')'
-          call do_add_copy 'binary'
-          smstat = 'Added Binary'
-          'tbmod' smtab
-        end
-      end
-      When zsel = 'B' then do
-        dsna = wdsna'('smem')'
-        "Browse Dataset('"dsna"')"
-        smstat = 'Browsed'
-        'tbmod' smtab
-      end
-      Otherwise zsel = null
-    end
-  end
   return
 
   /* -------------------------------------------- *
@@ -4147,6 +4055,7 @@ Do_Add_Copy:
       /* add (and commit) .gitattributes to the index */
       cmd = cmd '&& git add .gitattributes '
       cmd = cmd '&& git commit -m "zigi changed .gitattributes"'
+      cmd = cmd ".gitattributes"
       /* finally remove the .gae file */
       cmd = cmd '&& rm .gae'
       x = docmd(cmd)
@@ -4205,7 +4114,6 @@ Do_Add_Copy:
       x =bpxwunix(tagcmd,,so.,se.)
     end
   end
-  if acopt = 'SA' then return
   dsnstat = '[??] Untracked'
   dsn = dsnb
   fulldsn = "'"what"'"

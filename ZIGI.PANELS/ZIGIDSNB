@@ -13,7 +13,7 @@
 %Ignore 1st n qualifiers in prefix:$z+
 +
 +Command:%Find+
-+Line:%S+Add+%A+Add+%AB+Add binary+%B+Browse%SA+Selective Member Add
++Line:%S+Add+%A+Add+%AB+Add binary+%B+Browse
 +
 %S   Dataset Name                                Status
 )Model
@@ -39,5 +39,5 @@
      &osel = &zsel
  if (&row = 0)
      &zsel = &z
- ver (&zsel,list,S,B,A,AB,SA)
+ ver (&zsel,list,S,B,A,AB)
 )End

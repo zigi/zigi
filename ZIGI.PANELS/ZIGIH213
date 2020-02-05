@@ -8,14 +8,14 @@
 +
                                 %AddDsn+
 +
-+Using%SA+Selective Add to add members in binary format first adds all
-+members as text members, then a list of all members is presented to allow
-+the Selection%S+of members as binary.
++If there are binary members in the partitioned dataset along with text
++members then use the %A+option to add the entire PDS to Git. Then from the
++Current Repository menu select the PDS and in the PDS Member display use
++the%AB+line selection to add the member in binary format.
 +
 +The members selected as binary will be copied in binary format to the
 +OMVS filesystem, they will be entered into the .gitattributes file with a
 +binary designation, and they will be tagged in OMVS as binary files.
-+
 +
 +
 +

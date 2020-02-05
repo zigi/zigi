@@ -19,11 +19,11 @@
 +Line:   %B+Browse%S+Edit%A+Add%AB+Add Bin%D+Diff%H+History%RM+Remove%RN+Rename
 %        %U+Undo  %V+View
 %
-%S   Member    Status                     Size    Mod-Date  Mod-Time  Userid
+%S   Member    Status               Type  Size    Mod-Date  Mod-Time  Userid
 )Model
-@z +$z        +$z                     [z      +  [z       +[z       +$z
+@z +$z        +$z                   [z+[z     +  [z       +[z       +$z
 )Init
-  .zvars = '(zsel mem memstat zlcnorc zlmdate zlmtime zluser)'
+  .zvars = '(zsel mem memstat mtype zlcnorc zlmdate zlmtime zluser)'
   .cursor = &zcmd
   .help = zigih300
   &zscr = CSR
