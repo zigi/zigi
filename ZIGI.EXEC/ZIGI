@@ -2326,6 +2326,34 @@ Work_with_repo_file:
 
       if zsel /= null then
       Select
+        when zsel = 'B' then do
+          /* -------------------------------- *
+          | Browse PDS member or PS dataset  |
+          * -------------------------------- */
+          x = listdsi(fulldsn)
+          edsn = strip(fulldsn,'B',"'")
+          r = usssafe(dsn)
+          if sysdsorg = 'PS'
+          then "Browse Dataset('"edsn"')"
+          else "Browse Dataset('"edsn"("mem")'"
+          end
+        when zsel = 'V' then do
+          /* -------------------------------- *
+          | View PDS member or PS dataset    |
+          * -------------------------------- */
+          x = listdsi(fulldsn)
+          edsn = strip(fulldsn,'B',"'")
+          r = usssafe(dsn)
+          if is_binfile(r'/'mem) = 1 then do
+            zerrsm = 'Invalid'
+            zerrlm = 'Unable to View a binary dataset.'
+            'setmsg msg(isrz003)'
+            leave
+          end
+          if sysdsorg = 'PS'
+          then "View Dataset('"edsn"')"
+          else "View Dataset('"edsn"("mem")'"
+          end
         when zsel = 'S' then do
           /* -------------------------------- *
           | Edit PDS member or PS dataset    |
