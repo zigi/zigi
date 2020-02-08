@@ -6,21 +6,22 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   [ type(output) caps(off) pas(on) intens(high) color(white)
-)Body  window(54,15)
+)Body  window(54,16)
 +
 +Enter Selection:_z                     \ \ +
 +
-[Add   + Add dataset        [Network+ Network Report
-[AddAll+ Add all to Git     [Pull+    Pull from origin
-[Br    + Change Branch      [Push+    Push to origin
-[Commit+ Record Changes     [Refresh+ Replace Datasets
-[Find+   Find in table      [Remote+  Add remote
-[Githelp+Git Help           [Rollback+Revert
-[GitCMD +Git Command Prompt [Set+     Set Defaults
-[GitLog+ Query git log      [Snapshot+Create Escrow
-[Grep+   Find Strings       [Status+  Git Status
-[Menu+   Menu version       [View+    OMVS Dir
-[Merge+  Merge Branches
+[Add   + Add dataset        [Pull+    Pull from origin
+[AddAll+ Add all to Git     [Push+    Push to origin
+[Br    + Change Branch      [Refresh+ Replace Datasets
+[Commit+ Record Changes     [Remote+  Add remote
+[Find+   Find in table      [Rollback+Revert
+[Githelp+Git Help           [Set+     Set Defaults
+[GitCMD +Git Command Prompt [Snapshot+Create Escrow
+[GitLog+ Query git log      [Status+  Git Status
+[Grep+   Find Strings       [Tag+     Git Tag
+[Menu+   Menu version       [TagList+ List all Tags
+[Merge+  Merge Branches     [View+    OMVS Dir
+[Network+ Network Report
 +
 )Init
  &zwinttl = 'zigi Current Repository Commands'
@@ -47,6 +48,8 @@
  &Snapshot  = 'SnapShot'
  &Set     = 'Set'
  &Status  = 'Status'
+ &Tag     = 'Tag'
+ &TagList = 'TagList'
  &View    = 'View'
   .help = zigih200
 )Proc
@@ -73,5 +76,7 @@
  FIELD(SNAPSHOT) VAR(ZCMD) VAL('SNAPSHOT')
  FIELD(SET   )  VAR(ZCMD) VAL('SET')
  FIELD(STATUS)  VAR(ZCMD) VAL('STATUS')
+ FIELD(TAG   )  VAR(ZCMD) VAL('TAG')
+ FIELD(TAGLIST) VAR(ZCMD) VAL('TAGLIST')
  FIELD(VIEW  )  VAR(ZCMD) VAL('VIEW')
 )End

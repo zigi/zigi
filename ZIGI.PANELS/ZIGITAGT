@@ -1,0 +1,42 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  @ type(output) intens(high) caps(off) just(left )
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+)Body  Expand(\\)
++Tag Summary +-----------\-\------#zigtitle   +------\-\------------------------
+%Command ===>_zcmd        \ \ %Scroll ===>_zscr+
++
++Commands%Only+limit table%Refresh+table
++Options:%S+Display%C+Create a New Branch
++
++Sel Date/Time            Tag
+     Title
++
+)Model
+_z+ $z                   $z
+    @z
+)Init
+  .ZVARS = '(zsel cdatetim ctag ctitle)'
+  &zscr = CSR
+  .help = zigih2i0
+)Proc
+ &row = &z
+ if (&ZCMD = &Z)
+     if (&ztdsels = 0000)
+        &row = .csrrow
+        if (&row ^= &z)
+            if (&zsel = &z)
+                &zsel = S
+     if (&ztdsels ^= 0000)
+         &row = &z
+     if (&ZSEL ^= &Z)
+       if (&Zsel = '=')
+           &Zsel = &osel
+     &osel = &zsel
+ if (&row = 0)
+     &zsel = &z
+ ver (&zsel,list,S,C)
+)End

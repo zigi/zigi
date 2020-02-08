@@ -6,27 +6,27 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                                 %View+
+                                 %Tag+
 +
-%View+will open up the ISPF OMVS (USS) Data List (UDLIST) application
-+(ISPF 3.17) on the current local repository.
-+
-+
-+
-%
-+
-%
+%Tag+will prompt for a tag identifier and an optional tag description
++and then apply the tag to the current repository. The tag will also
++be pushed to the remote server.
 +
 +
 %
 +
+%
 +
-    +"Failure is not fatal, but failure to change might be."   John Wooden
++
+%
++
++
++ "There is no elevator to success, you have to take the stairs." - Zig Ziglar
 +
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
- &zcont = zigih300
+ &zcont = zigih2i0
 )END
