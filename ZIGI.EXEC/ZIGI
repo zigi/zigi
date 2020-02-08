@@ -4235,7 +4235,6 @@ Do_Add_Copy:
   end
   else dsnb = dsna
   if ac_mem /= null then dsnb = dsnb'/'ac_mem
-  if bin_already(dsnb) = 1 then return 1
   zs1 = 'Copying' copy_dsna
   zs2 = 'to' dsnb 'in OMVS'
   if translate(option) = 'BINARY' then do
@@ -4268,7 +4267,8 @@ Do_Add_Copy:
     parse value pdss with pdss'/'.
     mkdir = "mkdir -p "DIR"/"pdss
     x = bpxwunix(mkdir,,so.,se.)
-    if option = 'binary' then do
+    if option = 'binary' then
+     if bin_already(dsnb) = 0 then do
       binopt = '-B'
       if ac_mem = null then ga_mem = '*'
       else ga_mem = ac_mem
@@ -4288,6 +4288,7 @@ Do_Add_Copy:
       /* finally remove the .gae file */
       cmd = cmd '&& rm .gae'
       x = docmd(cmd)
+      call get_binfiles
     end
     else do
       binopt = null
@@ -4310,7 +4311,8 @@ Do_Add_Copy:
   else do
     W = usssafe(WHAT)
     PSS = usssafe(dsnb)
-    if option = 'binary' then do
+    if option = 'binary' then
+     if bin_already(dsnb) = 0 then do
       binopt = '-B'
       /* setting the gitattributes file */
       /* first convert the ASCII atrtib file to ebcdic :( */
@@ -4327,6 +4329,7 @@ Do_Add_Copy:
       /* finally remove the .gae file */
       cmd = cmd '&& rm .gae'
       x = docmd(cmd)
+      call get_binfiles
     end
     else do
       binopt = null
