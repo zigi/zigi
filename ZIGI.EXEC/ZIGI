@@ -21,6 +21,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            02/08/20 LBD - Test for branch before create    |
+  |            02/07/20 LBD - Support Tag/Tagline              |
   |            02/03/20 LBD - Support mixed text/binary pds    |
   |            02/02/20 LBD - Add ADDALL to current repo and   |
   |                           PDS member list commands         |
@@ -1106,7 +1108,8 @@ Work_With_Repo:
           cmd = 'git tag' tagid
           else cmd = 'git tag -a' tagid '-m "'tagmsg'"'
           cmd = 'cd' localrep'/'zigirep '&&' cmd
-          cmd = cmd '&& git push origin' tagid
+          if pos('no remote',remote1) = 0
+          then cmd = cmd '&& git push origin' tagid
           cmd = cmd '&& git show' tagid
           x = docmd(cmd)
           if x = 0 then do
@@ -1563,9 +1566,9 @@ Do_Rset:
   'setmsg msg(isrz003)'
   return
 
-/* --------------------------------------------- *
- | Process Tag List Request with optional create |
- * --------------------------------------------- */
+  /* --------------------------------------------- *
+  | Process Tag List Request with optional create |
+  * --------------------------------------------- */
 Get_TagList:
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd "&& git for-each-ref --format" ,
@@ -1575,12 +1578,12 @@ Get_TagList:
   'TBCreate' zcrtbl 'Keys(ctag) Names(cdatetim ctitle) nowrite share'
   do cri = 1 to so.0
     if left(strip(so.cri),4) = 'refs' then do
-    parse value so.cri with ctag ctitle
-    cdatetim = 'no date'
+      parse value so.cri with ctag ctitle
+      cdatetim = 'no date'
     end
     else do
-    parse value so.cri with day mm dd time yy gmt ctag ctitle
-    cdatetim = mm dd yy time
+      parse value so.cri with day mm dd time yy gmt ctag ctitle
+      cdatetim = mm dd yy time
     end
     ctag = translate(ctag,' ','/')
     ctag = word(ctag,3)
@@ -1588,9 +1591,9 @@ Get_TagList:
   end
   return
 
-/* -------------- *
- | Do Tag Summary |
- * -------------- */
+  /* -------------- *
+  | Do Tag Summary |
+  * -------------- */
 Do_TAGLIST:
   zcmd = null
   crcnt = 10
@@ -1653,6 +1656,7 @@ Do_TAGLIST:
       end
       when zsel = 'C' then do
         zcmd  = null
+        newbr = null
         rolla = 'Cancel'
         call pfshow 'off'           /* make sure pfshow is off */
         'Addpop row(4) column(12)'
@@ -1660,6 +1664,19 @@ Do_TAGLIST:
         prc = rc
         'Rempop'
         call pfshow 'reset'         /* restore pfshow setting */
+        call get_branches
+        bad = 0
+        do bi = 1 to bl.0
+          if newbr = bl.bi then bad = 1
+        end
+        if bad = 1 then do
+          zerrsm = 'Invalid.'
+          zerrlm = newbr 'branch currently exists - pick a different' ,
+            'name for the branch and try again.'
+          'setmsg msg(isrz003)'
+          prc = 1
+          newbr = null
+        end
         if prc = 0 then
         if newbr /= null then do
           cmd = 'cd' localrep'/'zigirep
@@ -1680,13 +1697,13 @@ Do_TAGLIST:
           call Refresh localrep zigirep pdshlq qualignr
           call work_with_repo
         end
-        if prc > 0 then do
+        if prc > 1 then do
           zerrsm = 'Cancelled.'
           zerrlm = 'Creating a new branch from the Tag level cancelled.'
           'setmsg msg(isrz003)'
           ztdsels = 1
         end
-        leave
+        if prc /= 1 then leave
       end
       Otherwise nop
     end
@@ -1771,6 +1788,7 @@ Do_Rollback:
       end
       when zsel = 'R' then do
         zcmd  = null
+        newbr = null
         rolla = 'Cancel'
         call pfshow 'off'           /* make sure pfshow is off */
         'Addpop row(4) column(12)'
@@ -1778,6 +1796,19 @@ Do_Rollback:
         prc = rc
         'Rempop'
         call pfshow 'reset'         /* restore pfshow setting */
+        call get_branches
+        bad = 0
+        do bi = 1 to bl.0
+          if newbr = bl.bi then bad = 1
+        end
+        if bad = 1 then do
+          zerrsm = 'Invalid.'
+          zerrlm = newbr 'branch currently exists - pick a different' ,
+            'name for the branch and try again.'
+          'setmsg msg(isrz003)'
+          prc = 1
+          newbr = null
+        end
         if prc = 0 then
         if newbr /= null then do
           cmd = 'cd' localrep'/'zigirep
@@ -1798,13 +1829,13 @@ Do_Rollback:
           call Refresh localrep zigirep pdshlq qualignr
           call work_with_repo
         end
-        if prc > 0 then do
+        if prc > 1 then do
           zerrsm = 'Cancelled.'
           zerrlm = 'Rollback cancelled.'
           'setmsg msg(isrz003)'
           ztdsels = 1
         end
-        leave
+        if prc > 1 then leave
       end
       Otherwise nop
     end
@@ -2918,12 +2949,23 @@ Branch_it:
       /* ----------------------------- *
       | Create this new branch, switch|
       * ----------------------------- */
-      localdir = localrep'/'zigirep
-      x = docmd('cd 'localdir' && git checkout -b 'newb)
-      /* TODO only do this when there is a remote? */
-      x = docmd('cd 'localdir' && git push -u origin 'newb)
-      branch = newb
-      leave
+      bad = 0
+      do bi = 1 to bl.0
+        if newb = bl.bi then bad = 1
+      end
+      if bad = 1 then do
+        zerrsm = 'Invalid.'
+        zerrlm = newb 'branch already exists - select a new name.'
+        'setmsg msg(isrz003)'
+      end
+      else do
+        localdir = localrep'/'zigirep
+        x = docmd('cd 'localdir' && git checkout -b 'newb)
+        /* TODO only do this when there is a remote? */
+        x = docmd('cd 'localdir' && git push -u origin 'newb)
+        branch = newb
+        leave
+      end
     end
     /* ----------------------------- *
     | Checkout the selected bname   |
@@ -3276,6 +3318,36 @@ Merge_it:
   zsel = null
   return
 
+  /* ------------------------ *
+  | Get the branches for use |
+  * ------------------------ */
+get_branches:
+  localdir = localrep'/'zigirep
+  cmd = ' && git remote prune origin > /dev/null 2>&1 && git branch -a'
+  x = docmd('cd 'localdir cmd)
+  if so.0 + se.0 = 0 then do
+    cmd = '&& git branch -a'
+    x = docmd('cd 'localdir cmd)
+  end
+  bl. = null
+  bc = 0
+  do i = 1 to so.0
+    branch = strip(so.i)
+    if word(branch,1) = '*' then branch = word(branch,2)
+    if pos('->',branch) > 0 then iterate
+    if pos('/',branch) > 0 then do
+      branch = translate(branch,' ','/')
+      branch = word(branch,words(branch))
+    end
+    bc = bc + 1
+    bl.bc = branch
+  end
+  bl.0 = bc
+  return
+
+  /* ----------------------- *
+  | Create a new Repository |
+  * ----------------------- */
 Create_Repo:
   'vget (saverep) profile'
   if saverep /= null then localrep = saverep
