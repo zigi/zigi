@@ -3201,7 +3201,7 @@ Merge_it:
       'delete' vdsn
       call outtrap 'off'
     end
-    if vdsn /= null then vdsnp = 'da('vdsn') vol(3390)'
+    if vdsn /= null then vdsnp = 'da('vdsn') unit(3390)'
     else vdsnp = null
     'Alloc f('dd') new spa('prim','prim') tr' ,
       'recfm(v b) lrecl('vlrecl+4') blksize(0)' vdsnp
