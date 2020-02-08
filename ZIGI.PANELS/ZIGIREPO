@@ -23,8 +23,8 @@
          [Commit+ Record Changes[Pro+    Pro Panel       [Status+  Git Status
          [Find+   Find in Table [Pull+   Pull from origin[Tag+     Git Tag
          [GitCMD +Git Commands  [Push+   Push to origin  [TagList+ Tag List
-         [Githelp+Git Help      [Refresh+ Refresh D/S    [View+    OMVS Dir
-         [GitLog+ Show git log  [Remote+  Add remote
+         [Githelp+Git Help      [Refresh+Refresh D/S     [View+    OMVS Dir
+         [GitLog+ Show git log  [Remote+ Add remote
 +
 +Line:   %S+Select%A+Add%B+Browse%D+Diff%H+History%RM+Remove%RN+Rename
          %U+Undo%V+View

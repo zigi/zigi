@@ -30,7 +30,7 @@
  vget (ztut)
 )PROC
  if (&ztut EQ '200')
-    &zcont = ZIGIH170
+    &zcont = ZIGIH2H0
  if (&ztut EQ '300')
     &zcont = ZIGIH340
 )END
