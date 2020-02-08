@@ -11,14 +11,14 @@
 +
 %Commands available+(select for more information or press%Enter+to see each):
 +
-[Add   + Add dataset{*    [Grep+   Find Strings       [Rollback+Revert{*
-[AddAll+ Add all to Git   [Merge+  Merge Branches{*   [Row+     Options
-[Br    + Change Branch{*  [Network+Network Report     [Set+     Set Defaults
-[Commit+ Record Changes   [Pro+    Toggle Menu        [Snapshot+Escrow
-[Find+   Find in table    [Pull+   Pull from origin   [Status+  Git Status
-[GitCMD +Git Commands     [Push+   Push to origin     [View+    OMVS Dir
-[Githelp+Git Help         [Refresh+ Replace Datasets{*
-[GitLog+ Show git log     [Remote+  Add remote
+[Add   + Add dataset{*   [Grep+   Find Strings        [Rollback+Revert{*
+[AddAll+ Add all to Git  [Merge+  Merge Branches{*    [Row+     Options
+[Br    + Change Branch{* [Network+Network Report      [Set+     Set Defaults
+[Commit+ Record Changes  [Pro+    Toggle Menu         [Snapshot+Escrow
+[Find+   Find in table   [Pull+   Pull from origin    [Status+  Git Status
+[GitCMD +Git Commands    [Push+   Push to origin      [Tag+     Git Tag
+[Githelp+Git Help        [Refresh+ Replace Datasets{* [TagList+ List Tags
+[GitLog+ Show git log    [Remote+  Add remote         [View+    OMVS Dir
 +
 {*+not supported within subdirectories.
 +
@@ -49,6 +49,8 @@
  &Row     = 'Row'
  &Set     = 'Set'
  &Status  = 'Status'
+ &Tag     = 'Tag'
+ &TagList = 'TagList'
  &View    = 'View'
  &ztut = '200'
  vput (ztut)
@@ -77,6 +79,8 @@
     When abbrev('STATUS',zcmd,2)  = 1 then zcmd ='19'
     When abbrev('VIEW',zcmd,1)    = 1 then zcmd ='20'
     When abbrev('FIND',zcmd,1)    = 1 then zcmd ='21'
+    When abbrev('TAG',zcmd,1)    = 1 then zcmd ='22'
+    When abbrev('TAGLIST',zcmd,4)    = 1 then zcmd ='23'
     Otherwise nop
   end
 *Endrexx
@@ -101,8 +105,10 @@
           17,zigih2E0  /* SET            */
           18,zigihsnp  /* Snapshot       */
           19,zigih2F0  /* STATUS         */
-          20,zigih2G0  /* VIEW           */
-          21,zigih170  /* FIND           */
+          20,zigih170  /* FIND           */
+          21,zigih2H0  /* Tag            */
+          22,zigih2I0  /* TagList        */
+          23,zigih2G0  /* VIEW           */
            *,'?'
            )
 )PNTS
@@ -126,6 +132,8 @@
  FIELD(SET   )  VAR(ZCMD) VAL('17')
  FIELD(SNAPSHOT)  VAR(ZCMD) VAL('18')
  FIELD(STATUS)  VAR(ZCMD) VAL('19')
- FIELD(VIEW  )  VAR(ZCMD) VAL('20')
- FIELD(FIND  )  VAR(ZCMD) VAL('21')
+ FIELD(FIND  )  VAR(ZCMD) VAL('20')
+ FIELD(TAG   )  VAR(ZCMD) VAL('21')
+ FIELD(TAGLIST) VAR(ZCMD) VAL('22')
+ FIELD(VIEW  )  VAR(ZCMD) VAL('23')
 )END

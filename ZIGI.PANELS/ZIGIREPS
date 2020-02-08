@@ -18,7 +18,7 @@
 %                $baction                                                   +
 %
 +Command:[Add   [Addall[Basic[Br[Com[Find[GitC[GitH[GitL[Grep[Merg[Net +
-         [pull[push[Ref[Rem[Roll[Set[Snapshot[St[View+
+         [pull[push[Ref[Rem[Roll[Set[Snapshot[St[Tag[Tagl[View+
 +Line:   %S+Select%A+Add%B+Browse%D+Diff%H+History%RM+Remove%RN+Rename
          %U+Undo%V+View
 
@@ -46,6 +46,8 @@
  &Set     = 'Set'
  &snapshot = 'SnapShot'
  &St      = 'St'
+ &Tag     = 'Tag'
+ &TagL    = 'TagL'
  &View    = 'View'
  .zvars = '(zsel dsnstat fulldsn filetype)'
  .cursor = &zcmd
@@ -89,5 +91,7 @@
  FIELD(SET) VAR(ZCMD) VAL('SET')
  FIELD(SNAPSHOT) VAR(ZCMD) VAL('SNAPSHOT')
  FIELD(ST) VAR(ZCMD) VAL('STATUS')
+ FIELD(TAG   )  VAR(ZCMD) VAL('TAG')
+ FIELD(TAGL  )  VAR(ZCMD) VAL('TAGLIST')
  FIELD(VIEW) VAR(ZCMD) VAL('VIEW')
 )End

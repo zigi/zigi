@@ -32,5 +32,5 @@
  if (&ztut = 100)
      &zcont = ZIGIH180
  if (&ztut = 200)
-     &zcont = ZIGIH300
+     &zcont = ZIGIH2H0
 )END

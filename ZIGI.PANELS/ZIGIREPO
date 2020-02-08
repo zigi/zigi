@@ -17,13 +17,14 @@
 %                !bstat
 %                $baction                                                   +
 %
-+Command:[Add   + Add dataset   [GitLog+ Show git log    [Refresh+ Refresh D/S
-         [Addall+ Add all to Git[Grep+   Find Strings    [Remote+  Add remote
-         [Br    + Change Branch [Merge+  Merge Branches  [Rollback+Revert
-         [Commit+ Record Changes[Network+Network Report  [Set+     Set Defaults
-         [Find+   Find in Table [Pro+    Pro Panel       [SnapShot+Create Escrow
-         [GitCMD +Git Commands  [Pull+   Pull from origin[Status+  Git Status
-         [Githelp+Git Help      [Push+   Push to origin  [View+    OMVS Dir
++Command:[Add   + Add dataset   [Grep+   Find Strings    [Rollback+Revert
+         [Addall+ Add all to Git[Merge+  Merge Branches  [Set+     Set Defaults
+         [Br    + Change Branch [Network+Network Report  [SnapShot+Create Escrow
+         [Commit+ Record Changes[Pro+    Pro Panel       [Status+  Git Status
+         [Find+   Find in Table [Pull+   Pull from origin[Tag+     Git Tag
+         [GitCMD +Git Commands  [Push+   Push to origin  [TagList+ Tag List
+         [Githelp+Git Help      [Refresh+ Refresh D/S    [View+    OMVS Dir
+         [GitLog+ Show git log  [Remote+  Add remote
 +
 +Line:   %S+Select%A+Add%B+Browse%D+Diff%H+History%RM+Remove%RN+Rename
          %U+Undo%V+View
@@ -52,6 +53,8 @@
  &Snapshot  = 'Snapshot'
  &Set     = 'Set'
  &Status  = 'Status'
+ &Tag     = 'Tag'
+ &TagList = 'TagList'
  &View    = 'View'
  .zvars = '(zsel dsnstat fulldsn filetype)'
  .cursor = &zcmd
@@ -95,5 +98,7 @@
  FIELD(SNAPSHOT) VAR(ZCMD) VAL('SNAPSHOT')
  FIELD(SET   )  VAR(ZCMD) VAL('SET')
  FIELD(STATUS)  VAR(ZCMD) VAL('STATUS')
+ FIELD(TAG   )  VAR(ZCMD) VAL('TAG')
+ FIELD(TAGLIST) VAR(ZCMD) VAL('TAGLIST')
  FIELD(VIEW  )  VAR(ZCMD) VAL('VIEW')
 )End
