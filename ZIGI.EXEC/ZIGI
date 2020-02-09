@@ -2350,7 +2350,7 @@ Clone_Repo:
     qualignr = words(translate(pdshlq,' ','.'))
     call Refresh localrep zigirep pdshlq qualignr
     zigikey = localrep'/'zigirep
-    zigidate = date('n')
+    zigidate = date('n') time('n')
     'tbadd zigirepo order'
     "TBSort zigirepo Fields(zigirep,C,A)"
     'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
@@ -3540,7 +3540,7 @@ Create_Repo:
 
     Address ISPExec
     zigikey = localrep'/'zigirep
-    zigidate = date('n')
+    zigidate = date('n') time('n')
     'tbadd zigirepo order'
     zpush = defcpush
     "TBSort zigirepo Fields(zigirep,C,A)"
