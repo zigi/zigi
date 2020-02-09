@@ -450,12 +450,12 @@
   'tbtop zigirepo'
   'vget (defrsort) profile'
   if defrsort = null then defrsort = 'zigirep a'
+  'vput (defrsort) profile'
   parse value defrsort with field order
-  "TBSort zigirepo Fields('field',C,'order')"
+  'TBSort zigirepo Fields('field',C,'order')'
   'vget (primpanl) profile'
   if primpanl = null then primpanl = 'zigiprim'
   'vput (primpanl) profile'
-
 
   do forever
     parse value '' with zsel zcmd row
@@ -655,6 +655,7 @@
         else sopt = 'A'
         'tbsort zigirepo fields('skey',c,'sopt')'
         lsopt = sopt
+        defrsort = skey sopt
         'vput (defrsort) profile'
       end
       When abbrev('SSH',zcmd,2) = 1 then do forever
@@ -768,8 +769,9 @@ Create_zigirepo:
   "TBCreate zigirepo Keys(zigikey)",
     "Names(zigirep localrep pdshlq qualignr zigidate defcpush defruid)",
     'Library('isptabl') Write Share'
+  'vget (defrsort) profile'
   parse value defrsort with field order
-  "TBSort zigirepo Fields('field',C,'order')"
+  'TBSort zigirepo Fields('field',C,'order')'
   'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
   return
 
@@ -2353,8 +2355,9 @@ Clone_Repo:
     zigikey = localrep'/'zigirep
     zigidate = date('n') time('n')
     'tbadd zigirepo order'
+  'vget (defrsort) profile'
     parse value defrsort with field order
-    "TBSort zigirepo Fields('field',C,'order')"
+    'TBSort zigirepo Fields('field',C,'order')'
     'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
     leave
   end
@@ -3545,8 +3548,9 @@ Create_Repo:
     zigidate = date('n') time('n')
     'tbadd zigirepo order'
     zpush = defcpush
+  'vget (defrsort) profile'
     parse value defrsort with field order
-    "TBSort zigirepo Fields('field',C,'order')"
+    'TBSort zigirepo Fields('field',C,'order')'
     'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
     leave
   end
