@@ -22,6 +22,8 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            02/09/20 LBD - Update sort default orders       |
+  |                         - add time to zigidate             |
+  |                         - save default sort for zigirepo   |
   |            02/08/20 LBD - Test for branch before create    |
   |            02/07/20 LBD - Support Tag/Tagline              |
   |            02/03/20 LBD - Support mixed text/binary pds    |
@@ -446,7 +448,10 @@
 
   repo_top = 1
   'tbtop zigirepo'
-  "TBSort zigirepo Fields(zigirep,C,A)"
+  'vget (defrsort) profile'
+  if defrsort = null then defrsort = 'zigirep a'
+  parse value defrsort with field order
+  "TBSort zigirepo Fields('field',C,'order')"
   'vget (primpanl) profile'
   if primpanl = null then primpanl = 'zigiprim'
   'vput (primpanl) profile'
@@ -650,6 +655,7 @@
         else sopt = 'A'
         'tbsort zigirepo fields('skey',c,'sopt')'
         lsopt = sopt
+        'vput (defrsort) profile'
       end
       When abbrev('SSH',zcmd,2) = 1 then do forever
         zcmd = null
@@ -744,7 +750,7 @@
   | Select the Current Repository Routine |
   * ------------------------------------- */
 Select_Repo:
-  zigidate = date('n')
+  zigidate = date('n') time('n')
   'tbmod zigirepo'
   x = debug('Getting binfiles:' zigirep time('L') )
   drop binfiles.
