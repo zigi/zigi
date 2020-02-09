@@ -36,10 +36,17 @@ Add new TAG command on the Current Repository menu to add a git tag to the
 current repository. Both the lightweight tags, without comments, and annotated
 tags, with a short comment.
 
-Add new TAGLIST command on the Current Repository menu to display a list of all
-tags with an option to show the full tag details, or to create a new branch from
-the tag level.
+Add new TAGLIST command on the Current Repository menu to display a list of
+all tags with an option to show the full tag details, or to create a new
+branch from the tag level.
 
+Add SORT option for the Local Repository display to sort the repository list
+by Repository name, Prefix, or the Last used Date.
+
+Update panels with point-and-shoot to underscore the point and shoot fields.
+
+For those panels that support sorting the column headers are now
+point-and-shoot sort toggles.
 
 =============================================================================
                              zigi Release Notes

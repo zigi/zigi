@@ -5,7 +5,7 @@
  { type(input) caps(off) hilite(uscore) intens(low)
  _ type(input) caps(on ) hilite(uscore) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
- @ type(output) caps(off) pas(on) intens(high) color(white)
+ @ type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
  [ type(text) intens(low) hilite(uscore)
 )Body Expand(\\)
 +Local Repositories+--------------#zigtitle   +---------------------------------
@@ -18,17 +18,20 @@
 +
 +Line:    %S+Work with repo%V+View repo OMVS files+%D+Delete repo
 +
-%    [Repository+       [Prefix+                                [Last Access+
+%    @repo      +       @pref  +                                @last       +
 )Model
-_z+  $z              +  $z                                 +    }z          +
+_z+  $z              +  ]z                                 +    }z          +
 )Init
  &clone   = 'Clone'
  &config  = 'Config'
  &create  = 'Create'
  &find    = 'Find'
- &sort    = 'Sort'
  &githelp = 'GitHelp'
+ &last    = 'Last Access'
+ &pref    = 'Prefix'
  &pro     = 'Pro'
+ &repo    = 'Repository'
+ &sort    = 'Sort'
  &ssh     = 'SSH'
  &zscr = CSR
  .zvars = '(zsel zigirep pdshlq zigidate)'
@@ -56,7 +59,10 @@ _z+  $z              +  $z                                 +    }z          +
  FIELD(CREATE  ) VAR(ZCMD) VAL('CREATE')
  FIELD(FIND    ) VAR(ZCMD) VAL('FIND')
  FIELD(GITHELP ) VAR(ZCMD) VAL('GITHELP')
+ FIELD(LAST    ) VAR(ZCMD) VAL('SORT LAST')
+ FIELD(PREF    ) VAR(ZCMD) VAL('SORT PREFIX')
  FIELD(PRO     ) VAR(ZCMD) VAL('PRO')
- FIELD(SSH     ) VAR(ZCMD) VAL('SSH')
+ FIELD(REPO    ) VAR(ZCMD) VAL('SORT REPOSITORY')
  FIELD(SORT    ) VAR(ZCMD) VAL('SORT')
+ FIELD(SSH     ) VAR(ZCMD) VAL('SSH')
 )end

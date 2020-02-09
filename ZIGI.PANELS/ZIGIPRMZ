@@ -5,7 +5,7 @@
  { type(input) caps(off) hilite(uscore) intens(low)
  _ type(input) caps(on ) hilite(uscore) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
- @ type(output) caps(off) pas(on) intens(high) color(white)
+ @ type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
  [ type(text) intens(low) hilite(uscore)
 )Body Expand(\\)
 +Local Repositories+--------------#zigtitle   +---------------------------------
@@ -13,7 +13,7 @@
 +
 %    [Repository+       [Prefix+                                [Last Access+
 )Model
-_z+  $z              +  $z                                 +    }z          +
+_z+  $z              +  ]z                                 +    }z          +
 )Init
  &zscr = CSR
  .zvars = '(zsel zigirep pdshlq zigidate)'

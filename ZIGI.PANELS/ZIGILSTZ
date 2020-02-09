@@ -3,7 +3,7 @@
   @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
   $ type(output) intens(low ) caps(off) just(left )
   [ type(output) intens(low ) caps(off) just(right)
-  ] type(output) caps(off) pas(on) intens(high) color(white)
+  ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
@@ -15,7 +15,7 @@
 %Current Repository : $localdir
 %Current Branch     : $branch
 %
-%S   Member    Status               Type  Size    Mod-Date  Mod-Time  Userid
+%S  ]tmem  +  ]tstat +             %Type+]tsiz+  ]tdate   +]ttime   +]tuser +
 )Model
 @z +$z        +$z                   [z+[z     +  [z       +[z       +$z
 )Init
@@ -23,6 +23,12 @@
   .cursor = &zcmd
   .help = zigih300
   &zscr = CSR
+  &tmem   = 'Member'
+  &tstat  = 'Status'
+  &tsiz   = 'Size'
+  &tdate  = 'Mod-Date'
+  &ttime  = 'Mod-Time'
+  &tuser  = 'Userid'
 )Proc
  &row = &z
  if (&ZCMD = &Z)
@@ -40,4 +46,11 @@
  if (&row = 0)
     &zsel = &z
  ver (&zsel,list,S,A,D,U,RN,RM,H,/,AB)
+)PNTS
+ FIELD(TMEM )  VAR(ZCMD) VAL('SORT MEMBER')
+ FIELD(TSTAT)  VAR(ZCMD) VAL('SORT STATUS')
+ FIELD(TSIZ )  VAR(ZCMD) VAL('SORT SIZE')
+ FIELD(TDATE)  VAR(ZCMD) VAL('SORT DATE')
+ FIELD(TTIME)  VAR(ZCMD) VAL('SORT TIME')
+ FIELD(TUSER)  VAR(ZCMD) VAL('SORT USERID')
 )End
