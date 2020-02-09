@@ -718,7 +718,7 @@ Select_Repo:
   'tbmod zigirepo'
   x = debug('Getting binfiles:' zigirep time('L') )
   drop binfiles.
-  call get_binfiles
+  call get_binfiles 'select repo'
   x = debug('Got 'binfiles.0' binfiles' time('L') )
   x = debug('Selecting repo:' zigirep time('L') )
   call Work_With_Repo
@@ -2707,7 +2707,10 @@ Work_with_repo_file:
           parse value dsn with dsn'/'mem
           dsna = sa_dsna
           call git_add_member
-          if ztdsels = 1 then call git_add_member_stats
+          if ztdsels < 2 then do
+             call get_binfiles 'add member'
+             call git_add_member_stats
+             end
         end
         when zsel = 'U' then call do_undo 'M'
         when zsel = 'D' then do
@@ -4161,6 +4164,7 @@ Add_Dataset:
       end
       when zsel = 'AB' then do
         call do_add_copy 'binary'
+        gaupdate = 1
       end
       Otherwise nop
     end
@@ -4174,7 +4178,9 @@ Add_Dataset:
     end
     'tbtop' dsnatbl
   end
-  call get_binfiles
+  if ztdels < 2 then
+  if gaupdate = 1 then
+  call get_binfiles 'add dataset'
   return
 
 tbcreate_dsnatbl:
@@ -4288,7 +4294,7 @@ Do_Add_Copy:
       /* finally remove the .gae file */
       cmd = cmd '&& rm .gae'
       x = docmd(cmd)
-      call get_binfiles
+      call get_binfiles 'do add copy 1'
     end
     else do
       binopt = null
@@ -4329,7 +4335,7 @@ Do_Add_Copy:
       /* finally remove the .gae file */
       cmd = cmd '&& rm .gae'
       x = docmd(cmd)
-      call get_binfiles
+      call get_binfiles 'do add copy 2'
     end
     else do
       binopt = null
@@ -5000,6 +5006,7 @@ MGEN: Procedure
   return dfamgen
 
 get_binfiles:
+parse arg opt
   /* ---------------------------------------------------------\
   | Name:      binfiles                                        |
   |                                                            |
