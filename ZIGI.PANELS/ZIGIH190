@@ -6,22 +6,22 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                                     %SELECT+
+                                     %SORT+
 +
-%Select+as a command will select the repository passed as the parameter.
+%Sort+will sort the fields in the Local Repository table:
 +
-+
-%Syntax:+Select repository-name
-+    or:+S repository-name
-+
-+
-+
-+
+%Syntax:  Sort field order
 %
+%Fields:+ Repository (R)
++         Prefix (P)
++         Last (L) or Date (D)
 +
+%Order:+  Ascending (A)
++         Descending (D)
 +
-+  "The greatest teacher, failure is."   Master Yoda
-+       - Master Yoda
++  "Programming isn't about what you know; "
++        "it's about what you can figure out."
++                - Chris Pine
 +
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
@@ -29,5 +29,5 @@
  .cursor  = &zcmd
  vget (ztut)
 )PROC
- &zcont = ZIGIH190
+ &zcont = ZIGIH300
 )END

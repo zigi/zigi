@@ -17,10 +17,10 @@
   [Githelp+Navigate the Git help output via ISPF panels
   [Pro+    Change from%Basic+(verbose) to%Pro+minimal command text to No Menu
   [Select+ Select a repository by name
+  [SOrt+   Sort the table
   [SSH+    Review your SSH public key
 +
 +Use%O+to display a command popup selection menu if the menu has been hidden.
-+
 +
 +  "Nothing will work unless you do." - John Wooden
 +
@@ -34,6 +34,7 @@
  &pro     = 'Pro'
  &githelp = 'GitHelp'
  &find    = 'Find'
+ &sort    = 'Sort'
  &select  = 'Select'
  &ztut = '100'
  vput (ztut)
@@ -49,6 +50,7 @@
     When abbrev('GITHELP',zcmd,2) = 1 then zcmd = 6
     When abbrev('FIND',zcmd,2) = 1 then zcmd = 7
     When abbrev('SELECT',zcmd,2) = 1 then zcmd = 8
+    When abbrev('SORT',zcmd,2) = 1 then zcmd = 9
     Otherwise nop
   end
 *Endrexx
@@ -62,6 +64,7 @@
            6,zigih160    /*  GITHELP             */
            7,zigih170    /*  Find                */
            8,zigih180    /*  Select              */
+           9,zigih190    /*  Sort                */
            *,'?'
            )
 )PNTS
@@ -73,4 +76,5 @@
  Field(githelp) var(zcmd) val('6')
  Field(find   ) var(zcmd) val('7')
  Field(select ) var(zcmd) val('8')
+ Field(sort   ) var(zcmd) val('9')
 )END

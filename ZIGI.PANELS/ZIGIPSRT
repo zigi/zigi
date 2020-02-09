@@ -1,0 +1,21 @@
+)Attr
+ $ type(input)  caps(on ) hilite(uscore) intens(low)
+ + type(text) skip(on) intens(low)
+)Body Window(65,4)
++
++Enter the field to sort:$z+  1 - Repository 2 - Prefix 3 - Date
++Enter the sort order:$z+  A+(ascending) D+(descending)
++
+)Init
+ .zvars = '(skey sopt)'
+ &zwinttl = 'zigi Sort Selections'
+)Proc
+ ver (&skey,nb,range,1,3)
+ ver (&sopt,nb,list,A,D)
+ if (&skey EQ 1)
+     &skey = 'REPOSITORY'
+ if (&skey EQ 2)
+     &skey = 'PREFIX'
+ if (&skey EQ 3)
+     &skey = 'DATE'
+)end

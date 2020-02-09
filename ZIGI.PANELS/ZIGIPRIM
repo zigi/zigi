@@ -11,7 +11,7 @@
 +Local Repositories+--------------#zigtitle   +---------------------------------
 %Command ===>{zcmd       \ \ %Scroll ===>_zscr+
 +
-+Command: @Clone +Remote repository        @Pro    +Toggle Menu
++Command: @Clone +Remote repository        @Pro    +Toggle Menu      @Sort+
           @Create+Local repository         @githelp+Git Help
           @SSH   +View your SSH public key @Find   +text in table
           @Config+View Git configuration   %Select +Repo from command
@@ -26,6 +26,7 @@ _z+  $z              +  $z                                 +    }z          +
  &config  = 'Config'
  &create  = 'Create'
  &find    = 'Find'
+ &sort    = 'Sort'
  &githelp = 'GitHelp'
  &pro     = 'Pro'
  &ssh     = 'SSH'
@@ -57,4 +58,5 @@ _z+  $z              +  $z                                 +    }z          +
  FIELD(GITHELP ) VAR(ZCMD) VAL('GITHELP')
  FIELD(PRO     ) VAR(ZCMD) VAL('PRO')
  FIELD(SSH     ) VAR(ZCMD) VAL('SSH')
+ FIELD(SORT    ) VAR(ZCMD) VAL('SORT')
 )end

@@ -11,7 +11,7 @@
 +Local Repositories+--------------#zigtitle   +---------------------------------
 %Command ===>{zcmd       \ \ %Scroll ===>_zscr+
 +
-+Command:@Clone+@Create+@SSH+@Config+@Basic+@Githelp+@Find+%Select
++Command:@Clone+@Create+@SSH+@Config+@Basic+@Githelp+@Find+%Select@Sort+
 +
 +Line:   %S+Work with repo%V+View repo OMVS files+%D+Delete repo
 +
@@ -26,6 +26,7 @@ _z+  $z              +  $z                                 +    }z          +
  &find    = 'Find'
  &githelp = 'GitHelp'
  &ssh     = 'SSH'
+ &sort    = 'SOrt'
  &zscr = CSR
  .zvars = '(zsel zigirep pdshlq zigidate)'
  .help = zigihint
@@ -54,4 +55,5 @@ _z+  $z              +  $z                                 +    }z          +
  FIELD(FIND    ) VAR(ZCMD) VAL('FIND')
  FIELD(GITHELP ) VAR(ZCMD) VAL('GITHELP')
  FIELD(SSH     ) VAR(ZCMD) VAL('SSH')
+ FIELD(SORT    ) VAR(ZCMD) VAL('SORT')
 )end
