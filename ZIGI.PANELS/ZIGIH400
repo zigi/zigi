@@ -2,6 +2,7 @@
   _ type( input) intens(low ) just(left ) hilite(uscore) caps(on)
   ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
   [ type(output) intens(high) caps(off) just(left) pas(on) skip(on) color(white)
+    hilite(uscore)
 )Body Expand(\\)
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
