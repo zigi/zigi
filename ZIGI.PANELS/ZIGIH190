@@ -12,17 +12,17 @@
 +
 %Syntax:  Sort field order
 %
-%Fields:+ Repository (R)
-+         Prefix (P)
-+         Last (L) or Date (D)
+%Fields:+ Repository (R) or Prefix (P) or Last (L) or Date (D)
 +
-%Order:+  Ascending (A)
-+         Descending (D)
+%Order:+  Ascending (A) or  Descending (D)
 +
-+  "Programming isn't about what you know; "
-+        "it's about what you can figure out."
-+                - Chris Pine
++Note:The last sort order will be remembered and used the next time zigi
++     is started.
 +
++
++              "Programming isn't about what you know;
++                     it's about what you can figure out."
++                                - Chris Pine
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
