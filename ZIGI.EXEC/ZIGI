@@ -241,7 +241,6 @@
     | Make sure we are under the ZIGI applid  |
     * --------------------------------------- */
     "Select CMD(%zigi) Newappl(ZIGI) Passlib scrname(zigi)"
-    "TBClose zigicmds"
     if panels /= null then
     'libdef ispplib'
     if exec /= null then
@@ -541,40 +540,41 @@
         'Display Panel(zigifind)'
         drc = rc
         'rempop'
-        if drc > 0 then leave
-        if strip(find) = null then leave
+        if drc > 0 then find = null
         fstring = find
       end
-      rowcnt = 0
-      'tbtop zigirepo'
-      if rfs > 0 then do
-        'tbskip zigirepo number('rfs')'
-        rowcnt = rfs
-      end
-      do forever
-        'tbskip zigirepo'
-        if rc > 0 then do
-          if rfs > 0 then do
-            rfs = 0
-            'tbtop zigirepo'
-            'tbskip zigirepo'
-            rowcnt = 0
+      if fstring /= null then do
+        rowcnt = 0
+        'tbtop zigirepo'
+        if rfs > 0 then do
+          'tbskip zigirepo number('rfs')'
+          rowcnt = rfs
+        end
+        do forever
+          'tbskip zigirepo'
+          if rc > 0 then do
+            if rfs > 0 then do
+              rfs = 0
+              'tbtop zigirepo'
+              'tbskip zigirepo'
+              rowcnt = 0
+            end
+            else do
+              zerrsm = 'Not Found'
+              zerrlm = fstring 'not found.'
+              'setmsg msg(isrz003)'
+              leave
+            end
           end
-          else do
-            zerrsm = 'Not Found'
-            zerrlm = fstring 'not found.'
+          rowcnt = rowcnt + 1
+          'tbget zigirepo'
+          if pos(fstring,translate(zigirep pdshlq)) > 0 then do
+            repo_top = rowcnt
+            zerrsm = 'Found'
+            zerrlm = fstring 'found in row' rowcnt + 0
             'setmsg msg(isrz003)'
             leave
           end
-        end
-        rowcnt = rowcnt + 1
-        'tbget zigirepo'
-        if pos(fstring,translate(zigirep pdshlq)) > 0 then do
-          repo_top = rowcnt
-          zerrsm = 'Found'
-          zerrlm = fstring 'found in row' rowcnt + 0
-          'setmsg msg(isrz003)'
-          leave
         end
       end
     end
@@ -620,6 +620,35 @@
           otherwise primpanl = 'zigiprim'
         end
         'vput (primpanl) profile'
+      end
+      When abbrev('SORT',word(zcmd,1),2) = 1 then do
+        zcmd = translate(zcmd)
+        parse value zcmd with . skey sopt
+        if skey = null then do
+          call pfshow 'off'           /* make sure pfshow is off */
+          'Addpop row(4) column(6)'
+          'Display Panel(zigipsrt)'
+          'Rempop'
+          call pfshow 'reset'         /* restore pfshow setting */
+        end
+        if sopt = '' then
+        if lsopt = 'A' then sopt = 'D'
+        else sopt = 'A'
+        select
+          when abbrev('REPOSITORY',skey,1) = 1 then
+          skey = 'zigirep'
+          when abbrev('PREFIX',skey,1) = 1 then
+          skey = 'pdshlq'
+          when abbrev('LAST',skey,1) = 1 then
+          skey = 'zigidate'
+          when abbrev('DATE',skey,1) = 1 then
+          skey = 'zigidate'
+          otherwise skey = 'zigirep'
+        end
+        if left(sopt,1) = 'D' then sopt = 'D'
+        else sopt = 'A'
+        'tbsort zigirepo fields('skey',c,'sopt')'
+        lsopt = sopt
       end
       When abbrev('SSH',zcmd,2) = 1 then do forever
         zcmd = null
@@ -2708,9 +2737,9 @@ Work_with_repo_file:
           dsna = sa_dsna
           call git_add_member
           if ztdsels < 2 then do
-             call get_binfiles 'add member'
-             call git_add_member_stats
-             end
+            call get_binfiles 'add member'
+            call git_add_member_stats
+          end
         end
         when zsel = 'U' then call do_undo 'M'
         when zsel = 'D' then do
@@ -4274,7 +4303,7 @@ Do_Add_Copy:
     mkdir = "mkdir -p "DIR"/"pdss
     x = bpxwunix(mkdir,,so.,se.)
     if option = 'binary' then
-     if bin_already(dsnb) = 0 then do
+    if bin_already(dsnb) = 0 then do
       binopt = '-B'
       if ac_mem = null then ga_mem = '*'
       else ga_mem = ac_mem
@@ -4318,7 +4347,7 @@ Do_Add_Copy:
     W = usssafe(WHAT)
     PSS = usssafe(dsnb)
     if option = 'binary' then
-     if bin_already(dsnb) = 0 then do
+    if bin_already(dsnb) = 0 then do
       binopt = '-B'
       /* setting the gitattributes file */
       /* first convert the ASCII atrtib file to ebcdic :( */
@@ -5006,7 +5035,7 @@ MGEN: Procedure
   return dfamgen
 
 get_binfiles:
-parse arg opt
+  parse arg opt
   /* ---------------------------------------------------------\
   | Name:      binfiles                                        |
   |                                                            |
