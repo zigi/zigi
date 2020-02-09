@@ -21,6 +21,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            02/09/20 LBD - Update sort default orders       |
   |            02/08/20 LBD - Test for branch before create    |
   |            02/07/20 LBD - Support Tag/Tagline              |
   |            02/03/20 LBD - Support mixed text/binary pds    |
@@ -2824,6 +2825,7 @@ Edit_PS:
   * ------------------------------- */
 Do_LSort:
   parse value zcmd with x sort_field sort_order sf sc
+  save_lsorto
   zcmd = null
   if sort_field = null then do
     call pfshow 'off'           /* make sure pfshow is off */
@@ -2834,7 +2836,15 @@ Do_LSort:
     sort_order = sc
     call pfshow 'reset'         /* restore pfshow setting */
   end
-  if sort_order = null then sort_order = 'A'
+  if sort_order = null then
+  if save_lsorto = null then do
+    sort_order = 'A'
+  end
+  else do
+    if save_lsorto = 'A' then sort_order = 'D'
+    else sort_order = 'A'
+  end
+  save_lsorto = sort_order
   /* support abbreviations in field names */
   Select
     When abbrev('MEMBER',sort_field,2) = 1 then sort_field = 'MEMBER'
