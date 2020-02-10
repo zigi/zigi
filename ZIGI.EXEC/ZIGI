@@ -21,6 +21,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            02/10/20 LBD - Add SortDate for proper sorting  |
   |            02/09/20 LBD - Update sort default orders       |
   |                         - add time to zigidate             |
   |                         - save default sort for zigirepo   |
@@ -448,14 +449,12 @@
 
   repo_top = 1
   'tbtop zigirepo'
-  'vget (defrsort) profile'
-  if defrsort = null then defrsort = 'zigirep a'
-  'vput (defrsort) profile'
-  parse value defrsort with field order
-  'TBSort zigirepo Fields('field',C,'order')'
   'vget (primpanl) profile'
   if primpanl = null then primpanl = 'zigiprim'
   'vput (primpanl) profile'
+  'vget (defrsort) profile'
+  parse value defrsort with field order
+  'TBSort zigirepo Fields('field',C,'order')'
 
   do forever
     parse value '' with zsel zcmd row
@@ -511,10 +510,10 @@
         'rempop'
         if fstring = null then drc = 4
         if drc > 0 then  do
-            zerrsm = 'Cancelled.'
-            zerrlm = 'Select cancelled.'
-        'setmsg msg(isrz003)'
-      end
+          zerrsm = 'Cancelled.'
+          zerrlm = 'Select cancelled.'
+          'setmsg msg(isrz003)'
+        end
       end
       if zerrsm = null then do
         'tbtop zigirepo'
@@ -538,7 +537,7 @@
           leave
         end
       end
-      end
+    end
 
     /* -------------- *
     | Process a Find |
@@ -657,9 +656,9 @@
           when abbrev('PREFIX',skey,1) = 1 then
           skey = 'pdshlq'
           when abbrev('LAST',skey,1) = 1 then
-          skey = 'zigidate'
+          skey = 'sortdate'
           when abbrev('DATE',skey,1) = 1 then
-          skey = 'zigidate'
+          skey = 'sortdate'
           otherwise skey = 'zigirep'
         end
         if left(sopt,1) = 'D' then sopt = 'D'
@@ -762,7 +761,8 @@
   | Select the Current Repository Routine |
   * ------------------------------------- */
 Select_Repo:
-  zigidate = date('n') time('n')
+  zigidate = date('n')
+  sortdate = date('s') time('s')
   'tbmod zigirepo'
   x = debug('Getting binfiles:' zigirep time('L') )
   drop binfiles.
@@ -778,7 +778,8 @@ Select_Repo:
   * ------------------------------ */
 Create_zigirepo:
   "TBCreate zigirepo Keys(zigikey)",
-    "Names(zigirep localrep pdshlq qualignr zigidate defcpush defruid)",
+    "Names(zigirep localrep pdshlq qualignr zigidate defcpush" ,
+    " sortdate defruid)",
     'Library('isptabl') Write Share'
   'vget (defrsort) profile'
   parse value defrsort with field order
@@ -2364,9 +2365,10 @@ Clone_Repo:
     qualignr = words(translate(pdshlq,' ','.'))
     call Refresh localrep zigirep pdshlq qualignr
     zigikey = localrep'/'zigirep
-    zigidate = date('n') time('n')
+    zigidate = date('n')
+    sortdate = date('s') time('s')
     'tbadd zigirepo order'
-  'vget (defrsort) profile'
+    'vget (defrsort) profile'
     parse value defrsort with field order
     'TBSort zigirepo Fields('field',C,'order')'
     'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
@@ -3556,10 +3558,11 @@ Create_Repo:
 
     Address ISPExec
     zigikey = localrep'/'zigirep
-    zigidate = date('n') time('n')
+    zigidate = date('n')
+    sortdate = date('s') time('s')
     'tbadd zigirepo order'
     zpush = defcpush
-  'vget (defrsort) profile'
+    'vget (defrsort) profile'
     parse value defrsort with field order
     'TBSort zigirepo Fields('field',C,'order')'
     'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
@@ -4933,11 +4936,11 @@ get_fd_date: procedure expose null
 
 Test_Repo_Table_State:
   /* --------------------------------------------- *
-  | Test to see if the ZIGIREPO table is for V2R0 |
+  | Test to see if the ZIGIREPO table is for V2R1 |
   | and if not upgrade it.                        |
   * --------------------------------------------- */
   'TBQuery zigirepo Names(names)'
-  if pos('ZIGIDATE',names) = 0 then do
+  if pos('SORTDATE',names) = 0 then do
     'tbtop zigirepo'
     tc = 0
     do forever
@@ -4958,10 +4961,18 @@ Test_Repo_Table_State:
       if right(localrep,1) = '/' then localrep = strip(localrep,'T','/')
       zigirep = strip(zigirep)
       zigikey = localrep'/'zigirep
-      if zigidate = 'ZIGIDATE' then zigidate = null
-      if zigidate = null then
-      zigidate = date('n')
+      if sortdate = 'SORTDATE' then sortdate = null
+      if sortdate = null then
+      if zigidate /= null then do
+        zd = subword(zigidate,1,3)
+        zt = subword(zigidate,4)
+        zigidate = zd
+        sortdate = date('b',zd,'n')
+        sortdate = date('s',sortdate,'b') zt
+      end
+      else sortdate = date('s') time('s')
       'tbadd zigirepo order'
+      sortdate = null
     end
   end
   Return
