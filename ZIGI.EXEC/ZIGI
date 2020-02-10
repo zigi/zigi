@@ -2204,10 +2204,10 @@ Do_Commit:
       cmd = cmd '&& git push -v'
       cmd = cmd '&& rm' file
       if tagid /= null then do
-          cmd = cmd '&& git tag' tagid
-          cmd = cmd '&& git push origin' tagid
-          cmd = cmd '&& git show' tagid
-         end
+        cmd = cmd '&& git tag' tagid
+        cmd = cmd '&& git push origin' tagid
+        cmd = cmd '&& git show' tagid
+      end
       x = docmd(cmd)
     end
     /* ------------------------------------- *
@@ -2220,10 +2220,10 @@ Do_Commit:
       if zpush = 'Y' then
       cmd = cmd '&& git push -v'
       if tagid /= null then do
-          cmd = cmd '&& git tag' tagid
-          cmd = cmd '&& git push origin' tagid
-          cmd = cmd '&& git show' tagid
-         end
+        cmd = cmd '&& git tag' tagid
+        cmd = cmd '&& git push origin' tagid
+        cmd = cmd '&& git show' tagid
+      end
       x = docmd(cmd)
     end
     call view_std 'B'
@@ -3604,10 +3604,12 @@ view_std:
   if stdopt /= 'C' then do
     vlrecl = 0
     do li  = 1 to so.0
+      so.li = strip(so.li)
       if length(so.li) > vlrecl then vlrecl = length(so.li)
       if so.li = null then so.li = ' '
     end
     do li  = 1 to se.0
+      se.li = strip(se.li)
       if length(se.li) > vlrecl then vlrecl = length(se.li)
       if se.li = null then se.li = ' '
     end
@@ -3641,6 +3643,7 @@ view_std:
   end
   if vdsn /= null then vdsnp = 'da('vdsn') unit(3390)'
   else vdsnp = null
+  if vlrecl > 255 then vlrecl = 251
   'Alloc f('dd') new spa('prim','prim') tr' ,
     'recfm(v b) lrecl('vlrecl+4') blksize(0)' vdsnp
   /* ----------------------------- *
@@ -4925,12 +4928,12 @@ Combine_msgs: procedure expose so. se. combine. null
   c = combine.0
   do i = 1 to so.0
     c = c + 1
-    combine.c = so.i
+    combine.c = strip(so.i)
     if combine.c = null then combine.c = ' '
   end
   do i = 1 to se.0
     c = c + 1
-    combine.c = se.i
+    combine.c = strip(se.i)
     if combine.c = null then combine.c = ' '
   end
   combine.0 = c
