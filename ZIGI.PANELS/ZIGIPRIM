@@ -14,7 +14,7 @@
 +Command: @Clone +Remote repository        @Pro    +Toggle Menu      @Sort+
           @Create+Local repository         @githelp+Git Help
           @SSH   +View your SSH public key @Find   +text in table
-          @Config+View Git configuration   %Select +Repo from command
+          @Config+View Git configuration   @Select++Repo from command
 +
 +Line:    %S+Work with repo%V+View repo OMVS files+%D+Delete repo
 +
@@ -31,6 +31,7 @@ _z+  $z              +  ]z                                 +    }z          +
  &pref    = 'Prefix'
  &pro     = 'Pro'
  &repo    = 'Repository'
+ &select  = 'Select'
  &sort    = 'Sort'
  &ssh     = 'SSH'
  &zscr = CSR
@@ -63,6 +64,7 @@ _z+  $z              +  ]z                                 +    }z          +
  FIELD(PREF    ) VAR(ZCMD) VAL('SORT PREFIX')
  FIELD(PRO     ) VAR(ZCMD) VAL('PRO')
  FIELD(REPO    ) VAR(ZCMD) VAL('SORT REPOSITORY')
+ FIELD(SELECT  ) VAR(ZCMD) VAL('SELECT')
  FIELD(SORT    ) VAR(ZCMD) VAL('SORT')
  FIELD(SSH     ) VAR(ZCMD) VAL('SSH')
 )end

@@ -484,7 +484,7 @@
     if word(zcmd,1) = 'L' then
     zcmd = 'F' subword(zcmd,2)
 
-    findstr = null
+    parse value '' with findstr selfind
     if pos('.',zcmd) > 0 then
     parse value zcmd with x'.'zcmd
     if zcmd = 'O' then do
@@ -494,20 +494,29 @@
     end
     if findstr /= null
     then zcmd = 'F' findstr
+    if selfind /= null
+    then zcmd = 'S' selfind
 
     /* ------------------------ *
     | Select a repo by command |
     * ------------------------ */
     if abbrev('SELECT',word(zcmd,1),1) = 1 then do
+      zerrsm = null
       fstring = word(zcmd,2)
       zcmd = null
       if fstring = null then do
-        zerrsm = 'Invalid.'
-        zerrlm = 'To use Select you must provide the name of a repository' ,
-          'case sensitive.'
+        'addpop row(3) column(4)'
+        'display panel(zigisel)'
+        drc = rc
+        'rempop'
+        if fstring = null then drc = 4
+        if drc > 0 then  do
+            zerrsm = 'Cancelled.'
+            zerrlm = 'Select cancelled.'
         'setmsg msg(isrz003)'
       end
-      else do
+      end
+      if zerrsm = null then do
         'tbtop zigirepo'
         do forever
           'tbskip zigirepo'
@@ -515,6 +524,8 @@
             zerrsm = 'Not Found'
             zerrlm = fstring 'repository not found. Verify the spelling and' ,
               'case.'
+            zerrsm = 'Cancelled.'
+            zerrlm = 'Select cancelled.'
             'setmsg msg(isrz003)'
             leave
           end
@@ -527,7 +538,7 @@
           leave
         end
       end
-    end
+      end
 
     /* -------------- *
     | Process a Find |

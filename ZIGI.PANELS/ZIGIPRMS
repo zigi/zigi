@@ -11,7 +11,7 @@
 +Local Repositories+--------------#zigtitle   +---------------------------------
 %Command ===>{zcmd       \ \ %Scroll ===>_zscr+
 +
-+Command:@Clone+@Create+@SSH+@Config+@Basic+@Githelp+@Find+%Select@Sort+
++Command:@Clone+@Create+@SSH+@Config+@Basic+@Githelp+@Find+@Select@Sort+
 +
 +Line:   %S+Work with repo%V+View repo OMVS files+%D+Delete repo
 +
@@ -28,6 +28,7 @@ _z+  $z              +  ]z                                 +    }z          +
  &last    = 'Last Access'
  &pref    = 'Prefix'
  &repo    = 'Repository'
+ &sort    = 'Sort'
  &sort    = 'SOrt'
  &ssh     = 'SSH'
  &zscr = CSR
@@ -60,6 +61,7 @@ _z+  $z              +  ]z                                 +    }z          +
  FIELD(LAST    ) VAR(ZCMD) VAL('SORT LAST')
  FIELD(PREF    ) VAR(ZCMD) VAL('SORT PREFIX')
  FIELD(REPO    ) VAR(ZCMD) VAL('SORT REPOSITORY')
+ FIELD(SELECT  ) VAR(ZCMD) VAL('SELECT')
  FIELD(SORT    ) VAR(ZCMD) VAL('SORT')
  FIELD(SSH     ) VAR(ZCMD) VAL('SSH')
 )end
