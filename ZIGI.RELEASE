@@ -48,6 +48,9 @@ Update panels with point-and-shoot to underscore the point and shoot fields.
 For those panels that support sorting the column headers are now
 point-and-shoot sort toggles.
 
+Added an optional tag field to the commit panel. Now a tag can be added along
+with the commit.
+
 =============================================================================
                              zigi Release Notes
                                 Version 2.0
