@@ -22,6 +22,7 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            02/10/20 LBD - Add SortDate for proper sorting  |
+  |                         - Add optional tag on commit       |
   |            02/09/20 LBD - Update sort default orders       |
   |                         - add time to zigidate             |
   |                         - save default sort for zigirepo   |
@@ -2153,7 +2154,7 @@ Do_Resetid:
 Do_Commit:
   zcmd = null
   parse value '' with msg1 msg2 msg3 msg4 msg5 msg6 msg7 msg8 msg9 ,
-    msg10 msg11 msg12 msg13 msg14 msg15 msg16 msg17
+    msg10 msg11 msg12 msg13 msg14 msg15 msg16 tagid
   'display panel(zigicom)'
   if rc > 0 then do
     zerrsm = 'Cancelled.'
@@ -2166,7 +2167,7 @@ Do_Commit:
     cmsg.1 = cmessage
     cmsg.2 = left('-',length(cmsg.1),'-')
     io = 2
-    do ic = 2 to 17
+    do ic = 2 to 16
       cmessage = value('msg'ic)
       cmessage = strip(cmessage)
       if cmessage /= null then do
@@ -2202,6 +2203,11 @@ Do_Commit:
       if zpush = 'Y' then
       cmd = cmd '&& git push -v'
       cmd = cmd '&& rm' file
+      if tagid /= null then do
+          cmd = cmd '&& git tag' tagid
+          cmd = cmd '&& git push origin' tagid
+          cmd = cmd '&& git show' tagid
+         end
       x = docmd(cmd)
     end
     /* ------------------------------------- *
@@ -2213,6 +2219,11 @@ Do_Commit:
       cmd = cmd "&& git commit -vm '"cmsg.1"'"
       if zpush = 'Y' then
       cmd = cmd '&& git push -v'
+      if tagid /= null then do
+          cmd = cmd '&& git tag' tagid
+          cmd = cmd '&& git push origin' tagid
+          cmd = cmd '&& git show' tagid
+         end
       x = docmd(cmd)
     end
     call view_std 'B'

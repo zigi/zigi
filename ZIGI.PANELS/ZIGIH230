@@ -21,8 +21,8 @@
 +
 +Blank lines are indicated by a period (.) in column 1.
 +
-+Optionally, after the commit, a%git push+can be automatically initiated by
-+entering a%Y+in the Push after field.
++
++         "Make it work, make it right, make it fast."   Kent Beck
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
@@ -30,7 +30,7 @@
  vget (ztut)
 )PROC
  if (&ztut = 200)
-     &zcont = zigih170
+     &zcont = zigih231
  if (&ztut = 300)
-     &zcont = zigih250
+     &zcont = zigih231
 )END
