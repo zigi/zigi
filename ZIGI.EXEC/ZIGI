@@ -4353,6 +4353,7 @@ Do_Add_Copy:
     parse value pdss with pdss'/'.
     mkdir = "mkdir -p "DIR"/"pdss
     x = bpxwunix(mkdir,,so.,se.)
+    binopt = null
     if option = 'binary' then
     if bin_already(dsnb) = 0 then do
       binopt = '-B'
@@ -4375,9 +4376,6 @@ Do_Add_Copy:
       cmd = cmd '&& rm .gae'
       x = docmd(cmd)
       call get_binfiles 'do add copy 1'
-    end
-    else do
-      binopt = null
     end
     if ac_mem /= null then pdsc = pdsc"("ac_mem")"
     copycmd = "//'"pdsc"'"
