@@ -51,6 +51,10 @@ point-and-shoot sort toggles.
 Added an optional tag field to the commit panel. Now a tag can be added along
 with the commit.
 
+Added a new Category field to the repository summary that is displayed on
+the Local Repository table display. It is a sort column like the other
+columns on the display.
+
 =============================================================================
                              zigi Release Notes
                                 Version 2.0
