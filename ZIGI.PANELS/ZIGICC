@@ -15,13 +15,13 @@
 %Local Directory:   +? to browse OMVS folder structure
  @localrep                                                                    +
 +
-%PREFIX for datasets: $pdshlq                  + (no quotes)
+%Category for Repository:@zigicat      + (optional)
 +
-%Default Push on Commit:$z+(Y or N)
+%PREFIX for datasets:    $pdshlq                  + (no quotes)
++
+%Default Push on Commit: $z+(Y or N)
 +
 %Default Userid to set prior to Commit:$defruid + or blank
-+
-+
 +
 +
                   +Press%Enter+to continue, or%F3+to cancel

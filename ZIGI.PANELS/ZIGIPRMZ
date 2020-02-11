@@ -11,12 +11,16 @@
 +Local Repositories+--------------#zigtitle   +---------------------------------
 %Command ===>{zcmd       \ \ %Scroll ===>_zscr+
 +
-%    [Repository+       [Prefix+                                   [Last Access+
+%    @repo      +       @pref  +                   @cat     +      @last       +
 )Model
-_z+  $z              +  ]z                        +                }z          +
+_z+  $z              +  ]z                        +]z             +}z          +
 )Init
+ &cat     = 'Category'
+ &last    = 'Last Access'
+ &pref    = 'Prefix'
+ &repo    = 'Repository'
  &zscr = CSR
- .zvars = '(zsel zigirep pdshlq zigidate)'
+ .zvars = '(zsel zigirep pdshlq zigicat zigidate)'
  .help = zigihint
 )Proc
  &row = &z
@@ -35,4 +39,9 @@ _z+  $z              +  ]z                        +                }z          +
  if (&row = 0)
      &zsel = &z
  ver (&zsel,list,S,D,V,/)
+)PNTS
+ FIELD(CAT     ) VAR(ZCMD) VAL('SORT CATEGORY')
+ FIELD(LAST    ) VAR(ZCMD) VAL('SORT LAST')
+ FIELD(PREF    ) VAR(ZCMD) VAL('SORT PREFIX')
+ FIELD(REPO    ) VAR(ZCMD) VAL('SORT REPOSITORY')
 )end
