@@ -3604,12 +3604,12 @@ view_std:
   if stdopt /= 'C' then do
     vlrecl = 0
     do li  = 1 to so.0
-      so.li = strip(so.li)
+      so.li = strip(so.li,'T')
       if length(so.li) > vlrecl then vlrecl = length(so.li)
       if so.li = null then so.li = ' '
     end
     do li  = 1 to se.0
-      se.li = strip(se.li)
+      se.li = strip(se.li,'T')
       if length(se.li) > vlrecl then vlrecl = length(se.li)
       if se.li = null then se.li = ' '
     end
