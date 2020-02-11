@@ -55,6 +55,8 @@ Added a new Category field to the repository summary that is displayed on
 the Local Repository table display. It is a sort column like the other
 columns on the display.
 
+New option to hide the splash screen if desired, and to restore it.
+
 =============================================================================
                              zigi Release Notes
                                 Version 2.0
