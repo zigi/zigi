@@ -11,9 +11,9 @@
 +Local Repositories+--------------#zigtitle   +---------------------------------
 %Command ===>{zcmd       \ \ %Scroll ===>_zscr+
 +
-%    [Repository+       [Prefix+                                [Last Access+
+%    [Repository+       [Prefix+                                   [Last Access+
 )Model
-_z+  $z              +  ]z                                 +    }z          +
+_z+  $z              +  ]z                        +                }z          +
 )Init
  &zscr = CSR
  .zvars = '(zsel zigirep pdshlq zigidate)'

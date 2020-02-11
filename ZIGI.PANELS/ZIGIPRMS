@@ -15,9 +15,9 @@
 +
 +Line:   %S+Work with repo%V+View repo OMVS files+%D+Delete repo
 +
-%    @repo      +       @pref  +                                @last       +
+%    @repo      +       @pref  +                                   @last       +
 )Model
-_z+  $z              +  ]z                                 +    }z          +
+_z+  $z              +  ]z                        +                }z          +
 )Init
  &basic   = 'Basic'
  &clone   = 'Clone'

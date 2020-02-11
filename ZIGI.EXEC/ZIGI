@@ -763,7 +763,7 @@
   * ------------------------------------- */
 Select_Repo:
   zigidate = date('n')
-  sortdate = date('s') time('s')
+  sortdate = date('b') time('s')
   'tbmod zigirepo'
   x = debug('Getting binfiles:' zigirep time('L') )
   drop binfiles.
@@ -780,7 +780,7 @@ Select_Repo:
 Create_zigirepo:
   "TBCreate zigirepo Keys(zigikey)",
     "Names(zigirep localrep pdshlq qualignr zigidate defcpush" ,
-    " sortdate defruid)",
+    " sortdate defruid zigicat)",
     'Library('isptabl') Write Share'
   'vget (defrsort) profile'
   parse value defrsort with field order
@@ -1633,8 +1633,8 @@ Get_TagList:
     if left(strip(so.cri),4) = 'refs' then do
       parse value so.cri with ctag ctitle
       cdatetim = 'no date'
-      sortdate = null
-      sorttime = null
+      sortdate = 0
+      sorttime = 0
     end
     else do
       parse value so.cri with day mm dd time yy gmt ctag ctitle
@@ -2391,7 +2391,7 @@ Clone_Repo:
     call Refresh localrep zigirep pdshlq qualignr
     zigikey = localrep'/'zigirep
     zigidate = date('n')
-    sortdate = date('s') time('s')
+    sortdate = date('b') time('s')
     'tbadd zigirepo order'
     'vget (defrsort) profile'
     parse value defrsort with field order
@@ -3584,7 +3584,7 @@ Create_Repo:
     Address ISPExec
     zigikey = localrep'/'zigirep
     zigidate = date('n')
-    sortdate = date('s') time('s')
+    sortdate = date('b') time('s')
     'tbadd zigirepo order'
     zpush = defcpush
     'vget (defrsort) profile'
@@ -4967,7 +4967,7 @@ Test_Repo_Table_State:
   | and if not upgrade it.                        |
   * --------------------------------------------- */
   'TBQuery zigirepo Names(names)'
-  if pos('SORTDATE',names) = 0 then do
+  if pos('ZIGICAT',names) = 0 then do
     'tbtop zigirepo'
     tc = 0
     do forever
@@ -4976,7 +4976,7 @@ Test_Repo_Table_State:
       'tbget zigirepo'
       tc = tc + 1
       key.tc = localrep pdshlq qualignr zigirep ,
-        '\'defcpush '\'defruid'\'zigidate
+        '\'defcpush '\'defruid'\'zigidate '\' sortdate
     end
     tc.0 = tc
     'tbend zigirepo'
@@ -4984,20 +4984,18 @@ Test_Repo_Table_State:
     call create_zigirepo
     do i = 1 to tc.0
       parse value key.i with localrep pdshlq qualignr zigirep ,
-        '\'defcpush'\'defruid'\'zigidate
+        '\'defcpush'\'defruid'\'zigidate '\' sortdate
       if right(localrep,1) = '/' then localrep = strip(localrep,'T','/')
       zigirep = strip(zigirep)
       zigikey = localrep'/'zigirep
-      if sortdate = 'SORTDATE' then sortdate = null
-      if sortdate = null then
       if zigidate /= null then do
         zd = subword(zigidate,1,3)
         zt = subword(zigidate,4)
         zigidate = zd
-        sortdate = date('b',zd,'n')
-        sortdate = date('s',sortdate,'b') zt
+        if strip(zt) = null then zt = 0
+        sortdate = date('b',zd,'n') zt
       end
-      else sortdate = date('s') time('s')
+      else sortdate = date('b') time('s')
       'tbadd zigirepo order'
       sortdate = null
     end

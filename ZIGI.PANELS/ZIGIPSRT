@@ -4,7 +4,7 @@
 )Body Window(65,4)
 +
 +Enter the field to sort:$z+  1 - Repository 2 - Prefix 3 - Date
-+Enter the sort order:$z+  A+(ascending) D+(descending)
++Enter the sort order:   $z+  A+(ascending)  D+(descending)
 +
 )Init
  .zvars = '(skey sopt)'
