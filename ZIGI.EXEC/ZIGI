@@ -9,6 +9,9 @@
   |                                                            |
   | Syntax:    ex 'zigi.exec(zigi)'                            |
   |                                                            |
+  |            or to restore the splash screen                 |
+  |            ex 'zigi.exec(zigi)' 'S'                        |
+  |                                                            |
   | NOTE:      ZIGI MUST NEVER be started under the ZIGI       |
   |            ISPF Applications ID.                           |
   |                                                            |
@@ -188,6 +191,8 @@
   |    Public License along with this program.  If not, see    |
   |    <https://www.gnu.org/licenses/>.                        |
   * ---------------------------------------------------------- */
+  arg start_option
+
   Address ISPExec
   'vget (zapplid)'
 
@@ -245,7 +250,7 @@
     /* --------------------------------------- *
     | Make sure we are under the ZIGI applid  |
     * --------------------------------------- */
-    "Select CMD(%zigi) Newappl(ZIGI) Passlib scrname(zigi)"
+    "Select CMD(%zigi" start_option") Newappl(ZIGI) Passlib scrname(zigi)"
     if panels /= null then
     'libdef ispplib'
     if exec /= null then
@@ -262,10 +267,16 @@
   zigtitle = '(zigi' ver')'
   'vput (zigtitle ver)'
   'vget (bypass) profile'
+  if start_option = 'S' then bypass = 'N'
   if bypass /= 'Y' then do
     'display panel(zigispls)'
     if rc = 8 then exit
     'vput (bypass) profile'
+    zs1 = 'The splash screen will no longer display per your request.'
+    zs2 = ' '
+    zs3 = 'Start zigi with a parm of S to restore.'
+    zs4 = '--- Press Enter to continue.'
+    call do_popup4p
   end
 
   /* ---------------------------------------------------------- *
