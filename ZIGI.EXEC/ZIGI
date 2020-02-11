@@ -1627,15 +1627,21 @@ Get_TagList:
     "'%(authordate) %(refname) %(subject)'" ,
     "refs/tags"
   x = docmd(cmd)
-  'TBCreate' zcrtbl 'Keys(ctag) Names(cdatetim ctitle) nowrite share'
+  'TBCreate' zcrtbl 'Keys(ctag) Names(cdatetim ctitle sortdate sorttime)' ,
+    'nowrite share'
   do cri = 1 to so.0
     if left(strip(so.cri),4) = 'refs' then do
       parse value so.cri with ctag ctitle
       cdatetim = 'no date'
+      sortdate = null
+      sorttime = null
     end
     else do
       parse value so.cri with day mm dd time yy gmt ctag ctitle
-      cdatetim = mm dd yy time
+      cdatetim = yy mm dd time
+      zd = dd mm yy
+      sortdate = date('b',zd,'n')
+      sorttime = left(time,2)''substr(time,3,2)
     end
     ctag = translate(ctag,' ','/')
     ctag = word(ctag,3)
@@ -1654,6 +1660,7 @@ Do_TAGLIST:
   call get_TAGLIST
   ztdsels = 0
   ztdtop = 1
+  'tbsort' zcrtbl 'fields(sortdate,n,d,sorttime,c,d)'
   'tbtop' zcrtbl
   do forever
     zsel = null
@@ -2177,6 +2184,8 @@ Do_Commit:
       end
     end
     cmsg.0 = io
+    drop combine.
+    combine.0 = 0
     /* ------------------------------- *
     | If > 1 msg line then use a file |
     * ------------------------------- */
@@ -2203,12 +2212,9 @@ Do_Commit:
       if zpush = 'Y' then
       cmd = cmd '&& git push -v'
       cmd = cmd '&& rm' file
-      if tagid /= null then do
-        cmd = cmd '&& git tag' tagid
-        cmd = cmd '&& git push origin' tagid
-        cmd = cmd '&& git show' tagid
-      end
       x = docmd(cmd)
+      call add_combine cmd
+      call combine_msgs
     end
     /* ------------------------------------- *
     | If cmsg.0 = 2 then use commit -m msg   |
@@ -2219,14 +2225,22 @@ Do_Commit:
       cmd = cmd "&& git commit -vm '"cmsg.1"'"
       if zpush = 'Y' then
       cmd = cmd '&& git push -v'
-      if tagid /= null then do
-        cmd = cmd '&& git tag' tagid
-        cmd = cmd '&& git push origin' tagid
-        cmd = cmd '&& git show' tagid
-      end
       x = docmd(cmd)
+      call add_combine cmd
+      call combine_msgs
     end
-    call view_std 'B'
+    if tagid /= null then do
+      parse value so.1 with '['.  ctag']' .
+      cmd = 'cd' localrep'/'zigirep
+      cmd = cmd '&& git tag' tagid ctag
+      if remote1 /= '<no remote defined>' then
+      cmd = cmd '&& git push origin' tagid
+      cmd = cmd '&& git show' tagid
+      x = docmd(cmd)
+      call add_combine cmd
+      call combine_msgs
+    end
+    call view_std 'C'
     call update_repo_metadata
     if left(remote1,1) /= '<' then
     if zpush = 'N' then do
@@ -4395,6 +4409,7 @@ Do_Add_Copy:
   else do
     W = usssafe(WHAT)
     PSS = usssafe(dsnb)
+    binopt = null
     if option = 'binary' then
     if bin_already(dsnb) = 0 then do
       binopt = '-B'
@@ -4414,9 +4429,6 @@ Do_Add_Copy:
       cmd = cmd '&& rm .gae'
       x = docmd(cmd)
       call get_binfiles 'do add copy 2'
-    end
-    else do
-      binopt = null
     end
     copycmd = "//'"W"'"
     copycmd = '"'copycmd'"'
@@ -4912,6 +4924,9 @@ debug:
 Add_Combine: procedure expose combine. null
   parse arg msg
   c = combine.0
+  c = c + 1
+  combine.c = '   '
+  c = c + 1
   combine.c = msg
   c = c + 1
   combine.c = '   '
@@ -4926,12 +4941,12 @@ Combine_msgs: procedure expose so. se. combine. null
   c = combine.0
   do i = 1 to so.0
     c = c + 1
-    combine.c = strip(so.i)
+    combine.c = strip(so.i,'T')
     if combine.c = null then combine.c = ' '
   end
   do i = 1 to se.0
     c = c + 1
-    combine.c = strip(se.i)
+    combine.c = strip(se.i,'T')
     if combine.c = null then combine.c = ' '
   end
   combine.0 = c
