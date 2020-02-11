@@ -267,16 +267,20 @@
   zigtitle = '(zigi' ver')'
   'vput (zigtitle ver)'
   'vget (bypass) profile'
+  bpyasso = bypass
   if start_option = 'S' then bypass = 'N'
   if bypass /= 'Y' then do
     'display panel(zigispls)'
     if rc = 8 then exit
     'vput (bypass) profile'
-    zs1 = 'The splash screen will no longer display per your request.'
-    zs2 = ' '
-    zs3 = 'Start zigi with a parm of S to restore.'
-    zs4 = '--- Press Enter to continue.'
-    call do_popup4p
+    if bypasso /= 'Y' then
+    if bypass = 'Y' then do
+      zs1 = 'The splash screen will no longer display per your request.'
+      zs2 = ' '
+      zs3 = 'Start zigi with a parm of S to restore.'
+      zs4 = '--- Press Enter to continue.'
+      call do_popup4p
+    end
   end
 
   /* ---------------------------------------------------------- *
