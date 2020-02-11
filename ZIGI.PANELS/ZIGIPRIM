@@ -18,10 +18,11 @@
 +
 +Line:    %S+Work with repo%V+View repo OMVS files+%D+Delete repo
 +
-%    @repo      +       @pref  +                                   @last       +
+%    @repo      +       @pref  +                   @cat     +      @last       +
 )Model
-_z+  $z              +  ]z                        +                }z          +
+_z+  $z              +  ]z                        +]z             +}z          +
 )Init
+ &cat     = 'Category'
  &clone   = 'Clone'
  &config  = 'Config'
  &create  = 'Create'
@@ -35,7 +36,7 @@ _z+  $z              +  ]z                        +                }z          +
  &sort    = 'Sort'
  &ssh     = 'SSH'
  &zscr = CSR
- .zvars = '(zsel zigirep pdshlq zigidate)'
+ .zvars = '(zsel zigirep pdshlq zigicat zigidate)'
  .help = zigihint
 )Proc
  &row = &z
@@ -55,6 +56,7 @@ _z+  $z              +  ]z                        +                }z          +
      &zsel = &z
  ver (&zsel,list,S,D,V,/)
 )PNTS
+ FIELD(CAT     ) VAR(ZCMD) VAL('SORT CATEGORY')
  FIELD(CLONE   ) VAR(ZCMD) VAL('CLONE')
  FIELD(CONFIG  ) VAR(ZCMD) VAL('CONFIG')
  FIELD(CREATE  ) VAR(ZCMD) VAL('CREATE')

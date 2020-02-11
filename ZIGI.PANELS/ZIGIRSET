@@ -5,10 +5,12 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
-)Body  Expand(\\) Window(63,10)
+)Body  Expand(\\) Window(63,12)
 +Command ===>_zcmd   \ \ +
 %
 +Review/Update Repository Settings:
+%
++Category for Repository:_zigicat      + (optional)
 %
 +Default Push on Commit (Y or N):@z+
 +

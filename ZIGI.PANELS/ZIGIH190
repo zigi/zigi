@@ -12,7 +12,7 @@
 +
 %Syntax:  Sort field order
 %
-%Fields:+ Repository (R) or Prefix (P) or Last (L) or Date (D)
+%Fields:+ Repository (R) or Prefix (P) or Last (L) or Category (C) or Date (D)
 +
 %Order:+  Ascending (A) or  Descending (D)
 +

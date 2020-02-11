@@ -654,6 +654,8 @@
         select
           when abbrev('REPOSITORY',skey,1) = 1 then
           skey = 'zigirep'
+          when abbrev('CATEGORY',skey,1) = 1 then
+          skey = 'zigicat'
           when abbrev('PREFIX',skey,1) = 1 then
           skey = 'pdshlq'
           when abbrev('LAST',skey,1) = 1 then
@@ -2324,7 +2326,7 @@ Do_Push:
   | Clone a remote repo           |
   * ----------------------------- */
 Clone_Repo:
-  parse value '' with pdshlq remotebr defcpush defruid
+  parse value '' with pdshlq remotebr defcpush defruid zigicat
   'vget (saverep) profile'
   if saverep /= null then localrep = saverep
   do forever
@@ -3444,7 +3446,7 @@ Create_Repo:
   if saverep /= null then localrep = saverep
   do forever
     parse value '' with zerrsm zcmd zigirep cc_rc pdshlq ,
-      defcpush defruid qualignr
+      defcpush defruid qualignr zigicat
     'Display Panel(ziginew)'
     if rc > 0 then return 8
     if localrep = '?' then
