@@ -46,7 +46,7 @@
       csr = 'LOCALREP'
     end
   end
-  if zedsmsg = null then do
+  if zedsmsg = '' then do
     if length(defruid) = 8 then do
       CVT      = C2D(Storage(10,4))
       TVT      = C2D(Storage(D2X(CVT + 156),4))   /* cvt + 9c */
