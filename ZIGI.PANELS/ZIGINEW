@@ -28,10 +28,22 @@
 )Init
  .help = zigih120
  .zvars = '(defcpush)'
+)Reinit
+  REFRESH(LOCALREP)
 )Proc
  &resp = .resp
 *REXX(* zedsmsg zedlmsg resp csr)
   zedsmsg = ''
+  if localrep /= '?' then do
+  x = bpxwunix('ls -la' localrep)
+  if x > 0 then do
+     zedsmsg = 'Error.'
+     zedlmsg = localrep 'is not a valid OMVS directory. Change to a valid' ,
+              'directory, or create a new directory and try again.'
+     csr = 'LOCALREP'
+     end
+     end
+  if zedsmsg = '' then
   if length(defruid) = 8 then do
     CVT      = C2D(Storage(10,4))
     TVT      = C2D(Storage(D2X(CVT + 156),4))   /* cvt + 9c */

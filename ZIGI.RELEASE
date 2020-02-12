@@ -57,6 +57,9 @@ columns on the display.
 
 New option to hide the splash screen if desired, and to restore it.
 
+Additional validation on the Clone and Create panels to validate the
+OMVS directory that is specified actually exists.
+
 =============================================================================
                              zigi Release Notes
                                 Version 2.0
