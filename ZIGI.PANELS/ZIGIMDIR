@@ -7,12 +7,15 @@
 %
 +New Directory:_mkdir                        +
 +
-+Permissions_mp + (755 is the default)
++Permissions:_mp + (755 is the default)
 +
 %ENTER+to continue, or%F3+to Cancel.
 )Init
 &zwinttl = 'zigi Make Directory (MKDIR)'
-.CURSOR = MKDIR
+if (&mkdir = &Z)
+   .CURSOR = MKDIR
+if (&mkdir NE &Z)
+   .CURSOR = MP
 )Proc
  ver (&mkdir,nb)
  ver (&mp,nb,num)
