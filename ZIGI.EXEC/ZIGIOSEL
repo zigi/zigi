@@ -291,7 +291,6 @@ Restart:
   end
 
   'tbend' tbl
-
   if selections = null then zcmd = 'CANCEL'
   return selections
 
@@ -403,7 +402,7 @@ List_Info:
 Restart_Odir:
   'tbend' tbl
   call restart
-  return 0
+  return selections
 
   /* ------------------------------------------------------ *
   | The pfshow routine will:                               |
