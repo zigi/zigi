@@ -5004,7 +5004,6 @@ Test_Repo_Table_State:
       key.tc = zigikey'\'localrep'\'pdshlq'\'qualignr'\'zigirep ,
         '\'defcpush '\'defruid'\'zigidate '\' sortdate '\' zigicat
     end
-    say 'tc:' tc
     key.0 = tc
     'tbend zigirepo'
     'TBErase zigirepo Library('isptabl')'
@@ -5035,7 +5034,6 @@ Test_Repo_Table_State:
       Otherwise sortdate = date('b') time('s')
       end
       'tbadd zigirepo order'
-      say rc zerrsm zerrlm
       sortdate = null
       zigicat = null
     end
