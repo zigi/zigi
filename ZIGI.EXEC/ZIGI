@@ -4989,36 +4989,55 @@ Test_Repo_Table_State:
   * --------------------------------------------- */
   'TBQuery zigirepo Names(names)'
   if pos('ZIGICAT',names) = 0 then do
+    zs1 = 'Upgrading the ZIGI Repository ISPF Table'
+    zs2 = 'This should not take long.'
+    call do_popup
     'tbtop zigirepo'
+    zigicat = null
+    sortdate = null
     tc = 0
     do forever
       'tbskip zigirepo'
       if rc > 0 then leave
       'tbget zigirepo'
       tc = tc + 1
-      key.tc = localrep pdshlq qualignr zigirep ,
-        '\'defcpush '\'defruid'\'zigidate '\' sortdate
+      key.tc = zigikey'\'localrep'\'pdshlq'\'qualignr'\'zigirep ,
+        '\'defcpush '\'defruid'\'zigidate '\' sortdate '\' zigicat
     end
-    tc.0 = tc
+    say 'tc:' tc
+    key.0 = tc
     'tbend zigirepo'
     'TBErase zigirepo Library('isptabl')'
     call create_zigirepo
-    do i = 1 to tc.0
-      parse value key.i with localrep pdshlq qualignr zigirep ,
-        '\'defcpush'\'defruid'\'zigidate '\' sortdate
+    do i = 1 to key.0
+      parse value key.i with zigikey'\'localrep'\'pdshlq'\'qualignr'\'zigirep ,
+        '\'defcpush'\'defruid'\'zigidate'\'sortdate'\'zigicat
       if right(localrep,1) = '/' then localrep = strip(localrep,'T','/')
       zigirep = strip(zigirep)
       zigikey = localrep'/'zigirep
-      if zigidate /= null then do
+      Select
+      when zigidate /= null then do
         zd = subword(zigidate,1,3)
         zt = subword(zigidate,4)
         zigidate = zd
         if strip(zt) = null then zt = 0
         sortdate = date('b',zd,'n') zt
       end
-      else sortdate = date('b') time('s')
+      When words(zigidate) > 3 then do
+         zigidate = strip(subword(zigidate,1,3))
+         zt = subword(zigidate,4)
+         if pos(':',zt) > 0 then zt = left(zt,2)''substr(zt,4,2)
+         sortdate = date('b',strip(zigidate),'n') zt
+         end
+      When words(zigidate) = 3 then do
+           sortdate = date('b',strip(zigidate),'n') 0
+           end
+      Otherwise sortdate = date('b') time('s')
+      end
       'tbadd zigirepo order'
+      say rc zerrsm zerrlm
       sortdate = null
+      zigicat = null
     end
   end
   Return
