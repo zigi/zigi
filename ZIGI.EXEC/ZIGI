@@ -2,7 +2,7 @@
   ver = 'v2r1'
   /*Name:      zigi  (z ISPF Git Interface)                    |
   |                                                            |
-  | Version:   V2R0                                            |
+  | Version:   V2R1                                            |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
   |            management                                      |
@@ -24,6 +24,12 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            02/13/20 LBD - Enable 2 column sort on Local    |
+  |                           Repository and retain sort order |
+  |                           for next time zigi starts.       |
+  |                         - Fix bug with selective OMVS to   |
+  |                           z/OS copy during PULL for both   |
+  |                           renames and deletes.             |
   |            02/10/20 LBD - Add SortDate for proper sorting  |
   |                         - Add optional tag on commit       |
   |            02/09/20 LBD - Update sort default orders       |
