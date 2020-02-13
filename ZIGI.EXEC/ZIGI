@@ -12,6 +12,9 @@
   |            or to restore the splash screen                 |
   |            ex 'zigi.exec(zigi)' 'S'                        |
   |                                                            |
+  |            or to start with a specific repository          |
+  |            ex 'zigi.exec(zigi)' 'repo-name'                |
+  |                                                            |
   | NOTE:      ZIGI MUST NEVER be started under the ZIGI       |
   |            ISPF Applications ID.                           |
   |                                                            |
@@ -30,6 +33,8 @@
   |                         - Fix bug with selective OMVS to   |
   |                           z/OS copy during PULL for both   |
   |                           renames and deletes.             |
+  |                         - Enable passing a repo name on    |
+  |                           start                            |
   |            02/10/20 LBD - Add SortDate for proper sorting  |
   |                         - Add optional tag on commit       |
   |            02/09/20 LBD - Update sort default orders       |
@@ -197,7 +202,7 @@
   |    Public License along with this program.  If not, see    |
   |    <https://www.gnu.org/licenses/>.                        |
   * ---------------------------------------------------------- */
-  arg start_option
+  parse arg start_option
 
   Address ISPExec
   'vget (zapplid)'
@@ -269,12 +274,12 @@
   /* ---------------------------------------------------------------- *
   | Running under the ZIGI ISPF Application ID so let's do some work |
   * ---------------------------------------------------------------- */
-  zcmd = null
+  parse value '' with zcmd zsel
   zigtitle = '(zigi' ver')'
   'vput (zigtitle ver)'
   'vget (bypass) profile'
-  bpyasso = bypass
-  if start_option = 'S' then bypass = 'N'
+  bypasso = bypass
+  if translate(start_option) = 'S' then bypass = 'N'
   if bypass /= 'Y' then do
     'display panel(zigispls)'
     if rc = 8 then exit
@@ -481,9 +486,14 @@
   'vget (defrsort) profile'
   if words(defrsort) = 2 then defrsort = 'zigirep,c,a'
   'TBSort zigirepo Fields('defrsort')'
+  parse value '' with zsel
+  if start_option /= null
+  then if translate(start_option) /= 'S' then
+         zcmd = 'S' start_option
 
   do forever
-    parse value '' with zsel zcmd row
+    if zcmd = null then do
+    parse value '' with zsel row
     zigpass = 'PASSTHRU'
     'vput (zigpass) shared'
     'TBTop zigirepo'
@@ -502,6 +512,7 @@
     if row > 0 then do
       'TBTop zigirepo'
       'TBSkip zigirepo Number('row')'
+    end
     end
 
     zcmd = strip(translate(word(zcmd,1)) subword(zcmd,2))
@@ -549,8 +560,6 @@
             zerrsm = 'Not Found'
             zerrlm = fstring 'repository not found. Verify the spelling and' ,
               'case.'
-            zerrsm = 'Cancelled.'
-            zerrlm = 'Select cancelled.'
             'setmsg msg(isrz003)'
             leave
           end
@@ -1459,9 +1468,6 @@ Work_With_Repo:
               cmd = 'cd' localrep'/'zigirep
               cmd = cmd '&& mv' fulldsn newdsn
               x = bpxwunix(cmd,,so.,se.)
-              drop combine.
-              combine.0 = 0
-              call add_combine cmd
             end
             cmd = 'cd' localrep'/'zigirep
             newdsns = usssafe(newdsn)
@@ -1482,7 +1488,6 @@ Work_With_Repo:
               cmd = cmd '&& git mv' oldfiles newfiles
             end
             x = docmd(cmd)
-            call add_combine cmd
             x = listdsi(fulldsn)
             if sysdsorg = 'PO' then do
               /* still weird with rename of statsfile? */
@@ -1544,7 +1549,6 @@ Work_With_Repo:
               cmd = 'cd' localdir '&& git rm -r' '"'fulldsn'"'
               cmd = cmd '&& git add -u'
               x = docmd(cmd,,so.,se.)
-              call view_std 'B'
             end
             when rtype = 'PS' then do
               call outtrap 'x.'
@@ -1553,7 +1557,6 @@ Work_With_Repo:
               call outtrap 'off'
               cmd = 'cd' localdir '&& git rm' dsn
               x = docmd(cmd,,so.,se.)
-              call view_std 'B'
             end
             when rtype = 'PO' then do
               call outtrap 'x.'
@@ -1563,7 +1566,6 @@ Work_With_Repo:
               cmd = 'cd' localdir '&& git rm -rf' dsn
               cmd = cmd '&& rm -f .zigi/'dsn
               x = docmd(cmd,,so.,se.)
-              call view_std 'B'
             end
             Otherwise nop
           end
