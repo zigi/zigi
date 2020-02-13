@@ -41,7 +41,10 @@ all tags with an option to show the full tag details, or to create a new
 branch from the tag level.
 
 Add SORT option for the Local Repository display to sort the repository list
-by Repository name, Prefix, or the Last used Date.
+by Repository name, Prefix, or the Last used Date. One or two columns may be
+sorted and the sort order is remembered when zigi ends and is used at the next
+zigi start. The sort popup panel now supports both the primary and secondary
+sort columns.
 
 Update panels with point-and-shoot to underscore the point and shoot fields.
 
