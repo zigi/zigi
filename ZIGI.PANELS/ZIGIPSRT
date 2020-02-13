@@ -1,24 +1,20 @@
 )Attr
- $ type(input)  caps(on ) hilite(uscore) intens(low)
+ _ type(input)  caps(on ) hilite(uscore) intens(low)
  + type(text) skip(on) intens(low)
-)Body Window(65,5)
+)Body Window(52,7)
 +
-+Enter the field to sort:$z+  1 - Repository 2 - Prefix
-                              3 - Category   4 - Date
-+Enter the sort order:   $z+  A+(ascending)  D+(descending)
++Enter Primary Sort Key:  _z+   Order:_z+
++Enter Secondary Sort Key:_z+   Order:_z+
+
++Sort Keys: %C+Category%D+Date%P+Prefix%R+Repository
++Sort Order:%A+(ascending)%D+(descending)
 +
 )Init
- .zvars = '(skey sopt)'
+ .zvars = '(skey sopt skey2 sopt2)'
  &zwinttl = 'zigi Sort Selections'
 )Proc
- ver (&skey,nb,range,1,4)
+ ver (&skey,nb,list,R,C,P,D,L)
  ver (&sopt,nb,list,A,D)
- if (&skey EQ 1)
-     &skey = 'REPOSITORY'
- if (&skey EQ 2)
-     &skey = 'PREFIX'
- if (&skey EQ 3)
-     &skey = 'CATEGORY'
- if (&skey EQ 4)
-     &skey = 'DATE'
+ ver (&skey2,list,R,C,P,D,L)
+ ver (&sopt2,list,A,D)
 )end

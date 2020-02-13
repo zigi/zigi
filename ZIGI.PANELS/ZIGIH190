@@ -10,7 +10,7 @@
 +
 %Sort+will sort the fields in the Local Repository table:
 +
-%Syntax:  Sort field order
+%Syntax:  Sort field1 order1 field2 order2
 %
 %Fields:+ Repository (R) or Prefix (P) or Last (L) or Category (C) or Date (D)
 +
