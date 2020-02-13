@@ -486,13 +486,13 @@
   'vget (defrsort) profile'
   if words(defrsort) = 2 then defrsort = 'zigirep,c,a'
   'TBSort zigirepo Fields('defrsort')'
-  parse value '' with zsel
+  parse value '' with zsel szcmd
   if start_option /= null
   then if translate(start_option) /= 'S' then
-         zcmd = 'S' start_option
+        szcmd = 'S' start_option
 
   do forever
-    if zcmd = null then do
+    if szcmd = null then do
     parse value '' with zsel row
     zigpass = 'PASSTHRU'
     'vput (zigpass) shared'
@@ -514,6 +514,11 @@
       'TBSkip zigirepo Number('row')'
     end
     end
+
+    if szcmd /= null then do
+       zcmd = szcmd
+       szcmd = null
+       end
 
     zcmd = strip(translate(word(zcmd,1)) subword(zcmd,2))
 
