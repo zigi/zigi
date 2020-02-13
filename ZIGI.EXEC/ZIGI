@@ -563,7 +563,7 @@
             'setmsg msg(isrz003)'
             leave
           end
-          if fstring /= zigirep then iterate
+          if translate(fstring) /= translate(zigirep) then iterate
           'tbget zigirepo'
           if defcpush = 'Y' then zpush = 'Y'
           else zpush = 'N'
