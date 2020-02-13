@@ -337,6 +337,7 @@
   rtbl_open = 0
   rtll_open = 0
   combine.0 = 0
+  zigi_offline = 0
 
   /* ------------------------------------ *
   | Let's try to find git.               |
@@ -489,36 +490,36 @@
   parse value '' with zsel szcmd
   if start_option /= null
   then if translate(start_option) /= 'S' then
-        szcmd = 'S' start_option
+  szcmd = 'S' start_option
 
   do forever
     if szcmd = null then do
-    parse value '' with zsel row
-    zigpass = 'PASSTHRU'
-    'vput (zigpass) shared'
-    'TBTop zigirepo'
-    'tbskip zigirepo number('repo_top')'
-    localrep = null
-    'vput (localrep) shared'
-    'tbdispl zigirepo panel('primpanl')'
-    trc = rc
-    zigpass = null
-    'vput (zigpass) shared'
-    if trc > 4 then leave
-
-    repo_top = ztdtop
-    if row = 0 then zsel = null
-    if row <> null then
-    if row > 0 then do
+      parse value '' with zsel row
+      zigpass = 'PASSTHRU'
+      'vput (zigpass) shared'
       'TBTop zigirepo'
-      'TBSkip zigirepo Number('row')'
-    end
+      'tbskip zigirepo number('repo_top')'
+      localrep = null
+      'vput (localrep) shared'
+      'tbdispl zigirepo panel('primpanl')'
+      trc = rc
+      zigpass = null
+      'vput (zigpass) shared'
+      if trc > 4 then leave
+
+      repo_top = ztdtop
+      if row = 0 then zsel = null
+      if row <> null then
+      if row > 0 then do
+        'TBTop zigirepo'
+        'TBSkip zigirepo Number('row')'
+      end
     end
 
     if szcmd /= null then do
-       zcmd = szcmd
-       szcmd = null
-       end
+      zcmd = szcmd
+      szcmd = null
+    end
 
     zcmd = strip(translate(word(zcmd,1)) subword(zcmd,2))
 
@@ -641,10 +642,22 @@
     if defcpush = 'Y' then zpush = 'Y'
     else zpush = 'N'
 
-    if abbrev('BASIC',zcmd,2) = 1 then zcmd = 'PRO'
-    if abbrev('MENU',zcmd,2)  = 1 then zcmd = 'PRO'
     if zcmd /= null then
     Select
+      when abbrev('LOCAL',zcmd,2) = 1 then do
+        if zigtitle = 'Offline'
+        then do
+          zigtitle = '(zigi' ver')'
+          zigi_offline = 0
+        end
+        else do
+          zigtitle = 'Offline'
+          zigi_offline = 1
+        end
+        'vput (zigtitle)'
+      end
+      when abbrev('BASIC',zcmd,2) = 1 then zcmd = 'PRO'
+      when abbrev('MENU',zcmd,2) = 1 then zcmd = 'PRO'
       When abbrev('GITHELP',zcmd,4) = 1 then
       Address TSO '%githelp'
       When abbrev('CREATE',zcmd,2) = 1 then do
@@ -1016,11 +1029,14 @@ Work_With_Repo:
       /* -------------------------------- *
       | Push current branch to origin    |
       * -------------------------------- */
-      When abbrev('PUSH',zcmd,2) = 1 then call do_push
+      When abbrev('PUSH',zcmd,2) = 1 then
+      if zigi_offline = 0 then
+      call do_push
       /* --------------------------------------------------------- *
       | Pull latest version of remote current branch from origin  |
       * --------------------------------------------------------- */
-      When abbrev('PULL',zcmd,3) = 1 then do
+      When abbrev('PULL',zcmd,3) = 1 then
+        if zigi_offline = 0 then do
         call pop 'Pulling from remote'
         cmd = 'cd' localdir' && git pull -v'
         x = docmd(cmd)
@@ -1036,9 +1052,9 @@ Work_With_Repo:
               deletes.dc = strip(dd)'/'strip(dm)
               deletes.0 = dc
               if wordpos(dd,pulldsns) = 0 then do
-                 pulldsns = pulldsns dd
-                 pullmems.dd = nm
-                 end
+                pulldsns = pulldsns dd
+                pullmems.dd = nm
+              end
               else pullmems.dd = pullmems.dd nm
             end
             else do
@@ -1047,7 +1063,7 @@ Work_With_Repo:
               deletes.dc = strip(dd)
               deletes.0 = dc
               if wordpos(nd,pulldsns) = 0 then
-                 pulldsns = pulldsns nd
+              pulldsns = pulldsns nd
             end
           end
           if word(so.pi,1) = 'delete' then
@@ -1252,6 +1268,7 @@ Work_With_Repo:
           else cmd = 'git tag -a' tagid '-m "'tagmsg'"'
           cmd = 'cd' localrep'/'zigirep '&&' cmd
           if pos('no remote',remote1) = 0
+          then if zigi_offline = 0
           then cmd = cmd '&& git push origin' tagid
           cmd = cmd '&& git show' tagid
           x = docmd(cmd)
@@ -1341,8 +1358,10 @@ Work_With_Repo:
           x = docmd(cmd '&& git remote add origin 'origin)
           call View_std 'B'
           cmd = 'cd' localrep'/'zigirep
+          if zigi_offline = 0 then do
           x = docmd(cmd '&& git push -vu origin 'branch)
           call View_std 'B'
+          end
           call update_repo_metadata
         end
       end
@@ -1829,7 +1848,8 @@ Do_TAGLIST:
           x = docmd(cmd ' && git checkout' ctag '-b' newbr)
           call add_combine 'git checkout' ctag '-b' newbr
           call combine_msgs
-          if left(remote1,1) /= '<' then do
+          if left(remote1,1) /= '<' then
+            if zigi_offline = 0 then do
             cmd = 'cd' localrep'/'zigirep
             x = docmd(cmd ' && git push origin 'newbr)
             call add_combine 'git push origin' newbr
@@ -1961,6 +1981,7 @@ Do_Rollback:
           x = docmd(cmd ' && git checkout -b' newbr ctag)
           call add_combine 'git checkout -b' newbr ctag
           call combine_msgs
+          if zigi_offline = 0 then
           if left(remote1,1) /= '<' then do
             cmd = 'cd' localrep'/'zigirep
             x = docmd(cmd ' && git push origin 'newbr)
@@ -2293,6 +2314,7 @@ Do_Commit:
       address ispexec
       cmd = 'cd' localrep'/'zigirep
       cmd = cmd '&& git commit -F' file
+      if zigi_offline = 0 then
       if zpush = 'Y' then
       cmd = cmd '&& git push -v'
       cmd = cmd '&& rm' file
@@ -2307,6 +2329,7 @@ Do_Commit:
     else do
       cmsg.1 = translate(cmsg.1,' ',"'" '"')
       cmd = cmd "&& git commit -vm '"cmsg.1"'"
+      if zigi_offline = 0 then
       if zpush = 'Y' then
       cmd = cmd '&& git push -v'
       x = docmd(cmd)
@@ -2317,6 +2340,7 @@ Do_Commit:
       parse value so.1 with '['.  ctag']' .
       cmd = 'cd' localrep'/'zigirep
       cmd = cmd '&& git tag' tagid ctag
+      if zigi_offline = 0 then
       if remote1 /= '<no remote defined>' then
       cmd = cmd '&& git push origin' tagid
       cmd = cmd '&& git show' tagid
@@ -2327,7 +2351,7 @@ Do_Commit:
     call view_std 'C'
     call update_repo_metadata
     if left(remote1,1) /= '<' then
-    if zpush = 'N' then do
+    if zpush = 'N' | zigi_offline = 1 then do
       zerrsm = 'Push Needed.'
       zerrlm = 'The commit has completed and a push is now required to' ,
         'update the Git remote repository.'
@@ -2408,6 +2432,12 @@ Do_Push:
   | Clone a remote repo           |
   * ----------------------------- */
 Clone_Repo:
+  if zigi_offline = 1 then do
+      zerrsm = 'Offline.'
+      zerrlm = 'Clone is not allowed when offline.'
+      'Setmsg msg(isrz003)'
+     return
+     end
   parse value '' with pdshlq remotebr defcpush defruid zigicat
   'vget (saverep) profile'
   if saverep /= null then localrep = saverep
@@ -3047,8 +3077,11 @@ Branch_it:
   if rc = 0 then 'tbend' rtbb
   'TBCreate' rtbb 'keys(bname) Names(brstatus) Replace NoWrite'
   localdir = localrep'/'zigirep
+  if zigi_offline = 0 then do
   cmd = ' && git remote prune origin > /dev/null 2>&1 && git branch -a'
   x = docmd('cd 'localdir cmd)
+  end
+  else parse value '0 0' with so.0 se.0
   if so.0 + se.0 = 0 then do
     cmd = '&& git branch -a'
     x = docmd('cd 'localdir cmd)
@@ -3136,6 +3169,7 @@ Branch_it:
         localdir = localrep'/'zigirep
         x = docmd('cd 'localdir' && git checkout -b 'newb)
         /* TODO only do this when there is a remote? */
+        if zigi_offline = 0 then
         x = docmd('cd 'localdir' && git push -u origin 'newb)
         branch = newb
         leave
@@ -3216,8 +3250,11 @@ Merge_it:
   'TBCreate' rtbm 'keys(bname) Names(brstatus) Replace NoWrite'
   localdir = localrep'/'zigirep
   zsel = null
+  if zigi_offline = 0 then do
   cmd = ' && git remote prune origin > /dev/null 2>&1 && git branch -a'
   x = docmd('cd 'localdir cmd)
+  end
+  else parse value '0 0' with so.0 se.0
   if so.0 + se.0 = 0 then do
     cmd = '&& git branch -a'
     x = docmd('cd 'localdir cmd)
@@ -3509,8 +3546,11 @@ Delete_member: Procedure
   * ------------------------ */
 get_branches:
   localdir = localrep'/'zigirep
+  if zigi_offline = 0 then do
   cmd = ' && git remote prune origin > /dev/null 2>&1 && git branch -a'
   x = docmd('cd 'localdir cmd)
+  end
+  else parse value '0 0' with so.0 se.0
   if so.0 + se.0 = 0 then do
     cmd = '&& git branch -a'
     x = docmd('cd 'localdir cmd)
@@ -3898,6 +3938,7 @@ update_repo_metadata:
     'Replace NoWrite'
   rtbl_open = 1
   /* We always fetch when we start to work on a repo */
+  if zigi_offline = 1 then crflag = 1
   if crflag = 0 then do
     x = debug('fetching remote')
     zs1 = 'Fetching Remote info'
@@ -3918,10 +3959,12 @@ update_repo_metadata:
   end
   cmd = 'cd' localrep'/'zigirep
   /* Fetch only if there's a remote */
+  if zigi_offline = 0 then
   if remote1 /= '<no remote defined>' then
   x = docmd(cmd '&& git fetch')
   x = debug('...done')
   /* now we get the status for all in the repo */
+  if zigi_offline = 0 then
   if crflag = 0 then  do
     if se.0 > 1 then fetchmsg = "Remote updates, check status"
     else fetchmsg = "No remote updates"
