@@ -27,6 +27,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            02/14/20 LBD - Correctly identify already added |
+  |                           datasets during ADDDSN           |
   |            02/13/20 LBD - Enable 2 column sort on Local    |
   |                           Repository and retain sort order |
   |                           for next time zigi starts.       |
@@ -4436,7 +4438,7 @@ Get_List:
   dsnapfx = strip(dsnapfx)
   if qualignr > 0 then do
     prefix = translate(dsnapfx,' ','.')
-    prefix = subword(prefix,qualignr+1)
+    prefix = subword(prefix,1,qualignr)
     prefix = translate(prefix,'.',' ')
   end
   else prefix = dsnapfx
@@ -4452,7 +4454,7 @@ Get_List:
     dsna = word(x.dsni,2)
     dastat = null
     do gl = 1 to so.0
-      if substr(dsna,length(prefix)+1) = word(so.gl,1)
+      if substr(dsna,length(prefix)+2) = word(so.gl,1)
       then dastat = 'Added'
     end
     'tbadd' dsnatbl
