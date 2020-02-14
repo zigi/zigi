@@ -1029,14 +1029,24 @@ Work_With_Repo:
       /* -------------------------------- *
       | Push current branch to origin    |
       * -------------------------------- */
-      When abbrev('PUSH',zcmd,2) = 1 then
-      if zigi_offline = 0 then
-      call do_push
+      When abbrev('PUSH',zcmd,2) = 1 then do
+      if zigi_offline = 0 then call do_push
+      else do
+      zerrsm = 'Offline.'
+      zerrlm = 'Push is not allowed when offline.'
+      'Setmsg msg(isrz003)'
+           end
+      end
       /* --------------------------------------------------------- *
       | Pull latest version of remote current branch from origin  |
       * --------------------------------------------------------- */
       When abbrev('PULL',zcmd,3) = 1 then
-        if zigi_offline = 0 then do
+        if zigi_offline = 1 then do
+      zerrsm = 'Offline.'
+      zerrlm = 'Pull is not allowed when offline.'
+      'Setmsg msg(isrz003)'
+           end
+        else do
         call pop 'Pulling from remote'
         cmd = 'cd' localdir' && git pull -v'
         x = docmd(cmd)
@@ -2351,10 +2361,12 @@ Do_Commit:
     call view_std 'C'
     call update_repo_metadata
     if left(remote1,1) /= '<' then
-    if zpush = 'N' | zigi_offline = 1 then do
+    if zpush = 'N' then do
       zerrsm = 'Push Needed.'
       zerrlm = 'The commit has completed and a push is now required to' ,
         'update the Git remote repository.'
+      if zigi_offline = 1 then
+        zerrlm = zerrlm 'Which will require not being in Offline mode.'
       'setmsg msg(isrz003)'
     end
   end
