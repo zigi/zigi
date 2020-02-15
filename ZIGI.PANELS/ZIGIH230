@@ -19,7 +19,7 @@
 +If there is a issue or ticket number it is suggested that it be included in
 +the title (e.g. Ticket: title text).
 +
-+
++Cancel the%Commit+process by entering%F3+with an empty Commit Title.
 +
 +
 +         "Make it work, make it right, make it fast."   Kent Beck
