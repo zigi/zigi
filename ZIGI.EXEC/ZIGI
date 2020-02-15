@@ -2343,6 +2343,8 @@ Do_Commit:
     end
   end
 
+ drop ztdmark
+
  if strip(msg1) = null then do
     zerrsm = 'Canceled.'
     zerrlm = 'Commit canceled  due to an empty title message.'
