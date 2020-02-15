@@ -16,13 +16,13 @@
 +The other option is after the commit, a%git push+can be automatically
 +initiated by entering a%Y+in the Push after field.
 +
++On the table the following commands are available:
 +
-+
-+
+    +Command:%Insert+or%Insert #+
+    +Line:   %I+insert %I #+insert #%D+delete
 +
 + " Code is like humor. When you have to explain it, it's bad."
 +         -- Cory House
-+
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init

@@ -1,35 +1,24 @@
 )Attr
  $ type(output) caps(off)
- # type(output) hilite(reverse) color(turq) caps(off)
+ } type(output) hilite(reverse) color(turq) caps(off)
  _ type(input) caps(off) hilite(uscore) intens(low)
  + type(text ) intens(low) skip(on)
  @ type(input) caps(on ) hilite(uscore) intens(low)
 )Body Expand(\\)
-+Git Commit+----------------------#zigtitle   +---------------------------------
-%Command ===>_zcmd                                                             +
++Git Commit+----------------------}zigtitle   +---------------------------------
+%Command ===>_zcmd       \ \ %Scroll ===>_ccsr+
 +
 %Commit Title:_msg1                                             +
-+Optional Tag:_tagid                                            +
-+Comment Explanation: (. in 1st position for blank line)    %Push+after:@z+(Y/N)
- _msg2                                                                    +
- _msg3                                                                    +
- _msg4                                                                    +
- _msg5                                                                    +
- _msg6                                                                    +
- _msg7                                                                    +
- _msg8                                                                    +
- _msg9                                                                    +
- _msg10                                                                   +
- _msg11                                                                   +
- _msg12                                                                   +
- _msg13                                                                   +
- _msg14                                                                   +
- _msg15                                                                   +
- _msg16                                                                   +
++Optional Tag:_tagid                                       +%Push+after:@z+(Y/N)
 +
-                  +Press%Enter+to continue, or%F3+to cancel.
++Command:%Insert+or%Insert #+   +Line:%I+insert%I #+insert #%D+delete
++
+%S  %Commit Message Text
+)Model
+@z +_cmsg                                                                 +
 )Init
-  .zvars = '(zpush)'
+  .zvars = '(zpush zsel)'
+  &ccsr = 'CSR'
   .cursor = msg1
   if (&zpush EQ &Z)
       &zpush = 'N'
