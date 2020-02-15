@@ -23,6 +23,9 @@
   if (&zpush EQ &Z)
       &zpush = 'N'
   .help = zigih230
+*REXX(* ztdmark)
+ ztdmark = Center('Use F3 to Continue - Cancel if Title blank',79,'-')
+*ENDRexx
 )Reinit
   REFRESH(tagid)
 )Proc
