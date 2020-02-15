@@ -27,6 +27,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            02/15/20 LBD - Remove view_std's where not      |
+  |                           worth it (rm/rn) and added msgs  |
   |            02/14/20 LBD - Correctly identify already added |
   |                           datasets during ADDDSN           |
   |            02/13/20 LBD - Enable 2 column sort on Local    |
@@ -1032,23 +1034,23 @@ Work_With_Repo:
       | Push current branch to origin    |
       * -------------------------------- */
       When abbrev('PUSH',zcmd,2) = 1 then do
-      if zigi_offline = 0 then call do_push
-      else do
-      zerrsm = 'Offline.'
-      zerrlm = 'Push is not allowed when offline.'
-      'Setmsg msg(isrz003)'
-           end
+        if zigi_offline = 0 then call do_push
+        else do
+          zerrsm = 'Offline.'
+          zerrlm = 'Push is not allowed when offline.'
+          'Setmsg msg(isrz003)'
+        end
       end
       /* --------------------------------------------------------- *
       | Pull latest version of remote current branch from origin  |
       * --------------------------------------------------------- */
       When abbrev('PULL',zcmd,3) = 1 then
-        if zigi_offline = 1 then do
-      zerrsm = 'Offline.'
-      zerrlm = 'Pull is not allowed when offline.'
-      'Setmsg msg(isrz003)'
-           end
-        else do
+      if zigi_offline = 1 then do
+        zerrsm = 'Offline.'
+        zerrlm = 'Pull is not allowed when offline.'
+        'Setmsg msg(isrz003)'
+      end
+      else do
         call pop 'Pulling from remote'
         cmd = 'cd' localdir' && git pull -v'
         x = docmd(cmd)
@@ -1371,8 +1373,8 @@ Work_With_Repo:
           call View_std 'B'
           cmd = 'cd' localrep'/'zigirep
           if zigi_offline = 0 then do
-          x = docmd(cmd '&& git push -vu origin 'branch)
-          call View_std 'B'
+            x = docmd(cmd '&& git push -vu origin 'branch)
+            call View_std 'B'
           end
           call update_repo_metadata
         end
@@ -1539,6 +1541,9 @@ Work_With_Repo:
             'tbadd' rtbl 'Order'
             bstat = 'Changes to be committed:'
             baction = null
+            zerrsm = 'Renamed.'
+            zerrlm = fulldsns 'has been renamed in zigi, git, z/OS, and OMVS.'
+            'setmsg msg(isrz003)'
             leave
           end
         end
@@ -1607,6 +1612,10 @@ Work_With_Repo:
           end
           dsnstat = '*Removed'
           'tbmod' rtbl
+          zerrsm = 'Removed.'
+          zerrlm = fulldsn 'has been removed from zigi, from git, and has' ,
+            'been deleted from z/OS and OMVS.'
+          'setmsg msg(isrz003)'
         end
       end
       /* -------------------------------- *
@@ -1861,7 +1870,7 @@ Do_TAGLIST:
           call add_combine 'git checkout' ctag '-b' newbr
           call combine_msgs
           if left(remote1,1) /= '<' then
-            if zigi_offline = 0 then do
+          if zigi_offline = 0 then do
             cmd = 'cd' localrep'/'zigirep
             x = docmd(cmd ' && git push origin 'newbr)
             call add_combine 'git push origin' newbr
@@ -2368,7 +2377,7 @@ Do_Commit:
       zerrlm = 'The commit has completed and a push is now required to' ,
         'update the Git remote repository.'
       if zigi_offline = 1 then
-        zerrlm = zerrlm 'Which will require not being in Offline mode.'
+      zerrlm = zerrlm 'Which will require not being in Offline mode.'
       'setmsg msg(isrz003)'
     end
   end
@@ -2447,11 +2456,11 @@ Do_Push:
   * ----------------------------- */
 Clone_Repo:
   if zigi_offline = 1 then do
-      zerrsm = 'Offline.'
-      zerrlm = 'Clone is not allowed when offline.'
-      'Setmsg msg(isrz003)'
-     return
-     end
+    zerrsm = 'Offline.'
+    zerrlm = 'Clone is not allowed when offline.'
+    'Setmsg msg(isrz003)'
+    return
+  end
   parse value '' with pdshlq remotebr defcpush defruid zigicat
   'vget (saverep) profile'
   if saverep /= null then localrep = saverep
@@ -2842,6 +2851,9 @@ Work_with_repo_file:
               bstat = 'Changes to be committed:'
               baction = null
               'tbadd' rtll 'Order'
+              zerrsm = 'Renamed.'
+              zerrlm = mem 'has been renamed in zigi, git, z/OS, and OMVS.'
+              'setmsg msg(isrz003)'
               statfile = translate(strip(fulldsn,'B',"'"),' ','.')
               if qualignr > 0 then
               statfile = subword(statfile,qualignr+1)
@@ -2871,9 +2883,12 @@ Work_with_repo_file:
             xldir = usssafe(localdir)
             cmd = 'cd' xldir '&& git rm "'m'"'
             x = docmd(cmd,,so.,se.)
-            call view_std 'B'
             memstat = '*Removed'
             'tbmod' rtll
+            zerrsm = 'Removed.'
+            zerrlm = m 'has been removed from zigi, from git, and has' ,
+              'been deleted from z/OS and OMVS.'
+            'setmsg msg(isrz003)'
             statfile = translate(strip(fulldsn,'B',"'"),' ','.')
             if qualignr > 0 then
             statfile = subword(statfile,qualignr+1)
@@ -3092,8 +3107,8 @@ Branch_it:
   'TBCreate' rtbb 'keys(bname) Names(brstatus) Replace NoWrite'
   localdir = localrep'/'zigirep
   if zigi_offline = 0 then do
-  cmd = ' && git remote prune origin > /dev/null 2>&1 && git branch -a'
-  x = docmd('cd 'localdir cmd)
+    cmd = ' && git remote prune origin > /dev/null 2>&1 && git branch -a'
+    x = docmd('cd 'localdir cmd)
   end
   else parse value '0 0' with so.0 se.0
   if so.0 + se.0 = 0 then do
@@ -3265,8 +3280,8 @@ Merge_it:
   localdir = localrep'/'zigirep
   zsel = null
   if zigi_offline = 0 then do
-  cmd = ' && git remote prune origin > /dev/null 2>&1 && git branch -a'
-  x = docmd('cd 'localdir cmd)
+    cmd = ' && git remote prune origin > /dev/null 2>&1 && git branch -a'
+    x = docmd('cd 'localdir cmd)
   end
   else parse value '0 0' with so.0 se.0
   if so.0 + se.0 = 0 then do
@@ -3561,8 +3576,8 @@ Delete_member: Procedure
 get_branches:
   localdir = localrep'/'zigirep
   if zigi_offline = 0 then do
-  cmd = ' && git remote prune origin > /dev/null 2>&1 && git branch -a'
-  x = docmd('cd 'localdir cmd)
+    cmd = ' && git remote prune origin > /dev/null 2>&1 && git branch -a'
+    x = docmd('cd 'localdir cmd)
   end
   else parse value '0 0' with so.0 se.0
   if so.0 + se.0 = 0 then do
