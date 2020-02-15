@@ -13,7 +13,7 @@
   |            omvsfile is the rexx variable that will be      |
   |            the result of calling the ZIGIOSEL routine      |
   |                                                            |
-  |                - result will be null if cancelled out      |
+  |                - result will be null if canceled  out      |
   |                                                            |
   |            prime is optional and if provided is a          |
   |            starting point for the selection process        |
@@ -134,7 +134,7 @@
   ZIGIOSEL = change_odir(prime)
 
   /* --------------------------------- *
-  | If cancelled out then return null |
+  | If canceled  out then return null |
   * --------------------------------- */
   if zcmd = 'CANCEL' then ZIGIOSEL = null
 
@@ -197,8 +197,8 @@ Restart:
           'Rempop'
           call pfshow 'reset'       /* reset pfshow */
           if drc > 0 then do
-            zerrsm = 'Cancelled.'
-            zerrlm = 'MKDIR cancelled.'
+            zerrsm = 'Canceled.'
+            zerrlm = 'MKDIR canceled.'
             'setmsg msg(isrz003)'
             leave
           end
