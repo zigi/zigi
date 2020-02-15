@@ -29,6 +29,8 @@
   |                                                            |
   |            02/15/20 LBD - Remove view_std's where not      |
   |                           worth it (rm/rn) and added msgs  |
+  |                         - Change commit to use a table for |
+  |                           an unlimited # of message lines  |
   |            02/14/20 LBD - Correctly identify already added |
   |                           datasets during ADDDSN           |
   |            02/13/20 LBD - Enable 2 column sort on Local    |
@@ -231,9 +233,12 @@
   | of the zIGI libraries.                                |
   | 1st Get the active exec library or dd                 |
   * ----------------------------------------------------- */
+  parse source TSO Type exec_name DDName exec NameO Env Addr Token
+  /* Comment Start
   parse source x1 x2 x3 x4 exec .
+     Comment End */
   if exec = '?' then do
-    x = listdsi(x4 'FILE')
+    x = listdsi(ddname 'FILE')
     exec = sysdsname
   end
   /* ------------------------------------------ *
@@ -265,7 +270,7 @@
     /* --------------------------------------- *
     | Make sure we are under the ZIGI applid  |
     * --------------------------------------- */
-    "Select CMD(%zigi" start_option") Newappl(ZIGI) Passlib scrname(zigi)"
+    "Select CMD("exec_name start_option") Newappl(ZIGI) Passlib scrname(zigi)"
     if panels /= null then
     'libdef ispplib'
     if exec /= null then
@@ -2286,100 +2291,155 @@ Do_Resetid:
   * ------------------------ */
 Do_Commit:
   zcmd = null
-  parse value '' with msg1 msg2 msg3 msg4 msg5 msg6 msg7 msg8 msg9 ,
-    msg10 msg11 msg12 msg13 msg14 msg15 msg16 tagid
-  'display panel(zigicom)'
-  if rc > 0 then do
-    zerrsm = 'Cancelled.'
-    zerrlm = 'Commit has been cancelled.'
-    'setmsg msg(isrz003)'
+  parse value '' with tagid msg1 cmsg
+  cmtab = 'zc'random(99999)
+  'tbcreate' cmtab 'names(cmsg) nowrite'
+  do i = 1 to 15
+    'tbadd' cmtab
   end
-  else do
-    if defruid /= null then call fixup_userids
-    cmessage = value('msg1')
-    cmsg.1 = cmessage
-    cmsg.2 = left('-',length(cmsg.1),'-')
-    io = 2
-    do ic = 2 to 16
-      cmessage = value('msg'ic)
-      cmessage = strip(cmessage)
-      if cmessage /= null then do
-        if cmessage = '.' then cmessage = '  '
-        io = io + 1
-        cmsg.io = cmessage
+  ctop = 0
+  do forever
+    if ztdsels > 1 then 'tbdispl' cmtab
+    else do
+      parse value '' with zsel zcmd
+      'tbtop' cmtab
+      'tbskip' cmtab 'number('ctop')'
+      'tbdispl' cmtab 'panel(zigicom)'
+    end
+    if rc > 4 then leave
+    ctop = ztdtop
+    if abbrev('INSERT',word(zcmd,1),1) = 1 then do
+      c = word(zcmd,2)
+      if c = null then c = 1
+      'tbquery' cmtab 'rownum(cr)'
+      'tbtop' cmtab
+      'tbskip' cmtab 'number('cr')'
+      cmsg = ' '
+      do i = 1 to c
+        'tbadd' cmtab
       end
     end
-    cmsg.0 = io
-    drop combine.
-    combine.0 = 0
+    select
+      when zsel = 'D' then 'tbdelete' cmtab
+      when zsel = 'I' then do
+        cmsg = ' '
+        'tbadd' cmtab
+      end
+      when left(zsel,1) = 'I' then do
+        c = substr(zsel,2,1)
+        cmsg = ' '
+        do i = 1 to c
+          'tbadd' cmtab
+        end
+      end
+      when zsel = null then
+      'tbput' cmtab
+      Otherwise if zsel /= null then do
+        zedsmsg = 'Invalid.'
+        zedlmsg = zsel 'is an invalid line selection. Try again with a valid' ,
+          'line selection of I, I#,or D.'
+        'setmsg msg(isrz001)'
+      end
+    end
+  end
+
+ /* find last row */
+  'tbbottom' cmtab
+  do forever
+    'tbskip' cmtab 'number(-1)'
+    if rc > 0 then leave
+    if strip(cmsg) /= null then leave
+  end
+  'tbquery' cmtab 'position(lastrow)'
+
+  cmessage = value('msg1')
+  cmsg.1 = cmessage
+  cmsg.2 = left('-',length(cmsg.1),'-')
+  io = 2
+
+  'tbtop' cmtab
+  do forever
+    'tbskip' cmtab
+    if rc > 0 then leave
+    'tbquery' cmtab 'position(crp)'
+    io = io + 1
+    cmsg.io = strip(cmsg,'T') ' '
+    if crp = lastrow then leave
+  end
+  cmsg.0 = io
+
+  'tbend' cmtab
+
+  if defruid /= null then call fixup_userids
+  drop combine.
+  combine.0 = 0
     /* ------------------------------- *
     | If > 1 msg line then use a file |
     * ------------------------------- */
-    if io > 2 then do
-      file = 'cmsg'random(999)
-      fdd  = file
-      if sysvar('syspref') = null
-      then filem = sysvar('sysuid')'.'file
-      else filem = file
-      file = localrep'/'file
-      file = "'"file"'"
-      address tso
-      'alloc f('fdd') new spa(1,1) tr recfm(f b) lrecl(72) blksize(0)',
-        'ds('filem')'
-      'execio * diskw' fdd '(finis stem cmsg.'
-      'free  f('fdd')'
-      call outtrap 'x.'
-      'oput' filem file 'Text'
-      'delete' filem
-      call outtrap 'off'
-      address ispexec
-      cmd = 'cd' localrep'/'zigirep
-      cmd = cmd '&& git commit -F' file
-      if zigi_offline = 0 then
-      if zpush = 'Y' then
-      cmd = cmd '&& git push -v'
-      cmd = cmd '&& rm' file
-      x = docmd(cmd)
-      call add_combine cmd
-      call combine_msgs
-    end
+  if io > 2 then do
+    file = 'cmsg'random(999)
+    fdd  = file
+    if sysvar('syspref') = null
+    then filem = sysvar('sysuid')'.'file
+    else filem = file
+    file = localrep'/'file
+    file = "'"file"'"
+    address tso
+    'alloc f('fdd') new spa(1,1) tr recfm(f b) lrecl(72) blksize(0)',
+      'ds('filem')'
+    'execio * diskw' fdd '(finis stem cmsg.'
+    'free  f('fdd')'
+    call outtrap 'x.'
+    'oput' filem file 'Text'
+    'delete' filem
+    call outtrap 'off'
+    address ispexec
+    cmd = 'cd' localrep'/'zigirep
+    cmd = cmd '&& git commit -F' file
+    if zigi_offline = 0 then
+    if zpush = 'Y' then
+    cmd = cmd '&& git push -v'
+    cmd = cmd '&& rm' file
+    x = docmd(cmd)
+    call add_combine cmd
+    call combine_msgs
+  end
     /* ------------------------------------- *
     | If cmsg.0 = 2 then use commit -m msg   |
     | remove quotes for this msg             |
     * -------------------------------------- */
-    else do
-      cmsg.1 = translate(cmsg.1,' ',"'" '"')
-      cmd = cmd "&& git commit -vm '"cmsg.1"'"
-      if zigi_offline = 0 then
-      if zpush = 'Y' then
-      cmd = cmd '&& git push -v'
-      x = docmd(cmd)
-      call add_combine cmd
-      call combine_msgs
-    end
-    if tagid /= null then do
-      parse value so.1 with '['.  ctag']' .
-      cmd = 'cd' localrep'/'zigirep
-      cmd = cmd '&& git tag' tagid ctag
-      if zigi_offline = 0 then
-      if remote1 /= '<no remote defined>' then
-      cmd = cmd '&& git push origin' tagid
-      cmd = cmd '&& git show' tagid
-      x = docmd(cmd)
-      call add_combine cmd
-      call combine_msgs
-    end
-    call view_std 'C'
-    call update_repo_metadata
-    if left(remote1,1) /= '<' then
-    if zpush = 'N' then do
-      zerrsm = 'Push Needed.'
-      zerrlm = 'The commit has completed and a push is now required to' ,
-        'update the Git remote repository.'
-      if zigi_offline = 1 then
-      zerrlm = zerrlm 'Which will require not being in Offline mode.'
-      'setmsg msg(isrz003)'
-    end
+  else do
+    cmsg.1 = translate(cmsg.1,' ',"'" '"')
+    cmd = cmd "&& git commit -vm '"cmsg.1"'"
+    if zigi_offline = 0 then
+    if zpush = 'Y' then
+    cmd = cmd '&& git push -v'
+    x = docmd(cmd)
+    call add_combine cmd
+    call combine_msgs
+  end
+  if tagid /= null then do
+    parse value so.1 with '['.  ctag']' .
+    cmd = 'cd' localrep'/'zigirep
+    cmd = cmd '&& git tag' tagid ctag
+    if zigi_offline = 0 then
+    if remote1 /= '<no remote defined>' then
+    cmd = cmd '&& git push origin' tagid
+    cmd = cmd '&& git show' tagid
+    x = docmd(cmd)
+    call add_combine cmd
+    call combine_msgs
+  end
+  call view_std 'C'
+  call update_repo_metadata
+  if left(remote1,1) /= '<' then
+  if zpush = 'N' then do
+    zerrsm = 'Push Needed.'
+    zerrlm = 'The commit has completed and a push is now required to' ,
+      'update the Git remote repository.'
+    if zigi_offline = 1 then
+    zerrlm = zerrlm 'Which will require not being in Offline mode.'
+    'setmsg msg(isrz003)'
   end
   return
 
