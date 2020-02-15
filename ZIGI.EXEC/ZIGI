@@ -2343,6 +2343,13 @@ Do_Commit:
     end
   end
 
+ if strip(msg1) = null then do
+    zerrsm = 'Cancelled.'
+    zerrlm = 'Commit cancelled due to an empty title message.'
+    'setmsg msg(isrz003)'
+    return
+    end
+
  /* find last row */
   'tbbottom' cmtab
   do forever
