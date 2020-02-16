@@ -2298,6 +2298,7 @@ Do_Commit:
     'tbadd' cmtab
   end
   ctop = 0
+  ztdmark = Center('Use F3 to Continue - Cancel if Title blank',79,'-')
   do forever
     if ztdsels > 1 then 'tbdispl' cmtab
     else do
@@ -2307,8 +2308,9 @@ Do_Commit:
       'tbdispl' cmtab 'panel(zigicom)'
     end
     if rc > 4 then leave
+    if translate(zcmd) = 'CANCEL' then leave
     ctop = ztdtop
-    if abbrev('INSERT',word(zcmd,1),1) = 1 then do
+    if abbrev('INSERT',translate(word(zcmd,1)),1) = 1 then do
       c = word(zcmd,2)
       if c = null then c = 1
       'tbquery' cmtab 'rownum(cr)'
@@ -2343,14 +2345,14 @@ Do_Commit:
     end
   end
 
- drop ztdmark
+  drop ztdmark
 
- if strip(msg1) = null then do
+  if strip(msg1) = null then do
     zerrsm = 'Canceled.'
-    zerrlm = 'Commit canceled  due to an empty title message.'
+    zerrlm = 'Commit canceled due to an empty title message.'
     'setmsg msg(isrz003)'
     return
-    end
+  end
 
  /* find last row */
   'tbbottom' cmtab
@@ -2544,7 +2546,7 @@ Clone_Repo:
     localrep = zigiosel()
     if strip(localrep) = null then do
       zerrsm = 'Canceled.'
-      zerrlm = 'Clone canceled  as OMVS directory selection canceled.'
+      zerrlm = 'Clone canceled as OMVS directory selection canceled.'
       'Setmsg msg(isrz003)'
       return
     end
@@ -3459,7 +3461,7 @@ Merge_it:
           cmd = cmd '&& git merge --abort'
           x = docmd(cmd)
           zerrsm = 'Canceled.'
-          zerrlm = "Merge canceled  and git merge --abort executed."
+          zerrlm = "Merge canceled and git merge --abort executed."
           'setmsg msg(isrz003)'
         end
         mrgtype = zcmd
