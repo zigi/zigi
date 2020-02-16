@@ -23,21 +23,21 @@
   if (&zpush EQ &Z)
       &zpush = 'N'
   .help = zigih230
-*REXX(* ztdmark)
- ztdmark = Center('Use F3 to Continue - Cancel if Title blank',79,'-')
-*ENDRexx
 )Reinit
   REFRESH(tagid)
 )Proc
- ver (&msg1,nb)
- ver (&zpush,list,Y,N,&Z)
+ if (&zcmd EQ &Z)
+    if (&zsel EQ &Z)
+      ver (&msg1,nb)
+      ver (&zpush,list,Y,N,&Z)
+ &resp = .resp
 *REXX(* zedsmsg zedlmsg resp)
- if resp = 'END' then exit
- zedsmsg = ''
- if words(tagid) > 1 then do
+  if resp = 'END' then exit
+  zedsmsg = ''
+  if words(tagid) > 1 then do
     zedsmsg = 'Error.'
     zedlmsg = 'The Tag may not have blanks.'
-    end
+  end
 *ENDREXX
  if (&zedsmsg NE &Z)
     .cursor = TAGID
