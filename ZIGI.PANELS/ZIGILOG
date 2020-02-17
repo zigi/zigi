@@ -15,9 +15,19 @@
  &zwinttl = 'zigi Log Filter'
  .zvars = '(incldiff lbv)'
 )Proc
+*REXX(logdfrom,logdto)
+ logdfrom = translate(logdfrom,'/','-') /* convert hyphens to slashes */
+ logdto   = translate(logdto  ,'/','-')
+ Call ISPPRXVP 'T'
+*ENDREXX
   ver (&lcnt,range,1,9999)
   ver (&logdfrom,stddate)
   ver (&logdto,stddate)
   ver (&incldiff,nb,list,Y,N)
   ver (&lbv,nb,list,B,V)
+*REXX(logdfrom,logdto)
+ logdfrom = translate(logdfrom,'-','/') /* convert slashes to hyphens */
+ logdto   = translate(logdto  ,'-','/')
+ Call ISPPRXVP 'T'
+*ENDREXX
 )end
