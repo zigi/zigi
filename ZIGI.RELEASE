@@ -10,6 +10,9 @@
   | escaping those characters where required to preserve them. |
   \------------------------------------------------------------/
 
+New zigi Cheat Sheet (pdf) and zigi User's Guide (pdf, azw3, mobi, epub)
+have been created and are new with v2.1.
+
 Update to the Current Repository commands menu to add ADDALL. This command
 will do a git add for all Untracked or Modified datasets or files.
 
