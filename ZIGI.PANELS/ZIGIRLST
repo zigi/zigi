@@ -6,7 +6,7 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(56,14)
+)Body Window(56,15)
 +
 +Enter Selection:_z +
 +
@@ -18,9 +18,10 @@
 +]History+(H)+ Display Commit History
 +]Remove+ (RM)+Remove the element
 +]Rename+ (RN)+Rename the element
++]Select+ (S)+ Edit the dataset/file
 +]Undo+   (U)+ Undo an UnCommitted Change
 +]View+   (V)+ View the dataset/file
-+
+                   +Or%F3+to cancel.
 )Init
  &zwinttl = 'zigi PDS Member Selection Options'
  .zvars = '(zsel)'
@@ -35,6 +36,7 @@
  &history = 'History'
  &remove  = 'Remove'
  &rename  = 'Rename'
+ &select  = 'Select'
  &undo    = 'Undo'
 )Proc
  ver (&zsel,list,A,E,D,H,RM,RN,S,U)
@@ -44,6 +46,7 @@
   Field(browse ) var(zsel) val('B')
   Field(diff   ) var(zsel) val('D')
   Field(edit   ) var(zsel) val('S')
+  Field(select ) var(zsel) val('S')
   Field(history) var(zsel) val('H')
   Field(remove ) var(zsel) val('RM')
   Field(rename ) var(zsel) val('RN')

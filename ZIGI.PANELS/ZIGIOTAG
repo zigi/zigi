@@ -1,0 +1,43 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  @ type(output) intens(high) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+  ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
+)Body Window(35,6)
++
++Enter Selection:_z          +
++
++]Only+    Filter:_fw             +
++]Refresh+ Refresh the table
+         +Or%F3+to cancel.
+)Init
+ &zwinttl = 'zigi TagList Commands'
+ .zvars = '(zcmd)'
+ .cursor = zcmd
+ &zcmd  = &z
+ &fw = &z
+ &only   = 'Only'
+ &refresh = 'Refresh'
+)Proc
+*REXX(* zcmd zsel fw zedsmsg zedlmsg)
+  zedsmsg = ''
+  if fw /= '' then zcmd = 'O' fw
+  if zcmd = '' then exit
+  if zcmd = 'R' then exit
+  if zcmd = 'O' then do
+     if fw = '' then do
+        zedsmsg = 'Error.'
+        zedlmsg = 'Only requires a filter.'
+        end
+  else zcmd = zcmd fw
+  end
+  Call ISPPRXVP 'T'
+*ENDREXX
+ if (&zedsmsg NE &Z)
+    .msg = isrz001
+)PNTS
+  Field(refresh) var(zcmd) val('REFRESH')
+  Field(only  ) var(zcmd) val('O')
+)End

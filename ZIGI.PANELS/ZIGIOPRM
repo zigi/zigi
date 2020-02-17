@@ -7,7 +7,7 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body  window(44,12)
+)Body  window(44,13)
 +
 +Enter Selection:_z                        +
 +
@@ -20,6 +20,7 @@
  ]SElect+  Select a Repository:}selfind +
  ]SOrt+    Sort the table
  ]SSH+     View your SSH public key
+             +Or%F3+to cancel.
 )Init
  &zwinttl = 'zigi Local Repository Commands'
  .zvars = '(zcmd)'

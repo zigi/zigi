@@ -6,14 +6,15 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body  window(36,7)
+)Body  window(36,8)
 +
 +Enter Selection:_z+
 +
 +]Browse+(B)+Browse the dataset/file
 +]Edit+  (E)+Edit the dataset/file
++]Select+(S)+Edit the dataset/file
 +]View+  (V)+View the dataset/file
-+
+         +Or%F3+to cancel.
 )Init
  &zwinttl = 'zigi Grep Selection Options'
  .zvars = '(zsel)'
@@ -21,11 +22,13 @@
  &zsel  = &z
  &edit   = 'Edit'
  &browse = 'Browse'
+ &select = 'Select'
  &view   = 'View'
 )Proc
  ver (&zsel,list,B,E,V)
 )PNTS
   Field(browse) var(zsel) val('B')
   Field(edit  ) var(zsel) val('E')
+  Field(select) var(zsel) val('E')
   Field(view  ) var(zsel) val('V')
 )End

@@ -19,6 +19,7 @@
 +]Reset    +Reset all userids
 +]Sort+     Sort the member list
 +]Status+   Get current Git status
+              +Or%F3+to cancel.
 )Init
  &zwinttl = 'zigi PDS Member Commands'
  .zvars = '(zcmd)'
