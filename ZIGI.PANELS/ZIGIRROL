@@ -6,26 +6,23 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body  window(37,7)
+)Body Window(39,6)
 +
-+Enter Selection:_z+
++Enter Selection:_z +
 +
-+]Select+(S)+Work with Repository
-+]View+  (V)+View the OMVS filesystem
-+]Delete+(D)+Delete the Repository
++]Select+  (S)+ Display the Commit Info
++]Rollback+(R)+ Rollback
           +Or%F3+to cancel.
 )Init
- &zwinttl = 'zigi Local Repository Selections'
+ &zwinttl = 'zigi Rollback Line Options'
  .zvars = '(zsel)'
- &zsel  = &z
  .cursor = zsel
- &select = 'Select'
- &delete = 'Delete'
- &view   = 'View'
+ &zsel  = &z
+ &select   = 'Select'
+ &Rollback = 'Rollback'
 )Proc
- ver (&zsel,list,S,V,D)
+ ver (&zsel,list,S,R)
 )PNTS
-  Field(select) var(zsel) val('S')
-  Field(delete) var(zsel) val('D')
-  Field(view  ) var(zsel) val('V')
+  Field(select )   var(zsel) val('S')
+  Field(rollback ) var(zsel) val('R')
 )End

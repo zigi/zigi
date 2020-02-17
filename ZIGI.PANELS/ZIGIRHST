@@ -13,7 +13,7 @@
 +]Commit+ (C) View Commit history
 +]Recover+(R) Recover the historical Level
 +]Select+ (S) Browse the dataset/file
-+
+            +Or%F3+to cancel.
 )Init
  &zwinttl = 'zigi History Selection Options'
  .zvars = '(zsel)'

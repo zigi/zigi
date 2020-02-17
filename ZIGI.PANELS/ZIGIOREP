@@ -22,7 +22,7 @@
 [Menu+   Menu version       [TagList+ List all Tags
 [Merge+  Merge Branches     [View+    OMVS Dir
 [Network+ Network Report
-+
+                  +Or%F3+to cancel.
 )Init
  &zwinttl = 'zigi Current Repository Commands'
  .zvars = '(zcmd)'

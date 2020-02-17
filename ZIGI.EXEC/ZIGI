@@ -286,7 +286,11 @@
   parse value '' with zcmd zsel
   zigtitle = '(zigi' ver')'
   'vput (zigtitle ver)'
-  'vget (bypass) profile'
+  'vget (bypass pnsdef) profile'
+  if pnsdef = null then do
+    pnsdef = 'S'
+    'vput (pnsdef) profile'
+  end
   bypasso = bypass
   if translate(start_option) = 'S' then bypass = 'N'
   if bypass /= 'Y' then do
@@ -516,6 +520,12 @@
       'vput (zigpass) shared'
       if trc > 4 then leave
 
+      if ztdsels = 0 then
+      if pnsdef = 'P' then do
+        if row = 0 then zcmd = 'O'
+        if row > 0 then zsel = '/'
+      end
+
       repo_top = ztdtop
       if row = 0 then zsel = null
       if row <> null then
@@ -683,10 +693,10 @@
       end
       When abbrev('CONFIG',zcmd,2) = 1 then do forever
         zcmd = null
-        'vget mgen'
+        'vget (mgen pnsdef) profile'
         sl = mgen()
         'display panel(zigiset)'
-        'vput mgen profile'
+        'vput (mgen pnsdef) profile'
         call update_config
         if rc = 0 | rc = 8 then leave
       end
@@ -909,6 +919,12 @@ Work_With_Repo:
     end
     drop so. se.
     zcmd = translate(zcmd)
+
+    if ztdsels = 0 then
+    if pnsdef = 'P' then do
+      if row = 0 then zcmd = 'O'
+      if row > 0 then zsel = '/'
+    end
 
     if row = 0 then zsel = null
     if row <> null then
@@ -1801,10 +1817,33 @@ Do_TAGLIST:
       'tbdispl' zcrtbl 'panel(zigitagt)'
     end
     if rc > 4 then leave
+
+      if ztdsels = 0 then
+      if pnsdef = 'P' then do
+         if row = 0 then zcmd = 'O'
+         if row > 0 then zsel = '/'
+         end
+
+    if pos('.',zcmd) > 0 then
+    parse value zcmd with x'.'zcmd
+
+    if zcmd = 'O' then do
+      'Addpop row(4) column(10)'
+      'Display Panel(zigiotag)'
+      'rempop'
+    end
+
+    if zsel = '/' then do
+      'Addpop row(4) column(10)'
+      'Display Panel(zigirtag)'
+      'rempop'
+    end
+
     if row /= null then do
       'tbtop' zcrtbl
       'tbskip' zcrtbl    'number('row')'
     end
+
     Select
       When abbrev('REFRESH',word(zcmd,1),1) = 1 then do
         'tbend' zcrtbl
@@ -1886,13 +1925,12 @@ Do_TAGLIST:
           call Refresh localrep zigirep pdshlq qualignr
           call work_with_repo
         end
-        if prc > 1 then do
+        if prc > 0 then do
           zerrsm = 'Canceled.'
           zerrlm = 'Creating a new branch from the Tag level canceled.'
           'setmsg msg(isrz003)'
           ztdsels = 1
         end
-        if prc /= 1 then leave
       end
       Otherwise nop
     end
@@ -1921,6 +1959,26 @@ Do_Rollback:
       'tbdispl' zcrtbl 'panel(zigiroll)'
     end
     if rc > 4 then leave
+
+      if ztdsels = 0 then
+      if pnsdef = 'P' then do
+         if row = 0 then zcmd = 'O'
+         if row > 0 then zsel = '/'
+         end
+
+    if zsel = '/' then do
+      'Addpop row(4) column(10)'
+      'Display Panel(zigirrol)'
+      'rempop'
+    end
+
+      if zcmd = 'O' then do
+        zcmd = null
+        'Addpop row(4) column(6)'
+        'Display Panel(zigiorol)'
+        'rempop'
+      end
+
     if crcnt /= ocrcnt then do
       ocrcnt = crcnt
       'tbend' zcrtbl
@@ -2131,6 +2189,13 @@ do_grep:
             'tbdispl' zgreptbl 'panel(zigigrds)'
           end
           if rc > 4 then leave
+
+          if ztdsels = 0 then
+          if pnsdef = 'P' then do
+            if row = 0 then zcmd = 'O'
+            if row > 0 then zsel = '/'
+          end
+
           if zsel = null then iterate
           if row /= null then do
             'tbtop' zgreptbl
@@ -2701,6 +2766,12 @@ Work_with_repo_file:
       a prefix set */
       save_top = ztdtop
       edsn = strip(fulldsn,'B',"'")
+
+      if ztdsels = 0 then
+      if pnsdef = 'P' then do
+        if row = 0 then zcmd = 'O'
+        if row > 0 then zsel = '/'
+      end
 
       if row = 0 then zsel = null
       if row <> null then
@@ -3545,6 +3616,13 @@ Merge_it:
               'Display Panel(zigirmrg)'
               'rempop'
             end
+
+            if ztdsels = 0 then
+            if pnsdef = 'P' then do
+              if row = 0 then zcmd = 'O'
+              if row > 0 then zsel = '/'
+            end
+
             if zsel = 'S' then zsel = 'E'
             'Control display save'
             Select
@@ -4911,6 +4989,13 @@ do_history:
       end
       if rc > 0 then leave
       top = ztdtop
+
+      if ztdsels = 0 then
+      if pnsdef = 'P' then do
+        if row = 0 then zcmd = 'O'
+        if row > 0 then zsel = '/'
+      end
+
       if zsel = '/' then do
         'Addpop row(4) column(6)'
         'Display Panel(zigirhst)'
