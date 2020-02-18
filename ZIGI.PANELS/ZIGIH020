@@ -22,11 +22,11 @@
 +and then just press the%Enter+key to execute that command or table row
 +selection.
 +
-+Or move the mouse pointer to the command or row and double left click.
++
 +
            +Press the%Enter+key to begin your zigi tutorial journey.
 )Init
  .cursor = &zcmd
 )PROC
- &zcont = zigih030
+ &zcont = zigih021
 )END
