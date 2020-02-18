@@ -13,8 +13,8 @@
 )ABC DESC('General Actions') mnem(1)
  PDC DESC('Add dataset               ')         ACTION RUN(Add     )
  PDC DESC('Find in table             ')         ACTION RUN(Find    )
- PDC DESC('Git Help                  ')         ACTION RUN(Githelp )
- PDC DESC('Git Command Prompt        ')         ACTION RUN(GitCMD  )
+ PDC DESC('GIT Commands') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%ZIGIGCMD)')
+ PDC DESC('GIT Help') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%GITHELP)')
  PDC DESC('Git Log Query             ')         ACTION RUN(GitLog  )
  PDC DESC('Find String in Repo Files ')         ACTION RUN(Grep    )
  PDC DESC('Git Network Report        ')         ACTION RUN(Network )
@@ -43,11 +43,11 @@
 )ABCINIT
   .ZVARS = HELPX
 )Body  Expand(\\)
-+| General Actions | Repository Actions | Help +   \ \ %F3
++| General Actions | Repository Actions | Help +
 <-----------\-\--------------------------------+
 +Current Repository+--------------#zigtitle   +---------------------------------
 %Command ===>_zcmd            \ \  %Scroll ===>_zscr+
-+Local dir      :$localdir
++Local dir      :$localdir   \ \%F3  +
 +Remote path    :$remote1
 +Current Branch :$branch                                      +
 %                !bstat                                                     +
