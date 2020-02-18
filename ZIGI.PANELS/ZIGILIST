@@ -12,7 +12,8 @@
 )ABC DESC(Menu) MNEM(1)
  PDC DESC('Add All Modified/Untracked')          ACTION RUN(ADDALL)
  PDC DESC('Commit changes')                      ACTION RUN(COMMIT)
- PDC DESC('Git Help')                            ACTION RUN(GITHELP)
+ PDC DESC('GIT Commands') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%ZIGIGCMD)')
+ PDC DESC('GIT Help') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%GITHELP)')
  PDC DESC('GitLog')                              ACTION RUN(GITLOG)
  PDC DESC('Grep - search for string')            ACTION RUN(GREP)
  PDC DESC('Locate a Member')                     ACTION RUN(LOCATE)
@@ -26,11 +27,11 @@
 )ABCINIT
   .ZVARS = HELPX
 )Body  Expand(\\)
-+| Menu | Help +       \ \ %F3
++| Menu | Help +
 <-----------\-\--------------------------------+
 +PDS Member List+-----------------#zigtitle   +---------------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
-+Current Dataset    : $fulldsn
++Current Dataset    : $fulldsn                     \ \%F3  +
 +Current Repository : $localdir
 +Current Branch     : $branch
 %
