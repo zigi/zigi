@@ -8,7 +8,7 @@
 )Body  Expand(\\)
 +Grep Datasets/Files+-------------#zigtitle   +---------------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
-+
++ \ \%F3  +
 +Grep Command:@grepstr
 +
 +Options:%S+Edit%E+Edit%B+Browse%V+View

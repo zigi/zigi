@@ -16,12 +16,12 @@
   [Create+ Create a new local repository
   [Find+   Find/RFind a string in either the repository name or the prefix.
   [Githelp+Navigate the Git help output via ISPF panels
-  [Pro+    Change from%Basic+(verbose) to%Pro+minimal command text to No Menu
   [Select+ Select a repository by name
   [SOrt+   Sort the table
   [SSH+    Review your SSH public key
 +
 +Use%O+to display a command popup selection menu if the menu has been hidden.
++
 +
 +  "Nothing will work unless you do." - John Wooden
 +
@@ -32,7 +32,6 @@
  &create  = 'Create'
  &ssh     = 'SSH'
  &config  = 'Config'
- &pro     = 'Pro'
  &githelp = 'GitHelp'
  &find    = 'Find'
  &sort    = 'Sort'
@@ -47,11 +46,10 @@
     When abbrev('CREATE',zcmd,2) = 1 then zcmd = 2
     When abbrev('SSH',zcmd,2) = 1 then zcmd = 3
     When abbrev('CONFIG',zcmd,2) = 1 then zcmd = 4
-    When abbrev('PRO',zcmd,2) = 1 then zcmd = 5
-    When abbrev('GITHELP',zcmd,2) = 1 then zcmd = 6
-    When abbrev('FIND',zcmd,2) = 1 then zcmd = 7
-    When abbrev('SELECT',zcmd,2) = 1 then zcmd = 8
-    When abbrev('SORT',zcmd,2) = 1 then zcmd = 9
+    When abbrev('GITHELP',zcmd,2) = 1 then zcmd = 5
+    When abbrev('FIND',zcmd,2) = 1 then zcmd = 6
+    When abbrev('SELECT',zcmd,2) = 1 then zcmd = 7
+    When abbrev('SORT',zcmd,2) = 1 then zcmd = 8
     Otherwise nop
   end
 *Endrexx
@@ -61,11 +59,10 @@
            2,zigih120    /*  CREATE              */
            3,zigih130    /*  SSH                 */
            4,zigih140    /*  CONFIG              */
-           5,zigih150    /*  PRO                 */
-           6,zigih160    /*  GITHELP             */
-           7,zigih170    /*  Find                */
-           8,zigih180    /*  Select              */
-           9,zigih190    /*  Sort                */
+           5,zigih160    /*  GITHELP             */
+           6,zigih170    /*  Find                */
+           7,zigih180    /*  Select              */
+           8,zigih190    /*  Sort                */
            *,'?'
            )
 )PNTS
@@ -73,9 +70,8 @@
  Field(create)  var(zcmd) val('2')
  Field(ssh   )  var(zcmd) val('3')
  Field(config)  var(zcmd) val('4')
- Field(pro   )  var(zcmd) val('5')
- Field(githelp) var(zcmd) val('6')
- Field(find   ) var(zcmd) val('7')
- Field(select ) var(zcmd) val('8')
- Field(sort   ) var(zcmd) val('9')
+ Field(githelp) var(zcmd) val('5')
+ Field(find   ) var(zcmd) val('6')
+ Field(select ) var(zcmd) val('7')
+ Field(sort   ) var(zcmd) val('8')
 )END

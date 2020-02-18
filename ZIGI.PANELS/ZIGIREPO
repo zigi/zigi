@@ -7,55 +7,56 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
- [ type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
+  [ type(output) caps(off) pas(on) intens(high) color(white)
+ | TYPE(AB)           /* Action bar                */
+ < TYPE(ABSL) GE(ON)  /* Action bar separator line */
+)ABC DESC('General Actions') mnem(1)
+ PDC DESC('Add dataset               ')         ACTION RUN(Add     )
+ PDC DESC('Find in table             ')         ACTION RUN(Find    )
+ PDC DESC('Git Help                  ')         ACTION RUN(Githelp )
+ PDC DESC('Git Command Prompt        ')         ACTION RUN(GitCMD  )
+ PDC DESC('Git Log Query             ')         ACTION RUN(GitLog  )
+ PDC DESC('Find String in Repo Files ')         ACTION RUN(Grep    )
+ PDC DESC('Git Network Report        ')         ACTION RUN(Network )
+ PDC DESC('Replace z/OS Datasets     ')         ACTION RUN(Refresh )
+ PDC DESC('Set Defaults              ')         ACTION RUN(Set     )
+ PDC DESC('Create Escrow Copy        ')         ACTION RUN(Snapshot)
+ PDC DESC('Git Status                ')         ACTION RUN(Status  )
+ PDC DESC('View OMVS Filesystem      ')         ACTION RUN(View    )
+)ABCINIT
+  .ZVARS = 'MENUX'
+)ABC DESC('Repository Actions') mnem(1)
+ PDC DESC('Add Modified/Untracked    ')         ACTION RUN(AddAll  )
+ PDC DESC('Change to another Branch  ')         ACTION RUN(Br      )
+ PDC DESC('Commit Changes            ')         ACTION RUN(Commit  )
+ PDC DESC('Merge Branches            ')         ACTION RUN(Merge   )
+ PDC DESC('Pull from Remote Server   ')         ACTION RUN(Pull    )
+ PDC DESC('Push to Remote Server     ')         ACTION RUN(Push    )
+ PDC DESC('Add Remote to Repo        ')         ACTION RUN(Remote  )
+ PDC DESC('Rollback to Prior Commit Level')     ACTION RUN(Rollback)
+ PDC DESC('Git Tag                   ')         ACTION RUN(Tag     )
+ PDC DESC('List all Tags             ')         ACTION RUN(TagList )
+)ABCINIT
+  .ZVARS = 'MENUX'
+)ABC DESC(Help) mnem(1)
+ PDC DESC('Help') MNEM(1) ACTION RUN(TUTOR) PARM('zigih200')
+)ABCINIT
+  .ZVARS = HELPX
 )Body  Expand(\\)
++| General Actions | Repository Actions | Help +
+<-----------\-\--------------------------------+
 +Current Repository+--------------#zigtitle   +---------------------------------
 %Command ===>_zcmd            \ \  %Scroll ===>_zscr+
-%Local dir      :$localdir
-%Remote path    :$remote1
-%Current Branch :$branch                                      +
-%                !bstat
++Local dir      :$localdir            \ \%F3  +
++Remote path    :$remote1
++Current Branch :$branch                                      +
+%                !bstat                                                     +
 %                $baction                                                   +
-%
-+Command:[Add   + Add dataset   [Grep+   Find Strings    [Rollback+Revert
-         [Addall+ Add all to Git[Merge+  Merge Branches  [Set+     Set Defaults
-         [Br    + Change Branch [Network+Network Report  [SnapShot+Create Escrow
-         [Commit+ Record Changes[Pro+    Pro Panel       [Status+  Git Status
-         [Find+   Find in Table [Pull+   Pull from origin[Tag+     Git Tag
-         [GitCMD +Git Commands  [Push+   Push to origin  [TagList+ Tag List
-         [Githelp+Git Help      [Refresh+Refresh D/S     [View+    OMVS Dir
-         [GitLog+ Show git log  [Remote+ Add remote
-+
-+Line:   %S+Select%A+Add%B+Browse%D+Diff%H+History%RM+Remove%RN+Rename
-         %U+Undo%V+View
 +
 %S  Status                    Dataset/File Name
 )Model
 @z +$z                       $z                                            ]z
 )Init
- &Add     = 'AddDsn'
- &Addall  = 'AddAll'
- &Br      = 'Branch'
- &Commit  = 'Commit'
- &Find    = 'Find'
- &Gitcmd  = 'GitCmd'
- &Githelp = 'Githelp'
- &GitLog  = 'Gitlog'
- &Grep    = 'Grep'
- &Merge   = 'Merge'
- &Network = 'Network'
- &Pro     = 'Pro'
- &Pull    = 'Pull'
- &Push    = 'Push'
- &Refresh = 'Refresh'
- &Remote  = 'Remote'
- &Rollback  = 'Rollback'
- &Snapshot  = 'Snapshot'
- &Set     = 'Set'
- &Status  = 'Status'
- &Tag     = 'Tag'
- &TagList = 'TagList'
- &View    = 'View'
  .zvars = '(zsel dsnstat fulldsn filetype)'
  .cursor = &zcmd
  .help = zigih200
@@ -76,29 +77,5 @@
      &osel = &zsel
  if (&row = 0)
      &zsel = &z
- /* ver (&zsel,list,S,A,U,B,V,RM,RN,H,D,/) */
-)PNTS
- FIELD(ADD   )  VAR(ZCMD) VAL('ADDDSN')
- FIELD(ADDALL)  VAR(ZCMD) VAL('ADDALL')
- FIELD(BR    )  VAR(ZCMD) VAL('BRANCH')
- FIELD(COMMIT)  VAR(ZCMD) VAL('COMMIT')
- FIELD(FIND  )  VAR(ZCMD) VAL('FIND')
- FIELD(GITCMD)  VAR(ZCMD) VAL('GITCMD')
- FIELD(GITHELP) VAR(ZCMD) VAL('GITHELP')
- FIELD(GITLOG)  VAR(ZCMD) VAL('GITLOG')
- FIELD(GREP  )  VAR(ZCMD) VAL('GREP')
- FIELD(MERGE)   VAR(ZCMD) VAL('MERGE')
- FIELD(NETWORK) VAR(ZCMD) VAL('NETWORK')
- FIELD(PRO   )  VAR(ZCMD) VAL('PRO')
- FIELD(PULL  )  VAR(ZCMD) VAL('PULL')
- FIELD(PUSH  )  VAR(ZCMD) VAL('PUSH')
- FIELD(REFRESH) VAR(ZCMD) VAL('REFRESH')
- FIELD(REMOTE)  VAR(ZCMD) VAL('REMOTE')
- FIELD(ROLLBACK) VAR(ZCMD) VAL('ROLLBACK')
- FIELD(SNAPSHOT) VAR(ZCMD) VAL('SNAPSHOT')
- FIELD(SET   )  VAR(ZCMD) VAL('SET')
- FIELD(STATUS)  VAR(ZCMD) VAL('STATUS')
- FIELD(TAG   )  VAR(ZCMD) VAL('TAG')
- FIELD(TAGLIST) VAR(ZCMD) VAL('TAGLIST')
- FIELD(VIEW  )  VAR(ZCMD) VAL('VIEW')
+/*  ver (&zsel,list,S,A,U,B,V,RM,RN,H,D,/) */
 )End

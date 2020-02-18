@@ -5,12 +5,23 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
+ | TYPE(AB)           /* Action bar                */
+ < TYPE(ABSL) GE(ON)  /* Action bar separator line */
+)ABC DESC(Menu) MNEM(1)
+ PDC DESC('Only - filter the table')   ACTION RUN(ONLY)
+ PDC DESC('Refresh the table')         ACTION RUN(REFRESH)
+)ABCINIT
+  .ZVARS = 'MENUX'
+)ABC DESC(Help) MNEM(1)
+ PDC DESC('Help') MNEM(1) ACTION RUN(TUTOR) PARM('zigih210')
+)ABCINIT
+  .ZVARS = HELPX
 )Body  Expand(\\)
++| Menu | Help +
+<-----------\-\--------------------------------+
 +Tag Summary +-----------\-\------#zigtitle   +------\-\------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
-+
-+Commands%Only+limit table%Refresh+table
-+Options:%S+Display%C+Create a New Branch
++ \ \%F3  +
 +
 +Sel Date/Time            Tag
      Title

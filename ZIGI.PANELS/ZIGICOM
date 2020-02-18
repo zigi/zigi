@@ -7,7 +7,7 @@
 )Body Expand(\\)
 +Git Commit+----------------------}zigtitle   +---------------------------------
 %Command ===>_zcmd       \ \ %Scroll ===>_ccsr+
-+
++ \ \ %F3  +
 %Commit Title:_msg1                                             +
 +Optional Tag:_tagid                                       +%Push+after:@z+(Y/N)
 +

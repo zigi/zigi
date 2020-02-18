@@ -7,7 +7,7 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body  window(44,13)
+)Body  window(44,12)
 +
 +Enter Selection:_z                        +
 +
@@ -16,7 +16,6 @@
  ]Create+  a local repo from scratch
  ]Find+    string in table fields:_findstr +
  ]Githelp+ Display menu of Git Help pages
- ]Menu+    Toggle Menu, Basic->Pro->None
  ]SElect+  Select a Repository:}selfind +
  ]SOrt+    Sort the table
  ]SSH+     View your SSH public key
@@ -28,12 +27,10 @@
  &zcmd  = &z
  &clone   = 'Clone'
  &create  = 'Create'
- &pro     = 'Pro'
  &ssh     = 'SSH'
  &find    = 'FIND'
  &select  = 'Select'
  &sort    = 'Sort'
- &menu    = 'Menu'
  &config  = 'Config'
  &githelp = 'GitHelp'
  .help = zigih100
@@ -46,7 +43,6 @@
 )PNTS
  FIELD(CLONE   ) VAR(ZCMD) VAL('CLONE')
  FIELD(CREATE  ) VAR(ZCMD) VAL('CREATE')
- FIELD(MENU    ) VAR(ZCMD) VAL('PRO')
  FIELD(SELECT  ) VAR(ZCMD) VAL('SELECT')
  FIELD(SORT    ) VAR(ZCMD) VAL('SORT')
  FIELD(SSH     ) VAR(ZCMD) VAL('SSH')

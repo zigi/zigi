@@ -7,34 +7,38 @@
  # type(output) hilite(reverse) color(turq) caps(off)
  @ type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
  [ type(text) intens(low) hilite(uscore)
+ | TYPE(AB)           /* Action bar                */
+ < TYPE(ABSL) GE(ON)  /* Action bar separator line */
+)ABC DESC(Menu) MNEM(1)
+ PDC DESC('Clone Remote repository')             ACTION RUN(CLONE)
+ PDC DESC('Config View/Update Configuration')    ACTION RUN(CONFIG)
+ PDC DESC('Create Local repository')             ACTION RUN(CREATE)
+ PDC DESC('Find text in table')                  ACTION RUN(FIND)
+ PDC DESC('Githelp')                             ACTION RUN(GITHELP)
+ PDC DESC('Select a Repo to work with')          ACTION RUN(SELECT)
+ PDC DESC('Sort the Table')                      ACTION RUN(SORT)
+ PDC DESC('View your SSH public key')            ACTION RUN(SSH)
+)ABCINIT
+  .ZVARS = 'MENUX'
+)ABC DESC(Help) MNEM(1)
+ PDC DESC('Help') MNEM(1) ACTION RUN(TUTOR) PARM('zigihint')
+)ABCINIT
+  .ZVARS = HELPX
 )Body Expand(\\)
++| Menu | Help +
+<-----------\-\--------------------------------+
 +Local Repositories+--------------#zigtitle   +---------------------------------
 %Command ===>{zcmd       \ \ %Scroll ===>_zscr+
-+
-+Command: @Clone +Remote repository        @Pro    +Toggle Menu      @Sort+
-          @Create+Local repository         @githelp+Git Help
-          @SSH   +View your SSH public key @Find   +text in table
-          @Config+View Git configuration   @Select++Repo from command
-+
-+Line:    %S+Work with repo%V+View repo OMVS files+%D+Delete repo
++  \ \%F3  +
 +
 %    @repo      +       @pref  +                   @cat     +      @last       +
 )Model
 _z+  $z              +  ]z                        +]z             +}z          +
 )Init
  &cat     = 'Category'
- &clone   = 'Clone'
- &config  = 'Config'
- &create  = 'Create'
- &find    = 'Find'
- &githelp = 'GitHelp'
  &last    = 'Last Access'
  &pref    = 'Prefix'
- &pro     = 'Pro'
  &repo    = 'Repository'
- &select  = 'Select'
- &sort    = 'Sort'
- &ssh     = 'SSH'
  &zscr = CSR
  .zvars = '(zsel zigirep pdshlq zigicat zigidate)'
  .help = zigihint
@@ -57,16 +61,7 @@ _z+  $z              +  ]z                        +]z             +}z          +
  ver (&zsel,list,S,D,V,/)
 )PNTS
  FIELD(CAT     ) VAR(ZCMD) VAL('SORT CATEGORY')
- FIELD(CLONE   ) VAR(ZCMD) VAL('CLONE')
- FIELD(CONFIG  ) VAR(ZCMD) VAL('CONFIG')
- FIELD(CREATE  ) VAR(ZCMD) VAL('CREATE')
- FIELD(FIND    ) VAR(ZCMD) VAL('FIND')
- FIELD(GITHELP ) VAR(ZCMD) VAL('GITHELP')
  FIELD(LAST    ) VAR(ZCMD) VAL('SORT LAST')
  FIELD(PREF    ) VAR(ZCMD) VAL('SORT PREFIX')
- FIELD(PRO     ) VAR(ZCMD) VAL('PRO')
  FIELD(REPO    ) VAR(ZCMD) VAL('SORT REPOSITORY')
- FIELD(SELECT  ) VAR(ZCMD) VAL('SELECT')
- FIELD(SORT    ) VAR(ZCMD) VAL('SORT')
- FIELD(SSH     ) VAR(ZCMD) VAL('SSH')
 )end

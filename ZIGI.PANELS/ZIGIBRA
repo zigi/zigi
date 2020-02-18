@@ -8,10 +8,9 @@
 )Body  Expand(\\)
 +-\-\#zigtitle   +-\-\
 %Command ===>_zcmd   \ \ %Scroll ===>_zscr+
-%
-%Current Repository : $zigirep
-%Current HLQ        : $pdshlq
-%Current Branch     : $branch
++Current Repository : $zigirep                         \ \%F3  +
++Current HLQ        : $pdshlq
++Current Branch     : $branch
 %
 +Type%C+to checkout an existing branch
 +Type%D+to locally delete a branch
