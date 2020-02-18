@@ -7,7 +7,7 @@
   # type(output) hilite(reverse) color(turq) caps(off)
  | TYPE(AB)           /* Action bar                */
  < TYPE(ABSL) GE(ON)  /* Action bar separator line */
-)ABC DESC(Menu) MNEM(1)
+)ABC DESC('Tag Commands') MNEM(1)
  PDC DESC('Only - filter the table')   ACTION RUN(ONLY)
  PDC DESC('Refresh the table')         ACTION RUN(REFRESH)
 )ABCINIT
@@ -17,11 +17,10 @@
 )ABCINIT
   .ZVARS = HELPX
 )Body  Expand(\\)
-+| Menu | Help +
++| Tag Commands | Help + \ \ %F3
 <-----------\-\--------------------------------+
 +Tag Summary +-----------\-\------#zigtitle   +------\-\------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
-+ \ \%F3  +
 +
 +Sel Date/Time            Tag
      Title

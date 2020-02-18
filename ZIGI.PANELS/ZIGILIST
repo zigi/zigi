@@ -26,11 +26,11 @@
 )ABCINIT
   .ZVARS = HELPX
 )Body  Expand(\\)
-+| Menu | Help +
++| Menu | Help +       \ \ %F3
 <-----------\-\--------------------------------+
 +PDS Member List+-----------------#zigtitle   +---------------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
-+Current Dataset    : $fulldsn                                        \ \%F3  +
++Current Dataset    : $fulldsn
 +Current Repository : $localdir
 +Current Branch     : $branch
 %
