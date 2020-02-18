@@ -8,7 +8,7 @@
 )Body  Expand(\\)
 +Repository Rollback+----\-\------#zigtitle   +------\-\------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
-+
++ \ \%F3  +
 +Commits to Review:_z   +(1 to 9999)
 +
 +Commands%Only+limit table%Refresh+table

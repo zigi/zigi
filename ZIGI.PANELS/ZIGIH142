@@ -29,7 +29,7 @@
  .cursor  = &zcmd
 )PROC
  if (&setcont EQ &Z)
-     &ZCONT = ZIGIH150
+     &ZCONT = ZIGIH160
  if (&setcont NE &Z)
      &ZCONT = ZIGIH140
 )END

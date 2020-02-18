@@ -8,9 +8,9 @@
 )Body  Expand(\\)
 +Add Datasets+--------------------#zigtitle   +---------------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
-+
-%Fixed Dataset Prefix:             @dsnapfx                               +
-%Ignore 1st n qualifiers in prefix:@z+(0 to 8)
++ \ \%F3  +
++Fixed Dataset Prefix:             @dsnapfx                               +
++Ignore 1st n qualifiers in prefix:@z+(0 to 8)
 +
 +Enter a prefix to add datasets under that prefix to the repo via the list
 +below. Optionally change the number of qualifiers to ignore in the prefix

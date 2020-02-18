@@ -494,9 +494,6 @@
 
   repo_top = 1
   'tbtop zigirepo'
-  'vget (primpanl) profile'
-  if primpanl = null then primpanl = 'zigiprim'
-  'vput (primpanl) profile'
   'vget (defrsort) profile'
   if words(defrsort) = 2 then defrsort = 'zigirep,c,a'
   'TBSort zigirepo Fields('defrsort')'
@@ -514,7 +511,7 @@
       'tbskip zigirepo number('repo_top')'
       localrep = null
       'vput (localrep) shared'
-      'tbdispl zigirepo panel('primpanl')'
+      'tbdispl zigirepo panel(zigiprim)'
       trc = rc
       zigpass = null
       'vput (zigpass) shared'
@@ -675,8 +672,6 @@
         end
         'vput (zigtitle)'
       end
-      when abbrev('BASIC',zcmd,2) = 1 then zcmd = 'PRO'
-      when abbrev('MENU',zcmd,2) = 1 then zcmd = 'PRO'
       When abbrev('GITHELP',zcmd,4) = 1 then
       Address TSO '%githelp'
       When abbrev('CREATE',zcmd,2) = 1 then do
@@ -699,15 +694,6 @@
         'vput (mgen pnsdef) profile'
         call update_config
         if rc = 0 | rc = 8 then leave
-      end
-      When abbrev('PRO',zcmd,2) = 1 then do
-        select
-          when primpanl = 'zigiprim' then primpanl = 'zigiprms'
-          when primpanl = 'zigiprms' then primpanl = 'zigiprmz'
-          when primpanl = 'zigiprmz' then primpanl = 'zigiprim'
-          otherwise primpanl = 'zigiprim'
-        end
-        'vput (primpanl) profile'
       end
       When abbrev('SORT',word(zcmd,1),2) = 1 then do
         zcmd = translate(zcmd)
@@ -767,7 +753,7 @@
         'display panel(zigisshk)'
         if rc > 0 then leave
       end
-      Otherwise do
+      Otherwise if zcmd /= null then do
         zerrsm = 'Unknown'
         zerrlm = zcmd 'is not a recognized command.'
         'setmsg msg(isrz003)'
@@ -894,8 +880,6 @@ Work_With_Repo:
   /* -------------------------------- *
   | Process the Repository Data Sets |
   * -------------------------------- */
-  'vget (repopan) profile'
-  if repopan = null then repopan = 'zigirepo'
   rtop = 0
   do forever
     parse value '' with zsel zcmd row
@@ -906,7 +890,7 @@ Work_With_Repo:
       'vput (zigpass) shared'
       'tbtop' rtbl
       'tbskip' rtbl 'Number('rtop')'
-      'TBdispl' rtbl 'Panel('repopan')'
+      'TBdispl' rtbl 'Panel(zigirepo)'
       rtop = ztdtop
     end
     trc = rc
@@ -995,8 +979,6 @@ Work_With_Repo:
       end
     end
 
-    if abbrev('BASIC',zcmd,2) = 1 then zcmd = 'PRO'
-    if abbrev('MENU',zcmd,2)  = 1 then zcmd = 'PRO'
     if zcmd /= null then
     Select
       When abbrev('SET',zcmd,1) = 1 then call do_rset
@@ -1004,15 +986,6 @@ Work_With_Repo:
       'SELECT PGM(ISRDSLST) PARM(UDL' localrep'/'zigirep') SUSPEND'
       When abbrev('GITHELP',zcmd,4) = 1 then
       Address TSO '%githelp'
-      When abbrev('PRO',zcmd,2) = 1 then do
-        select
-          when repopan = 'zigirepo' then repopan = 'zigireps'
-          when repopan = 'zigireps' then repopan = 'zigirepz'
-          when repopan = 'zigirepz' then repopan = 'zigirepo'
-          otherwise nop
-        end
-        'vput (repopan) profile'
-      end
       When abbrev('BRANCH',zcmd,2) = 1 then do
         if words(save_zigirep) > 0 then do
           zerrsm = 'Invalid.'
@@ -1818,11 +1791,11 @@ Do_TAGLIST:
     end
     if rc > 4 then leave
 
-      if ztdsels = 0 then
-      if pnsdef = 'P' then do
-         if row = 0 then zcmd = 'O'
-         if row > 0 then zsel = '/'
-         end
+    if ztdsels = 0 then
+    if pnsdef = 'P' then do
+      if row = 0 then zcmd = 'O'
+      if row > 0 then zsel = '/'
+    end
 
     if pos('.',zcmd) > 0 then
     parse value zcmd with x'.'zcmd
@@ -1850,6 +1823,14 @@ Do_TAGLIST:
         call get_TAGLIST
       end
       When abbrev('ONLY',word(zcmd,1),1) = 1 then do
+        if words(zcmd) = 1 then do
+          'addpop row(3) column(4)'
+          'display panel(zigionly)'
+          drc = rc
+          'rempop'
+          if drc > 0 then leave
+          zcmd = 'O' filter
+        end
         'tbtop' zcrtbl
         ohit = 0
         fw = subword(zcmd,2)
@@ -1960,11 +1941,11 @@ Do_Rollback:
     end
     if rc > 4 then leave
 
-      if ztdsels = 0 then
-      if pnsdef = 'P' then do
-         if row = 0 then zcmd = 'O'
-         if row > 0 then zsel = '/'
-         end
+    if ztdsels = 0 then
+    if pnsdef = 'P' then do
+      if row = 0 then zcmd = 'O'
+      if row > 0 then zsel = '/'
+    end
 
     if zsel = '/' then do
       'Addpop row(4) column(10)'
@@ -1972,12 +1953,12 @@ Do_Rollback:
       'rempop'
     end
 
-      if zcmd = 'O' then do
-        zcmd = null
-        'Addpop row(4) column(6)'
-        'Display Panel(zigiorol)'
-        'rempop'
-      end
+    if zcmd = 'O' then do
+      zcmd = null
+      'Addpop row(4) column(6)'
+      'Display Panel(zigiorol)'
+      'rempop'
+    end
 
     if crcnt /= ocrcnt then do
       ocrcnt = crcnt
@@ -1997,6 +1978,14 @@ Do_Rollback:
         call do_rollback_log
       end
       When abbrev('ONLY',word(zcmd,1),1) = 1 then do
+        if words(zcmd) = 1 then do
+          'addpop row(3) column(4)'
+          'display panel(zigionly)'
+          drc = rc
+          'rempop'
+          if drc > 0 then leave
+          zcmd = 'O' filter
+        end
         'tbtop' zcrtbl
         ohit = 0
         fw = subword(zcmd,2)
@@ -2744,16 +2733,13 @@ Work_with_repo_file:
     * ---------------------------------- */
     save_top = 0
     ztdsels  = 0
-    'vget (listpnl) profile'
-    if listpnl = null then listpnl = 'ZIGILIST'
-    'vput (listpnl) profile'
     Do Forever
       if rtll_open = 0 then leave
       parse value '' with zsel zcmd row
       if ztdsels < 2 then do
         'tbtop' rtll
         'tbskip' rtll 'number('save_top')'
-        'TBdispl' rtll 'Panel('listpnl')'
+        'TBdispl' rtll 'Panel(zigilist)'
       end
       else 'tbdispl' rtll
       if rc > 4 then do
@@ -2790,8 +2776,6 @@ Work_with_repo_file:
         'rempop'
       end
 
-      if abbrev('BASIC',zcmd,2) = 1 then zcmd = 'MENU'
-      if abbrev('PRO',zcmd,2)   = 1 then zcmd = 'MENU'
       if zcmd /= null then
       Select
         When abbrev('ADDALL',zcmd,2) = 1 then do
@@ -2812,13 +2796,6 @@ Work_with_repo_file:
           call git_add_member_stats
           zcmd = null
         end
-        When abbrev('MENU',zcmd,2) = 1 then do
-          if listpnl = 'ZIGILIST'
-          then listpnl = 'ZIGILSTZ'
-          else listpnl = 'ZIGILIST'
-          'vput (listpnl) profile'
-          zcmd = null
-        end
         When abbrev('GITHELP',zcmd,4) = 1 then
         'Select cmd(%githelp)'
         When abbrev('COMMIT',zcmd,3) = 1 then do
@@ -2837,6 +2814,14 @@ Work_with_repo_file:
         When abbrev('RESET',zcmd,2) = 1 then call do_resetid
         When abbrev('SORT',word(zcmd,1),2) = 1 then call do_lsort
         When abbrev("LOCATE",translate(word(zcmd,1)),1) = 1 then do
+        if words(zcmd) = 1 then do
+           'addpop row(3) column(4)'
+           'display panel(zigilocq)'
+           drc = rc
+           'rempop'
+           if drc > 0 then leave
+           zcmd = 'L' filter
+           end
           mem = translate(word(zcmd,2))
           zcmd = null
           'tbtop' rtll
@@ -2845,7 +2830,7 @@ Work_with_repo_file:
           if rc = 0 then do
             save_top = scanrow
             zerrsm = null
-            zerrlm = word(zcmd,2) 'was found in row' scanrow + 0
+            zerrlm = mem 'was found in row' scanrow + 0
             'Setmsg msg(isrz003)'
             ztdsels = 1
           end
@@ -3164,7 +3149,9 @@ Do_LSort:
     call pfshow 'off'           /* make sure pfshow is off */
     'Addpop row(4) column(6)'
     'Display Panel(zigilsrt)'
+    drc = rc
     'Rempop'
+    if drc > 0 then return
     sort_field = sf
     sort_order = sc
     call pfshow 'reset'         /* restore pfshow setting */

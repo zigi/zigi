@@ -8,7 +8,7 @@
 )Body  Expand(\\)
 +-\-\#zigtitle   +-\-\
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
-+
++ \ \%F3  +
 +Selections:%S+View historical source%C+View Commit Info%R+Recover source
 +
 +Dataset/File:@delement

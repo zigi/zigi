@@ -8,9 +8,9 @@
 )Body  Expand(\\)
 +Add Datasets+--------------------#zigtitle   +---------------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
-+
-%Fixed Dataset Prefix:             $dsnapfx                               +
-%Ignore 1st n qualifiers in prefix:$z+
++ \ \%F3  +
++Fixed Dataset Prefix:             $dsnapfx                               +
++Ignore 1st n qualifiers in prefix:$z+
 +
 +Command:%Find+
 +Line:%S+Add+%A+Add+%AB+Add binary+%B+Browse

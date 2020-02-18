@@ -6,8 +6,8 @@
  + type(text) intens(low) skip(on)
 )Body Expand(\\) Width(&zscreenw)
 +Git Commands+-----\-\------------#zigtitle   +\-\------------------------------
-+Command ===>_zcmd                             \ \+Scroll ===>_gscr
-+
++Command ===>_zcmd                             \ \+Scroll ===>_gscr+
+  \ \ %F3  +
 +Git repo dir:[localdir
 +
 +Enter any Git command (without git):    Browse/View:$z+(B or V)
