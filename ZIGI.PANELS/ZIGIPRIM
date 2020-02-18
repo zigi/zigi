@@ -9,7 +9,7 @@
  [ type(text) intens(low) hilite(uscore)
  | TYPE(AB)           /* Action bar                */
  < TYPE(ABSL) GE(ON)  /* Action bar separator line */
-)ABC DESC(Menu) MNEM(1)
+)ABC DESC('Repository Commands') MNEM(1)
  PDC DESC('Clone Remote repository')             ACTION RUN(CLONE)
  PDC DESC('Config View/Update Configuration')    ACTION RUN(CONFIG)
  PDC DESC('Create Local repository')             ACTION RUN(CREATE)
@@ -25,11 +25,10 @@
 )ABCINIT
   .ZVARS = HELPX
 )Body Expand(\\)
-+| Menu | Help +
++| Repository Commands | Help + \ \ %F3
 <-----------\-\--------------------------------+
 +Local Repositories+--------------#zigtitle   +---------------------------------
 %Command ===>{zcmd       \ \ %Scroll ===>_zscr+
-+  \ \%F3  +
 +
 %    @repo      +       @pref  +                   @cat     +      @last       +
 )Model
