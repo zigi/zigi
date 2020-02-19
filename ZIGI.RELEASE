@@ -54,6 +54,15 @@ Update panels with point-and-shoot to underscore the point and shoot fields.
 For those panels that support sorting the column headers are now
 point-and-shoot sort toggles.
 
+Added an action bar to the four main table panels and removed the secondary
+menu panel options.
+
+Provided an option to enhance point-and-shoot in the zigi Config panel. Option
+S will leave things as they are. Option P will enable point-and-shoot so that
+a double click outside the table will bring up the Options command selection
+popup, and a double click inside the table will bring up the row selection
+popup.
+
 Added an optional tag field to the commit panel. Now a tag can be added along
 with the commit.
 
