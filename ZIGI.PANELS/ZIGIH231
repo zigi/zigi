@@ -19,7 +19,7 @@
 +On the table the following commands are available:
 +
     +Command:%Insert+or%Insert #+
-    +Line:   %I+insert %I #+insert #%D+delete
+    +Line:   %I+insert %I#+insert #%D+delete%D#+delete #
 +
 + " Code is like humor. When you have to explain it, it's bad."
 +         -- Cory House

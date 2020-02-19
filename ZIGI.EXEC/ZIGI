@@ -2364,6 +2364,9 @@ Do_Commit:
     if rc > 4 then leave
     if translate(zcmd) = 'CANCEL' then leave
     ctop = ztdtop
+    if left(translate(zcmd),1) = 'I' then
+    if words(zcmd) = 1 then
+    zcmd = left(zcmd,1) substr(zcmd,2)
     if abbrev('INSERT',translate(word(zcmd,1)),1) = 1 then do
       c = word(zcmd,2)
       if c = null then c = 1
@@ -2377,12 +2380,20 @@ Do_Commit:
     end
     select
       when zsel = 'D' then 'tbdelete' cmtab
+      when left(zsel,1) = 'D' & length(zsel) > 1 then do
+        dc = substr(zsel,2)
+        if datatype(dc) /= 'NUM' then dc = 1
+        do i = 1 to dc
+          'tbdelete' cmtab
+        end
+      end
       when zsel = 'I' then do
         cmsg = ' '
         'tbadd' cmtab
       end
       when left(zsel,1) = 'I' then do
         c = substr(zsel,2,1)
+        if datatype(c) /= 'NUM' then c = 1
         cmsg = ' '
         do i = 1 to c
           'tbadd' cmtab
