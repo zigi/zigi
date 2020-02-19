@@ -2796,32 +2796,32 @@ Work_with_repo_file:
           call git_add_member_stats
           zcmd = null
         end
-        When abbrev('GITHELP',zcmd,4) = 1 then
-        'Select cmd(%githelp)'
         When abbrev('COMMIT',zcmd,3) = 1 then do
           zsel = null
           call do_commit
           call work_with_repo_file
         end
+        When abbrev('GITHELP',zcmd,4) = 1 then
+        'Select cmd(%githelp)'
+        When abbrev('GITCMD',zcmd,4) = 1 then
+        'Select cmd(%zigigcmd)'
+        When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
         When abbrev('GREP',zcmd,2) = 1 then do
           gds = 'PDS Member'
           call do_grep localdir'/'dsn
         end
-        When abbrev('GITCMD',zcmd,4) = 1 then
-        'Select cmd(%zigigcmd)'
-        When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
         When abbrev('STATUS',zcmd,2) = 1 then call do_status
         When abbrev('RESET',zcmd,2) = 1 then call do_resetid
         When abbrev('SORT',word(zcmd,1),2) = 1 then call do_lsort
         When abbrev("LOCATE",translate(word(zcmd,1)),1) = 1 then do
-        if words(zcmd) = 1 then do
-           'addpop row(3) column(4)'
-           'display panel(zigilocq)'
-           drc = rc
-           'rempop'
-           if drc > 0 then leave
-           zcmd = 'L' filter
-           end
+          if words(zcmd) = 1 then do
+            'addpop row(3) column(4)'
+            'display panel(zigilocq)'
+            drc = rc
+            'rempop'
+            if drc > 0 then leave
+            zcmd = 'L' filter
+          end
           mem = translate(word(zcmd,2))
           zcmd = null
           'tbtop' rtll

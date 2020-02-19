@@ -9,20 +9,19 @@
  [ type(text) intens(low) hilite(uscore)
  | TYPE(AB)           /* Action bar                */
  < TYPE(ABSL) GE(ON)  /* Action bar separator line */
-)ABC DESC('Repository Commands') MNEM(1)
+)ABC DESC('Repository Commands')
  PDC DESC('Clone Remote repository')             ACTION RUN(CLONE)
  PDC DESC('Config View/Update Configuration')    ACTION RUN(CONFIG)
  PDC DESC('Create Local repository')             ACTION RUN(CREATE)
  PDC DESC('Find text in table')                  ACTION RUN(FIND)
- PDC DESC('GIT Commands') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%ZIGIGCMD)')
  PDC DESC('GIT Help') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%GITHELP)')
  PDC DESC('Select a Repo to work with')          ACTION RUN(SELECT)
  PDC DESC('Sort the Table')                      ACTION RUN(SORT)
  PDC DESC('View your SSH public key')            ACTION RUN(SSH)
 )ABCINIT
   .ZVARS = 'MENUX'
-)ABC DESC(Help) MNEM(1)
- PDC DESC('Help') MNEM(1) ACTION RUN(TUTOR) PARM('zigihint')
+)ABC DESC(Help)
+ PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigihint')
 )ABCINIT
   .ZVARS = HELPX
 )Body Expand(\\)
