@@ -2550,6 +2550,8 @@ fixup_userids:
   do iw = 1 to words(dsns)
     file = word(dsns,iw)
     workdsn = "'"hlq"."file"'"
+    x = listdsi(workdsn)
+    if sysdsorg /= 'PO' then iterate
     "LMINIT DATAID(reset) DATASET("workdsn")"
     "LMOPEN DATAID("reset") OPTION(INPUT)"
     do im = 1 to words(members.file)
