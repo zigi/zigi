@@ -23,6 +23,7 @@
  PDC DESC('Create Escrow Copy        ')         ACTION RUN(Snapshot)
  PDC DESC('Git Status                ')         ACTION RUN(Status  )
  PDC DESC('View OMVS Filesystem      ')         ACTION RUN(View    )
+ PDC DESC('End') Action Run(END)
 )ABCINIT
   .ZVARS = 'MENUX'
 )ABC DESC('Repository Actions')
@@ -37,7 +38,7 @@
  PDC DESC('Git Tag                   ')         ACTION RUN(Tag     )
  PDC DESC('List all Tags             ')         ACTION RUN(TagList )
 )ABCINIT
-  .ZVARS = 'MENUX'
+  .ZVARS = 'MENUY'
 )ABC DESC(Help)
  PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigih200')
 )ABCINIT
