@@ -1076,9 +1076,12 @@ Work_With_Repo:
           end
           if word(so.pi,1) = 'delete' then
           if word(so.pi,2) = 'mode' then do
-            dc = deletes.0 + 1
-            deletes.dc = word(so.pi,4)
-            deletes.0 = dc
+            delds = word(so.pi,4)
+            if left(delds,1) /= '.' then do
+              dc = deletes.0 + 1
+              deletes.dc = delds
+              deletes.0 = dc
+            end
           end
           if left(so.pi,5) = 'From' then leave
           pidsn = word(so.pi,1)
