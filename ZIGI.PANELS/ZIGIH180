@@ -14,8 +14,8 @@
 %Syntax:+Select repository-name
 +    or:+S repository-name
 +
-+
-+
++Note: that the repository-name search is case insensitive. Thus a search for
++      abc or AbC or ABC will all select a repository named abc.
 +
 %
 +

@@ -10,10 +10,10 @@
   [ type(output) caps(off) pas(on) intens(high) color(white)
  | TYPE(AB)           /* Action bar                */
  < TYPE(ABSL) GE(ON)  /* Action bar separator line */
-)ABC DESC('General Actions') mnem(1)
+)ABC DESC('General Actions')
  PDC DESC('Add dataset               ')         ACTION RUN(Add     )
  PDC DESC('Find in table             ')         ACTION RUN(Find    )
- PDC DESC('GIT Commands') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%ZIGIGCMD)')
+ PDC DESC('GIT Commands') ACTION RUN(gitcmd)
  PDC DESC('GIT Help') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%GITHELP)')
  PDC DESC('Git Log Query             ')         ACTION RUN(GitLog  )
  PDC DESC('Find String in Repo Files ')         ACTION RUN(Grep    )
@@ -25,7 +25,7 @@
  PDC DESC('View OMVS Filesystem      ')         ACTION RUN(View    )
 )ABCINIT
   .ZVARS = 'MENUX'
-)ABC DESC('Repository Actions') mnem(1)
+)ABC DESC('Repository Actions')
  PDC DESC('Add Modified/Untracked    ')         ACTION RUN(AddAll  )
  PDC DESC('Change to another Branch  ')         ACTION RUN(Br      )
  PDC DESC('Commit Changes            ')         ACTION RUN(Commit  )
@@ -38,8 +38,8 @@
  PDC DESC('List all Tags             ')         ACTION RUN(TagList )
 )ABCINIT
   .ZVARS = 'MENUX'
-)ABC DESC(Help) mnem(1)
- PDC DESC('Help') MNEM(1) ACTION RUN(TUTOR) PARM('zigih200')
+)ABC DESC(Help)
+ PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigih200')
 )ABCINIT
   .ZVARS = HELPX
 )Body  Expand(\\)

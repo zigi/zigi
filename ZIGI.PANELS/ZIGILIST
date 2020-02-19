@@ -9,10 +9,10 @@
   # type(output) hilite(reverse) color(turq) caps(off)
  | TYPE(AB)           /* Action bar                */
  < TYPE(ABSL) GE(ON)  /* Action bar separator line */
-)ABC DESC(Menu) MNEM(1)
+)ABC DESC(Menu)
  PDC DESC('Add All Modified/Untracked')          ACTION RUN(ADDALL)
  PDC DESC('Commit changes')                      ACTION RUN(COMMIT)
- PDC DESC('GIT Commands') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%ZIGIGCMD)')
+ PDC DESC('GIT Commands') ACTION RUN(zigigcmd)
  PDC DESC('GIT Help') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%GITHELP)')
  PDC DESC('GitLog')                              ACTION RUN(GITLOG)
  PDC DESC('Grep - search for string')            ACTION RUN(GREP)
@@ -22,8 +22,8 @@
  PDC DESC('Reset Userids')                       ACTION RUN(RESET)
 )ABCINIT
   .ZVARS = 'MENUX'
-)ABC DESC(Help) MNEM(1)
- PDC DESC('Help') MNEM(1) ACTION RUN(TUTOR) PARM('zigih300')
+)ABC DESC(Help)
+ PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigih300')
 )ABCINIT
   .ZVARS = HELPX
 )Body  Expand(\\)
