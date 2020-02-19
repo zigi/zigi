@@ -2556,7 +2556,7 @@ fixup_userids:
       member = word(members.file,im)
       "LMMFind DATAID("reset") Member("member") STATS(YES)"
       if rc > 7 then iterate
-      if zluser /= defurid then do
+      if zluser /= defruid then do
         zluser = defruid
         'LMMSTATS DATAID('reset') Member('member') user('zluser')'
       end
