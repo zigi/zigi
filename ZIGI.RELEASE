@@ -16,8 +16,8 @@ have been created and are new with v2.1.
 Update to the Current Repository commands menu to add ADDALL. This command
 will do a git add for all Untracked or Modified datasets or files.
 
-Update to the PDS Member commands menu to add ADDALL. This command will do
-a git add for all Untracked or Modified members.
+Update to the PDS Member commands menu to add ADDALL. This command will do a
+git add for all Untracked or Modified members.
 
 Add a check to all ISPF panels asking for a userid to verify if the user
 enters an 8 character userid that the system supports the 8 character
