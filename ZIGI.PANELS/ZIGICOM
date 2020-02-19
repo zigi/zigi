@@ -11,7 +11,7 @@
 %Commit Title:_msg1                                             +
 +Optional Tag:_tagid                                       +%Push+after:@z+(Y/N)
 +
-+Command:%Insert+or%Insert #+   +Line:%I+insert%I #+insert #%D+delete
++Command:%Insert+or%Insert #+   +Line:%I+insert%I#+insert #%D+delete%D#+delete
 +
 %S  %Commit Message Text
 )Model
