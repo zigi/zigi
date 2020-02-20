@@ -789,7 +789,15 @@
             address syscall 'readdir' localrep'/'zigirep d.
             do id = 1 to d.0
               if left(d.id,1) = '.' then iterate
-              deldsn = "'"pdshlq"."word(d.id,1)"'"
+              if qualignr = 0
+              then delhlq = pdshlq
+              else do
+                delhlq = translate(pdshlq,' ','.')
+                if qualignr /= '*' then
+                delhlq = subword(delhlq,1,qualignr)
+                delhlq = translate(delhlq,'.',' ')
+              end
+              deldsn = "'"delhlq"."word(d.id,1)"'"
               if dsnvalid(deldsn) = 'NO' then iterate
               call outtrap 'x.'
               address tso 'delete' deldsn
@@ -1175,11 +1183,11 @@ Work_With_Repo:
           end
           else call update_repo_metadata
         end
-      if pulled > 0 then do
-            zerrsm = 'Successful.'
-            zerrlm = left('Pull was a success.',76) pullmsg
-            'setmsg msg(isrz003)'
-         end
+        if pulled > 0 then do
+          zerrsm = 'Successful.'
+          zerrlm = left('Pull was a success.',76) pullmsg
+          'setmsg msg(isrz003)'
+        end
       end
       /* -------------------------------- *
       | Refresh z/OS datasets            |
@@ -4099,6 +4107,7 @@ dsnvalid: Procedure Expose null
   /* Tests for a 'potentially valid' z/OS datasetname */
   parse arg val_dsn
   if strip(val_dsn) = null then return 'NO'
+  val_dsn = strip(val_dsn,'B',"'")
   upp = TRANSLATE(val_dsn,".ABCDEFGHIJKLMNOPQRSTUVWXYZ",,
     ".abcdefghijklmnopqrstuvwxyz")
   tdsn = translate(val_dsn,' ','.')
@@ -4272,9 +4281,9 @@ update_repo_metadata:
         /* --------------------------------------------------------- *
          | If members were updated then need to update the stat file |
          * --------------------------------------------------------- */
-        if mem_hit = 1 then do
-           x = zigistat("'"edsn"'" statpath 'S')
-           end
+          if mem_hit = 1 then do
+            x = zigistat("'"edsn"'" statpath 'S')
+          end
         end
         else do
           /* It must be a PS, just copy it over to OMVS */
