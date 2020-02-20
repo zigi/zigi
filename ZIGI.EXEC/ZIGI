@@ -4269,6 +4269,12 @@ update_repo_metadata:
             end
             mem_hit = 1
           end
+        /* --------------------------------------------------------- *
+         | If members were updated then need to update the stat file |
+         * --------------------------------------------------------- */
+        if mem_hit = 1 then do
+           x = zigistat("'"edsn"'" statpath 'S')
+           end
         end
         else do
           /* It must be a PS, just copy it over to OMVS */
