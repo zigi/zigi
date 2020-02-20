@@ -20,6 +20,7 @@
  PDC DESC('Sort the table')                      ACTION RUN(SORT)
  PDC DESC('Status of the Repository')            ACTION RUN(STATUS)
  PDC DESC('Reset Userids')                       ACTION RUN(RESET)
+ PDC DESC('End') Action Run(END)
 )ABCINIT
   .ZVARS = 'MENUX'
 )ABC DESC(Help)

@@ -1,0 +1,49 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore) caps(on)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on)
+    skip(on) color(white) hilite(uscore)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                        %Connecting with a Git Server
++
++Working with Git requires a Git Server and that means registering with the
++server and registering your SSH Public Key with the server.
++
++These are the Git Servers that have connection information available for
++(there are more and if you have info on them please share):
++
+  [SSHKey +    How to find your SSH Public Key
+  [Bitbuc   +  Bitbucket.org
+  [GitHub+     GitHub.com
+  [GitLab+     GitLab.com
++
++
++
++  "Knowing is not enough; we must apply.
++         Willing is not enough; we must do."
++                  - Johann Wolfgang von Goetheou
++
++Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+ &sshkey    = 'SSH'
+ &bitbuc    = 'Bitbucket'
+ &github    = 'GitHub'
+ &gitlab    = 'GitLab'
+)PROC
+ &ZSEL = TRANS( &ZCMD
+           1,zigih705    /*  SSH Key             */
+           2,zigih710    /*  BITBUCKET           */
+           3,zigih720    /*  GITHUB              */
+           4,zigih730    /*  GITLAB              */
+           *,'?'
+           )
+)PNTS
+ Field(SSH   ) var(zcmd)  val('1')
+ Field(BITBUC) var(zcmd)  val('2')
+ Field(GITHUB)  var(zcmd) val('3')
+ Field(GITLAB ) var(zcmd) val('4')
+)END
