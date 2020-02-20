@@ -1173,13 +1173,13 @@ Work_With_Repo:
             zerrlm = 'Nothing to pull.'
             'setmsg msg(isrz003)'
           end
-          else do
-            call update_repo_metadata
+          else call update_repo_metadata
+        end
+      if pulled > 0 then do
             zerrsm = 'Successful.'
             zerrlm = left('Pull was a success.',76) pullmsg
             'setmsg msg(isrz003)'
-          end
-        end
+         end
       end
       /* -------------------------------- *
       | Refresh z/OS datasets            |
@@ -4114,9 +4114,12 @@ dsnvalid: Procedure Expose null
   end
   if retval /= 'NO' then
   if upp = val_dsn then do
+    smsg = msg()
+    call msg 'OFF'
     if sysdsn(val_dsn) = "OK" | sysdsn(val_dsn) = "DATASET NOT FOUND"
     then retval = 'OK'
     else retval = "NO"
+    call msg smsg
   end
   return retval
 
@@ -5541,8 +5544,8 @@ is_binfile:
   * ---------------------- */
 Do_Listdsi:
   parse arg dsndsi
-  call outtrap 'x.'
+  smsg =  msg()
+  call msg 'OFF'
   x = listdsi(dsndsi)
-  call outtrap 'off'
-  drop x.
+  call msg smsg
   return x
