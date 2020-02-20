@@ -32,7 +32,7 @@
  vput (ztut)
 )PROC
  &ZSEL = TRANS( &ZCMD
-           1,zigih000
+           1,zigih600
            *,'?'
            )
 )END
