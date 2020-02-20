@@ -4,7 +4,7 @@
   [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
 )Body Expand(\\)
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
-%Selection ===>_ZCMD        \ \ %Scroll ===>_zcsr
+%Selection ===>_ZCMD
 +
                                   %AddAll
 +
