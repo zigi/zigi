@@ -10,7 +10,7 @@
 +
 %Tag+will prompt for a tag identifier and an optional tag description
 +and then apply the tag to the current repository. The tag will also
-+be pushed to the remote server.
++be pushed to the remote repository.
 +
 +Tag assigns a meaningful name with a specific version in the repository.
 +Tags are very similar to branches, but the difference is that tags are

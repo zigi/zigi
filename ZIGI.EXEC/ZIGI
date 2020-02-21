@@ -2473,6 +2473,7 @@ Do_Commit:
   io = 2
 
   'tbtop' cmtab
+  if lastgrow > 0 then
   do forever
     'tbskip' cmtab
     if rc > 0 then leave
@@ -3412,7 +3413,7 @@ Branch_it:
       if brstatus = 'Remote' then do
         zerrsm = 'Invalid.'
         zerrlm = 'Unable to delete a remote only branch.' ,
-          'That can only be done at the remote server.'
+          'That can only be done at the remote repository.'
         'setmsg msg(isrz003)'
       end
       else do
@@ -4282,6 +4283,8 @@ update_repo_metadata:
          | If members were updated then need to update the stat file |
          * --------------------------------------------------------- */
           if mem_hit = 1 then do
+            cmd = 'cd' localrep'/'zigirep'/.zigi'
+            cmd = cmd '&& git add .'
             x = zigistat("'"edsn"'" statpath 'S')
           end
         end
