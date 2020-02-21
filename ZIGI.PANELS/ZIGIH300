@@ -76,3 +76,7 @@
  Field(STATUS)  var(zcmd) val('7')
  Field(ROW   )  var(zcmd) val('8')
 )END
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

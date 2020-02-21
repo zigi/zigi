@@ -12,7 +12,7 @@
 +
 [Add   + Add dataset        [Pull+    Pull from origin
 [AddAll+ Add all to Git     [Push+    Push to origin
-[Br    + Change Branch      [Refresh+ Replace Datasets
+[Br    + Change Branch      [Replace+ Replace Datasets
 [Commit+ Record Changes     [Remote+  Add remote
 [Find+   Find in table      [Rollback+Revert
 [Githelp+Git Help           [Set+     Set Defaults
@@ -40,7 +40,7 @@
  &Network = 'Network'
  &Pull    = 'Pull'
  &Push    = 'Push'
- &Refresh = 'Refresh'
+ &Replace = 'Replace'
  &Remote  = 'Remote'
  &Rollback  = 'Rollback'
  &Snapshot  = 'SnapShot'
@@ -67,7 +67,7 @@
  FIELD(NETWORK) VAR(ZCMD) VAL('NETWORK')
  FIELD(PULL  )  VAR(ZCMD) VAL('PULL')
  FIELD(PUSH  )  VAR(ZCMD) VAL('PUSH')
- FIELD(REFRESH) VAR(ZCMD) VAL('REFRESH')
+ FIELD(REPLACE) VAR(ZCMD) VAL('REPLACE')
  FIELD(REMOTE)  VAR(ZCMD) VAL('REMOTE')
  FIELD(ROLLBACK) VAR(ZCMD) VAL('ROLLBACK')
  FIELD(SNAPSHOT) VAR(ZCMD) VAL('SNAPSHOT')
@@ -77,3 +77,7 @@
  FIELD(TAGLIST) VAR(ZCMD) VAL('TAGLIST')
  FIELD(VIEW  )  VAR(ZCMD) VAL('VIEW')
 )End
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

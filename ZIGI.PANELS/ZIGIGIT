@@ -32,3 +32,7 @@
 )Proc
   ver (&gitenv,nb)
 )end
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

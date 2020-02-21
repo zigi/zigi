@@ -42,3 +42,7 @@
   &setcont = &Z
   ver (&pnsdef,nb,list,P,S)
 )end
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

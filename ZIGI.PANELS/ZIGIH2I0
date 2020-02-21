@@ -11,7 +11,7 @@
 %TagList+is similar to Rollback. It will display a list of all defined tags,
 +including for annotated tags the date,, time, and description.
 +
-+Commands:%Only+to filter the table and%Refresh+to rebuild the table.
++Commands:%Only+to filter the table and%Replace+to rebuild the table.
 +
 +Row options:   %S+to display the full tag information
 +               %C+to create a new branch based on the tag level
@@ -30,3 +30,7 @@
 )PROC
  &zcont = zigih2g0
 )END
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

@@ -9,7 +9,7 @@
  < TYPE(ABSL) GE(ON)  /* Action bar separator line */
 )ABC DESC('Tag Commands')
  PDC DESC('Only - filter the table')   ACTION RUN(ONLY)
- PDC DESC('Refresh the table')         ACTION RUN(REFRESH)
+ PDC DESC('Replace the table')         ACTION RUN(REPLACE)
  PDC DESC('GIT Commands') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%ZIGIGCMD)')
  PDC DESC('GIT Help') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%GITHELP)')
  PDC DESC('End') Action Run(END)
@@ -53,3 +53,7 @@ _z+ $z                   $z
      &zsel = &z
  ver (&zsel,list,S,C)
 )End
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

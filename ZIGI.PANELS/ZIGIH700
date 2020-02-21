@@ -47,3 +47,7 @@
  Field(GITHUB)  var(zcmd) val('3')
  Field(GITLAB ) var(zcmd) val('4')
 )END
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

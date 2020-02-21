@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v2r1'
+  ver = 'v2r5'
   /*Name:      zigi  (z ISPF Git Interface)                    |
   |                                                            |
   | Version:   V2R1                                            |
@@ -27,6 +27,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            02/21/20 LBD - Change Refresh to Replace        |
+  |                         - Add Fetch command                |
+  |                         - Only fetch 1st time or on demand |
   |            02/15/20 LBD - Remove view_std's where not      |
   |                           worth it (rm/rn) and added msgs  |
   |                         - Change commit to use a table for |
@@ -562,6 +565,7 @@
       zerrsm = null
       fstring = word(zcmd,2)
       zcmd = null
+      fetch_flag = 0
       if fstring = null then do
         'addpop row(3) column(4)'
         'display panel(zigisel)'
@@ -851,7 +855,7 @@
 Select_Repo:
   zigidate = date('n')
   sortdate = date('b') time('s')
-  'tbmod zigirepo'
+  'tbmod zigirepo order'
   x = debug('Getting binfiles:' zigirep time('L') )
   drop binfiles.
   call get_binfiles 'select repo'
@@ -1133,10 +1137,10 @@ Work_With_Repo:
           zw = words(pullmems.zd)
           ldsn = "'"delhlq"."zd"'"
           x = do_listdsi(ldsn "dir")
-          /* check if a PDSE and bypass the full refresh or if not
+          /* check if a PDSE and bypass the full Replace or if not
           a PDSE then check of more than 25% of members being
           updated and if so then nullify the member list so a full
-          refresh will occur for the dataset */
+          Replace will occur for the dataset */
           if x = 0 then
           if sysmembers /= null then
           if sysadirblk /= 'NO_LIM' then
@@ -1146,7 +1150,7 @@ Work_With_Repo:
         end
         if pulldsns /= null then do
           call view_std 'B'
-          call Refresh localrep zigirep pdshlq qualignr pulldsns
+          call Replace localrep zigirep pdshlq qualignr pulldsns
           'Verase pulldsns Both'
           call outtrap 'x.'
           if deletes.0 > 0 then do dc = 1 to deletes.0
@@ -1190,12 +1194,23 @@ Work_With_Repo:
         end
       end
       /* -------------------------------- *
-      | Refresh z/OS datasets            |
+      | Fetch Remote Repo Updates        |
       * -------------------------------- */
-      When abbrev('REFRESH',zcmd,3) = 1 then do
+      When abbrev('FETCH',zcmd,2) = 1 then do
+        zs1 = 'Performing the git fetch . . .'
+        zs2 = 'Please standby'
+        call do_popup
+        cmd = 'cd' localrep'/'zigirep
+        x = docmd(cmd '&& git fetch')
+        fetch_flag = 1
+      end
+      /* -------------------------------- *
+      | Replace z/OS datasets            |
+      * -------------------------------- */
+      When abbrev('REPLACE',zcmd,3) = 1 then do
         if words(save_zigirep) > 0 then do
           zerrsm = 'Invalid.'
-          zerrlm = 'Refresh is not supported in subdirectories.'
+          zerrlm = 'Replace is not supported in subdirectories.'
           'setmsg msg(isrz003)'
         end
         else do
@@ -1209,12 +1224,12 @@ Work_With_Repo:
           call pfshow 'reset'         /* restore pfshow setting */
           if prc > 0 then refa = 'NO'
           if refa = 'YES' then do
-            call Refresh localrep zigirep pdshlq qualignr
+            call Replace localrep zigirep pdshlq qualignr
             call update_repo_metadata
           end
           else do
             zerrsm = 'Canceled.'
-            zerrlm = 'Refresh canceled.'
+            zerrlm = 'Replace canceled.'
             'setmsg msg(isrz003)'
           end
         end
@@ -1276,7 +1291,7 @@ Work_With_Repo:
             x = docmd(cmd)
             if x > 0 then call view_std 'B'
 
-            call refresh localrep zigirep snaphlq '*'
+            call Replace localrep zigirep snaphlq '*'
             /* now view both the omvs directory and snaphlq */
             sans = null
             'Addpop row(4) column(10)'
@@ -1384,7 +1399,7 @@ Work_With_Repo:
           'setmsg msg(isrz003)'
         end
         else do
-          'tbmod zigirepo'
+          'tbmod zigirepo order'
           'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
           parsedURI = parseGitURI(origin)
           parse var parsedURI user host port repo
@@ -1766,7 +1781,7 @@ Do_Rset:
   drc = rc
   'rempop'
   if drc > 0 then return
-  'tbmod zigirepo'
+  'tbmod zigirepo order'
   'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
   if defcpush = 'Y' then zpush = 'Y'
   else zpush = 'N'
@@ -1857,7 +1872,7 @@ Do_TAGLIST:
     end
 
     Select
-      When abbrev('REFRESH',word(zcmd,1),1) = 1 then do
+      When abbrev('Replace',word(zcmd,1),1) = 1 then do
         'tbend' zcrtbl
         call get_TAGLIST
       end
@@ -1942,7 +1957,7 @@ Do_TAGLIST:
             call combine_msgs
           end
           if combine.0 > 0 then call view_std 'C'
-          call Refresh localrep zigirep pdshlq qualignr
+          call Replace localrep zigirep pdshlq qualignr
           call work_with_repo
         end
         if prc > 0 then do
@@ -2012,7 +2027,7 @@ Do_Rollback:
       'tbskip' zcrtbl    'number('row')'
     end
     Select
-      When abbrev('REFRESH',word(zcmd,1),1) = 1 then do
+      When abbrev('REPLACE',word(zcmd,1),1) = 1 then do
         'tbend' zcrtbl
         call do_rollback_log
       end
@@ -2102,7 +2117,7 @@ Do_Rollback:
             call combine_msgs
           end
           if combine.0 > 0 then call view_std 'C'
-          call Refresh localrep zigirep pdshlq qualignr
+          call Replace localrep zigirep pdshlq qualignr
           call work_with_repo
         end
         if prc > 1 then do
@@ -2703,7 +2718,7 @@ Clone_Repo:
     Address ISPExec
     if c_stat = 1 then return
     qualignr = words(translate(pdshlq,' ','.'))
-    call Refresh localrep zigirep pdshlq qualignr
+    call Replace localrep zigirep pdshlq qualignr
     zigikey = localrep'/'zigirep
     zigidate = date('n')
     sortdate = date('b') time('s')
@@ -3256,11 +3271,11 @@ Do_LSort:
   return
 
   /* ----------------------------- *
-  | Refresh z/OS side of repo     |
+  | Replace z/OS side of repo     |
   * ----------------------------- */
-Refresh:
+Replace:
   parse arg localrep zigirep pdshlq qualignr pulldsns
-  zs1 = "Refreshing from repository"
+  zs1 = "Replacing from repository"
   zs2 = "   OMVS -> z/OS      "
   call do_popup
 
@@ -3403,7 +3418,7 @@ Branch_it:
       end
       else do
         x = docmd('cd 'localdir' && git checkout 'bname)
-        call Refresh localrep zigirep pdshlq qualignr
+        call Replace localrep zigirep pdshlq qualignr
         call update_repo_metadata
         branch = bname
       end
@@ -3553,10 +3568,10 @@ Merge_it:
       end
       parse var se.1 "Automatic merge went well; stopped" rest
       if rest /= "" then do
-        /* No issues. Commit the merge then execute a refresh */
+        /* No issues. Commit the merge then execute a Replace */
         /* Maybe popup a panel here for the commit message? */
         x = docmd('cd 'localdir' && git commit -m "Merge 'bname'"')
-        call Refresh localrep zigirep pdshlq qualignr
+        call Replace localrep zigirep pdshlq qualignr
         call update_repo_metadata
       end
       else do
@@ -3723,7 +3738,7 @@ Merge_it:
             cmd = 'cd' mrgdir '&& git commit -m "Resolve merge conflicts"'
             x = docmd(cmd)
             call view_std 'B'
-            call Refresh localrep zigirep pdshlq qualignr
+            call Replace localrep zigirep pdshlq qualignr
             call update_repo_metadata
           end
           else do
@@ -4169,8 +4184,10 @@ update_repo_metadata:
     'Replace NoWrite'
   rtbl_open = 1
   /* We always fetch when we start to work on a repo */
+  if fetch_flag = 1 then crflag = 1
   if zigi_offline = 1 then crflag = 1
   if crflag = 0 then do
+    fetch_flag = 1
     x = debug('fetching remote')
     zs1 = 'Fetching Remote info'
     zs2 = 'Patience . . .'
@@ -4190,6 +4207,7 @@ update_repo_metadata:
   end
   cmd = 'cd' localrep'/'zigirep
   /* Fetch only if there's a remote */
+  if fetch_flag = 0 then
   if zigi_offline = 0 then
   if remote1 /= '<no remote defined>' then
   x = docmd(cmd '&& git fetch')
@@ -4351,7 +4369,7 @@ update_repo_metadata:
         x = debug('done')
 
         if qualignr = null then do
-          'tbmod zigirepo'
+          'tbmod zigirepo order'
           qualignr = 0
         end
         if qualignr = 0 then do
@@ -4551,7 +4569,7 @@ Add_Dataset:
       'tbsort' rtbl 'fields(dsn,c,a)'
       'tbtop' rtbl
       if add_count > 0 then
-      'tbmod zigirepo'
+      'tbmod zigirepo order'
       'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
       return
     end
