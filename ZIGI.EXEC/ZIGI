@@ -1528,15 +1528,23 @@ Work_With_Repo:
       When zsel = 'RN' then do
         newdsn = fulldsn
         fulldsnq = fulldsn
+        if dsnvalid(fulldsn) = 'OK' then zos = 1
+                                    else zos = 2
         do forever
           'control display save'
           'Addpop row(4) column(6)'
+          if zos = 1 then
           'display panel(zigirena)'
+          else
+          'display panel(zigireno)'
           drc = rc
           'rempop'
           'control display restore'
           if drc > 0 then leave
+          if zos = 1 then do
           x = do_listdsi(newdsn)
+          end
+          else x = 1
           if x = 0 then do
             zerrsm = 'Error'
             zerrlm = newdsn 'currently exists. Select a different' ,
@@ -1548,14 +1556,14 @@ Work_With_Repo:
             then Address TSO 'Rename' fulldsn newdsn
             else do
               cmd = 'cd' localrep'/'zigirep
-              cmd = cmd '&& mv' fulldsn newdsn
+              cmd = cmd '&& mv' '"'fulldsn'" "'newdsn'"'
               x = bpxwunix(cmd,,so.,se.)
             end
             cmd = 'cd' localrep'/'zigirep
             newdsns = usssafe(newdsn)
             fulldsns = usssafe(fulldsn)
             if left(fulldsn,1) /= "'"
-            then cmd = cmd '&& git mv' fulldsns newdsns
+            then cmd = cmd '&& git mv' '"'fulldsns'" "'newdsns'"'
             else do
               oldfile = translate(strip(fulldsn,'B',"'"),' ','.')
               if qualignr > 0 then
