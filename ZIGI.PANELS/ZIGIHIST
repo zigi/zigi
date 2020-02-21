@@ -5,12 +5,18 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
+ | TYPE(AB)           /* Action bar                */
+ < TYPE(ABSL) GE(ON)  /* Action bar separator line */
+)ABC DESC(Help)
+ PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigihhst')
+)ABCINIT
+  .ZVARS = HELPX
 )Body  Expand(\\)
++| Help +
+<-----------\-\--------------------------------+
 +-\-\#zigtitle   +-\-\
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
 + \ \%F3  +
-+Selections:%S+View historical source%C+View Commit Info%R+Recover source
-+
 +Dataset/File:@delement
 +
 +Sel Date/Time of Commit               Author
