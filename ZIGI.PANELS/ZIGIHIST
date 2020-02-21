@@ -45,3 +45,7 @@ _z+ $z                                $z
      &zsel = &z
  ver (&zsel,list,R,S,C,/)
 )End
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

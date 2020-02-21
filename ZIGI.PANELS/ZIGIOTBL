@@ -21,3 +21,7 @@ _z+$z$z                                                      $z           $z  +
  if (&zcmd EQ &z)
     ver (&ocsel,list,B,I,S,L,b,i,s,l,&z)
 )End
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

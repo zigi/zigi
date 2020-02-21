@@ -47,3 +47,7 @@
  FIELD(SORT )  VAR(ZCMD) VAL('SORT')
  FIELD(STATUS) VAR(ZCMD) VAL('STATUS')
 )End
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

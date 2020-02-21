@@ -15,7 +15,7 @@
 +branches using the%M+row selection.
 +
 +If the merge is successful, it will be committed to the current branch and %ALL
-+z/OS datasets will be refreshed from the update OMVS files.
++z/OS datasets will be replaced from the update OMVS files.
 +
 +If the merge is not successful a popup with three options will be presented:
 +
@@ -30,3 +30,7 @@
 )PROC
  &zcont = zigih271
 )END
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

@@ -47,3 +47,7 @@
     .CURSOR = &CSR
  if (&zedsmsg EQ &Z)
 )End
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

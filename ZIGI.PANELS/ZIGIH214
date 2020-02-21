@@ -13,7 +13,7 @@
 + %1.+The OMVS file or directory must be copied into the zigi managed +
 +     repository directory.
 + %2.+File names that are UPPER CASE in the repository root will be considered
-+     z/OS datasets and will be copied to z/OS upon a Refresh or Clone.
++     z/OS datasets and will be copied to z/OS upon a Replace or Clone.
   %3.+If the files are not to be copied to z/OS the file, or directory,
 +     names must be mixed or lower case.
   %4.+After the copy, use zigi to add the now un-tracked file, or directory,
@@ -31,3 +31,7 @@
 )PROC
  &zcont = zigih215
 )END
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

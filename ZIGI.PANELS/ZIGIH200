@@ -12,12 +12,12 @@
 +
 %Commands available+(select for more information or press%Enter+to see each):
 +
-[Add   + Add dataset{*   [Grep+   Find Strings        [Row+     Options
-[AddAll+ Add all to Git  [Merge+  Merge Branches{*    [Set+     Set Defaults
-[Br    + Change Branch{* [Network+Network Report      [Snapshot+Escrow
-[Commit+ Record Changes  [Pull+   Pull from origin    [Status+  Git Status
-[Find+   Find in table   [Push+   Push to origin      [Tag+     Git Tag
-[GitCMD +Git Commands    [Refresh+ Replace Datasets{* [TagList+ List Tags
+[Add   + Add dataset{*   [Grep+    Find Strings       [Row+     Options
+[AddAll+ Add all to Git  [Merge+   Merge Branches{*   [Set+     Set Defaults
+[Br    + Change Branch{* [Network+ Network Report     [Snapshot+Escrow
+[Commit+ Record Changes  [Pull+    Pull from origin   [Status+  Git Status
+[Find+   Find in table   [Push+    Push to origin     [Tag+     Git Tag
+[GitCMD +Git Commands    [Replace+ Replace Datasets{* [TagList+ List Tags
 [Githelp+Git Help        [Remote+  Add remote         [View+    OMVS Dir
 [GitLog+ Show git log    [Rollback+Revert{*
 +
@@ -42,7 +42,7 @@
  &Network = 'Network'
  &Pull    = 'Pull'
  &Push    = 'Push'
- &Refresh = 'Refresh'
+ &Replace = 'Replace'
  &Remote  = 'Remote'
  &Rollback  = 'Rollback'
  &Snapshot  = 'SnapShot'
@@ -70,7 +70,7 @@
     When abbrev('NETWORK',zcmd,2) = 1 then zcmd ='10'
     When abbrev('PULL',zcmd,3)    = 1 then zcmd ='11'
     When abbrev('PUSH',zcmd,3)    = 1 then zcmd ='12'
-    When abbrev('REFRESH',zcmd,3) = 1 then zcmd ='13'
+    When abbrev('REPLACE',zcmd,3) = 1 then zcmd ='13'
     When abbrev('REMOTE',zcmd,3)  = 1 then zcmd ='14'
     When abbrev('ROLLBACK',zcmd,2) = 1 then zcmd ='15'
     When abbrev('SET',zcmd,2)     = 1 then zcmd ='16'
@@ -98,7 +98,7 @@
           11,zigih280  /* NETWORK        */
           12,zigih290  /* PULL           */
           13,zigih2A0  /* PUSH           */
-          14,zigih2B0  /* REFRESH        */
+          14,zigih2B0  /* Replace        */
           15,zigih2C0  /* REMOTE         */
           16,zigih2D0  /* ROLLBACK       */
           17,zigih2E0  /* SET            */
@@ -124,7 +124,7 @@
  FIELD(NETWORK) VAR(ZCMD)  VAL('11')
  FIELD(PULL  )  VAR(ZCMD)  VAL('12')
  FIELD(PUSH  )  VAR(ZCMD)  VAL('13')
- FIELD(REFRESH) VAR(ZCMD)  VAL('14')
+ FIELD(REPLACE) VAR(ZCMD)  VAL('14')
  FIELD(REMOTE)  VAR(ZCMD)  VAL('15')
  FIELD(ROLLBACK) VAR(ZCMD) VAL('16')
  FIELD(SET   )  VAR(ZCMD)  VAL('17')
@@ -134,3 +134,7 @@
  FIELD(TAGLIST) VAR(ZCMD)  VAL('21')
  FIELD(VIEW  )  VAR(ZCMD)  VAL('22')
 )END
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */
