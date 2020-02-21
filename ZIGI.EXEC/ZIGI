@@ -1536,7 +1536,7 @@ Work_With_Repo:
         newdsn = fulldsn
         fulldsnq = fulldsn
         if dsnvalid(fulldsn) = 'OK' then zos = 1
-                                    else zos = 2
+        else zos = 2
         do forever
           'control display save'
           'Addpop row(4) column(6)'
@@ -1549,7 +1549,7 @@ Work_With_Repo:
           'control display restore'
           if drc > 0 then leave
           if zos = 1 then do
-          x = do_listdsi(newdsn)
+            x = do_listdsi(newdsn)
           end
           else x = 1
           if x = 0 then do
@@ -1794,12 +1794,12 @@ git_add:
  | generate a replace based on the affected datasets |
  * ------------------------------------------------- */
 Stash_IT:
- cmd = 'cd' localrep'/'zigirep
- cmd = cmd '&& git stash save -u -a "'date() time()'"'
- cmd = cmd '&& git stash show'
- x = docmd(cmd)
- call view_std 'B'
- return
+  cmd = 'cd' localrep'/'zigirep
+  cmd = cmd '&& git stash save -u -a "'date() time()'"'
+  cmd = cmd '&& git stash show'
+  x = docmd(cmd)
+  call view_std 'B'
+  return
 
 /* ------------------------------------------------ *
  | Process the stashl (stash list) command:         |
@@ -2910,6 +2910,9 @@ Work_with_repo_file:
             call git_add_member
           end
           call git_add_member_stats
+          cmd = 'cd' localrep'/'zigirep
+          cmd = '&& git add .'
+          x = docmd(cmd)
           zcmd = null
         end
         When abbrev('COMMIT',zcmd,3) = 1 then do
