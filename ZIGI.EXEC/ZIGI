@@ -2473,7 +2473,7 @@ Do_Commit:
   io = 2
 
   'tbtop' cmtab
-  if lastgrow > 0 then
+  if lastrow > 0 then
   do forever
     'tbskip' cmtab
     if rc > 0 then leave
