@@ -664,20 +664,6 @@
 
     if zcmd /= null then
     Select
-      when abbrev('LOCAL',zcmd,2) = 1 then do
-        if zigtitle = 'Offline'
-        then do
-          zigtitle = '(zigi' ver')'
-          zigi_offline = 0
-        end
-        else do
-          zigtitle = 'Offline'
-          zigi_offline = 1
-        end
-        'vput (zigtitle)'
-      end
-      When abbrev('GITHELP',zcmd,4) = 1 then
-      Address TSO '%githelp'
       When abbrev('CREATE',zcmd,2) = 1 then do
         x = Create_Repo()
         crflag = 1
@@ -698,6 +684,20 @@
         'vput (mgen pnsdef) profile'
         call update_config
         if rc = 0 | rc = 8 then leave
+      end
+      When abbrev('GITHELP',zcmd,4) = 1 then
+      Address TSO '%githelp'
+      when abbrev('LOCAL',zcmd,2) = 1 then do
+        if zigtitle = 'Offline'
+        then do
+          zigtitle = '(zigi' ver')'
+          zigi_offline = 0
+        end
+        else do
+          zigtitle = 'Offline'
+          zigi_offline = 1
+        end
+        'vput (zigtitle)'
       end
       When abbrev('SORT',word(zcmd,1),2) = 1 then do
         zcmd = translate(zcmd)
@@ -1245,6 +1245,10 @@ Work_With_Repo:
         end
         else call do_rollback
       end
+      /* Comment Start - still a work in progress
+      When abbrev('STASH',zcmd,4) = 1 then call stash_it
+      When zcmd = 'STASHL' then call stash_list
+         Comment End */
       /* -------------------------------- *
       | Snapshot the current repository  |
       * -------------------------------- */
@@ -1368,6 +1372,9 @@ Work_With_Repo:
           dsnstat = '[A ] Added to index'
           'tbmod' rtbl
         end
+        cmd = 'cd' localrep'/'zigirep
+        cmd = '&& git add .'
+        x = docmd(cmd)
         zcmd = null
       end
       /* -------------------------------- *
@@ -1776,6 +1783,39 @@ git_add:
       end
     end
   end
+  return
+
+/* ------------------------------------------------- *
+ | Stash the current workspace                       |
+ | git stash -u save "date time"                     |
+ | then                                              |
+ | git stash show (to get the affected datasets)     |
+ |                                                   |
+ | generate a replace based on the affected datasets |
+ * ------------------------------------------------- */
+Stash_IT:
+ cmd = 'cd' localrep'/'zigirep
+ cmd = cmd '&& git stash save -u -a "'date() time()'"'
+ cmd = cmd '&& git stash show'
+ x = docmd(cmd)
+ call view_std 'B'
+ return
+
+/* ------------------------------------------------ *
+ | Process the stashl (stash list) command:         |
+ | - issue git stash list to get a list of stashes  |
+ | - display them in a table                        |
+ | - selection commands will be:                    |
+ |   SHOW - git stash show #                        |
+ |   DIFF - git stash show # -p (then view)         |
+ |   DROP - git stash drop stash-#                  |
+ |   BRanch - git stash branch-name stash-#         |
+ |     - do a replace for affected datasets         |
+ | - Commands                                       |
+ |   CLEAR - git stash clear  (removed ALL stashes) |
+ * ------------------------------------------------ */
+Stash_List:
+  say 'not implemented yet'
   return
 
   /* -------------------------------------- *
