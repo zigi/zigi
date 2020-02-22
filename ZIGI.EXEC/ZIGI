@@ -1,6 +1,6 @@
   /* --------------------  rexx procedure  ------------------- */
   ver = 'v2r5'
-  stash_state = 0   /* 0 = off 1 = on */
+  stash_state = 1   /* 0 = off 1 = on */
   /*Name:      zigi  (z ISPF Git Interface)                    |
   |                                                            |
   | Version:   V2R1                                            |
@@ -1247,12 +1247,11 @@ Work_With_Repo:
           if pos('Untracked',dsnstat) > 0 then hit = 1
           if hit = 0 then iterate
           call git_add
-          dsnstat = '[A ] Added to index'
-          'tbmod' rtbl
         end
         cmd = 'cd' localrep'/'zigirep
-        cmd = '&& git add .'
+        cmd = cmd '&& git add .'
         x = docmd(cmd)
+        call update_repo_metadata
         zcmd = null
       end
       /* -------------------------------- *
@@ -1634,55 +1633,132 @@ Setup_Selective_Replace:
   parse value '' with pulldsns pullmems. deletes.
   deletes.0 = 0
   pulled = 0
+  ptype = 0
   do pi = 1 to so.0
-    if left(so.pi,1) /= ' ' then iterate
-    if pos(' changed,',so.pi) > 0 then do
-      pullmsg = so.pi
-      pulled = 1
-      iterate
+    so.pi = translate(so.pi,' ','05'x)
+    if pos('On branch',so.pi) > 0 then ptype = 1
+    if pos('Saved working',so.pi) > 0 then ptype = 2
+    if word(so.pi,1) = 'Removing' then do
+      if left(w,1) = '.' then iterate
+      dc = deletes.0 + 1
+      deletes.dc = w
+      deletes.0 = dc
     end
-    if word(so.pi,1) = 'rename' then do
-      if pos('/',so.pi) > 0 then do
-        parse value so.pi with . dd'/{'dm '=>' nm'}' .
-        dc = deletes.0 + 1
-        deletes.dc = strip(dd)'/'strip(dm)
-        deletes.0 = dc
-        if wordpos(dd,pulldsns) = 0 then do
-          pulldsns = pulldsns dd
-          pullmems.dd = nm
+    if word(so.pi,1) = 'deleted:' then do
+      if left(w,1) = '.' then iterate
+      dc = deletes.0 + 1
+      deletes.dc = w
+      deletes.0 = dc
+    end
+    if pos('new file:',so.pi) > 0 then do
+      w = word(so.pi,3)
+      if left(w,1) = '.' then iterate
+      if pos('/',w) > 0 then do
+        parse value w with w'/'m
+        if wordpos(w,pulldsns) = 0 then
+        pulldsns = pulldsns w
+        pullmems.w = pullmems.w m
+      end
+      else if wordpos(w,pulldsns) = 0 then
+      pulldsns = pulldsns w
+    end
+    if pos('modified:',so.pi) > 0 then do
+      w = word(so.pi,2)
+      if left(w,1) = '.' then iterate
+      if pos('/',w) > 0 then do
+        parse value w with w'/'m
+        if wordpos(w,pulldsns) = 0 then
+        pulldsns = pulldsns w
+        pullmems.w = pullmems.w m
+      end
+      else if wordpos(w,pulldsns) = 0 then
+      pulldsns = pulldsns w
+    end
+    if ptype = 1 then do  /* status report */
+      if left(so.pi,1) /= ' ' then iterate
+      if pos(' changed,',so.pi) > 0 then do
+        pullmsg = so.pi
+        pulled = 1
+        iterate
+      end
+      if word(so.pi,1) = 'rename' then do
+        if pos('/',so.pi) > 0 then do
+          parse value so.pi with . dd'/{'dm '=>' nm'}' .
+          dc = deletes.0 + 1
+          deletes.dc = strip(dd)'/'strip(dm)
+          deletes.0 = dc
+          if wordpos(dd,pulldsns) = 0 then do
+            pulldsns = pulldsns dd
+            pullmems.dd = nm
+          end
+          else pullmems.dd = pullmems.dd nm
         end
-        else pullmems.dd = pullmems.dd nm
+        else do
+          parse value so.pi with . dd '=>' nd .
+          dc = deletes.0 + 1
+          deletes.dc = strip(dd)
+          deletes.0 = dc
+          if wordpos(nd,pulldsns) = 0 then
+          pulldsns = pulldsns nd
+        end
+      end
+      if word(so.pi,1) = 'delete' then
+      if word(so.pi,2) = 'mode' then do
+        delds = word(so.pi,4)
+        dhit = 1
+        if left(delds,1) = '.' then dhit = 0
+        if dsnvalid(delds) = 'NO' then dhit = 0
+        if dhit = 1 then do
+          dc = deletes.0 + 1
+          deletes.dc = delds
+          deletes.0 = dc
+        end
+      end
+      if left(so.pi,5) = 'From' then leave
+      pidsn = word(so.pi,1)
+      if left(pidsn,1) = '.' then iterate
+      parse value pidsn with pidsn'/'pimem
+      if wordpos(pidsn,pulldsns) = 0 then do
+        pulldsns = pulldsns pidsn
+        pullmems.pidsn = pimem
+      end
+      else pullmems.pidsn = pullmems.pidsn pimem
+    end
+    if ptype = 2 then do  /* stash report */
+      w = word(so.pi,1)
+      if left(w,1) = '.' then iterate
+      if pos('/',w) = 0 then do
+        if pos('=>',so.pi) = 0 then do
+          if wordpos(w,pulldsns) = 0 then
+          pulldsns = pulldsns w
+        end
+        else do
+          parse value so.pi with wd '=>' w
+          dc = deletes.0 + 1
+          deletes.dc = wd
+          deletes.0 = dc
+          if wordpos(w,pulldsns) = 0 then
+          pulldsns = pulldsns w
+        end
       end
       else do
-        parse value so.pi with . dd '=>' nd .
-        dc = deletes.0 + 1
-        deletes.dc = strip(dd)
-        deletes.0 = dc
-        if wordpos(nd,pulldsns) = 0 then
-        pulldsns = pulldsns nd
+        parse value w with w'/'m
+        if pos('{',m) > 0 then do
+          parse value m with '{'dm '=>' nm'}' .
+          dc = deletes.0 + 1
+          deletes.dc = w'/'dm
+          deletes.0 = dc
+          pullmems.w = pullmems.w nm
+          if wordpos(w,pulldsns) = 0 then
+          pulldsns = pulldsns w
+        end
+        else do
+          pullmems.w = pullmems.w m
+          if wordpos(w,pulldsns) = 0 then
+          pulldsns = pulldsns w
+        end
       end
     end
-    if word(so.pi,1) = 'delete' then
-    if word(so.pi,2) = 'mode' then do
-      delds = word(so.pi,4)
-      dhit = 1
-      if left(delds,1) = '.' then dhit = 0
-      if dsnvalid(delds) = 'NO' then dhit = 0
-      if dhit = 1 then do
-        dc = deletes.0 + 1
-        deletes.dc = delds
-        deletes.0 = dc
-      end
-    end
-    if left(so.pi,5) = 'From' then leave
-    pidsn = word(so.pi,1)
-    if left(pidsn,1) = '.' then iterate
-    parse value pidsn with pidsn'/'pimem
-    if wordpos(pidsn,pulldsns) = 0 then do
-      pulldsns = pulldsns pidsn
-      pullmems.pidsn = pimem
-    end
-    else pullmems.pidsn = pullmems.pidsn pimem
   end
   /* ------------------------------------------------- *
   | Validate all the Pulldsns and remove if not valid |
@@ -1720,7 +1796,6 @@ Setup_Selective_Replace:
     'vput zv'zz
   end
   if pulldsns /= null then do
-    call view_std 'B'
     call Replace localrep zigirep pdshlq qualignr pulldsns
     'Verase pulldsns Both'
     call outtrap 'x.'
@@ -1738,7 +1813,6 @@ Setup_Selective_Replace:
         cmd = 'cd' localrep'/'zigirep'/'delds
         cmd = cmd '&& rm' mem
         x = bpxwunix(cmd)
-        call view_std 'B'
       end
     end
     call outtrap 'off'
@@ -1747,7 +1821,6 @@ Setup_Selective_Replace:
     end
     so.0 = deletes.0
     se.0 = 0
-    call view_std
     call update_repo_metadata
   end
   else do
@@ -1825,6 +1898,7 @@ Stash_IT:
   cmd = cmd '&& git stash show'
   x = docmd(cmd)
   call view_std 'B'
+  call Setup_Selective_Replace 'Stash Branch'
   call update_repo_metadata
   return
 
@@ -1851,7 +1925,10 @@ Stash_List:
   do i = 1 to so.0
     if left(so.i,5) /= 'stash' then iterate
     parse value so.i  with stashid':' stashcmt
-    if hit = 0 then call create_stash_tab
+    if hit = 0 then do
+      stab = 'STAB'random(9999)
+      'tbcreate' stab 'names(stashid stashcmt) nowrite'
+    end
     'tbadd' stab 'order'
     hit = 1
   end
@@ -1862,12 +1939,18 @@ Stash_List:
     return
   end
   ztop = 1
+  ztdsels = 0
   do forever
     zsel = null
-    'tbtop' stab
-    'tbskip' stab 'number(ztop)'
-    'tbdispl' stab 'panel(zigistab)'
-    if rc > 0 then do
+    if ztdsels > 1 then do
+      'tbdispl' stab
+    end
+    else do
+      'tbtop' stab
+      'tbskip' stab 'number(ztop)'
+      'tbdispl' stab 'panel(zigistab)'
+    end
+    if rc > 4 then do
       'tbend' stab
       return
     end
@@ -1913,9 +1996,18 @@ Stash_List:
       When zsel = 'P' then do   /* pop */
         cmd = 'cd' localrep'/'zigirep
         cmd = cmd '&& git stash pop' stashid
+        zs1 = 'Initiating git stash pop processing.'
+        zs2 = 'Please be patient while git does its thing.'
+        'addpop row(3) column(4)'
+        'control display lock'
+        'display panel(zigipop)'
+        'rempop'
         x = docmd(cmd)
-        call view_std 'B'
-        call Setup_Selective_Replace 'Stash Pop'
+        if x > 0 then call view_std 'B'
+        else do
+          'tbdelete' stab
+          call Setup_Selective_Replace 'Stash Pop'
+        end
       end
       When zsel = 'R' then do   /* remove/drop */
         cmd = 'cd' localrep'/'zigirep
@@ -1943,14 +2035,6 @@ Stash_List:
       end
     end
   end /* end of do forever */
-  return
-
-  /* ---------------------- *
-  | Create the Stash Table |
-  * ---------------------- */
-create_stash_tab:
-  stab = 'STAB'random(9999)
-  'tbcreate' stab 'names(stashid stashcmt) nowrite'
   return
 
   /* -------------------------------------- *
