@@ -1,5 +1,5 @@
 #!/bin/sh
-VER='V2R0'
+VER='V2R5'
 clear
 WHERE=`[ -z "$SSH_CLIENT" ] && echo "OMVS"`
 # Let's make sure we *really* run from sh lol
