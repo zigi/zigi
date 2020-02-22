@@ -15,7 +15,7 @@
 +
 %S  %Commit Message Text
 )Model
-@z +_cmsg                                                                 +
+@z +_cmsg                                                                      +
 )Init
   .zvars = '(zpush zsel)'
   &ccsr = 'CSR'
