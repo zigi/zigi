@@ -1061,7 +1061,8 @@ Work_With_Repo:
         call pop 'Pulling from remote'
         cmd = 'cd' localdir' && git pull -v'
         x = docmd(cmd)
-        call setup_selective_replace
+        if x > 0 then call view_std 'B'
+        call setup_selective_replace 'Pull'
       end
       /* -------------------------------- *
       | Fetch Remote Repo Updates        |
@@ -1620,6 +1621,7 @@ Work_With_Repo:
   return
 
 Setup_Selective_Replace:
+  parse arg ssrmsg
   parse value '' with pulldsns pullmems. deletes.
   deletes.0 = 0
   pulled = 0
@@ -1742,14 +1744,14 @@ Setup_Selective_Replace:
   else do
     if pulled = 0 then do
       zerrsm = 'Nothing'
-      zerrlm = 'Nothing to pull.'
+      zerrlm = 'No updates to process for' srrmsg
       'setmsg msg(isrz003)'
     end
     else call update_repo_metadata
   end
   if pulled > 0 then do
     zerrsm = 'Successful.'
-    zerrlm = left('Pull was a success.',76) pullmsg
+    zerrlm = left(srrmsg 'was a success.',76) pullmsg
     'setmsg msg(isrz003)'
   end
   return
@@ -1896,7 +1898,7 @@ Stash_List:
           cmd = cmd '&& git stash branch' bname stashid
           x = docmd(cmd)
           call view_std 'B'
-          call Setup_Selective_Replace
+          call Setup_Selective_Replace 'Stash Branch'
         end
       end
       When zsel = 'P' then do   /* pop */
@@ -1904,7 +1906,7 @@ Stash_List:
         cmd = cmd '&& git stash pop' stashid
         x = docmd(cmd)
         call view_std 'B'
-        call Setup_Selective_Replace
+        call Setup_Selective_Replace 'Stash Pop'
       end
       When zsel = 'R' then do   /* remove/drop */
         cmd = 'cd' localrep'/'zigirep
@@ -4379,11 +4381,11 @@ update_repo_metadata:
   end
   cmd = 'cd' localrep'/'zigirep
   /* Fetch only if there's a remote */
-  if fetch_flag = 0 then
   if zigi_offline = 0 then
   if remote1 /= '<no remote defined>' then
   x = docmd(cmd '&& git fetch')
   x = debug('...done')
+  fetch_flag = 1
   /* now we get the status for all in the repo */
   if zigi_offline = 0 then
   if crflag = 0 then  do
