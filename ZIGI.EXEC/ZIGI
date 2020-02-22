@@ -1074,6 +1074,15 @@ Work_With_Repo:
         cmd = 'cd' localrep'/'zigirep
         x = docmd(cmd '&& git fetch')
         fetch_flag = 1
+        x = docmd('cd 'localdir' && git status')
+        branch = word(so.1,3)
+        if so.0 > 1 then do
+          branch_status = word(so.2,4)
+          parse var so.2 bstat","baction
+        end
+        else do
+          parse value '' with branch_status bstat baction
+        end
       end
       /* -------------------------------- *
       | Replace z/OS datasets            |
@@ -1744,14 +1753,14 @@ Setup_Selective_Replace:
   else do
     if pulled = 0 then do
       zerrsm = 'Nothing'
-      zerrlm = 'No updates to process for' srrmsg
+      zerrlm = 'No updates to process for' ssrmsg
       'setmsg msg(isrz003)'
     end
     else call update_repo_metadata
   end
   if pulled > 0 then do
     zerrsm = 'Successful.'
-    zerrlm = left(srrmsg 'was a success.',76) pullmsg
+    zerrlm = left(ssrmsg 'was a success.',76) pullmsg
     'setmsg msg(isrz003)'
   end
   return
@@ -2715,6 +2724,7 @@ Do_Commit:
   * -------------------------------------- */
   else do
     cmsg.1 = translate(cmsg.1,' ',"'" '"')
+    cmd = 'cd' localrep'/'zigirep
     cmd = cmd "&& git commit -vm '"cmsg.1"'"
     if zigi_offline = 0 then
     if zpush = 'Y' then
@@ -3037,7 +3047,7 @@ Work_with_repo_file:
           end
           call git_add_member_stats
           cmd = 'cd' localrep'/'zigirep
-          cmd = '&& git add .'
+          cmd = cmd '&& git add .'
           x = docmd(cmd)
           zcmd = null
         end
