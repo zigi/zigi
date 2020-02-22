@@ -131,3 +131,7 @@ FIELD(ZCMD) LEN(255)
 /* 5650-ZOS     COPYRIGHT IBM CORP 1980, 2013 */
 /* ISPDTLC Release: 7.3.  Level: PID                                  */
 /* z/OS 02.03.00.  Created - Date: 13 Mar 2017, Time: 14:48           */
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

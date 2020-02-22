@@ -5,28 +5,29 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
-  ] type(output) caps(off) pas(on) intens(high) color(white)
-)Body  Window(46,12)
+  ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
+)Body Window(46,12)
 +
 +Enter Selection:_z                        +
 +
++]Addall+   Add all Untracked to Git
 +]Commit+   Register all changes with Git
 +]Gitlog+   Review the Git log
 +]Grep+     Search the repository for a string
 +]Locate+  _lstloc  +Locate a member
-+]Menu+     Toggle the menu on and off
 +]Reset    +Reset all userids
 +]Sort+     Sort the member list
 +]Status+   Get current Git status
+              +Or%F3+to cancel.
 )Init
  &zwinttl = 'zigi PDS Member Commands'
  .zvars = '(zcmd)'
  .cursor = zcmd
+  &Addall = 'AddAll'
   &Locate = 'Locate'
   &Commit = 'Commit'
   &gitlog = 'Gitlog'
   &grep   = 'Grep'
-  &menu   = 'Menu'
   &sort   = 'Sort'
   &status = 'Status'
   &reset  = 'Reset-IDs'
@@ -42,8 +43,11 @@
  FIELD(COMMIT) VAR(ZCMD) VAL('COMMIT')
  FIELD(GITLOG) VAR(ZCMD) VAL('GITLOG')
  FIELD(GREP )  VAR(ZCMD) VAL('GREP')
- FIELD(MENU )  VAR(ZCMD) VAL('MENU')
  FIELD(RESET ) VAR(ZCMD) VAL('RESET')
  FIELD(SORT )  VAR(ZCMD) VAL('SORT')
  FIELD(STATUS) VAR(ZCMD) VAL('STATUS')
 )End
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

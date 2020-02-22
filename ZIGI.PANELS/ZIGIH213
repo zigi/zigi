@@ -4,26 +4,26 @@
   [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
 )Body Expand(\\)
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
-%Selection ===>_ZCMD        \ \ %Scroll ===>_zcsr
+%Selection ===>_ZCMD
 +
                                 %AddDsn+
 +
-+Adding a OMVS file or directory requires the following considerations:
++If there are binary members in the partitioned dataset along with text
++members then use the %A+option to add the entire PDS to Git. Then from the
++Current Repository menu select the PDS and in the PDS Member display use
++the%AB+line selection to add the member in binary format.
 +
-+ %1.+The OMVS file or directory must be copied into the zigi managed +
-+     repository directory.
-+ %2.+File names that are UPPER CASE in the repository root will be considered
-+     z/OS datasets and will be copied to z/OS upon a Refresh or Clone.
-  %3.+If the files are not to be copied to z/OS the file, or directory,
-+     names must be mixed or lower case.
-  %4.+After the copy, use zigi to add the now un-tracked file, or directory,
-+     to Git management.
++The members selected as binary will be copied in binary format to the
++OMVS filesystem, they will be entered into the .gitattributes file with a
++binary designation, and they will be tagged in OMVS as binary files.
 +
 +
-          +  "It's the little details that are vital.
-          +   Little things make big things happen."  -- John Wooden
++
++  "When your work speaks for itself, don't interrupt."
++                  - Henry J. Kaiser
 +
 +
+
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
@@ -31,3 +31,7 @@
 )PROC
  &zcont = zigih214
 )END
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

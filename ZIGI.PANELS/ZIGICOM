@@ -1,40 +1,49 @@
 )Attr
  $ type(output) caps(off)
- # type(output) hilite(reverse) color(turq) caps(off)
+ } type(output) hilite(reverse) color(turq) caps(off)
  _ type(input) caps(off) hilite(uscore) intens(low)
  + type(text ) intens(low) skip(on)
  @ type(input) caps(on ) hilite(uscore) intens(low)
 )Body Expand(\\)
-+Git Commit+----------------------#zigtitle   +---------------------------------
-%Command ===>_zcmd                                                             +
++Git Commit+----------------------}zigtitle   +---------------------------------
+%Command ===>_zcmd       \ \ %Scroll ===>_ccsr+
++ \ \ %F3  +
+%Commit Title:_msg1                                             +
++Optional Tag:_tagid                                       +%Push+after:@z+(Y/N)
 +
-%Commit Title: _msg1                                             +
-+Comment Explanation: (. in 1st position for blank line)    %Push+after:@z+(Y/N)
- _msg2                                                                    +
- _msg3                                                                    +
- _msg4                                                                    +
- _msg5                                                                    +
- _msg6                                                                    +
- _msg7                                                                    +
- _msg8                                                                    +
- _msg9                                                                    +
- _msg10                                                                   +
- _msg11                                                                   +
- _msg12                                                                   +
- _msg13                                                                   +
- _msg14                                                                   +
- _msg15                                                                   +
- _msg16                                                                   +
- _msg17                                                                   +
++Command:%Insert+or%Insert #+   +Line:%I+insert%I#+insert #%D+delete%D#+delete
 +
-                  +Press%Enter+to continue, or%F3+to cancel.
+%S  %Commit Message Text
+)Model
+@z +_cmsg                                                                 +
 )Init
-  .zvars = '(zpush)'
+  .zvars = '(zpush zsel)'
+  &ccsr = 'CSR'
   .cursor = msg1
   if (&zpush EQ &Z)
       &zpush = 'N'
   .help = zigih230
+)Reinit
+  REFRESH(tagid)
 )Proc
- ver (&msg1,nb)
- ver (&zpush,list,Y,N,&Z)
+ if (&zcmd EQ &Z)
+    if (&zsel EQ &Z)
+      ver (&msg1,nb)
+      ver (&zpush,list,Y,N,&Z)
+ &resp = .resp
+*REXX(* zedsmsg zedlmsg resp)
+  if resp = 'END' then exit
+  zedsmsg = ''
+  if words(tagid) > 1 then do
+    zedsmsg = 'Error.'
+    zedlmsg = 'The Tag may not have blanks.'
+  end
+*ENDREXX
+ if (&zedsmsg NE &Z)
+    .cursor = TAGID
+    .msg = isrz001
 )end
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

@@ -5,28 +5,30 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
-  [ type(output) caps(off) pas(on) intens(high) color(white)
-)Body  window(54,14)
+  [ type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
+)Body Window(54,15)
 +
 +Enter Selection:_z                     \ \ +
 +
-[Add   + Add dataset        [Network+ Network Report
-[Br    + Change Branch      [Pull+    Pull from origin
-[Commit+ Record Changes     [Push+    Push to origin
-[Find+   Find in table      [Refresh+ Replace Datasets
-[Githelp+Git Help           [Remote+  Add remote
-[GitCMD +Git Command Prompt [Rollback+Revert
-[GitLog+ Query git log      [Set+     Set Defaults
-[Grep+   Find Strings       [Snapshot+Create Escrow
-[Menu+   Menu version       [Status+  Git Status
-[Merge+  Merge Branches     [View+    OMVS Dir
-+
+[Add   + Add dataset        [Pull+    Pull from origin
+[AddAll+ Add all to Git     [Push+    Push to origin
+[Br    + Change Branch      [Replace+ Replace Datasets
+[Commit+ Record Changes     [Remote+  Add remote
+[Find+   Find in table      [Rollback+Revert
+[Githelp+Git Help           [Set+     Set Defaults
+[GitCMD +Git Command Prompt [Snapshot+Create Escrow
+[GitLog+ Query git log      [Status+  Git Status
+[Grep+   Find Strings       [Tag+     Git Tag
+[Merge+  Merge Branches     [TagList+ List all Tags
+[Network+ Network Report    [View+    OMVS Dir
+                  +Or%F3+to cancel.
 )Init
  &zwinttl = 'zigi Current Repository Commands'
  .zvars = '(zcmd)'
  &zcmd  = &z
  .cursor = zcmd
  &Add     = 'AddDsn'
+ &Addall  = 'AddAll'
  &Br      = 'Branch'
  &Commit  = 'Commit'
  &Find    = 'Find'
@@ -36,15 +38,16 @@
  &Grep    = 'Grep'
  &Merge   = 'Merge'
  &Network = 'Network'
- &Menu    = 'Menu'
  &Pull    = 'Pull'
  &Push    = 'Push'
- &Refresh = 'Refresh'
+ &Replace = 'Replace'
  &Remote  = 'Remote'
  &Rollback  = 'Rollback'
  &Snapshot  = 'SnapShot'
  &Set     = 'Set'
  &Status  = 'Status'
+ &Tag     = 'Tag'
+ &TagList = 'TagList'
  &View    = 'View'
   .help = zigih200
 )Proc
@@ -52,6 +55,7 @@
     ver (&lstloc,nb)
 )PNTS
  FIELD(ADD   )  VAR(ZCMD) VAL('ADD')
+ FIELD(ADDALL)  VAR(ZCMD) VAL('ADDALL')
  FIELD(BR    )  VAR(ZCMD) VAL('BRANCH')
  FIELD(COMMIT)  VAR(ZCMD) VAL('COMMIT')
  FIELD(GITCMD)  VAR(ZCMD) VAL('GITCMD')
@@ -61,14 +65,19 @@
  FIELD(GREP  )  VAR(ZCMD) VAL('GREP')
  FIELD(MERGE)   VAR(ZCMD) VAL('MERGE')
  FIELD(NETWORK) VAR(ZCMD) VAL('NETWORK')
- FIELD(MENU  )  VAR(ZCMD) VAL('PRO')
  FIELD(PULL  )  VAR(ZCMD) VAL('PULL')
  FIELD(PUSH  )  VAR(ZCMD) VAL('PUSH')
- FIELD(REFRESH) VAR(ZCMD) VAL('REFRESH')
+ FIELD(REPLACE) VAR(ZCMD) VAL('REPLACE')
  FIELD(REMOTE)  VAR(ZCMD) VAL('REMOTE')
  FIELD(ROLLBACK) VAR(ZCMD) VAL('ROLLBACK')
  FIELD(SNAPSHOT) VAR(ZCMD) VAL('SNAPSHOT')
  FIELD(SET   )  VAR(ZCMD) VAL('SET')
  FIELD(STATUS)  VAR(ZCMD) VAL('STATUS')
+ FIELD(TAG   )  VAR(ZCMD) VAL('TAG')
+ FIELD(TAGLIST) VAR(ZCMD) VAL('TAGLIST')
  FIELD(VIEW  )  VAR(ZCMD) VAL('VIEW')
 )End
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

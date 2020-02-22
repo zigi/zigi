@@ -6,8 +6,8 @@
  + type(text) intens(low) skip(on)
 )Body Expand(\\) Width(&zscreenw)
 +Git Commands+-----\-\------------#zigtitle   +\-\------------------------------
-+Command ===>_zcmd                             \ \+Scroll ===>_gscr
-+
++Command ===>_zcmd                             \ \+Scroll ===>_gscr+
+  \ \ %F3  +
 +Git repo dir:[localdir
 +
 +Enter any Git command (without git):    Browse/View:$z+(B or V)
@@ -45,3 +45,7 @@ $z+[gitcmde              \ \ [gs
 )Field
  Field(gitcmde) ind(gs,'<>') len(255)
 )End
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */
