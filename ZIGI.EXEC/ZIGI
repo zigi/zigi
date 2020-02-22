@@ -2023,6 +2023,12 @@ Stash_IT:
     'setmsg msg(isrz003)'
     return
   end
+  zs1 = 'Initiating git stash processing.'
+  zs2 = 'Please be patient while git does its thing.'
+  'addpop row(3) column(4)'
+  'control display lock'
+  'display panel(zigipop)'
+  'rempop'
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git stash push -u -a -m "'date() time() stashmsg'"'
   cmd = cmd '&& git stash show'
@@ -2124,17 +2130,20 @@ Stash_List:
         end
       end
       When zsel = 'P' then do   /* pop */
-        cmd = 'cd' localrep'/'zigirep
-        cmd = cmd '&& git stash pop' stashid
-        zs1 = 'Initiating git stash pop processing.'
-        zs2 = 'Please be patient while git does its thing.'
-        'addpop row(3) column(4)'
-        'control display lock'
-        'display panel(zigipop)'
-        'rempop'
-        x = docmd(cmd)
-        if x > 0 then call view_std 'B'
-        else do
+        stash_hit = 0
+        call do_stash_pop
+        if stash_hit = 1 then do
+          stash_hit = 0
+          call do_stash_pop
+          if stash_hit = 1 then do
+            xrc = 2
+            zerrsm = 'Problem.'
+            zerrlm = 'Review for issues.'
+            'setmsg msg(isrz003)'
+            call view_std 'B'
+          end
+        end
+        if xrc < 2 then do
           'tbdelete' stab
           call Setup_Selective_Replace 'Stash Pop'
           zerrsm = 'Completed.'
@@ -2173,6 +2182,29 @@ Stash_List:
     end
   end /* end of do forever */
   return
+
+Do_Stash_Pop:
+  cmd = 'cd' localrep'/'zigirep
+  cmd = cmd '&& git stash pop' stashid
+  zs1 = 'Initiating git stash pop processing.'
+  zs2 = 'Please be patient while git does its thing.'
+  'addpop row(3) column(4)'
+  'control display lock'
+  'display panel(zigipop)'
+  'rempop'
+  xrc = docmd(cmd)
+  if xrc > 0 then do
+    do i = 1 to so.0
+      if word(so.i,1) = 'CONFLICT' then
+      if pos('Merge conflict',so.i) > 0 then do
+        mdsn = subword(so.i,words(so.i))
+        mrgdir = localrep'/'zigirep'/'mdsn
+        'edit file(mrgdir) macro(zigismrg)'
+        stash_hit = 1
+      end
+    end
+  end
+  Return
 
   /* -------------------------------------- *
   | Set/Confirm/Change Repository Settings |
