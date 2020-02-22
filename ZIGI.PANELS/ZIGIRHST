@@ -23,7 +23,7 @@
  &commit  = 'Commit'
  &recover = 'Recover'
 )Proc
- ver (&zsel,list,S,C)
+ ver (&zsel,list,R,S,C)
 )PNTS
   Field(commit ) var(zsel) val('C')
   Field(select ) var(zsel) val('S')
