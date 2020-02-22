@@ -1,0 +1,37 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD
++
+                                  %Bitbucket
++
+%1.+Open https://bitbucket.org
+%2.+Click on Log in
+%3.+Log in with your account information
++   or Click on Sign up for an account
+%4.+Click on the icon in the lower left with your initials (or picture)
+%5.+Click on Bitbucket settings
+%6.+Click on SSH keys
+%7.+Click on Add key
+%8.+Enter a title for the key and then paste your Public key into the box
+%9.+Click on Add key to complete adding the key
++
++
++  "Any fool can write code that a computer can understand.
++     Good programmers write code that humans can understand."
++         --- Martin Fowler
++
++        +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+ &zscr = CSR
+)PROC
+ &zcont = zigih720
+)END
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

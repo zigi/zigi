@@ -2,10 +2,11 @@
 *                 git-encoding=iso8859-1 zos-working-tree-encoding=ibm-1047
 .gitattributes    git-encoding=iso8859-1 zos-working-tree-encoding=iso8859-1
 .gitignore        git-encoding=iso8859-1 zos-working-tree-encoding=iso8859-1
-*.docm binary     
-*.docx binary     
-*.doc  binary     
-*.pdf  binary     
-*.epub binary     
-*.mobi binary     
+*.docm binary
+*.docx binary
+*.doc  binary
+*.pdf  binary
+*.epub binary
+*.mobi binary
+*.azw3 binary
 *.pdf binary

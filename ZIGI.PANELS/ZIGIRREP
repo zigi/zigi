@@ -5,8 +5,8 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
-  ] type(output) caps(off) pas(on) intens(high) color(white)
-)Body  window(46,13)
+  ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
+)Body  window(46,14)
 +
 +Enter Selection:_z +
 +
@@ -17,9 +17,10 @@
 +]History+(H)+ Display Commit History
 +]Remove+ (RM)+Remove the dataset/file
 +]Rename+ (RN)+Rename the dataset/file
++]Select+ (S)+ Edit the dataset/file
 +]Undo+   (U)+ Undo an UnCommitted change
 +]View+   (V)+ View the dataset/file
-+
+              +Or%F3+to cancel.
 )Init
  &zwinttl = 'zigi Current Repository Selections'
  .zvars = '(zsel)'
@@ -32,6 +33,7 @@
  &history = 'History'
  &remove  = 'Remove'
  &rename  = 'Rename'
+ &select  = 'Select'
  &undo    = 'Undo'
  &view    = 'View'
 )Proc
@@ -44,8 +46,13 @@
   Field(diff   ) var(zsel) val('D')
   Field(edit   ) var(zsel) val('S')
   Field(history) var(zsel) val('H')
+  Field(select ) var(zsel) val('S')
   Field(remove ) var(zsel) val('RM')
   Field(rename ) var(zsel) val('RN')
   Field(undo   ) var(zsel) val('U')
   Field(view   ) var(zsel) val('V')
 )End
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

@@ -6,9 +6,9 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                                 %Refresh+
+                                 %Replace+
 +
-%Refresh+will recreate ALL of the z/OS datasets in the local repository using
+%Replace+will recreate ALL of the z/OS datasets in the local repository using
 +the files in the OMVS filesystem.
 +
 +ALL updates that have NOT been committed and pushed will be lost.
@@ -30,3 +30,7 @@
 )PROC
  &zcont = zigih2c0
 )END
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

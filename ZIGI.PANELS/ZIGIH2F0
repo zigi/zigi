@@ -30,7 +30,11 @@
  vget (ztut)
 )PROC
  if (&ztut EQ '200')
-    &zcont = ZIGIH2G0
+    &zcont = ZIGIH2H0
  if (&ztut EQ '300')
     &zcont = ZIGIH340
 )END
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

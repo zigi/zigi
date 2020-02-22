@@ -5,39 +5,55 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
-  ] type(output) caps(off) pas(on) intens(high) color(white)
-)Body  window(46,11)
+  ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
+)Body Window(56,15)
 +
 +Enter Selection:_z +
 +
-+]Add+    (A)+ Add the member to the git Index
++]Add+    (A)+ Add the member as Text to the git Index
++]AddBin+ (AB)+Add the member as Binary to the git Index
++]Browse+ (B)+ Browse the dataset/file
 +]Edit+   (E)+ Edit the dataset/file
 +]Diff+   (D)+ Show the Diff's
 +]History+(H)+ Display Commit History
 +]Remove+ (RM)+Remove the element
 +]Rename+ (RN)+Rename the element
++]Select+ (S)+ Edit the dataset/file
 +]Undo+   (U)+ Undo an UnCommitted Change
-+
++]View+   (V)+ View the dataset/file
+                   +Or%F3+to cancel.
 )Init
  &zwinttl = 'zigi PDS Member Selection Options'
  .zvars = '(zsel)'
  .cursor = zsel
  &zsel  = &z
  &edit    = 'Edit'
+ &view    = 'View'
  &add     = 'Add'
+ &addbin  = 'AddBin'
+ &browse  = 'Browse'
  &diff    = 'Diff'
  &history = 'History'
  &remove  = 'Remove'
  &rename  = 'Rename'
+ &select  = 'Select'
  &undo    = 'Undo'
 )Proc
  ver (&zsel,list,A,E,D,H,RM,RN,S,U)
 )PNTS
   Field(add    ) var(zsel) val('A')
+  Field(addbin ) var(zsel) val('AB')
+  Field(browse ) var(zsel) val('B')
   Field(diff   ) var(zsel) val('D')
   Field(edit   ) var(zsel) val('S')
+  Field(select ) var(zsel) val('S')
   Field(history) var(zsel) val('H')
   Field(remove ) var(zsel) val('RM')
   Field(rename ) var(zsel) val('RN')
   Field(undo   ) var(zsel) val('U')
+  Field(view   ) var(zsel) val('V')
 )End
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

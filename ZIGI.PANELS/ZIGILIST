@@ -3,36 +3,53 @@
   @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
   $ type(output) intens(low ) caps(off) just(left )
   [ type(output) intens(low ) caps(off) just(right)
-  ] type(output) caps(off) pas(on) intens(high) color(white)
+  ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
+ | TYPE(AB)           /* Action bar                */
+ < TYPE(ABSL) GE(ON)  /* Action bar separator line */
+)ABC DESC(Menu)
+ PDC DESC('Add All Modified/Untracked')          ACTION RUN(ADDALL)
+ PDC DESC('Commit changes')                      ACTION RUN(COMMIT)
+ PDC DESC('GIT Commands') ACTION RUN(zigigcmd)
+ PDC DESC('GIT Help') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%GITHELP)')
+ PDC DESC('GitLog')                              ACTION RUN(GITLOG)
+ PDC DESC('Grep - search for string')            ACTION RUN(GREP)
+ PDC DESC('Locate a Member')                     ACTION RUN(LOCATE)
+ PDC DESC('Sort the table')                      ACTION RUN(SORT)
+ PDC DESC('Status of the Repository')            ACTION RUN(STATUS)
+ PDC DESC('Reset Userids')                       ACTION RUN(RESET)
+ PDC DESC('End') Action Run(END)
+)ABCINIT
+  .ZVARS = 'MENUX'
+)ABC DESC(Help)
+ PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigih300')
+)ABCINIT
+  .ZVARS = HELPX
 )Body  Expand(\\)
++| Menu | Help +
+<-----------\-\--------------------------------+
 +PDS Member List+-----------------#zigtitle   +---------------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
++Current Dataset    : $fulldsn                     \ \%F3  +
++Current Repository : $localdir
++Current Branch     : $branch
 %
-%Current Dataset    : $fulldsn
-%Current Repository : $localdir
-%Current Branch     : $branch
-%
-+Command:%L+Locate  ]Commit]Gitlog]Grep]Sort]Status]Reset    ]Menu+
-+Line:   %S+Edit%A+Add%D+Diff%H+History%RM+Remove%RN+Rename%U+Undo
-%
-%S   Member    Status                     Size    Mod-Date  Mod-Time  Userid
+%S  ]tmem  +  ]tstat +             %Type+]tsiz+  ]tdate   +]ttime   +]tuser +
 )Model
-@z +$z        +$z                     [z      +  [z       +[z       +$z
+@z +$z        +$z                   [z+[z     +  [z       +[z       +$z
 )Init
-  .zvars = '(zsel mem memstat zlcnorc zlmdate zlmtime zluser)'
+  .zvars = '(zsel mem memstat mtype zlcnorc zlmdate zlmtime zluser)'
   .cursor = &zcmd
   .help = zigih300
   &zscr = CSR
-  &Commit = 'Commit'
-  &gitlog = 'Gitlog'
-  &grep   = 'Grep'
-  &menu   = 'Menu'
-  &sort   = 'Sort'
-  &status = 'Status'
-  &reset  = 'Reset-IDs'
+  &tmem   = 'Member'
+  &tstat  = 'Status'
+  &tsiz   = 'Size'
+  &tdate  = 'Mod-Date'
+  &ttime  = 'Mod-Time'
+  &tuser  = 'Userid'
 )Proc
  &row = &z
  if (&ZCMD = &Z)
@@ -49,13 +66,16 @@
      &osel = &zsel
  if (&row = 0)
     &zsel = &z
- ver (&zsel,list,S,A,D,U,RN,RM,H,/)
+ ver (&zsel,list,S,A,D,U,RN,RM,H,/,AB)
 )PNTS
- FIELD(COMMIT) VAR(ZCMD) VAL('COMMIT')
- FIELD(GITLOG) VAR(ZCMD) VAL('GITLOG')
- FIELD(STATUS) VAR(ZCMD) VAL('STATUS')
- FIELD(RESET ) VAR(ZCMD) VAL('RESET')
- FIELD(SORT )  VAR(ZCMD) VAL('SORT')
- FIELD(GREP )  VAR(ZCMD) VAL('GREP')
- FIELD(MENU )  VAR(ZCMD) VAL('MENU')
+ FIELD(TMEM )  VAR(ZCMD) VAL('SORT MEMBER')
+ FIELD(TSTAT)  VAR(ZCMD) VAL('SORT STATUS')
+ FIELD(TSIZ )  VAR(ZCMD) VAL('SORT SIZE')
+ FIELD(TDATE)  VAR(ZCMD) VAL('SORT DATE')
+ FIELD(TTIME)  VAR(ZCMD) VAL('SORT TIME')
+ FIELD(TUSER)  VAR(ZCMD) VAL('SORT USERID')
 )End
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */
