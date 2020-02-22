@@ -1,5 +1,6 @@
   /* --------------------  rexx procedure  ------------------- */
   ver = 'v2r5'
+  stash_state = 0   /* 0 = off 1 = on */
   /*Name:      zigi  (z ISPF Git Interface)                    |
   |                                                            |
   | Version:   V2R1                                            |
@@ -1060,138 +1061,7 @@ Work_With_Repo:
         call pop 'Pulling from remote'
         cmd = 'cd' localdir' && git pull -v'
         x = docmd(cmd)
-        parse value '' with pulldsns pullmems. deletes.
-        deletes.0 = 0
-        pulled = 0
-        do pi = 1 to so.0
-          if left(so.pi,1) /= ' ' then iterate
-          if pos(' changed,',so.pi) > 0 then do
-            pullmsg = so.pi
-            pulled = 1
-            iterate
-          end
-          if word(so.pi,1) = 'rename' then do
-            if pos('/',so.pi) > 0 then do
-              parse value so.pi with . dd'/{'dm '=>' nm'}' .
-              dc = deletes.0 + 1
-              deletes.dc = strip(dd)'/'strip(dm)
-              deletes.0 = dc
-              if wordpos(dd,pulldsns) = 0 then do
-                pulldsns = pulldsns dd
-                pullmems.dd = nm
-              end
-              else pullmems.dd = pullmems.dd nm
-            end
-            else do
-              parse value so.pi with . dd '=>' nd .
-              dc = deletes.0 + 1
-              deletes.dc = strip(dd)
-              deletes.0 = dc
-              if wordpos(nd,pulldsns) = 0 then
-              pulldsns = pulldsns nd
-            end
-          end
-          if word(so.pi,1) = 'delete' then
-          if word(so.pi,2) = 'mode' then do
-            delds = word(so.pi,4)
-            dhit = 1
-            if left(delds,1) = '.' then dhit = 0
-            if dsnvalid(delds) = 'NO' then dhit = 0
-            if dhit = 1 then do
-              dc = deletes.0 + 1
-              deletes.dc = delds
-              deletes.0 = dc
-            end
-          end
-          if left(so.pi,5) = 'From' then leave
-          pidsn = word(so.pi,1)
-          if left(pidsn,1) = '.' then iterate
-          parse value pidsn with pidsn'/'pimem
-          if wordpos(pidsn,pulldsns) = 0 then do
-            pulldsns = pulldsns pidsn
-            pullmems.pidsn = pimem
-          end
-          else pullmems.pidsn = pullmems.pidsn pimem
-        end
-       /* ------------------------------------------------- *
-        | Validate all the Pulldsns and remove if not valid |
-        * ------------------------------------------------- */
-        do ip = words(pulldsns) to 1 by -1
-          w = word(pulldsns,ip)
-          if dsnvalid(w) = 'OK' then iterate
-          pulldsns = delword(pulldsns,ip,1)
-        end
-        /* create the ispf variable with member names for
-        the dataset using the dataset offset in pulldsns
-        for the variable suffix */
-        if qualignr = 0
-        then delhlq = pdshlq
-        else do
-          delhlq = translate(pdshlq,' ','.')
-          if qualignr /= '*' then
-          delhlq = subword(delhlq,1,qualignr)
-          delhlq = translate(delhlq,'.',' ')
-        end
-        do zz = 1 to words(pulldsns)
-          zd = word(pulldsns,zz)
-          zw = words(pullmems.zd)
-          ldsn = "'"delhlq"."zd"'"
-          x = do_listdsi(ldsn "dir")
-          /* check if a PDSE and bypass the full Replace or if not
-          a PDSE then check of more than 25% of members being
-          updated and if so then nullify the member list so a full
-          Replace will occur for the dataset */
-          if x = 0 then
-          if sysmembers /= null then
-          if sysadirblk /= 'NO_LIM' then
-          if sysmembers/zw < 4 then pullmems.zd = ''
-          interpret 'zv'zz '= (pullmems.zd)'
-          'vput zv'zz
-        end
-        if pulldsns /= null then do
-          call view_std 'B'
-          call Replace localrep zigirep pdshlq qualignr pulldsns
-          'Verase pulldsns Both'
-          call outtrap 'x.'
-          if deletes.0 > 0 then do dc = 1 to deletes.0
-            if pos('/',deletes.dc) = 0
-            then do
-              delds =  "'"pdshlq"."deletes.dc"'"
-              dm.dc = delds
-              Address TSO 'Delete' delds
-            end
-            else do
-              parse value deletes.dc with delds'/'mem
-              dm.dc = "'"pdshlq"."delds"("mem")'"
-              call delete_member "'"pdshlq"."delds"'" mem
-              cmd = 'cd' localrep'/'zigirep'/'delds
-              cmd = cmd '&& rm' mem
-              x = bpxwunix(cmd)
-              call view_std 'B'
-            end
-          end
-          call outtrap 'off'
-          do id = 1 to deletes.0
-            so.id = 'Deleted:' dm.id
-          end
-          so.0 = deletes.0
-          se.0 = 0
-          call view_std
-          call update_repo_metadata
-        end
-        else do
-          if pulled = 0 then do
-            zerrsm = 'Nothing'
-            zerrlm = 'Nothing to pull.'
-            'setmsg msg(isrz003)'
-          end
-          else call update_repo_metadata
-        end
-        if pulled > 0 then do
-          zerrsm = 'Successful.'
-          zerrlm = left('Pull was a success.',76) pullmsg
-          'setmsg msg(isrz003)'
-        end
+        call setup_selective_replace
       end
       /* -------------------------------- *
       | Fetch Remote Repo Updates        |
@@ -1245,10 +1115,8 @@ Work_With_Repo:
         end
         else call do_rollback
       end
-      /* Comment Start - still a work in progress
       When abbrev('STASH',zcmd,4) = 1 then call stash_it
       When zcmd = 'STASHL' then call stash_list
-         Comment End */
       /* -------------------------------- *
       | Snapshot the current repository  |
       * -------------------------------- */
@@ -1751,6 +1619,141 @@ Work_With_Repo:
   end
   return
 
+Setup_Selective_Replace:
+  parse value '' with pulldsns pullmems. deletes.
+  deletes.0 = 0
+  pulled = 0
+  do pi = 1 to so.0
+    if left(so.pi,1) /= ' ' then iterate
+    if pos(' changed,',so.pi) > 0 then do
+      pullmsg = so.pi
+      pulled = 1
+      iterate
+    end
+    if word(so.pi,1) = 'rename' then do
+      if pos('/',so.pi) > 0 then do
+        parse value so.pi with . dd'/{'dm '=>' nm'}' .
+        dc = deletes.0 + 1
+        deletes.dc = strip(dd)'/'strip(dm)
+        deletes.0 = dc
+        if wordpos(dd,pulldsns) = 0 then do
+          pulldsns = pulldsns dd
+          pullmems.dd = nm
+        end
+        else pullmems.dd = pullmems.dd nm
+      end
+      else do
+        parse value so.pi with . dd '=>' nd .
+        dc = deletes.0 + 1
+        deletes.dc = strip(dd)
+        deletes.0 = dc
+        if wordpos(nd,pulldsns) = 0 then
+        pulldsns = pulldsns nd
+      end
+    end
+    if word(so.pi,1) = 'delete' then
+    if word(so.pi,2) = 'mode' then do
+      delds = word(so.pi,4)
+      dhit = 1
+      if left(delds,1) = '.' then dhit = 0
+      if dsnvalid(delds) = 'NO' then dhit = 0
+      if dhit = 1 then do
+        dc = deletes.0 + 1
+        deletes.dc = delds
+        deletes.0 = dc
+      end
+    end
+    if left(so.pi,5) = 'From' then leave
+    pidsn = word(so.pi,1)
+    if left(pidsn,1) = '.' then iterate
+    parse value pidsn with pidsn'/'pimem
+    if wordpos(pidsn,pulldsns) = 0 then do
+      pulldsns = pulldsns pidsn
+      pullmems.pidsn = pimem
+    end
+    else pullmems.pidsn = pullmems.pidsn pimem
+  end
+  /* ------------------------------------------------- *
+  | Validate all the Pulldsns and remove if not valid |
+  * ------------------------------------------------- */
+  do ip = words(pulldsns) to 1 by -1
+    w = word(pulldsns,ip)
+    if dsnvalid(w) = 'OK' then iterate
+    pulldsns = delword(pulldsns,ip,1)
+  end
+  /* create the ispf variable with member names for
+  the dataset using the dataset offset in pulldsns
+  for the variable suffix */
+  if qualignr = 0
+  then delhlq = pdshlq
+  else do
+    delhlq = translate(pdshlq,' ','.')
+    if qualignr /= '*' then
+    delhlq = subword(delhlq,1,qualignr)
+    delhlq = translate(delhlq,'.',' ')
+  end
+  do zz = 1 to words(pulldsns)
+    zd = word(pulldsns,zz)
+    zw = words(pullmems.zd)
+    ldsn = "'"delhlq"."zd"'"
+    x = do_listdsi(ldsn "dir")
+    /* check if a PDSE and bypass the full Replace or if not
+    a PDSE then check of more than 25% of members being
+    updated and if so then nullify the member list so a full
+    Replace will occur for the dataset */
+    if x = 0 then
+    if sysmembers /= null then
+    if sysadirblk /= 'NO_LIM' then
+    if sysmembers/zw < 4 then pullmems.zd = ''
+    interpret 'zv'zz '= (pullmems.zd)'
+    'vput zv'zz
+  end
+  if pulldsns /= null then do
+    call view_std 'B'
+    call Replace localrep zigirep pdshlq qualignr pulldsns
+    'Verase pulldsns Both'
+    call outtrap 'x.'
+    if deletes.0 > 0 then do dc = 1 to deletes.0
+      if pos('/',deletes.dc) = 0
+      then do
+        delds =  "'"pdshlq"."deletes.dc"'"
+        dm.dc = delds
+        Address TSO 'Delete' delds
+      end
+      else do
+        parse value deletes.dc with delds'/'mem
+        dm.dc = "'"pdshlq"."delds"("mem")'"
+        call delete_member "'"pdshlq"."delds"'" mem
+        cmd = 'cd' localrep'/'zigirep'/'delds
+        cmd = cmd '&& rm' mem
+        x = bpxwunix(cmd)
+        call view_std 'B'
+      end
+    end
+    call outtrap 'off'
+    do id = 1 to deletes.0
+      so.id = 'Deleted:' dm.id
+    end
+    so.0 = deletes.0
+    se.0 = 0
+    call view_std
+    call update_repo_metadata
+  end
+  else do
+    if pulled = 0 then do
+      zerrsm = 'Nothing'
+      zerrlm = 'Nothing to pull.'
+      'setmsg msg(isrz003)'
+    end
+    else call update_repo_metadata
+  end
+  if pulled > 0 then do
+    zerrsm = 'Successful.'
+    zerrlm = left('Pull was a success.',76) pullmsg
+    'setmsg msg(isrz003)'
+  end
+  return
+
   /* ----------------------- *
   | Git Add Dataset Routine |
   * ----------------------- */
@@ -1785,37 +1788,158 @@ git_add:
   end
   return
 
-/* ------------------------------------------------- *
- | Stash the current workspace                       |
- | git stash -u save "date time"                     |
- | then                                              |
- | git stash show (to get the affected datasets)     |
- |                                                   |
- | generate a replace based on the affected datasets |
- * ------------------------------------------------- */
+  /* ------------------------------------------------- *
+  | Stash the current workspace                       |
+  | git stash push -u -a -m "date time"               |
+  | then                                              |
+  | git stash show (to get the affected datasets)     |
+  |                                                   |
+  | generate a replace based on the affected datasets |
+  * ------------------------------------------------- */
 Stash_IT:
+  if stash_state = 0 then return
+  stashmsg = null
+  'addpop row(3) column(4)'
+  'display panel(zigistaq)'
+  drc = rc
+  'rempop'
+  if drc > 0 then do
+    zerrsm = 'Canceled.'
+    zerrlm = 'Stash canceled.'
+    'setmsg msg(isrz003)'
+    return
+  end
   cmd = 'cd' localrep'/'zigirep
-  cmd = cmd '&& git stash save -u -a "'date() time()'"'
+  cmd = cmd '&& git stash push -u -a -m "'date() time() stashmsg'"'
   cmd = cmd '&& git stash show'
   x = docmd(cmd)
   call view_std 'B'
+  call update_repo_metadata
   return
 
-/* ------------------------------------------------ *
- | Process the stashl (stash list) command:         |
- | - issue git stash list to get a list of stashes  |
- | - display them in a table                        |
- | - selection commands will be:                    |
- |   SHOW - git stash show #                        |
- |   DIFF - git stash show # -p (then view)         |
- |   DROP - git stash drop stash-#                  |
- |   BRanch - git stash branch-name stash-#         |
- |     - do a replace for affected datasets         |
- | - Commands                                       |
- |   CLEAR - git stash clear  (removed ALL stashes) |
- * ------------------------------------------------ */
+  /* ------------------------------------------------ *
+  | Process the stashl (stash list) command:         |
+  | - issue git stash list to get a list of stashes  |
+  | - display them in a table                        |
+  | - selection commands will be:                    |
+  |   BRanch - git stash branch-name stash-#   (B)   |
+  |     - do a replace for affected datasets         |
+  |   DIFF - git stash show # -p (then view)   (D)   |
+  |   Remove - git stash drop stash-#          (R)   |
+  |   POP  - git stash pop #                   (P)   |
+  |   SHOW - git stash show #                  (S)   |
+  | - Commands                                       |
+  |   CLEAR - git stash clear  (removed ALL stashes) |
+  * ------------------------------------------------ */
 Stash_List:
-  say 'not implemented yet'
+  if stash_state = 0 then return
+  cmd = 'cd' localrep'/'zigirep
+  cmd = cmd '&& git stash list'
+  x = docmd(cmd)
+  hit = 0
+  do i = 1 to so.0
+    if left(so.i,5) /= 'stash' then iterate
+    parse value so.i  with stashid':' stashcmt
+    if hit = 0 then call create_stash_tab
+    'tbadd' stab 'order'
+    hit = 1
+  end
+  if hit = 0 then do
+    zerrsm = 'Nothing.'
+    zerrlm = 'No stashes have been found.'
+    'setmsg msg(isrz003)'
+    return
+  end
+  ztop = 1
+  do forever
+    zsel = null
+    'tbtop' stab
+    'tbskip' stab 'number(ztop)'
+    'tbdispl' stab 'panel(zigistab)'
+    if rc > 0 then do
+      'tbend' stab
+      return
+    end
+    ztop = ztdtop
+    if zcmd = 'CLEAR' then do
+      'tbend' stab
+      cmd = 'cd' localrep'/'zigirep
+      cmd = cmd '&& git stash clear'
+      x = docmd(cmd)
+      zerrsm = 'Cleared.'
+      zerrlm = 'All stashes have been removed from the repository.'
+      'setmsg msg(isrz003)'
+      return
+    end
+    if zsel = '/' then do
+      'addpop row(3) column(4)'
+      'display panel(zigirsth)'
+      drc = rc
+      'rempop'
+      if drc > 0 then zsel = null
+    end
+    if zsel /= null then
+    Select
+      When zsel = 'B' then do   /* branch */
+        bname = null
+        'addpop row(3) column(4)'
+        'display panel(zigistbq)'
+        drc = rc
+        'rempop'
+        if drc > 0 then do
+          zerrsm = 'Canceled.'
+          zerrlm = 'Stash Branch canceled.'
+          'setmsg msg(isrz003)'
+        end
+        else do
+          cmd = 'cd' localrep'/'zigirep
+          cmd = cmd '&& git stash branch' bname stashid
+          x = docmd(cmd)
+          call view_std 'B'
+          call Setup_Selective_Replace
+        end
+      end
+      When zsel = 'P' then do   /* pop */
+        cmd = 'cd' localrep'/'zigirep
+        cmd = cmd '&& git stash pop' stashid
+        x = docmd(cmd)
+        call view_std 'B'
+        call Setup_Selective_Replace
+      end
+      When zsel = 'R' then do   /* remove/drop */
+        cmd = 'cd' localrep'/'zigirep
+        cmd = cmd '&& git stash drop' stashid
+        x = docmd(cmd)
+        call view_std 'B'
+        'tbdelete' stab
+      end
+      When zsel = 'S' then do   /* show */
+        cmd = 'cd' localrep'/'zigirep
+        cmd = cmd '&& git stash show' stashid
+        x = docmd(cmd)
+        call view_std 'B'
+      end
+      When zsel = 'D' then do   /* show diff */
+        cmd = 'cd' localrep'/'zigirep
+        cmd = cmd '&& git stash show -p' stashid
+        x = docmd(cmd)
+        call view_std 'B'
+      end
+      Otherwise do
+        zerrsm = 'Unknown.'
+        zerrlm = zsel 'is an unknown line selection - try again.'
+        'setmsg msg(isrz003)'
+      end
+    end
+  end /* end of do forever */
+  return
+
+  /* ---------------------- *
+  | Create the Stash Table |
+  * ---------------------- */
+create_stash_tab:
+  stab = 'STAB'random(9999)
+  'tbcreate' stab 'names(stashid stashcmt) nowrite'
   return
 
   /* -------------------------------------- *
@@ -4089,7 +4213,6 @@ view_std:
       so.sc = se.xi
     end
     so.0 = sc
-    drop se.
   end
   /* ----------------------- *
   | Write out the stem data |
@@ -4103,11 +4226,9 @@ view_std:
     if stdopt = null
     then do
       'Execio * diskw' dd '(finis stem so.'
-      drop so.
     end
     else do
       'Execio * diskw' dd '(finis stem se.'
-      drop se.
     end
   end
   /* -------------------------------------------------- *
@@ -4348,9 +4469,9 @@ update_repo_metadata:
             end
             mem_hit = 1
           end
-        /* --------------------------------------------------------- *
-         | If members were updated then need to update the stat file |
-         * --------------------------------------------------------- */
+          /* --------------------------------------------------------- *
+          | If members were updated then need to update the stat file |
+          * --------------------------------------------------------- */
           if mem_hit = 1 then do
             cmd = 'cd' localrep'/'zigirep'/.zigi'
             cmd = cmd '&& git add .'
