@@ -15,9 +15,9 @@
 +]Pop+    (P)+ Restore a stash
 +]Remove+ (R)+ Remove (Drop) the stash
 +]Show+   (S)+ Show stash summary
-                   +Or%F3+to cancel.
+             +Or%F3+to cancel.
 )Init
- &zwinttl = 'zigi PDS Member Selection Options'
+ &zwinttl = 'zigi Stash Row Selection Options'
  .zvars = '(zsel)'
  .cursor = zsel
  &zsel  = &z
