@@ -1,0 +1,69 @@
+/* --------------------  rexx procedure  -------------------- *
+ | Name:      zigismrg                                        |
+ |                                                            |
+ | Function:  ISPF Edit Macro to:                             |
+ |                                                            |
+ |            Remove all merge conflict records after a       |
+ |            git stash pop                                   |
+ |                                                            |
+ |            - upstream removed                              |
+ |            - stash retained                                |
+ |                                                            |
+ | Usage Notes: called by zigi                                |
+ |                                                            |
+ | Author:    Lionel B. Dyck                                  |
+ |                                                            |
+ | History:  (most recent on top)                             |
+ |            02/22/20 LBD - creation                         |
+ |                                                            |
+ | ---------------------------------------------------------- |
+ |    zigi - the z/OS ISPF Git Interface                      |
+ |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
+ |                                                            |
+ |    This program is free software: you can redistribute it  |
+ |    and/or modify it under the terms of the GNU General     |
+ |    Public License as published by the Free Software        |
+ |    Foundation, either version 3 of the License, or (at     |
+ |    your option) any later version.                         |
+ |                                                            |
+ |    This program is distributed in the hope that it will be |
+ |    useful, but WITHOUT ANY WARRANTY; without even the      |
+ |    implied warranty of MERCHANTABILITY or FITNESS FOR A    |
+ |    PARTICULAR PURPOSE.  See the GNU General Public License |
+ |    for more details.                                       |
+ |                                                            |
+ |    You should have received a copy of the GNU General      |
+ |    Public License along with this program.  If not, see    |
+ |    <https://www.gnu.org/licenses/>.                        |
+ * ---------------------------------------------------------- */
+  Address ISREdit
+  'Macro (options)'
+  'reset all'
+  'recovery on'
+
+  '(last) = linenum .zlast'
+  hit = 0
+  do i = last to 1 by -1
+    '(data) = line' i
+    Select
+      when pos('<<<<<<<',data) > 0 then do
+        'delete' i
+        hit = 0
+      end
+      when pos('=======',data) > 0 then do
+        'delete' i
+        hit = 1
+      end
+      when pos('>>>>>>>',data) > 0 then do
+        'delete' i
+        hit = 0
+      end
+      when hit = 1 then do
+        'delete' i
+      end
+      otherwise nop
+    end
+  end
+  'save'
+  'end'
+  exit
