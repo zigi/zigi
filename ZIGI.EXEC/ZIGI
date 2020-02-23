@@ -1655,7 +1655,7 @@ Work_With_Repo:
           end
           else Select
             when rtype = 'OMVS' then do
-              cmd = 'cd' localdir '&& git rm -r' '"'fulldsn'"'
+              cmd = 'cd' localdir '&& git rm -rf' '"'fulldsn'"'
               cmd = cmd '&& git add -u'
               x = docmd(cmd,,so.,se.)
             end
@@ -1664,7 +1664,7 @@ Work_With_Repo:
               Address TSO ,
                 'Delete' fulldsn
               call outtrap 'off'
-              cmd = 'cd' localdir '&& git rm' dsn
+              cmd = 'cd' localdir '&& git rm -rf' dsn
               x = docmd(cmd,,so.,se.)
             end
             when rtype = 'PO' then do
@@ -1939,6 +1939,9 @@ Do_Post_Pull:
         delds =  "'"pdshlq"."deletes.dc"'"
         dm.dc = delds
         Address TSO 'Delete' delds
+        cmd = 'cd' localrep'/'zigirep
+        cmd = cmd '&& rm' deletes.dc
+        x = bpxwunix(cmd,,so.,se.)
       end
       else do
         parse value deletes.dc with delds'/'mem
@@ -1946,7 +1949,7 @@ Do_Post_Pull:
         call delete_member "'"pdshlq"."delds"'" mem
         cmd = 'cd' localrep'/'zigirep'/'delds
         cmd = cmd '&& rm' mem
-        x = bpxwunix(cmd)
+        x = bpxwunix(cmd,,so.,se.)
       end
     end
     call outtrap 'off'
@@ -2094,12 +2097,6 @@ Stash_IT:
       Otherwise nop
     end
   end
-  say 'pulldsns:' pulldsns
-  say 'deletes:'
-  do i = 1 to deletes.0;say deletes.i;end
-  say 'pullmems:'
-  do i = 1 to words(pulldsns)
-  w = word(pulldsns,i);say pullmems.w;end
   call do_post_pull
   call update_repo_metadata
   return
@@ -2196,13 +2193,20 @@ Stash_List:
         end
       end
       When zsel = 'P' then do   /* pop */
-        stash_hit = 0
         call do_stash_pop
+        if stash_hit = 1 then call do_stash_pop
+        if stash_hit = 1 then do
+        zerrsm = 'Error.'
+        zerrlm = 'Incomplete/failed stash pop' sid
+        'setmsg msg(isrz003)'
+           end
+        else do
         'tbdelete' stab
         call Setup_Selective_Replace 'Stash Pop'
         zerrsm = 'Completed.'
         zerrlm = 'Stash pop processing completed for' sid
         'setmsg msg(isrz003)'
+      end
       end
       When zsel = 'R' then do   /* remove/drop */
         cmd = 'cd' localrep'/'zigirep
@@ -2237,6 +2241,7 @@ Stash_List:
   return
 
 Do_Stash_Pop:
+  stash_hit = 0
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git stash pop' stashid
   zs1 = 'Initiating git stash pop processing.'
@@ -2245,12 +2250,13 @@ Do_Stash_Pop:
   'control display lock'
   'display panel(zigipop)'
   'rempop'
+  trace '?I'
   xrc = docmd(cmd)
   if xrc > 0 then do
     do i = 1 to so.0
-      if word(so.i,1) = 'CONFLICT' then
-      if pos('Merge conflict',so.i) > 0 then do
+      if pos('needs merge',so.i) > 0 then do
         mdsn = subword(so.i,words(so.i))
+        parse value so.i with mdsn':' .
         mrgdir = localrep'/'zigirep'/'mdsn
         'edit file(mrgdir) macro(zigismrg)'
         stash_hit = 1
