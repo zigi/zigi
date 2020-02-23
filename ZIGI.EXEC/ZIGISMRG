@@ -64,6 +64,7 @@
       otherwise nop
     end
   end
+  exit /* $$$$ */
   'save'
   'end'
   exit
