@@ -1160,6 +1160,8 @@ Work_With_Repo:
               delds =  "'"pdshlq"."deletes.dc"'"
               dm.dc = delds
               Address TSO 'Delete' delds
+              cmd = 'cd' localrep'/'zigirep
+              cmd = cmd '&& rm' deletes.dc
             end
             else do
               parse value deletes.dc with delds'/'mem
@@ -1204,7 +1206,6 @@ Work_With_Repo:
         x = docmd(cmd '&& git fetch')
         fetch_flag = 1
         x = docmd('cd 'localdir' && git status')
-        trace '?i'
         branch = word(so.1,3)
         if so.0 > 1 then do
           branch_status = word(so.2,4)
@@ -1653,7 +1654,7 @@ Work_With_Repo:
           end
           else Select
             when rtype = 'OMVS' then do
-              cmd = 'cd' localdir '&& git rm -r' '"'fulldsn'"'
+              cmd = 'cd' localdir '&& git rm -rf' '"'fulldsn'"'
               cmd = cmd '&& git add -u'
               x = docmd(cmd,,so.,se.)
             end
@@ -1662,7 +1663,7 @@ Work_With_Repo:
               Address TSO ,
                 'Delete' fulldsn
               call outtrap 'off'
-              cmd = 'cd' localdir '&& git rm' dsn
+              cmd = 'cd' localdir '&& git rm -rf' dsn
               x = docmd(cmd,,so.,se.)
             end
             when rtype = 'PO' then do
@@ -1766,8 +1767,6 @@ Setup_Selective_Replace:
   ptype = 0
   do pi = 1 to so.0
     so.pi = translate(so.pi,' ','05'x)
-    if pos('On branch',so.pi) > 0 then ptype = 1
-    if pos('Saved working',so.pi) > 0 then ptype = 2
     if word(so.pi,1) = 'Removing' then do
       if left(w,1) = '.' then iterate
       dc = deletes.0 + 1
@@ -1890,6 +1889,10 @@ Setup_Selective_Replace:
       end
     end
   end
+  call do_post_pull 'Stash Pop'
+  return
+
+Do_Post_Pull:
   /* ------------------------------------------------- *
   | Validate all the Pulldsns and remove if not valid |
   * ------------------------------------------------- */
@@ -1935,6 +1938,9 @@ Setup_Selective_Replace:
         delds =  "'"pdshlq"."deletes.dc"'"
         dm.dc = delds
         Address TSO 'Delete' delds
+        cmd = 'cd' localrep'/'zigirep
+        cmd = cmd '&& rm' deletes.dc
+        x = bpxwunix(cmd,,so.,se.)
       end
       else do
         parse value deletes.dc with delds'/'mem
@@ -1942,7 +1948,7 @@ Setup_Selective_Replace:
         call delete_member "'"pdshlq"."delds"'" mem
         cmd = 'cd' localrep'/'zigirep'/'delds
         cmd = cmd '&& rm' mem
-        x = bpxwunix(cmd)
+        x = bpxwunix(cmd,,so.,se.)
       end
     end
     call outtrap 'off'
@@ -2030,12 +2036,71 @@ Stash_IT:
   'display panel(zigipop)'
   'rempop'
   cmd = 'cd' localrep'/'zigirep
-  cmd = cmd '&& git stash push -u -a -m "'date() time() stashmsg'"'
+  cmd = cmd '&& git stash push --all -m "'date() time() stashmsg'"'
   cmd = cmd '&& git stash show'
   x = docmd(cmd)
   call view_std 'B'
-  call Setup_Selective_Replace 'Stash Branch'
+  parse value '' with deletes. pulldsns pullmems.
+  deletes.0 = 0
+  dc = 0
+  do i = 1 to so.0
+    if pos('|',so.i) = 0 then iterate
+    parse value so.i with w '|' c
+    w = strip(w)
+    if left(w,1) = '.' then iterate
+    Select
+      when pos('->',c) > 0 then do
+        if pos('0 bytes',c) > 0 then do
+          dc = dc + 1
+          deletes.dc = w
+          deletes.0 = dc
+        end
+      end
+      when pos('{',w) > 0 then do
+        parse value w with w'/'m
+        if wordpos(w,pulldsns) = 0 then
+        pulldsns = pulldsns w
+        parse value m with '{'dm '=>' nm'}' .
+        dc = dc + 1
+        deletes.dc = w'/'dm
+        deletes.0 = dc
+        pullmems.w = pullmems.w nm
+      end
+      when pos('=>',w) = 0 then do
+        if pos('/',w) = 0 then
+        if wordpos(w,pulldsns) = 0 then
+        pulldsns = pulldsns w
+        if pos('/',w) > 0 then do
+          parse value w with w'/'m
+          if wordpos(w,pulldsns) = 0 then
+          pulldsns = pulldsns w
+          pullmems.w = pullmems.w m
+        end
+      end
+      when pos('=>',w) > 0 then do
+        parse value w with wd '=>' w
+        w = strip(w)
+        dc = dc + 1
+        deletes.dc = wd
+        deletes.0 = dc
+        if pos('/',w) = 0 then
+        if wordpos(w,pulldsns) = 0 then
+        pulldsns = pulldsns w
+        if pos('/',w) > 0 then do
+          parse value w with w'/'m
+          if wordpos(w,pulldsns) = 0 then
+          pulldsns = pulldsns w
+          pullmems.w = pullmems.w m
+        end
+      end
+      Otherwise nop
+    end
+  end
+  call do_post_pull 'Stash Push/Save'
   call update_repo_metadata
+  zerrsm = 'Complete.'
+  zerrlm = 'Stash Push (save) completed.'
+  'setmsg msg(isrz003)'
   return
 
   /* ------------------------------------------------ *
@@ -2130,20 +2195,14 @@ Stash_List:
         end
       end
       When zsel = 'P' then do   /* pop */
-        stash_hit = 0
         call do_stash_pop
+        if stash_hit = 1 then call do_stash_pop
         if stash_hit = 1 then do
-          stash_hit = 0
-          call do_stash_pop
-          if stash_hit = 1 then do
-            xrc = 2
-            zerrsm = 'Problem.'
-            zerrlm = 'Review for issues.'
-            'setmsg msg(isrz003)'
-            call view_std 'B'
-          end
+          zerrsm = 'Error.'
+          zerrlm = 'Stash pop issue encountered with' sid
+          'setmsg msg(isrz003)'
         end
-        if xrc < 2 then do
+        else do
           'tbdelete' stab
           call Setup_Selective_Replace 'Stash Pop'
           zerrsm = 'Completed.'
@@ -2184,6 +2243,7 @@ Stash_List:
   return
 
 Do_Stash_Pop:
+  stash_hit = 0
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git stash pop' stashid
   zs1 = 'Initiating git stash pop processing.'
@@ -2194,13 +2254,43 @@ Do_Stash_Pop:
   'rempop'
   xrc = docmd(cmd)
   if xrc > 0 then do
+    call view_std 'B'
+    overw = 0
     do i = 1 to so.0
-      if word(so.i,1) = 'CONFLICT' then
-      if pos('Merge conflict',so.i) > 0 then do
-        mdsn = subword(so.i,words(so.i))
-        mrgdir = localrep'/'zigirep'/'mdsn
-        'edit file(mrgdir) macro(zigismrg)'
-        stash_hit = 1
+      select
+        when pos('overwritten by merge',so.i) > 0 then overw = 1
+        when pos('needs merge',so.i) > 0 then do
+          parse value so.i with mdsn':' .
+          mrgdir = localrep'/'zigirep'/'mdsn
+          cmd = 'cd' localrep'/'zigirep
+          cmd = cmd "&& git add" mdsn
+          cmd = cmd "&& git commit -vm 'commit to resolve stash pop issue'"
+          x = docmd(cmd)
+          call view_std 'B'
+          stash_hit = 1
+        end
+        when pos('Merge conflict',so.i) > 0 then do
+          mdsn = subword(so.i,words(so.i))
+          mrgdir = localrep'/'zigirep'/'mdsn
+          cmd = 'cd' localrep'/'zigirep
+          cmd = cmd "&& git add" mdsn
+          cmd = cmd "&& git commit -vm 'commit to resolve stash pop issue'"
+          x = docmd(cmd)
+          call view_std 'B'
+          stash_hit = 1
+        end
+     when overw = 1 then do
+          mdsn = substr(so.i,2)
+          mrgdir = localrep'/'zigirep'/'mdsn
+          cmd = 'cd' localrep'/'zigirep
+          cmd = cmd "&& git add" mdsn
+          cmd = cmd "&& git commit -vm 'commit to resolve stash pop issue'"
+          x = docmd(cmd)
+          call view_std 'B'
+          stash_hit = 1
+        end
+     when word(so.i,1) = 'Please' then overw = 0
+        Otherwise nop
       end
     end
   end
