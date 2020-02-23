@@ -1160,6 +1160,8 @@ Work_With_Repo:
               delds =  "'"pdshlq"."deletes.dc"'"
               dm.dc = delds
               Address TSO 'Delete' delds
+              cmd = 'cd' localrep'/'zigirep
+              cmd = cmd '&& rm' deletes.dc
             end
             else do
               parse value deletes.dc with delds'/'mem
@@ -1766,8 +1768,6 @@ Setup_Selective_Replace:
   ptype = 0
   do pi = 1 to so.0
     so.pi = translate(so.pi,' ','05'x)
-    if pos('On branch',so.pi) > 0 then ptype = 1
-    if pos('Saved working',so.pi) > 0 then ptype = 2
     if word(so.pi,1) = 'Removing' then do
       if left(w,1) = '.' then iterate
       dc = deletes.0 + 1
@@ -1890,6 +1890,10 @@ Setup_Selective_Replace:
       end
     end
   end
+  call do_post_pull
+  return
+
+Do_Post_Pull:
   /* ------------------------------------------------- *
   | Validate all the Pulldsns and remove if not valid |
   * ------------------------------------------------- */
@@ -2030,11 +2034,73 @@ Stash_IT:
   'display panel(zigipop)'
   'rempop'
   cmd = 'cd' localrep'/'zigirep
-  cmd = cmd '&& git stash push -u -a -m "'date() time() stashmsg'"'
+  cmd = cmd '&& git stash push --all -m "'date() time() stashmsg'"'
   cmd = cmd '&& git stash show'
   x = docmd(cmd)
   call view_std 'B'
-  call Setup_Selective_Replace 'Stash Branch'
+  parse value '' with deletes. pulldsns pullmems.
+  dc = 0
+  trace '?i'
+  do i = 1 to so.0
+    if pos('|',so.i) = 0 then iterate
+    parse value so.i with w '|' c
+    w = strip(w)
+    if left(w,1) = '.' then iterate
+    Select
+      when pos('->',c) > 0 then do
+        if pos('0 bytes',c) > 0 then do
+          dc = dc + 1
+          deletes.dc = w
+          deletes.0 = dc
+        end
+      end
+      when pos('{',w) > 0 then do
+        parse value w with w'/'m
+        if wordpos(w,pulldsns) = 0 then
+        pulldsns = pulldsns w
+        parse value m with '{'dm '=>' nm'}' .
+        dc = dc + 1
+        deletes.dc = w'/'dm
+        deletes.0 = dc
+        pullmems.w = pullmems.w nm
+      end
+      when pos('=>',w) = 0 then do
+        if pos('/',w) = 0 then
+        if wordpos(w,pulldsns) = 0 then
+        pulldsns = pulldsns w
+        if pos('/',w) > 0 then do
+          parse value w with w'/'m
+          if wordpos(w,pulldsns) = 0 then
+          pulldsns = pulldsns w
+          pullmems.w = pullmems.w m
+        end
+      end
+      when pos('=>',w) > 0 then do
+        parse value w with wd '=>' w
+        w = strip(w)
+        dc = dc + 1
+        deletes.dc = wd
+        deletes.0 = dc
+        if pos('/',w) = 0 then
+        if wordpos(w,pulldsns) = 0 then
+        pulldsns = pulldsns w
+        if pos('/',w) > 0 then do
+          parse value w with w'/'m
+          if wordpos(w,pulldsns) = 0 then
+          pulldsns = pulldsns w
+          pullmems.w = pullmems.w m
+        end
+      end
+      Otherwise nop
+    end
+  end
+  say 'pulldsns:' pulldsns
+  say 'deletes:'
+  do i = 1 to deletes.0;say deletes.i;end
+  say 'pullmems:'
+  do i = 1 to words(pulldsns)
+  w = word(pulldsns,i);say pullmems.w;end
+  call do_post_pull
   call update_repo_metadata
   return
 
@@ -2132,24 +2198,11 @@ Stash_List:
       When zsel = 'P' then do   /* pop */
         stash_hit = 0
         call do_stash_pop
-        if stash_hit = 1 then do
-          stash_hit = 0
-          call do_stash_pop
-          if stash_hit = 1 then do
-            xrc = 2
-            zerrsm = 'Problem.'
-            zerrlm = 'Review for issues.'
-            'setmsg msg(isrz003)'
-            call view_std 'B'
-          end
-        end
-        if xrc < 2 then do
-          'tbdelete' stab
-          call Setup_Selective_Replace 'Stash Pop'
-          zerrsm = 'Completed.'
-          zerrlm = 'Stash pop processing completed for' sid
-          'setmsg msg(isrz003)'
-        end
+        'tbdelete' stab
+        call Setup_Selective_Replace 'Stash Pop'
+        zerrsm = 'Completed.'
+        zerrlm = 'Stash pop processing completed for' sid
+        'setmsg msg(isrz003)'
       end
       When zsel = 'R' then do   /* remove/drop */
         cmd = 'cd' localrep'/'zigirep
