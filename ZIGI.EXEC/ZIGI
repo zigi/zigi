@@ -1206,7 +1206,6 @@ Work_With_Repo:
         x = docmd(cmd '&& git fetch')
         fetch_flag = 1
         x = docmd('cd 'localdir' && git status')
-        trace '?i'
         branch = word(so.1,3)
         if so.0 > 1 then do
           branch_status = word(so.2,4)
@@ -1890,7 +1889,7 @@ Setup_Selective_Replace:
       end
     end
   end
-  call do_post_pull
+  call do_post_pull 'Stash Pop'
   return
 
 Do_Post_Pull:
@@ -2042,8 +2041,8 @@ Stash_IT:
   x = docmd(cmd)
   call view_std 'B'
   parse value '' with deletes. pulldsns pullmems.
+  deletes.0 = 0
   dc = 0
-  trace '?i'
   do i = 1 to so.0
     if pos('|',so.i) = 0 then iterate
     parse value so.i with w '|' c
@@ -2097,8 +2096,11 @@ Stash_IT:
       Otherwise nop
     end
   end
-  call do_post_pull
+  call do_post_pull 'Stash Push/Save'
   call update_repo_metadata
+  zerrsm = 'Complete.'
+  zerrlm = 'Stash Push (save) completed.'
+  'setmsg msg(isrz003)'
   return
 
   /* ------------------------------------------------ *
@@ -2196,17 +2198,17 @@ Stash_List:
         call do_stash_pop
         if stash_hit = 1 then call do_stash_pop
         if stash_hit = 1 then do
-        zerrsm = 'Error.'
-        zerrlm = 'Incomplete/failed stash pop' sid
-        'setmsg msg(isrz003)'
-           end
+          zerrsm = 'Error.'
+          zerrlm = 'Stash pop issue encountered with' sid
+          'setmsg msg(isrz003)'
+        end
         else do
-        'tbdelete' stab
-        call Setup_Selective_Replace 'Stash Pop'
-        zerrsm = 'Completed.'
-        zerrlm = 'Stash pop processing completed for' sid
-        'setmsg msg(isrz003)'
-      end
+          'tbdelete' stab
+          call Setup_Selective_Replace 'Stash Pop'
+          zerrsm = 'Completed.'
+          zerrlm = 'Stash pop processing completed for' sid
+          'setmsg msg(isrz003)'
+        end
       end
       When zsel = 'R' then do   /* remove/drop */
         cmd = 'cd' localrep'/'zigirep
@@ -2250,16 +2252,45 @@ Do_Stash_Pop:
   'control display lock'
   'display panel(zigipop)'
   'rempop'
-  trace '?I'
   xrc = docmd(cmd)
   if xrc > 0 then do
+    call view_std 'B'
+    overw = 0
     do i = 1 to so.0
-      if pos('needs merge',so.i) > 0 then do
-        mdsn = subword(so.i,words(so.i))
-        parse value so.i with mdsn':' .
-        mrgdir = localrep'/'zigirep'/'mdsn
-        'edit file(mrgdir) macro(zigismrg)'
-        stash_hit = 1
+      select
+        when pos('overwritten by merge',so.i) > 0 then overw = 1
+        when pos('needs merge',so.i) > 0 then do
+          parse value so.i with mdsn':' .
+          mrgdir = localrep'/'zigirep'/'mdsn
+          cmd = 'cd' localrep'/'zigirep
+          cmd = cmd "&& git add" mdsn
+          cmd = cmd "&& git commit -vm 'commit to resolve stash pop issue'"
+          x = docmd(cmd)
+          call view_std 'B'
+          stash_hit = 1
+        end
+        when pos('Merge conflict',so.i) > 0 then do
+          mdsn = subword(so.i,words(so.i))
+          mrgdir = localrep'/'zigirep'/'mdsn
+          cmd = 'cd' localrep'/'zigirep
+          cmd = cmd "&& git add" mdsn
+          cmd = cmd "&& git commit -vm 'commit to resolve stash pop issue'"
+          x = docmd(cmd)
+          call view_std 'B'
+          stash_hit = 1
+        end
+     when overw = 1 then do
+          mdsn = substr(so.i,2)
+          mrgdir = localrep'/'zigirep'/'mdsn
+          cmd = 'cd' localrep'/'zigirep
+          cmd = cmd "&& git add" mdsn
+          cmd = cmd "&& git commit -vm 'commit to resolve stash pop issue'"
+          x = docmd(cmd)
+          call view_std 'B'
+          stash_hit = 1
+        end
+     when word(so.i,1) = 'Please' then overw = 0
+        Otherwise nop
       end
     end
   end
