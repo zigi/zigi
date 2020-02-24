@@ -1138,7 +1138,7 @@ Work_With_Repo:
           zd = word(pulldsns,zz)
           zw = words(pullmems.zd)
           ldsn = "'"delhlq"."zd"'"
-          x = do_listdsi(ldsn "dir")
+          x = listdsi(ldsn "dir")
           /* check if a PDSE and bypass the full Replace or if not
           a PDSE then check of more than 25% of members being
           updated and if so then nullify the member list so a full
@@ -1465,7 +1465,7 @@ Work_With_Repo:
         * -------------------------------- */
         dtest = 0
         if left(fulldsn,1) = "'" then do
-          x = do_listdsi(fulldsn)
+          x = listdsi(fulldsn)
           if sysdsorg = 'PO' then do
             zerrlm = 'Diff does not work on Partitioned Datasets'
             zerrsm = 'Error.'
@@ -1494,7 +1494,7 @@ Work_With_Repo:
       When zsel = 'H' then do
         htest = 0
         if left(fulldsn,1) = "'" then do
-          x = do_listdsi(fulldsn)
+          x = listdsi(fulldsn)
           if sysdsorg = 'PO' then do
             zerrlm = 'History does not work on Partitioned Datasets'
             zerrsm = 'Error.'
@@ -1508,7 +1508,7 @@ Work_With_Repo:
       When zsel = 'B' then do
         'control display save'
         if left(fulldsn,1) = "'" then do
-          x = do_listdsi(fulldsn)
+          x = listdsi(fulldsn)
           if sysdsorg = 'PO' then do
             'LMInit Dataid(zigdid) Dataset('fulldsn')'
             "Memlist Dataid("zigdid") Default(B)"
@@ -1522,7 +1522,7 @@ Work_With_Repo:
       When zsel = 'V' then do
         'control display save'
         if left(fulldsn,1) = "'" then do
-          x = do_listdsi(fulldsn)
+          x = listdsi(fulldsn)
           if sysdsorg = 'PO' then do
             'LMInit Dataid(zigdid) Dataset('fulldsn')'
             "Memlist Dataid("zigdid") Default(V)"
@@ -1557,7 +1557,7 @@ Work_With_Repo:
           'control display restore'
           if drc > 0 then leave
           if zos = 1 then do
-            x = do_listdsi(newdsn)
+            x = listdsi(newdsn)
           end
           else x = 1
           if x = 0 then do
@@ -1580,6 +1580,7 @@ Work_With_Repo:
             if left(fulldsn,1) /= "'"
             then cmd = cmd '&& git mv' '"'fulldsns'" "'newdsns'"'
             else do
+              x = listdsi(newdsn)
               oldfile = translate(strip(fulldsn,'B',"'"),' ','.')
               if qualignr > 0 then
               oldfile = subword(oldfile,qualignr+1)
@@ -1593,14 +1594,15 @@ Work_With_Repo:
               cmd = cmd '&& git mv' oldfiles newfiles
             end
             x = docmd(cmd)
-            x = do_listdsi(fulldsn)
             if sysdsorg = 'PO' then do
               /* still weird with rename of statsfile? */
               x = zigistat(newdsn localrep'/'zigirep'/.zigi/'newfiles'S')
               cmd = 'cd' localrep'/'zigirep
-              x = docmd(cmd '&& git add .zigi/'newfiles)
-              x = docmd(cmd '&& git rm .zigi/'oldfiles)
+              cmd = cmd '&& git add .zigi/'newfiles
+              cmd = cmd '&& git rm .zigi/'oldfiles
+              x = docmd(cmd)
             end
+            call view_std 'B'
             'tbdelete' rtbl
             fulldsn = newdsn
             dsn = newfile
@@ -1641,7 +1643,7 @@ Work_With_Repo:
           if left(fulldsn,1) /= "'" then rtype = 'OMVS'
           /* only listdsi on zOs datsets */
           if rtype = null then do
-            x = do_listdsi(fulldsn)
+            x = listdsi(fulldsn)
             if rc = 0 & sysdsorg = 'PS' then rtype = 'PS'
             if rc = 0 & sysdsorg = 'PO' then rtype = 'PO'
           end
@@ -1677,6 +1679,7 @@ Work_With_Repo:
             end
             Otherwise nop
           end
+          call view_std 'B'
           dsnstat = '*Removed'
           'tbmod' rtbl
           zerrsm = 'Removed.'
@@ -1740,7 +1743,7 @@ Work_With_Repo:
       | Un-Modify entire dataset         |
       * -------------------------------- */
       When zsel = 'U' then do
-        x = do_listdsi(fulldsn)
+        x = listdsi(fulldsn)
         if sysdsorg = 'PS' then call do_undo 'D'
         else do
           zerrsm = 'Invalid.'
@@ -1893,6 +1896,12 @@ Setup_Selective_Replace:
   return
 
 Do_Post_Pull:
+  if strip(pulldsns) = null then do
+    zerrsm = 'Nothing'
+    zerrlm = 'No updates to process for' ssrmsg
+    'setmsg msg(isrz003)'
+    return
+  end
   /* ------------------------------------------------- *
   | Validate all the Pulldsns and remove if not valid |
   * ------------------------------------------------- */
@@ -1916,7 +1925,7 @@ Do_Post_Pull:
     zd = word(pulldsns,zz)
     zw = words(pullmems.zd)
     ldsn = "'"delhlq"."zd"'"
-    x = do_listdsi(ldsn "dir")
+    x = listdsi(ldsn "dir")
     /* check if a PDSE and bypass the full Replace or if not
     a PDSE then check of more than 25% of members being
     updated and if so then nullify the member list so a full
@@ -1930,12 +1939,21 @@ Do_Post_Pull:
   end
   if pulldsns /= null then do
     call Replace localrep zigirep pdshlq qualignr pulldsns
+    if qualignr = 0
+    then delhlq = pdshlq
+    else do
+      delhlq = translate(pdshlq,' ','.')
+      if qualignr /= '*' then
+      delhlq = subword(delhlq,1,qualignr)
+      delhlq = translate(delhlq,'.',' ')
+    end
     'Verase pulldsns Both'
     call outtrap 'x.'
-    if deletes.0 > 0 then do dc = 1 to deletes.0
+    if deletes.0 > 0 then
+    do dc = 1 to deletes.0
       if pos('/',deletes.dc) = 0
       then do
-        delds =  "'"pdshlq"."deletes.dc"'"
+        delds =  "'"delhlq"."deletes.dc"'"
         dm.dc = delds
         Address TSO 'Delete' delds
         cmd = 'cd' localrep'/'zigirep
@@ -1944,10 +1962,11 @@ Do_Post_Pull:
       end
       else do
         parse value deletes.dc with delds'/'mem
-        dm.dc = "'"pdshlq"."delds"("mem")'"
-        call delete_member "'"pdshlq"."delds"'" mem
+        mem = strip(mem)
+        dm.dc = "'"delhlq"."delds"("mem")'"
+        call delete_member "'"delhlq"."delds"'" mem
         cmd = 'cd' localrep'/'zigirep'/'delds
-        cmd = cmd '&& rm' mem
+        cmd = cmd '&& rm -f' mem
         x = bpxwunix(cmd,,so.,se.)
       end
     end
@@ -1958,14 +1977,6 @@ Do_Post_Pull:
     so.0 = deletes.0
     se.0 = 0
     call update_repo_metadata
-  end
-  else do
-    if pulled = 0 then do
-      zerrsm = 'Nothing'
-      zerrlm = 'No updates to process for' ssrmsg
-      'setmsg msg(isrz003)'
-    end
-    else call update_repo_metadata
   end
   if pulled > 0 then do
     zerrsm = 'Successful.'
@@ -1991,7 +2002,7 @@ git_add:
     /* Only get the stats if it's a z/OS dataset
     Don't do it for the USS files
     */
-    x = do_listdsi(fulldsn)
+    x = listdsi(fulldsn)
     if x = 0 then do
       if sysdsorg /= 'PS' then do
         statfile = translate(strip(fulldsn,'B',"'"),' ','.')
@@ -2097,7 +2108,6 @@ Stash_IT:
     end
   end
   call do_post_pull 'Stash Push/Save'
-  call update_repo_metadata
   zerrsm = 'Complete.'
   zerrlm = 'Stash Push (save) completed.'
   'setmsg msg(isrz003)'
@@ -2253,6 +2263,7 @@ Do_Stash_Pop:
   'display panel(zigipop)'
   'rempop'
   xrc = docmd(cmd)
+  call view_std 'B'
   if xrc > 0 then do
     call view_std 'B'
     overw = 0
@@ -2279,7 +2290,7 @@ Do_Stash_Pop:
           call view_std 'B'
           stash_hit = 1
         end
-     when overw = 1 then do
+        when overw = 1 then do
           mdsn = substr(so.i,2)
           mrgdir = localrep'/'zigirep'/'mdsn
           cmd = 'cd' localrep'/'zigirep
@@ -2289,7 +2300,7 @@ Do_Stash_Pop:
           call view_std 'B'
           stash_hit = 1
         end
-     when word(so.i,1) = 'Please' then overw = 0
+        when word(so.i,1) = 'Please' then overw = 0
         Otherwise nop
       end
     end
@@ -3132,7 +3143,7 @@ fixup_userids:
   do iw = 1 to words(dsns)
     file = word(dsns,iw)
     workdsn = "'"hlq"."file"'"
-    x = do_listdsi(workdsn)
+    x = listdsi(workdsn)
     if sysdsorg /= 'PO' then iterate
     "LMINIT DATAID(reset) DATASET("workdsn")"
     "LMOPEN DATAID("reset") OPTION(INPUT)"
@@ -3262,7 +3273,7 @@ Clone_Repo:
   | Process the selected dataset (PDS or PS) |
   * ---------------------------------------- */
 Work_with_repo_file:
-  x = do_listdsi(fulldsn)
+  x = listdsi(fulldsn)
   if sysdsorg /= 'PS' then do
     zs1 = 'Building list of library statuses....'
     zs2 = 'Patience . . .'
@@ -3459,7 +3470,7 @@ Work_with_repo_file:
           /* -------------------------------- *
           | Browse PDS member or PS dataset  |
           * -------------------------------- */
-          x = do_listdsi(fulldsn)
+          x = listdsi(fulldsn)
           edsn = strip(fulldsn,'B',"'")
           r = usssafe(dsn)
           if sysdsorg = 'PS'
@@ -3470,7 +3481,7 @@ Work_with_repo_file:
           /* -------------------------------- *
           | View PDS member or PS dataset    |
           * -------------------------------- */
-          x = do_listdsi(fulldsn)
+          x = listdsi(fulldsn)
           edsn = strip(fulldsn,'B',"'")
           r = usssafe(dsn)
           if is_binfile(r'/'mem) = 1 then do
@@ -3487,7 +3498,7 @@ Work_with_repo_file:
           /* -------------------------------- *
           | Edit PDS member or PS dataset    |
           * -------------------------------- */
-          x = do_listdsi(fulldsn)
+          x = listdsi(fulldsn)
           edsn = strip(fulldsn,'B',"'")
           r = usssafe(dsn)
           if is_binfile(r'/'mem) = 1 then do
@@ -3608,6 +3619,7 @@ Work_with_repo_file:
             xldir = usssafe(localdir)
             cmd = 'cd' xldir '&& git rm "'m'"'
             x = docmd(cmd,,so.,se.)
+            call view_std 'B'
             memstat = '*Removed'
             'tbmod' rtll
             zerrsm = 'Removed.'
@@ -4546,7 +4558,7 @@ view_std:
     vdsn = pref'work.zigi.gitdata'
   end
   else vdsn = null
-  x = do_listdsi(vdsn)
+  x = listdsi(vdsn)
   if x = 0 then do
     call outtrap 'x.'
     'delete' vdsn
@@ -5164,7 +5176,7 @@ Add_Dataset:
     if zsel /= null then
     Select
       when zsel = 'B' then do
-        x = do_listdsi("'"dsna"'")
+        x = listdsi("'"dsna"'")
         'control display save'
         if sysdsorg = 'PO' then do
           "LMInit Dataid(edvbr) dataset('"dsna"')"
@@ -5269,7 +5281,7 @@ Do_Add_Copy:
   zs4 = 'Patience . . .'
   call do_popup4
   DIR = localrep'/'zigirep
-  FC = do_listdsi("'"WHAT"'")
+  FC = listdsi("'"WHAT"'")
   if sysrecfm = 'U' then do
     if ztdsels = 1 then do
       zerrsm = 'Invalid'
@@ -5390,7 +5402,7 @@ save_dsninfo:
   /* better make sure sd. stem is empty before we start :) */
   sd. = ''
   sd.0 = 0
-  x = do_listdsi(fulldsn)
+  x = listdsi(fulldsn)
   dsn_record = dsn sysdsorg sysrecfm syslrecl sysblksize
   if sysvar('syspref') = null then pref = sysvar('sysuid')'.'
   else pref = null
@@ -5533,7 +5545,7 @@ do_history:
   select
     When filetype = '(D)' then zerrlm = 'History does not work on directories'
     When left(element,1) = "'" then do
-      x = do_listdsi(element)
+      x = listdsi(element)
       if sysdsorg = 'PO' then
       zerrlm = 'History does not work on Partitioned Datasets'
     end
@@ -6101,14 +6113,3 @@ is_binfile:
     if binfiles.bi = file then return 1
   end
   return 0
-
-  /* ---------------------- *
-  | Common Listdsi Routine |
-  * ---------------------- */
-Do_Listdsi:
-  parse arg dsndsi
-  smsg =  msg()
-  call msg 'OFF'
-  x = listdsi(dsndsi)
-  call msg smsg
-  return x
