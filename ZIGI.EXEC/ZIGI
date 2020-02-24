@@ -3290,7 +3290,7 @@ Work_with_repo_file:
       'zlmdate zlmtime zluser mtype)',
       'replace NoWrite'
     rtll_open = 1
-    cmd = 'ls -laT' localrep'/'zigirep'/'dsn
+    cmd = 'ls -laT' localrep'/'zigirep'/'usssafe(dsn)
     x = bpxwunix(cmd,,root.,re.)
     address ispexec
     "LMINIT DATAID(DID) Dataset("fulldsn")"
