@@ -1,34 +1,33 @@
 )attr default(%+_)
   _ type( input) intens(low ) just(left ) hilite(uscore)
   ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
-  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
 )Body Expand(\\)
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                                 %TagList
+                                  %Stash Pop
 +
-%TagList+is similar to Rollback. It will display a list of all defined tags,
-+including for annotated tags the date,, time, and description.
+%Shash Pop+will restore the saved stash and remove it from the stash stack.
 +
-+Commands:%Only+to filter the table and%Replace+to rebuild the table.
++Pop may%ONLY+be used on a clean git workspace. That means that when you do
++a Status that the report should be clean. If there are any datasets/files
++that are listed then the following commands will clean up your workspace:
 +
-+Row options:   %S+to display the full tag information
-+               %C+to create a new branch based on the tag level
-%
-+The create option will prompt for a new branch name before proceeding.
++Use the command%STASHL+to list all active stashes with the following options:
 +
-%
++  1. Add all untracked datasets/files (command ADDAll)
++  2. Commit the added changes (command Commit)
++
++Then retry Pop.
 +
 +
-           "Nothing worth having comes easy." - Theodore Roosevelt
 +
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
- &zcont = zigih300
+ &zcont = zigih2f0
 )END
 /* -------------------------------------------------------- */
 /* zigi - the z/OS ISPF Git Interface                       */
