@@ -12,19 +12,19 @@
 +
 %Commands available+(select for more information or press%Enter+to see each):
 +
-[Add   + Add dataset{*   [Grep+    Find Strings       [Row+     Options
-[AddAll+ Add all to Git  [Merge+   Merge Branches{*   [Set+     Set Defaults
-[Br    + Change Branch{* [Network+ Network Report     [Snapshot+Escrow
-[Commit+ Record Changes  [Pull+    Pull from origin   [Status+  Git Status
-[Find+   Find in table   [Push+    Push to origin     [Tag+     Git Tag
-[GitCMD +Git Commands    [Replace+ Replace Datasets{* [TagList+ List Tags
-[Githelp+Git Help        [Remote+  Add remote         [View+    OMVS Dir
-[GitLog+ Show git log    [Rollback+Revert{*
+[Add   + Add dataset{*   [Merge+   Merge Branches{*   [Snapshot+Escrow
+[AddAll+ Add all to Git  [Network+ Network Report     [Stash+   Stash Save
+[Br    + Change Branch{* [Pull+    Pull from origin   [StashL+  Stash List
+[Commit+ Record Changes  [Push+    Push to origin     [Status+  Git Status
+[Find+   Find in table   [Replace+ Replace Datasets{* [Tag+     Git Tag
+[GitCMD +Git Commands    [Remote+  Add remote         [TagList+ List Tags
+[Githelp+Git Help        [Rollback+Revert{*           [View+    OMVS Dir
+[GitLog+ Show git log    [Row+     Options
+[Grep+   Find Strings    [Set+     Set Defaults
 +
 {*+not supported within subdirectories.
 +
 +Use%O+to display a popup for commands if the menu has been hidden.
-+
 +
 +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
@@ -48,6 +48,8 @@
  &Snapshot  = 'SnapShot'
  &Row     = 'Row'
  &Set     = 'Set'
+ &Stash   = 'Stash'
+ &StashL  = 'StashL'
  &Status  = 'Status'
  &Tag     = 'Tag'
  &TagList = 'TagList'
@@ -57,29 +59,31 @@
 )PROC
 *REXX(* zcmd zsel)
   Select
-    When abbrev('ROW',zcmd,3)     = 1 then zcmd ='row'
-    When abbrev('ADD',zcmd,2)     = 1 then zcmd ='1'
-    When abbrev('ADDALL',zcmd,4)  = 1 then zcmd ='2'
-    When abbrev('BRANCH',zcmd,2)  = 1 then zcmd ='3'
-    When abbrev('COMMIT',zcmd,2)  = 1 then zcmd ='4'
-    When abbrev('GITCMD',zcmd,4)  = 1 then zcmd ='5'
-    When abbrev('GITHELP',zcmd,4) = 1 then zcmd ='6'
-    When abbrev('GITLOG',zcmd,4)  = 1 then zcmd ='7'
-    When abbrev('GREP',zcmd,2)    = 1 then zcmd ='8'
-    When abbrev('MERGE',zcmd,2)   = 1 then zcmd ='9'
-    When abbrev('NETWORK',zcmd,2) = 1 then zcmd ='10'
-    When abbrev('PULL',zcmd,3)    = 1 then zcmd ='11'
-    When abbrev('PUSH',zcmd,3)    = 1 then zcmd ='12'
-    When abbrev('REPLACE',zcmd,3) = 1 then zcmd ='13'
-    When abbrev('REMOTE',zcmd,3)  = 1 then zcmd ='14'
-    When abbrev('ROLLBACK',zcmd,2) = 1 then zcmd ='15'
-    When abbrev('SET',zcmd,2)     = 1 then zcmd ='16'
-    When abbrev('SNAPSHOT',zcmd,2) = 1 then zcmd ='17'
-    When abbrev('STATUS',zcmd,2)  = 1 then zcmd ='18'
-    When abbrev('VIEW',zcmd,1)    = 1 then zcmd ='19'
-    When abbrev('FIND',zcmd,1)    = 1 then zcmd ='20'
-    When abbrev('TAG',zcmd,1)    = 1 then zcmd ='21'
-    When abbrev('TAGLIST',zcmd,4)    = 1 then zcmd ='22'
+    When abbrev('ROW',zcmd,3)     = 1 then zcmd = 0
+    When abbrev('ADD',zcmd,2)     = 1 then zcmd = 1
+    When abbrev('ADDALL',zcmd,4)  = 1 then zcmd = 2
+    When abbrev('BRANCH',zcmd,2)  = 1 then zcmd = 3
+    When abbrev('COMMIT',zcmd,2)  = 1 then zcmd = 4
+    When abbrev('FIND',zcmd,4)    = 1 then zcmd = 5
+    When abbrev('GITCMD',zcmd,4)  = 1 then zcmd = 6
+    When abbrev('GITHELP',zcmd,4) = 1 then zcmd = 7
+    When abbrev('GITLOG',zcmd,4)  = 1 then zcmd = 8
+    When abbrev('GREP',zcmd,2)    = 1 then zcmd = 9
+    When abbrev('MERGE',zcmd,2)   = 1 then zcmd = 10
+    When abbrev('NETWORK',zcmd,2) = 1 then zcmd = 11
+    When abbrev('PULL',zcmd,3)    = 1 then zcmd = 12
+    When abbrev('PUSH',zcmd,3)    = 1 then zcmd = 13
+    When abbrev('REPLACE',zcmd,3) = 1 then zcmd = 14
+    When abbrev('REMOTE',zcmd,3)  = 1 then zcmd = 15
+    When abbrev('ROLLBACK',zcmd,2) = 1 then zcmd = 16
+    When abbrev('SET',zcmd,2)     = 1 then zcmd = 17
+    When abbrev('SNAPSHOT',zcmd,2) = 1 then zcmd = 18
+    When abbrev('STASH',zcmd,2)   = 1 then zcmd =19
+    When abbrev('STASHL',zcmd,2)  = 1 then zcmd = 19
+    When abbrev('STATUS',zcmd,2)  = 1 then zcmd = 20
+    When abbrev('VIEW',zcmd,1)    = 1 then zcmd = 21
+    When abbrev('TAG',zcmd,1)    = 1  then zcmd = 22
+    When abbrev('TAGLIST',zcmd,4)  = 1 then zcmd = 23
     Otherwise nop
   end
 *Endrexx
@@ -103,10 +107,11 @@
           16,zigih2D0  /* ROLLBACK       */
           17,zigih2E0  /* SET            */
           18,zigihsnp  /* Snapshot       */
-          19,zigih2F0  /* STATUS         */
-          20,zigih2H0  /* Tag            */
-          21,zigih2I0  /* TagList        */
-          22,zigih2G0  /* VIEW           */
+          19,zigih2j0  /* Stash/Stashl   */
+          20,zigih2F0  /* STATUS         */
+          21,zigih2G0  /* VIEW           */
+          22,zigih2H0  /* Tag            */
+          23,zigih2I0  /* TagList        */
            *,'?'
            )
 )PNTS
@@ -129,10 +134,12 @@
  FIELD(ROLLBACK) VAR(ZCMD) VAL('16')
  FIELD(SET   )  VAR(ZCMD)  VAL('17')
  FIELD(SNAPSHOT) VAR(ZCMD) VAL('18')
- FIELD(STATUS)  VAR(ZCMD)  VAL('19')
- FIELD(TAG   )  VAR(ZCMD)  VAL('20')
- FIELD(TAGLIST) VAR(ZCMD)  VAL('21')
- FIELD(VIEW  )  VAR(ZCMD)  VAL('22')
+ FIELD(STASH )  VAR(ZCMD)  VAL('19')
+ FIELD(STASHL)  VAR(ZCMD)  VAL('19')
+ FIELD(STATUS)  VAR(ZCMD)  VAL('20')
+ FIELD(TAG   )  VAR(ZCMD)  VAL('22')
+ FIELD(TAGLIST) VAR(ZCMD)  VAL('23')
+ FIELD(VIEW  )  VAR(ZCMD)  VAL('21')
 )END
 /* -------------------------------------------------------- */
 /* zigi - the z/OS ISPF Git Interface                       */
