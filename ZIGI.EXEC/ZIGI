@@ -1203,9 +1203,8 @@ Work_With_Repo:
         zs2 = 'Please standby'
         call do_popup
         cmd = 'cd' localrep'/'zigirep
-        x = docmd(cmd '&& git fetch')
+        x = docmd(cmd '&& git fetch && git status')
         fetch_flag = 1
-        x = docmd('cd 'localdir' && git status')
         branch = word(so.1,3)
         if so.0 > 1 then do
           branch_status = word(so.2,4)
@@ -1679,7 +1678,6 @@ Work_With_Repo:
             end
             Otherwise nop
           end
-          call view_std 'B'
           dsnstat = '*Removed'
           'tbmod' rtbl
           zerrsm = 'Removed.'
@@ -2047,7 +2045,7 @@ Stash_IT:
   'display panel(zigipop)'
   'rempop'
   cmd = 'cd' localrep'/'zigirep
-  cmd = cmd '&& git stash push --all -m "'date() time() stashmsg'"'
+  cmd = cmd '&& git stash push --all -u -m "'date() time() stashmsg'"'
   cmd = cmd '&& git stash show'
   x = docmd(cmd)
   call view_std 'B'
@@ -2062,9 +2060,17 @@ Stash_IT:
     Select
       when pos('->',c) > 0 then do
         if pos('0 bytes',c) > 0 then do
-          dc = dc + 1
-          deletes.dc = w
-          deletes.0 = dc
+          if pos('/',w) = 0 then do
+            cmd = 'cd' localrep'/'zigirep
+            cmd = cmd '&& rm' usssafe(w)
+            x = bpxwunix(cmd)
+          end
+          else do
+            parse value w with w'/'m
+            cmd = 'cd' localrep'/'zigirep'/'usssafe(w)
+            cmd = cmd '&& rm' usssafe(w)
+            x = bpxwunix(cmd)
+          end
         end
       end
       when pos('{',w) > 0 then do
@@ -2072,10 +2078,10 @@ Stash_IT:
         if wordpos(w,pulldsns) = 0 then
         pulldsns = pulldsns w
         parse value m with '{'dm '=>' nm'}' .
-        dc = dc + 1
-        deletes.dc = w'/'dm
-        deletes.0 = dc
         pullmems.w = pullmems.w nm
+        cmd = 'cd' localrep'/'zigirep'/'usssafe(w)
+        cmd = cmd '&& mv' usssafe(dm) usssafe(nm)
+        x = bpxwunix(cmd)
       end
       when pos('=>',w) = 0 then do
         if pos('/',w) = 0 then
@@ -2088,12 +2094,9 @@ Stash_IT:
           pullmems.w = pullmems.w m
         end
       end
-      when pos('=>',w) > 0 then do
+      when pos('=>',w) > 0 then do   /* Renames */
         parse value w with wd '=>' w
         w = strip(w)
-        dc = dc + 1
-        deletes.dc = wd
-        deletes.0 = dc
         if pos('/',w) = 0 then
         if wordpos(w,pulldsns) = 0 then
         pulldsns = pulldsns w
@@ -2102,6 +2105,11 @@ Stash_IT:
           if wordpos(w,pulldsns) = 0 then
           pulldsns = pulldsns w
           pullmems.w = pullmems.w m
+        end
+        else do
+          cmd = 'cd' localrep'/'zigirep
+          cmd = cmd '&& mv' usssafe(wd) usssafe(w)
+          x = bpxwunix(cmd)
         end
       end
       Otherwise nop
@@ -2206,7 +2214,6 @@ Stash_List:
       end
       When zsel = 'P' then do   /* pop */
         call do_stash_pop
-        if stash_hit = 1 then call do_stash_pop
         if stash_hit = 1 then do
           zerrsm = 'Error.'
           zerrlm = 'Stash pop issue encountered with' sid
@@ -2262,46 +2269,8 @@ Do_Stash_Pop:
   'control display lock'
   'display panel(zigipop)'
   'rempop'
-  xrc = docmd(cmd)
-  call view_std 'B'
-  if xrc > 0 then do
-    call view_std 'B'
-    overw = 0
-    do i = 1 to so.0
-      select
-        when pos('overwritten by merge',so.i) > 0 then overw = 1
-        when pos('needs merge',so.i) > 0 then do
-          parse value so.i with mdsn':' .
-          mrgdir = localrep'/'zigirep'/'mdsn
-          cmd = 'cd' localrep'/'zigirep
-          cmd = cmd "&& git reset"
-          x = docmd(cmd)
-          call view_std 'B'
-          stash_hit = 1
-        end
-        when pos('Merge conflict',so.i) > 0 then do
-          mdsn = subword(so.i,words(so.i))
-          mrgdir = localrep'/'zigirep'/'mdsn
-          cmd = 'cd' localrep'/'zigirep
-          cmd = cmd "&& git reset"
-          x = docmd(cmd)
-          call view_std 'B'
-          stash_hit = 1
-        end
-        when overw = 1 then do
-          mdsn = substr(so.i,2)
-          mrgdir = localrep'/'zigirep'/'mdsn
-          cmd = 'cd' localrep'/'zigirep
-          cmd = cmd "&& git reset"
-          x = docmd(cmd)
-          call view_std 'B'
-          stash_hit = 1
-        end
-        when word(so.i,1) = 'Please' then overw = 0
-        Otherwise nop
-      end
-    end
-  end
+  rc = docmd(cmd)
+  if rc > 0 then call view_std 'B'
   Return
 
   /* -------------------------------------- *
@@ -3616,7 +3585,6 @@ Work_with_repo_file:
             xldir = usssafe(localdir)
             cmd = 'cd' xldir '&& git rm "'m'"'
             x = docmd(cmd,,so.,se.)
-            call view_std 'B'
             memstat = '*Removed'
             'tbmod' rtll
             zerrsm = 'Removed.'
