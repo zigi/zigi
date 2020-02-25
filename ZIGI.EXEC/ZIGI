@@ -2274,8 +2274,7 @@ Do_Stash_Pop:
           parse value so.i with mdsn':' .
           mrgdir = localrep'/'zigirep'/'mdsn
           cmd = 'cd' localrep'/'zigirep
-          cmd = cmd "&& git add" mdsn
-          cmd = cmd "&& git commit -vm 'commit to resolve stash pop issue'"
+          cmd = cmd "&& git reset"
           x = docmd(cmd)
           call view_std 'B'
           stash_hit = 1
@@ -2284,8 +2283,7 @@ Do_Stash_Pop:
           mdsn = subword(so.i,words(so.i))
           mrgdir = localrep'/'zigirep'/'mdsn
           cmd = 'cd' localrep'/'zigirep
-          cmd = cmd "&& git add" mdsn
-          cmd = cmd "&& git commit -vm 'commit to resolve stash pop issue'"
+          cmd = cmd "&& git reset"
           x = docmd(cmd)
           call view_std 'B'
           stash_hit = 1
@@ -2294,8 +2292,7 @@ Do_Stash_Pop:
           mdsn = substr(so.i,2)
           mrgdir = localrep'/'zigirep'/'mdsn
           cmd = 'cd' localrep'/'zigirep
-          cmd = cmd "&& git add" mdsn
-          cmd = cmd "&& git commit -vm 'commit to resolve stash pop issue'"
+          cmd = cmd "&& git reset"
           x = docmd(cmd)
           call view_std 'B'
           stash_hit = 1
