@@ -1115,7 +1115,7 @@ Work_With_Repo:
           end
           else pullmems.pidsn = pullmems.pidsn pimem
         end
-       /* ------------------------------------------------- *
+        /* ------------------------------------------------- *
         | Validate all the Pulldsns and remove if not valid |
         * ------------------------------------------------- */
         do ip = words(pulldsns) to 1 by -1
@@ -1779,6 +1779,11 @@ Setup_Selective_Replace:
       dc = deletes.0 + 1
       deletes.dc = w
       deletes.0 = dc
+      if pos('/',w) > 0 then do
+        parse value w with w'/'.
+        if wordpos(w,pulldsns) = 0 then
+        pulldsns = pulldsns w
+      end
     end
     if pos('new file:',so.pi) > 0 then do
       w = word(so.pi,3)
@@ -2049,8 +2054,9 @@ Stash_IT:
   cmd = cmd '&& git stash show'
   x = docmd(cmd)
   call view_std 'B'
-  parse value '' with deletes. pulldsns pullmems.
+  parse value '' with deletes. pulldsns pullmems. renames.
   deletes.0 = 0
+  renames.0 = 0
   dc = 0
   do i = 1 to so.0
     if pos('|',so.i) = 0 then iterate
@@ -2070,18 +2076,20 @@ Stash_IT:
             cmd = 'cd' localrep'/'zigirep'/'usssafe(w)
             cmd = cmd '&& rm' usssafe(w)
             x = bpxwunix(cmd)
+            if wordpos(w,pulldsns) = 0 then
+            pulldsns = pulldsns w
           end
         end
       end
-      when pos('{',w) > 0 then do
+      when pos('{',w) > 0 then do   /* rename */
         parse value w with w'/'m
         if wordpos(w,pulldsns) = 0 then
         pulldsns = pulldsns w
         parse value m with '{'dm '=>' nm'}' .
         pullmems.w = pullmems.w nm
-        cmd = 'cd' localrep'/'zigirep'/'usssafe(w)
-        cmd = cmd '&& mv' usssafe(dm) usssafe(nm)
-        x = bpxwunix(cmd)
+        rn = renames.0 + 1
+        renames.rn = w'/'dm w'/'nm
+        renames.0 = rn
       end
       when pos('=>',w) = 0 then do
         if pos('/',w) = 0 then
@@ -2094,7 +2102,7 @@ Stash_IT:
           pullmems.w = pullmems.w m
         end
       end
-      when pos('=>',w) > 0 then do   /* Renames */
+      when pos('=>',w) > 0 then do   /* Rename */
         parse value w with wd '=>' w
         w = strip(w)
         if pos('/',w) = 0 then
@@ -2107,19 +2115,51 @@ Stash_IT:
           pullmems.w = pullmems.w m
         end
         else do
-          cmd = 'cd' localrep'/'zigirep
-          cmd = cmd '&& mv' usssafe(wd) usssafe(w)
-          x = bpxwunix(cmd)
+          rn = renames.0 + 1
+          renames.rn = wd w
+          renames.0 = rn
         end
       end
       Otherwise nop
     end
   end
   call do_post_pull 'Stash Push/Save'
+  do i = 1 to renames.0
+    parse value renames.i with newname oldname
+    if pos('/',newname) = 0 then do
+      call outtrap 'x.'
+      address tso ,
+        'rename' fixup_dsn(oldname) fixup_dsn(newname)
+      call outtrap 'off'
+    end
+    else do
+      parse value newname with d'/'m
+      newname = fixup_dsn(d'('m')')
+      parse value oldname with d'/'m
+      oldname = fixup_dsn(d'('m')')
+      call outtrap 'x.'
+      address tso ,
+        'rename' fixup_dsn(oldname) fixup_dsn(newname)
+      call outtrap 'off'
+    end
+  end
   zerrsm = 'Complete.'
   zerrlm = 'Stash Push (save) completed.'
   'setmsg msg(isrz003)'
   return
+
+Fixup_dsn: Procedure expose qualignr pdshlq
+  arg dsn
+  if qualignr = 0
+  then hlq = pdshlq
+  else do
+    hlq = translate(pdshlq,' ','.')
+    if qualignr /= '*' then
+    hlq = subword(hlq,1,qualignr)
+    hlq = translate(hlq,'.',' ')
+  end
+  dsn = "'"hlq"."dsn"'"
+  return dsn
 
   /* ------------------------------------------------ *
   | Process the stashl (stash list) command:         |
@@ -2213,17 +2253,19 @@ Stash_List:
         end
       end
       When zsel = 'P' then do   /* pop */
+        abort = 0
+        pass = 0
         call do_stash_pop
         if stash_hit = 1 then do
           zerrsm = 'Error.'
-          zerrlm = 'Stash pop issue encountered with' sid
+          zerrlm = 'Stash pop issue encountered with' stashid
           'setmsg msg(isrz003)'
         end
         else do
           'tbdelete' stab
           call Setup_Selective_Replace 'Stash Pop'
           zerrsm = 'Completed.'
-          zerrlm = 'Stash pop processing completed for' sid
+          zerrlm = 'Stash pop processing completed for' stashid
           'setmsg msg(isrz003)'
         end
       end
@@ -2261,16 +2303,20 @@ Stash_List:
 
 Do_Stash_Pop:
   stash_hit = 0
+  pass = pass + 1
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git stash pop' stashid
-  zs1 = 'Initiating git stash pop processing.'
+  zs1 = 'Initiating git stash pop processing pass' pass
   zs2 = 'Please be patient while git does its thing.'
   'addpop row(3) column(4)'
   'control display lock'
   'display panel(zigipop)'
   'rempop'
-  rc = docmd(cmd)
-  if rc > 0 then call view_std 'B'
+  xrc = docmd(cmd)
+  if xrc > 0 then do
+    call view_std 'B'
+    stash_hit = 1
+  end
   Return
 
   /* -------------------------------------- *
