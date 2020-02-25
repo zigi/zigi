@@ -6,7 +6,8 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(56,15)
+)Body Window(56,16)
++Member:@mem
 +
 +Enter Selection:_z +
 +
