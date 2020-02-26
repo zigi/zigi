@@ -2,7 +2,7 @@
  _ type(input ) hilite(uscore) caps(on) intens(low )
  $ type(output)  caps(off)
  + type(text) skip(on) caps(off) intens(low)
-)Body Window(64,10)
+)Body Window(64,11)
     %Alert: Stash Pop was unable to complete successfully.
 +
 +Stash Pop may not be used in a git workspace that is%not+clean.
@@ -10,12 +10,13 @@
 +To clean the workspace:
 +    1. Add all untracked datasets/files (command ADDA)
 +    2. Commit the added changes (command Commit)
-+    3. Retry Stash Pop
++ or 1. Create a new Stash
++ Then Retry Stash Pop
 +
              +Press%Enter+or%F3+to return to zigi.
 )Init
  &zwinttl = 'zigi Stash Pop ALert'
- .help = zigihxxx
+ .help = zigih2j0
 )Proc
 )end
 /* -------------------------------------------------------- */

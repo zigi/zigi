@@ -36,6 +36,8 @@
  PDC DESC('Push to Remote Repository' )         ACTION RUN(Push    )
  PDC DESC('Add Remote to Repo')                 ACTION RUN(Remote  )
  PDC DESC('Rollback to Prior Commit Level')     ACTION RUN(Rollback)
+ PDC DESC('Stash (save workspace)' )            ACTION RUN(Stash   )
+ PDC DESC('Stash List'             )            ACTION RUN(StashL  )
  PDC DESC('Git Tag')                            ACTION RUN(Tag     )
  PDC DESC('List all Tags')                      ACTION RUN(TagList )
  PDC DESC('End')                                Action Run(END)

@@ -13,7 +13,7 @@
 )ABCINIT
   .ZVARS = 'MENUX'
 )ABC DESC(Help)
- PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigihxxx')
+ PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigih2j0')
 )ABCINIT
   .ZVARS = HELPX
 )Body  Expand(\\)
