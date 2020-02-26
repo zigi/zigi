@@ -28,6 +28,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            02/26/20 LBD - Numerous changes to support      |
+  |                           Stash processes                  |
+  |                         - Fix fetch flag setting           |
   |            02/21/20 LBD - Change Refresh to Replace        |
   |                         - Add Fetch command                |
   |                         - Only fetch 1st time or on demand |
@@ -509,6 +512,7 @@
   do forever
     if szcmd = null then do
       parse value '' with zsel row
+      fetch_flag = 0
       zigpass = 'PASSTHRU'
       'vput (zigpass) shared'
       'TBTop zigirepo'
@@ -566,7 +570,6 @@
       zerrsm = null
       fstring = word(zcmd,2)
       zcmd = null
-      fetch_flag = 0
       if fstring = null then do
         'addpop row(3) column(4)'
         'display panel(zigisel)'

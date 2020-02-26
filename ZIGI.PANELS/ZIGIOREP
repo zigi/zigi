@@ -6,21 +6,22 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   [ type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(54,15)
+)Body Window(54,16)
 +
 +Enter Selection:_z                     \ \ +
 +
-[Add   + Add dataset        [Pull+    Pull from origin
-[AddAll+ Add all to Git     [Push+    Push to origin
-[Br    + Change Branch      [Replace+ Replace Datasets
-[Commit+ Record Changes     [Remote+  Add remote
-[Find+   Find in table      [Rollback+Revert
-[Githelp+Git Help           [Set+     Set Defaults
-[GitCMD +Git Command Prompt [Snapshot+Create Escrow
-[GitLog+ Query git log      [Status+  Git Status
-[Grep+   Find Strings       [Tag+     Git Tag
-[Merge+  Merge Branches     [TagList+ List all Tags
-[Network+ Network Report    [View+    OMVS Dir
+[Add   + Add dataset        [Push+    Push to origin
+[AddAll+ Add all to Git     [Replace+ Replace Datasets
+[Br    + Change Branch      [Remote+  Add remote
+[Commit+ Record Changes     [Rollback+Revert
+[Find+   Find in table      [Set+     Set Defaults
+[Githelp+Git Help           [Snapshot+Create Escrow
+[GitCMD +Git Command Prompt [Stash+   Save Workspace
+[GitLog+ Query git log      [StashL+  List Stashes
+[Grep+   Find Strings       [Status+  Git Status
+[Merge+  Merge Branches     [Tag+     Git Tag
+[Network+ Network Report    [TagList+ List all Tags
+[Pull+    Pull from origin  [View+    OMVS Dir
                   +Or%F3+to cancel.
 )Init
  &zwinttl = 'zigi Current Repository Commands'
@@ -45,6 +46,8 @@
  &Rollback  = 'Rollback'
  &Snapshot  = 'SnapShot'
  &Set     = 'Set'
+ &Stash   = 'Stash'
+ &StashL  = 'StashL'
  &Status  = 'Status'
  &Tag     = 'Tag'
  &TagList = 'TagList'
@@ -72,6 +75,8 @@
  FIELD(ROLLBACK) VAR(ZCMD) VAL('ROLLBACK')
  FIELD(SNAPSHOT) VAR(ZCMD) VAL('SNAPSHOT')
  FIELD(SET   )  VAR(ZCMD) VAL('SET')
+ FIELD(STASH )  VAR(ZCMD) VAL('STASH')
+ FIELD(STASHL)  VAR(ZCMD) VAL('STASHL')
  FIELD(STATUS)  VAR(ZCMD) VAL('STATUS')
  FIELD(TAG   )  VAR(ZCMD) VAL('TAG')
  FIELD(TAGLIST) VAR(ZCMD) VAL('TAGLIST')

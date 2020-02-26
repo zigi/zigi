@@ -30,7 +30,7 @@
 )Init
  .help = zigihsnp
 )Proc
- &zerrhm   = 'zigihxxx'
+ &zerrhm   = 'zigihsnp'
  &zerralrm = 'NO'
  &zerrtp   = 'Notify'
  &zerrsm = &z
