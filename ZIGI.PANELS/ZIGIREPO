@@ -45,6 +45,7 @@
   .ZVARS = 'MENUY'
 )ABC DESC(Help)
  PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigih200')
+ PDC DESC('About') ACTION RUN(Tutor) Parm('zigihabt')
 )ABCINIT
   .ZVARS = HELPX
 )Body  Expand(\\)
