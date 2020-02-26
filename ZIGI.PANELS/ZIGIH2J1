@@ -5,7 +5,9 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                                  %Stash Pop
+                               %STASH+and%STASHL+
++
++On the Stash List display the%Clear+command will remove%all+stashes.
 +
 %Shash Pop+will restore the saved stash and remove it from the stash stack.
 +
@@ -15,13 +17,11 @@
 +
 +Use the command%STASHL+to list all active stashes with the following options:
 +
-+  1. Add all untracked datasets/files (command ADDAll)
++  1. Add all untracked datasets/files (command ADDALL)
 +  2. Commit the added changes (command Commit)
-+
++or
++  1. Do a new Stash
 +Then retry Pop.
-+
-+
-+
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init

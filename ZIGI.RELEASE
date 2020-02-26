@@ -16,6 +16,16 @@ amount to facilitate point-and-shoot. The O option is still available
 to bring up a context sensitive command options menu and the / row
 selection will bring up a context sensitive row selection options menu.
 
+Implement new commands STASH to Stash Push to save the current workspace
+and revert to the most recent Commit level.  And STASHL to list all saved
+Stashes with these options:
+
+    - Branch to create a new branch from a saved stash
+    - Remove to drop a saved stash
+    - Show to show the stash summary
+    - Diff to show the summary and diffs
+    - Pop to restore a saved stash
+
 Provided an option to enhance point-and-shoot in the zigi Config panel.
 Option S will leave things as they are. Option P will enable
 point-and-shoot so that a double click outside the table will bring up
