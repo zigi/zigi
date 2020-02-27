@@ -2100,7 +2100,7 @@ git_add:
   call do_popup
   if left(dsn,1) = "'"
   then d = usssafe(dsn)
-  else d = '"'dsn'"'
+  else d = '"'usssafe(dsn)'"'
   cmd = 'cd' localrep'/'zigirep
   drop so. se.
   x = docmd(cmd ' && git add -v 'd)
