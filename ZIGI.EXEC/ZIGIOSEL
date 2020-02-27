@@ -43,6 +43,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            02/27/20 - Convert S to L on . and ..           |
   |            01/24/20 - Improve prompt for mkdir             |
   |            11/15/19 - Use zigi version                     |
   |            11/12/19 - V1.03                                |
@@ -99,7 +100,7 @@
   /* --------------- *
   | Define defaults |
   * --------------- */
-  parse value '' with null
+  parse value '' with null selections
   omcsu = 'N'
   parse source x source x
   zerrhm   = 'zigih00'
@@ -183,6 +184,7 @@ Restart:
     end
     if ocsel /= null then ocsel = translate(ocsel)
     zerrsm = null
+    if zcmd /= null then
     Select
       When translate(word(zcmd,1)) = 'MKDIR' then do
         trace 'off'
@@ -259,31 +261,43 @@ Restart:
           end
         end
       end
-      When ocsel = 'B' then do
-        if otype = '-' then do
-          'control display save'
-          call outtrap 'x.'
-          Address TSO 'OBrowse' fromdir''ofile
-          call outtrap 'off'
-          'control display restore'
-          if x.0 > 0 then do
-            zerrsm = 'Error'
-            zerrlm = x.2
+      Otherwise nop
+    end
+
+    if ocsel /= null then do
+      if ocsel = 'S'  then if ofile = '.' | ofile = '..'
+         then ocsel = 'L'
+      Select
+        When ocsel = 'B' then do
+          if otype = '-' then do
+            'control display save'
+            call outtrap 'x.'
+            Address TSO 'OBrowse' fromdir''ofile
+            call outtrap 'off'
+            'control display restore'
+            if x.0 > 0 then do
+              zerrsm = 'Error'
+              zerrlm = x.2
+              'Setmsg msg(isrz003)'
+            end
+          end
+          else do
+            zerrsm = 'Invalid'
+            zerrlm = 'This file may not be browsed.'
             'Setmsg msg(isrz003)'
           end
         end
-        else do
-          zerrsm = 'Invalid'
-          zerrlm = 'This file may not be browsed.'
-          'Setmsg msg(isrz003)'
+        when ocsel = 'I' then call list_info
+        when ocsel = 'L' then call do_dirlist
+        When ocsel = 'S' then do
+          selections = fromdir''ofile
         end
+        Otherwise do
+           zerrsm = 'Invalid.'
+           zerrlm = ocsel 'is not a valid line selection.'
+           'setmsg msg(isrz003)'
+           end
       end
-      when ocsel = 'I' then call list_info
-      when ocsel = 'L' then call do_dirlist
-      When ocsel = 'S' then do
-        selections = fromdir''ofile
-      end
-      Otherwise nop
     end
     if selections /= null then leave
     if zcmd = 'CANCEL' then leave
