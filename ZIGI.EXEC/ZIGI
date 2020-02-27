@@ -2959,7 +2959,7 @@ Do_Commit:
   parse value '' with tagid msg1 cmsg
   cmtab = 'zc'random(99999)
   'tbcreate' cmtab 'names(cmsg) nowrite'
-  do i = 1 to 10
+  do i = 1 to 15
     'tbadd' cmtab
   end
   ctop = 0
