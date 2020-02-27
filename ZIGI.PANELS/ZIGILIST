@@ -39,7 +39,7 @@
 %
 %S  ]tmem  +  ]tstat +             %Type+]tsiz+  ]tdate   +]ttime   +]tuser +
 )Model
-@z +$z        +$z                   [z+[z     +  [z       +[z       +$z
+@z +$z       +$z                    [z+[z     +  [z       +[z       +$z
 )Init
   .zvars = '(zsel mem memstat mtype zlcnorc zlmdate zlmtime zluser)'
   .cursor = &zcmd
