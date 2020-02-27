@@ -1,0 +1,25 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  @ type(output) intens(high) caps(off) just(left )
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on) just(asis)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+  ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
+)Body Window(58,07)
++
+  +This will finalize your workflow. All commits in the
+   +Press%Enter+to finalize your flow. This will squash
+    +all commits in the work-branch into your feature
+         +branch and remove the local work-branch
+                            +
+                 +Or press%F3+to cancel.
+)Init
+ &zwinttl = 'zigi Finish Current zigiflow.'
+)Proc
+)PNTS
+)End
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */
