@@ -9,7 +9,7 @@
                                %STASH+and%STASHL+
 +
 %Shash+will save (push) your current git workspace and restore the workspace
-+to the last commit level. This allows you to quickly switch what your working
++to the last commit level. This allows you to quickly switch what you're working
 +on and work on something else without forcing a commit.
 +
 +Stash will ask for a short description since you may have multiple stashes
