@@ -3228,7 +3228,7 @@ Clone_Repo:
       zerrsm = 'Canceled.'
       zerrlm = 'Clone canceled as OMVS directory selection canceled.'
       'Setmsg msg(isrz003)'
-      return
+      return 1
     end
     saverep = localrep
     'vput (saverep) profile'
@@ -4378,6 +4378,12 @@ Create_Repo:
     if rc > 0 then return 8
     if localrep = '?' then
     localrep = zigiosel()
+    if localrep = null then do
+       zerrsm = 'Canceled.'
+       zerrlm = 'Create canceled as OMVS directory selection canceled.'
+       'setmsg msg(isrz003)'
+       return 1
+       end
     localrep = strip(localrep,'T','/')
     /* ---------------------------------------------------- *
     | We do some basic git repo setup here...              |
