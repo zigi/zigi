@@ -25,6 +25,7 @@
   .ZVARS = 'MENUX'
 )ABC DESC(Help)
  PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigih300')
+ PDC DESC('About') ACTION RUN(Tutor) Parm('zigihabt')
 )ABCINIT
   .ZVARS = HELPX
 )Body  Expand(\\)
@@ -38,7 +39,7 @@
 %
 %S  ]tmem  +  ]tstat +             %Type+]tsiz+  ]tdate   +]ttime   +]tuser +
 )Model
-@z +$z        +$z                   [z+[z     +  [z       +[z       +$z
+@z +$z       +$z                    [z+[z     +  [z       +[z       +$z
 )Init
   .zvars = '(zsel mem memstat mtype zlcnorc zlmdate zlmtime zluser)'
   .cursor = &zcmd

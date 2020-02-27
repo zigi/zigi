@@ -15,6 +15,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            02/23/20 LBD - Make numbers pretty              |
   |            01/24/20 HKB - Really fix it :)                 |
   |            01/23/20 LBD - Fix if user is NOPREFIX          |
   |            01/19/20 LBD - Use ckotqual (required)          |
@@ -234,16 +235,28 @@
     if pos('?',fx) > 0 then iterate
     if pullmems.sub /= null then dir.sub = words(pullmems.sub)
     zs1 = 'Processing subdirectory:' sub
-    zs2 = 'Members:                ' dir.sub
-    zs3 = 'Total bytes (k):        ' size.sub
+    zs2 = 'Members:                ' fix_num(dir.sub)
+    zs3 = 'Total bytes (k):        ' fix_num(size.sub)
     tracks =  (size.sub%50000 + 1) * 2
-    zs4 = 'Tracks allocated:       ' tracks
+    zs4 = 'Tracks allocated:       ' fix_num(tracks)
     call pop_status
     call alloc_copy_pds
     call add_stats
   end
 
   Exit
+
+  /* ----------------------------------------------------- */
+  /* number format code thanks to Doug Nadel               */
+  /* ----------------------------------------------------- */
+  fix_num: procedure
+  arg bytes
+  str=strip(translate('0,123,456,789,abc,def', ,
+    right(bytes,16,','), ,
+    '0123456789abcdef'),'L',',')
+  bytes = strip(str)
+  return bytes
+
 
   /* ----------------------------------------------------------------- *
   | Allocate the PDS and perform the copy using OGET for selective    |

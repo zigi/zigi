@@ -6,29 +6,29 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                                 %TagList
+                               %STASH+and%STASHL+
 +
-%TagList+is similar to Rollback. It will display a list of all defined tags,
-+including for annotated tags the date,, time, and description.
+%Shash+will save (push) your current git workspace and restore the workspace
++to the last commit level. This allows you to quickly switch what you're working
++on and work on something else without forcing a commit.
 +
-+Commands:%Only+to filter the table and%Replace+to rebuild the table.
++Stash will ask for a short description since you may have multiple stashes
++with your project.
 +
-+Row options:   %S+to display the full tag information
-+               %C+to create a new branch based on the tag level
-%
-+The create option will prompt for a new branch name before proceeding.
++Use the command%STASHL+to list all active stashes with the following options:
 +
-%
-+
-+
-           "Nothing worth having comes easy." - Theodore Roosevelt
+   %Branch +Create a new branch from stash
+   %Diff   +Show the diff's along with the stash summary
+   %Pop    +Restore a stash - see the next Tutorial page for more info on%pop+
+   %Remove +Remove (Drop) the stash stack
+   %Show   +Show stash summary
 +
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
- &zcont = zigih300
+ &zcont = zigih2j1
 )END
 /* -------------------------------------------------------- */
 /* zigi - the z/OS ISPF Git Interface                       */

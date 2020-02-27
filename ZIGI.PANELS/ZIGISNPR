@@ -11,7 +11,7 @@
 )Init
  &zwinttl = ' SnapShot Review'
  .zvars = '(sans)'
- .help = zigihxxx
+ .help = zigihsnp
 )Proc
  ver (&sans,nb,list,Y,N)
 )end
