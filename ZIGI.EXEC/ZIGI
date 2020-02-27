@@ -1525,9 +1525,7 @@ Work_With_Repo:
             /* delete the work branch */
             cmd = 'cd' localrep'/'zigirep
             cmd = cmd || ' && git branch -D zigiflow-'flowname
-            trace i
             x = docmd(cmd)
-            trace off
             /* Get things updated */
             call update_repo_metadata
             call Replace localrep zigirep pdshlq qualignr
@@ -4227,7 +4225,9 @@ Merge_it:
     * ----------------------------- */
     if zsel = "M" then do
       tmp_bname = 'trial'RANDOM(9999)
-      x = docmd('cd 'localdir' && git merge --no-commit --no-ff' bname)
+      cmd = 'cd 'localdir' && git merge --no-commit --no-ff'
+      cmd = cmd || ' refs/heads/'bname
+      x = docmd(cmd)
       if so.1 = 'Already up-to-date.' then do
         /* No need to merge! */
         zs1 = "Merge not needed"
