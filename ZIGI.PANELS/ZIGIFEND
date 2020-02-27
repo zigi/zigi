@@ -2,34 +2,22 @@
   _ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
   @ type(output) intens(high) caps(off) just(left )
   $ type(output) intens(low ) caps(off) just(left )
-  + type(text) intens(low) skip(on)
+  + type(text) intens(low) skip(on) just(asis)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(37,9)
+)Body Window(58,07)
 +
-+Repository:@zigirep
-+
-+Enter Selection:_z+
-+
-+]Select+(S)+Work with Repository
-+]View+  (V)+View the OMVS filesystem
-+]Delete+(D)+Delete the Repository
-          +Or%F3+to cancel.
+  +This will finalize your workflow. All commits in the
+   +Press%Enter+to finalize your flow. This will squash
+    +all commits in the work-branch into your feature
+         +branch and remove the local work-branch
+                            +
+                 +Or press%F3+to cancel.
 )Init
- &zwinttl = 'zigi Local Repository Selections'
- .zvars = '(zsel)'
- &zsel  = &z
- .cursor = zsel
- &select = 'Select'
- &delete = 'Delete'
- &view   = 'View'
+ &zwinttl = 'zigi Finish Current zigiflow.'
 )Proc
- ver (&zsel,list,S,V,D)
 )PNTS
-  Field(select) var(zsel) val('S')
-  Field(delete) var(zsel) val('D')
-  Field(view  ) var(zsel) val('V')
 )End
 /* -------------------------------------------------------- */
 /* zigi - the z/OS ISPF Git Interface                       */
