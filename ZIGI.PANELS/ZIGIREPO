@@ -47,9 +47,15 @@
  PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigih200')
  PDC DESC('About') ACTION RUN(Tutor) Parm('zigihabt')
 )ABCINIT
+  .ZVARS = 'MENUZ'
+)ABC DESC('Zigi Flow')
+ PDC DESC('Start New Flow') ACTION RUN(FLOWGO)
+ PDC DESC('Finish Current Flow') ACTION RUN(FLOWEND)
+ PDC DESC('Select Unfinished Flow') ACTION RUN(FLOWSEL)
+)ABCINIT
   .ZVARS = HELPX
 )Body  Expand(\\)
-+| General Actions | Repository Actions | Help +
++| General Actions | Repository Actions | Zigi Flow | Help +
 <-----------\-\--------------------------------+
 +Current Repository+--------------#zigtitle   +---------------------------------
 %Command ===>_zcmd            \ \  %Scroll ===>_zscr+
