@@ -6250,3 +6250,117 @@ is_binfile:
     if binfiles.bi = file then return 1
   end
   return 0
+
+check_clean:
+  /* ---------------------------------------------------------\
+  | Name:      check_clean                                     |
+  |                                                            |
+  | Function:  Checks if working dir is clean                  |
+  |            returns YES or NO                               |
+  \---------------------------------------------------------- */
+  cmd = 'cd 'localrep'/'zigirep' && git status'
+  x = docmd(cmd)
+  if so.0 = 2 then return "YES"
+  else return "NO"
+
+flowselect:
+  /* ----------------------------- *
+  | Show the flows and select one |
+  * ----------------------------- */
+  if rtbf_open = 1 then 'tbend' rtbf
+  'TBCreate' rtbf 'keys(bname) Names(brstatus) Replace NoWrite'
+  rtbf_open = 1
+  localdir = localrep'/'zigirep
+  if zigi_offline = 0 then do
+    cmd = ' && git remote prune origin > /dev/null 2>&1 && git branch -a'
+    x = docmd('cd 'localdir cmd)
+  end
+  else parse value '0 0' with so.0 se.0
+  if so.0 + se.0 = 0 then do
+    cmd = '&& git branch -a'
+    x = docmd('cd 'localdir cmd)
+  end
+  bl. = null
+  bl.0 = 0
+  do i = 1 to so.0
+    b1 = strip(so.i,'B')
+    if pos('/',b1) > 0 then do
+      /* this is a remote branch we (maybe) have never checked out */
+      seen_this_branch = 0
+      parse var b1 remotes'/'origin'/'bname zooi
+      bname = strip(bname)
+      do ii = 1 to bl.0
+        if bl.ii = bname then seen_this_branch = 1
+      end
+      if seen_this_branch = 1 then do
+        sbname = bname
+        'tbtop' rtbf
+        do forever
+          'tbskip' rtbf
+          if rc > 0 then leave
+          if sbname = bname then do
+            brstatus = 'Local/Remote'
+            'tbmod' rtbf
+            leave
+          end
+        end
+      end
+      /* but only add it to table if we haven't yet */
+      if seen_this_branch = 0 then do
+        if bname <> branch & bname <> "HEAD" then do
+          ni = bl.0 + 1
+          bl.ni = bname
+          bl.0 = ni
+          brstatus = 'Remote'
+          /* and only if it's a zigiflow branch */
+          if substr(bname,1,9) = 'zigiflow-' then do
+            'tbadd' rtbf
+          end
+        end
+      end
+    end
+    else do
+      /* this is already a local branch */
+      if pos('*',b1) = 0 then do
+        /* Add it to the table if it's not the current (*) branch */
+        bname = strip(so.i)
+        ni = bl.0 + 1
+        bl.ni = b1
+        bl.0 = ni
+        brstatus = 'Local'
+        if substr(bname,1,9) = 'zigiflow-' then do
+          'tbadd' rtbf
+        end
+      end
+    end
+  end
+  'tbsort' rtbf 'fields(bname,c,a)'
+  'tbtop' rtbf
+  save_btop = 0
+  do forever
+    zcmd = null
+    cc_rc = 0
+    newb = null
+    zsel = null
+    if save_btop > 0 then do
+      'tbtop' rtbf
+      'tbskip' rtbf 'number('save_btop')'
+    end
+    'tbdispl' rtbf 'panel(zigifsel)'
+    if rc > 4 then leave
+    save_btop = ztdtop
+    /* ----------------------------- *
+    | Workin selected flow          |
+    * ----------------------------- */
+    if zsel = "S" then do
+      x = docmd('cd 'localdir' && git checkout 'bname)
+      call Replace localrep zigirep pdshlq qualignr
+      call update_repo_metadata
+      branch = bname
+      leave
+    end
+  end
+  'tbend' rtbf
+  rtbf_open = 0
+  ztdsels = 0
+  return
