@@ -52,6 +52,7 @@
  PDC DESC('Start New Flow') ACTION RUN(FLOWGO)
  PDC DESC('Finish Current Flow') ACTION RUN(FLOWEND)
  PDC DESC('Select Unfinished Flow') ACTION RUN(FLOWSEL)
+ PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigih2k0')
 )ABCINIT
   .ZVARS = HELPX
 )Body  Expand(\\)
