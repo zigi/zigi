@@ -32,7 +32,7 @@
  if (&ztut = 100)
      &zcont = ZIGIH180
  if (&ztut = 200)
-     &zcont = ZIGIH240
+     &zcont = ZIGIH2K0
 )END
 /* -------------------------------------------------------- */
 /* zigi - the z/OS ISPF Git Interface                       */

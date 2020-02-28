@@ -7,7 +7,7 @@
   # type(output) hilite(reverse) color(turq) caps(off)
  | TYPE(AB)           /* Action bar                */
  < TYPE(ABSL) GE(ON)  /* Action bar separator line */
-)ABC DESC('Stash Commands')
+)ABC DESC('Commands')
  PDC DESC('Clear- Remove ALL stashes')   ACTION RUN(CLEAR)
  PDC DESC('End') Action Run(END)
 )ABCINIT
@@ -18,7 +18,7 @@
 )ABCINIT
   .ZVARS = HELPX
 )Body  Expand(\\)
-+| Stash Commands | Help +
++| Commands | Help +
 <-----------\-\--------------------------------+
 +Stash Summary +-----------\-\------#zigtitle +------\-\------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
