@@ -778,6 +778,12 @@
 
     if zsel /= null then
     Select
+      When zsel = 'I' then do
+        'addpop row(3) column(2)'
+        'display panel(zigiinfo)'
+        'rempop'
+        zsel = null
+      end
       When zsel = 'S' then call select_repo
       When zsel = 'V' then do
         'SELECT PGM(ISRDSLST) PARM(UDL' localrep'/'zigirep') SUSPEND'
@@ -877,7 +883,7 @@ Select_Repo:
 Create_zigirepo:
   "TBCreate zigirepo Keys(zigikey)",
     "Names(zigirep localrep pdshlq qualignr zigidate defcpush" ,
-    " sortdate defruid zigicat)",
+    " sortdate defruid zigicat branch remote1)",
     'Library('isptabl') Write Share'
   'vget (defrsort) profile'
   'TBSort zigirepo Fields('defrsort')'
@@ -996,6 +1002,14 @@ Work_With_Repo:
         end
       end
     end
+
+    if zcmd = 'FLOW' then do
+       'addpop row(3) column(4)'
+       'display panel(zigiflow)'
+       drc = rc
+       'rempop'
+       if drc > 0 then zcmd = null
+       end
 
     if zcmd /= null then
     Select
@@ -3968,6 +3982,8 @@ Replace:
   * ----------------------------- */
 Branch_it:
   if rtbb_open = 1 then 'tbend' rtbb
+  'tbquery' rtbb
+  if rc = 0 then 'tbend' rtbb
   'TBCreate' rtbb 'keys(bname) Names(brstatus) Replace NoWrite'
   rtbb_open = 1
   localdir = localrep'/'zigirep
@@ -4489,11 +4505,11 @@ Create_Repo:
     if localrep = '?' then
     localrep = zigiosel()
     if localrep = null then do
-       zerrsm = 'Canceled.'
-       zerrlm = 'Create canceled as OMVS directory selection canceled.'
-       'setmsg msg(isrz003)'
-       return 1
-       end
+      zerrsm = 'Canceled.'
+      zerrlm = 'Create canceled as OMVS directory selection canceled.'
+      'setmsg msg(isrz003)'
+      return 1
+    end
     localrep = strip(localrep,'T','/')
     /* ---------------------------------------------------- *
     | We do some basic git repo setup here...              |
@@ -4873,7 +4889,7 @@ update_repo_metadata:
     localdir = localrep'/'zigirep
     x = docmd('cd 'localdir' && 'gitcmd)
     if so.0 > 0 then
-    remote1 = word(so.1,1) ' ' word(so.1,2)
+    remote1 = word(so.1,1)' 'word(so.1,2)
     if so.0 = 0 then do
       remote1 = "<no remote defined>"
       remote2 = null
@@ -5121,6 +5137,7 @@ update_repo_metadata:
   end
   'tbsort' rtbl 'fields(dsn,c,a)'
   fulldsn = save_fulldsn
+  'tbmod zigirepo order'
   dsn = save_dsn
   x = debug('Done with update_repo_metadata' fulldsn dsn)
   return
@@ -6046,13 +6063,23 @@ Test_Repo_Table_State:
   | and if not upgrade it.                        |
   * --------------------------------------------- */
   'TBQuery zigirepo Names(names)'
-  if pos('ZIGICAT',names) = 0 then do
+  if pos('BRANCH',names) = 0 then do
     zs1 = 'Upgrading the ZIGI Repository ISPF Table'
     zs2 = 'This should not take long.'
     call do_popup
+    if pos('ZIGICAT',names) > 0 then cat = 1
+    else cat = 0
+    if pos('BRANCH',names) > 0 then tbranch = 1
+    else tbranch = 0
     'tbtop zigirepo'
-    zigicat = null
-    sortdate = null
+    if tbranch = 0 then do
+      branch = null
+      remote1 = null
+    end
+    if cat = 0 then do
+      zigicat = null
+      sortdate = null
+    end
     tc = 0
     do forever
       'tbskip zigirepo'
@@ -6060,18 +6087,22 @@ Test_Repo_Table_State:
       'tbget zigirepo'
       tc = tc + 1
       key.tc = zigikey'\'localrep'\'pdshlq'\'qualignr'\'zigirep ,
-        '\'defcpush '\'defruid'\'zigidate '\' sortdate '\' zigicat
+        '\'defcpush '\'defruid'\'zigidate '\' sortdate '\' zigicat ,
+        '\' branch '\' remote1
     end
     key.0 = tc
+    trace '?i'
     'tbend zigirepo'
     'TBErase zigirepo Library('isptabl')'
     call create_zigirepo
     do i = 1 to key.0
       parse value key.i with zigikey'\'localrep'\'pdshlq'\'qualignr'\'zigirep ,
-        '\'defcpush'\'defruid'\'zigidate'\'sortdate'\'zigicat
+        '\'defcpush'\'defruid'\'zigidate'\'sortdate'\'zigicat ,
+        '\'branch'\'remote1
       if right(localrep,1) = '/' then localrep = strip(localrep,'T','/')
       zigirep = strip(zigirep)
       zigikey = localrep'/'zigirep
+      if cat = 0 then
       Select
         when zigidate /= null then do
           zd = subword(zigidate,1,3)
@@ -6092,8 +6123,10 @@ Test_Repo_Table_State:
         Otherwise sortdate = date('b') time('s')
       end
       'tbadd zigirepo order'
-      sortdate = null
-      zigicat = null
+      if cat = 0 then do
+        sortdate = null
+        zigicat = null
+      end
     end
   end
   Return

@@ -6,7 +6,7 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   [ type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(54,16)
+)Body Window(54,17)
 +
 +Enter Selection:_z                     \ \ +
 +
@@ -15,13 +15,14 @@
 [Br    + Change Branch      [Remote+  Add remote
 [Commit+ Record Changes     [Rollback+Revert
 [Find+   Find in table      [Set+     Set Defaults
-[Githelp+Git Help           [Snapshot+Create Escrow
-[GitCMD +Git Command Prompt [Stash+   Save Workspace
-[GitLog+ Query git log      [StashL+  List Stashes
-[Grep+   Find Strings       [Status+  Git Status
-[Merge+  Merge Branches     [Tag+     Git Tag
-[Network+ Network Report    [TagList+ List all Tags
-[Pull+    Pull from origin  [View+    OMVS Dir
+[Flow+   Flow Menu          [Snapshot+Create Escrow
+[Githelp+Git Help           [Stash+   Save Workspace
+[GitCMD +Git Command Prompt [StashL+  List Stashes
+[GitLog+ Query git log      [Status+  Git Status
+[Grep+   Find Strings       [Tag+     Git Tag
+[Merge+  Merge Branches     [TagList+ List all Tags
+[Network+ Network Report    [View+    OMVS Dir
+[Pull+    Pull from origin
                   +Or%F3+to cancel.
 )Init
  &zwinttl = 'zigi Current Repository Commands'
@@ -33,6 +34,7 @@
  &Br      = 'Branch'
  &Commit  = 'Commit'
  &Find    = 'Find'
+ &Flow    = 'Flow'
  &Gitcmd  = 'GitCmd'
  &Githelp = 'Githelp'
  &GitLog  = 'Gitlog'
@@ -63,6 +65,7 @@
  FIELD(COMMIT)  VAR(ZCMD) VAL('COMMIT')
  FIELD(GITCMD)  VAR(ZCMD) VAL('GITCMD')
  FIELD(FIND  )  VAR(ZCMD) VAL('FIND')
+ FIELD(FLOW  )  VAR(ZCMD) VAL('FLOW')
  FIELD(GITHELP) VAR(ZCMD) VAL('GITHELP')
  FIELD(GITLOG)  VAR(ZCMD) VAL('GITLOG')
  FIELD(GREP  )  VAR(ZCMD) VAL('GREP')

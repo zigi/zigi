@@ -10,7 +10,7 @@
   [ type(output) caps(off) pas(on) intens(high) color(white)
  | TYPE(AB)           /* Action bar                */
  < TYPE(ABSL) GE(ON)  /* Action bar separator line */
-)ABC DESC('General Actions')
+)ABC DESC('General')
  PDC DESC('Add dataset')                        ACTION RUN(Add     )
  PDC DESC('Find in table')                      ACTION RUN(Find    )
  PDC DESC('GIT Commands') ACTION RUN(gitcmd)
@@ -23,7 +23,7 @@
  PDC DESC('End')                                Action Run(END)
 )ABCINIT
   .ZVARS = 'MENUX'
-)ABC DESC('Repository Actions')
+)ABC DESC('Repository')
  PDC DESC('Add Modified/Untracked')             ACTION RUN(AddAll  )
  PDC DESC('Change to another Branch')           ACTION RUN(Br      )
  PDC DESC('Create Escrow Copy')                 ACTION RUN(Snapshot)
@@ -48,7 +48,7 @@
  PDC DESC('About') ACTION RUN(Tutor) Parm('zigihabt')
 )ABCINIT
   .ZVARS = 'MENUZ'
-)ABC DESC('Zigi Flow')
+)ABC DESC('ZigiFlow')
  PDC DESC('Start New Flow') ACTION RUN(FLOWGO)
  PDC DESC('Finish Current Flow') ACTION RUN(FLOWEND)
  PDC DESC('Select Unfinished Flow') ACTION RUN(FLOWSEL)
@@ -56,7 +56,7 @@
 )ABCINIT
   .ZVARS = HELPX
 )Body  Expand(\\)
-+| General Actions | Repository Actions | Zigi Flow | Help +
++| General | Repository | ZigiFlow | Help +
 <-----------\-\--------------------------------+
 +Current Repository+--------------#zigtitle   +---------------------------------
 %Command ===>_zcmd            \ \  %Scroll ===>_zscr+
