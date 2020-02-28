@@ -19,7 +19,7 @@
   [z+Current Repository Panel         [z+Registering SSH Keys
   [z+PDS Member List Panel            [z+zigi Authors and Contributing *
   [z+Getting Started   (tbd)          [z+GPL License
-+
++ [z+Convert non-zigi Repo
 +
 +
 +
@@ -27,7 +27,7 @@
 +
            +Press the%Enter+key to begin your zigi tutorial journey.
 )Init
-  .ZVARS = '(L0 L5 L1 L6 L2 L7 L3 LA L4 LG)'
+  .ZVARS = '(L0 L5 L1 L6 L2 L7 L3 LA L4 LG L8)'
    &L0 = '0'
    &L1 = '1'
    &L2 = '2'
@@ -38,6 +38,7 @@
    &L7 = '7'
    &LA = 'A'
    &LG = 'L'
+   &L8 = '8'
  .cursor = &zcmd
  &ztut = 'HINT'
  vput (ztut)
@@ -51,6 +52,7 @@
            5,zigih500   /* Common Scenarios  (tbd)        */
            6,zigih600   /* Repository Layout              */
            7,zigih700   /* SSH Key Registration           */
+           8,zigih800   /* non-zigi conversion            */
            A,*zigihau   /* zigi Authors and Contributing  */
            L,*zigigpl   /* GPL License                    */
            *,'?'
@@ -64,6 +66,7 @@
  Field(l5) var(zcmd) val(5)
  Field(l6) var(zcmd) val(6)
  Field(l7) var(zcmd) val(7)
+ Field(l8) var(zcmd) val(8)
  Field(lA) var(zcmd) val(A)
  Field(lL) var(zcmd) val(L)
 )END

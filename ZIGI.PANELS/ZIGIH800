@@ -1,0 +1,38 @@
+)Attr
+ $ type(output) caps(off)
+ { type(output) hilite(reverse) color(turq) caps(off)
+ _ type(input) caps(off) hilite(uscore) intens(low)
+ + type(text ) intens(low) skip(on)
+ @ type(input) caps(on ) hilite(uscore) intens(low)
+)Body Expand(\\)
++Tutorial\-\{zigtitle                                      +-\-\Tutorial
+%Command ===>_zcmd                                                             +
++
++Converting a non-zigi managed repository for use by zigi is a manual process
++since every repository is different:
++
+   1. Get into OMVS
+   2. Create subdirectories for each respective z/OS PDS
++     (e.g. all c source into directory c)
++  3. Move all files into their respective directories and remove any
++     file suffix
++  4. Rename any sequential files in the repository root that are z/OS
++     datasets to upper case using standard z/OS naming conventions
++     - the file name should not include any high-level-qualifier
++  5. Execute the%CONVREPO+command to convert the repo
++
+%Notes:+ 1. The .gitattributes file was created by zigi
++        2. The .zigi subdirectory was created by zigi
++        3. The .zigi/dsn file was created by zigi
++        4. A git add . was performed by zigi
++
+       +Press%Enter+to continue reading about the zigi repository layout
+)Init
+ &zigtitle = '(Converting a non-zigi Repository)'
+)Proc
+ &zcont = zigih600
+)end
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

@@ -40,6 +40,7 @@
  PDC DESC('Stash List'             )            ACTION RUN(StashL  )
  PDC DESC('Git Tag')                            ACTION RUN(Tag     )
  PDC DESC('List all Tags')                      ACTION RUN(TagList )
+ PDC DESC('Convert non-zigi Repository')        ACTION RUN(Convrepo)
  PDC DESC('End')                                Action Run(END)
 )ABCINIT
   .ZVARS = 'MENUY'

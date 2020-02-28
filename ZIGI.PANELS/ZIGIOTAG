@@ -5,9 +5,8 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(35,6)
-+
-+Enter Selection:_z          +
+)Body Window(35,5)
++Enter Selection:_z        +
 +
 +]Only+    Filter:_fw             +
 +]Replace+ Replace the table
