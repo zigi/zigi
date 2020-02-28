@@ -9,7 +9,7 @@
  [ type(text) intens(low) hilite(uscore)
  | TYPE(AB)           /* Action bar                */
  < TYPE(ABSL) GE(ON)  /* Action bar separator line */
-)ABC DESC('Repository Commands')
+)ABC DESC('Commands')
  PDC DESC('Clone Remote repository')             ACTION RUN(CLONE)
  PDC DESC('Config View/Update Configuration')    ACTION RUN(CONFIG)
  PDC DESC('Create Local repository')             ACTION RUN(CREATE)
@@ -27,7 +27,7 @@
 )ABCINIT
   .ZVARS = HELPX
 )Body Expand(\\)
-+| Repository Commands | Help +
++| Commands | Help +
 <-----------\-\--------------------------------+
 +Local Repositories+--------------#zigtitle   +---------------------------------
 %Command ===>{zcmd       \ \ %Scroll ===>_zscr+
@@ -59,7 +59,7 @@ _z+  $z              +  ]z                        +]z             +}z          +
      &osel = &zsel
  if (&row = 0)
      &zsel = &z
- ver (&zsel,list,S,D,V,/)
+ ver (&zsel,list,I,S,D,V,/)
 )PNTS
  FIELD(CAT     ) VAR(ZCMD) VAL('SORT CATEGORY')
  FIELD(LAST    ) VAR(ZCMD) VAL('SORT LAST')

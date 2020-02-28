@@ -21,14 +21,14 @@
            +You can do this whenever your workingspace is 'clean'.
            +(it also creates an identical branch named%your-flow-name+)
    %FLOWEND+Squashes all commits from zigiflow-%your-flow-name+into the +
-           %your-flow-name+branch. And preopulates a commit panel.
+           %your-flow-name+branch. And prepopulates a commit panel.
    %FLOWSEL+Enables you to select another flow to work on (efixes?)
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
- &zcont = zigih2j1
+ &zcont = zigih240
 )END
 /* -------------------------------------------------------- */
 /* zigi - the z/OS ISPF Git Interface                       */
