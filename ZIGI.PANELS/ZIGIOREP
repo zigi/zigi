@@ -6,23 +6,22 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   [ type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(54,17)
+)Body Window(55,16)
++Enter Selection:_z        +
 +
-+Enter Selection:_z                     \ \ +
-+
-[Add   + Add dataset        [Push+    Push to origin
-[AddAll+ Add all to Git     [Replace+ Replace Datasets
-[Br    + Change Branch      [Remote+  Add remote
-[Commit+ Record Changes     [Rollback+Revert
-[Find+   Find in table      [Set+     Set Defaults
-[Flow+   Flow Menu          [Snapshot+Create Escrow
-[Githelp+Git Help           [Stash+   Save Workspace
-[GitCMD +Git Command Prompt [StashL+  List Stashes
-[GitLog+ Query git log      [Status+  Git Status
-[Grep+   Find Strings       [Tag+     Git Tag
-[Merge+  Merge Branches     [TagList+ List all Tags
-[Network+ Network Report    [View+    OMVS Dir
-[Pull+    Pull from origin
+[Add   +  Add dataset        [Pull+    Pull from origin
+[AddAll+  Add all to Git     [Push+    Push to origin
+[Br    +  Change Branch      [Replace+ Replace Datasets
+[Commit+  Record Changes     [Remote+  Add remote
+[Convrepo+Convert non-zigi   [Rollback+Revert
+[Find+    Find in table      [Set+     Set Defaults
+[Flow+    Flow Menu          [Snapshot+Create Escrow
+[Githelp+ Git Help           [Stash+   Save Workspace
+[GitCMD + Git Command Prompt [StashL+  List Stashes
+[GitLog+  Query git log      [Status+  Git Status
+[Grep+    Find Strings       [Tag+     Git Tag
+[Merge+   Merge Branches     [TagList+ List all Tags
+[Network+Network Report      [View+    OMVS Dir
                   +Or%F3+to cancel.
 )Init
  &zwinttl = 'zigi Current Repository Commands'
@@ -33,6 +32,7 @@
  &Addall  = 'AddAll'
  &Br      = 'Branch'
  &Commit  = 'Commit'
+ &Convrepo = 'COnvrepo'
  &Find    = 'Find'
  &Flow    = 'Flow'
  &Gitcmd  = 'GitCmd'
@@ -63,6 +63,7 @@
  FIELD(ADDALL)  VAR(ZCMD) VAL('ADDALL')
  FIELD(BR    )  VAR(ZCMD) VAL('BRANCH')
  FIELD(COMMIT)  VAR(ZCMD) VAL('COMMIT')
+ FIELD(CONVREPO)  VAR(ZCMD) VAL('CONVREPO')
  FIELD(GITCMD)  VAR(ZCMD) VAL('GITCMD')
  FIELD(FIND  )  VAR(ZCMD) VAL('FIND')
  FIELD(FLOW  )  VAR(ZCMD) VAL('FLOW')
