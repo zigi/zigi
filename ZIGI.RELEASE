@@ -26,6 +26,8 @@ Stashes with these options:
     - Diff to show the summary and diffs
     - Pop to restore a saved stash
 
+Implement new feature 'zigiflow' to help the user make controlled changes.
+
 Provided an option to enhance point-and-shoot in the zigi Config panel.
 Option S will leave things as they are. Option P will enable
 point-and-shoot so that a double click outside the table will bring up
@@ -36,7 +38,7 @@ Change REFRESH command to REPLACE and add FETCH command for Current
 Repository. Only Fetch when a repository is selected or on demand.
 
 New zigi Cheat Sheet (pdf) and zigi User's Guide (pdf, azw3, mobi, epub)
-have been created and are new with v2.1.
+have been created and are new with v2.5.
 
 Update to the Current Repository commands menu to add ADDALL. This command
 will do a git add for all Untracked or Modified datasets or files.
