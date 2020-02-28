@@ -10,15 +10,15 @@
  | TYPE(AB)           /* Action bar                */
  < TYPE(ABSL) GE(ON)  /* Action bar separator line */
 )ABC DESC(Menu)
- PDC DESC('Add All Modified/Untracked')          ACTION RUN(ADDALL)
- PDC DESC('Commit changes')                      ACTION RUN(COMMIT)
+ PDC DESC('AddAll')          ACTION RUN(ADDALL)
+ PDC DESC('Commit')                      ACTION RUN(COMMIT)
  PDC DESC('GIT Commands') ACTION RUN(zigigcmd)
  PDC DESC('GIT Help') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%GITHELP)')
  PDC DESC('GitLog')                              ACTION RUN(GITLOG)
- PDC DESC('Grep - search for string')            ACTION RUN(GREP)
- PDC DESC('Locate a Member')                     ACTION RUN(LOCATE)
- PDC DESC('Sort the table')                      ACTION RUN(SORT)
- PDC DESC('Status of the Repository')            ACTION RUN(STATUS)
+ PDC DESC('Grep')            ACTION RUN(GREP)
+ PDC DESC('Locate')                     ACTION RUN(LOCATE)
+ PDC DESC('Sort')                      ACTION RUN(SORT)
+ PDC DESC('Status')            ACTION RUN(STATUS)
  PDC DESC('Reset Userids')                       ACTION RUN(RESET)
  PDC DESC('End') Action Run(END)
 )ABCINIT

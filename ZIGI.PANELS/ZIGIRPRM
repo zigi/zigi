@@ -6,13 +6,14 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(37,9)
+)Body Window(37,10)
 +
 +Repository:@zigirep
 +
 +Enter Selection:_z+
 +
 +]Select+(S)+Work with Repository
++]Info+  (I)+Info on the Repository
 +]View+  (V)+View the OMVS filesystem
 +]Delete+(D)+Delete the Repository
           +Or%F3+to cancel.
@@ -24,12 +25,14 @@
  &select = 'Select'
  &delete = 'Delete'
  &view   = 'View'
+ &Info   = 'Info'
 )Proc
  ver (&zsel,list,S,V,D)
 )PNTS
   Field(select) var(zsel) val('S')
   Field(delete) var(zsel) val('D')
   Field(view  ) var(zsel) val('V')
+  Field(info  ) var(zsel) val('I')
 )End
 /* -------------------------------------------------------- */
 /* zigi - the z/OS ISPF Git Interface                       */
