@@ -1033,6 +1033,9 @@ Work_With_Repo:
       * ----------------------- */
       When abbrev('CONVREPO',zcmd,4) = 1 then do
         call convert_repo
+        cmd = 'cp' localrep'/'zigirep
+        cmd = cmd '&& git add .'
+        x = docmd(cmd)
         call work_with_repo
       end
       /* ----------------- *
