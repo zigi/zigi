@@ -3383,16 +3383,11 @@ Clone_Repo:
     cmd = '[[ ! -d 'localrep'/'zigirep'/.zigi ]] && echo 0'
     x = bpxwunix(cmd,,so.,se.)
     if so.0 = 1 & so.1 = 0 then do
-      Address ISPExec
-      newrep = 'nonzigi.'zigirep
-      cmd = 'cd' localrep '&& mv' zigirep newrep
-      x = bpxwunix(cmd,,so.,se.)
-      clonerep = localrep'/'newrep
+      call do_git_attributes
       'Addpop row(4) column(7)'
       'Display Panel(zigipopn)'
       'Rempop'
       'Select pgm(isptutor) parm(zigih600)'
-      return
     end
     Address ISPExec
     if c_stat = 1 then return
@@ -4537,6 +4532,22 @@ Create_Repo:
     zs2 = 'Please standby'
     call do_popup
     x = docmd('cd 'localrep' && git init 'zigirep)
+    call do_git_attributes
+
+    Address ISPExec
+    zigikey = localrep'/'zigirep
+    zigidate = date('n')
+    sortdate = date('b') time('s')
+    'tbadd zigirepo order'
+    zpush = defcpush
+    'vget (defrsort) profile'
+    'TBSort zigirepo Fields('defrsort')'
+    'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
+    leave
+  end
+  return 0
+
+do_git_attributes:
     /* The git repo is initialized. Time to stick a
     .gitattributes (ASCII) in there */
     call syscalls 'ON'
@@ -4641,19 +4652,7 @@ Create_Repo:
 
     commitmsg = "added by zigi"
     x = docmd('cd 'reporoot' && git commit -m "'commitmsg'"')
-
-    Address ISPExec
-    zigikey = localrep'/'zigirep
-    zigidate = date('n')
-    sortdate = date('b') time('s')
-    'tbadd zigirepo order'
-    zpush = defcpush
-    'vget (defrsort) profile'
-    'TBSort zigirepo Fields('defrsort')'
-    'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
-    leave
-  end
-  return 0
+return
 
   /* ---------------------------------------------------------- *
   | Generalized routine to view stdout. (so.) or stderr. (se.) |
@@ -6091,7 +6090,6 @@ Test_Repo_Table_State:
         '\' branch '\' remote1
     end
     key.0 = tc
-    trace '?i'
     'tbend zigirepo'
     'TBErase zigirepo Library('isptabl')'
     call create_zigirepo
