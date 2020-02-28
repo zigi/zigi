@@ -91,9 +91,9 @@ convert:
       parse value dfile with ndfile'.' .
       ndfile = translate(ndfile)
       cmd = 'cd' dir '&& mv' dfile ndfile
-    zs1 = 'Converting:' fileo
-    zs2 = 'To:        ' file
-    call pop
+      zs1 = 'Converting:' dfile
+      zs2 = 'To:        ' ndfile
+      call pop
       x = bpxwunix(cmd,,so.,se.)
       if x > 0 then do
         do z = 1 to so.0;say so.z;end
