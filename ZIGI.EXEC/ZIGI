@@ -3353,6 +3353,7 @@ Do_Push:
   | Clone a remote repo           |
   * ----------------------------- */
 Clone_Repo:
+  encoding = 'ibm-1047'
   if zigi_offline = 1 then do
     zerrsm = 'Offline.'
     zerrlm = 'Clone is not allowed when offline.'
