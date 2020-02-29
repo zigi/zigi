@@ -3700,9 +3700,9 @@ Work_with_repo_file:
             zsel = null
           end
           if eok = 1 then do
-          if sysdsorg = 'PS'
-          then "Edit Dataset('"edsn"')"
-          else "Edit Dataset('"edsn"("mem")'"
+            if sysdsorg = 'PS'
+            then "Edit Dataset('"edsn"')"
+            else "Edit Dataset('"edsn"("mem")'"
           end
           else rc = 1
           if rc = 0 then do
@@ -3737,8 +3737,10 @@ Work_with_repo_file:
                 tagcmd = 'chtag -b 'localrep'/'zigirep'/'r'/*'
                 x = bpxwunix(tagcmd,,so.,se.)
               end
-              call update_repo_metadata
-              call work_with_repo_file
+              if ztdsels = 1 then do
+                call update_repo_metadata
+                call work_with_repo_file
+              end
             end
           end
         end
@@ -4646,6 +4648,7 @@ do_git_attributes:
     call write_fd ga
   end
   'close' fd
+  call syscalls 'OFF'
   /* -------------------- .gitattributes written ----------- */
   /*             UNFORTUNATELY, IT'S IN EBCDIC :(            */
   /* ------------------------------------------------------- */
