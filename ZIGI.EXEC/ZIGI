@@ -791,7 +791,7 @@
       end
       When zsel = 'D' then do
         parse value '' with delcg delco delcf delzd
-        'Addpop row(4) column(12)'
+        'Addpop row(3) column(10)'
         'Display panel(zigidelc)'
         drc = rc
         'rempop'
@@ -871,7 +871,7 @@ Select_Repo:
   'tbmod zigirepo order'
   x = debug('Getting binfiles:' zigirep time('L') )
   drop binfiles.
-  call get_binfiles 'select repo'
+  call get_binfiles
   x = debug('Got 'binfiles.0' binfiles' time('L') )
   x = debug('Selecting repo:' zigirep time('L') )
   call Work_With_Repo
@@ -1032,11 +1032,27 @@ Work_With_Repo:
       | Convert a non-zigi Repo |
       * ----------------------- */
       When abbrev('CONVREPO',zcmd,4) = 1 then do
-        call convert_repo
-        cmd = 'cp' localrep'/'zigirep
-        cmd = cmd '&& git add .'
-        x = docmd(cmd)
-        call work_with_repo
+        parse value '' with zcmd ans
+        'addpop row(3) column(4)'
+        'display panel(zigivcnv)'
+        drc = rc
+        'rempop'
+        if drc > 0 then do
+          zerrsm = 'Canceled.'
+          zerrlm = 'Conversion canceled.'
+          'setmsg msg(isrz003)'
+        end
+        else do
+          if branch = 'master' then do
+            convdir = localrep'/'zigirep
+            cmd = 'cd' convdir '&& git checkout -b zigi-master'
+            x = docmd(cmd)
+          end
+          call convert_repo
+          x = docmd(cmd)
+          defcpush = 'N'
+          call work_with_repo
+        end
       end
       /* ----------------- *
       | Git command prompt |
@@ -1509,15 +1525,23 @@ Work_With_Repo:
         else do
           'Addpop row(4) column(10)'
           'Display Panel(zigifgo)'
+          drc = rc
           'rempop'
-          cmd = 'cd' localrep'/'zigirep
-          cmd = cmd || ' && git checkout master &&'
-          cmd = cmd || ' git checkout -b 'flowname
-          cmd = cmd || ' && git checkout -b zigiflow-'flowname
-          cmd = cmd || ' && git tag 'flowname
-          x = docmd(cmd)
-          call Replace localrep zigirep pdshlq qualignr
-          call update_repo_metadata
+          if drc > 0 then do
+            zerrsm = 'Canceled.'
+            zerrlm = 'FlowGo was canceled.'
+            'setmsg msg(isrz003)'
+          end
+          else do
+            cmd = 'cd' localrep'/'zigirep
+            cmd = cmd || ' && git checkout master &&'
+            cmd = cmd || ' git checkout -b 'flowname
+            cmd = cmd || ' && git checkout -b zigiflow-'flowname
+            cmd = cmd || ' && git tag 'flowname
+            x = docmd(cmd)
+            call Replace localrep zigirep pdshlq qualignr
+            call update_repo_metadata
+          end
         end
       end
       /* -------------------------------- *
@@ -3415,10 +3439,13 @@ Clone_Repo:
       'Display Panel(zigipopn)'
       'Rempop'
       'Select pgm(isptutor) parm(zigih800)'
+      non_zigi = 1
     end
+    else non_zigi = 0
     Address ISPExec
     if c_stat = 1 then return
     qualignr = words(translate(pdshlq,' ','.'))
+    if non_zigi = 0 then
     call Replace localrep zigirep pdshlq qualignr
     zigikey = localrep'/'zigirep
     zigidate = date('n')
@@ -3664,15 +3691,20 @@ Work_with_repo_file:
           x = listdsi(fulldsn)
           edsn = strip(fulldsn,'B',"'")
           r = usssafe(dsn)
+          eok = 1
           if is_binfile(r'/'mem) = 1 then do
             zerrsm = 'Invalid'
             zerrlm = 'Unable to Edit a binary dataset.'
             'setmsg msg(isrz003)'
-            leave
+            eok = 0
+            zsel = null
           end
+          if eok = 1 then do
           if sysdsorg = 'PS'
           then "Edit Dataset('"edsn"')"
           else "Edit Dataset('"edsn"("mem")'"
+          end
+          else rc = 1
           if rc = 0 then do
             if ztdsels = 1 then do
               m = strip(mem)
@@ -3828,7 +3860,7 @@ Work_with_repo_file:
           dsna = sa_dsna
           call git_add_member
           if ztdsels < 2 then do
-            call get_binfiles 'add member'
+            call get_binfiles
             call git_add_member_stats
           end
         end
@@ -5391,7 +5423,7 @@ Add_Dataset:
   end
   if ztdels < 2 then
   if gaupdate = 1 then
-  call get_binfiles 'add dataset'
+  call get_binfiles
   return
 
 tbcreate_dsnatbl:
@@ -5506,7 +5538,7 @@ Do_Add_Copy:
       /* finally remove the .gae file */
       cmd = cmd '&& rm .gae'
       x = docmd(cmd)
-      call get_binfiles 'do add copy 1'
+      call get_binfiles
     end
     if ac_mem /= null then pdsc = pdsc"("ac_mem")"
     copycmd = "//'"pdsc"'"
@@ -5545,7 +5577,7 @@ Do_Add_Copy:
       /* finally remove the .gae file */
       cmd = cmd '&& rm .gae'
       x = docmd(cmd)
-      call get_binfiles 'do add copy 2'
+      call get_binfiles
     end
     copycmd = "//'"W"'"
     copycmd = '"'copycmd'"'
@@ -6264,9 +6296,8 @@ MGEN: Procedure
   return dfamgen
 
 get_binfiles:
-  parse arg opt
   /* ---------------------------------------------------------\
-  | Name:      binfiles                                        |
+  | Name:      get_binfiles                                    |
   |                                                            |
   | Function:  Fills the global binfiles. stem with all        |
   |            current repo files that are added as binary.    |
