@@ -31,6 +31,10 @@ the following requirements of the repository must be met:
       must conform to z/OS dataset naming conventions or they are treated
       as OMVS files.
 
+Provide the option to specify the codeset for character encoding during
+Clone and Create repository processing. The default is IBM-1047 if not
+specified.
+
 Replace the intrusive menus on the table display panels with an Action
 Bar set of menus. Also added on those panels an F3 under the scroll
 amount to facilitate point-and-shoot. The O option is still available

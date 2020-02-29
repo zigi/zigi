@@ -3377,14 +3377,13 @@ Do_Push:
   | Clone a remote repo           |
   * ----------------------------- */
 Clone_Repo:
-  encoding = 'ibm-1047'
   if zigi_offline = 1 then do
     zerrsm = 'Offline.'
     zerrlm = 'Clone is not allowed when offline.'
     'Setmsg msg(isrz003)'
     return
   end
-  parse value '' with pdshlq remotebr defcpush defruid zigicat
+  parse value '' with pdshlq remotebr defcpush defruid zigicat encoding
   'vget (saverep) profile'
   if saverep /= null then localrep = saverep
   do forever
@@ -3403,6 +3402,7 @@ Clone_Repo:
       return 1
     end
     saverep = localrep
+    if encoding = null then encoding = 'ibm-1047'
     'vput (saverep) profile'
     parsedURI = parseGitURI(remote)
     parse var parsedURI guser host port zigirep '.git'
