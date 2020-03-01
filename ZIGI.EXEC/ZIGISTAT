@@ -222,6 +222,7 @@ zigistat:
       "LMClose Dataid("zstats")"
       "LMFree  Dataid("zstats")"
       x = debug('ISPF Stats file update complete.')
+      return 0
     end
     /* ----------------------------------------------------------- *
     | Compare ISPF stats.                                         |
