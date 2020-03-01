@@ -24,6 +24,11 @@
  .cursor = zcmd
  .help = zigih2k0
 )Proc
+*REXX(*)
+ if zcmd = 1 then zcmd = 'FLOWGO'
+ if zcmd = 2 then zcmd = 'FLOWEND'
+ if zcmd = 3 then zcmd = 'FLOWSEL'
+*ENDREXX
 )PNTS
  FIELD(L1    )  VAR(ZCMD) VAL('FLOWGO')
  FIELD(L2    )  VAR(ZCMD) VAL('FLOWEND')

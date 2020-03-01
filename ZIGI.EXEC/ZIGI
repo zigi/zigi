@@ -688,6 +688,7 @@
         end
       end
       When abbrev('CLONE',zcmd,2) = 1 then do
+        encoding = null
         call Clone_Repo
         zsel = null
       end
@@ -1531,7 +1532,7 @@ Work_With_Repo:
           'setmsg msg(isrz001)'
         end
         else do
-          'Addpop row(4) column(10)'
+          'Addpop row(3) column(4)'
           'Display Panel(zigifgo)'
           drc = rc
           'rempop'
@@ -1588,19 +1589,27 @@ Work_With_Repo:
             cmd = 'cd' localrep'/'zigirep
             cmd = cmd || ' && git checkout 'flowname
             cmd = cmd || ' && git merge --squash zigiflow-'flowname
-            'Addpop row(4) column(10)'
+            'Addpop row(3) column(4)'
             'Display Panel(zigifend)'
+            drc = rc
             'rempop'
-            x = docmd(cmd)
-            /* perform the commit */
-            call do_commit 'x'
-            /* delete the work branch */
-            cmd = 'cd' localrep'/'zigirep
-            cmd = cmd || ' && git branch -D zigiflow-'flowname
-            x = docmd(cmd)
-            /* Get things updated */
-            call update_repo_metadata
-            call Replace localrep zigirep pdshlq qualignr
+            if drc > 0 then do
+              zerrsm = 'Canceled.'
+              zerrlm = 'FlowEnd canceled.'
+              'Setmsg msg(isrz003)'
+            end
+            else do
+              x = docmd(cmd)
+              /* perform the commit */
+              call do_commit 'x'
+              /* delete the work branch */
+              cmd = 'cd' localrep'/'zigirep
+              cmd = cmd || ' && git branch -D zigiflow-'flowname
+              x = docmd(cmd)
+              /* Get things updated */
+              call update_repo_metadata
+              call Replace localrep zigirep pdshlq qualignr
+            end
           end
         end
         else do
@@ -1618,7 +1627,7 @@ Work_With_Repo:
     end
 
     if zsel = '/' then do
-      'Addpop row(4) column(10)'
+      'Addpop row(3) column(4)'
       'Display Panel(zigirrep)'
       'rempop'
     end
@@ -3130,11 +3139,13 @@ Do_Commit:
   parse value '' with tagid msg1 cmsg
   cmtab = 'zc'random(99999)
   'tbcreate' cmtab 'names(cmsg) nowrite'
-  if copt /= null then do
-    msg1 = m.1
-    do i = 2 to m.0
-      cmsg = m.i
-      'tbadd' cmtab
+  if datatype(m.0) = 'NUM' then do
+    if copt /= null then do
+      msg1 = m.1
+      do i = 2 to m.0
+        cmsg = m.i
+        'tbadd' cmtab
+      end
     end
     cmsg = ''
   end
@@ -4635,7 +4646,7 @@ do_git_attributes:
     zs4 = 'Press F3 to close this popup and exit.'
     parse value '' with zs2 zs3
     call do_popup4
-    leave
+    return
   end
   fd = retval  /* as I think it's weird to write to a retval lol */
   call write_fd ,
@@ -4693,7 +4704,7 @@ do_git_attributes:
     zs4 = 'Press F3 to close this popup and exit.'
     parse value '' with zs2 zs3
     call do_popup4
-    leave
+    return
   end
   fd = retval  /* as I think it's weird to write to a retval lol */
   call write_fd "# zigi" ver "dsn-file "
@@ -6367,7 +6378,11 @@ check_clean:
   \---------------------------------------------------------- */
   cmd = 'cd 'localrep'/'zigirep' && git status'
   x = docmd(cmd)
+  clast = so.0
+  if pos('working tree clean',so.clast) > 0 then return 'YES'
+  /* Comment Start
   if so.0 = 2 then return "YES"
+  Comment End */
   else return "NO"
 
 flowselect:
@@ -6470,6 +6485,7 @@ flowselect:
   'tbend' rtbf
   rtbf_open = 0
   ztdsels = 0
+  zsel = null
   return
 
   /* ------------------------------------------------------------- *
