@@ -7,9 +7,8 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body  window(44,12)
-+
-+Enter Selection:_z                        +
+)Body  window(44,11)
++Enter Selection:_z        +
 +
  ]Clone+   remote repository
  ]Config+  View Git configuration

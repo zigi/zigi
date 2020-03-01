@@ -139,6 +139,8 @@
   * --------------------------------- */
   if zcmd = 'CANCEL' then ZIGIOSEL = null
 
+  call syscalls('OFF')
+
   /* --------------- *
   | Exit processing |
   * --------------- */

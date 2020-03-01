@@ -28,6 +28,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            02/28/20 LBD - Added Convert Repo capability    |
   |            02/27/20 HBK - Added feature 'zigiflow'         |
   |                           Fixed another edge case with $'s |
   |            02/26/20 LBD - Numerous changes to support      |
@@ -790,7 +791,7 @@
       end
       When zsel = 'D' then do
         parse value '' with delcg delco delcf delzd
-        'Addpop row(4) column(12)'
+        'Addpop row(3) column(10)'
         'Display panel(zigidelc)'
         drc = rc
         'rempop'
@@ -870,7 +871,7 @@ Select_Repo:
   'tbmod zigirepo order'
   x = debug('Getting binfiles:' zigirep time('L') )
   drop binfiles.
-  call get_binfiles 'select repo'
+  call get_binfiles
   x = debug('Got 'binfiles.0' binfiles' time('L') )
   x = debug('Selecting repo:' zigirep time('L') )
   call Work_With_Repo
@@ -1003,21 +1004,22 @@ Work_With_Repo:
       end
     end
 
+    /* -------- *
+    | zigiFlow |
+    * -------- */
     if zcmd = 'FLOW' then do
-       'addpop row(3) column(4)'
-       'display panel(zigiflow)'
-       drc = rc
-       'rempop'
-       if drc > 0 then zcmd = null
-       end
+      'addpop row(3) column(4)'
+      'display panel(zigiflow)'
+      drc = rc
+      'rempop'
+      if drc > 0 then zcmd = null
+    end
 
     if zcmd /= null then
     Select
-      When abbrev('SET',zcmd,1) = 1 then call do_rset
-      When abbrev('VIEW',zcmd,1) = 1 then
-      'SELECT PGM(ISRDSLST) PARM(UDL' localrep'/'zigirep') SUSPEND'
-      When abbrev('GITHELP',zcmd,4) = 1 then
-      Address TSO '%githelp'
+      /* -------------------------------- *
+      | Branch dialog - create or change |
+      * -------------------------------- */
       When abbrev('BRANCH',zcmd,2) = 1 then do
         if words(save_zigirep) > 0 then do
           zerrsm = 'Invalid.'
@@ -1026,6 +1028,55 @@ Work_With_Repo:
         end
         else call Branch_it
       end
+      /* ----------------------- *
+      | Convert a non-zigi Repo |
+      * ----------------------- */
+      When abbrev('CONVREPO',zcmd,4) = 1 then do
+        parse value '' with zcmd ans
+        'addpop row(3) column(4)'
+        'display panel(zigivcnv)'
+        drc = rc
+        'rempop'
+        if drc > 0 then do
+          zerrsm = 'Canceled.'
+          zerrlm = 'Conversion canceled.'
+          'setmsg msg(isrz003)'
+        end
+        else do
+          if branch = 'master' then do
+            convdir = localrep'/'zigirep
+            cmd = 'cd' convdir '&& git checkout -b zigi-master'
+            x = docmd(cmd)
+          end
+          call convert_repo
+          x = docmd(cmd)
+          defcpush = 'N'
+          call work_with_repo
+        end
+      end
+      /* ----------------- *
+      | Git command prompt |
+      * ------------------ */
+      When abbrev('GITCMD',zcmd,4) = 1 then
+      'Select cmd(%zigigcmd)'
+      /* ------------------------- *
+      | Invoke the GitHelp dialog |
+      * ------------------------- */
+      When abbrev('GITHELP',zcmd,4) = 1 then
+      Address TSO '%githelp'
+      /* -------------------------------- *
+      | View output of git log           |
+      * -------------------------------- */
+      When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
+      /* ------------------------- *
+      | Update/Set zigi repo info |
+      * ------------------------- */
+      When abbrev('SET',zcmd,1) = 1 then call do_rset
+      /* ---------------------------- *
+      | View (UDList) the repository |
+      * ---------------------------- */
+      When abbrev('VIEW',zcmd,1) = 1 then
+      'SELECT PGM(ISRDSLST) PARM(UDL' localrep'/'zigirep') SUSPEND'
       /* -------------------------------- *
       | Merge a branch into current branch|
       * -------------------------------- */
@@ -1037,11 +1088,6 @@ Work_With_Repo:
         end
         else call Merge_it
       end
-      /* ----------------- *
-      | Git command prompt |
-      * ------------------ */
-      When abbrev('GITCMD',zcmd,4) = 1 then
-      'Select cmd(%zigigcmd)'
       /* -------------------------------- *
       | Show the network graph            |
       * -------------------------------- */
@@ -1052,10 +1098,6 @@ Work_With_Repo:
         if so.0 + se.0 > 1
         then call view_std
       end
-      /* -------------------------------- *
-      | View output of git log           |
-      * -------------------------------- */
-      When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
       /* -------------------------------- *
       | Push current branch to origin    |
       * -------------------------------- */
@@ -1483,15 +1525,23 @@ Work_With_Repo:
         else do
           'Addpop row(4) column(10)'
           'Display Panel(zigifgo)'
+          drc = rc
           'rempop'
-          cmd = 'cd' localrep'/'zigirep
-          cmd = cmd || ' && git checkout master &&'
-          cmd = cmd || ' git checkout -b 'flowname
-          cmd = cmd || ' && git checkout -b zigiflow-'flowname
-          cmd = cmd || ' && git tag 'flowname
-          x = docmd(cmd)
-          call Replace localrep zigirep pdshlq qualignr
-          call update_repo_metadata
+          if drc > 0 then do
+            zerrsm = 'Canceled.'
+            zerrlm = 'FlowGo was canceled.'
+            'setmsg msg(isrz003)'
+          end
+          else do
+            cmd = 'cd' localrep'/'zigirep
+            cmd = cmd || ' && git checkout master &&'
+            cmd = cmd || ' git checkout -b 'flowname
+            cmd = cmd || ' && git checkout -b zigiflow-'flowname
+            cmd = cmd || ' && git tag 'flowname
+            x = docmd(cmd)
+            call Replace localrep zigirep pdshlq qualignr
+            call update_repo_metadata
+          end
         end
       end
       /* -------------------------------- *
@@ -3387,11 +3437,14 @@ Clone_Repo:
       'Addpop row(4) column(7)'
       'Display Panel(zigipopn)'
       'Rempop'
-      'Select pgm(isptutor) parm(zigih600)'
+      'Select pgm(isptutor) parm(zigih800)'
+      non_zigi = 1
     end
+    else non_zigi = 0
     Address ISPExec
     if c_stat = 1 then return
     qualignr = words(translate(pdshlq,' ','.'))
+    if non_zigi = 0 then
     call Replace localrep zigirep pdshlq qualignr
     zigikey = localrep'/'zigirep
     zigidate = date('n')
@@ -3637,15 +3690,20 @@ Work_with_repo_file:
           x = listdsi(fulldsn)
           edsn = strip(fulldsn,'B',"'")
           r = usssafe(dsn)
+          eok = 1
           if is_binfile(r'/'mem) = 1 then do
             zerrsm = 'Invalid'
             zerrlm = 'Unable to Edit a binary dataset.'
             'setmsg msg(isrz003)'
-            leave
+            eok = 0
+            zsel = null
           end
-          if sysdsorg = 'PS'
-          then "Edit Dataset('"edsn"')"
-          else "Edit Dataset('"edsn"("mem")'"
+          if eok = 1 then do
+            if sysdsorg = 'PS'
+            then "Edit Dataset('"edsn"')"
+            else "Edit Dataset('"edsn"("mem")'"
+          end
+          else rc = 1
           if rc = 0 then do
             if ztdsels = 1 then do
               m = strip(mem)
@@ -3678,8 +3736,10 @@ Work_with_repo_file:
                 tagcmd = 'chtag -b 'localrep'/'zigirep'/'r'/*'
                 x = bpxwunix(tagcmd,,so.,se.)
               end
-              call update_repo_metadata
-              call work_with_repo_file
+              if ztdsels = 1 then do
+                call update_repo_metadata
+                call work_with_repo_file
+              end
             end
           end
         end
@@ -3801,7 +3861,7 @@ Work_with_repo_file:
           dsna = sa_dsna
           call git_add_member
           if ztdsels < 2 then do
-            call get_binfiles 'add member'
+            call get_binfiles
             call git_add_member_stats
           end
         end
@@ -4550,111 +4610,115 @@ Create_Repo:
   return 0
 
 do_git_attributes:
-    /* The git repo is initialized. Time to stick a
-    .gitattributes (ASCII) in there */
-    call syscalls 'ON'
-    address syscall
-    path = localrep"/"zigirep"/.ga"
-    'open' path,
-      O_rdwr+O_creat+O_trunc,
-      660
-    if retval = -1 then do
-      Address ISPExec
-      zs1 = "Something bad when creating .gitattributes. Make errormsg"
-      zs4 = 'Press F3 to close this popup and exit.'
-      parse value '' with zs2 zs3
-      call do_popup4
-      leave
-    end
-    fd = retval  /* as I think it's weird to write to a retval lol */
-    call write_fd ,
-      "# This .gitattributes file is autogenerated with zigi" ver
-    call write_fd ,
-      "*   git-encoding=iso8859-1 zos-working-tree-encoding="encoding
-    ga3a = ".gitattributes    "
-    ga3b = "git-encoding=iso8859-1 zos-working-tree-encoding=iso8859-1"
-    ga3  = ga3a || ga3b
-    call write_fd ga3
-    ga4a = ".gitignore        "
-    ga4b = "git-encoding=iso8859-1 zos-working-tree-encoding=iso8859-1"
-    ga4  = ga4a || ga4b
-    call write_fd  ga4
-    binaries = '*.docm *.docx *.doc *.dotx *.pdf *.epub *.mobi *.azw3' ,
-      '*.jpg *.jpeg *.png *.gif *.zip *.gzip *.tz *.z *.Z *.pax' ,
-      '*.ppt *.pptx *.xls *.xlsx *.xlsm'
-    do gai = 1 to words(binaries)
-      ga = word(binaries,gai) 'binary'
-      call write_fd ga
-    end
-    'close' fd
-    /* -------------------- .gitattributes written ----------- */
-    /*             UNFORTUNATELY, IT'S IN EBCDIC :(            */
-    /* ------------------------------------------------------- */
-    reporoot = localrep'/'zigirep'/'
-    /* convert to iso8859-1 */
-    cmd = 'cd 'localrep'/'zigirep' && '
-    cmd = cmd 'iconv -f ibm-1047 -t iso8859-1 .ga'
-    cmd = cmd ' > .gitattributes'
-    x = bpxwunix(cmd,,so.,se.)
+  /* The git repo is initialized. Time to stick a
+  .gitattributes (ASCII) in there */
+  cmd = 'ls' localrep'/'zigirep'/.gitattributes'
+  x = bpxwunix(cmd,,so.,se.)
+  if so.0 = 1 then return
+  call syscalls 'ON'
+  address syscall
+  path = localrep"/"zigirep"/.ga"
+  'open' path,
+    O_rdwr+O_creat+O_trunc,
+    660
+  if retval = -1 then do
+    Address ISPExec
+    zs1 = "Something bad when creating .gitattributes. Make errormsg"
+    zs4 = 'Press F3 to close this popup and exit.'
+    parse value '' with zs2 zs3
+    call do_popup4
+    leave
+  end
+  fd = retval  /* as I think it's weird to write to a retval lol */
+  call write_fd ,
+    "# This .gitattributes file is autogenerated with zigi" ver
+  call write_fd ,
+    "*   git-encoding=iso8859-1 zos-working-tree-encoding="encoding
+  ga3a = ".gitattributes    "
+  ga3b = "git-encoding=iso8859-1 zos-working-tree-encoding=iso8859-1"
+  ga3  = ga3a || ga3b
+  call write_fd ga3
+  ga4a = ".gitignore        "
+  ga4b = "git-encoding=iso8859-1 zos-working-tree-encoding=iso8859-1"
+  ga4  = ga4a || ga4b
+  call write_fd  ga4
+  binaries = '*.docm *.docx *.doc *.dotx *.pdf *.epub *.mobi *.azw3' ,
+    '*.jpg *.jpeg *.png *.gif *.zip *.gzip *.tz *.z *.Z *.pax' ,
+    '*.ppt *.pptx *.xls *.xlsx *.xlsm *.obj *.bin'
+  do gai = 1 to words(binaries)
+    ga = word(binaries,gai) 'binary'
+    call write_fd ga
+  end
+  'close' fd
+  call syscalls 'OFF'
+  /* -------------------- .gitattributes written ----------- */
+  /*             UNFORTUNATELY, IT'S IN EBCDIC :(            */
+  /* ------------------------------------------------------- */
+  reporoot = localrep'/'zigirep'/'
+  /* convert to iso8859-1 */
+  cmd = 'cd 'localrep'/'zigirep' && '
+  cmd = cmd 'iconv -f ibm-1047 -t iso8859-1 .ga'
+  cmd = cmd ' > .gitattributes'
+  x = bpxwunix(cmd,,so.,se.)
 
-    /* delete the .ga file */
-    cmd = 'cd 'localrep'/'zigirep' && rm -rf .ga'
-    x = bpxwunix(cmd,,so.,se.)
+  /* delete the .ga file */
+  cmd = 'cd 'localrep'/'zigirep' && rm -rf .ga'
+  x = bpxwunix(cmd,,so.,se.)
 
-    /* tag it and bag it */
-    cmd = 'cd 'localrep'/'zigirep' && '
-    cmd = cmd 'chtag -tc iso8859-1 .gitattributes'
-    x = bpxwunix(cmd,,so.,se.)
+  /* tag it and bag it */
+  cmd = 'cd 'localrep'/'zigirep' && '
+  cmd = cmd 'chtag -tc iso8859-1 .gitattributes'
+  x = bpxwunix(cmd,,so.,se.)
 
-    /* Create the .zigi folder in the repo and add the dsn-file */
-    cmd = 'cd 'localrep'/'zigirep' && mkdir .zigi'
-    x = bpxwunix(cmd,,so.se.)
+  /* Create the .zigi folder in the repo and add the dsn-file */
+  cmd = 'cd 'localrep'/'zigirep' && mkdir .zigi'
+  x = bpxwunix(cmd,,so.se.)
 
-    /* Fill dsn file with the comments */
-    path = localrep"/"zigirep"/.zigi/dsn"
-    'open' path,
-      O_rdwr+O_creat+O_trunc,
-      660
-    if retval = -1 then do
-      Address ISPExec
-      zs1 = "Something bad when creating .zigi/dsn."
-      zs4 = 'Press F3 to close this popup and exit.'
-      parse value '' with zs2 zs3
-      call do_popup4
-      leave
-    end
-    fd = retval  /* as I think it's weird to write to a retval lol */
-    call write_fd "# zigi" ver "dsn-file "
-    call write_fd "# This file needs to be here."
-    call write_fd "# Don't edit unless you know what you're doing :)"
-    call write_fd '#  '
-    call write_fd '# record format is (case insensitive):'
-    call write_fd '#  '
-    call write_fd '# Position - description'
-    call write_fd '#  '
-    call write_fd '# 1 - directory name which will be prefixed by the'
-    call write_fd '#     defined HLQ to create the z/OS dataset'
-    call write_fd '#     (* defines the default)'
-    call write_fd '# 2 - PS or PO (dataset organization)'
-    call write_fd '#     PS for a flat file'
-    call write_fd '#     PO for a directory and thus a partitioned dataset'
-    call write_fd '# 3 - record format (FB or VB)'
-    call write_fd '# 4 - lrecl'
-    call write_fd '# 5 - blksize'
-    call write_fd '#     0 is allowed if system determined blksize is enabled'
-    call write_fd '#  '
-    call write_fd '# Default DSORG and DCB info'
-    call write_fd '* PO FB 80 32720'
-    'close' fd
+  /* Fill dsn file with the comments */
+  path = localrep"/"zigirep"/.zigi/dsn"
+  'open' path,
+    O_rdwr+O_creat+O_trunc,
+    660
+  if retval = -1 then do
+    Address ISPExec
+    zs1 = "Something bad when creating .zigi/dsn."
+    zs4 = 'Press F3 to close this popup and exit.'
+    parse value '' with zs2 zs3
+    call do_popup4
+    leave
+  end
+  fd = retval  /* as I think it's weird to write to a retval lol */
+  call write_fd "# zigi" ver "dsn-file "
+  call write_fd "# This file needs to be here."
+  call write_fd "# Don't edit unless you know what you're doing :)"
+  call write_fd '#  '
+  call write_fd '# record format is (case insensitive):'
+  call write_fd '#  '
+  call write_fd '# Position - description'
+  call write_fd '#  '
+  call write_fd '# 1 - directory name which will be prefixed by the'
+  call write_fd '#     defined HLQ to create the z/OS dataset'
+  call write_fd '#     (* defines the default)'
+  call write_fd '# 2 - PS or PO (dataset organization)'
+  call write_fd '#     PS for a flat file'
+  call write_fd '#     PO for a directory and thus a partitioned dataset'
+  call write_fd '# 3 - record format (FB or VB)'
+  call write_fd '# 4 - lrecl'
+  call write_fd '# 5 - blksize'
+  call write_fd '#     0 is allowed if system determined blksize is enabled'
+  call write_fd '#  '
+  call write_fd '# Default DSORG and DCB info'
+  call write_fd '* PO FB 80 32720'
+  'close' fd
 
-    /* ------------------ Let's make our first commit :)       */
-    x = docmd('cd 'reporoot' && git add .gitattributes')
+  /* ------------------ Let's make our first commit :)       */
+  x = docmd('cd 'reporoot' && git add .gitattributes')
 
-    x = docmd('cd 'reporoot' && git add .zigi/dsn')
+  x = docmd('cd 'reporoot' && git add .zigi/dsn')
 
-    commitmsg = "added by zigi"
-    x = docmd('cd 'reporoot' && git commit -m "'commitmsg'"')
-return
+  commitmsg = "added by zigi"
+  x = docmd('cd 'reporoot' && git commit -m "'commitmsg'"')
+  return
 
   /* ---------------------------------------------------------- *
   | Generalized routine to view stdout. (so.) or stderr. (se.) |
@@ -5364,7 +5428,7 @@ Add_Dataset:
   end
   if ztdels < 2 then
   if gaupdate = 1 then
-  call get_binfiles 'add dataset'
+  call get_binfiles
   return
 
 tbcreate_dsnatbl:
@@ -5479,7 +5543,7 @@ Do_Add_Copy:
       /* finally remove the .gae file */
       cmd = cmd '&& rm .gae'
       x = docmd(cmd)
-      call get_binfiles 'do add copy 1'
+      call get_binfiles
     end
     if ac_mem /= null then pdsc = pdsc"("ac_mem")"
     copycmd = "//'"pdsc"'"
@@ -5518,7 +5582,7 @@ Do_Add_Copy:
       /* finally remove the .gae file */
       cmd = cmd '&& rm .gae'
       x = docmd(cmd)
-      call get_binfiles 'do add copy 2'
+      call get_binfiles
     end
     copycmd = "//'"W"'"
     copycmd = '"'copycmd'"'
@@ -6100,7 +6164,10 @@ Test_Repo_Table_State:
         '\'defcpush'\'defruid'\'zigidate'\'sortdate'\'zigicat ,
         '\'branch'\'remote1
       if right(localrep,1) = '/' then localrep = strip(localrep,'T','/')
-      zigirep = strip(zigirep)
+      localdir = strip(localdir)
+      zigirep  = strip(zigirep)
+      zigicat  = strip(zigicat)
+      sortdate  = strip(sortdate)
       zigikey = localrep'/'zigirep
       if cat = 0 then
       Select
@@ -6234,9 +6301,8 @@ MGEN: Procedure
   return dfamgen
 
 get_binfiles:
-  parse arg opt
   /* ---------------------------------------------------------\
-  | Name:      binfiles                                        |
+  | Name:      get_binfiles                                    |
   |                                                            |
   | Function:  Fills the global binfiles. stem with all        |
   |            current repo files that are added as binary.    |
@@ -6396,4 +6462,32 @@ flowselect:
   'tbend' rtbf
   rtbf_open = 0
   ztdsels = 0
+  return
+
+  /* ------------------------------------------------------------- *
+  | Convert a non-zig repository to enable zigi management.       |
+  |  - for this to work the repository must be manually setup     |
+  |    by the user after the clone thus:                          |
+  |    - All sequential files in the repo root that are z/OS      |
+  |      datasets must be renamed to upper case and using z/OS    |
+  |      naming conventions.                                      |
+  |   - all subdirectories that will be the OMVS copy of a PDS    |
+  |     must also be upper case with z/OS naming                  |
+  |   - all PDS members must be in their respective OMVS          |
+  |     subdirectory without a suffix and follow PDS member       |
+  |     name conventions and be upper case                        |
+  |                                                               |
+  | This routine will call ZIGICNVT and pass the OMVS directory   |
+  | for the repository to be converted.                           |
+  |                                                               |
+  | After conversion the ZIGICKOT routine will be called to copy  |
+  | the OMVS files into their respective z/OS datasts (which will |
+  | be dynamically allocated)                                     |
+  * ------------------------------------------------------------- */
+Convert_Repo:
+  convdir = localrep'/'zigirep
+  'vput (convdir)'
+  'Select cmd(%zigicnvt)'
+  qualignr = words(translate(pdshlq,' ','.'))
+  call Replace localrep zigirep pdshlq qualignr
   return
