@@ -3618,7 +3618,7 @@ Work_with_repo_file:
           call do_commit
           call work_with_repo_file
         end
-        When abbrev('ITHELP',zcmd,4) = 1 then
+        When abbrev('GITHELP',word(zcmd,1),4) = 1 then
            Address TSO '%githelp' subword(zcmd,2)
         When abbrev('GITCMD',zcmd,4) = 1 then
         'Select cmd(%zigigcmd)'
