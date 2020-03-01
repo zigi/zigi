@@ -19,7 +19,7 @@
 +
 %Default Userid to set prior to Commit:$defruid + or blank
 +
-+
+%Specify zos-workingtree-encoding:$encoding+ (ibm-1047 if blank)
 +
 +
 +
