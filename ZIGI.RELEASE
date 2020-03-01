@@ -10,6 +10,31 @@
   | escaping those characters where required to preserve them. |
   \------------------------------------------------------------/
 
+Implement new feature 'zigiflow' to help the user make controlled changes.
+The Zigi Flow feature will assist with making updates to repositories.
+The general use case for using zigi flow is as follows:
+
+    - Step 1: Start a new zigi flow
+    - Step 2: Make all your changes, commit
+    - Step 3: Finish your zigi flow
+
+Implemented a basic conversion capability to convert a cloned non-zigi
+configured git repository into a zigi repository. For this to work the
+repository must have been cloned by zigi so that zigi 'knows' about it and
+the following requirements of the repository must be met:
+
+   - Each PDS is mapped to a subdirectory under the repository root
+   - Each PDS member is a file in the appropriate sub-directory
+       (e.g. main.asm in the asm directory)
+   - Binary files must end in .bin
+   - Only files, either sequential or PDS members, within the repository
+      must conform to z/OS dataset naming conventions or they are treated
+      as OMVS files.
+
+Provide the option to specify the codeset for character encoding during
+Clone and Create repository processing. The default is IBM-1047 if not
+specified.
+
 Replace the intrusive menus on the table display panels with an Action
 Bar set of menus. Also added on those panels an F3 under the scroll
 amount to facilitate point-and-shoot. The O option is still available
@@ -25,8 +50,6 @@ Stashes with these options:
     - Show to show the stash summary
     - Diff to show the summary and diffs
     - Pop to restore a saved stash
-
-Implement new feature 'zigiflow' to help the user make controlled changes.
 
 Provided an option to enhance point-and-shoot in the zigi Config panel.
 Option S will leave things as they are. Option P will enable

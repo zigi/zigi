@@ -1,0 +1,36 @@
+)Attr
+ $ type(output) caps(off)
+ _ type(input)  caps(on ) hilite(uscore) intens(low)
+ # type(output) hilite(reverse) color(turq) caps(off)
+)Body  Expand(\\)
++Convert Confirmation+------------#zigtitle   +---------------------------------
+%Command ===>_zcmd
++
+  +Confirm conversion of repository$zigirep
+  +Proceed:_z%Y+or%N+    \ \or press%F3+to cancel
++
++  By confirming the conversion the current repository will be:
++
++  1. If the current branch is master then change to a new branch of
++     %zigi-master+
++  2. Any file with a .bin suffix will be processed as binary.
++  3. All files in the branch root, that when translated pass
++     z/OS dataset naming conventions, will be converted to upper case
++     and copied to z/OS datasets.
++  4. All directories in the branch root, that when translated pass
++     z/OS dataset naming conventions, will be converted to upper case.
++  5. All files within (3) that have 1 or 2 parts separated by a period
++     will have the suffix removed and if that passes the z/OS PDS member
++     naming conventions it will be converted to upper case without the
++     suffix and copied to a z/OS PDS.
++  6. Default Push at Commit will be turned off.
++
+)Init
+ .zvars = '(ans)'
+)Proc
+ ver (&ans,nb,list,Y,N)
+)end
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

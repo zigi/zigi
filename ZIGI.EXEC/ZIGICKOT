@@ -321,6 +321,7 @@ Alloc_Copy_PDS:
     'OGET' "'"src"'" "'"target"("m")'" type
     Address ISPexec
   end
+  call syscalls 'OFF'
   call outtrap 'off'
   return
 

@@ -17,7 +17,7 @@
 +     * PO FB 80 32720
 +     SAMPLE.REXX PO VB 255 32760
 +     SAMPLE.PDS PO FB 80 32760
-+     SAMPLE.TEXT PS FB 121 27,951
++     SAMPLE.TEXT PS FB 121 27951
 +  3. Each z/OS sequential datasets must have a copy in the repository root
 +     directory.
 +  4. Each z/OS partitioned dataset must have a directory in the repository
