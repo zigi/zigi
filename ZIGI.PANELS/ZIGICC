@@ -17,12 +17,12 @@
  @localrep                                                                    +
 +
 %Category for Repository:@zigicat      +            (optional)
++
 %PREFIX for datasets:    $pdshlq                  + (no quotes)
++
 %Default Push on Commit: $z+                        (Y or N)
++
 %Default Userid set prior to Commit:$defruid +      (or blank
-%Specify zos-workingtree-encoding:  $encoding+      (ibm-1047 if blank)
-+
-+
 +
 +
                   +Press%Enter+to continue, or%F3+to cancel
