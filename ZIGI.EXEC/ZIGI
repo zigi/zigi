@@ -4642,7 +4642,7 @@ do_git_attributes:
   call write_fd  ga4
   binaries = '*.docm *.docx *.doc *.dotx *.pdf *.epub *.mobi *.azw3' ,
     '*.jpg *.jpeg *.png *.gif *.zip *.gzip *.tz *.z *.Z *.pax' ,
-    '*.ppt *.pptx *.xls *.xlsx *.xlsm'
+    '*.ppt *.pptx *.xls *.xlsx *.xlsm *.obj *.bin'
   do gai = 1 to words(binaries)
     ga = word(binaries,gai) 'binary'
     call write_fd ga
