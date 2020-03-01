@@ -11,7 +11,7 @@
 +
 +Enter Selection:_z +
 +
-+]Add+    (A)+ Add the member to the git Index
++]Add+    (A)+ Add the dataset/file to the git Index
 +]Browse+ (B)+ Browse the dataset/file
 +]Edit+   (E)+ Edit the dataset/file
 +]Diff+   (D)+ Show the Diff's

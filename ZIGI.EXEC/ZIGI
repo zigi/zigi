@@ -1,6 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
   ver = 'v2r5'
-  stash_state = 1   /* 0 = off 1 = on */
   /*Name:      zigi  (z ISPF Git Interface)                    |
   |                                                            |
   | Version:   V2R1                                            |
@@ -2213,7 +2212,6 @@ git_add:
   | generate a replace based on the affected datasets |
   * ------------------------------------------------- */
 Stash_IT:
-  if stash_state = 0 then return
   stashmsg = null
   'addpop row(3) column(4)'
   'display panel(zigistaq)'
@@ -2358,7 +2356,6 @@ Fixup_dsn: Procedure expose qualignr pdshlq
   |   CLEAR - git stash clear  (removed ALL stashes) |
   * ------------------------------------------------ */
 Stash_List:
-  if stash_state = 0 then return
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git stash list'
   x = docmd(cmd)
@@ -2597,7 +2594,7 @@ Do_TAGLIST:
     end
 
     if zsel = '/' then do
-      'Addpop row(4) column(10)'
+      'Addpop row(3) column(4)'
       'Display Panel(zigirtag)'
       'rempop'
     end
