@@ -512,6 +512,14 @@
   then if translate(start_option) /= 'S' then
   szcmd = 'S' start_option
 
+  /* Panel for when there are no repos in profile yet */
+  'TBStats zigirepo rowcurr('tr')'
+  if tr = 0 then do
+    'Addpop row(4) column(6)'
+    'Display Panel(zigi1st)'
+    'rempop'
+  end
+
   do forever
     if szcmd = null then do
       parse value '' with zsel row
