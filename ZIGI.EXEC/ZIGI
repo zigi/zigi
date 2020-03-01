@@ -3383,7 +3383,7 @@ Clone_Repo:
     'Setmsg msg(isrz003)'
     return
   end
-  parse value '' with pdshlq remotebr defcpush defruid zigicat encoding
+  parse value '' with pdshlq remotebr defcpush defruid zigicat
   'vget (saverep) profile'
   if saverep /= null then localrep = saverep
   do forever
@@ -3402,7 +3402,6 @@ Clone_Repo:
       return 1
     end
     saverep = localrep
-    if encoding = null then encoding = 'ibm-1047'
     'vput (saverep) profile'
     parsedURI = parseGitURI(remote)
     parse var parsedURI guser host port zigirep '.git'
@@ -4613,6 +4612,9 @@ Create_Repo:
 do_git_attributes:
   /* The git repo is initialized. Time to stick a
   .gitattributes (ASCII) in there */
+  cmd = 'ls' localrep'/'zigirep'/.gitattributes'
+  x = bpxwunix(cmd,,so.,se.)
+  if so.0 = 1 then return
   call syscalls 'ON'
   address syscall
   path = localrep"/"zigirep"/.ga"
