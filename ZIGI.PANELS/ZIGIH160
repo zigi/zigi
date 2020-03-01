@@ -12,6 +12,8 @@
 +with more information. This will help the Git novice, and%Git+guru to better
 +use%Git+and%zigi.
 %
+%Syntax: GITHelp optional-git-command +(e.g. gith commit)
+%
 %Commands:+
 +   %Only+removes all rows that do not have the provided string:
 +         e.g.  o git
@@ -20,8 +22,6 @@
 %Selection:+
 +   %S+Display the manpage for the selected row.
 +   (may also put cursor on the row and press enter or double click)
-+
-+
 +
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
