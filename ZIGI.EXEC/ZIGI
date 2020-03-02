@@ -3395,7 +3395,9 @@ Do_Push:
   call pop 'Pushing Updates to Remote Git'
   cmd = 'cd' localdir' && git push -v'
   x = docmd(cmd)
-  call view_std 'B'
+  if x > 0 then do
+    call view_std 'B'
+  end
   if opt = null then
   call update_repo_metadata
   return
