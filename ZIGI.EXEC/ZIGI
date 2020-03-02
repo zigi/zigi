@@ -236,7 +236,7 @@
   if zigidebg = 0 then
   "Control Errors Return"
 
-  parse value '' with null rx zigidebg_flag save_zigirep fulldsn
+  parse value '' with null rx zigidebg_flag save_zigirep fulldsn cltime
   /* ----------------------------------------------------- *
   | Get the Active HLQ for use with the ALTLIB and LIBDEF |
   | of the zIGI libraries.                                |
@@ -904,9 +904,16 @@ Create_zigirepo:
   * --------------------------------- */
 Work_With_Repo:
   parse value '' with dsn dsnstat zsel ztdsels rtop
+  list_top = 0
   crflag = 0
   x = debug('Working with Repo:' zigirep)
   call update_repo_metadata
+  if cltime /= null then do
+     zerrsm  = 'Clone:' cltime
+     zerrlm  = left('Cloning completed for:' zigirep,76) ,
+               'Total time to clone was:' cltime
+     'setmsg msg(isrz003)'
+     end
   'vput (localrep zigirep) shared'
   'tbsort' rtbl 'Fields(dsn,c,a)'
   'tbtop' rtbl
@@ -1779,7 +1786,7 @@ Work_With_Repo:
               x = zigistat(newdsn localrep'/'zigirep'/.zigi/'newfiles'S')
               cmd = 'cd' localrep'/'zigirep
               cmd = cmd '&& git add .zigi/'newfiles
-              cmd = cmd '&& git rm .zigi/'oldfiles
+              cmd = cmd '&& git rm -f .zigi/'oldfiles
               x = docmd(cmd)
             end
             call view_std 'B'
@@ -1836,7 +1843,7 @@ Work_With_Repo:
           end
           else Select
             when rtype = 'OMVS' then do
-              cmd = 'cd' localdir '&& git rm -rf' '"'fulldsn'"'
+              cmd = 'cd' localdir '&& git rm -rf' '"'usssafe(fulldsn)'"'
               cmd = cmd '&& git add -u'
               x = docmd(cmd,,so.,se.)
             end
@@ -1845,7 +1852,7 @@ Work_With_Repo:
               Address TSO ,
                 'Delete' fulldsn
               call outtrap 'off'
-              cmd = 'cd' localdir '&& git rm -rf' dsn
+              cmd = 'cd' localdir '&& git rm -rf' usssafe(dsn)
               x = docmd(cmd,,so.,se.)
             end
             when rtype = 'PO' then do
@@ -1853,8 +1860,9 @@ Work_With_Repo:
               Address TSO ,
                 'Delete' fulldsn
               call outtrap 'off'
-              cmd = 'cd' localdir '&& git rm -rf' dsn
-              cmd = cmd '&& rm -f .zigi/'dsn
+              cmd = 'cd' localdir '&& git rm -rf' usssafe(dsn)
+              cmd = cmd '&& rm -f .zigi/'usssafe(dsn)
+              cmd = cmd '&& rm -f' usssafe(dsn)
               x = docmd(cmd,,so.,se.)
             end
             Otherwise nop
@@ -3210,6 +3218,7 @@ Do_Commit:
 
   drop ztdmark
 
+  if translate(zcmd) = 'CANCEL' then msg1 = null
   if strip(msg1) = null then do
     zerrsm = 'Canceled.'
     zerrlm = 'Commit canceled due to an empty title message.'
@@ -3434,6 +3443,7 @@ Clone_Repo:
     cmd = cmd 'mv 'home'/.ssh/tmp_hosts 'home'/.ssh/known_hosts'
     x = bpxwunix(cmd,,so.,se.)
     localrep = strip(localrep,'T','/')
+    x = time('r')  /* begin timer */
     cmd = 'cd 'localrep
     if remotebr = null
     then cmd = cmd ' && git clone -v 'remote
@@ -3471,6 +3481,13 @@ Clone_Repo:
     'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
     leave
   end
+    e_time = time("E")
+    parse value e_time with ss "." uu
+    numeric digits 6
+    mm = ss % 60   /* get minutes integer */
+    ss = ss // 60  /* get seconds integer */
+    uu = uu // 100 /* get micro seconds integer */
+    cltime = right(mm+100,2)':'right(ss+100,2)'.'right(uu+100,2)
   call work_with_repo
   return
 
@@ -3542,17 +3559,16 @@ Work_with_repo_file:
     /* ---------------------------------- *
     | Process the Member list until done |
     * ---------------------------------- */
-    save_top = 0
-    ztdsels  = 0
     Do Forever
       if rtll_open = 0 then leave
       parse value '' with zsel zcmd row
-      if ztdsels < 2 then do
+      if ztdsels > 1 then
+      'tbdispl' rtll
+      else do
         'tbtop' rtll
-        'tbskip' rtll 'number('save_top')'
+        'tbskip' rtll 'number('list_top')'
         'TBdispl' rtll 'Panel(zigilist)'
       end
-      else 'tbdispl' rtll
       if rc > 4 then do
         if rtll_open = 1 then
         'tbend' rtll
@@ -3561,7 +3577,7 @@ Work_with_repo_file:
       end
       /* Make sure we edit (and copy) right dataset when we have
       a prefix set */
-      save_top = ztdtop
+      list_top = ztdtop
       edsn = strip(fulldsn,'B',"'")
 
       if ztdsels = 0 then
@@ -3616,7 +3632,7 @@ Work_with_repo_file:
           call work_with_repo_file
         end
         When abbrev('GITHELP',word(zcmd,1),4) = 1 then
-           Address TSO '%githelp' subword(zcmd,2)
+        Address TSO '%githelp' subword(zcmd,2)
         When abbrev('GITCMD',zcmd,4) = 1 then
         'Select cmd(%zigigcmd)'
         When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
@@ -3829,7 +3845,7 @@ Work_with_repo_file:
             call outtrap 'off'
             m = usssafe(mem)
             xldir = usssafe(localdir)
-            cmd = 'cd' xldir '&& git rm "'m'"'
+            cmd = 'cd' xldir '&& git rm -f "'usssafe(m)'"'
             x = docmd(cmd,,so.,se.)
             memstat = '*Removed'
             'tbmod' rtll
@@ -4132,7 +4148,7 @@ Branch_it:
     if rc > 4 then leave
     save_btop = ztdtop
     if abbrev('GITHELP',word(zcmd,1),4) = 1 then
-      Address TSO '%githelp' subword(zcmd,2)
+    Address TSO '%githelp' subword(zcmd,2)
     if newb <> null then do
       /* ----------------------------- *
       | Create this new branch, switch|
@@ -4306,7 +4322,7 @@ Merge_it:
     if rc > 4 then leave
     save_btop = ztdtop
     if abbrev('GITHELP',word(zcmd,1),4) = 1 then
-      Address TSO '%githelp' subword(zcmd,2)
+    Address TSO '%githelp' subword(zcmd,2)
     /* ----------------------------- *
     | Checkout the selected bname   |
     * ----------------------------- */
@@ -4996,6 +5012,10 @@ update_repo_metadata:
   x = debug('getting all files in repo-1')
   address syscall
   'readdir 'localrep'/'zigirep' root.'
+  /* check for .zigi/dsn */
+  'lstat' localrep'/'zigirep'/.zigi/dsn st.'
+  if st.0 = 0 then nonzigi = 1
+  else nonzigi = 0
   address ispexec
   x = debug('...done')
   x = debug('iterating...')
@@ -5079,7 +5099,7 @@ update_repo_metadata:
             x = zigistat("'"edsn"'" statpath 'S')
           end
         end
-        else do
+        else if nonzigi = 0 then do
           /* It must be a PS, just copy it over to OMVS */
           s = usssafe(fulldsn)
           if is_binfile(r) = 1 then do
@@ -5158,9 +5178,12 @@ update_repo_metadata:
           fulldsn = translate(fulldsn,'.',' ')
           fulldsn = "'"fulldsn'.'dsn"'"
         end
-        call outtrap 'x.'
-        if sysdsn(fulldsn) /= ok then dsnstat = 'Missing z/OS Dataset'
-        call outtrap 'off'
+        if nonzigi = 0 then do
+          call outtrap 'x.'
+          if sysdsn(fulldsn) /= ok then dsnstat = 'Missing z/OS Dataset'
+          call outtrap 'off'
+        end
+        else fulldsn = dsn
         'tbadd' rtbl
       end
       /* -------------------------------------------------- *
