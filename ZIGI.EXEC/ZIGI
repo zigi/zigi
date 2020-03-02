@@ -1843,7 +1843,7 @@ Work_With_Repo:
           end
           else Select
             when rtype = 'OMVS' then do
-              cmd = 'cd' localdir '&& git rm -rf' '"'fulldsn'"'
+              cmd = 'cd' localdir '&& git rm -rf' '"'usssafe(fulldsn)'"'
               cmd = cmd '&& git add -u'
               x = docmd(cmd,,so.,se.)
             end
@@ -1852,7 +1852,7 @@ Work_With_Repo:
               Address TSO ,
                 'Delete' fulldsn
               call outtrap 'off'
-              cmd = 'cd' localdir '&& git rm -rf' dsn
+              cmd = 'cd' localdir '&& git rm -rf' usssafe(dsn)
               x = docmd(cmd,,so.,se.)
             end
             when rtype = 'PO' then do
@@ -1860,8 +1860,9 @@ Work_With_Repo:
               Address TSO ,
                 'Delete' fulldsn
               call outtrap 'off'
-              cmd = 'cd' localdir '&& git rm -rf' dsn
-              cmd = cmd '&& rm -f .zigi/'dsn
+              cmd = 'cd' localdir '&& git rm -rf' usssafe(dsn)
+              cmd = cmd '&& rm -f .zigi/'usssafe(dsn)
+              cmd = cmd '&& rm -f' usssafe(dsn)
               x = docmd(cmd,,so.,se.)
             end
             Otherwise nop
@@ -3844,7 +3845,7 @@ Work_with_repo_file:
             call outtrap 'off'
             m = usssafe(mem)
             xldir = usssafe(localdir)
-            cmd = 'cd' xldir '&& git rm "'m'"'
+            cmd = 'cd' xldir '&& git rm -f "'usssafe(m)'"'
             x = docmd(cmd,,so.,se.)
             memstat = '*Removed'
             'tbmod' rtll
