@@ -1786,7 +1786,7 @@ Work_With_Repo:
               x = zigistat(newdsn localrep'/'zigirep'/.zigi/'newfiles'S')
               cmd = 'cd' localrep'/'zigirep
               cmd = cmd '&& git add .zigi/'newfiles
-              cmd = cmd '&& git rm .zigi/'oldfiles
+              cmd = cmd '&& git rm -f .zigi/'oldfiles
               x = docmd(cmd)
             end
             call view_std 'B'
