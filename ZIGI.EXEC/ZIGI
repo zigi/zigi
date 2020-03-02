@@ -3211,6 +3211,7 @@ Do_Commit:
 
   drop ztdmark
 
+  if translate(zcmd) = 'CANCEL' then msg1 = null
   if strip(msg1) = null then do
     zerrsm = 'Canceled.'
     zerrlm = 'Commit canceled due to an empty title message.'
