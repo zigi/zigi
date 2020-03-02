@@ -236,7 +236,7 @@
   if zigidebg = 0 then
   "Control Errors Return"
 
-  parse value '' with null rx zigidebg_flag save_zigirep fulldsn
+  parse value '' with null rx zigidebg_flag save_zigirep fulldsn cltime
   /* ----------------------------------------------------- *
   | Get the Active HLQ for use with the ALTLIB and LIBDEF |
   | of the zIGI libraries.                                |
@@ -908,6 +908,12 @@ Work_With_Repo:
   crflag = 0
   x = debug('Working with Repo:' zigirep)
   call update_repo_metadata
+  if cltime /= null then do
+     zerrsm  = 'Clone:' cltime
+     zerrlm  = left('Cloning completed for:' zigirep,76) ,
+               'Total time to clone was:' cltime
+     'setmsg msg(isrz003)'
+     end
   'vput (localrep zigirep) shared'
   'tbsort' rtbl 'Fields(dsn,c,a)'
   'tbtop' rtbl
@@ -3436,6 +3442,7 @@ Clone_Repo:
     cmd = cmd 'mv 'home'/.ssh/tmp_hosts 'home'/.ssh/known_hosts'
     x = bpxwunix(cmd,,so.,se.)
     localrep = strip(localrep,'T','/')
+    x = time('r')  /* begin timer */
     cmd = 'cd 'localrep
     if remotebr = null
     then cmd = cmd ' && git clone -v 'remote
@@ -3473,6 +3480,13 @@ Clone_Repo:
     'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
     leave
   end
+    e_time = time("E")
+    parse value e_time with ss "." uu
+    numeric digits 6
+    mm = ss % 60   /* get minutes integer */
+    ss = ss // 60  /* get seconds integer */
+    uu = uu // 100 /* get micro seconds integer */
+    cltime = right(mm+100,2)':'right(ss+100,2)'.'right(uu+100,2)
   call work_with_repo
   return
 
