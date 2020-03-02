@@ -3548,8 +3548,8 @@ Work_with_repo_file:
       if rtll_open = 0 then leave
       parse value '' with zsel zcmd row
       if ztdsels > 1 then
-         'tbdispl' rtll
-         else do
+      'tbdispl' rtll
+      else do
         'tbtop' rtll
         'tbskip' rtll 'number('list_top')'
         'TBdispl' rtll 'Panel(zigilist)'
@@ -3617,7 +3617,7 @@ Work_with_repo_file:
           call work_with_repo_file
         end
         When abbrev('GITHELP',word(zcmd,1),4) = 1 then
-           Address TSO '%githelp' subword(zcmd,2)
+        Address TSO '%githelp' subword(zcmd,2)
         When abbrev('GITCMD',zcmd,4) = 1 then
         'Select cmd(%zigigcmd)'
         When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
@@ -4133,7 +4133,7 @@ Branch_it:
     if rc > 4 then leave
     save_btop = ztdtop
     if abbrev('GITHELP',word(zcmd,1),4) = 1 then
-      Address TSO '%githelp' subword(zcmd,2)
+    Address TSO '%githelp' subword(zcmd,2)
     if newb <> null then do
       /* ----------------------------- *
       | Create this new branch, switch|
@@ -4307,7 +4307,7 @@ Merge_it:
     if rc > 4 then leave
     save_btop = ztdtop
     if abbrev('GITHELP',word(zcmd,1),4) = 1 then
-      Address TSO '%githelp' subword(zcmd,2)
+    Address TSO '%githelp' subword(zcmd,2)
     /* ----------------------------- *
     | Checkout the selected bname   |
     * ----------------------------- */
@@ -4997,6 +4997,10 @@ update_repo_metadata:
   x = debug('getting all files in repo-1')
   address syscall
   'readdir 'localrep'/'zigirep' root.'
+  /* check for .zigi/dsn */
+  'lstat' localrep'/'zigirep'/.zigi/dsn st.'
+  if st.0 = 0 then nonzigi = 1
+  else nonzigi = 0
   address ispexec
   x = debug('...done')
   x = debug('iterating...')
@@ -5080,7 +5084,7 @@ update_repo_metadata:
             x = zigistat("'"edsn"'" statpath 'S')
           end
         end
-        else do
+        else if nonzigi = 0 then do
           /* It must be a PS, just copy it over to OMVS */
           s = usssafe(fulldsn)
           if is_binfile(r) = 1 then do
@@ -5159,9 +5163,12 @@ update_repo_metadata:
           fulldsn = translate(fulldsn,'.',' ')
           fulldsn = "'"fulldsn'.'dsn"'"
         end
-        call outtrap 'x.'
-        if sysdsn(fulldsn) /= ok then dsnstat = 'Missing z/OS Dataset'
-        call outtrap 'off'
+        if nonzigi = 0 then do
+          call outtrap 'x.'
+          if sysdsn(fulldsn) /= ok then dsnstat = 'Missing z/OS Dataset'
+          call outtrap 'off'
+        end
+        else fulldsn = dsn
         'tbadd' rtbl
       end
       /* -------------------------------------------------- *
