@@ -904,6 +904,7 @@ Create_zigirepo:
   * --------------------------------- */
 Work_With_Repo:
   parse value '' with dsn dsnstat zsel ztdsels rtop
+  list_top = 0
   crflag = 0
   x = debug('Working with Repo:' zigirep)
   call update_repo_metadata
@@ -3542,17 +3543,16 @@ Work_with_repo_file:
     /* ---------------------------------- *
     | Process the Member list until done |
     * ---------------------------------- */
-    save_top = 0
-    ztdsels  = 0
     Do Forever
       if rtll_open = 0 then leave
       parse value '' with zsel zcmd row
-      if ztdsels < 2 then do
+      if ztdsels > 1 then
+         'tbdispl' rtll
+         else do
         'tbtop' rtll
-        'tbskip' rtll 'number('save_top')'
+        'tbskip' rtll 'number('list_top')'
         'TBdispl' rtll 'Panel(zigilist)'
       end
-      else 'tbdispl' rtll
       if rc > 4 then do
         if rtll_open = 1 then
         'tbend' rtll
@@ -3561,7 +3561,7 @@ Work_with_repo_file:
       end
       /* Make sure we edit (and copy) right dataset when we have
       a prefix set */
-      save_top = ztdtop
+      list_top = ztdtop
       edsn = strip(fulldsn,'B',"'")
 
       if ztdsels = 0 then
