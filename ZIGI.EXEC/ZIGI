@@ -772,6 +772,7 @@
         'display panel(zigisshk)'
         if rc > 0 then leave
       end
+      when zcmd = 'VIEWD' then call view_debug
       Otherwise if zcmd /= null then do
         zerrsm = 'Unknown'
         zerrlm = zcmd 'is not a recognized command.'
@@ -1445,6 +1446,7 @@ Work_With_Repo:
       * ------------------------ */
       When abbrev('ADDALL',zcmd,4) = 1 then do
         'tbtop' rtbl
+        x = debug('ADDALL started:' zigirep)
         do forever
           'tbskip' rtbl
           if rc > 0 then leave
@@ -1460,6 +1462,7 @@ Work_With_Repo:
         x = docmd(cmd)
         call update_repo_metadata
         zcmd = null
+        x = debug('ADDALL completed' zigirep)
       end
       /* -------------------------------- *
       | View output of git status        |
@@ -1626,6 +1629,7 @@ Work_With_Repo:
           'setmsg msg(isrz001)'
         end
       end
+      when zcmd = 'VIEWD' then call view_debug
       Otherwise do
         zerrsm = 'Unknown'
         zerrlm = zcmd 'is not a recognized command.'
@@ -3616,6 +3620,7 @@ Work_with_repo_file:
       Select
         When abbrev('ADDALL',zcmd,2) = 1 then do
           'tbtop' rtll
+          x = debug('ADDALL started:' zigirep)
           do forever
             'tbskip' rtll
             if rc > 0 then leave
@@ -3634,6 +3639,7 @@ Work_with_repo_file:
           cmd = cmd '&& git add .'
           x = docmd(cmd)
           zcmd = null
+          x = debug('ADDALL completed:' zigirep)
         end
         When abbrev('COMMIT',zcmd,3) = 1 then do
           zsel = null
@@ -3679,6 +3685,7 @@ Work_with_repo_file:
             'Setmsg msg(isrz003)'
           end
         end
+        when zcmd = 'VIEWD' then call view_debug
         Otherwise do
           zerrsm = 'Unknown'
           zerrlm = zcmd 'is not a recognized command.'
@@ -3943,6 +3950,7 @@ Git_Add_Member:
   * ---------------------------------- */
 Git_Add_Member_Stats:
   statfile = translate(strip(fulldsn,'B',"'"),' ','.')
+  x = debug('Add member stats:' statfile)
   if qualignr > 0 then
   statfile = subword(statfile,qualignr+1)
   statfile = translate(statfile,'.',' ')
@@ -3955,6 +3963,7 @@ Git_Add_Member_Stats:
   statfiles = usssafe(statfile)
   x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfiles)
   call work_with_repo_file
+  x = debug('Add member stats completed.')
   return
 
   /* ------------------------- *
@@ -6122,6 +6131,11 @@ docmdx:
   end
   r = rx ' ' cmd
   return r
+
+view_debug: Procedure expose debug_file home
+  filev = home'/'debug_file
+  'view  file(filev)'
+return
 
 debug:
   if zigidebg  = 1 then do
