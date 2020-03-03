@@ -27,6 +27,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            03/03/20 LBD - Several updates                  |
   |            02/28/20 LBD - Added Convert Repo capability    |
   |            02/27/20 HBK - Added feature 'zigiflow'         |
   |                           Fixed another edge case with $'s |
@@ -1513,6 +1514,12 @@ Work_With_Repo:
           if zigi_offline = 0 then do
             x = docmd(cmd '&& git push -vu origin 'branch)
             call View_std 'B'
+            gitcmd = 'git remote -v | sed -e "s/[[:space:]]\+/ /g"'
+            x = docmd('cd 'localrep'/'zigirep' && 'gitcmd)
+            if so.0 > 0 then
+            remote1 = word(so.1,1)' 'word(so.1,2)
+            'tbmod zigirepo order'
+            'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
           end
           call update_repo_metadata
         end
