@@ -3226,7 +3226,7 @@ Do_Commit:
 
   if translate(zcmd) = 'CANCEL' then msg1 = null
   if strip(msg1) = null then do
-  x = debug('Commit canceled:' zigirep)
+    x = debug('Commit canceled:' zigirep)
     zerrsm = 'Canceled.'
     zerrlm = 'Commit canceled due to an empty title message.'
     'setmsg msg(isrz003)'
@@ -6133,9 +6133,18 @@ docmdx:
   return r
 
 view_debug: Procedure expose debug_file home
-  filev = home'/'debug_file
-  'view  file(filev)'
-return
+  if zigidebg = 1 then do
+    filev = home'/'debug_file
+    'view  file(filev)'
+  end
+  else do
+    zerrsm = 'Invalid.'
+    zerrlm = 'VIEWD is not supported when debug is not enabled. To' ,
+      'enable debug allocate a ZIGIDEBG DD to Dummy and' ,
+      'restart zigi.'
+    'setmsg msg(isrz003)'
+  end
+  return
 
 debug:
   if zigidebg  = 1 then do
