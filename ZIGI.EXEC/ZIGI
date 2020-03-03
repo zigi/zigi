@@ -5251,7 +5251,7 @@ update_repo_metadata:
   fulldsn = save_fulldsn
   'tbmod zigirepo order'
   dsn = save_dsn
-  x = debug('Done with update_repo_metadata' zigirep'/'dsn)
+  x = debug('Done with update_repo_metadata' zigirep)
   return
 
 porcelain:
