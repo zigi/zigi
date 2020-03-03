@@ -27,6 +27,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            03/03/20 LBD - Several updates                  |
   |            02/28/20 LBD - Added Convert Repo capability    |
   |            02/27/20 HBK - Added feature 'zigiflow'         |
   |                           Fixed another edge case with $'s |
@@ -772,6 +773,7 @@
         'display panel(zigisshk)'
         if rc > 0 then leave
       end
+      when zcmd = 'VIEWD' then call view_debug
       Otherwise if zcmd /= null then do
         zerrsm = 'Unknown'
         zerrlm = zcmd 'is not a recognized command.'
@@ -877,13 +879,13 @@ Select_Repo:
   zigidate = date('n')
   sortdate = date('b') time('s')
   'tbmod zigirepo order'
-  x = debug('Getting binfiles:' zigirep time('L') )
+  x = debug('Getting binfiles:' zigirep)
   drop binfiles.
   call get_binfiles
-  x = debug('Got 'binfiles.0' binfiles' time('L') )
-  x = debug('Selecting repo:' zigirep time('L') )
+  x = debug('Got 'binfiles.0' binfiles')
+  x = debug('Selecting repo:' zigirep)
   call Work_With_Repo
-  x = debug('Return from repo:' zigirep time('L') )
+  x = debug('Return from repo:' zigirep)
   Return
 
   /* ------------------------------ *
@@ -906,14 +908,15 @@ Work_With_Repo:
   parse value '' with dsn dsnstat zsel ztdsels rtop
   list_top = 0
   crflag = 0
+  remc = 'NO'
   x = debug('Working with Repo:' zigirep)
   call update_repo_metadata
   if cltime /= null then do
-     zerrsm  = 'Clone:' cltime
-     zerrlm  = left('Cloning completed for:' zigirep,76) ,
-               'Total time to clone was:' cltime
-     'setmsg msg(isrz003)'
-     end
+    zerrsm  = 'Clone:' cltime
+    zerrlm  = left('Cloning completed for:' zigirep,76) ,
+      'Total time to clone was:' cltime
+    'setmsg msg(isrz003)'
+  end
   'vput (localrep zigirep) shared'
   'tbsort' rtbl 'Fields(dsn,c,a)'
   'tbtop' rtbl
@@ -1444,6 +1447,7 @@ Work_With_Repo:
       * ------------------------ */
       When abbrev('ADDALL',zcmd,4) = 1 then do
         'tbtop' rtbl
+        x = debug('ADDALL started:' zigirep)
         do forever
           'tbskip' rtbl
           if rc > 0 then leave
@@ -1459,6 +1463,7 @@ Work_With_Repo:
         x = docmd(cmd)
         call update_repo_metadata
         zcmd = null
+        x = debug('ADDALL completed' zigirep)
       end
       /* -------------------------------- *
       | View output of git status        |
@@ -1509,6 +1514,12 @@ Work_With_Repo:
           if zigi_offline = 0 then do
             x = docmd(cmd '&& git push -vu origin 'branch)
             call View_std 'B'
+            gitcmd = 'git remote -v | sed -e "s/[[:space:]]\+/ /g"'
+            x = docmd('cd 'localrep'/'zigirep' && 'gitcmd)
+            if so.0 > 0 then
+            remote1 = word(so.1,1)' 'word(so.1,2)
+            'tbmod zigirepo order'
+            'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
           end
           call update_repo_metadata
         end
@@ -1625,6 +1636,7 @@ Work_With_Repo:
           'setmsg msg(isrz001)'
         end
       end
+      when zcmd = 'VIEWD' then call view_debug
       Otherwise do
         zerrsm = 'Unknown'
         zerrlm = zcmd 'is not a recognized command.'
@@ -3141,6 +3153,7 @@ Do_Resetid:
 Do_Commit:
   arg copt
   zcmd = null
+  x = debug('Starting Commit:' zigirep)
   parse value '' with tagid msg1 cmsg
   cmtab = 'zc'random(99999)
   'tbcreate' cmtab 'names(cmsg) nowrite'
@@ -3220,6 +3233,7 @@ Do_Commit:
 
   if translate(zcmd) = 'CANCEL' then msg1 = null
   if strip(msg1) = null then do
+    x = debug('Commit canceled:' zigirep)
     zerrsm = 'Canceled.'
     zerrlm = 'Commit canceled due to an empty title message.'
     'setmsg msg(isrz003)'
@@ -3328,6 +3342,7 @@ Do_Commit:
     zerrlm = zerrlm 'Which will require not being in Offline mode.'
     'setmsg msg(isrz003)'
   end
+  x = debug('Commit completed:' zigirep)
   return
 
   /* ------------------------------------------------------ *
@@ -3484,13 +3499,13 @@ Clone_Repo:
     'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
     leave
   end
-    e_time = time("E")
-    parse value e_time with ss "." uu
-    numeric digits 6
-    mm = ss % 60   /* get minutes integer */
-    ss = ss // 60  /* get seconds integer */
-    uu = uu // 100 /* get micro seconds integer */
-    cltime = right(mm+100,2)':'right(ss+100,2)'.'right(uu+100,2)
+  e_time = time("E")
+  parse value e_time with ss "." uu
+  numeric digits 6
+  mm = ss % 60   /* get minutes integer */
+  ss = ss // 60  /* get seconds integer */
+  uu = uu // 100 /* get micro seconds integer */
+  cltime = right(mm+100,2)':'right(ss+100,2)'.'right(uu+100,2)
   call work_with_repo
   return
 
@@ -3498,6 +3513,8 @@ Clone_Repo:
   | Process the selected dataset (PDS or PS) |
   * ---------------------------------------- */
 Work_with_repo_file:
+  remc = 'NO'
+  x = debug('Working with Repo File:' zigirep'/'dsn)
   x = listdsi(fulldsn)
   if sysdsorg /= 'PS' then do
     zs1 = 'Building list of library statuses....'
@@ -3610,6 +3627,7 @@ Work_with_repo_file:
       Select
         When abbrev('ADDALL',zcmd,2) = 1 then do
           'tbtop' rtll
+          x = debug('ADDALL started:' zigirep)
           do forever
             'tbskip' rtll
             if rc > 0 then leave
@@ -3628,6 +3646,7 @@ Work_with_repo_file:
           cmd = cmd '&& git add .'
           x = docmd(cmd)
           zcmd = null
+          x = debug('ADDALL completed:' zigirep)
         end
         When abbrev('COMMIT',zcmd,3) = 1 then do
           zsel = null
@@ -3673,6 +3692,7 @@ Work_with_repo_file:
             'Setmsg msg(isrz003)'
           end
         end
+        when zcmd = 'VIEWD' then call view_debug
         Otherwise do
           zerrsm = 'Unknown'
           zerrlm = zcmd 'is not a recognized command.'
@@ -3689,6 +3709,7 @@ Work_with_repo_file:
       end
 
       if zsel /= null then
+        if zsel = 'E' then zsel = 'S'
       Select
         when zsel = 'B' then do
           /* -------------------------------- *
@@ -3937,6 +3958,7 @@ Git_Add_Member:
   * ---------------------------------- */
 Git_Add_Member_Stats:
   statfile = translate(strip(fulldsn,'B',"'"),' ','.')
+  x = debug('Add member stats:' statfile)
   if qualignr > 0 then
   statfile = subword(statfile,qualignr+1)
   statfile = translate(statfile,'.',' ')
@@ -3949,6 +3971,7 @@ Git_Add_Member_Stats:
   statfiles = usssafe(statfile)
   x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfiles)
   call work_with_repo_file
+  x = debug('Add member stats completed.')
   return
 
   /* ------------------------- *
@@ -4962,7 +4985,6 @@ strreplace: Procedure
 update_repo_metadata:
   save_fulldsn = fulldsn
   save_dsn = dsn
-  x = debug('start of update_repo_metadata' fulldsn dsn)
   if rtbl_open = 1 then do
     'tbend' rtbl
     rtbl_open = 0
@@ -5000,7 +5022,7 @@ update_repo_metadata:
   if zigi_offline = 0 then
   if remote1 /= '<no remote defined>' then
   x = docmd(cmd '&& git fetch')
-  x = debug('...done')
+  x = debug('...done fetching remotes')
   fetch_flag = 1
   /* now we get the status for all in the repo */
   if zigi_offline = 0 then
@@ -5148,7 +5170,7 @@ update_repo_metadata:
     end
     else do
       if dsnvalid(root.i) = "OK" then do
-        x = debug('Get the git status and fill dsnstat')
+        x = debug('Get the git status and fill dsnstat' root.i)
         dsn = root.i
         do ii = 1 to so.0
           stat = substr(so.ii,1,2)
@@ -5232,7 +5254,7 @@ update_repo_metadata:
   /* --------------------------- *
   | Get the current branch info |
   * --------------------------- */
-  x = debug('getting git status for branch names')
+  x = debug('getting git status for current branch')
   x = docmd('cd 'localdir' && git status')
   branch = word(so.1,3)
   if so.0 > 1 then do
@@ -5246,7 +5268,7 @@ update_repo_metadata:
   fulldsn = save_fulldsn
   'tbmod zigirepo order'
   dsn = save_dsn
-  x = debug('Done with update_repo_metadata' fulldsn dsn)
+  x = debug('Done with update_repo_metadata' zigirep)
   return
 
 porcelain:
@@ -6003,13 +6025,20 @@ do_history:
   * ---------------------------------------- */
 Confirm_Remove:
   parse arg rxdsn
+  if remc = 'YES' then return 0
+  if remc = null then remc = 'NO'
   rema = null
   call pfshow 'off'           /* make sure pfshow is off */
   'Addpop row(4) column(12)'
   'Display Panel(zigiremq)'
+  drc = rc
   if rema /= 'YES' then rrc = 4
   else rrc = 0
   'Rempop'
+  if drc > 0 then do
+    rrc = 4
+    remc = 'NO'
+  end
   call pfshow 'reset'         /* restore pfshow setting */
   return rrc
 
@@ -6110,6 +6139,20 @@ docmdx:
   end
   r = rx ' ' cmd
   return r
+
+view_debug: Procedure expose debug_file home
+  if zigidebg = 1 then do
+    filev = home'/'debug_file
+    'view  file(filev)'
+  end
+  else do
+    zerrsm = 'Invalid.'
+    zerrlm = 'VIEWD is not supported when debug is not enabled. To' ,
+      'enable debug allocate a ZIGIDEBG DD to Dummy and' ,
+      'restart zigi.'
+    'setmsg msg(isrz003)'
+  end
+  return
 
 debug:
   if zigidebg  = 1 then do
