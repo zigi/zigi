@@ -877,13 +877,13 @@ Select_Repo:
   zigidate = date('n')
   sortdate = date('b') time('s')
   'tbmod zigirepo order'
-  x = debug('Getting binfiles:' zigirep time('L') )
+  x = debug('Getting binfiles:' zigirep)
   drop binfiles.
   call get_binfiles
-  x = debug('Got 'binfiles.0' binfiles' time('L') )
-  x = debug('Selecting repo:' zigirep time('L') )
+  x = debug('Got 'binfiles.0' binfiles')
+  x = debug('Selecting repo:' zigirep)
   call Work_With_Repo
-  x = debug('Return from repo:' zigirep time('L') )
+  x = debug('Return from repo:' zigirep)
   Return
 
   /* ------------------------------ *
@@ -3142,6 +3142,7 @@ Do_Resetid:
 Do_Commit:
   arg copt
   zcmd = null
+  x = debug('Starting Commit:' zigirep)
   parse value '' with tagid msg1 cmsg
   cmtab = 'zc'random(99999)
   'tbcreate' cmtab 'names(cmsg) nowrite'
@@ -3221,6 +3222,7 @@ Do_Commit:
 
   if translate(zcmd) = 'CANCEL' then msg1 = null
   if strip(msg1) = null then do
+  x = debug('Commit canceled:' zigirep)
     zerrsm = 'Canceled.'
     zerrlm = 'Commit canceled due to an empty title message.'
     'setmsg msg(isrz003)'
@@ -3329,6 +3331,7 @@ Do_Commit:
     zerrlm = zerrlm 'Which will require not being in Offline mode.'
     'setmsg msg(isrz003)'
   end
+  x = debug('Commit completed:' zigirep)
   return
 
   /* ------------------------------------------------------ *
@@ -3500,6 +3503,7 @@ Clone_Repo:
   * ---------------------------------------- */
 Work_with_repo_file:
   remc = 'NO'
+  x = debug('Working with Repo File:' zigirep'/'dsn)
   x = listdsi(fulldsn)
   if sysdsorg /= 'PS' then do
     zs1 = 'Building list of library statuses....'
@@ -4964,7 +4968,6 @@ strreplace: Procedure
 update_repo_metadata:
   save_fulldsn = fulldsn
   save_dsn = dsn
-  x = debug('start of update_repo_metadata' fulldsn dsn)
   if rtbl_open = 1 then do
     'tbend' rtbl
     rtbl_open = 0
@@ -5002,7 +5005,7 @@ update_repo_metadata:
   if zigi_offline = 0 then
   if remote1 /= '<no remote defined>' then
   x = docmd(cmd '&& git fetch')
-  x = debug('...done')
+  x = debug('...done fetching remotes')
   fetch_flag = 1
   /* now we get the status for all in the repo */
   if zigi_offline = 0 then
@@ -5150,7 +5153,7 @@ update_repo_metadata:
     end
     else do
       if dsnvalid(root.i) = "OK" then do
-        x = debug('Get the git status and fill dsnstat')
+        x = debug('Get the git status and fill dsnstat' root.i)
         dsn = root.i
         do ii = 1 to so.0
           stat = substr(so.ii,1,2)
@@ -5234,7 +5237,7 @@ update_repo_metadata:
   /* --------------------------- *
   | Get the current branch info |
   * --------------------------- */
-  x = debug('getting git status for branch names')
+  x = debug('getting git status for current branch')
   x = docmd('cd 'localdir' && git status')
   branch = word(so.1,3)
   if so.0 > 1 then do
@@ -5248,7 +5251,7 @@ update_repo_metadata:
   fulldsn = save_fulldsn
   'tbmod zigirepo order'
   dsn = save_dsn
-  x = debug('Done with update_repo_metadata' fulldsn dsn)
+  x = debug('Done with update_repo_metadata' zigirep'/'dsn)
   return
 
 porcelain:
