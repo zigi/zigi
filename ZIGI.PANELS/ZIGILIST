@@ -67,7 +67,7 @@
      &osel = &zsel
  if (&row = 0)
     &zsel = &z
- ver (&zsel,list,S,A,D,U,RN,RM,H,/,AB)
+ ver (&zsel,list,A,AB,B,E,D,H,RM,RN,S,U,V,/)
 )PNTS
  FIELD(TMEM )  VAR(ZCMD) VAL('SORT MEMBER')
  FIELD(TSTAT)  VAR(ZCMD) VAL('SORT STATUS')
