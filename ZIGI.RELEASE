@@ -60,6 +60,8 @@ will bring up the row selection popup.
 Change REFRESH command to REPLACE and add FETCH command for Current
 Repository. Only Fetch when a repository is selected or on demand.
 
+For Removes (deletes) add option to turn off prompting.
+
 New zigi Cheat Sheet (pdf) and zigi User's Guide (pdf, azw3, mobi, epub)
 have been created and are new with v2.5.
 
