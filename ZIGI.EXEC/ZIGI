@@ -906,14 +906,15 @@ Work_With_Repo:
   parse value '' with dsn dsnstat zsel ztdsels rtop
   list_top = 0
   crflag = 0
+  remc = 'NO'
   x = debug('Working with Repo:' zigirep)
   call update_repo_metadata
   if cltime /= null then do
-     zerrsm  = 'Clone:' cltime
-     zerrlm  = left('Cloning completed for:' zigirep,76) ,
-               'Total time to clone was:' cltime
-     'setmsg msg(isrz003)'
-     end
+    zerrsm  = 'Clone:' cltime
+    zerrlm  = left('Cloning completed for:' zigirep,76) ,
+      'Total time to clone was:' cltime
+    'setmsg msg(isrz003)'
+  end
   'vput (localrep zigirep) shared'
   'tbsort' rtbl 'Fields(dsn,c,a)'
   'tbtop' rtbl
@@ -3484,13 +3485,13 @@ Clone_Repo:
     'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
     leave
   end
-    e_time = time("E")
-    parse value e_time with ss "." uu
-    numeric digits 6
-    mm = ss % 60   /* get minutes integer */
-    ss = ss // 60  /* get seconds integer */
-    uu = uu // 100 /* get micro seconds integer */
-    cltime = right(mm+100,2)':'right(ss+100,2)'.'right(uu+100,2)
+  e_time = time("E")
+  parse value e_time with ss "." uu
+  numeric digits 6
+  mm = ss % 60   /* get minutes integer */
+  ss = ss // 60  /* get seconds integer */
+  uu = uu // 100 /* get micro seconds integer */
+  cltime = right(mm+100,2)':'right(ss+100,2)'.'right(uu+100,2)
   call work_with_repo
   return
 
@@ -3498,6 +3499,7 @@ Clone_Repo:
   | Process the selected dataset (PDS or PS) |
   * ---------------------------------------- */
 Work_with_repo_file:
+  remc = 'NO'
   x = listdsi(fulldsn)
   if sysdsorg /= 'PS' then do
     zs1 = 'Building list of library statuses....'
@@ -6003,13 +6005,20 @@ do_history:
   * ---------------------------------------- */
 Confirm_Remove:
   parse arg rxdsn
+  if remc = 'YES' then return 0
+  if remc = null then remc = 'NO'
   rema = null
   call pfshow 'off'           /* make sure pfshow is off */
   'Addpop row(4) column(12)'
   'Display Panel(zigiremq)'
+  drc = rc
   if rema /= 'YES' then rrc = 4
   else rrc = 0
   'Rempop'
+  if drc > 0 then do
+    rrc = 4
+    remc = 'NO'
+  end
   call pfshow 'reset'         /* restore pfshow setting */
   return rrc
 
