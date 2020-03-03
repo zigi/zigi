@@ -3709,6 +3709,7 @@ Work_with_repo_file:
       end
 
       if zsel /= null then
+        if zsel = 'E' then zsel = 'S'
       Select
         when zsel = 'B' then do
           /* -------------------------------- *
