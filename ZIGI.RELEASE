@@ -31,6 +31,9 @@ the following requirements of the repository must be met:
       must conform to z/OS dataset naming conventions or they are treated
       as OMVS files.
 
+After creating a new local repository open the Add Dataset instead of
+requiring the user to do that (saves a step).
+
 Provide the option to specify the codeset for character encoding during
 Clone and Create repository processing. The default is IBM-1047 if not
 specified.
