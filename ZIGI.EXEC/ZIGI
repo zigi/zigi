@@ -27,6 +27,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            03/04/20 LBD - Jump to Add Dataset after Create |
   |            03/03/20 LBD - Several updates                  |
   |            02/28/20 LBD - Added Convert Repo capability    |
   |            02/27/20 HBK - Added feature 'zigiflow'         |
@@ -683,6 +684,7 @@
         x = Create_Repo()
         crflag = 1
         if x = 0 then do
+          zcmd = 'ADDDSN'
           call work_with_repo
           zsel = null
         end
@@ -925,7 +927,8 @@ Work_With_Repo:
   * -------------------------------- */
   rtop = 0
   do forever
-    parse value '' with zsel zcmd row
+    parse value '' with zsel row
+    if zcmd /= 'ADDDSN' then do
     if ztdsels > 1
     then 'TBdispl' rtbl
     else do
@@ -943,6 +946,7 @@ Work_With_Repo:
       'tbend' rtbl
       rtbl_open = 0
       return
+    end
     end
     drop so. se.
     zcmd = translate(zcmd)
