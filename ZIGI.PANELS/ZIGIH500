@@ -2,6 +2,7 @@
   _ type( input) intens(low ) just(left ) hilite(uscore) caps(on)
   ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
   [ type(output) intens(high) caps(off) just(left) pas(on) skip(on) color(white)
+    hilite(uscore)
 )Body Expand(\\)
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
@@ -31,7 +32,11 @@
  vput (ztut)
 )PROC
  &ZSEL = TRANS( &ZCMD
-           1,zigih000
+           1,zigih600
            *,'?'
            )
 )END
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

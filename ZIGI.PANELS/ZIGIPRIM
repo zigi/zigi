@@ -5,32 +5,43 @@
  { type(input) caps(off) hilite(uscore) intens(low)
  _ type(input) caps(on ) hilite(uscore) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
- @ type(output) caps(off) pas(on) intens(high) color(white)
+ @ type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
  [ type(text) intens(low) hilite(uscore)
+ | TYPE(AB)           /* Action bar                */
+ < TYPE(ABSL) GE(ON)  /* Action bar separator line */
+)ABC DESC('Commands')
+ PDC DESC('Clone Remote repository')             ACTION RUN(CLONE)
+ PDC DESC('Config View/Update Configuration')    ACTION RUN(CONFIG)
+ PDC DESC('Create Local repository')             ACTION RUN(CREATE)
+ PDC DESC('Find text in table')                  ACTION RUN(FIND)
+ PDC DESC('GIT Help') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%GITHELP)')
+ PDC DESC('Select a Repo to work with')          ACTION RUN(SELECT)
+ PDC DESC('Sort the Table')                      ACTION RUN(SORT)
+ PDC DESC('View your SSH public key')            ACTION RUN(SSH)
+ PDC DESC('End') Action Run(END)
+)ABCINIT
+  .ZVARS = 'MENUX'
+)ABC DESC(Help)
+ PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigihint')
+ PDC DESC('About') ACTION RUN(Tutor) Parm('zigihabt')
+)ABCINIT
+  .ZVARS = HELPX
 )Body Expand(\\)
++| Commands | Help +
+<-----------\-\--------------------------------+
 +Local Repositories+--------------#zigtitle   +---------------------------------
 %Command ===>{zcmd       \ \ %Scroll ===>_zscr+
-+
-+Command: @Clone +Remote repository        @Pro    +Toggle Menu
-          @Create+Local repository         @githelp+Git Help
-          @SSH   +View your SSH public key @Find   +text in table
-          @Config+View Git configuration   %Select +Repo from command
-+
-+Line:    %S+Work with repo%V+View repo OMVS files+%D+Delete repo
-+
-%    [Repository+       [Prefix+                                [Last Access+
++ \ \%F3  +
+%    @repo      +           @pref  +               @cat     +      @last       +
 )Model
-_z+  $z              +  $z                                 +    }z          +
+_z+  $z                  +  ]z                    +]z             +}z          +
 )Init
- &clone   = 'Clone'
- &config  = 'Config'
- &create  = 'Create'
- &find    = 'Find'
- &githelp = 'GitHelp'
- &pro     = 'Pro'
- &ssh     = 'SSH'
+ &cat     = 'Category'
+ &last    = 'Last Access'
+ &pref    = 'Prefix'
+ &repo    = 'Repository'
  &zscr = CSR
- .zvars = '(zsel zigirep pdshlq zigidate)'
+ .zvars = '(zsel zigirep pdshlq zigicat zigidate)'
  .help = zigihint
 )Proc
  &row = &z
@@ -48,13 +59,14 @@ _z+  $z              +  $z                                 +    }z          +
      &osel = &zsel
  if (&row = 0)
      &zsel = &z
- ver (&zsel,list,S,D,V,/)
+ ver (&zsel,list,I,S,D,V,/)
 )PNTS
- FIELD(CLONE   ) VAR(ZCMD) VAL('CLONE')
- FIELD(CONFIG  ) VAR(ZCMD) VAL('CONFIG')
- FIELD(CREATE  ) VAR(ZCMD) VAL('CREATE')
- FIELD(FIND    ) VAR(ZCMD) VAL('FIND')
- FIELD(GITHELP ) VAR(ZCMD) VAL('GITHELP')
- FIELD(PRO     ) VAR(ZCMD) VAL('PRO')
- FIELD(SSH     ) VAR(ZCMD) VAL('SSH')
+ FIELD(CAT     ) VAR(ZCMD) VAL('SORT CATEGORY')
+ FIELD(LAST    ) VAR(ZCMD) VAL('SORT LAST')
+ FIELD(PREF    ) VAR(ZCMD) VAL('SORT PREFIX')
+ FIELD(REPO    ) VAR(ZCMD) VAL('SORT REPOSITORY')
 )end
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

@@ -1,16 +1,22 @@
 )Attr
  $ type(output) caps(off)
  _ type(input)  caps(on ) hilite(uscore) intens(low)
-)Body Window(64,6)
+)Body Window(66,7)
 +Confirm you really want to remove the dataset and/or file
 +from the repository and from z/OS and OMVS:
 +
-+Requested removal:$rxdsn
++Requested removal:$rxdsn                                        +
 +
-+===>_z  +(YES or NO or F3)
++Confirm removal:      _z  +(YES or NO or F3)
++Turn Confirmation off:_z  +(YES or NO)
 )Init
- .zvars = '(rema)'
+ .zvars = '(rema remc)'
  &zwinttl = 'zigi Remove Prompt'
 )Proc
  ver (&rema,nb,list,YES,NO)
+ ver (&remc,nb,list,YES,NO)
 )end
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

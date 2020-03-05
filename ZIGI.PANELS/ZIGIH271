@@ -6,7 +6,7 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                                 %Merge+
+                               %Merge Conflicts+
 +
 %Merge+processing, when a conflict occurs, results in the current branch
 +repository file having Git messages along with records from both the current
@@ -21,8 +21,8 @@
 +If the file is a PDS member then after the merge is resolved the ISPF
 +statistics file is recreated using the updated information.
 +
-+Using%F3+or not updating ALL the conflict files will result in a
-%git merge --abort+being processed.
++
+         +"Never mistake activity for achievement." - John Wooden
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
@@ -31,3 +31,7 @@
  &zup   = zigih270
  &zcont = zigih272
 )END
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

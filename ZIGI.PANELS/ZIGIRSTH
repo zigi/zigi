@@ -1,0 +1,41 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  @ type(output) intens(high) caps(off) just(left )
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+  ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
+)Body Window(45,9)
++
++Enter Selection:_z+
++
++]BRanch+ (B)+ Create a new branch from stash
++]Diff+   (D)+ Show the diff's for the stash
++]Pop+    (P)+ Restore a stash
++]Remove+ (R)+ Remove (Drop) the stash
++]Show+   (S)+ Show stash summary
+             +Or%F3+to cancel.
+)Init
+ &zwinttl = 'zigi Stash Row Selection Options'
+ .zvars = '(zsel)'
+ .cursor = zsel
+ &zsel  = &z
+ &branch  = 'Branch'
+ &diff    = 'Diff'
+ &pop     = 'Pop'
+ &remove  = 'Remove'
+ &show    = 'Show'
+)Proc
+ ver (&zsel,list,B,D,R,P,S)
+)PNTS
+  Field(branch ) var(zsel) val('B')
+  Field(diff   ) var(zsel) val('D')
+  Field(remove ) var(zsel) val('R')
+  Field(pop    ) var(zsel) val('P')
+  Field(show   ) var(zsel) val('S')
+)End
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

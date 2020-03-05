@@ -1,15 +1,10 @@
 )Attr
  $ type(output) caps(off)
  _ type(input)  caps(off) hilite(uscore) intens(low)
-)Body Window(55,12)
+)Body Window(55,7)
 +The Git repository that you requested is not eligible
-+to be managed by zigi.
-+
-+The clone did complete to:
-$clonerep
-+
-+The files in OMVS will be retained to allow you to
-+manually convert them to the correct layout.
++to be managed by zigi but it has been retained and
++may be converted.
 +
 +Press%F3+to close this window and display the tutorial
 +on how to make a repository eligible for zigi.
@@ -20,3 +15,7 @@ $clonerep
  ver (&rolla,nb,list,ROLLBACK)
  ver (&newbr,nb)
 )end
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

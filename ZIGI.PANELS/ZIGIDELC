@@ -7,11 +7,11 @@
 +
 +Repository:$zigirep
 +
-+Remove from Git mgmt    @z+(Y or N)
-+Delete the OMVS files   @z+(Y or N)
-+Delete the z/OS Datasets@z+(Y or N)
++Remove from zigi management   @z+(Y or N)
++Delete the OMVS files         @z+(Y or N)
++Delete the z/OS Datasets      @z+(Y or N)
 +
-+If remove from Git is%N+then Delete cancelled.
++If remove from Git is%N+then Delete canceled.
 +
 +Confirm Delete Request@z+(Y or N)
 +
@@ -40,3 +40,7 @@
  if (&delcg EQ N)
      ver (&delco,nb,list,N)
 )end
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */
