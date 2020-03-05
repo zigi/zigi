@@ -1,0 +1,40 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  @ type(output) intens(high) caps(off) just(left )
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+  [ type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
+)Body Window(35,7)
++Enter Selection:_z+
++
+  [z+ Start New Flow
+  [z+ Finish Current Flow
+  [z+ Select Unfinished Flow
++
+   +Or%F3+to cancel.
+)Init
+ &l1 = '1'
+ &l2 = '2'
+ &l3 = '3'
+ &zwinttl = 'zigi Flow Menu'
+ .zvars = '(zcmd l1 l2 l3)'
+ &zcmd  = &z
+ .cursor = zcmd
+ .help = zigih2k0
+)Proc
+*REXX(*)
+ if zcmd = 1 then zcmd = 'FLOWGO'
+ if zcmd = 2 then zcmd = 'FLOWEND'
+ if zcmd = 3 then zcmd = 'FLOWSEL'
+*ENDREXX
+)PNTS
+ FIELD(L1    )  VAR(ZCMD) VAL('FLOWGO')
+ FIELD(L2    )  VAR(ZCMD) VAL('FLOWEND')
+ FIELD(L3    )  VAR(ZCMD) VAL('FLOWSEL')
+)End
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

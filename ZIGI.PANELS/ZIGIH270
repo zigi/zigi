@@ -14,7 +14,8 @@
 +Select the branch to merge into the current branch from a list of available
 +branches using the%M+row selection.
 +
-+If the merge is successful, it will be committed to the current branch.
++If the merge is successful, it will be committed to the current branch and %ALL
++z/OS datasets will be replaced from the update OMVS files.
 +
 +If the merge is not successful a popup with three options will be presented:
 +
@@ -22,7 +23,6 @@
 +   %2+Continue and attempt to resolve using ISPF Edit
     %3+Abort the Merge
 +
-            +"Never mistake activity for achievement." - John Wooden
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
@@ -30,3 +30,7 @@
 )PROC
  &zcont = zigih271
 )END
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

@@ -29,7 +29,11 @@
  .cursor  = &zcmd
 )PROC
  if (&setcont EQ &Z)
-     &ZCONT = ZIGIH150
+     &ZCONT = ZIGIH160
  if (&setcont NE &Z)
      &ZCONT = ZIGIH140
 )END
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

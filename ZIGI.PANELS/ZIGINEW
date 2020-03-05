@@ -11,15 +11,15 @@
 %Local Directory:   +? to browse OMVS folder structure
  @localrep                                                                    +
 +
-%PREFIX for datasets: $pdshlq                  + (no quotes)
+%Category for Repository:@zigicat      + (optional)
 +
-%Default Push on Commit:$z+(Y or N)
+%PREFIX for datasets:    $pdshlq                  + (no quotes)
++
+%Default Push on Commit: $z+(Y or N)
 +
 %Default Userid to set prior to Commit:$defruid + or blank
 +
-+
-+
-+
+%Specify zos-workingtree-encoding:$encoding+ (ibm-1047 if blank)
 +
 +
 +
@@ -28,10 +28,45 @@
 )Init
  .help = zigih120
  .zvars = '(defcpush)'
+)Reinit
+  REFRESH(LOCALREP)
 )Proc
+ &resp = .resp
+*REXX(* zedsmsg zedlmsg resp csr)
+  zedsmsg = ''
+  if localrep /= '?' then do
+  x = bpxwunix('ls -la' localrep)
+  if x > 0 then do
+     zedsmsg = 'Error.'
+     zedlmsg = localrep 'is not a valid OMVS directory. Change to a valid' ,
+              'directory, or create a new directory and try again.'
+     csr = 'LOCALREP'
+     end
+     end
+  if zedsmsg = '' then
+  if length(defruid) = 8 then do
+    CVT      = C2D(Storage(10,4))
+    TVT      = C2D(Storage(D2X(CVT + 156),4))   /* cvt + 9c */
+    TSVTUMXL = C2D(Storage(D2X(tvt  + 6),1))  /* tvt + 6 */
+    if tsvtumxl < 8 then do
+      zedsmsg = 'Error'
+      zedlmsg = defruid 'is 8 characters and this system does not' ,
+        'support 8 character TSO userids at this time.'
+      csr = 'DEFRUID'
+    end
+  end
+*ENDREXX
+ if (&zedsmsg NE &Z)
+    .MSG = ISRZ001
+    .CURSOR = &CSR
+ if (&zedsmsg EQ &Z)
   ver (&zigirep,nb)
   ver (&localrep,nb)
   ver (&pdshlq,nb,dsname)
   ver (&defcpush,nb,list,Y,N)
   ver (&defruid,dsname)
 )end
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

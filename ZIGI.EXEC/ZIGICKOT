@@ -15,6 +15,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            02/23/20 LBD - Make numbers pretty              |
   |            01/24/20 HKB - Really fix it :)                 |
   |            01/23/20 LBD - Fix if user is NOPREFIX          |
   |            01/19/20 LBD - Use ckotqual (required)          |
@@ -69,9 +70,9 @@
   Address TSO
 
   /* -------------------------------------------------------- *
-   | Issue the ls command to get file names and sizes for all |
-   | files in the current directory and sub-directories.      |
-   * -------------------------------------------------------- */
+  | Issue the ls command to get file names and sizes for all |
+  | files in the current directory and sub-directories.      |
+  * -------------------------------------------------------- */
   cmd = 'ls -laRk' ckotdir
   rc = bpxwunix(cmd,,stdout.,stderr.)
 
@@ -118,12 +119,12 @@
     end
   end
 
-/* ------------------------------- *
- | Get the list of Binary Datasets |
- * ------------------------------- */
- Address ISPExec 'vget (gitenv) profile'
- call getenv
- call get_binfiles
+  /* ------------------------------- *
+  | Get the list of Binary Datasets |
+  * ------------------------------- */
+  Address ISPExec 'vget (gitenv) profile'
+  call getenv
+  call get_binfiles
 
   /* ---------------------------------------------------- *
   | Process the results of the ls command to:            |
@@ -198,7 +199,7 @@
     zs3 = 'To:             ' fileg
     bin = is_binfile(sub)
     if bin = 1 then type = 'Binary'
-               else type = 'Text'
+    else type = 'Text'
     zs7 = 'Type            ' type
     call pop_status
     call outtrap 'x.'
@@ -209,12 +210,8 @@
     'alloc ds('fileg') new spa('tracks','tracks') tr dsorg(ps)' ,
       'recfm('recfm') lrecl('lrecl') blksize('blksize')'
     'free ds('fileg')'
-    fileg = translate(fileg,' ','.')
-    m = strreplace(fileg,'.','#')
-    m = strreplace(m,'_','@')
-    m = strreplace(m,'-','$')
-    m = translate(m,'.',' ')
     call outtrap 'x.'
+    m = fileg
     'oget' odir m type
     call outtrap 'off'
   end
@@ -231,17 +228,17 @@
     sub = word(subs,i)
     bin = is_binfile(sub)
     if bin = 1 then type = 'Binary'
-                else type = 'Text'
+    else type = 'Text'
     zs7 = 'Type:                   ' type
     fx = translate(sub,'??????????????????????????', ,
       'abcdefghijklmnopqrstuvwxyz')
     if pos('?',fx) > 0 then iterate
     if pullmems.sub /= null then dir.sub = words(pullmems.sub)
     zs1 = 'Processing subdirectory:' sub
-    zs2 = 'Members:                ' dir.sub
-    zs3 = 'Total bytes (k):        ' size.sub
+    zs2 = 'Members:                ' fix_num(dir.sub)
+    zs3 = 'Total bytes (k):        ' fix_num(size.sub)
     tracks =  (size.sub%50000 + 1) * 2
-    zs4 = 'Tracks allocated:       ' tracks
+    zs4 = 'Tracks allocated:       ' fix_num(tracks)
     call pop_status
     call alloc_copy_pds
     call add_stats
@@ -249,15 +246,27 @@
 
   Exit
 
-/* ----------------------------------------------------------------- *
- | Allocate the PDS and perform the copy using OGET for selective    |
- | copies or OGETX for a full PDS                                    |
- | - if the target PDS exists as a PDS, delete and realloc as a PDSE |
- | - if the target is a PDSE then it will NOT be reallocated         |
- | - The target PDS will be allocated as a PDSE version 2.           |
- | - if maxgen (mgen) is provided then member generations will       |
- |   also be defined at allocation                                   |
- * ----------------------------------------------------------------- */
+  /* ----------------------------------------------------- */
+  /* number format code thanks to Doug Nadel               */
+  /* ----------------------------------------------------- */
+  fix_num: procedure
+  arg bytes
+  str=strip(translate('0,123,456,789,abc,def', ,
+    right(bytes,16,','), ,
+    '0123456789abcdef'),'L',',')
+  bytes = strip(str)
+  return bytes
+
+
+  /* ----------------------------------------------------------------- *
+  | Allocate the PDS and perform the copy using OGET for selective    |
+  | copies or OGETX for a full PDS                                    |
+  | - if the target PDS exists as a PDS, delete and realloc as a PDSE |
+  | - if the target is a PDSE then it will NOT be reallocated         |
+  | - The target PDS will be allocated as a PDSE version 2.           |
+  | - if maxgen (mgen) is provided then member generations will       |
+  |   also be defined at allocation                                   |
+  * ----------------------------------------------------------------- */
 Alloc_Copy_PDS:
   pds = "'"ckothlq"."sub"'"
   odir = "'"ckotdir"/"sub"/"
@@ -288,16 +297,11 @@ Alloc_Copy_PDS:
   | Read directory to get all member file names and then |
   | adjust according and then do individual oget         |
   * ---------------------------------------------------- */
-  if pullmems.sub = null then do
-     call outtrap 'x.'
-     Address TSO 'OGETX' odir pds type 'Quiet'
-     call outtrap 'off'
-     end
-  else do
   target = strip(pds,'B',"'")
   call syscalls 'ON'
   address syscall
   rdir = strip(odir,'B',"'")
+  rdir = strip(rdir,'T','/')
   'readdir' rdir 'mems.'
   address ispexec
   call outtrap 'x.'
@@ -310,12 +314,15 @@ Alloc_Copy_PDS:
     if wordpos(mems.ii,pullmems.sub) = 0 then iterate
     src = rdir'/'mems.ii
     m = mems.ii    /* ignore the translation */
+    bin = is_binfile(sub'/'mems.ii)
+    if bin = 1 then type = 'Binary'
+    else type = 'Text'
     Address TSO
     'OGET' "'"src"'" "'"target"("m")'" type
     Address ISPexec
   end
+  call syscalls 'OFF'
   call outtrap 'off'
-  end
   return
 
 get_dcb:
@@ -406,12 +413,10 @@ get_binfiles:
   cmd = cmd '| cut -d" " -f1'
   x = docmd(cmd)
   if so.0 = 0 then do
-     binfiles.0 = 0
-     return 0
-     end
+    binfiles.0 = 0
+    return 0
+  end
   do b = 1 to so.0
-    if pos('/*',so.b) > 0 then
-       parse value so.b with so.b'/'.
     binfiles.b = so.b
   end
   binfiles.0 = so.0
@@ -419,18 +424,21 @@ get_binfiles:
 
 is_binfile:
   /* ---------------------------------------------------------\
-  | Name:      binfiles                                        |
+  | Name:      is_binfile                                      |
   |                                                            |
-  | Function:  Fills the global binfiles. stem with all        |
-  |            current repo files that are added as binary.    |
+  | Function:  Checks the global binfiles. stem for the        |
+  |            provided dataset or dataset/member              |
   \---------------------------------------------------------- */
-  parse arg file
+  arg file
   res = 0
   if datatype(binfiles.0) /= 'NUM' then return res
   do bi = 1 to binfiles.0
-    if binfiles.bi = file then do
-      return 1
+    if right(binfiles.bi,1) = '*' then do
+      parse value file with test'/'.
+      if left(binfiles.bi,length(binfiles.bi)-2) = test
+      then return 1
     end
+    if binfiles.bi = file then return 1
   end
   return res
 

@@ -8,7 +8,7 @@
 )Body  Expand(\\)
 +Conflict Resolution+-------------#zigtitle   +---------------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
-+
++ \ \%F3  +
 +Merge Conflict Resolution - Fix what's broke and Merge will Retry
 +
 +Options:%S+Edit%E+Edit%B+Browse%V+View
@@ -39,3 +39,7 @@ _z+      $z         $z
      &zsel = &z
  ver (&zsel,list,S,B,E,V)
 )End
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

@@ -8,9 +8,9 @@
 )Body  Expand(\\)
 +Add Datasets+--------------------#zigtitle   +---------------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
-+
-%Fixed Dataset Prefix:             $dsnapfx                               +
-%Ignore 1st n qualifiers in prefix:$z+
++ \ \%F3  +
++Fixed Dataset Prefix:             $dsnapfx                               +
++Ignore 1st n qualifiers in prefix:$z+
 +
 +Command:%Find+
 +Line:%S+Add+%A+Add+%AB+Add binary+%B+Browse
@@ -41,3 +41,7 @@
      &zsel = &z
  ver (&zsel,list,S,B,A,AB)
 )End
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

@@ -1,0 +1,32 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  @ type(output) intens(high) caps(off) just(left )
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+  ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
+)Body Window(39,6)
++
++Enter Selection:_z +
++
++]Select+  (S)+ Display the Commit Info
++]Rollback+(R)+ Rollback
+          +Or%F3+to cancel.
+)Init
+ &zwinttl = 'zigi Rollback Line Options'
+ .zvars = '(zsel)'
+ .cursor = zsel
+ &zsel  = &z
+ &select   = 'Select'
+ &Rollback = 'Rollback'
+)Proc
+ ver (&zsel,list,S,R)
+)PNTS
+  Field(select )   var(zsel) val('S')
+  Field(rollback ) var(zsel) val('R')
+)End
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

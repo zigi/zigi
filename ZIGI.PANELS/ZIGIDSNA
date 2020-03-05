@@ -8,9 +8,9 @@
 )Body  Expand(\\)
 +Add Datasets+--------------------#zigtitle   +---------------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
-+
-%Fixed Dataset Prefix:             @dsnapfx                               +
-%Ignore 1st n qualifiers in prefix:@z+(0 to 8)
++ \ \%F3  +
++Fixed Dataset Prefix:             @dsnapfx                               +
++Ignore 1st n qualifiers in prefix:@z+(0 to 8)
 +
 +Enter a prefix to add datasets under that prefix to the repo via the list
 +below. Optionally change the number of qualifiers to ignore in the prefix
@@ -26,29 +26,48 @@
   .zvars = '(qualignr zsel dsna dastat)'
   .help = zigih210
   &zscr = CSR
+  if (&dsnapfx EQ &Z)
+     .CURSOR = DSNAPFX
+  if (&qualignr EQ &Z)
+     .CURSOR = QUALIGNR
  .CURSOR = ZCMD
-)Reinit
- if (&qualignr EQ &Z)
-    .CURSOR = QUALIGNR
- if (&qualignr NE &Z)
-    .CURSOR = ZCMD
+)ReInit
+ Refresh (qualignr)
 )Proc
- &row = &z
- if (&ZCMD = &Z)
-     if (&ztdsels = 0000)
-        &row = .csrrow
-        if (&row ^= &z)
-            if (&zsel = &z)
-                &zsel = S
-     if (&ztdsels ^= 0000)
-         &row = &z
-     if (&ZSEL ^= &Z)
-       if (&Zsel = '=')
-           &Zsel = &osel
-     &osel = &zsel
- if (&row = 0)
-     &zsel = &z
- ver (&dsnapfx,nb,dsname)
- ver (&qualignr,nb,range,0,8)
- ver (&zsel,list,S,B,A,AB)
+ *REXX(* zedsmsg zedlmsg)
+   zedsmsg = ''
+   tpfx = translate(dsnapfx,' ','.')
+   if qualignr > words(tpfx) then do
+      zedsmsg = 'Error.'
+      zedlmsg = 'Ignore qualifiers may not be larger than the number of' ,
+               'qualifiers in the Dataset Prefix - current value is' ,
+               qualignr 'and may not be greater than' words(tpfx)
+      end
+ *ENDREXX
+ if (&zedsmsg NE &Z)
+    .msg = isrz001
+    .cursor = qualignr
+ if (&zedsmsg EQ &Z)
+    &row = &z
+    if (&ZCMD = &Z)
+        if (&ztdsels = 0000)
+           &row = .csrrow
+           if (&row ^= &z)
+               if (&zsel = &z)
+                   &zsel = S
+        if (&ztdsels ^= 0000)
+            &row = &z
+        if (&ZSEL ^= &Z)
+          if (&Zsel = '=')
+              &Zsel = &osel
+        &osel = &zsel
+    if (&row = 0)
+        &zsel = &z
+    ver (&dsnapfx,nb,dsname)
+    ver (&qualignr,nb,range,0,8)
+    ver (&zsel,list,S,B,A,AB)
 )End
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

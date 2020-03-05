@@ -1,0 +1,35 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                               %STASH+and%STASHL+
++
++On the Stash List display the%Clear+command will remove%all+stashes.
++
+%Shash Pop+will restore the saved stash and remove it from the stash stack.
++
++Pop may%ONLY+be used on a clean git workspace. That means that when you do
++a Status that the report should be clean. If there are any datasets/files
++that are listed then the following commands will clean up your workspace:
++
++Use the command%STASHL+to list all active stashes with the following options:
++
++  1. Add all untracked datasets/files (command ADDALL)
++  2. Commit the added changes (command Commit)
++or
++  1. Do a new Stash
++Then retry Pop.
++
+         +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+)PROC
+ &zcont = zigih2f0
+)END
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

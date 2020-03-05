@@ -19,10 +19,10 @@
 +If there is a issue or ticket number it is suggested that it be included in
 +the title (e.g. Ticket: title text).
 +
-+Blank lines are indicated by a period (.) in column 1.
++Cancel the%Commit+process by entering%F3+with an empty Commit Title.
 +
-+Optionally, after the commit, a%git push+can be automatically initiated by
-+entering a%Y+in the Push after field.
++
++         "Make it work, make it right, make it fast."   Kent Beck
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
@@ -30,7 +30,11 @@
  vget (ztut)
 )PROC
  if (&ztut = 200)
-     &zcont = zigih240
+     &zcont = zigih231
  if (&ztut = 300)
-     &zcont = zigih250
+     &zcont = zigih231
 )END
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */
