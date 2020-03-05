@@ -27,6 +27,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            03/05/20 HBK - Fixed another qualignr 'bug'     |
+  |                         - More deletes at remove repo      |
   |            03/04/20 LBD - Jump to Add Dataset after Create |
   |            03/03/20 LBD - Several updates                  |
   |            02/28/20 LBD - Added Convert Repo capability    |
@@ -810,8 +812,17 @@
         if drc = 0 & delcf = 'Y' then do
           if delcg = 'Y' then do
             'tbdelete zigirepo'
-            zerrsm = 'Deleted.'
-            delcg = 'The local repository has been deleted from zigi.'
+            cmd = 'cd 'localrep'/'zigirep' && rm -rf'
+            cmd = cmd' .git .gitattributes .zigi'
+            x = bpxwunix(cmd,,so.,se.)
+            if x = 0 then do
+              zerrsm = 'Deleted.'
+              delcg = 'Repo removed from zigi, .git files deleted.'
+            end
+            else do
+              zerrsm = 'Partially Deleted.'
+              delcg = 'Repo removed from zigi, .git files not deleted.'
+            end
           end
           if delzd = 'Y' then do
             delzd = 'The z/OS datasets have been deleted.'
