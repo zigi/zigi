@@ -1,0 +1,20 @@
+)Attr
+ $ type(output) caps(off)
+ _ type(input)  caps(off) hilite(uscore) intens(low)
+)Body Window(47,7)
++Confirm you really want to create a new branch
++from the selected Tag level?
++
+%New Branch Name:_newbr                      +
++The new branch will be at the Tag level.
++
+      %ENTER+to continue, or%F3+to cancel
+)Init
+ &zwinttl = 'zigi Tag Recovery Prompt'
+)Proc
+ ver (&newbr,nb)
+)end
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

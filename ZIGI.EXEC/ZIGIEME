@@ -75,7 +75,7 @@
   | Don't Save routine |
   * ------------------ */
   dontsave:
-  msg = 'End Cancelled as git merge conflict records found.'
+  msg = 'End Canceled  as git merge conflict records found.'
   'line_before 1 = msgline (msg)'
   msg = 'Resolve ALL conflicts and Remove ALL merge conflict records'
   'line_before 1 = msgline (msg)'

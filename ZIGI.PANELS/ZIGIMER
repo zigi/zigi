@@ -9,9 +9,9 @@
 )Body  Expand(\\)
 +Git Merge Processing+------------#zigtitle   +---------------------------------
 %Command ===>_zcmd   \ \  %Scroll ===>_zscr+
-%
-%Current Repository : $zigirep
-%Current HLQ        : $pdshlq
++ \ \%F3  +
++Current Repository : $zigirep
++Current HLQ        : $pdshlq
 %
 +Type%M+to merge that branch into[branch
 +Press%F3+to exit
@@ -29,3 +29,7 @@
 )Proc
  ver (&zsel,list,M)
 )End
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

@@ -5,12 +5,19 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
+ | TYPE(AB)           /* Action bar                */
+ < TYPE(ABSL) GE(ON)  /* Action bar separator line */
+)ABC DESC(Help)
+ PDC DESC('Help')  ACTION RUN(TUTOR) PARM('zigihhst')
+ PDC DESC('About') ACTION RUN(Tutor) Parm('zigihabt')
+)ABCINIT
+  .ZVARS = HELPX
 )Body  Expand(\\)
++| Help +
+<-----------\-\--------------------------------+
 +-\-\#zigtitle   +-\-\
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
-+
-+Selections:%S+View historical source%C+View Commit Info%R+Recover source
-+
++ \ \%F3  +
 +Dataset/File:@delement
 +
 +Sel Date/Time of Commit               Author
@@ -39,3 +46,7 @@ _z+ $z                                $z
      &zsel = &z
  ver (&zsel,list,R,S,C,/)
 )End
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

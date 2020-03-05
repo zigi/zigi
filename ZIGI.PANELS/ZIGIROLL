@@ -8,7 +8,7 @@
 )Body  Expand(\\)
 +Repository Rollback+----\-\------#zigtitle   +------\-\------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zscr+
-+
++ \ \%F3  +
 +Commits to Review:_z   +(1 to 9999)
 +
 +Commands%Only+limit table%Refresh+table
@@ -43,3 +43,7 @@ _z+ $z                   $z
  ver (&crcnt,nb,range,1,9999)
  ver (&zsel,list,S,R)
 )End
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */
