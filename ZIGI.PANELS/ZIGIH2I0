@@ -13,12 +13,12 @@
 +
 +Commands:%Only+to filter the table and%Replace+to rebuild the table.
 +
-+Row options:   %S+to display the full tag information
-+               %C+to create a new branch based on the tag level
++Row options:   %S+View the full tag information
++               %C+Create a new branch based on the tag level
++               %X+Extract just the delta elements from the select tag level
++                  to a new HLQ and directory
 %
 +The create option will prompt for a new branch name before proceeding.
-+
-%
 +
 +
            "Nothing worth having comes easy." - Theodore Roosevelt
