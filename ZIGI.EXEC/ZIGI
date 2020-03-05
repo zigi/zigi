@@ -940,24 +940,25 @@ Work_With_Repo:
   do forever
     parse value '' with zsel row
     if zcmd /= 'ADDDSN' then do
-    if ztdsels > 1
-    then 'TBdispl' rtbl
-    else do
-      zigpass = 'PASSTHRU'
+      parse value '' with zsel zcmd row zcmd
+      if ztdsels > 1
+      then 'TBdispl' rtbl
+      else do
+        zigpass = 'PASSTHRU'
+        'vput (zigpass) shared'
+        'tbtop' rtbl
+        'tbskip' rtbl 'Number('rtop')'
+        'TBdispl' rtbl 'Panel(zigirepo)'
+        rtop = ztdtop
+      end
+      trc = rc
+      zigpass = null
       'vput (zigpass) shared'
-      'tbtop' rtbl
-      'tbskip' rtbl 'Number('rtop')'
-      'TBdispl' rtbl 'Panel(zigirepo)'
-      rtop = ztdtop
-    end
-    trc = rc
-    zigpass = null
-    'vput (zigpass) shared'
-    if trc > 4 then do
-      'tbend' rtbl
-      rtbl_open = 0
-      return
-    end
+      if trc > 4 then do
+        'tbend' rtbl
+        rtbl_open = 0
+        return
+      end
     end
     drop so. se.
     zcmd = translate(zcmd)
@@ -2581,7 +2582,7 @@ Get_TagList:
       cdatetim = yy mm dd time
       zd = dd mm yy
       sortdate = date('b',zd,'n')
-      sorttime = left(time,2)''substr(time,3,2)
+      sorttime = left(time,2)''substr(time,4,2)
     end
     ctag = translate(ctag,' ','/')
     ctag = word(ctag,3)
@@ -2600,7 +2601,7 @@ Do_TAGLIST:
   call get_TAGLIST
   ztdsels = 0
   ztdtop = 1
-  'tbsort' zcrtbl 'fields(sortdate,n,d,sorttime,c,d)'
+  'tbsort' zcrtbl 'fields(sortdate,n,d,sorttime,n,d)'
   'tbtop' zcrtbl
   do forever
     zsel = null
@@ -2678,11 +2679,20 @@ Do_TAGLIST:
           else ohit = 1
         end
       end
+      when zsel = 'X' then do
+        tags = ctag
+        do forever
+          'tbskip' zcrtbl 'number(-1)'
+          if rc > 0 then leave
+          tags = ctag tags
+        end
+        call do_tag_extract
+      end
       when zsel = 'S' then do
         cmd = 'cd' localrep'/'zigirep
         cmd = cmd '&& git show' ctag
         x = docmd(cmd)
-        call view_std 'B'
+        call view_std 'X' 'V'
       end
       when zsel = 'C' then do
         zcmd  = null
@@ -3724,7 +3734,7 @@ Work_with_repo_file:
       end
 
       if zsel /= null then
-        if zsel = 'E' then zsel = 'S'
+      if zsel = 'E' then zsel = 'S'
       Select
         when zsel = 'B' then do
           /* -------------------------------- *
@@ -6596,3 +6606,140 @@ Convert_Repo:
   qualignr = words(translate(pdshlq,' ','.'))
   call Replace localrep zigirep pdshlq qualignr
   return
+
+Do_Tag_Extract:
+  do forever
+    'Addpop row(3) column(4)'
+    'Display Panel(zigitagx)'
+    drc = rc
+    'Rempop'
+    if drc > 0 then do
+      zerrsm = 'Canceled.'
+      zerrlm = 'Extract canceled.'
+      'setmsg msg(isrz003)'
+      return
+    end
+    if tagxpath /= '?'
+    then if tagxpath /= null
+    then leave
+    if tagxpath = '?' then tagxpath = zigiosel()
+  end
+  zs1 = 'Preparing the extract. This could take a minute'
+  zs2 = '(or two) so please be patient.'
+  call do_popup
+  cmd = 'cd' localrep'/'zigirep
+  cmd = cmd "&& git show" tags "| grep '+++'"
+  x = docmd(cmd)
+  if x > 0 then do
+     zerrsm = 'Canceled.'
+     zerrlm = 'There is nothing to extract from the selected tags.'
+     'setmsg msg(isrz003)'
+     return
+     end
+  parse value '' with files members. omvsfiles
+  do ti = 1 to so.0
+    if left(so.ti,3) /= '+++' then iterate
+    parse value so.ti with . '/'fileo
+    if left(fileo,5) = '.zigi' then iterate
+    member = null
+    if pos('/',fileo) > 0 then parse value fileo with file'/'member
+    else file = fileo
+    okng = dsnvalid(file)
+    if okng = 'OK' then do
+      if wordpos(file,files) = 0 then files = files file
+      if member /= null then members.file = members.file member
+    end
+    else omvsfiles = omvsfiles fileo
+  end
+
+  /* ------------------------------ *
+  | Make the target OMVS Directory |
+  * ------------------------------ */
+  if words(omvsfiles) > 0 then do
+    cmd = 'mkdir' '"'tagxpath'"'
+    x = bpxwunix(cmd,,so.,se.)
+    if so.0 + se.0 > 0 then call view_std 'B'
+  end
+
+  /* -------------------------------------------------- *
+  | Copy the OMVS filesystem OMVS files from the       |
+  | current repository to the new extract directory.   |
+  |                                                    |
+  | None of the z/OS OMVS elements will be copied.     |
+  * -------------------------------------------------- */
+  if words(omvsfiles) > 0 then do i = 1 to words(omvsfiles)
+    file = word(omvsfiles,i)
+    if pos('/',file) > 0 then do
+      parse value file with sdir'/'file
+      cmd = 'cd' tagxpath '&& mkdir' sdir
+      cmd = cmd '&& cd' localrep'/'zigirep'/'sdir
+      cmd = cmd '&& cp' file '"'tagxpath''sdir'"'
+      x = bpxwunix(cmd,,so.,se.)
+      if so.0 + se.0 > 0 then call view_std 'B'
+    end
+    else do
+      cmd = 'cd' localrep'/'zigirep
+      cmd = cmd '&& cp -r' file '"'tagxpath'"'
+      x = bpxwunix(cmd,,so.,se.)
+      if so.0 + se.0 > 0 then call view_std 'B'
+    end
+  end
+
+  extdd = 'XD'random(99999)
+  do i = 1 to words(files)
+    f = word(files,i)
+    oldfile = "'"fix_dsn(f)"'"
+    newfile = "'"tagxhlq'.'f"'"
+    x = listdsi(oldfile)
+    Address TSO
+    "alloc f("extdd") new ds("newfile") like("oldfile")" ,
+      'dsorg('sysdsorg')'
+    'free  f('extdd')'
+    if sysdsorg = 'PS' then  do
+      'smcopy fds('oldfile') tds('newfile') notrans'
+    end
+    Address ISPExec
+    if words(members.f) > 0 then do
+      /* copy PDS and PDS members */
+      "lminit dataid(indd1) dataset("oldfile")"
+      "lminit dataid(outdd1) dataset("newfile")"
+      do im = 1 to words(members.f)
+        m = word(members.f,im)
+        "lmcopy fromid("indd1") todataid("outdd1") frommem("m") replace"
+      end
+      "lmfree dataid("indd1")"
+      "lmfree dataid("outdd1")"
+    end
+  end
+
+  if words(files) > 0 then do
+    Address ISPExec
+    "LMDINIT LISTID(LISTID) LEVEL("tagxhlq")"
+    "LMDDISP LISTID("ListId") Confirm(Yes)",
+      "View(Volume)"
+    "LMDFREE LISTID("ListId")"
+  end
+
+  if words(omvsfiles) > 0 then do
+    'Select Pgm(isrdslst) Parm(UDL' tagxpath ') SUSPEND'
+  end
+
+  return
+
+Fix_DSN: Procedure expose qualignr pdshlq null
+  arg dsn
+  if qualignr = 0 then do
+    if pdshlq /= null & qualignr > 0 then
+    fulldsn = pdshlq"."dsn
+    else
+    fulldsn = dsn
+  end
+  else do
+    fulldsn = translate(pdshlq,' ','.')
+    if qualignr > 0 then
+    fulldsn = subword(fulldsn,1,qualignr)
+    fulldsn = translate(fulldsn,'.',' ')
+    fulldsn = fulldsn'.'dsn
+  end
+  dsn = strip(fulldsn,'B',"'")
+  return dsn
