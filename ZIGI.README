@@ -15,12 +15,14 @@ To get started with this package:
 1b. Go to this url to get a simplified installer for Git and the
     pre-requisite tools:
     https://gist.github.com/wizardofzos/897b243d4cbe9fbc471ec1396fbbe174
+1c. Now install Git using the installer
 2. Make sure Git-related setups (PATH/LIB etc.) is set via
    /etc/profile
-3. From OMVS-shell invoke: git clone git@github.com/wizardofzos/zigi.git
-4. cd zigi
-5. ./install.sh (su and MVS HLQ access might be required)
-6. ISPF,3.4. Go to ZIGI.EXEC and exec ZIGI
+3. Create an account at github.com and add your SSH public key to it.
+4. From OMVS-shell invoke: git clone git@github.com/wizardofzos/zigi.git
+5. cd zigi
+6. ./install.sh (su and MVS HLQ access might be required)
+7. ISPF,3.4. Go to ZIGI.EXEC and exec ZIGI
 
 More information in the wiki: https://github.com/wizardofzos/zigi/wiki
 
@@ -35,5 +37,5 @@ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 details.
 
-You should have received a copy of the GNU General Public License along with
-zIGI. See ZIGI.GPLLIC, if not, see https://www.gnu.org/licenses/.
+You should have received a copy of the GNU General Public License along
+with zIGI. See ZIGI.GPLLIC, if not, see https://www.gnu.org/licenses/.

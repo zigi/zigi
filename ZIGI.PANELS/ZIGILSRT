@@ -5,7 +5,7 @@
 +
 +Enter the field to sort:$z+  1 - Member+2 - Status+3 - Size+
 +                             4 - Date+  5 - Time+  6 - Userid+
-+Enter the sort order:$z+  A+(ascending) D+(descending)
++Enter the sort order:   $z+  A+(ascending) D+(descending)
 +
 )Init
  .zvars = '(sfx sc)'
@@ -26,3 +26,7 @@
  if (&sfx EQ 6)
      &sf = 'USERID'
 )end
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

@@ -14,7 +14,7 @@
 +number of commits to review can be changed on the prompting panel.
 +
 +Commands%Only+will limit the table to the specified string in the title.
-         %Refresh+will return the table to all entries.
+         %Replace+will return the table to all entries.
 
 +Each commit is available to be%S+selected which will browse the commit
 +to allow the user to fully understand what the commit consisted of.
@@ -30,3 +30,7 @@
 )PROC
  &zcont = zigih2e0
 )END
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

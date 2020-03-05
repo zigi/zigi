@@ -15,27 +15,34 @@
 +
 +Partitioned Dataset (PDSE) Defaults:
 +
-+  Member Generations :@z  +(0 to 999)  System Limit:{sl
++  Member Generations :_z  +(0 to 999)  System Limit:{sl
++
++Panel Point-and-Shoot Command and Row Defaults:
++
++  Display Options popup or Select:_z+(P or S)
 +
 %Notes:+   The user.name and user.email are used to set username and
-+          email to your commits. The username does not need to be
-+          the same as your z/OS username.
++          email to your commits.
 +
 +See : https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup
-+
-+
-+
 +
 +Press%Enter+to save, or%F3+to cancel.
 )Init
  if (&mgen = &Z)
      &mgen = 0
- .zvars = '(mgen)'
+ .zvars = '(mgen pnsdef)'
  &setcont = 'Y'
+ if (&pnsdef EQ &Z)
+     &pnsdef = 'S'
  .help = zigih140
 )Proc
   ver (&zigiuid,nb)
   ver (&zigimail,nb)
   ver (&mgen,nb,range,0,&sl)
   &setcont = &Z
+  ver (&pnsdef,nb,list,P,S)
 )end
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

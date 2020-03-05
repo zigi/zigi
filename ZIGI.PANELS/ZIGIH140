@@ -17,12 +17,12 @@
 +Also required is the number of generations to be enabled for the Partitioned
 +Datasets. Anything from 0 to the system limit (default=0).
 +
-+
++The Point-and-Shoot defaults control what happens if a double-click or Enter
++occurs outside the table or on a table row.%P+will display the Options popup
++if outside the table or the Row Options popup if within the table.%S+will
++do nothing if outside the table or default to select if within the table.
 +
              +"A good beginning makes a good end" - Louis L'Amour
-+
-+
-+
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
@@ -30,3 +30,7 @@
 )PROC
  &ZCONT = ZIGIH141
 )END
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

@@ -497,8 +497,8 @@ docmd:
   $ type(output) intens(low )
 )Body Expand(\\) width(&zscreenw)
 +\-\%git manpages+\-\
-%Command ===>_zcmd                  \ \                        %Scroll ===>_scrl
-+
+%Command ===>_zcmd                  \ \                       %Scroll ===>_scrl+
++ \ \ %F3  +
 +Commands:%Find+string%Only+string%Refresh+
 +Line:%S+select to view
 +

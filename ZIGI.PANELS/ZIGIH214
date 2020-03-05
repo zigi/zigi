@@ -4,30 +4,34 @@
   [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
 )Body Expand(\\)
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
-%Selection ===>_ZCMD        \ \ %Scroll ===>_zcsr
+%Selection ===>_ZCMD
 +
-                                 %Add+
+                                %AddDsn+
 +
-+Sample zigi managed Git directory:
++Adding a OMVS file or directory requires the following considerations:
 +
-% .git
-+ --- Git generated files and directories
-% .gitattributes+        (a zigi generated file for Git)
-% .zigi+                 (a directory for key zigi files)
-+ ---%dsn+               (a zigi required file)
-+%Documentation+         (a directory)
-+ ---%Users Guide.html+  (a file)
-+%APP.C+                 (a directory as this is a z/OS PDS)
-+ ---%KEYAPP+            (a PDS member)
-+%README.ZOS+            (a sequential dataset)
++ %1.+The OMVS file or directory must be copied into the zigi managed +
++     repository directory.
++ %2.+File names that are UPPER CASE in the repository root will be considered
++     z/OS datasets and will be copied to z/OS upon a Replace or Clone.
+  %3.+If the files are not to be copied to z/OS the file, or directory,
++     names must be mixed or lower case.
+  %4.+After the copy, use zigi to add the now un-tracked file, or directory,
++     to Git management.
 +
 +
-+        "Today is the only day. Yesterday is gone." -- John Wooden
+          +  "It's the little details that are vital.
+          +   Little things make big things happen."  -- John Wooden
++
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
  &zscr = CSR
 )PROC
- &zcont = zigih220
+ &zcont = zigih215
 )END
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

@@ -1,0 +1,33 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+  @ type(output) intens(high) caps(off) just(left )
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+  ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
+)Body Window(64,15)
++This will start a new 'zigiflow'.
++Two branches will be created :%zigiflow-<flowname>+and
+%<flowname>+.
++
++You can create new flows at any time, just remember they
++will all be based off of the 'master'-branch.
++
++Once you're ready, end the flow and all commits from work
++will be squashed into the feature-branch.
++
++
++Flowname: _flowname                           + (no spaces)
++          (the flowname is used as branch name)
++
+              +Or%F3+to cancel.
+)Init
+ &zwinttl = 'zigi Starting new flow on repository'
+)Proc
+ ver (&flowname,NB)
+)End
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */
