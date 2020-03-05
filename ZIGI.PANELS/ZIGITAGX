@@ -1,0 +1,70 @@
+)Attr
+ @ type(input ) hilite(uscore) caps(off) intens(low)
+ _ type(input ) hilite(uscore) caps(on) intens(low )
+ $ type(output) hilite(uscore) caps(off)
+ { type(output) intens(low)
+ # type(output) hilite(reverse) color(turq) caps(off)
+)Body Window(55,8)
++
++Enter%New HLQ+for the Tag Extract:
+_tagxhlq                         +(no quotes allowed)
++
++Enter%New Path+for OMVS Files: (? to be prompted)
+@tagxpath                                             +
+
+      +Press%Enter+to proceed, or%F3+to cancel.
+)Init
+ &zwinttl = 'Tag Extract Prompt'
+ .help = zigihxxx
+)Proc
+ &zerrhm   = 'zigihxxx'
+ &zerralrm = 'NO'
+ &zerrtp   = 'Notify'
+ &zerrsm = &z
+ &resp = .resp
+ &cloc = tagxhlq
+*REXX(* zerrsm zerrlm cloc resp)
+  /* check for END or CANCEl */
+  if wordpos(resp,'END CANCEL') > 0 then exit
+  parse value '' with zerrsm zerrlm null
+
+  /* Validate that the provided hlq does NOT exist */
+  if zerrsm = null then do
+  if left(tagxhlq,1) = "'"
+     then tagxhlq = strip(tagxhlq,'B',"'")
+  call outtrap 'x.'
+  Address tso "listc level('"tagxhlq"')"
+  call outtrap 'off'
+  if pos('NOT FOUND',x.1) = 0 then do
+    zerrsm = 'Error.'
+    zerrlm = 'The HLQ' tagxhlq 'currently exists which is not' ,
+      'allowed. Select a new HLQ and try again.'
+    cloc = 'tagxhlq'
+  end
+  end
+  /* Validate that the provided tagxpath does NOT exist */
+  if zerrsm = null then do
+    if tagxpath /= null then do
+      if right(tagxpath,1) /= '/'
+         then tagxpath = tagxpath'/'
+      address syscall readdir tagxpath d.
+      if d.0 > 0 then do
+        zerrsm = 'Error.'
+        zerrlm = 'The path' tagxpath 'currently exists which is not' ,
+          'allowed. Enter a new path and try again.'
+        cloc = 'tagxpath'
+      end
+    end
+  end
+  if tagxpath = '?/' then tagxpath = '?'
+*ENDREXX
+ ver (&tagxhlq,nb,dsname)
+ ver (&tagxpath,nb)
+ .cursor = &cloc
+ if (&zerrsm NE &Z)
+    .msg = isrz003
+)end
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

@@ -6,25 +6,27 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(34,6)
-+
+)Body Window(40,6)
 +Enter Selection:_z+
 +
-+]Select+(S)+ Display the Tag Info
-+]Create+(C)+ Create a new Branch
-        +Or%F3+to cancel.
++]Select+ (S)+ Display the Tag Info
++]Create+ (C)+ Create a new Branch
++]eXtract+(X)+ Extract updates for Patch
+          +Or%F3+to cancel.
 )Init
  &zwinttl = 'zigi TagList Line Options'
  .zvars = '(zsel)'
  .cursor = zsel
  &zsel  = &z
+ &extract = 'eXtract'
  &select  = 'Select'
  &create  = 'Create'
 )Proc
  ver (&zsel,list,S,C)
 )PNTS
-  Field(select )  var(zsel) val('S')
+  Field(select ) var(zsel) val('S')
   Field(create ) var(zsel) val('C')
+  Field(extract) var(zsel) val('X')
 )End
 /* -------------------------------------------------------- */
 /* zigi - the z/OS ISPF Git Interface                       */
