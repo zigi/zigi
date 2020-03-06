@@ -829,15 +829,7 @@
             address syscall 'readdir' localrep'/'zigirep d.
             do id = 1 to d.0
               if left(d.id,1) = '.' then iterate
-              if qualignr = 0
-              then delhlq = pdshlq
-              else do
-                delhlq = translate(pdshlq,' ','.')
-                if qualignr /= '*' then
-                delhlq = subword(delhlq,1,qualignr)
-                delhlq = translate(delhlq,'.',' ')
-              end
-              deldsn = "'"delhlq"."word(d.id,1)"'"
+              deldsn = Add_DSN_HLQ(word(d.id,1))
               if dsnvalid(deldsn) = 'NO' then iterate
               call outtrap 'x.'
               address tso 'delete' deldsn
@@ -1796,14 +1788,8 @@ Work_With_Repo:
             then cmd = cmd '&& git mv' '"'fulldsns'" "'newdsns'"'
             else do
               x = listdsi(newdsn)
-              oldfile = translate(strip(fulldsn,'B',"'"),' ','.')
-              if qualignr > 0 then
-              oldfile = subword(oldfile,qualignr+1)
-              oldfile = translate(oldfile,'.',' ')
-              newfile = translate(strip(newdsn,'B',"'"),' ','.')
-              if qualignr > 0 then
-              newfile = subword(newfile,qualignr+1)
-              newfile = translate(newfile,'.',' ')
+              oldfile = remove_dsn_hlq(fulldsn)
+              newfile = remove_dsn_hlq(newdsn)
               oldfiles = usssafe(oldfile)
               newfiles = usssafe(newfile)
               cmd = cmd '&& git mv' oldfiles newfiles
@@ -1811,12 +1797,13 @@ Work_With_Repo:
             x = docmd(cmd)
             if sysdsorg = 'PO' then do
               /* still weird with rename of statsfile? */
-              x = zigistat(newdsn localrep'/'zigirep'/.zigi/'newfiles'S')
+              x = zigistat(newdsn localrep'/'zigirep'/.zigi/'newfiles 'S')
               cmd = 'cd' localrep'/'zigirep
               cmd = cmd '&& git add .zigi/'newfiles
               cmd = cmd '&& git rm -f .zigi/'oldfiles
               x = docmd(cmd)
             end
+            if x > 0 then
             call view_std 'B'
             'tbdelete' rtbl
             fulldsn = newdsn
@@ -2225,10 +2212,7 @@ git_add:
     x = listdsi(fulldsn)
     if x = 0 then do
       if sysdsorg /= 'PS' then do
-        statfile = translate(strip(fulldsn,'B',"'"),' ','.')
-        if qualignr > 0 then
-        statfile = subword(statfile,qualignr+1)
-        statfile = translate(statfile,'.',' ')
+        statfile = remove_dsn_hlq(fulldsn)
         cmd = 'cd' localrep'/'zigirep'/.zigi/'
         stats = usssafe(statfile)
         x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'stats 'S')
@@ -2345,17 +2329,17 @@ Stash_IT:
     if pos('/',newname) = 0 then do
       call outtrap 'x.'
       address tso ,
-        'rename' fixup_dsn(oldname) fixup_dsn(newname)
+        'rename' Add_DSN_HLQ(oldname) Add_DSN_HLQ(newname)
       call outtrap 'off'
     end
     else do
       parse value newname with d'/'m
-      newname = fixup_dsn(d'('m')')
+      newname = Add_DSN_HLQ(d'('m')')
       parse value oldname with d'/'m
-      oldname = fixup_dsn(d'('m')')
+      oldname = Add_DSN_HLQ(d'('m')')
       call outtrap 'x.'
       address tso ,
-        'rename' fixup_dsn(oldname) fixup_dsn(newname)
+        'rename' Add_DSN_HLQ(oldname) Add_DSN_HLQ(newname)
       call outtrap 'off'
     end
   end
@@ -2364,7 +2348,12 @@ Stash_IT:
   'setmsg msg(isrz003)'
   return
 
-Fixup_dsn: Procedure expose qualignr pdshlq
+  /* ---------------------------------------------------------- *
+  | Add_DSN_HLQ take the input dataset name, the active pdshlq |
+  | and qualignr. Then returns the fully qualified, in quotes, |
+  | dataset name.                                              |
+  * ---------------------------------------------------------- */
+Add_DSN_HLQ: Procedure expose qualignr pdshlq
   arg dsn
   if qualignr = 0
   then hlq = pdshlq
@@ -2375,6 +2364,14 @@ Fixup_dsn: Procedure expose qualignr pdshlq
     hlq = translate(hlq,'.',' ')
   end
   dsn = "'"hlq"."dsn"'"
+  return dsn
+
+Remove_DSN_HLQ: Procedure expose qualignr pdshlq
+  arg dsn
+  dsn = translate(strip(dsn,'B',"'"),' ','.')
+  if qualignr > 0 then
+  dsn = subword(dsn,qualignr+1)
+  dsn = translate(dsn,'.',' ')
   return dsn
 
   /* ------------------------------------------------ *
@@ -4564,7 +4561,7 @@ Merge_it:
             cmd = 'cd' mrgdir '&& git commit -m "Resolve merge conflicts"'
             x = docmd(cmd)
             if x > 0 then
-               call view_std 'B'
+            call view_std 'B'
             call Replace localrep zigirep pdshlq qualignr
             call update_repo_metadata
           end
@@ -5085,19 +5082,7 @@ update_repo_metadata:
         so.1 = null
         x = bpxwunix(cmd,,so.,se.)
         y = debug('   done')
-        if qualignr = 0 then do
-          if pdshlq /= null & qualignr > 0 then
-          fulldsn = "'"pdshlq"."root.i"'"
-          else
-          fulldsn = "'"root.i"'"
-        end
-        else do
-          fulldsn = translate(pdshlq,' ','.')
-          if qualignr > 0 then
-          fulldsn = subword(fulldsn,1,qualignr)
-          fulldsn = translate(fulldsn,'.',' ')
-          fulldsn = "'"fulldsn'.'root.i"'"
-        end
+        fulldsn = add_dsn_hlq(root.i)
         edsn = strip(fulldsn,'B',"'")
         if so.1 = "DIR" & x = 0 then do
           x = debug('its a dir...lmmstat all the things' edsn)
@@ -5217,19 +5202,7 @@ update_repo_metadata:
           'tbmod zigirepo order'
           qualignr = 0
         end
-        if qualignr = 0 then do
-          if pdshlq /= null & qualignr > 0 then
-          fulldsn = "'"pdshlq"."dsn"'"
-          else
-          fulldsn = "'"dsn"'"
-        end
-        else do
-          fulldsn = translate(pdshlq,' ','.')
-          if qualignr > 0 then
-          fulldsn = subword(fulldsn,1,qualignr)
-          fulldsn = translate(fulldsn,'.',' ')
-          fulldsn = "'"fulldsn'.'dsn"'"
-        end
+        fulldsn = add_dsn_hlq(dsn)
         if nonzigi = 0 then do
           call outtrap 'x.'
           if sysdsn(fulldsn) /= ok then dsnstat = 'Missing z/OS Dataset'
@@ -5572,13 +5545,7 @@ Do_Add_Copy:
   if pos('(',dsna) > 0 then
   parse value dsna with dsna'('ac_mem')'
   what = dsna
-  if qualignr > 0
-  then do
-    dsnb = translate(dsna,' ','.')
-    dsnb = subword(dsnb,qualignr+1)
-    dsnb = translate(dsnb,'.',' ')
-  end
-  else dsnb = dsna
+  dsnb = remove_dsn_hlq(dsna)
   if ac_mem /= null then dsnb = dsnb'/'ac_mem
   zs1 = 'Copying' copy_dsna
   zs2 = 'to' dsnb 'in OMVS'
@@ -6633,11 +6600,11 @@ Do_Tag_Extract:
   cmd = cmd "&& git show" tags "| grep '+++'"
   x = docmd(cmd)
   if x > 0 then do
-     zerrsm = 'Canceled.'
-     zerrlm = 'There is nothing to extract from the selected tags.'
-     'setmsg msg(isrz003)'
-     return
-     end
+    zerrsm = 'Canceled.'
+    zerrlm = 'There is nothing to extract from the selected tags.'
+    'setmsg msg(isrz003)'
+    return
+  end
   parse value '' with files members. omvsfiles
   do ti = 1 to so.0
     if left(so.ti,3) /= '+++' then iterate
@@ -6690,8 +6657,8 @@ Do_Tag_Extract:
   extdd = 'XD'random(99999)
   do i = 1 to words(files)
     f = word(files,i)
-    oldfile = "'"fix_dsn(f)"'"
-    newfile = "'"tagxhlq'.'f"'"
+    oldfile = Add_DSN_HLQ(f)
+    newfile = tagxhlq'.'f
     x = listdsi(oldfile)
     Address TSO
     "alloc f("extdd") new ds("newfile") like("oldfile")" ,
@@ -6714,6 +6681,9 @@ Do_Tag_Extract:
     end
   end
 
+  /* ----------------------------------------- *
+  | DSList the z/OS datasets based on the hlq |
+  * ----------------------------------------- */
   if words(files) > 0 then do
     Address ISPExec
     "LMDINIT LISTID(LISTID) LEVEL("tagxhlq")"
@@ -6722,26 +6692,11 @@ Do_Tag_Extract:
     "LMDFREE LISTID("ListId")"
   end
 
+  /* ------------------------------------------- *
+  | UDList the OMVS directory based on the path |
+  * ------------------------------------------- */
   if words(omvsfiles) > 0 then do
     'Select Pgm(isrdslst) Parm(UDL' tagxpath ') SUSPEND'
   end
 
   return
-
-Fix_DSN: Procedure expose qualignr pdshlq null
-  arg dsn
-  if qualignr = 0 then do
-    if pdshlq /= null & qualignr > 0 then
-    fulldsn = pdshlq"."dsn
-    else
-    fulldsn = dsn
-  end
-  else do
-    fulldsn = translate(pdshlq,' ','.')
-    if qualignr > 0 then
-    fulldsn = subword(fulldsn,1,qualignr)
-    fulldsn = translate(fulldsn,'.',' ')
-    fulldsn = fulldsn'.'dsn
-  end
-  dsn = strip(fulldsn,'B',"'")
-  return dsn
