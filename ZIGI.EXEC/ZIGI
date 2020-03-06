@@ -4475,6 +4475,7 @@ Merge_it:
           ztdtop = 1
           zsel = null
           file_changed = 0
+          drop so. se.
           'tbtop' zmergtbl
           'tbsort' zmergtbl 'fields(mdsn,c,a)'
           do forever
@@ -4518,7 +4519,7 @@ Merge_it:
                   md = usssafe(mrgdir)
                   mdsns = usssafe(mdsn)
                   cmd = 'cd' md '&& cp' mdsns mrgfile
-                  x = bpxwunix(cmd,,so.,se.)
+                  x = bpxwunix(cmd)
                   parm = 'M'
                   'vput (mrgdir mdsn mrgfile) shared'
                   'Edit file(mrgfile) macro(zigimrgm) parm(parm)'
@@ -4537,7 +4538,7 @@ Merge_it:
                 end
                 'tbmod' zmergtbl
                 cmd = 'rm' mrgfile
-                x = bpxwunix(cmd,,so.,se.)
+                x = bpxwunix(cmd)
               end
               When zsel = 'V' then do
                 ofile = mrgdir'/'mdsn
@@ -4562,7 +4563,8 @@ Merge_it:
             end
             cmd = 'cd' mrgdir '&& git commit -m "Resolve merge conflicts"'
             x = docmd(cmd)
-            call view_std 'B'
+            if x > 0 then
+               call view_std 'B'
             call Replace localrep zigirep pdshlq qualignr
             call update_repo_metadata
           end

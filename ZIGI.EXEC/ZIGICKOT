@@ -344,7 +344,7 @@ Pop_Status:
   Address ISPExec
   call pfshow 'off'
   'Control Display Lock'
-  'Addpop row(4) column(2)'
+  'Addpop row(3) column(3)'
   'Display Panel(zigipopc)'
   'Rempop'
   call pfshow 'reset'
@@ -356,7 +356,7 @@ Pop_Status:
   | - set the initial userid to ZIGI   |
   * ---------------------------------- */
 Add_Stats:
-  zs7 = 'Adding ISPF Statistics  '
+  zs8 = 'Adding ISPF Statistics  '
   call pop_status
   filepath = ckotdir'/.zigi/'sub
   statmems = pullmems.sub
