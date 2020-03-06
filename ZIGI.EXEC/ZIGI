@@ -1,8 +1,8 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v2r5'
+  ver = 'v2r6'
   /*Name:      zigi  (z ISPF Git Interface)                    |
   |                                                            |
-  | Version:   V2R1                                            |
+  | Version:   V2R6                                            |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
   |            management                                      |
@@ -4971,9 +4971,9 @@ dsnvalid: Procedure Expose null
   do i = 1 to words(tdsn)
     w = word(tdsn,i)
     if length(w) > 8 then retval = 'NO'
-    if pos(left(w,1),'ABCDEFGHIJKLMNOPQRSTUVWXYZ$#@') = 0 then retval = 'NO'
+    if pos(left(w,1),'ABCDEFGHIJKLMNOPQRSTUVWXYZ-$#@') = 0 then retval = 'NO'
     w = translate(w,left(' ',39,' '), ,
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZ$#@0123456789')
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZ-$#@0123456789')
     w = strip(w)
     if w /= null then retval = 'NO'
   end
