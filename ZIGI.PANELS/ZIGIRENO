@@ -2,7 +2,7 @@
  $ type(output) caps(on )
  _ type(input)  caps(off) hilite(uscore) intens(low)
 )Body Window(76,4)
-+Rename:$fulldsnq
++Rename:  $fulldsnq
 +New Name:_newdsn                                                          +
 +
              %Enter+to continue%F3+to cancel.
