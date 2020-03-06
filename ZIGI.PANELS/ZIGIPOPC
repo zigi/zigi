@@ -1,6 +1,6 @@
 )Attr
  $ type(output) caps(off)
-)Body Window(70,12)
+)Body Window(67,12)
 +
  $zs1
  $zs2
