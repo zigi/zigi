@@ -8,8 +8,9 @@
  | TYPE(AB)           /* Action bar                */
  < TYPE(ABSL) GE(ON)  /* Action bar separator line */
 )ABC DESC(Help)
- PDC DESC('Help')  ACTION RUN(TUTOR) PARM('zigihhst')
  PDC DESC('About') ACTION RUN(Tutor) Parm('zigihabt')
+ PDC DESC('Change History') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%zigichg)')
+ PDC DESC('Help')  ACTION RUN(TUTOR) PARM('zigihhst')
 )ABCINIT
   .ZVARS = HELPX
 )Body  Expand(\\)
