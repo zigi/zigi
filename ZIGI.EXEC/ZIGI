@@ -1101,7 +1101,7 @@ Work_With_Repo:
         'addpop row(3) column(2)'
         'display panel(zigiinfo)'
         'rempop'
-        end
+      end
       /* ------------------------- *
       | Update/Set zigi repo info |
       * ------------------------- */
@@ -6686,11 +6686,15 @@ Do_Tag_Extract:
   /* ------------------------------ *
   | Make the target OMVS Directory |
   * ------------------------------ */
-  if words(omvsfiles) > 0 then do
-    cmd = 'mkdir' '"'tagxpath'"'
-    x = bpxwunix(cmd,,so.,se.)
-    if so.0 + se.0 > 0 then call view_std 'B'
-  end
+  cmd = 'mkdir' '"'tagxpath'"'
+  x = bpxwunix(cmd,,so.,se.)
+  if so.0 + se.0 > 0 then call view_std 'B'
+
+  /* ----------------------------------------- *
+  | Save a copy of the tag commit information |
+  * ----------------------------------------- */
+  cmd = 'cd' localrep'/'zigirep '&& git show' tags '>' tagxpath'tag.info'
+  x = docmd(cmd)
 
   /* -------------------------------------------------- *
   | Copy the OMVS filesystem OMVS files from the       |
@@ -6720,7 +6724,7 @@ Do_Tag_Extract:
   do i = 1 to words(files)
     f = word(files,i)
     oldfile = Add_DSN_HLQ(f)
-    newfile = tagxhlq'.'f
+    newfile = "'"tagxhlq'.'f"'"
     x = listdsi(oldfile)
     Address TSO
     "alloc f("extdd") new ds("newfile") like("oldfile")" ,
@@ -6757,8 +6761,6 @@ Do_Tag_Extract:
   /* ------------------------------------------- *
   | UDList the OMVS directory based on the path |
   * ------------------------------------------- */
-  if words(omvsfiles) > 0 then do
-    'Select Pgm(isrdslst) Parm(UDL' tagxpath ') SUSPEND'
-  end
+  'Select Pgm(isrdslst) Parm(UDL' tagxpath ') SUSPEND'
 
   return

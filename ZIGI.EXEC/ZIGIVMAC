@@ -7,6 +7,7 @@
  | Author:    Lionel B. Dyck                                  |
  |                                                            |
  | History:  (most recent on top)                             |
+ |            03/07/20 LBD - Check for > 1 records for hilite |
  |            12/16/19 LBD - creation                         |
  |                                                            |
  | ---------------------------------------------------------- |
@@ -32,6 +33,8 @@
   Address ISREdit
   'Macro (options)'
   'Reset ALL'
+  '(last) = linenum .zlast'
+  if last > 1 then
   'hilite off'
   Address ISPExec 'vget (vtitle)'
   if vtitle = '' then exit
