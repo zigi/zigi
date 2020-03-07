@@ -2591,8 +2591,10 @@ Do_Rset:
     hlqnw = words(translate(pdshlqn,' ','.'))
     lr = localrep'/'zigirep
     'tbtop' rtbl
-    'tbskip' rtbl
     do forever
+      'tbskip' rtbl
+      if rc > 0 then leave
+      if left(fulldsn,1)/= "'" then iterate
       oldfile = fulldsn
       newfile = strip(fulldsn,'B',"'")
       newfile = translate(newfile,' ','.')
@@ -2605,20 +2607,20 @@ Do_Rset:
         'Rename' oldfile newfile
       oldfile = remove_dsn_hlq(oldfile)
       newfile = remove_dsn_hlq(newfile)
-      zs1 = 'Renaming:' lr'/'oldfile
-      zs2 = 'To:      ' lr'/'newfile
-      call do_popup
-      address syscall 'lstat' lr'/'oldfile s.
-      cmd = 'cd' lr
-      cmd = cmd '&& git mv' oldfile newfile
-      if s.1 = 1 then do
-        cmd = cmd '&& cd .zigi'
+      if newfile /= oldfile then do
+        zs1 = 'Renaming:' lr'/'oldfile
+        zs2 = 'To:      ' lr'/'newfile
+        call do_popup
+        address syscall 'lstat' lr'/'oldfile s.
+        cmd = 'cd' lr
         cmd = cmd '&& git mv' oldfile newfile
+        if s.1 = 1 then do
+          cmd = cmd '&& cd .zigi'
+          cmd = cmd '&& git mv' oldfile newfile
+        end
+        x = docmd(cmd)
+        if x > 0 then call view_std 'B'
       end
-      x = docmd(cmd)
-      if x > 0 then call view_std 'B'
-      'tbskip' rtbl
-      if rc > 0 then leave
     end
     pdshlq = pdshlqn
   end
