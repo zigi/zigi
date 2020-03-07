@@ -910,7 +910,7 @@ Create_zigirepo:
   | Work with the selected repository |
   * --------------------------------- */
 Work_With_Repo:
-  parse value '' with dsn dsnstat zsel ztdsels rtop
+  parse value '' with dsn dsnstat zsel
   list_top = 0
   crflag = 0
   remc = 'NO'
@@ -925,13 +925,21 @@ Work_With_Repo:
   'vput (localrep zigirep) shared'
   'tbsort' rtbl 'Fields(dsn,c,a)'
   'tbtop' rtbl
+  repo_ztdsels = 0
+  rtop = 0
   /* -------------------------------- *
   | Process the Repository Data Sets |
   * -------------------------------- */
   rtop = 0
+  repo_save = 0
   do forever
     parse value '' with zsel row
+    ztdsels = repo_ztdsels
     if zcmd /= 'ADDDSN' then do
+      if repo_save = 1 then do
+        'control display restore'
+        repo_save = 0
+      end
       parse value '' with zsel zcmd row zcmd
       if ztdsels > 1
       then 'TBdispl' rtbl
@@ -952,6 +960,11 @@ Work_With_Repo:
         return
       end
     end
+    if repo_save = 0 then do
+      'control display save'
+      repo_save = 1
+    end
+    repo_ztdsels = ztdsels
     drop so. se.
     zcmd = translate(zcmd)
 
@@ -3663,9 +3676,11 @@ Work_with_repo_file:
     /* ---------------------------------- *
     | Process the Member list until done |
     * ---------------------------------- */
+    save.rtll = 0
     Do Forever
       if rtll_open = 0 then leave
       parse value '' with zsel zcmd row
+      ztdsels = save.rtll
       if ztdsels > 1 then
       'tbdispl' rtll
       else do
@@ -3682,6 +3697,7 @@ Work_with_repo_file:
       /* Make sure we edit (and copy) right dataset when we have
       a prefix set */
       list_top = ztdtop
+      save.rtll = ztdsels
       edsn = strip(fulldsn,'B',"'")
 
       if ztdsels = 0 then
