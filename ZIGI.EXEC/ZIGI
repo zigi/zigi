@@ -1094,6 +1094,14 @@ Work_With_Repo:
       | View output of git log           |
       * -------------------------------- */
       When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
+      /* -------------------------------- *
+      | View summary info of repository  |
+      * -------------------------------- */
+      When abbrev('INFO',zcmd,2) = 1 then do
+        'addpop row(3) column(2)'
+        'display panel(zigiinfo)'
+        'rempop'
+        end
       /* ------------------------- *
       | Update/Set zigi repo info |
       * ------------------------- */
