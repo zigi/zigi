@@ -1,4 +1,20 @@
                              zigi Release Notes
+                                Version 3.0
+
+                         New Features and Functions
+                         --------------------------
+
+
+Add the Info command to the Current Repositories set of commands to display
+a summary about the repository.
+
+On the Current Repository SET command panel add the option to change the
+dataset prefix. The new prefix must have the same number of qualifiers and
+will result in all the z/OS datasets being renamed along with any OMVS files
+based on the prefix qualifier ignore value.
+
+=============================================================================
+                             zigi Release Notes
                                 Version 2.5
 
                          New Features and Functions
