@@ -2,7 +2,7 @@
   ver = 'v2r5'
   /*Name:      zigi  (z ISPF Git Interface)                    |
   |                                                            |
-  | Version:   V2R1                                            |
+  | Version:   V2R5                                            |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
   |            management                                      |
@@ -1811,7 +1811,7 @@ Work_With_Repo:
             x = docmd(cmd)
             if sysdsorg = 'PO' then do
               /* still weird with rename of statsfile? */
-              x = zigistat(newdsn localrep'/'zigirep'/.zigi/'newfiles'S')
+              x = zigistat(newdsn localrep'/'zigirep'/.zigi/'newfiles 'S')
               cmd = 'cd' localrep'/'zigirep
               cmd = cmd '&& git add .zigi/'newfiles
               cmd = cmd '&& git rm -f .zigi/'oldfiles
