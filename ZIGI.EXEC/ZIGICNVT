@@ -238,9 +238,9 @@ dsnvalid: Procedure Expose null
   do i = 1 to words(tdsn)
     w = word(tdsn,i)
     if length(w) > 8 then retval = 'NO'
-    if pos(left(w,1),'ABCDEFGHIJKLMNOPQRSTUVWXYZ$#@') = 0 then retval = 'NO'
+    if pos(left(w,1),'ABCDEFGHIJKLMNOPQRSTUVWXYZ-$#@') = 0 then retval = 'NO'
     w = translate(w,left(' ',39,' '), ,
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZ$#@0123456789')
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZ-$#@0123456789')
     w = strip(w)
     if w /= null then retval = 'NO'
   end

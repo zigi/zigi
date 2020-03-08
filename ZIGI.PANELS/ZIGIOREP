@@ -6,22 +6,19 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   [ type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(55,16)
+)Body Window(76,13)
 +Enter Selection:_z        +
 +
-[Add   +  Add dataset        [Pull+    Pull from origin
-[AddAll+  Add all to Git     [Push+    Push to origin
-[Br    +  Change Branch      [Replace+ Replace Datasets
-[Commit+  Record Changes     [Remote+  Add remote
-[Convrepo+Convert non-zigi   [Rollback+Revert
-[Find+    Find in table      [Set+     Set Defaults
-[Flow+    Flow Menu          [Snapshot+Create Escrow
-[Githelp+ Git Help           [Stash+   Save Workspace
-[GitCMD + Git Command Prompt [StashL+  List Stashes
-[GitLog+  Query git log      [Status+  Git Status
-[Grep+    Find Strings       [Tag+     Git Tag
-[Merge+   Merge Branches     [TagList+ List all Tags
-[Network+Network Report      [View+    OMVS Dir
+[Add   +  Add dataset     [GitLog+  Query git log   [Rollback+Revert
+[AddAll+  Add all to Git  [Grep+    Find Strings    [Set+     Set Defaults
+[Br    +  Change Branch   [info+    Info on Repo    [Snapshot+Create Escrow
+[Commit+  Record Changes  [Merge+   Merge Branches  [Stash+   Save Workspace
+[Convrepo+Convert non-zigi[Network+Network Report   [StashL+  List Stashes
+[Find+    Find in table   [Pull+    Pull from origin[Status+  Git Status
+[Flow+    Flow Menu       [Push+    Push to origin  [Tag+     Git Tag
+[Githelp+ Git Help        [Replace+ Replace Datasets[TagList+ List all Tags
+[GitCMD + Git Commands    [Remote+  Add remote      [View+    OMVS Dir
+
                   +Or%F3+to cancel.
 )Init
  &zwinttl = 'zigi Current Repository Commands'
@@ -39,6 +36,7 @@
  &Githelp = 'Githelp'
  &GitLog  = 'Gitlog'
  &Grep    = 'Grep'
+ &Info    = 'Info'
  &Merge   = 'Merge'
  &Network = 'Network'
  &Pull    = 'Pull'
@@ -70,6 +68,7 @@
  FIELD(GITHELP) VAR(ZCMD) VAL('GITHELP')
  FIELD(GITLOG)  VAR(ZCMD) VAL('GITLOG')
  FIELD(GREP  )  VAR(ZCMD) VAL('GREP')
+ FIELD(INFO  )  VAR(ZCMD) VAL('INFO')
  FIELD(MERGE)   VAR(ZCMD) VAL('MERGE')
  FIELD(NETWORK) VAR(ZCMD) VAL('NETWORK')
  FIELD(PULL  )  VAR(ZCMD) VAL('PULL')
