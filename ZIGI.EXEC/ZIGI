@@ -2626,6 +2626,8 @@ Do_Rset:
   end
   'tbmod zigirepo order'
   'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
+  if defcpush = 'Y' then zpush = 'Y'
+  else zpush = 'N'
   zerrsm = 'Updated.'
   zerrlm = 'Repository default actions updates and saved.'
   'setmsg msg(isrz003)'
@@ -6782,3 +6784,21 @@ Do_Tag_Extract:
   'Select Pgm(isrdslst) Parm(UDL' tagxpath ') SUSPEND'
 
   return
+
+Fix_DSN: Procedure expose qualignr pdshlq null
+  arg dsn
+  if qualignr = 0 then do
+    if pdshlq /= null & qualignr > 0 then
+    fulldsn = pdshlq"."dsn
+    else
+    fulldsn = dsn
+  end
+  else do
+    fulldsn = translate(pdshlq,' ','.')
+    if qualignr > 0 then
+    fulldsn = subword(fulldsn,1,qualignr)
+    fulldsn = translate(fulldsn,'.',' ')
+    fulldsn = fulldsn'.'dsn
+  end
+  dsn = strip(fulldsn,'B',"'")
+  return dsn

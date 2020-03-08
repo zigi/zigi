@@ -11,6 +11,16 @@ a summary about the repository.
 Add Change History as an option on the Help action bar to view the change
 history, which is a copy of the Release Notes dataset.
 
+On the Current Repository table allow multiple rows to be selected (S) for
+serial processing.
+
+On the TagList Extract save the tag information in an OMVS file for
+historical purposes.
+
+Improved progress status messages on dataset/file rename.
+
+Support the use of a hypen (-) in a z/OS dataset name.
+
 On the Current Repository SET command panel add the option to change the
 dataset prefix. The new prefix must have the same number of qualifiers and
 will result in all the z/OS datasets being renamed along with any OMVS files
