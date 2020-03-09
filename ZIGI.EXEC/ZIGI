@@ -252,9 +252,6 @@
   | 1st Get the active exec library or dd                 |
   * ----------------------------------------------------- */
   parse source TSO Type exec_name DDName exec NameO Env Addr Token
-  /* Comment Start
-  parse source x1 x2 x3 x4 exec .
-  Comment End */
   if exec = '?' then do
     x = listdsi(ddname 'FILE')
     exec = sysdsname
