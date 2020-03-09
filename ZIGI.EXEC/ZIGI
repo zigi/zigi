@@ -239,9 +239,7 @@
   end
   else zigidebg = 0
   if zigidebg = 0 then
-  /* Comment Start
   "Control Errors Return"
-     Comment End */
 
   parse value '' with null rx zigidebg_flag save_zigirep fulldsn cltime
   cscnt = 0
