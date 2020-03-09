@@ -1,8 +1,8 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v2r5'
+  ver = 'v2r6'
   /*Name:      zigi  (z ISPF Git Interface)                    |
   |                                                            |
-  | Version:   V2R5                                            |
+  | Version:   V2R6                                            |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
   |            management                                      |
@@ -27,6 +27,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            03/09/20 LBD - Remove unneeded control save/rest|
   |            03/05/20 HBK - Fixed another qualignr 'bug'     |
   |                         - More deletes at remove repo      |
   |            03/04/20 LBD - Jump to Add Dataset after Create |
@@ -241,15 +242,14 @@
   "Control Errors Return"
 
   parse value '' with null rx zigidebg_flag save_zigirep fulldsn cltime
+  cscnt = 0
+  cdrcnt = 0
   /* ----------------------------------------------------- *
   | Get the Active HLQ for use with the ALTLIB and LIBDEF |
   | of the zIGI libraries.                                |
   | 1st Get the active exec library or dd                 |
   * ----------------------------------------------------- */
   parse source TSO Type exec_name DDName exec NameO Env Addr Token
-  /* Comment Start
-  parse source x1 x2 x3 x4 exec .
-  Comment End */
   if exec = '?' then do
     x = listdsi(ddname 'FILE')
     exec = sysdsname
@@ -829,15 +829,7 @@
             address syscall 'readdir' localrep'/'zigirep d.
             do id = 1 to d.0
               if left(d.id,1) = '.' then iterate
-              if qualignr = 0
-              then delhlq = pdshlq
-              else do
-                delhlq = translate(pdshlq,' ','.')
-                if qualignr /= '*' then
-                delhlq = subword(delhlq,1,qualignr)
-                delhlq = translate(delhlq,'.',' ')
-              end
-              deldsn = "'"delhlq"."word(d.id,1)"'"
+              deldsn = Add_DSN_HLQ(word(d.id,1))
               if dsnvalid(deldsn) = 'NO' then iterate
               call outtrap 'x.'
               address tso 'delete' deldsn
@@ -918,7 +910,7 @@ Create_zigirepo:
   | Work with the selected repository |
   * --------------------------------- */
 Work_With_Repo:
-  parse value '' with dsn dsnstat zsel ztdsels rtop
+  parse value '' with dsn dsnstat zsel
   list_top = 0
   crflag = 0
   remc = 'NO'
@@ -933,12 +925,16 @@ Work_With_Repo:
   'vput (localrep zigirep) shared'
   'tbsort' rtbl 'Fields(dsn,c,a)'
   'tbtop' rtbl
+  repo_ztdsels = 0
+  rtop = 0
   /* -------------------------------- *
   | Process the Repository Data Sets |
   * -------------------------------- */
   rtop = 0
+  repo_save = 0
   do forever
     parse value '' with zsel row
+    ztdsels = repo_ztdsels
     if zcmd /= 'ADDDSN' then do
       parse value '' with zsel zcmd row zcmd
       if ztdsels > 1
@@ -960,6 +956,7 @@ Work_With_Repo:
         return
       end
     end
+    repo_ztdsels = ztdsels
     drop so. se.
     zcmd = translate(zcmd)
 
@@ -1102,6 +1099,14 @@ Work_With_Repo:
       | View output of git log           |
       * -------------------------------- */
       When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
+      /* -------------------------------- *
+      | View summary info of repository  |
+      * -------------------------------- */
+      When abbrev('INFO',zcmd,2) = 1 then do
+        'addpop row(3) column(2)'
+        'display panel(zigiinfo)'
+        'rempop'
+      end
       /* ------------------------- *
       | Update/Set zigi repo info |
       * ------------------------- */
@@ -1721,7 +1726,6 @@ Work_With_Repo:
         call do_history dsn
       end
       When zsel = 'B' then do
-        'control display save'
         if left(fulldsn,1) = "'" then do
           x = listdsi(fulldsn)
           if sysdsorg = 'PO' then do
@@ -1732,10 +1736,8 @@ Work_With_Repo:
           else 'Browse Dataset('fulldsn')'
         end
         else Address TSO 'Obrowse' localrep'/'zigirep'/'fulldsn
-        'control display restore'
       end
       When zsel = 'V' then do
-        'control display save'
         if left(fulldsn,1) = "'" then do
           x = listdsi(fulldsn)
           if sysdsorg = 'PO' then do
@@ -1749,7 +1751,6 @@ Work_With_Repo:
           ofile = localrep'/'zigirep'/'fulldsn
           'View File(ofile)'
         end
-        'control display restore'
       end
       /* ------------------------ *
       | Rename the element in git|
@@ -1761,7 +1762,6 @@ Work_With_Repo:
         if dsnvalid(fulldsn) = 'OK' then zos = 1
         else zos = 2
         do forever
-          'control display save'
           'Addpop row(4) column(6)'
           if zos = 1 then
           'display panel(zigirena)'
@@ -1769,7 +1769,6 @@ Work_With_Repo:
           'display panel(zigireno)'
           drc = rc
           'rempop'
-          'control display restore'
           if drc > 0 then leave
           if zos = 1 then do
             x = listdsi(newdsn)
@@ -1782,6 +1781,9 @@ Work_With_Repo:
             'setmsg msg(isrz003)'
           end
           else do
+            zs1 = 'Renaming:' fulldsn
+            zs2 = 'To:      ' newdsn
+            call do_popup
             if left(fulldsn,1) = "'"  /* z/OS rename */
             then Address TSO 'Rename' fulldsn newdsn
             else do
@@ -1792,31 +1794,30 @@ Work_With_Repo:
             cmd = 'cd' localrep'/'zigirep
             newdsns = usssafe(newdsn)
             fulldsns = usssafe(fulldsn)
+            zs1 = 'Renaming:' fulldsns
+            zs2 = 'To:      ' newdsns
+            call do_popup
             if left(fulldsn,1) /= "'"
             then cmd = cmd '&& git mv' '"'fulldsns'" "'newdsns'"'
             else do
               x = listdsi(newdsn)
-              oldfile = translate(strip(fulldsn,'B',"'"),' ','.')
-              if qualignr > 0 then
-              oldfile = subword(oldfile,qualignr+1)
-              oldfile = translate(oldfile,'.',' ')
-              newfile = translate(strip(newdsn,'B',"'"),' ','.')
-              if qualignr > 0 then
-              newfile = subword(newfile,qualignr+1)
-              newfile = translate(newfile,'.',' ')
+              oldfile = remove_dsn_hlq(fulldsn)
+              newfile = remove_dsn_hlq(newdsn)
               oldfiles = usssafe(oldfile)
               newfiles = usssafe(newfile)
               cmd = cmd '&& git mv' oldfiles newfiles
             end
             x = docmd(cmd)
             if sysdsorg = 'PO' then do
+              zs1 = 'Renaming:' '.zigi/'oldfiles
+              zs2 = 'To:      ' '.zigi/'newfiles
+              call do_popup
               /* still weird with rename of statsfile? */
-              x = zigistat(newdsn localrep'/'zigirep'/.zigi/'newfiles 'S')
-              cmd = 'cd' localrep'/'zigirep
-              cmd = cmd '&& git add .zigi/'newfiles
-              cmd = cmd '&& git rm -f .zigi/'oldfiles
+              cmd = 'cd' localrep'/'zigirep'/.zigi'
+              cmd = cmd '&& git mv' oldfiles newfiles
               x = docmd(cmd)
             end
+            if x > 0 then
             call view_std 'B'
             'tbdelete' rtbl
             fulldsn = newdsn
@@ -1911,9 +1912,7 @@ Work_With_Repo:
         ofile = localrep'/'zigirep'/'fulldsn
         cur_date = get_fd_date(ofile)
         if filetype /= '(D)' then do
-          'control display save'
           'Edit file(ofile)'
-          'control display restore'
           new_date = get_fd_date(ofile)
           if cur_date /= new_date then
           if ztdsels < 2 then
@@ -2225,10 +2224,7 @@ git_add:
     x = listdsi(fulldsn)
     if x = 0 then do
       if sysdsorg /= 'PS' then do
-        statfile = translate(strip(fulldsn,'B',"'"),' ','.')
-        if qualignr > 0 then
-        statfile = subword(statfile,qualignr+1)
-        statfile = translate(statfile,'.',' ')
+        statfile = remove_dsn_hlq(fulldsn)
         cmd = 'cd' localrep'/'zigirep'/.zigi/'
         stats = usssafe(statfile)
         x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'stats 'S')
@@ -2345,17 +2341,17 @@ Stash_IT:
     if pos('/',newname) = 0 then do
       call outtrap 'x.'
       address tso ,
-        'rename' fixup_dsn(oldname) fixup_dsn(newname)
+        'rename' Add_DSN_HLQ(oldname) Add_DSN_HLQ(newname)
       call outtrap 'off'
     end
     else do
       parse value newname with d'/'m
-      newname = fixup_dsn(d'('m')')
+      newname = Add_DSN_HLQ(d'('m')')
       parse value oldname with d'/'m
-      oldname = fixup_dsn(d'('m')')
+      oldname = Add_DSN_HLQ(d'('m')')
       call outtrap 'x.'
       address tso ,
-        'rename' fixup_dsn(oldname) fixup_dsn(newname)
+        'rename' Add_DSN_HLQ(oldname) Add_DSN_HLQ(newname)
       call outtrap 'off'
     end
   end
@@ -2364,17 +2360,37 @@ Stash_IT:
   'setmsg msg(isrz003)'
   return
 
-Fixup_dsn: Procedure expose qualignr pdshlq
-  arg dsn
+  /* ---------------------------------------------------------- *
+  | Add_DSN_HLQ take the input dataset name, the active pdshlq |
+  | and qualignr. Then returns the fully qualified, in quotes, |
+  | dataset name.                                              |
+  |                                                            |
+  | Calling parm: OMVS-filename HLQ                            |
+  | where HLQ is optional and will default to the active       |
+  | pdshlq value.                                              |
+  * ---------------------------------------------------------- */
+Add_DSN_HLQ: Procedure expose qualignr pdshlq null
+  arg dsn newhlq
+  if newhlq = null
+  then whlq = pdshlq
+  else whlq = newhlq
   if qualignr = 0
-  then hlq = pdshlq
+  then hlq = whlq
   else do
-    hlq = translate(pdshlq,' ','.')
+    hlq = translate(whlq,' ','.')
     if qualignr /= '*' then
     hlq = subword(hlq,1,qualignr)
     hlq = translate(hlq,'.',' ')
   end
   dsn = "'"hlq"."dsn"'"
+  return dsn
+
+Remove_DSN_HLQ: Procedure expose qualignr pdshlq
+  arg dsn
+  dsn = translate(strip(dsn,'B',"'"),' ','.')
+  if qualignr > 0 then
+  dsn = subword(dsn,qualignr+1)
+  dsn = translate(dsn,'.',' ')
   return dsn
 
   /* ------------------------------------------------ *
@@ -2545,11 +2561,53 @@ Git_Clean_Check:
   * -------------------------------------- */
 Do_Rset:
   zcmd = null
+  pdshlqn = pdshlq
+  hlq_change = 0
   'Addpop row(4) column(6)'
   'Display Panel(zigirset)'
   drc = rc
   'rempop'
   if drc > 0 then return
+  if defcpush = 'Y' then zpush = 'Y'
+  else zpush = 'N'
+  if pdshlqn /= pdshlq then do
+    hlq_change = 1
+    hlqnw = words(translate(pdshlqn,' ','.'))
+    lr = localrep'/'zigirep
+    'tbtop' rtbl
+    do forever
+      'tbskip' rtbl
+      if rc > 0 then leave
+      if left(fulldsn,1)/= "'" then iterate
+      oldfile = fulldsn
+      newfile = strip(fulldsn,'B',"'")
+      newfile = translate(newfile,' ','.')
+      newfile = "'"pdshlqn'.'subword(newfile,hlqnw+1)"'"
+      newfile = translate(newfile,'.',' ')
+      zs1 = 'Renaming:' oldfile
+      zs2 = 'To:      ' newfile
+      call do_popup
+      Address TSO ,
+        'Rename' oldfile newfile
+      oldfile = remove_dsn_hlq(oldfile)
+      newfile = remove_dsn_hlq(newfile)
+      if newfile /= oldfile then do
+        zs1 = 'Renaming:' lr'/'oldfile
+        zs2 = 'To:      ' lr'/'newfile
+        call do_popup
+        address syscall 'lstat' lr'/'oldfile s.
+        cmd = 'cd' lr
+        cmd = cmd '&& git mv' oldfile newfile
+        if s.1 = 1 then do
+          cmd = cmd '&& cd .zigi'
+          cmd = cmd '&& git mv' oldfile newfile
+        end
+        x = docmd(cmd)
+        if x > 0 then call view_std 'B'
+      end
+    end
+    pdshlq = pdshlqn
+  end
   'tbmod zigirepo order'
   'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
   if defcpush = 'Y' then zpush = 'Y'
@@ -2557,6 +2615,8 @@ Do_Rset:
   zerrsm = 'Updated.'
   zerrlm = 'Repository default actions updates and saved.'
   'setmsg msg(isrz003)'
+  if hlq_change = 1 then
+  call work_with_repo
   return
 
   /* --------------------------------------------- *
@@ -3028,7 +3088,6 @@ do_grep:
             'rempop'
           end
           if zsel = 'S' then zsel = 'E'
-          'Control display save'
           Select
             When zsel = 'B' then do
               if left(gdsn,1) = "'"
@@ -3072,7 +3131,6 @@ do_grep:
             end
             Otherwise nop
           end
-          'Control display restore'
           zsel = null
         end
         'tbend' zgreptbl
@@ -3604,9 +3662,11 @@ Work_with_repo_file:
     /* ---------------------------------- *
     | Process the Member list until done |
     * ---------------------------------- */
+    save.rtll = 0
     Do Forever
       if rtll_open = 0 then leave
       parse value '' with zsel zcmd row
+      ztdsels = save.rtll
       if ztdsels > 1 then
       'tbdispl' rtll
       else do
@@ -3623,6 +3683,7 @@ Work_with_repo_file:
       /* Make sure we edit (and copy) right dataset when we have
       a prefix set */
       list_top = ztdtop
+      save.rtll = ztdsels
       edsn = strip(fulldsn,'B',"'")
 
       if ztdsels = 0 then
@@ -3833,12 +3894,10 @@ Work_with_repo_file:
           * ------------------- */
           do forever
             newmem = mem
-            'control display save'
             'Addpop row(4) column(6)'
             'display panel(zigirenm)'
             drc = rc
             'rempop'
-            'control display restore'
             if drc > 0 then leave
             olddsn = "'"strip(fulldsn,'B',"'")"("mem")'"
             newdsn = "'"strip(fulldsn,'B',"'")"("newmem")'"
@@ -4475,6 +4534,7 @@ Merge_it:
           ztdtop = 1
           zsel = null
           file_changed = 0
+          drop so. se.
           'tbtop' zmergtbl
           'tbsort' zmergtbl 'fields(mdsn,c,a)'
           do forever
@@ -4504,7 +4564,6 @@ Merge_it:
             end
 
             if zsel = 'S' then zsel = 'E'
-            'Control display save'
             Select
               When zsel = 'B' then do
                 Address TSO 'OBrowse' mrgdir'/'mdsn
@@ -4518,7 +4577,7 @@ Merge_it:
                   md = usssafe(mrgdir)
                   mdsns = usssafe(mdsn)
                   cmd = 'cd' md '&& cp' mdsns mrgfile
-                  x = bpxwunix(cmd,,so.,se.)
+                  x = bpxwunix(cmd)
                   parm = 'M'
                   'vput (mrgdir mdsn mrgfile) shared'
                   'Edit file(mrgfile) macro(zigimrgm) parm(parm)'
@@ -4537,7 +4596,7 @@ Merge_it:
                 end
                 'tbmod' zmergtbl
                 cmd = 'rm' mrgfile
-                x = bpxwunix(cmd,,so.,se.)
+                x = bpxwunix(cmd)
               end
               When zsel = 'V' then do
                 ofile = mrgdir'/'mdsn
@@ -4547,7 +4606,6 @@ Merge_it:
               end
               Otherwise nop
             end
-            'Control display restore'
             zsel = null
           end
           'tbend' zmergtbl
@@ -4562,6 +4620,7 @@ Merge_it:
             end
             cmd = 'cd' mrgdir '&& git commit -m "Resolve merge conflicts"'
             x = docmd(cmd)
+            if x > 0 then
             call view_std 'B'
             call Replace localrep zigirep pdshlq qualignr
             call update_repo_metadata
@@ -4815,7 +4874,6 @@ view_std:
   if datatype(so.0) /= 'NUM' then so.0 = 0
   if datatype(se.0) /= 'NUM' then se.0 = 0
   if viewopt = 'B' then if so.0 + se.0 = 0 then return
-  'Control Display Save'
   /* ------------------------------- *
   | Randomly define a DDName to use |
   * ------------------------------- */
@@ -4924,7 +4982,6 @@ view_std:
   if vdsn /= null then
   Address TSO 'Delete' vdsn
   call outtrap 'off'
-  'Control Display Restore'
   return
 
   /* -------------------------------------------------------- *
@@ -4969,9 +5026,9 @@ dsnvalid: Procedure Expose null
   do i = 1 to words(tdsn)
     w = word(tdsn,i)
     if length(w) > 8 then retval = 'NO'
-    if pos(left(w,1),'ABCDEFGHIJKLMNOPQRSTUVWXYZ$#@') = 0 then retval = 'NO'
+    if pos(left(w,1),'ABCDEFGHIJKLMNOPQRSTUVWXYZ-$#@') = 0 then retval = 'NO'
     w = translate(w,left(' ',39,' '), ,
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZ$#@0123456789')
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZ-$#@0123456789')
     w = strip(w)
     if w /= null then retval = 'NO'
   end
@@ -5083,19 +5140,7 @@ update_repo_metadata:
         so.1 = null
         x = bpxwunix(cmd,,so.,se.)
         y = debug('   done')
-        if qualignr = 0 then do
-          if pdshlq /= null & qualignr > 0 then
-          fulldsn = "'"pdshlq"."root.i"'"
-          else
-          fulldsn = "'"root.i"'"
-        end
-        else do
-          fulldsn = translate(pdshlq,' ','.')
-          if qualignr > 0 then
-          fulldsn = subword(fulldsn,1,qualignr)
-          fulldsn = translate(fulldsn,'.',' ')
-          fulldsn = "'"fulldsn'.'root.i"'"
-        end
+        fulldsn = add_dsn_hlq(root.i)
         edsn = strip(fulldsn,'B',"'")
         if so.1 = "DIR" & x = 0 then do
           x = debug('its a dir...lmmstat all the things' edsn)
@@ -5215,19 +5260,7 @@ update_repo_metadata:
           'tbmod zigirepo order'
           qualignr = 0
         end
-        if qualignr = 0 then do
-          if pdshlq /= null & qualignr > 0 then
-          fulldsn = "'"pdshlq"."dsn"'"
-          else
-          fulldsn = "'"dsn"'"
-        end
-        else do
-          fulldsn = translate(pdshlq,' ','.')
-          if qualignr > 0 then
-          fulldsn = subword(fulldsn,1,qualignr)
-          fulldsn = translate(fulldsn,'.',' ')
-          fulldsn = "'"fulldsn'.'dsn"'"
-        end
+        fulldsn = add_dsn_hlq(dsn)
         if nonzigi = 0 then do
           call outtrap 'x.'
           if sysdsn(fulldsn) /= ok then dsnstat = 'Missing z/OS Dataset'
@@ -5485,7 +5518,6 @@ Add_Dataset:
     Select
       when zsel = 'B' then do
         x = listdsi("'"dsna"'")
-        'control display save'
         if sysdsorg = 'PO' then do
           "LMInit Dataid(edvbr) dataset('"dsna"')"
           "Memlist Dataid("edvbr") Default(B)"
@@ -5494,7 +5526,6 @@ Add_Dataset:
           if mrc > 0 then 'setmsg msg(isrz003)'
         end
         else "Browse Dataset('"dsna"')"
-        'control display restore'
       end
       when zsel = 'S' | zsel = 'A' then do
         call do_add_copy
@@ -5570,13 +5601,7 @@ Do_Add_Copy:
   if pos('(',dsna) > 0 then
   parse value dsna with dsna'('ac_mem')'
   what = dsna
-  if qualignr > 0
-  then do
-    dsnb = translate(dsna,' ','.')
-    dsnb = subword(dsnb,qualignr+1)
-    dsnb = translate(dsnb,'.',' ')
-  end
-  else dsnb = dsna
+  dsnb = remove_dsn_hlq(dsna)
   if ac_mem /= null then dsnb = dsnb'/'ac_mem
   zs1 = 'Copying' copy_dsna
   zs2 = 'to' dsnb 'in OMVS'
@@ -5975,12 +6000,10 @@ do_history:
             ralc = 'N'
             rans = null
             rover = null
-            'Control Display Save'
             'Addpop row(4) column(8)'
             'Display Panel(zigiresq)'
             drc = rc
             'Rempop'
-            'Control Display Restore'
             if drc > 0 then leave
             if rans = 'N' then leave
             rcdd = 'RC'random(99999)
@@ -6471,9 +6494,6 @@ check_clean:
   x = docmd(cmd)
   clast = so.0
   if pos('working tree clean',so.clast) > 0 then return 'YES'
-  /* Comment Start
-  if so.0 = 2 then return "YES"
-  Comment End */
   else return "NO"
 
 flowselect:
@@ -6631,11 +6651,11 @@ Do_Tag_Extract:
   cmd = cmd "&& git show" tags "| grep '+++'"
   x = docmd(cmd)
   if x > 0 then do
-     zerrsm = 'Canceled.'
-     zerrlm = 'There is nothing to extract from the selected tags.'
-     'setmsg msg(isrz003)'
-     return
-     end
+    zerrsm = 'Canceled.'
+    zerrlm = 'There is nothing to extract from the selected tags.'
+    'setmsg msg(isrz003)'
+    return
+  end
   parse value '' with files members. omvsfiles
   do ti = 1 to so.0
     if left(so.ti,3) /= '+++' then iterate
@@ -6655,11 +6675,15 @@ Do_Tag_Extract:
   /* ------------------------------ *
   | Make the target OMVS Directory |
   * ------------------------------ */
-  if words(omvsfiles) > 0 then do
-    cmd = 'mkdir' '"'tagxpath'"'
-    x = bpxwunix(cmd,,so.,se.)
-    if so.0 + se.0 > 0 then call view_std 'B'
-  end
+  cmd = 'mkdir' '"'tagxpath'"'
+  x = bpxwunix(cmd,,so.,se.)
+  if so.0 + se.0 > 0 then call view_std 'B'
+
+  /* ----------------------------------------- *
+  | Save a copy of the tag commit information |
+  * ----------------------------------------- */
+  cmd = 'cd' localrep'/'zigirep '&& git show' tags '>' tagxpath'tag.info'
+  x = docmd(cmd)
 
   /* -------------------------------------------------- *
   | Copy the OMVS filesystem OMVS files from the       |
@@ -6688,7 +6712,7 @@ Do_Tag_Extract:
   extdd = 'XD'random(99999)
   do i = 1 to words(files)
     f = word(files,i)
-    oldfile = "'"fix_dsn(f)"'"
+    oldfile = Add_DSN_HLQ(f)
     newfile = "'"tagxhlq'.'f"'"
     x = listdsi(oldfile)
     Address TSO
@@ -6712,6 +6736,9 @@ Do_Tag_Extract:
     end
   end
 
+  /* ----------------------------------------- *
+  | DSList the z/OS datasets based on the hlq |
+  * ----------------------------------------- */
   if words(files) > 0 then do
     Address ISPExec
     "LMDINIT LISTID(LISTID) LEVEL("tagxhlq")"
@@ -6720,9 +6747,10 @@ Do_Tag_Extract:
     "LMDFREE LISTID("ListId")"
   end
 
-  if words(omvsfiles) > 0 then do
-    'Select Pgm(isrdslst) Parm(UDL' tagxpath ') SUSPEND'
-  end
+  /* ------------------------------------------- *
+  | UDList the OMVS directory based on the path |
+  * ------------------------------------------- */
+  'Select Pgm(isrdslst) Parm(UDL' tagxpath ') SUSPEND'
 
   return
 

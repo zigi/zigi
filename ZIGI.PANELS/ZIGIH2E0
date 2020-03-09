@@ -18,8 +18,8 @@
 +ready to be Committed. The userid will be changed prior to the Commit process,
 +including updating the ISPF statistics file that is part of the repository.
 +
-%
-+
++The repositories z/OS dataset HLQ may be changed with the requirement that
++the number of qualifiers remain the same as the previous HLQ.
 +
 +
 +
