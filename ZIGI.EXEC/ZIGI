@@ -27,6 +27,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            03/09/20 LBD - Remove unneeded control save/rest|
   |            03/05/20 HBK - Fixed another qualignr 'bug'     |
   |                         - More deletes at remove repo      |
   |            03/04/20 LBD - Jump to Add Dataset after Create |
@@ -238,9 +239,13 @@
   end
   else zigidebg = 0
   if zigidebg = 0 then
+  /* Comment Start
   "Control Errors Return"
+     Comment End */
 
   parse value '' with null rx zigidebg_flag save_zigirep fulldsn cltime
+  cscnt = 0
+  cdrcnt = 0
   /* ----------------------------------------------------- *
   | Get the Active HLQ for use with the ALTLIB and LIBDEF |
   | of the zIGI libraries.                                |
@@ -936,10 +941,6 @@ Work_With_Repo:
     parse value '' with zsel row
     ztdsels = repo_ztdsels
     if zcmd /= 'ADDDSN' then do
-      if repo_save = 1 then do
-        'control display restore'
-        repo_save = 0
-      end
       parse value '' with zsel zcmd row zcmd
       if ztdsels > 1
       then 'TBdispl' rtbl
@@ -959,10 +960,6 @@ Work_With_Repo:
         rtbl_open = 0
         return
       end
-    end
-    if repo_save = 0 then do
-      'control display save'
-      repo_save = 1
     end
     repo_ztdsels = ztdsels
     drop so. se.
@@ -1734,7 +1731,6 @@ Work_With_Repo:
         call do_history dsn
       end
       When zsel = 'B' then do
-        'control display save'
         if left(fulldsn,1) = "'" then do
           x = listdsi(fulldsn)
           if sysdsorg = 'PO' then do
@@ -1745,10 +1741,8 @@ Work_With_Repo:
           else 'Browse Dataset('fulldsn')'
         end
         else Address TSO 'Obrowse' localrep'/'zigirep'/'fulldsn
-        'control display restore'
       end
       When zsel = 'V' then do
-        'control display save'
         if left(fulldsn,1) = "'" then do
           x = listdsi(fulldsn)
           if sysdsorg = 'PO' then do
@@ -1762,7 +1756,6 @@ Work_With_Repo:
           ofile = localrep'/'zigirep'/'fulldsn
           'View File(ofile)'
         end
-        'control display restore'
       end
       /* ------------------------ *
       | Rename the element in git|
@@ -1774,7 +1767,6 @@ Work_With_Repo:
         if dsnvalid(fulldsn) = 'OK' then zos = 1
         else zos = 2
         do forever
-          'control display save'
           'Addpop row(4) column(6)'
           if zos = 1 then
           'display panel(zigirena)'
@@ -1782,7 +1774,6 @@ Work_With_Repo:
           'display panel(zigireno)'
           drc = rc
           'rempop'
-          'control display restore'
           if drc > 0 then leave
           if zos = 1 then do
             x = listdsi(newdsn)
@@ -1926,9 +1917,7 @@ Work_With_Repo:
         ofile = localrep'/'zigirep'/'fulldsn
         cur_date = get_fd_date(ofile)
         if filetype /= '(D)' then do
-          'control display save'
           'Edit file(ofile)'
-          'control display restore'
           new_date = get_fd_date(ofile)
           if cur_date /= new_date then
           if ztdsels < 2 then
@@ -3104,7 +3093,6 @@ do_grep:
             'rempop'
           end
           if zsel = 'S' then zsel = 'E'
-          'Control display save'
           Select
             When zsel = 'B' then do
               if left(gdsn,1) = "'"
@@ -3148,7 +3136,6 @@ do_grep:
             end
             Otherwise nop
           end
-          'Control display restore'
           zsel = null
         end
         'tbend' zgreptbl
@@ -3912,12 +3899,10 @@ Work_with_repo_file:
           * ------------------- */
           do forever
             newmem = mem
-            'control display save'
             'Addpop row(4) column(6)'
             'display panel(zigirenm)'
             drc = rc
             'rempop'
-            'control display restore'
             if drc > 0 then leave
             olddsn = "'"strip(fulldsn,'B',"'")"("mem")'"
             newdsn = "'"strip(fulldsn,'B',"'")"("newmem")'"
@@ -4584,7 +4569,6 @@ Merge_it:
             end
 
             if zsel = 'S' then zsel = 'E'
-            'Control display save'
             Select
               When zsel = 'B' then do
                 Address TSO 'OBrowse' mrgdir'/'mdsn
@@ -4627,7 +4611,6 @@ Merge_it:
               end
               Otherwise nop
             end
-            'Control display restore'
             zsel = null
           end
           'tbend' zmergtbl
@@ -4896,7 +4879,6 @@ view_std:
   if datatype(so.0) /= 'NUM' then so.0 = 0
   if datatype(se.0) /= 'NUM' then se.0 = 0
   if viewopt = 'B' then if so.0 + se.0 = 0 then return
-  'Control Display Save'
   /* ------------------------------- *
   | Randomly define a DDName to use |
   * ------------------------------- */
@@ -5005,7 +4987,6 @@ view_std:
   if vdsn /= null then
   Address TSO 'Delete' vdsn
   call outtrap 'off'
-  'Control Display Restore'
   return
 
   /* -------------------------------------------------------- *
@@ -5542,7 +5523,6 @@ Add_Dataset:
     Select
       when zsel = 'B' then do
         x = listdsi("'"dsna"'")
-        'control display save'
         if sysdsorg = 'PO' then do
           "LMInit Dataid(edvbr) dataset('"dsna"')"
           "Memlist Dataid("edvbr") Default(B)"
@@ -5551,7 +5531,6 @@ Add_Dataset:
           if mrc > 0 then 'setmsg msg(isrz003)'
         end
         else "Browse Dataset('"dsna"')"
-        'control display restore'
       end
       when zsel = 'S' | zsel = 'A' then do
         call do_add_copy
@@ -6026,12 +6005,10 @@ do_history:
             ralc = 'N'
             rans = null
             rover = null
-            'Control Display Save'
             'Addpop row(4) column(8)'
             'Display Panel(zigiresq)'
             drc = rc
             'Rempop'
-            'Control Display Restore'
             if drc > 0 then leave
             if rans = 'N' then leave
             rcdd = 'RC'random(99999)
@@ -6522,9 +6499,6 @@ check_clean:
   x = docmd(cmd)
   clast = so.0
   if pos('working tree clean',so.clast) > 0 then return 'YES'
-  /* Comment Start
-  if so.0 = 2 then return "YES"
-  Comment End */
   else return "NO"
 
 flowselect:
