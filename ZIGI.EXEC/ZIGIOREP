@@ -1,0 +1,91 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  @ type(output) intens(high) caps(off) just(left )
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+  [ type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
+)Body Window(76,13)
++Enter Selection:_z        +
++
+[Add   +  Add dataset     [GitLog+  Query git log   [Rollback+Revert
+[AddAll+  Add all to Git  [Grep+    Find Strings    [Set+     Set Defaults
+[Br    +  Change Branch   [info+    Info on Repo    [Snapshot+Create Escrow
+[Commit+  Record Changes  [Merge+   Merge Branches  [Stash+   Save Workspace
+[Convrepo+Convert non-zigi[Network+Network Report   [StashL+  List Stashes
+[Find+    Find in table   [Pull+    Pull from origin[Status+  Git Status
+[Flow+    Flow Menu       [Push+    Push to origin  [Tag+     Git Tag
+[Githelp+ Git Help        [Replace+ Replace Datasets[TagList+ List all Tags
+[GitCMD + Git Commands    [Remote+  Add remote      [View+    OMVS Dir
+
+                           +Or%F3+to cancel
+)Init
+ &zwinttl = 'zigi Current Repository Commands'
+ .zvars = '(zcmd)'
+ &zcmd  = &z
+ .cursor = zcmd
+ &Add     = 'AddDsn'
+ &Addall  = 'AddAll'
+ &Br      = 'Branch'
+ &Commit  = 'Commit'
+ &Convrepo = 'COnvrepo'
+ &Find    = 'Find'
+ &Flow    = 'Flow'
+ &Gitcmd  = 'GitCmd'
+ &Githelp = 'Githelp'
+ &GitLog  = 'Gitlog'
+ &Grep    = 'Grep'
+ &Info    = 'Info'
+ &Merge   = 'Merge'
+ &Network = 'Network'
+ &Pull    = 'Pull'
+ &Push    = 'Push'
+ &Replace = 'Replace'
+ &Remote  = 'Remote'
+ &Rollback  = 'Rollback'
+ &Snapshot  = 'SnapShot'
+ &Set     = 'Set'
+ &Stash   = 'Stash'
+ &StashL  = 'StashL'
+ &Status  = 'Status'
+ &Tag     = 'Tag'
+ &TagList = 'TagList'
+ &View    = 'View'
+  .help = zigih200
+)Proc
+ if (&zcmd EQ 'LOCATE')
+    ver (&lstloc,nb)
+)PNTS
+ FIELD(ADD   )  VAR(ZCMD) VAL('ADD')
+ FIELD(ADDALL)  VAR(ZCMD) VAL('ADDALL')
+ FIELD(BR    )  VAR(ZCMD) VAL('BRANCH')
+ FIELD(COMMIT)  VAR(ZCMD) VAL('COMMIT')
+ FIELD(CONVREPO)  VAR(ZCMD) VAL('CONVREPO')
+ FIELD(GITCMD)  VAR(ZCMD) VAL('GITCMD')
+ FIELD(FIND  )  VAR(ZCMD) VAL('FIND')
+ FIELD(FLOW  )  VAR(ZCMD) VAL('FLOW')
+ FIELD(GITHELP) VAR(ZCMD) VAL('GITHELP')
+ FIELD(GITLOG)  VAR(ZCMD) VAL('GITLOG')
+ FIELD(GREP  )  VAR(ZCMD) VAL('GREP')
+ FIELD(INFO  )  VAR(ZCMD) VAL('INFO')
+ FIELD(MERGE)   VAR(ZCMD) VAL('MERGE')
+ FIELD(NETWORK) VAR(ZCMD) VAL('NETWORK')
+ FIELD(PULL  )  VAR(ZCMD) VAL('PULL')
+ FIELD(PUSH  )  VAR(ZCMD) VAL('PUSH')
+ FIELD(REPLACE) VAR(ZCMD) VAL('REPLACE')
+ FIELD(REMOTE)  VAR(ZCMD) VAL('REMOTE')
+ FIELD(ROLLBACK) VAR(ZCMD) VAL('ROLLBACK')
+ FIELD(SNAPSHOT) VAR(ZCMD) VAL('SNAPSHOT')
+ FIELD(SET   )  VAR(ZCMD) VAL('SET')
+ FIELD(STASH )  VAR(ZCMD) VAL('STASH')
+ FIELD(STASHL)  VAR(ZCMD) VAL('STASHL')
+ FIELD(STATUS)  VAR(ZCMD) VAL('STATUS')
+ FIELD(TAG   )  VAR(ZCMD) VAL('TAG')
+ FIELD(TAGLIST) VAR(ZCMD) VAL('TAGLIST')
+ FIELD(VIEW  )  VAR(ZCMD) VAL('VIEW')
+)End
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */
