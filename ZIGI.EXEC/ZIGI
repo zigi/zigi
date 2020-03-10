@@ -5026,7 +5026,7 @@ dsnvalid: Procedure Expose null
   do i = 1 to words(tdsn)
     w = word(tdsn,i)
     if length(w) > 8 then retval = 'NO'
-    if pos(left(w,1),'ABCDEFGHIJKLMNOPQRSTUVWXYZ-$#@') = 0 then retval = 'NO'
+    if pos(left(w,1),'ABCDEFGHIJKLMNOPQRSTUVWXYZ$#@') = 0 then retval = 'NO'
     w = translate(w,left(' ',39,' '), ,
       'ABCDEFGHIJKLMNOPQRSTUVWXYZ-$#@0123456789')
     w = strip(w)
@@ -6753,21 +6753,3 @@ Do_Tag_Extract:
   'Select Pgm(isrdslst) Parm(UDL' tagxpath ') SUSPEND'
 
   return
-
-Fix_DSN: Procedure expose qualignr pdshlq null
-  arg dsn
-  if qualignr = 0 then do
-    if pdshlq /= null & qualignr > 0 then
-    fulldsn = pdshlq"."dsn
-    else
-    fulldsn = dsn
-  end
-  else do
-    fulldsn = translate(pdshlq,' ','.')
-    if qualignr > 0 then
-    fulldsn = subword(fulldsn,1,qualignr)
-    fulldsn = translate(fulldsn,'.',' ')
-    fulldsn = fulldsn'.'dsn
-  end
-  dsn = strip(fulldsn,'B',"'")
-  return dsn
