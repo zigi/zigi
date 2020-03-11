@@ -4179,8 +4179,6 @@ Replace:
   * ----------------------------- */
 Branch_it:
   if rtbb_open = 1 then 'tbend' rtbb
-  'tbquery' rtbb
-  if rc = 0 then 'tbend' rtbb
   'TBCreate' rtbb 'keys(bname) Names(brstatus) Replace NoWrite'
   rtbb_open = 1
   localdir = localrep'/'zigirep
@@ -5196,6 +5194,8 @@ update_repo_metadata:
         end
         else if nonzigi = 0 then do
           /* It must be a PS, just copy it over to OMVS */
+          x = listdsi(fulldsn)
+          if x = 0 then do
           s = usssafe(fulldsn)
           if is_binfile(r) = 1 then do
             binopt = '-B'
@@ -5214,6 +5214,7 @@ update_repo_metadata:
             tagcmd = 'chtag -b 'localrep'/'zigirep'/'r
             x = bpxwunix(tagcmd,,so.,se.)
           end
+        end
         end
       end
     end
@@ -5266,7 +5267,7 @@ update_repo_metadata:
           if sysdsn(fulldsn) /= ok then dsnstat = 'Missing z/OS Dataset'
           call outtrap 'off'
         end
-        else fulldsn = dsn
+        else if sysdsn(fulldsn) /= 'OK' then fulldsn = dsn
         'tbadd' rtbl
       end
       /* -------------------------------------------------- *
