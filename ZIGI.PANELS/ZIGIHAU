@@ -5,7 +5,7 @@
   } area(SCRL) Extend(ON)
 )Body Expand(\\)
 @Tutorial -\-\~The z ISPF Git Interface (zigi)@\-\- Tutorial
-+Command ===>_ZCMD                    \ \+Scroll ===>_zscr
++Command ===>_ZCMD                    \ \+Scroll ===>_zgsr
 +
                         @zigi Authors and Contributors+
 +
@@ -38,7 +38,7 @@
 +
 )Init
  .cursor = &zcmd
- &zscr = CSR
+ &zgsr = CSR
 )PROC
  &ZUP = ZIGIHINT
 )END

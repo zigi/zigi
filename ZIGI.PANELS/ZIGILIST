@@ -33,7 +33,7 @@
 +| Menu | Help +
 <-----------\-\--------------------------------+
 +PDS Member List+-----------------#zigtitle   +---------------------------------
-%Command ===>_zcmd        \ \ %Scroll ===>_zscr+
+%Command ===>_zcmd        \ \ %Scroll ===>_zgsr+
 +Current Dataset    : $fulldsn                     \ \%F3  +
 +Current Repository : $localdir
 +Current Branch     : $branch
@@ -45,7 +45,7 @@
   .zvars = '(zsel mem memstat mtype zlcnorc zlmdate zlmtime zluser)'
   .cursor = &zcmd
   .help = zigih300
-  &zscr = CSR
+  &zgsr = CSR
   &tmem   = 'Member'
   &tstat  = 'Status'
   &tsiz   = 'Size'

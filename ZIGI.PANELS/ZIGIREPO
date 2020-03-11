@@ -62,7 +62,7 @@
 +| General | Repository | ZigiFlow | Help +
 <-----------\-\--------------------------------+
 +Current Repository+--------------#zigtitle   +---------------------------------
-%Command ===>_zcmd            \ \  %Scroll ===>_zscr+
+%Command ===>_zcmd            \ \  %Scroll ===>_zgsr+
 +Local dir      :$localdir   \ \%F3  +
 +Remote path    :$remote1
 +Current Branch :$branch                                      +
@@ -76,7 +76,7 @@
  .zvars = '(zsel dsnstat fulldsn filetype)'
  .cursor = &zcmd
  .help = zigih200
- &zscr = CSR
+ &zgsr = CSR
 )Proc
  &row = &z
  if (&ZCMD = &Z)

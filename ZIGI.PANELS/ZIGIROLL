@@ -7,7 +7,7 @@
   # type(output) hilite(reverse) color(turq) caps(off)
 )Body  Expand(\\)
 +Repository Rollback+----\-\------#zigtitle   +------\-\------------------------
-%Command ===>_zcmd        \ \ %Scroll ===>_zscr+
+%Command ===>_zcmd        \ \ %Scroll ===>_zgsr+
 + \ \%F3  +
 +Commits to Review:_z   +(1 to 9999)
 +
@@ -22,7 +22,7 @@ _z+ $z                   $z
     @z
 )Init
   .ZVARS = '(crcnt zsel cdatetim ctag ctitle)'
-  &zscr = CSR
+  &zgsr = CSR
   .help = zigih2d0
 )Proc
  &row = &z

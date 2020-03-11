@@ -19,7 +19,7 @@
 [Githelp+ Git Help        [Replace+ Replace Datasets[TagList+ List all Tags
 [GitCMD + Git Commands    [Remote+  Add remote      [View+    OMVS Dir
 
-                  +Or%F3+to cancel.
+                           +Or%F3+to cancel
 )Init
  &zwinttl = 'zigi Current Repository Commands'
  .zvars = '(zcmd)'

@@ -27,7 +27,7 @@
  if (&defruid = &Z)
     .cursor = DEFRUID
  .help = zigih2e0
- &zscr = CSR
+ &zgsr = CSR
 )Proc
  &resp = .resp
 *REXX(* zedsmsg zedlmsg resp csr pdshlq pdshlqn)

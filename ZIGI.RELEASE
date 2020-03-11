@@ -1,4 +1,26 @@
                              zigi Release Notes
+                                Version 2.x
+
+                         New Features and Functions
+                         --------------------------
+
+
+tbd
+
+Bug Fixes and Other Updates:
+
+  1. Check z/OS dataset exists before attempting to copy to OMVS
+  2. Table panel updates to use zgsr instead of zscr for scrolling field
+  3. Small cosmetic updates to some panels
+  4. Change ZIGICKOT
+       - check for .zigi/dsn before reading it - in case non-zigi repos
+       - if not there then set recfm/lrecl/blksize defaults
+  5. Remove check for hyphen for 1st char of dsname
+  6. Remove tbquery that is not required
+
+
+=============================================================================
+                             zigi Release Notes
                                 Version 2.6
 
                          New Features and Functions
