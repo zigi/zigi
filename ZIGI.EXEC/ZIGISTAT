@@ -210,10 +210,8 @@ zigistat:
         parse value stats.i with member ZLCDATE ZLMDATE ZLVERS ZLMOD ,
           ZLMTIME ZLCNORC ZLINORC ZLMNORC ZLUSER ZLCNORCE ,
           ZLINORCE ZLMNORCE .
-        /* Comment Start
         if statmems /= null then
         if wordpos(member,statmems) = 0 then iterate
-           Comment End */
         if zlcdate = null then ,
           'LMMSTATS DATAID('zstats') Member('member') user('sysvar(sysuid)')'
         else ,

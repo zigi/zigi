@@ -368,7 +368,7 @@ Pop_Status:
   | - set the initial userid to ZIGI   |
   * ---------------------------------- */
 Add_Stats:
-  zs8 = 'Adding ISPF Statistics  '
+  zs8 = 'Adding/Updating ISPF Statistics'
   call pop_status
   filepath = ckotdir'/.zigi/'sub
   statmems = pullmems.sub
