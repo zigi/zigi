@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v2r6'
+  ver = 'v2r7'
   /*Name:      zigi  (z ISPF Git Interface)                    |
   |                                                            |
   | Version:   V2R6                                            |
@@ -227,23 +227,8 @@
   Address ISPExec
   'vget (zapplid)'
 
-  /* ---------------------------------------- *
-  | Check for ZIGIDEBG DD for debug purposes |
-  * ---------------------------------------- */
-  x = listdsi('ZIGIDEBG' 'FILE')
-  if x > 0 then if sysreason = 3 then do
-    zigidebg = 1
-    ztime = time()
-    ztime = left(ztime,2)''substr(ztime,4,2)''substr(ztime,7,2)
-    debug_file = 'zigidebug.d'date('j')'.t'ztime
-  end
-  else zigidebg = 0
-  if zigidebg = 0 then
-  "Control Errors Return"
+  null = ''
 
-  parse value '' with null rx zigidebg_flag save_zigirep fulldsn cltime
-  cscnt = 0
-  cdrcnt = 0
   /* ----------------------------------------------------- *
   | Get the Active HLQ for use with the ALTLIB and LIBDEF |
   | of the zIGI libraries.                                |
@@ -292,6 +277,29 @@
   end
   zigpass = null
   'vput (zigpass) shared'
+
+  parse value '' with null rx zigidebg_flag save_zigirep fulldsn cltime
+  cscnt = 0
+  cdrcnt = 0
+
+  cmd = 'pwd'
+  x = bpxwunix(cmd,,so.,se.)
+  home    = strip(so.1)
+
+  /* ---------------------------------------- *
+  | Check for ZIGIDEBG DD for debug purposes |
+  * ---------------------------------------- */
+  x = listdsi('ZIGIDEBG' 'FILE')
+  if x > 0 then if sysreason = 3 then do
+    zigidebg = 1
+    ztime = time()
+    ztime = left(ztime,2)''substr(ztime,4,2)''substr(ztime,7,2)
+    debugfil = home'/zigidebug.d'date('j')'.t'ztime
+    'vput (debugfil)'
+  end
+  else zigidebg = 0
+  if zigidebg = 0 then
+  "Control Errors Return"
 
   /* ---------------------------------------------------------------- *
   | Running under the ZIGI ISPF Application ID so let's do some work |
@@ -350,9 +358,6 @@
   zs1 = 'Preparing the zigi environment for use'
   zs2 = 'Please standby'
   call do_popup
-  cmd = 'pwd'
-  x = bpxwunix(cmd,,so.,se.)
-  home    = strip(so.1)
   /* See if we've a custom env file in profile already */
   'vget (gitenv) profile'
   call getenv
@@ -1942,7 +1947,9 @@ Work_With_Repo:
             'Somehow it may have been deleted.'
           'Setmsg msg(isrz003)'
         end
-        else call work_with_repo_file
+        else do
+          call work_with_repo_file
+        end
       end
       /* -------------------------------- *
       | Add repo item to staging area    |
@@ -3662,11 +3669,12 @@ Work_with_repo_file:
     /* ---------------------------------- *
     | Process the Member list until done |
     * ---------------------------------- */
-    save.rtll = 0
+    save_rtll = 0
+    save_ztdsels = ztdsels
     Do Forever
       if rtll_open = 0 then leave
       parse value '' with zsel zcmd row
-      ztdsels = save.rtll
+      ztdsels = save_rtll
       if ztdsels > 1 then
       'tbdispl' rtll
       else do
@@ -3683,7 +3691,7 @@ Work_with_repo_file:
       /* Make sure we edit (and copy) right dataset when we have
       a prefix set */
       list_top = ztdtop
-      save.rtll = ztdsels
+      save_rtll = ztdsels
       edsn = strip(fulldsn,'B',"'")
 
       if ztdsels = 0 then
@@ -4026,6 +4034,8 @@ Work_with_repo_file:
       end
     end
   end
+  ztdsels = save_ztdsels
+  zsel = null
   return
 
   /* -------------------------------- *
@@ -5196,25 +5206,25 @@ update_repo_metadata:
           /* It must be a PS, just copy it over to OMVS */
           x = listdsi(fulldsn)
           if x = 0 then do
-          s = usssafe(fulldsn)
-          if is_binfile(r) = 1 then do
-            binopt = '-B'
+            s = usssafe(fulldsn)
+            if is_binfile(r) = 1 then do
+              binopt = '-B'
+            end
+            else do
+              binopt = null
+            end
+            copycmd = "//"s
+            copycmd = '"'copycmd'"'
+            copycmd = "cp "binopt" -U -v" copycmd" "localrep"/"zigirep
+            copycmd = copycmd || "/"r
+            x = bpxwunix(copycmd,,so.,se.)
+            if x > 0 then call view_std 'B'
+            x = debug('Copy:' copycmd)
+            if binopt = '-B' then do
+              tagcmd = 'chtag -b 'localrep'/'zigirep'/'r
+              x = bpxwunix(tagcmd,,so.,se.)
+            end
           end
-          else do
-            binopt = null
-          end
-          copycmd = "//"s
-          copycmd = '"'copycmd'"'
-          copycmd = "cp "binopt" -U -v" copycmd" "localrep"/"zigirep
-          copycmd = copycmd || "/"r
-          x = bpxwunix(copycmd,,so.,se.)
-          if x > 0 then call view_std 'B'
-          x = debug('Copy:' copycmd)
-          if binopt = '-B' then do
-            tagcmd = 'chtag -b 'localrep'/'zigirep'/'r
-            x = bpxwunix(tagcmd,,so.,se.)
-          end
-        end
         end
       end
     end
@@ -6189,9 +6199,9 @@ docmdx:
   r = rx ' ' cmd
   return r
 
-view_debug: Procedure expose debug_file home
+view_debug:
   if zigidebg = 1 then do
-    filev = home'/'debug_file
+    filev = debugfil
     'view  file(filev)'
   end
   else do
@@ -6207,7 +6217,7 @@ debug:
   if zigidebg  = 1 then do
     parse arg msg
     msg = Date() Time()' : 'msg
-    c = 'echo "'msg'" >> 'home'/'debug_file
+    c = 'echo "'msg'" >>' debugfil
     x = bpxwunix(c,,dso.,dse.)
     zigidebg_use = 1
   end

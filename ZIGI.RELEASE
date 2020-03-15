@@ -15,6 +15,8 @@ Bug Fixes and Other Updates:
   4. Change ZIGICKOT
        - check for .zigi/dsn before reading it - in case non-zigi repos
        - if not there then set recfm/lrecl/blksize defaults
+       - continue to do selective dataset/member restores but do a full
+         ISPF stats reapply
   5. Remove check for hyphen for 1st char of dsname
   6. Remove tbquery that is not required
 

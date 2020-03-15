@@ -202,7 +202,7 @@
   do i = 1 to words(files)
     parse value '' with zs1 zs2 zs3 zs4 zs5 zs6 zs7 zs8
     zs9 = 'Patience while the data is copied from OMVS files' ,
-      'to a z/OS PDS.'
+      'to z/OS.'
     sub = word(files,i)
     fileg = "'"ckothlq"."sub"'"
     odir = "'"ckotdir"/"sub"'"

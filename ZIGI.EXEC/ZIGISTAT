@@ -91,6 +91,9 @@ zigistat:
   then zigidebg = 1
   else zigidebg = 0
 
+  Address ISPExec
+  'vget (debugfil)'
+
   x = debug('start of zigistat with option:' opt)
 
   /* --------------------------------------- *
@@ -104,7 +107,6 @@ zigistat:
     rc = x
     x = debug('Checking stats file complete')
     if rc > 0 then return x
-    address tso
     x = debug('Reading the ISPF stats file')
     drop stats.
     cmd = 'cat' filepath
@@ -118,7 +120,6 @@ zigistat:
   /* ------------------ *
   * Define ISPF Dataid *
   * ------------------ */
-  Address ISPEXEC
   "LMINIT DATAID(STATUS) DATASET("dsn")"
   "LMOPEN DATAID("STATUS") OPTION(INPUT)"
 
@@ -209,8 +210,10 @@ zigistat:
         parse value stats.i with member ZLCDATE ZLMDATE ZLVERS ZLMOD ,
           ZLMTIME ZLCNORC ZLINORC ZLMNORC ZLUSER ZLCNORCE ,
           ZLINORCE ZLMNORCE .
+        /* Comment Start
         if statmems /= null then
         if wordpos(member,statmems) = 0 then iterate
+           Comment End */
         if zlcdate = null then ,
           'LMMSTATS DATAID('zstats') Member('member') user('sysvar(sysuid)')'
         else ,
@@ -394,7 +397,7 @@ debug:
   if zigidebg  = 1 then do
     parse arg msg
     msg = Date() Time()' : 'msg
-    c = 'echo "'msg'" >> 'home'/zigidebug.txt'
+    c = 'echo "'msg'" >>' debugfil
     x = bpxwunix(c,,dso.,dse.)
   end
   return 0
