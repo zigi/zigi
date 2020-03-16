@@ -1735,6 +1735,7 @@ Work_With_Repo:
         call do_history dsn
       end
       When zsel = 'B' then do
+      'control display save'
         if left(fulldsn,1) = "'" then do
           x = listdsi(fulldsn)
           if sysdsorg = 'PO' then do
@@ -1745,8 +1746,10 @@ Work_With_Repo:
           else 'Browse Dataset('fulldsn')'
         end
         else Address TSO 'Obrowse' localrep'/'zigirep'/'fulldsn
+        'control display restore'
       end
       When zsel = 'V' then do
+      'control display save'
         if left(fulldsn,1) = "'" then do
           x = listdsi(fulldsn)
           if sysdsorg = 'PO' then do
@@ -1760,6 +1763,7 @@ Work_With_Repo:
           ofile = localrep'/'zigirep'/'fulldsn
           'View File(ofile)'
         end
+        'control display restore'
       end
       /* ------------------------ *
       | Rename the element in git|
@@ -1921,7 +1925,9 @@ Work_With_Repo:
         ofile = localrep'/'zigirep'/'fulldsn
         cur_date = get_fd_date(ofile)
         if filetype /= '(D)' then do
+        'control display save'
           'Edit file(ofile)'
+         'control display restore'
           new_date = get_fd_date(ofile)
           if cur_date /= new_date then
           if ztdsels < 2 then
@@ -1952,7 +1958,9 @@ Work_With_Repo:
           'Setmsg msg(isrz003)'
         end
         else do
+        'control display save'
           call work_with_repo_file
+          'control display restore'
         end
       end
       /* -------------------------------- *
@@ -3810,6 +3818,7 @@ Work_with_repo_file:
       if zsel = 'E' then zsel = 'S'
       Select
         when zsel = 'B' then do
+        'control display save'
           /* -------------------------------- *
           | Browse PDS member or PS dataset  |
           * -------------------------------- */
@@ -3819,6 +3828,7 @@ Work_with_repo_file:
           if sysdsorg = 'PS'
           then "Browse Dataset('"edsn"')"
           else "Browse Dataset('"edsn"("mem")'"
+          'control display restore'
         end
         when zsel = 'V' then do
           /* -------------------------------- *
@@ -3833,9 +3843,11 @@ Work_with_repo_file:
             'setmsg msg(isrz003)'
             leave
           end
+          'control display save'
           if sysdsorg = 'PS'
           then "View Dataset('"edsn"')"
           else "View Dataset('"edsn"("mem")'"
+          'control display restore'
         end
         when zsel = 'S' then do
           /* -------------------------------- *
@@ -3853,12 +3865,15 @@ Work_with_repo_file:
             zsel = null
           end
           if eok = 1 then do
+          'control display save'
             if sysdsorg = 'PS'
             then "Edit Dataset('"edsn"')"
             else "Edit Dataset('"edsn"("mem")'"
+            erc = rc
+            'control display restore'
           end
-          else rc = 1
-          if rc = 0 then do
+          else erc = 1
+          if erc = 0 then do
             if ztdsels = 1 then do
               m = strip(mem)
               m = usssafe(m)
@@ -5973,6 +5988,7 @@ do_history:
     'setmsg msg(isrz003)'
     return
   end
+  'control display save'
   if hhit = 1 then do
     delement = element
     if pos('/',delement) > 0 then do
@@ -5981,6 +5997,7 @@ do_history:
     'tbtop' hist_tbl
     save_top = ztdtop
     top = 1
+    save_ztdsels = ztdsels
     do forever
       zsel = null
       if ztdsels > 1 then 'tbdispl' hist_tbl
@@ -5989,7 +6006,7 @@ do_history:
         'tbskip' hist_tbl 'number('top')'
         'tbdispl' hist_tbl 'Panel(zigihist)'
       end
-      if rc > 0 then leave
+      if rc > 4 then leave
       top = ztdtop
 
       if ztdsels = 0 then
@@ -6011,7 +6028,9 @@ do_history:
           cmd = 'cd' localrep'/'zigirep
           cmd = cmd '&& git log' hcommit '-n 1 --cc'
           x = docmd(cmd)
+          'control display save'
           call view_std 'X' 'V'
+          'control display restore'
           zsel = null
         end
         /* ----------------------------------------------------------- *
@@ -6024,7 +6043,9 @@ do_history:
         When zsel = 'R' then do   /* recovery */
           cmd = 'cd' localrep'/'zigirep
           cmd = cmd '&& git show' strip(hcommit)':'element
+          'control display save'
           x = docmd(cmd)
+          'control display restore'
           if dsnvalid(fulldsn) = 'NO' then do
             zerrsm = 'Error.'
             zerrlm = 'The recovery of a non-z/OS dataset is not supported' ,
@@ -6096,7 +6117,9 @@ do_history:
         When zsel = 'S' then do
           cmd = 'cd' localrep'/'zigirep
           cmd = cmd '&& git show' strip(hcommit)':'element
+          'control display save'
           x = docmd(cmd)
+          'control display restore'
           vtitle = element '\' hdate '\' hauthor '\' fulldsn
           'vput (vtitle)'
           call view_std 'X' 'V'
@@ -6105,8 +6128,9 @@ do_history:
       end
     end
   end
+  'control display restore'
   'tbend' hist_tbl
-  ztdsels = 1
+  ztdsels = save_ztdsels
   ztdtop = save_top
   if update_flag = 1 then do
     if sysdsorg = 'PS' then call work_with_repo
