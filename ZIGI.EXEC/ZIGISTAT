@@ -71,7 +71,7 @@ zigistat:
   /* --------------- *
   | Define defaults |
   * --------------- */
-  parse value '' with null string m. rx
+  parse value '' with null string m. rx allmems
   zdd = 'ZS'time('s')
 
   /* --------------------------------- *
@@ -159,6 +159,7 @@ zigistat:
       ZLINORC ZLMNORC ZLUSER ,
       zlcnorce zlinorce zlmnorce)
     mem.0 = c
+    if opt = 'C' then allmems = allmems member
   end
 
   /* ------------------------- *
@@ -251,6 +252,7 @@ zigistat:
         if m.actmem = null then string = string actmem
         else if data /= m.actmem then string = string actmem
       end
+      'vput (allmems)'
       x = debug('ISPF Stats comparison complete:' string)
       return string
     end

@@ -2186,6 +2186,7 @@ Do_Post_Pull:
       delhlq = translate(delhlq,'.',' ')
     end
     'Verase pulldsns Both'
+if deletes.0 > 0 then call stemedit 'view',deletes.,,,'Deletes'
     call outtrap 'x.'
     if deletes.0 > 0 then
     do dc = 1 to deletes.0
@@ -5222,22 +5223,15 @@ update_repo_metadata:
           * ------------------------------------------------------- */
           address syscall 'readdir' localrep'/'zigirep'/'r rd.
           mem_omvs = null
-          Address TSO
-          call outtrap 'x.'
-          "listd '"edsn"' M"
-          call outtrap 'off'
-          members = null
-          do im = 7 to x.0
-             members = members word(x.im,1)
-             end
-          Address ISPExec
+          'vget (allmems)'
           do im = 1 to rd.0
              m = strip(rd.im)
              if left(rd.im,1) = '.' then iterate
-             if wordpos(m,members) = 0 then do
+             if wordpos(m,allmems) = 0 then do
                 mem_omvs = mem_omvs m
              end
              end
+          'verase (allmems)'
           if strip(mem_omvs) /= null then do
              x = debug('PDS members deleted - removing from OMVS:' ,
                  mem_omvs)
