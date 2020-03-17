@@ -27,6 +27,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            03/17/20 LBD - Improve delete PDS member        |
+  |                           detection on PULL                |
   |            03/15/20 LBD - Detect when PDS members deleted  |
   |                           outside of zigi                  |
   |            03/09/20 LBD - Remove unneeded control save/rest|
@@ -2186,7 +2188,7 @@ Do_Post_Pull:
       delhlq = translate(delhlq,'.',' ')
     end
     'Verase pulldsns Both'
-if deletes.0 > 0 then call stemedit 'view',deletes.,,,'Deletes'
+    call check_for_more_deletes
     call outtrap 'x.'
     if deletes.0 > 0 then
     do dc = 1 to deletes.0
@@ -6819,4 +6821,45 @@ Do_Tag_Extract:
   * ------------------------------------------- */
   'Select Pgm(isrdslst) Parm(UDL' tagxpath ') SUSPEND'
 
+  return
+
+/* --------------------------------------------------------- *
+ | This routine checks for deletes that are not included     |
+ | in the git messages. These would be PDS members that are  |
+ | deleted and thus no longer in the OMVS directory and need |
+ | to be removed from the z/OS PDS.                          |
+ * --------------------------------------------------------- */
+Check_For_More_Deletes: Procedure Expose delhlq deletes. ,
+    localrep zigirep null
+
+  cmd = 'cd' localrep'/'zigirep '&& ls -lR'
+  x = bpxwunix(cmd,,so.,se.)
+
+  dir = null
+
+  do di = 1 to so.0
+    if left(so.di,2) = './' then do
+      parse value so.di with './'dir':'
+      call Get_PDS_Members
+    end
+    if dir = null then iterate
+    if left(so.di,1) /= '-' then iterate
+    m = word(so.di,9)
+    if wordpos(m,members) = 0 then do
+      c = deletes.0 + 1
+      deletes.c = dir'/'m
+      deletes.0 = c
+    end
+  end
+  return
+
+Get_PDS_Members:
+  members = null
+  call outtrap 'pdsmems.'
+  address tso "listd '"delhlq"."dir"' M"
+  call outtrap 'off'
+  do gm = 7 to pdsmems.0
+    members = members word(pdsmems.gm,1)
+  end
+  drop pdsmems.
   return

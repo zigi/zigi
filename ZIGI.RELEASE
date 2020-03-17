@@ -5,7 +5,13 @@
                          --------------------------
 
 
-tbd
+Enable multiple row selection in many instances (not all).
+
+Improved detection of deleted, or renamed, PDS members during PULL
+processing.
+
+Improved detection of deleted, or renamed, PDS members at zigi repository
+startup.
 
 Bug Fixes and Other Updates:
 
