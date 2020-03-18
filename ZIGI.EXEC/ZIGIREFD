@@ -87,7 +87,7 @@
  | Translate the directory / to _ |
  * ------------------------------ */
   refdir = translate(wdir,'_','/')
-  ref_file = homedir'.zigi/'wdir
+  ref_file = homedir'.zigi/'refdir
 
   'lstat' homedir'.zigi/' stem.
   if stem.0 = 0 then do
@@ -101,13 +101,14 @@
   if opt = 'C' then do
     cmd = 'cat' ref_file
     x = bpxwunix(cmd,,so.,se.)
-    if x > 0 then return '*'
+    if x > 0 then return
     last_check = strip(substr(so.i,2))
     do i = 1 to so.0
       parse value so.i with dsn date .
       files.dsn = date
     end
     call check_files
+    if check = null then check = '*'
   end
   else call update
 
@@ -126,7 +127,7 @@ update:
   'oput' fdd "'"ref_file"'" 'text'
   'delete' fdd
   call outtrap 'off'
-  return
+  return outfiles.0
 
 Check_files:
   address syscall ,
@@ -139,8 +140,8 @@ Check_files:
     file = sysdsname
     parse value sysrefdate with yyyy'/'ddd
     sysrefdate = yyyy''ddd
-
-    if opt = 'C' then select
+    if opt = 'C' then
+      Select
       When sysrefdate = today then check = check sysdsname
       when datatype(files.file) /= 'NUM' then check = check sysdsname
       When sysrefdate > files.file then check = check sysdsname

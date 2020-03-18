@@ -896,7 +896,7 @@
   * ------------------------------------- */
 Select_Repo:
   zigidate = date('n')
-  sortdate = date('b') time('s')
+  sortdate = date('b')''right(time('s')+100000,5)
   'tbmod zigirepo order'
   x = debug('Getting binfiles:' zigirep)
   drop binfiles.
@@ -1740,7 +1740,7 @@ Work_With_Repo:
         call do_history dsn
       end
       When zsel = 'B' then do
-      'control display save'
+        'control display save'
         if left(fulldsn,1) = "'" then do
           x = listdsi(fulldsn)
           if sysdsorg = 'PO' then do
@@ -1754,7 +1754,7 @@ Work_With_Repo:
         'control display restore'
       end
       When zsel = 'V' then do
-      'control display save'
+        'control display save'
         if left(fulldsn,1) = "'" then do
           x = listdsi(fulldsn)
           if sysdsorg = 'PO' then do
@@ -1930,9 +1930,9 @@ Work_With_Repo:
         ofile = localrep'/'zigirep'/'fulldsn
         cur_date = get_fd_date(ofile)
         if filetype /= '(D)' then do
-        'control display save'
+          'control display save'
           'Edit file(ofile)'
-         'control display restore'
+          'control display restore'
           new_date = get_fd_date(ofile)
           if cur_date /= new_date then
           if ztdsels < 2 then
@@ -1963,7 +1963,7 @@ Work_With_Repo:
           'Setmsg msg(isrz003)'
         end
         else do
-        'control display save'
+          'control display save'
           call work_with_repo_file
           'control display restore'
         end
@@ -3507,6 +3507,8 @@ fixup_userids:
     dir = localrep'/'zigirep
     statfiles = usssafe(statfile)
     x = docmd('cd' dir '&& git add .zigi/'statfiles)
+    if x > 0 then
+    call view_std 'B'
   end
   return
 
@@ -3824,7 +3826,7 @@ Work_with_repo_file:
       if zsel = 'E' then zsel = 'S'
       Select
         when zsel = 'B' then do
-        'control display save'
+          'control display save'
           /* -------------------------------- *
           | Browse PDS member or PS dataset  |
           * -------------------------------- */
@@ -3871,7 +3873,7 @@ Work_with_repo_file:
             zsel = null
           end
           if eok = 1 then do
-          'control display save'
+            'control display save'
             if sysdsorg = 'PS'
             then "Edit Dataset('"edsn"')"
             else "Edit Dataset('"edsn"("mem")'"
@@ -5159,13 +5161,11 @@ update_repo_metadata:
   if st.0 = 0 then nonzigi = 1
   else nonzigi = 0
   address ispexec
-  /* Comment Start
-  x = debug('...done')
-  x = debug('iterating...')
-     Comment End */
   x = debug('Checking z/OS dataset last reference dates.')
+    zs1 = 'Checking z/OS dataset change status.'
+    zs2 = 'Patience . . .'
+    call do_popup
   check_files = zigirefd(localrep'/'zigirep pdshlq qualignr 'C')
-  if check_files = '*' then check_files = null
   x = debug('Check complete.')
   do i = 1 to root.0
     if root.i = "." | root.i = ".." then do
@@ -5185,6 +5185,9 @@ update_repo_metadata:
         edsn = strip(fulldsn,'B',"'")
         if check_files /= null then
         if wordpos(edsn,check_files) = 0 then iterate
+    zs1 = 'Checking' fulldsn
+    zs2 = 'Patience . . .'
+    call do_popup
         if so.1 = "DIR" & x = 0 then do
           x = debug('its a dir...lmmstat all the things' edsn)
           Address TSO
@@ -5238,21 +5241,21 @@ update_repo_metadata:
           mem_omvs = null
           'vget (allmems)'
           do im = 1 to rd.0
-             m = strip(rd.im)
-             if left(rd.im,1) = '.' then iterate
-             if wordpos(m,allmems) = 0 then do
-                mem_omvs = mem_omvs m
-             end
-             end
+            m = strip(rd.im)
+            if left(rd.im,1) = '.' then iterate
+            if wordpos(m,allmems) = 0 then do
+              mem_omvs = mem_omvs m
+            end
+          end
           'verase (allmems)'
           if strip(mem_omvs) /= null then do
-             x = debug('PDS members deleted - removing from OMVS:' ,
-                 mem_omvs)
-             mem_hit = 1
-             cmd = 'cd' localrep'/'zigirep'/'r
-             cmd = cmd '&& git rm -f' usssafe(mem_omvs)
-             x = docmd(cmd)
-             end
+            x = debug('PDS members deleted - removing from OMVS:' ,
+              mem_omvs)
+            mem_hit = 1
+            cmd = 'cd' localrep'/'zigirep'/'r
+            cmd = cmd '&& git rm -f' usssafe(mem_omvs)
+            x = docmd(cmd)
+          end
           /* --------------------------------------------------------- *
           | If members were updated then need to update the stat file |
           * --------------------------------------------------------- */
@@ -5290,9 +5293,14 @@ update_repo_metadata:
     end
   end
 
+    zs1 = 'Updating z/OS Dataset Last Access Information.'
+    zs2 = 'Patience . . .'
+    call do_popup
+    x = debug('Calling zigirefd to update last access info.')
+  x = zigirefd(localrep'/'zigirep pdshlq qualignr 'U')
+    x = debug('Completed the last access update.')
   zs1 = 'Building List of repository Data Sets'
   zs2 = fetchmsg
-  x = zigirefd(localrep'/'zigirep pdshlq qualignr 'U')
   call do_popup
   x = debug('get the status')
   cmd = 'cd' localrep'/'zigirep
@@ -5306,6 +5314,9 @@ update_repo_metadata:
   x = debug('done')
   x = debug('iterate the files')
   do i = 1 to root.0
+    zs1 = 'Updating dataset and file Git status to display.'
+    zs2 = 'Patience . . .'
+    call do_popup
     dsnstat = null
     if root.i = "." | root.i = ".." then do
       iterate
@@ -5384,6 +5395,9 @@ update_repo_metadata:
   /* --------------------------- *
   | Get the current branch info |
   * --------------------------- */
+    zs1 = 'Getting current Git Status.'
+    zs2 = 'Patience . . .'
+    call do_popup
   x = debug('getting git status for current branch')
   x = docmd('cd 'localdir' && git status')
   branch = word(so.1,3)
