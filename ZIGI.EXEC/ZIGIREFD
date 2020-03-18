@@ -101,7 +101,7 @@
   if opt = 'C' then do
     cmd = 'cat' ref_file
     x = bpxwunix(cmd,,so.,se.)
-    if x > 0 then return
+    if x > 0 then return '*'
     last_check = strip(substr(so.i,2))
     do i = 1 to so.0
       parse value so.i with dsn date .
