@@ -2,8 +2,6 @@
   ver = 'v2r7'
   /*Name:      zigi  (z ISPF Git Interface)                    |
   |                                                            |
-  | Version:   V2R6                                            |
-  |                                                            |
   | Function:  ISPF Interface to Git for source code           |
   |            management                                      |
   |                                                            |
@@ -27,8 +25,11 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            03/18/20 LBD - Refine ref date check            |
   |            03/17/20 LBD - Improve delete PDS member        |
   |                           detection on PULL                |
+  |                         - Bypass update check based on     |
+  |                           last reference date of dataset   |
   |            03/15/20 LBD - Detect when PDS members deleted  |
   |                           outside of zigi                  |
   |            03/09/20 LBD - Remove unneeded control save/rest|
@@ -362,9 +363,11 @@
   zs1 = 'Preparing the zigi environment for use'
   zs2 = 'Please standby'
   call do_popup
+
   /* See if we've a custom env file in profile already */
   'vget (gitenv) profile'
   call getenv
+
   keyfile = home'/.ssh/id_rsa.pub'
   rtbl = 'ZIGL'random(9999)
   rtll = 'ZIGM'random(9999)
@@ -5156,8 +5159,14 @@ update_repo_metadata:
   if st.0 = 0 then nonzigi = 1
   else nonzigi = 0
   address ispexec
+  /* Comment Start
   x = debug('...done')
   x = debug('iterating...')
+     Comment End */
+  x = debug('Checking z/OS dataset last reference dates.')
+  check_files = zigirefd(localrep'/'zigirep pdshlq qualignr 'C')
+  if check_files = '*' then check_files = null
+  x = debug('Check complete.')
   do i = 1 to root.0
     if root.i = "." | root.i = ".." then do
       iterate
@@ -5174,6 +5183,8 @@ update_repo_metadata:
         y = debug('   done')
         fulldsn = add_dsn_hlq(root.i)
         edsn = strip(fulldsn,'B',"'")
+        if check_files /= null then
+        if wordpos(edsn,check_files) = 0 then iterate
         if so.1 = "DIR" & x = 0 then do
           x = debug('its a dir...lmmstat all the things' edsn)
           Address TSO
@@ -5281,6 +5292,7 @@ update_repo_metadata:
 
   zs1 = 'Building List of repository Data Sets'
   zs2 = fetchmsg
+  x = zigirefd(localrep'/'zigirep pdshlq qualignr 'U')
   call do_popup
   x = debug('get the status')
   cmd = 'cd' localrep'/'zigirep

@@ -5,6 +5,13 @@
                          --------------------------
 
 
+Reduce processing overhead by only checking z/OS datasets for changes if
+they have changed since the last date that zigi checked them. The test
+will be to check the dataset if the last reference date (from listdsi)
+is the same as the current day or if it is greater than the last
+reference date as saved by zigi in the users home directory under
+.zigi/filename where filename is the OMVS file copy of the z/OS dataset.
+
 Enable multiple row selection in many instances (not all).
 
 Improved detection of deleted, or renamed, PDS members during PULL

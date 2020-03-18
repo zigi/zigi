@@ -1,0 +1,154 @@
+  /* --------------------  rexx procedure  -------------------- *
+  | Name:      zigirefd                                        |
+  |                                                            |
+  | Function:  zigi code to check/update the last reference    |
+  |            date for a z/OS dataset. Used to determine if   |
+  |            the dataset needs to be checked for updates.    |
+  |                                                            |
+  | Syntax:    check = zigirefd(zigidir pdshlq qualignr option)|
+  |                                                            |
+  |            parameters:                                     |
+  |            zigidir - OMVS directory for the repository     |
+  |            pdshlq  - hlq for z/OS datasets                 |
+  |            qualignr- # of hlq quals to ignore              |
+  |            option  - C to check                            |
+  |                      U to update                           |
+  |                                                            |
+  |            check will be a string of datasets that have    |
+  |            changed since the last zigi access.             |
+  |                                                            |
+  |            A value of * will indicate to check ALL files.  |
+  |                                                            |
+  | Notes:     A file will be created in the users home dir    |
+  |            under a .zigi directory with the dataset name   |
+  |            and last access information.                    |
+  |                                                            |
+  | Author:    Lionel B. Dyck                                  |
+  |                                                            |
+  | History:  (most recent on top)                             |
+  |            03/18/20 LBD - Refinement                       |
+  |            03/17/20 LBD - Creation                         |
+  | ---------------------------------------------------------- |
+  |    zigi - the z/OS ISPF Git Interface                      |
+  |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
+  |                                                            |
+  |    This program is free software: you can redistribute it  |
+  |    and/or modify it under the terms of the GNU General     |
+  |    Public License as published by the Free Software        |
+  |    Foundation, either version 3 of the License, or (at     |
+  |    your option) any later version.                         |
+  |                                                            |
+  |    This program is distributed in the hope that it will be |
+  |    useful, but WITHOUT ANY WARRANTY; without even the      |
+  |    implied warranty of MERCHANTABILITY or FITNESS FOR A    |
+  |    PARTICULAR PURPOSE.  See the GNU General Public License |
+  |    for more details.                                       |
+  |                                                            |
+  |    You should have received a copy of the GNU General      |
+  |    Public License along with this program.  If not, see    |
+  |    <https://www.gnu.org/licenses/>.                        |
+  * ---------------------------------------------------------- */
+
+  parse arg dir hlq qualignr opt
+
+  parse value '' with null check outfiles. last_check
+  outc = 0
+
+  parse value date('j') with 1 yy 3 ddd
+  today = '20'yy''ddd
+
+  if left(dir,1) = "'" then dir = strip(dir,'B',"'")
+  if left(hlq,1) = "'" then hlq = strip(hlq,'B',"'")
+  if left(opt,1) = "'" then opt = strip(opt,'B',"'")
+
+  if qualignr > 0 then do
+    hlq = translate(hlq,' ',".")
+    hlq = subword(hlq,1,qualignr)
+    hlq = translate(hlq,'.'," ")
+  end
+
+/* ---------------------------- *
+ | Get the users home directory |
+ * ---------------------------- */
+  Address syscall
+  'getcwd homedir'
+
+/* ---------------------------------------------------------- *
+ | Get the repositories subdirectory by removing the users    |
+ | home directory from it and use the entire thing if the pwd |
+ | is not part of it.  Remove trailing /.                     |
+ * ---------------------------------------------------------- */
+  homedir = homedir'/'
+  dl = length(homedir)
+  if left(dir,dl) = homedir then wdir = substr(dir,dl+1)
+  if right(wdir,1) = '/' then wdir = strip(wdir,'T','/')
+
+/* ------------------------------ *
+ | Translate the directory / to _ |
+ * ------------------------------ */
+  refdir = translate(wdir,'_','/')
+  ref_file = homedir'.zigi/'wdir
+
+  'lstat' homedir'.zigi/' stem.
+  if stem.0 = 0 then do
+     'mkdir' homedir'.zigi/ 755'
+     end
+
+ Address TSO
+
+  opt = translate(opt)
+
+  if opt = 'C' then do
+    cmd = 'cat' ref_file
+    x = bpxwunix(cmd,,so.,se.)
+    if x > 0 then return '*'
+    last_check = strip(substr(so.i,2))
+    do i = 1 to so.0
+      parse value so.i with dsn date .
+      files.dsn = date
+    end
+    call check_files
+  end
+  else call update
+
+  return check
+
+update:
+  call check_files
+  outfiles.0 = outc
+  if outc = 0 then return check
+  fdd = 'ZG'time('s')
+  'alloc f('fdd') ds('fdd') new spa(1,1) tr recfm(f b)' ,
+    'lrecl(80) blksize(32720)'
+  'execio * diskw' fdd '(finis stem outfiles.'
+  'free f('fdd')'
+  call outtrap 'x.'
+  'oput' fdd "'"ref_file"'" 'text'
+  'delete' fdd
+  call outtrap 'off'
+  return
+
+Check_files:
+  address syscall ,
+    'readdir' dir f.
+  do i = 1 to f.0
+    file = f.i
+    if left(file,1) = '.' then iterate
+    x = listdsi("'"hlq"."file"'")
+    if x > 0 then iterate
+    file = sysdsname
+    parse value sysrefdate with yyyy'/'ddd
+    sysrefdate = yyyy''ddd
+
+    if opt = 'C' then select
+      When sysrefdate = today then check = check sysdsname
+      when datatype(files.file) /= 'NUM' then check = check sysdsname
+      When sysrefdate > files.file then check = check sysdsname
+      otherwise nop
+      end
+    else do
+      outc = outc + 1
+      outfiles.outc = sysdsname sysrefdate
+    end
+  end
+  return
