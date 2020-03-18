@@ -27,7 +27,7 @@
 +
            +Press the%Enter+key to begin your zigi tutorial journey.
 )Init
-  .ZVARS = '(L0 L5 L1 L6 L2 L7 L3 LA L4 LG L8)'
+  .ZVARS = '(L0 L6 L1 L7 L2 L8 L3 LA L4 LG L5)'
    &L0 = '0'
    &L1 = '1'
    &L2 = '2'
@@ -49,10 +49,10 @@
            2,zigih200   /* Repository Panel               */
            3,zigih300   /* Member List Panel              */
            4,zigih400   /* Getting Started   (tbd)        */
-           5,zigih500   /* Common Scenarios  (tbd)        */
-           6,zigih600   /* Repository Layout              */
-           7,zigih700   /* SSH Key Registration           */
-           8,zigih800   /* non-zigi conversion            */
+           5,zigih800   /* non-zigi conversion            */
+           6,zigih500   /* Common Scenarios  (tbd)        */
+           7,zigih600   /* Repository Layout              */
+           8,zigih700   /* SSH Key Registration           */
            A,*zigihau   /* zigi Authors and Contributing  */
            L,*zigigpl   /* GPL License                    */
            *,'?'

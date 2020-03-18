@@ -4,6 +4,10 @@
                          New Features and Functions
                          --------------------------
 
+New Check command to be used by the user to check the state of the z/OS
+datasets on demand. The check will occur when the repository is opened and
+then only when the user requests. The state of the OMVS files will continue
+to be checked frequently as the user interacts wtih the repository.
 
 Reduce processing overhead by only checking z/OS datasets for changes if
 they have changed since the last date that zigi checked them. The test

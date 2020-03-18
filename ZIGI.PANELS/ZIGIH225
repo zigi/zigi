@@ -1,0 +1,36 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                                 %Check+
++
+%Check+will perform a check of all z/OS datasets to determine if there have
++been updates to the dataset. This includes both sequential and partitioned
++datasets.
++
++By default this occurs when the repository is opened and then only upon
++demand using the%Check+command.
++
++The z/OS dataset check consists of the following actions:
++
++ 1. Check the last reference date for the dataset
++ 2. If it is more recent than the zigi last reference file info then
++    - For sequential datasets copy them to OMVS where Git checks for updates
++    - For partitioned datasets check the ISPF stats and if different
++      then copy the member to OMVS where GIT will check for updates
++ Note: If updating a dataset within zigi the copy occurs upon exit from Edit.
++
++        +Press the%Enter+key to continue your zigi tutorial journey.
+)Init
+ .cursor  = &zcmd
+)PROC
+ &zcont = zigih230
+)END
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */
