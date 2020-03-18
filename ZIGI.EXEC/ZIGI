@@ -14,7 +14,8 @@
   |            ex 'zigi.exec(zigi)' 'repo-name'                |
   |                                                            |
   | NOTE:      ZIGI MUST NEVER be started under the ZIGI       |
-  |            ISPF Applications ID.                           |
+  |            ISPF Applications ID unless the libdef and      |
+  |            altlibs are done prior to starting.             |
   |                                                            |
   | Dependencies:                                              |
   |            1. Requires the z/OS port of GIT be installed   |
