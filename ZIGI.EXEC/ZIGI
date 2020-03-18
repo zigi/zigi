@@ -2395,29 +2395,29 @@ Stash_IT:
   | where HLQ is optional and will default to the active       |
   | pdshlq value.                                              |
   * ---------------------------------------------------------- */
-Add_DSN_HLQ: Procedure expose qualignr pdshlq null
-  arg dsn newhlq
+Add_DSN_HLQ:
+  arg addsn newhlq
   if newhlq = null
-  then whlq = pdshlq
-  else whlq = newhlq
+  then adwhlq = pdshlq
+  else adwhlq = newhlq
   if qualignr = 0
-  then hlq = whlq
+  then nhlq = adwhlq
   else do
-    hlq = translate(whlq,' ','.')
+    nhlq = translate(adwhlq,' ','.')
     if qualignr /= '*' then
-    hlq = subword(hlq,1,qualignr)
-    hlq = translate(hlq,'.',' ')
+    nhlq = subword(nhlq,1,qualignr)
+    nhlq = translate(nhlq,'.',' ')
   end
-  dsn = "'"hlq"."dsn"'"
-  return dsn
+  addsn = "'"nhlq"."addsn"'"
+  return addsn
 
-Remove_DSN_HLQ: Procedure expose qualignr pdshlq
-  arg dsn
-  dsn = translate(strip(dsn,'B',"'"),' ','.')
+Remove_DSN_HLQ:
+  arg rmdsn
+  rmdsn = translate(strip(rmdsn,'B',"'"),' ','.')
   if qualignr > 0 then
-  dsn = subword(dsn,qualignr+1)
-  dsn = translate(dsn,'.',' ')
-  return dsn
+  rmdsn = subword(rmdsn,qualignr+1)
+  rmdsn = translate(rmdsn,'.',' ')
+  return rmdsn
 
   /* ------------------------------------------------ *
   | Process the stashl (stash list) command:         |
