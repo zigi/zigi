@@ -11,10 +11,10 @@
  | TYPE(AB)           /* Action bar                */
  < TYPE(ABSL) GE(ON)  /* Action bar separator line */
 )ABC DESC('General')
- PDC DESC('Add dataset')                        ACTION RUN(Add     )
+ PDC DESC('Add dataset to Repository')          ACTION RUN(Add     )
  PDC DESC('Find in table')                      ACTION RUN(Find    )
  PDC DESC('Find String in Repo Files')          ACTION RUN(Grep    )
- PDC DESC('GIT Commands')                       ACTION RUN(gitcmd)
+ PDC DESC('GIT Command Interface')              ACTION RUN(gitcmd)
  PDC DESC('GIT Help') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%GITHELP)')
  PDC DESC('Git Log Query')                      ACTION RUN(GitLog  )
  PDC DESC('Info on Repository')                 ACTION RUN(Info    )

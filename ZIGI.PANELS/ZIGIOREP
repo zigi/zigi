@@ -14,7 +14,7 @@
 [Br    +  Change Branch   [Grep+    Find Strings    [Snapshot+Create Escrow
 [Check+   Check z/OS DSNs [info+    Info on Repo    [Stash+   Save Workspace
 [Commit+  Record Changes  [Merge+   Merge Branches  [StashL+  List Stashes
-[Convrepo+Convert non-zigi[Network+Network Report   [Status+  Git Status
+[Convrepo+Convert non-zigi[Network+ Network Report  [Status+  Git Status
 [Find+    Find in table   [Pull+    Pull from origin[Tag+     Git Tag
 [Flow+    Flow Menu       [Push+    Push to origin  [TagList+ List all Tags
 [Githelp+ Git Help        [Replace+ Replace Datasets[View+    OMVS Dir
