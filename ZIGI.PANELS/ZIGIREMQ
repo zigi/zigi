@@ -2,8 +2,8 @@
  $ type(output) caps(off)
  _ type(input)  caps(on ) hilite(uscore) intens(low)
 )Body Window(66,7)
-+Confirm you really want to remove the dataset and/or file
-+from the repository and from z/OS and OMVS:
++Confirm you really want to%remove+the dataset and/or file
++from the repository%and delete+from z/OS and OMVS:
 +
 +Requested removal:$rxdsn                                        +
 +
