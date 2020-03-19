@@ -4,6 +4,9 @@
                          New Features and Functions
                          --------------------------
 
+Redo the Current Repository Action Bar Menu. Split out General and Repository
+into General, Maintenance, and Repository.
+
 New Check command to be used by the user to check the state of the z/OS
 datasets on demand. The check will occur when the repository is opened and
 then only when the user requests. The state of the OMVS files will continue

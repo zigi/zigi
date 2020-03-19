@@ -11,38 +11,42 @@
  | TYPE(AB)           /* Action bar                */
  < TYPE(ABSL) GE(ON)  /* Action bar separator line */
 )ABC DESC('General')
- PDC DESC('Add dataset to Repository')          ACTION RUN(Add     )
  PDC DESC('Find in table')                      ACTION RUN(Find    )
  PDC DESC('Find String in Repo Files')          ACTION RUN(Grep    )
- PDC DESC('GIT Command Interface')              ACTION RUN(gitcmd)
- PDC DESC('GIT Help') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%GITHELP)')
+ PDC DESC('Git Command Interface')              ACTION RUN(gitcmd)
+ PDC DESC('Git Help') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%GITHELP)')
  PDC DESC('Git Log Query')                      ACTION RUN(GitLog  )
- PDC DESC('Info on Repository')                 ACTION RUN(Info    )
- PDC DESC('Replace z/OS Datasets')              ACTION RUN(Replace )
  PDC DESC('Set Defaults')                       ACTION RUN(Set     )
- PDC DESC('View OMVS Filesystem')               ACTION RUN(View    )
  PDC DESC('End')                                Action Run(END)
 )ABCINIT
-  .ZVARS = 'MENUX'
-)ABC DESC('Repository')
+  .ZVARS = 'MENUG'
+)ABC DESC('Maintenance')
  PDC DESC('Add Modified/Untracked')             ACTION RUN(AddAll  )
- PDC DESC('Change to another Branch')           ACTION RUN(Br      )
- PDC DESC('Check z/OS Datasets for Updates')    ACTION RUN(Check   )
- PDC DESC('Create Escrow Copy')                 ACTION RUN(Snapshot)
+ PDC DESC('Branch Change/Create')               ACTION RUN(Br      )
  PDC DESC('Commit Changes')                     ACTION RUN(Commit  )
- PDC DESC('Git Fetch')                          ACTION RUN(Fetch   )
- PDC DESC('Git Network Report')                 ACTION RUN(Network )
- PDC DESC('Git Status')                         ACTION RUN(Status  )
  PDC DESC('Merge Branches')                     ACTION RUN(Merge   )
  PDC DESC('Pull from Remote Repository')        ACTION RUN(Pull    )
  PDC DESC('Push to Remote Repository' )         ACTION RUN(Push    )
- PDC DESC('Add Remote to Repo')                 ACTION RUN(Remote  )
- PDC DESC('Rollback to Prior Commit Level')     ACTION RUN(Rollback)
  PDC DESC('Stash (save workspace)' )            ACTION RUN(Stash   )
  PDC DESC('Stash List'             )            ACTION RUN(StashL  )
- PDC DESC('Git Tag')                            ACTION RUN(Tag     )
- PDC DESC('List all Tags')                      ACTION RUN(TagList )
+ PDC DESC('Tag')                                ACTION RUN(Tag     )
+ PDC DESC('Tag List')                           ACTION RUN(TagList )
+ PDC DESC('End')                                Action Run(END)
+)ABCINIT
+  .ZVARS = 'MENUM'
+)ABC DESC('Repository')
+ PDC DESC('Add dataset')                        ACTION RUN(Add     )
+ PDC DESC('Add Remote to Repo')                 ACTION RUN(Remote  )
+ PDC DESC('Check z/OS Datasets for Updates')    ACTION RUN(Check   )
  PDC DESC('Convert non-zigi Repository')        ACTION RUN(Convrepo)
+ PDC DESC('Create Escrow Copy')                 ACTION RUN(Snapshot)
+ PDC DESC('Fetch Updated Repo Data')            ACTION RUN(Fetch   )
+ PDC DESC('Git Network Report')                 ACTION RUN(Network )
+ PDC DESC('Git Status')                         ACTION RUN(Status  )
+ PDC DESC('Info on Repository')                 ACTION RUN(Info    )
+ PDC DESC('Replace z/OS Datasets from Repo')    ACTION RUN(Replace )
+ PDC DESC('Rollback to Prior Commit Level')     ACTION RUN(Rollback)
+ PDC DESC('View OMVS Filesystem')               ACTION RUN(View    )
  PDC DESC('End')                                Action Run(END)
 )ABCINIT
   .ZVARS = 'MENUY'
@@ -60,7 +64,7 @@
 )ABCINIT
   .ZVARS = HELPX
 )Body  Expand(\\)
-+| General | Repository | ZigiFlow | Help +
++| General | Maintenance | Repository | ZigiFlow | Help +
 <-----------\-\--------------------------------+
 +Current Repository+--------------#zigtitle   +---------------------------------
 %Command ===>_zcmd            \ \  %Scroll ===>_zgsr+
