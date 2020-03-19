@@ -3614,7 +3614,7 @@ Clone_Repo:
     call Replace localrep zigirep pdshlq qualignr
     zigikey = localrep'/'zigirep
     zigidate = date('n')
-    sortdate = date('b') time('s')
+    sortdate = date('b')''time('s')
     'tbadd zigirepo order'
     'vget (defrsort) profile'
     'TBSort zigirepo Fields('defrsort')'
@@ -4788,7 +4788,7 @@ Create_Repo:
     Address ISPExec
     zigikey = localrep'/'zigirep
     zigidate = date('n')
-    sortdate = date('b') time('s')
+    sortdate = date('b')''time('s')
     'tbadd zigirepo order'
     zpush = defcpush
     'vget (defrsort) profile'
@@ -6433,7 +6433,7 @@ Test_Repo_Table_State:
         When words(zigidate) = 3 then do
           sortdate = date('b',strip(zigidate),'n') 0
         end
-        Otherwise sortdate = date('b') time('s')
+        Otherwise sortdate = date('b')''time('s')
       end
       'tbadd zigirepo order'
       if cat = 0 then do
