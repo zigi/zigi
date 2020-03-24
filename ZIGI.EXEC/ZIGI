@@ -2662,7 +2662,7 @@ Do_Rset:
 Get_TagList:
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd "&& git for-each-ref --format" ,
-    "'%(authordate) %(refname) %(subject)'" ,
+    "'%(creatordate) %(refname) %(subject)'" ,
     "refs/tags"
   x = docmd(cmd)
   'TBCreate' zcrtbl 'Keys(ctag) Names(cdatetim ctitle sortdate sorttime)' ,
