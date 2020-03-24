@@ -15,6 +15,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            03/24/20 LBD - Replace alloc/execio/free with   |
+  |                           cat for .zigi/dsn                |
   |            03/11/20 LBD - Check for .zigi before reading   |
   |                           .zigi/dsn                        |
   |            02/23/20 LBD - Make numbers pretty              |
@@ -110,13 +112,7 @@
     ckdd = 'ck'time('s')
     if sysvar('syspref') = null then pref = sysvar('sysuid')
     else pref = sysvar('syspref')
-    tdsn = "'"pref"."ckdd"'"
-    call outtrap 'x.'
-    "oget '"ckotdir"/.zigi/dsn'" tdsn 'text'
-    'Alloc f('ckdd') shr ds('tdsn')'
-    'Execio * diskr' ckdd '(finis stem ck.'
-    'Free f('ckdd')'
-    'delete' tdsn
+    x = bpxwunix("cat '"ckotdir"/.zigi/dsn'",,ck.)
     def. = null
     call outtrap 'off'
     do i = 1 to ck.0
