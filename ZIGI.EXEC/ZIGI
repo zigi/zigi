@@ -2558,7 +2558,7 @@ Stash_List:
         cmd = 'cd' localrep'/'zigirep
         cmd = cmd '&& git stash show -p' stashid
         x = docmd(cmd)
-        call view_std 'B'
+        call view_std 'B' 'V'
       end
       Otherwise do
         zerrsm = 'Unknown.'
