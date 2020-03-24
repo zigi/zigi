@@ -2600,7 +2600,7 @@ Do_Rset:
   zcmd = null
   pdshlqn = pdshlq
   hlq_change = 0
-  'Addpop row(4) column(6)'
+  'Addpop row(4) column(4)'
   'Display Panel(zigirset)'
   drc = rc
   'rempop'
@@ -5123,7 +5123,7 @@ update_repo_metadata:
     rtop = 0
   end
   if rtbl_open = 0 then
-  'TBCreate' rtbl 'Keys(fulldsn) Names(dsnstat dsn pdshlq filetype)' ,
+  'TBCreate' rtbl 'Keys(fulldsn) Names(dsnstat dsn filetype)' ,
     'Replace NoWrite'
   rtbl_open = 1
   /* We always fetch when we start to work on a repo */
