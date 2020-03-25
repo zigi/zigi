@@ -23,7 +23,7 @@
  &create  = 'Create'
  .help = zigih2I0
 )Proc
- ver (&zsel,list,S,C)
+ ver (&zsel,list,S,C,X)
 )PNTS
   Field(select ) var(zsel) val('S')
   Field(create ) var(zsel) val('C')
