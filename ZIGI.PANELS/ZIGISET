@@ -26,7 +26,7 @@
 +
 +See : https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup
 +
-+Press%Enter+to save, or%F3+to cancel.
+                     +Press%Enter+to save, or%F3+to cancel.
 )Init
  if (&mgen = &Z)
      &mgen = 0
