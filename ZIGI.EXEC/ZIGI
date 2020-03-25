@@ -1090,10 +1090,9 @@ Work_With_Repo:
       * ----------------------- */
       When abbrev('CONVREPO',zcmd,4) = 1 then do
         parse value '' with zcmd ans
-        'addpop row(3) column(4)'
         'display panel(zigivcnv)'
         drc = rc
-        'rempop'
+        if ans /= 'Y' then drc = 4
         if drc > 0 then do
           zerrsm = 'Canceled.'
           zerrlm = 'Conversion canceled.'
