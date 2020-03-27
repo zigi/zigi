@@ -15,6 +15,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            03/27/20 LBD - Remove defined extensions an U/C |
   |            03/24/20 LBD - Replace alloc/execio/free with   |
   |                           cat for .zigi/dsn                |
   |            03/11/20 LBD - Check for .zigi before reading   |
@@ -114,6 +115,7 @@
     else pref = sysvar('syspref')
     x = bpxwunix("cat '"ckotdir"/.zigi/dsn'",,ck.)
     def. = null
+    zdsn. = null
     call outtrap 'off'
     do i = 1 to ck.0
       if left(ck.i,1) = '#' then iterate
@@ -121,8 +123,9 @@
         parse value ck.i with . def_dsorg def_recfm def_lrecl def_blksize .
       end
       else do
-        dsn = word(ck.i,1)
-        def.dsn = subword(ck.i,2)
+        dsn = word(ck.i,1)          /* dataset name less hlq */
+        def.dsn = subword(ck.i,2)   /* dataset dsorg  */
+        zdsn.dsn = word(ck.i,6)     /* file extension */
       end
     end
   end
@@ -158,6 +161,14 @@
               Address ISPExec 'vget (zv'wp')'
               interpret 'mems = zv'wp
               si = si + 1
+              if zdsn.sub /= null then do
+                 ext = '.'zdsn.sub
+                 if pos(ext,mems) > 0 then do is = 1 to words(mems)
+                    parse value word(mems,is) with m'.'.
+                    mems = m delword(mems,is,1)
+                    end
+                    mems = translate(mems)
+                 end
               pullmems.sub = mems
               Address ISPExec 'verase zv'wp
             end
@@ -265,7 +276,6 @@ fix_num: procedure
   bytes = strip(str)
   return bytes
 
-
   /* ----------------------------------------------------------------- *
   | Allocate the PDS and perform the copy using OGET for selective    |
   | copies or OGETX for a full PDS                                    |
@@ -274,6 +284,7 @@ fix_num: procedure
   | - The target PDS will be allocated as a PDSE version 2.           |
   | - if maxgen (mgen) is provided then member generations will       |
   |   also be defined at allocation                                   |
+  | - Uppercase and remove defined extension for members              |
   * ----------------------------------------------------------------- */
 Alloc_Copy_PDS:
   pds = "'"ckothlq"."sub"'"
@@ -318,10 +329,15 @@ Alloc_Copy_PDS:
       /* skip the . and .. things */
       iterate
     end
-    if pullmems.sub /= null then
-    if wordpos(mems.ii,pullmems.sub) = 0 then iterate
-    src = rdir'/'mems.ii
     m = mems.ii    /* ignore the translation */
+    if zdsn.sub /= null then
+       if right(m,length(zdsn.sub)) = zdsn.sub then do
+          parse value m with m'.'.
+          m = translate(m)
+       end
+    if pullmems.sub /= null then
+    if wordpos(m,pullmems.sub) = 0 then iterate
+    src = rdir'/'mems.ii
     bin = is_binfile(sub'/'mems.ii)
     if bin = 1 then type = 'Binary'
     else type = 'Text'
@@ -335,7 +351,7 @@ Alloc_Copy_PDS:
 
 get_dcb:
   if def.sub /= null then do
-    parse value def.sub with dsorg recfm lrecl blksize
+    parse value def.sub with dsorg recfm lrecl blksize .
     recfm = left(recfm,1) substr(recfm,2,1) substr(recfm,3,1)
   end
   else do

@@ -4,6 +4,11 @@
                          New Features and Functions
                          --------------------------
 
+Support file extensions for PDS members when copied to OMVS. The extension
+is defined when the PDS is added to zigi for management and only one extension
+is allowed per PDS, and it may NOT be changed. The extension is then removed
+when the file is copied to the PDS.
+
 Redo the Current Repository Action Bar Menu. Split out General and Repository
 into General, Maintenance, and Repository.
 

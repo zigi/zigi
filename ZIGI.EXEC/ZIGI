@@ -3666,6 +3666,10 @@ Work_with_repo_file:
       if word(root.i,1) = 'total' then iterate
       do
         mem = word(root.i,12)
+        if zdsn.dsn /= null then do
+          parse value mem with mem'.'.
+          mem = translate(mem)
+        end
         memstat = null
         if word(root.i,2) = 'binary'
         then mtype = 'B'
@@ -3895,6 +3899,8 @@ Work_with_repo_file:
           if erc = 0 then do
             if ztdsels = 1 then do
               m = strip(mem)
+              if zdsn.dsn /= null then
+              rm = lower(m)'.'zdsn.dsn
               m = usssafe(m)
               e = usssafe(edsn)
               r = usssafe(dsn)
@@ -3914,14 +3920,17 @@ Work_with_repo_file:
               if sysdsorg = 'PS'
               then copycmd = "//'"e"'"
               else copycmd = "//'"e"("m")'"
+              if sysdsorg = 'PO'
+              then r = r'/'rm
+              else r = r'/'
               copycmd = '"'copycmd'"'
               copycmd = "cp "binopt" -U -v" copycmd" "localrep"/"zigirep
-              copycmd = copycmd || "/"r"/"
+              copycmd = copycmd || "/"r
               x = bpxwunix(copycmd,,so.,se.)
               if x > 0 then call view_std 'B'
               x = debug('Copy:' copycmd)
               if binopt = '-B' then do
-                tagcmd = 'chtag -b 'localrep'/'zigirep'/'r'/*'
+                tagcmd = 'chtag -b 'localrep'/'zigirep'/'r
                 x = bpxwunix(tagcmd,,so.,se.)
               end
               if ztdsels = 1 then do
@@ -3960,7 +3969,15 @@ Work_with_repo_file:
               Address TSO 'Rename' olddsn newdsn
               cmd = 'cd' localrep'/'zigirep'/'dsn
               cmd = usssafe(cmd)
-              cmd = cmd '&& git mv' usssafe(mem) usssafe(newmem)
+              if zdsn.dsn /= null then do
+                rnmem = lower(mem)'.'zdsn.dsn
+                rnnewmem = lower(newmem)'.'zdsn.dsn
+              end
+              else do
+                rnmem = mem
+                rnnewmem = newmem
+              end
+              cmd = cmd '&& git mv' usssafe(rnmem) usssafe(rnnewmem)
               x = docmd(cmd)
               call view_std 'B'
               'tbdelete' rtll
@@ -3997,7 +4014,11 @@ Work_with_repo_file:
             Address TSO ,
               'Delete' rdsn
             call outtrap 'off'
-            m = usssafe(mem)
+            if zdsn.dsn /= null then do
+              rmem = lower(mem)'.'zdsn.dsn
+            end
+              else rmem = mem
+            m = usssafe(rmem)
             xldir = usssafe(localdir)
             cmd = 'cd' xldir '&& git rm -f "'usssafe(m)'"'
             x = docmd(cmd,,so.,se.)
@@ -4876,7 +4897,7 @@ do_git_attributes:
     return
   end
   fd = retval  /* as I think it's weird to write to a retval lol */
-  call write_fd "# zigi" ver "dsn-file "
+  call write_fd "# zigi dsn-file"
   call write_fd "# This file needs to be here."
   call write_fd "# Don't edit unless you know what you're doing :)"
   call write_fd '#  '
@@ -4894,6 +4915,8 @@ do_git_attributes:
   call write_fd '# 4 - lrecl'
   call write_fd '# 5 - blksize'
   call write_fd '#     0 is allowed if system determined blksize is enabled'
+  call write_fd '# 6 - extension (optional)'
+  call write_fd '#     file extension to be used for PDS members in USS'
   call write_fd '#  '
   call write_fd '# Default DSORG and DCB info'
   call write_fd '* PO FB 80 32720'
@@ -5125,6 +5148,7 @@ update_repo_metadata:
   'TBCreate' rtbl 'Keys(fulldsn) Names(dsnstat dsn filetype)' ,
     'Replace NoWrite'
   rtbl_open = 1
+  call get_dsn_info
   /* We always fetch when we start to work on a repo */
   if fetch_flag = 1 then crflag = 1
   if zigi_offline = 1 then crflag = 1
@@ -5215,10 +5239,14 @@ update_repo_metadata:
           mem_hit = 0
           do im = 1 to words(mem_delta)
             mem = word(mem_delta,im)
+            file = root.i
             m = strip(mem)
             m = usssafe(m)
             e = usssafe(edsn)
-            r = usssafe(root.i)
+            r = usssafe(file)
+            if zdsn.file /= null
+            then rm = lower(strip(mem)'.'zdsn.file)
+            else rm = m
             /* Binary v1, check if PDS is a bin, then copy binary */
             if is_binfile(r'/*') = 1 then do
               binopt = '-B'
@@ -5235,12 +5263,12 @@ update_repo_metadata:
             copycmd = "//'"e"("m")'"
             copycmd = '"'copycmd'"'
             copycmd = "cp "binopt" -U -v" copycmd" "localrep"/"zigirep
-            copycmd = copycmd || "/"r"/"
+            copycmd = copycmd || "/"r"/"rm
             x = bpxwunix(copycmd,,so.,se.)
             if x > 0 then call view_std 'B'
             x = debug('Copy:' copycmd)
             if binopt = '-B' then do
-              tagcmd = 'chtag -b 'localrep'/'zigirep'/'r'/'m
+              tagcmd = 'chtag -b 'localrep'/'zigirep'/'r'/'rm
               x = bpxwunix(tagcmd,,so.,se.)
             end
             mem_hit = 1
@@ -5255,8 +5283,13 @@ update_repo_metadata:
           mem_omvs = null
           'vget (allmems)'
           do im = 1 to rd.0
-            m = strip(rd.im)
             if left(rd.im,1) = '.' then iterate
+            m = strip(rd.im)
+            if zdsn.r /= null
+            then do
+              parse value m with m'.'.
+              m = translate(m)
+            end
             if wordpos(m,allmems) = 0 then do
               mem_omvs = mem_omvs m
             end
@@ -5504,6 +5537,7 @@ pfshow:
   * ------------------------------- */
 Add_Dataset:
   parse value '' with zcmd what list dsnapfx zsel
+  call get_dsn_info
   dsnapfx = pdshlq
   lc_count = 0
   add_count = 0
@@ -5704,7 +5738,20 @@ Do_Add_Copy:
   if pos('(',dsna) > 0 then
   parse value dsna with dsna'('ac_mem')'
   what = dsna
+  FC = listdsi("'"WHAT"'")
   dsnb = remove_dsn_hlq(dsna)
+  if sysdsorg = 'PO' then
+  if zdsn.dsnb = null then do
+    'addpop row(4) column(6)'
+    'display panel(zigiadde)'
+    drc = rc
+    'rempop'
+    if drc = 0 then zdsn.dsnb = ext
+  end
+  if ac_mem /= null then
+  if zdsn.dsnb /= null then do
+    ac_mem = lower(ac_mem'.'zdsn.dsnb)
+  end
   if ac_mem /= null then dsnb = dsnb'/'ac_mem
   zs1 = 'Copying' copy_dsna
   zs2 = 'to' dsnb 'in OMVS'
@@ -5717,7 +5764,6 @@ Do_Add_Copy:
   zs4 = 'Patience . . .'
   call do_popup4
   DIR = localrep'/'zigirep
-  FC = listdsi("'"WHAT"'")
   if sysrecfm = 'U' then do
     if ztdsels = 1 then do
       zerrsm = 'Invalid'
@@ -5762,11 +5808,29 @@ Do_Add_Copy:
       x = docmd(cmd)
       call get_binfiles
     end
-    if ac_mem /= null then pdsc = pdsc"("ac_mem")"
-    copycmd = "//'"pdsc"'"
-    copycmd = '"'copycmd'"'
-    copycmd = "cp -U -v "binopt copycmd" "DIR"/"pdss"/"ac_mem
-    x =bpxwunix(copycmd,,so.,se.)
+    if zdsn.dsnb = null then do
+      if ac_mem /= null then pdsc = pdsc"("ac_mem")"
+      copycmd = "//'"pdsc"'"
+      copycmd = '"'copycmd'"'
+      cmd = "cp -U -v "binopt copycmd" "DIR"/"pdss"/"ac_mem
+      x =bpxwunix(cmd,,so.,se.)
+    end
+    else do
+      call outtrap 'cm.'
+      address tso 'listd' "'"pds"' m"
+      call outtrap 'off'
+      do ci = 7 to cm.0
+        mem = word(cm.ci,1)
+        ussmem = lower(mem)'.'zdsn.dsnb
+        zs2 = 'to' dsnb'/'ussmem
+        call do_popup4
+        pdsc = pds"("mem")"
+        copycmd = "//'"pdsc"'"
+        copycmd = '"'copycmd'"'
+        cmd = "cp -U -v "binopt copycmd" "DIR"/"pdss"/"ussmem
+        x =bpxwunix(cmd,,so.,se.)
+      end
+    end
     if option = 'binary' then do
       /* for some reason the git autotagging due to .gitattributes
       does not work all the time (?? weird) so we tag it if binary
@@ -5832,14 +5896,15 @@ Do_Add_Copy:
   | Routine uses OGET and OPUT along with ALLOC/EXECIO.     |
   |                                                         |
   | Format is:                                              |
-  | dsn PS/PO recfm lrecl blksize                           |
+  | dsn PS/PO recfm lrecl blksize extension                 |
+  | the extension is optional - no preceeding period        |
   * ------------------------------------------------------- */
 save_dsninfo:
   /* better make sure sd. stem is empty before we start :) */
   sd. = ''
   sd.0 = 0
   x = listdsi(fulldsn)
-  dsn_record = dsn sysdsorg sysrecfm syslrecl sysblksize
+  dsn_record = dsn sysdsorg sysrecfm syslrecl sysblksize zdsn.dsn
   if sysvar('syspref') = null then pref = sysvar('sysuid')'.'
   else pref = null
   sd_dsn = pref'zigi.t'time('s')
@@ -6906,3 +6971,29 @@ Get_PDS_Members:
   end
   drop pdsmems.
   return
+
+get_dsn_info:
+  zdsn. = null
+  cmd = 'cat' localrep'/'zigirep'/.zigi/dsn'
+  x = bpxwunix(cmd,,s.,e.)
+  if x > 0 then return
+  do di = 1 to s.0
+    zd = word(s.di,1)
+    zdsn.zd = word(s.di,6)
+    zdsn.0 = zd
+  end
+  drop s. e.
+  return
+
+/* ------------------------------------- *
+ * Name:     Lower                       *
+ *                                       *
+ * Function: Lowercase the provided data *
+ *                                       *
+ * Syntax:   x=lower(input)              *
+ * ------------------------------------- */
+Lower: Procedure
+  parse arg input
+  out = translate(input,"abcdefghijklmnopqrstuvwxyz",,
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+  return out
