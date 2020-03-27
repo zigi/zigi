@@ -29,7 +29,7 @@
  &zigtitle = '(Characteristics of a zigi Managed Repository)'
 )Proc
  &zup   = zigih600
- &zcont = zigih630
+ &zcont = zigih620
 )end
 /* -------------------------------------------------------- */
 /* zigi - the z/OS ISPF Git Interface                       */

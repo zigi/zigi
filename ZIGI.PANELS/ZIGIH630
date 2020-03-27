@@ -28,7 +28,7 @@
 )Init
  &zigtitle = '(Characteristics of a zigi Managed Repository)'
 )Proc
- &zup   = zigih600
+ &zup   = zigih620
  &zcont = zigih700
 )end
 /* -------------------------------------------------------- */
