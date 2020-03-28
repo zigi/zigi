@@ -3899,8 +3899,9 @@ Work_with_repo_file:
           if erc = 0 then do
             if ztdsels = 1 then do
               m = strip(mem)
-              if zdsn.dsn /= null then
-              rm = lower(m)'.'zdsn.dsn
+              if zdsn.dsn /= null
+              then rm = lower(m)'.'zdsn.dsn
+              else rm = m
               m = usssafe(m)
               e = usssafe(edsn)
               r = usssafe(dsn)
@@ -4915,7 +4916,7 @@ do_git_attributes:
   call write_fd '# 4 - lrecl'
   call write_fd '# 5 - blksize'
   call write_fd '#     0 is allowed if system determined blksize is enabled'
-  call write_fd '# 6 - extension (optional)'
+  call write_fd '# 6 - extension (optional - if used then no period)'
   call write_fd '#     file extension to be used for PDS members in USS'
   call write_fd '#  '
   call write_fd '# Default DSORG and DCB info'
