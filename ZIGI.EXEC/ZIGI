@@ -6198,6 +6198,8 @@ do_history:
               then relement = fulldsn
               else do
                 parse value element with .'/'rcmem
+                if zdsn.dsn /= null then
+                   parse value rcmem with rcmem'.'.
                 relement = left(fulldsn,length(fulldsn)-1) ,
                   || "("rcmem")'"
               end
@@ -6236,6 +6238,21 @@ do_history:
               "LMClose Dataid("zstats")"
               "LMFree  Dataid("zstats")"
             end
+            m = usssafe(strip(mem))
+            e = usssafe(strip(rdsn,'B',"'"))
+            r = usssafe(dsn)
+
+            if zdsn.dsn /= null
+            then rm = lower(strip(mem)'.'zdsn.dsn)
+            else rm = m
+            rm = usssafe(rm)
+
+            copycmd = "//'"e"("m")'"
+            copycmd = '"'copycmd'"'
+            copycmd = "cp "binopt" -U -v" copycmd" "localrep"/"zigirep
+            copycmd = copycmd || "/"r"/"rm
+            x = bpxwunix(copycmd,,so.,se.)
+            if x > 0 then call view_std 'B'
             zerrsm = 'Completed.'
             zerrlm = relement 'successfully recovered into' save_rdsn ,
               left(' ',76) ,
