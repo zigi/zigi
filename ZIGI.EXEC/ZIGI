@@ -474,7 +474,7 @@
   old_zigiuid = zigiuid
   old_zigimail = zigimail
 
-  'vget (mgen)'
+  'vget (mgen extfile)'
 
   Select
     When mgen = null then hit = 0
@@ -487,7 +487,7 @@
     sl = mgen()
     'Display Panel(zigiset)'
     if rc > 0 then leave
-    'vput (mgen) profile'
+    'vput (mgen extfile) profile'
     call update_config
     if zigiuid /= null
     then if zigimail /= null
@@ -700,6 +700,11 @@
     'tbget zigirepo'
     if defcpush = 'Y' then zpush = 'Y'
     else zpush = 'N'
+
+   /* -------------------------------- *
+    | Define Set as an alias of Config |
+    * -------------------------------- */
+    if abbrev('SET',zcmd,2) = 1 then zcmd = 'CONFIG'
 
     if zcmd /= null then
     Select
@@ -5759,6 +5764,7 @@ Do_Add_Copy:
   FC = listdsi("'"WHAT"'")
   dsnb = remove_dsn_hlq(dsna)
   ext = null
+  if extfile = 'N' then
   if sysdsorg = 'PO' then
   if zdsn.dsnb = null then do
     'addpop row(4) column(6)'
