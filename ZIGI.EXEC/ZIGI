@@ -3662,16 +3662,20 @@ Work_with_repo_file:
     "LMOPEN DATAID("did")"
     cmd = 'cd' localrep'/'zigirep
     x = docmd(cmd '&& git status --porcelain')
+    file_ext = zdsn.dsn
+    file_extl = length(file_ext)
     dstat = dsnstat
     do i = 1 to root.0
       if left(root.i,1) = ' ' then iterate
       if word(root.i,1) = 'total' then iterate
       do
         mem = word(root.i,12)
-        if zdsn.dsn /= null then do
+        if file_ext /= null then
+          if right(mem,file_extl) = file_ext then do
           parse value mem with mem'.'.
           mem = translate(mem)
         end
+        else iterate
         memstat = null
         if word(root.i,2) = 'binary'
         then mtype = 'B'
