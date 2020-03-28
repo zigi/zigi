@@ -5741,6 +5741,7 @@ Do_Add_Copy:
   what = dsna
   FC = listdsi("'"WHAT"'")
   dsnb = remove_dsn_hlq(dsna)
+  ext = null
   if sysdsorg = 'PO' then
   if zdsn.dsnb = null then do
     'addpop row(4) column(6)'
