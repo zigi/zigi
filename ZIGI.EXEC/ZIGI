@@ -3071,6 +3071,8 @@ do_grep:
           parse value so.si with gdsn":" .
           if pos('/',gdsn) > 0 then do
             parse value gdsn with gdsn'/'mem':' .
+            if zdsn.gdsn /= null then
+               parse value mem with mem'.'.
             if dsnvalid(gdsn) = 'OK'
             then gdsn = gdsn'('mem')'
             else gdsn = gdsn'/'mem
@@ -3679,6 +3681,10 @@ Work_with_repo_file:
           stat = substr(so.ii,1,2)
           thepath = word(so.ii,2)
           parse var thepath FOLDER"/"MEMBER
+          if zdsn.dsn /= null then do
+             parse value member with member'.' .
+             member = translate(member)
+             end
           if folder /= dsn then iterate
           if mem = MEMBER then do
             memstat = porcelain(stat)
@@ -3706,6 +3712,8 @@ Work_with_repo_file:
     * ---------------------------------- */
     save_rtll = 0
     save_ztdsels = ztdsels
+    extens = zdsn.dsn
+    'vput (extens)'
     Do Forever
       if rtll_open = 0 then leave
       parse value '' with zsel zcmd row
@@ -4080,7 +4088,9 @@ Work_with_repo_file:
           * -------------------------------- */
           d = usssafe(dsn)
           cmd = 'cd' localrep'/'zigirep'/'d
-          m = './'usssafe(mem)
+          m = usssafe(mem)
+          if zdsn.dsn /= null then
+             m = lower(m)'.'zdsn.dsn
           x = docmd(cmd ' && git diff 'm)
           if so.0 + se.0 > 0
           then call View_std 'X' 'V'
@@ -5981,6 +5991,15 @@ Do_Undo:
     'setmsg msg(isrz003)'
   end
 
+/* ------------------------ *
+ | check for file extension |
+ * ------------------------ */
+  if uopt = 'M' then do
+     if zdsn.dsn /= null
+        then rm = lower(m)'.'zdsn.dsn
+        else rm = m
+        end
+
   if zerrsm = null then do
     cmd = 'cd' localrep'/'zigirep
     cmd2 = null
@@ -5988,13 +6007,13 @@ Do_Undo:
       if mem = null
       then cmd2 = '&& git reset HEAD' d
       else do
-        cmd2 = '&& git reset HEAD' d'/'m
+        cmd2 = '&& git reset HEAD' d'/'rm
         cmd2 = cmd2 '&& git reset HEAD .zigi/'d
         cmd2 = cmd2 '&& git checkout -- .zigi/'d
       end
     end
     if uopt = 'M'
-    then cmd = cmd cmd2 ' && git checkout -- 'd'/'m
+    then cmd = cmd cmd2 ' && git checkout -- 'd'/'rm
     else cmd = cmd cmd2 ' && git checkout -- 'd
     cmd = cmd '&& echo "----------------------"'
     x = docmd(cmd)
@@ -6007,7 +6026,7 @@ Do_Undo:
       cmd = 'cd' localrep'/'zigirep'/'d
       fdsn = strip(fulldsn,'B',"'")
       cmd = cmd '&& echo "Copy results:" && echo " "'
-      cmd = cmd '&& cp -Uv' cpbin m ,
+      cmd = cmd '&& cp -Uv' cpbin rm ,
         '"//' || "'"usssafe(fdsn)"("m")'" || '"'
     end
     else do
@@ -6059,6 +6078,13 @@ do_history:
     'setmsg msg(isrz003)'
     return
   end
+  if zdsn.dsn /= null then do
+     if pos('/',element) > 0
+        then parse value element with l'/'element
+        else l = null
+     element = lower(element)'.'zdsn.dsn
+     if l /= null then element = l'/'element
+     end
   shelement = element
   if pos('/',zigirep) > 0 then do
     parse value zigirep with x'/'zrep

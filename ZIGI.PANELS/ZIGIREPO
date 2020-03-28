@@ -68,11 +68,11 @@
 <-----------\-\--------------------------------+
 +Current Repository+--------------#zigtitle   +---------------------------------
 %Command ===>_zcmd            \ \  %Scroll ===>_zgsr+
-+Local dir      :$localdir   \ \%F3  +
-+Remote path    :$remote1
-+Current Branch :$branch                                      +
-%                !bstat                                                     +
-%                $baction                                                   +
++Local dir     :$localdir                                                 %F3  +
++Remote path   :$remote1
++Current Branch:$branch                                      +
+%               !bstat                                                     +
+%               $baction                                                   +
 +
 %S  Status                    Dataset/File Name
 )Model

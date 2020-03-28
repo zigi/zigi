@@ -34,9 +34,9 @@
 <-----------\-\--------------------------------+
 +PDS Member List+-----------------#zigtitle   +---------------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zgsr+
-+Current Dataset    : $fulldsn                     \ \%F3  +
-+Current Repository : $localdir
-+Current Branch     : $branch
++Current Dataset   :$fulldsn                     \ \%F3  +
++Current Repository:$localdir
++Current Branch    :$branch                                [ext
 %
 %S  ]tmem  +  ]tstat +             %Type+]tsiz+  ]tdate   +]ttime   +]tuser +
 )Model
@@ -52,6 +52,11 @@
   &tdate  = 'Mod-Date'
   &ttime  = 'Mod-Time'
   &tuser  = 'Userid'
+*REXX(* extens)
+  if extens = ''
+     then ext = ''
+     else ext = 'Extension: .'extens
+*ENDREXX
 )Proc
  &row = &z
  if (&ZCMD = &Z)
