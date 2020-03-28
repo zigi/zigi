@@ -1428,7 +1428,10 @@ Work_With_Repo:
             x = docmd(cmd)
             if x > 0 then call view_std 'B'
 
+            save_hlq = pdshlq
             call Replace localrep zigirep snaphlq '*'
+            pdshlq = save_hlq
+
             /* now view both the omvs directory and snaphlq */
             sans = null
             'Addpop row(4) column(10)'
