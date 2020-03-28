@@ -6958,6 +6958,7 @@ Do_Tag_Extract:
       "lminit dataid(outdd1) dataset("newfile")"
       do im = 1 to words(members.f)
         m = word(members.f,im)
+        if pos('.',m) > 0 then parse value m with m'.'.
         "lmcopy fromid("indd1") todataid("outdd1") frommem("m") replace"
       end
       "lmfree dataid("indd1")"
