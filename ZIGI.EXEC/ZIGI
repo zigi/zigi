@@ -3075,7 +3075,7 @@ do_grep:
           if pos('/',gdsn) > 0 then do
             parse value gdsn with gdsn'/'mem':' .
             if zdsn.gdsn /= null then
-               parse value mem with mem'.'.
+            parse value mem with mem'.'.
             if dsnvalid(gdsn) = 'OK'
             then gdsn = gdsn'('mem')'
             else gdsn = gdsn'/'mem
@@ -3674,7 +3674,7 @@ Work_with_repo_file:
       do
         mem = word(root.i,12)
         if file_ext /= null then
-          if right(mem,file_extl) = file_ext then do
+        if right(mem,file_extl) = file_ext then do
           parse value mem with mem'.'.
           mem = translate(mem)
         end
@@ -3689,9 +3689,9 @@ Work_with_repo_file:
           thepath = word(so.ii,2)
           parse var thepath FOLDER"/"MEMBER
           if zdsn.dsn /= null then do
-             parse value member with member'.' .
-             member = translate(member)
-             end
+            parse value member with member'.' .
+            member = translate(member)
+          end
           if folder /= dsn then iterate
           if mem = MEMBER then do
             memstat = porcelain(stat)
@@ -4033,7 +4033,7 @@ Work_with_repo_file:
             if zdsn.dsn /= null then do
               rmem = lower(mem)'.'zdsn.dsn
             end
-              else rmem = mem
+            else rmem = mem
             m = usssafe(rmem)
             xldir = usssafe(localdir)
             cmd = 'cd' xldir '&& git rm -f "'usssafe(m)'"'
@@ -4097,7 +4097,7 @@ Work_with_repo_file:
           cmd = 'cd' localrep'/'zigirep'/'d
           m = usssafe(mem)
           if zdsn.dsn /= null then
-             m = lower(m)'.'zdsn.dsn
+          m = lower(m)'.'zdsn.dsn
           x = docmd(cmd ' && git diff 'm)
           if so.0 + se.0 > 0
           then call View_std 'X' 'V'
@@ -6002,10 +6002,10 @@ Do_Undo:
  | check for file extension |
  * ------------------------ */
   if uopt = 'M' then do
-     if zdsn.dsn /= null
-        then rm = lower(m)'.'zdsn.dsn
-        else rm = m
-        end
+    if zdsn.dsn /= null
+    then rm = lower(m)'.'zdsn.dsn
+    else rm = m
+  end
 
   if zerrsm = null then do
     cmd = 'cd' localrep'/'zigirep
@@ -6086,12 +6086,12 @@ do_history:
     return
   end
   if zdsn.dsn /= null then do
-     if pos('/',element) > 0
-        then parse value element with l'/'element
-        else l = null
-     element = lower(element)'.'zdsn.dsn
-     if l /= null then element = l'/'element
-     end
+    if pos('/',element) > 0
+    then parse value element with l'/'element
+    else l = null
+    element = lower(element)'.'zdsn.dsn
+    if l /= null then element = l'/'element
+  end
   shelement = element
   if pos('/',zigirep) > 0 then do
     parse value zigirep with x'/'zrep
@@ -6202,7 +6202,7 @@ do_history:
               else do
                 parse value element with .'/'rcmem
                 if zdsn.dsn /= null then
-                   parse value rcmem with rcmem'.'.
+                parse value rcmem with rcmem'.'.
                 relement = left(fulldsn,length(fulldsn)-1) ,
                   || "("rcmem")'"
               end
@@ -6896,7 +6896,19 @@ Do_Tag_Extract:
     okng = dsnvalid(file)
     if okng = 'OK' then do
       if wordpos(file,files) = 0 then files = files file
-      if member /= null then members.file = members.file member
+      if member /= null then
+      if pos('.',member) = 0 then
+      members.file = members.file member
+      if pos('.',member) > 0 then
+        if zdsn.file /= null then do
+          l = length(zdsn.file)
+          if right(member,l) = zdsn.file
+          then  do
+            parse value member with member'.'.
+            members.file = members.file member
+          end
+          else omvsfiles = omvsfiles fileo
+      end
     end
     else omvsfiles = omvsfiles fileo
   end
@@ -6958,7 +6970,6 @@ Do_Tag_Extract:
       "lminit dataid(outdd1) dataset("newfile")"
       do im = 1 to words(members.f)
         m = word(members.f,im)
-        if pos('.',m) > 0 then parse value m with m'.'.
         "lmcopy fromid("indd1") todataid("outdd1") frommem("m") replace"
       end
       "lmfree dataid("indd1")"
