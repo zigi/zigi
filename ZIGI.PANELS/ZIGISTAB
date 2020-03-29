@@ -22,7 +22,7 @@
 +| Commands | Help +
 <-----------\-\--------------------------------+
 +Stash Summary +-----------\-\------#zigtitle +------\-\------------------------
-%Command ===>_zcmd        \ \ %Scroll ===>_zscr+
+%Command ===>_zcmd        \ \ %Scroll ===>_zgsr+
 + \ \%F3  +
 +Sel Stash-ID    Comments
 +
@@ -30,7 +30,7 @@
 _z+ $z          $z
 )Init
   .ZVARS = '(zsel stashid stashcmt)'
-  &zscr = CSR
+  &zgsr = CSR
   .help = zigihxxx
 )Proc
 )End

@@ -5,7 +5,7 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
-)Body Window(63,13) Expand(\\)
+)Body Window(67,15) Expand(\\)
 +Command ===>_zcmd   \ \ +
 %
 +Review/Update Repository Settings:
@@ -14,20 +14,27 @@
 %
 +PREFIX for datasets:    @pdshlqn                 + (no quotes)
 %
-+Default Push on Commit (Y or N):@z+
++Default Push on Commit: @z+(Y or N)
 +
 +Default Userid to set prior to Commit:@defruid + or blank
++
++Disable File Extension Prompt on Dataset Add:@z+(Y or N) %Global
 +
 %ENTER+to register updates and%F3+to Cancel or Leave the panel.
 )Init
 &zwinttl = 'zigi Set Defaults for Repository'
- .zvars = '(defcpush)'
+ .zvars = '(defcpush extfans)'
+ if (&pdshlqn = &Z)
+    .cursor = PDSHLQN
  if (&defcpush = &Z)
     .cursor = DEFCPUSH
  if (&defruid = &Z)
     .cursor = DEFRUID
+ if (&extans = &Z)
+    &extans = 'N'
+    .cursor = EXTANS
  .help = zigih2e0
- &zscr = CSR
+ &zgsr = CSR
 )Proc
  &resp = .resp
 *REXX(* zedsmsg zedlmsg resp csr pdshlq pdshlqn)
@@ -59,6 +66,9 @@
     .MSG = ISRZ001
     .CURSOR = &CSR
  if (&zedsmsg EQ &Z)
+ ver (&pdshlqn,dsname)
+ ver (&defcpush,nb,list,Y,N)
+ ver (&extans,nb,list,Y,N)
 )End
 /* -------------------------------------------------------- */
 /* zigi - the z/OS ISPF Git Interface                       */

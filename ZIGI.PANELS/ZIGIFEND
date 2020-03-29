@@ -6,14 +6,15 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(58,07)
+)Body Window(63,8)
 +
-  +This will finalize your workflow. All commits in the
-   +Press%Enter+to finalize your flow. This will squash
-    +all commits in the work-branch into your feature
-         +branch and remove the local work-branch
-                            +
-                 +Or press%F3+to cancel.
+    Finalizing the flow will merge the current status into
+      the feature branch. This will be done in one commit
+       (squashed). The commit message will be prefilled
+         with the commit messages you used. The local
+                 work-branch will be deleted.
+
+                    +Or press%F3+to cancel.
 )Init
  &zwinttl = 'zigi Finish Current zigiflow.'
 )Proc

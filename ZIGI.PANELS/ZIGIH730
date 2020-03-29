@@ -27,7 +27,7 @@
 +        +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
- &zscr = CSR
+ &zgsr = CSR
 )PROC
  &zcont = zigihint
 )END

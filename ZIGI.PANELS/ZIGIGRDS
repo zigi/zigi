@@ -7,19 +7,19 @@
   # type(output) hilite(reverse) color(turq) caps(off)
 )Body  Expand(\\)
 +Grep Datasets/Files+-------------#zigtitle   +---------------------------------
-%Command ===>_zcmd        \ \ %Scroll ===>_zscr+
+%Command ===>_zcmd        \ \ %Scroll ===>_zgsr+
 + \ \%F3  +
 +Grep Command:@grepstr
 +
 +Options:%S+Edit%E+Edit%B+Browse%V+View
 +
-+Sel      Status    $gds                                         Count
++Sel      Status    $gds                                        +Count
 +
 )Model
 _z+      $z         $z                                          $z
 )Init
   .ZVARS = '(zsel gstat gdsn gcount)'
-  &zscr = CSR
+  &zgsr = CSR
 )Proc
  &row = &z
  if (&ZCMD = &Z)
