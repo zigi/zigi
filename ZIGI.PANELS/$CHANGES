@@ -44,6 +44,7 @@ Bug Fixes and Other Updates:
          ISPF stats reapply
   5. Remove check for hyphen for 1st char of dsname
   6. Remove tbquery that is not required
+  7. Remove version from default installation datasets
 
 
 =============================================================================
