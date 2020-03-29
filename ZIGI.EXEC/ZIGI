@@ -26,6 +26,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            03/28/20 LBD - Support PDS member file          |
+  |                           extensions                       |
   |            03/18/20 LBD - Refine ref date check            |
   |                         - Bypass update check after repo   |
   |                           is selected.                     |
@@ -474,7 +476,11 @@
   old_zigiuid = zigiuid
   old_zigimail = zigimail
 
-  'vget (mgen extfile)'
+  'vget (mgen extfile) profile'
+  if pos(extfile,'YN') = 0 then do
+    extfile = 'N'
+    'vput (extfile) profile'
+  end
 
   Select
     When mgen = null then hit = 0
@@ -6906,14 +6912,14 @@ Do_Tag_Extract:
       if pos('.',member) = 0 then
       members.file = members.file member
       if pos('.',member) > 0 then
-        if zdsn.file /= null then do
-          l = length(zdsn.file)
-          if right(member,l) = zdsn.file
-          then  do
-            parse value member with member'.'.
-            members.file = members.file member
-          end
-          else omvsfiles = omvsfiles fileo
+      if zdsn.file /= null then do
+        l = length(zdsn.file)
+        if right(member,l) = zdsn.file
+        then  do
+          parse value member with member'.'.
+          members.file = members.file member
+        end
+        else omvsfiles = omvsfiles fileo
       end
     end
     else omvsfiles = omvsfiles fileo
