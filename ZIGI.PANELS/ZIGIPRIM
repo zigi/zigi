@@ -22,15 +22,16 @@
 )ABCINIT
   .ZVARS = 'MENUX'
 )ABC DESC(Help)
- PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigihint')
  PDC DESC('About') ACTION RUN(Tutor) Parm('zigihabt')
+ PDC DESC('Change History') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%zigichg)')
+ PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigihint')
 )ABCINIT
   .ZVARS = HELPX
 )Body Expand(\\)
 +| Commands | Help +
 <-----------\-\--------------------------------+
 +Local Repositories+--------------#zigtitle   +---------------------------------
-%Command ===>{zcmd       \ \ %Scroll ===>_zscr+
+%Command ===>{zcmd       \ \ %Scroll ===>_zgsr+
 + \ \%F3  +
 %    @repo      +           @pref  +               @cat     +      @last       +
 )Model
@@ -40,7 +41,7 @@ _z+  $z                  +  ]z                    +]z             +}z          +
  &last    = 'Last Access'
  &pref    = 'Prefix'
  &repo    = 'Repository'
- &zscr = CSR
+ &zgsr = CSR
  .zvars = '(zsel zigirep pdshlq zigicat zigidate)'
  .help = zigihint
 )Proc

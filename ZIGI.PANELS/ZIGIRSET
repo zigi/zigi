@@ -5,31 +5,51 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
-)Body  Expand(\\) Window(63,12)
+)Body Window(67,15) Expand(\\)
 +Command ===>_zcmd   \ \ +
 %
 +Review/Update Repository Settings:
 %
 +Category for Repository:_zigicat      + (optional)
 %
-+Default Push on Commit (Y or N):@z+
++PREFIX for datasets:    @pdshlqn                 + (no quotes)
+%
++Default Push on Commit: @z+(Y or N)
 +
 +Default Userid to set prior to Commit:@defruid + or blank
 +
++Disable File Extension Prompt on Dataset Add:@z+(Y or N) %Global
++
 %ENTER+to register updates and%F3+to Cancel or Leave the panel.
 )Init
-&zwinttl = 'zigi Set Defaults for Commit'
- .zvars = '(defcpush)'
+&zwinttl = 'zigi Set Defaults for Repository'
+ .zvars = '(defcpush extfans)'
+ if (&pdshlqn = &Z)
+    .cursor = PDSHLQN
  if (&defcpush = &Z)
     .cursor = DEFCPUSH
  if (&defruid = &Z)
     .cursor = DEFRUID
+ if (&extans = &Z)
+    &extans = 'N'
+    .cursor = EXTANS
  .help = zigih2e0
- &zscr = CSR
+ &zgsr = CSR
 )Proc
  &resp = .resp
-*REXX(* zedsmsg zedlmsg resp csr)
+*REXX(* zedsmsg zedlmsg resp csr pdshlq pdshlqn)
   zedsmsg = ''
+  if pdshlq /= pdshlqn then do
+     hn = translate(pdshlqn,' ','.')
+     ho = translate(pdshlq,' ','.')
+     if words(hn) /= words(ho) then do
+        zedsmsg = 'Error'
+        zedlmsg = pdshlqn 'must have only' words(ho) 'qualifiers and' ,
+                 'it has' words(hn) 'qualifiers. Correct this and try' ,
+                 'again.'
+        end
+     end
+  if zedsmsg = '' then
   if length(defruid) = 8 then do
     CVT      = C2D(Storage(10,4))
     TVT      = C2D(Storage(D2X(CVT + 156),4))   /* cvt + 9c */
@@ -46,6 +66,9 @@
     .MSG = ISRZ001
     .CURSOR = &CSR
  if (&zedsmsg EQ &Z)
+ ver (&pdshlqn,dsname)
+ ver (&defcpush,nb,list,Y,N)
+ ver (&extans,nb,list,Y,N)
 )End
 /* -------------------------------------------------------- */
 /* zigi - the z/OS ISPF Git Interface                       */

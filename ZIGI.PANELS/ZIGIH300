@@ -25,7 +25,7 @@
 +   "Don't measure yourself by what you have accomplished, but by what
 +    you should have accomplished with your ability." - John Wooden
 +
-+Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
  &addall  = 'AddAll'

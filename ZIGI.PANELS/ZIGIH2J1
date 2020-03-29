@@ -15,13 +15,13 @@
 +a Status that the report should be clean. If there are any datasets/files
 +that are listed then the following commands will clean up your workspace:
 +
-+Use the command%STASHL+to list all active stashes with the following options:
-+
 +  1. Add all untracked datasets/files (command ADDALL)
 +  2. Commit the added changes (command Commit)
 +or
-+  1. Do a new Stash
-+Then retry Pop.
++  1. Do a new Stash - then retry Pop.
++
++At this time Stash Apply is not supported directly by zigi but you can use
++the Git Command dialog to issue it if desired.
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init

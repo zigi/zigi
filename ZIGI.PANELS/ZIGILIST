@@ -24,18 +24,19 @@
 )ABCINIT
   .ZVARS = 'MENUX'
 )ABC DESC(Help)
- PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigih300')
  PDC DESC('About') ACTION RUN(Tutor) Parm('zigihabt')
+ PDC DESC('Change History') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%zigichg)')
+ PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigih300')
 )ABCINIT
   .ZVARS = HELPX
 )Body  Expand(\\)
 +| Menu | Help +
 <-----------\-\--------------------------------+
 +PDS Member List+-----------------#zigtitle   +---------------------------------
-%Command ===>_zcmd        \ \ %Scroll ===>_zscr+
-+Current Dataset    : $fulldsn                     \ \%F3  +
-+Current Repository : $localdir
-+Current Branch     : $branch
+%Command ===>_zcmd        \ \ %Scroll ===>_zgsr+
++Current Dataset   :$fulldsn                     \ \%F3  +
++Current Repository:$localdir
++Current Branch    :$branch                                [ext
 %
 %S  ]tmem  +  ]tstat +             %Type+]tsiz+  ]tdate   +]ttime   +]tuser +
 )Model
@@ -44,13 +45,18 @@
   .zvars = '(zsel mem memstat mtype zlcnorc zlmdate zlmtime zluser)'
   .cursor = &zcmd
   .help = zigih300
-  &zscr = CSR
+  &zgsr = CSR
   &tmem   = 'Member'
   &tstat  = 'Status'
   &tsiz   = 'Size'
   &tdate  = 'Mod-Date'
   &ttime  = 'Mod-Time'
   &tuser  = 'Userid'
+*REXX(* extens)
+  if extens = ''
+     then ext = ''
+     else ext = 'Extension: .'extens
+*ENDREXX
 )Proc
  &row = &z
  if (&ZCMD = &Z)

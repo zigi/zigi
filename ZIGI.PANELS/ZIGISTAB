@@ -13,15 +13,16 @@
 )ABCINIT
   .ZVARS = 'MENUX'
 )ABC DESC(Help)
- PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigih2j0')
  PDC DESC('About') ACTION RUN(Tutor) Parm('zigihabt')
+ PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigih2j0')
+ PDC DESC('Change History') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%zigichg)')
 )ABCINIT
   .ZVARS = HELPX
 )Body  Expand(\\)
 +| Commands | Help +
 <-----------\-\--------------------------------+
 +Stash Summary +-----------\-\------#zigtitle +------\-\------------------------
-%Command ===>_zcmd        \ \ %Scroll ===>_zscr+
+%Command ===>_zcmd        \ \ %Scroll ===>_zgsr+
 + \ \%F3  +
 +Sel Stash-ID    Comments
 +
@@ -29,7 +30,7 @@
 _z+ $z          $z
 )Init
   .ZVARS = '(zsel stashid stashcmt)'
-  &zscr = CSR
+  &zgsr = CSR
   .help = zigihxxx
 )Proc
 )End

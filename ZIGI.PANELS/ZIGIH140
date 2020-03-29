@@ -12,7 +12,6 @@
 +are used by%Git+when commits are made.
 +
 +Both are required, and the user name can be anything, as can the e-mail.
-+However, it may be something that your organization requires to be accurate.
 +
 +Also required is the number of generations to be enabled for the Partitioned
 +Datasets. Anything from 0 to the system limit (default=0).
@@ -22,7 +21,8 @@
 +if outside the table or the Row Options popup if within the table.%S+will
 +do nothing if outside the table or default to select if within the table.
 +
-             +"A good beginning makes a good end" - Louis L'Amour
++If you plan to use file extensions for PDS member names then set the value
++to N, otherwise set to Y to bypass the prompt when adding datasets.
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init

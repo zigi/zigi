@@ -15,7 +15,7 @@
       information on the z/OS datasets managed by zigi:
 +     # Default DSORG and DCB info
 +     * PO FB 80 32720
-+     SAMPLE.REXX PO VB 255 32760
++     SAMPLE.REXX PO VB 255 32760 rexx
 +     SAMPLE.PDS PO FB 80 32760
 +     SAMPLE.TEXT PS FB 121 27951
 +  3. Each z/OS sequential datasets must have a copy in the repository root
@@ -23,7 +23,7 @@
 +  4. Each z/OS partitioned dataset must have a directory in the repository
 +     root.
 +  5. Each PDS member must have a copy in the directory associated with the
-+     full PDS.
++     full PDS. An optional file extension (after the DCB) may be defined.
 +  6. See the next tutorial page for OMVS naming standards for z/OS datasets.
 +
        +Press%Enter+to continue reading about the zigi repository layout.

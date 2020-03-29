@@ -9,31 +9,33 @@
 %Command ===>_zcmd                                                             +
 +
 %Git Defaults (used at Commit time):
-+
 +  user.name  :@zigiuid                                                        +
 +  user.email :@zigimail                                                       +
 +
-+Partitioned Dataset (PDSE) Defaults:
+%PDSE Member Generations :_z  +(0 to 999)  System Limit:{sl
++Note: Specify%0+unless using a tool that supports generations.
 +
-+  Member Generations :_z  +(0 to 999)  System Limit:{sl
+%Display Options Popup or Select on Point-and-Shoot:_z+(P or S)
 +
-+Panel Point-and-Shoot Command and Row Defaults:
+%Bypass File Extension Prompt:_z+(Y or N)
++Set to%Y+if you do not plan to use file extension for PDS members to bypass
++being asked when adding partitioned datasets.
 +
-+  Display Options popup or Select:_z+(P or S)
 +
-%Notes:+   The user.name and user.email are used to set username and
-+          email to your commits.
+%Update+using the%Config+command on the Local Repository Menu.
 +
-+See : https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup
+%See:+https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup
 +
-+Press%Enter+to save, or%F3+to cancel.
+                     +Press%Enter+to save, or%F3+to cancel.
 )Init
  if (&mgen = &Z)
      &mgen = 0
- .zvars = '(mgen pnsdef)'
+ .zvars = '(mgen pnsdef extfile)'
  &setcont = 'Y'
  if (&pnsdef EQ &Z)
      &pnsdef = 'S'
+ if (&extfile EQ &Z)
+     &extfile = 'Y'
  .help = zigih140
 )Proc
   ver (&zigiuid,nb)
@@ -41,6 +43,7 @@
   ver (&mgen,nb,range,0,&sl)
   &setcont = &Z
   ver (&pnsdef,nb,list,P,S)
+  ver (&extfile,list,Y,N)
 )end
 /* -------------------------------------------------------- */
 /* zigi - the z/OS ISPF Git Interface                       */
