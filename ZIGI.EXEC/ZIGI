@@ -2613,11 +2613,16 @@ Do_Rset:
   zcmd = null
   pdshlqn = pdshlq
   hlq_change = 0
+  extfans = extfile
   'Addpop row(4) column(4)'
   'Display Panel(zigirset)'
   drc = rc
   'rempop'
   if drc > 0 then return
+  if extfans /= null then do
+     extfile = extfans
+     'vput (extfile) profile'
+     end
   if defcpush = 'Y' then zpush = 'Y'
   else zpush = 'N'
   if pdshlqn /= pdshlq then do
@@ -5773,11 +5778,16 @@ Do_Add_Copy:
   if extfile = 'N' then
   if sysdsorg = 'PO' then
   if zdsn.dsnb = null then do
+    extans = 'N'
     'addpop row(4) column(6)'
     'display panel(zigiadde)'
     drc = rc
     'rempop'
     if drc = 0 then zdsn.dsnb = ext
+    if extans = 'Y' then do
+       extfile = 'Y'
+       'vput (extfile) profile'
+       end
   end
   if ac_mem /= null then
   if zdsn.dsnb /= null then do

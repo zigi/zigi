@@ -1,13 +1,17 @@
 )Attr
  $ type(input) caps(off) hilite(uscore)
+ _ type(input) caps(on ) hilite(uscore)
  @ type(output) caps(on)
-)Body Window(57,4)
+)Body Window(57,6)
 +Dataset:@dsna                                          +
 +Enter optional file extension for PDS members:$ext     +
 +
   +Press%Enter+to Continue, or%F3+to Cancel Extension.
++
+        +Disable extension prompting:_z+(Y or N)
 )Init
  &zwinttl = 'zigi PDS Optional Member Extension'
+ .zvars = '(extans)'
  .help = zigih610
 )Proc
 *REXX(*)
@@ -15,6 +19,7 @@
   if left(ext,1) = '.' then
      ext = substr(ext,2)
 *ENDREXX
+ ver (&extans,list,Y,N)
 )END
 /* -------------------------------------------------------- */
 /* zigi - the z/OS ISPF Git Interface                       */
