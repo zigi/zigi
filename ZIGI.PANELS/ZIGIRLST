@@ -7,7 +7,7 @@
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
 )Body Window(56,16)
-+Member:@mem
++Member:@mem             $exth      @extf
 +
 +Enter Selection:_z +
 +
@@ -24,6 +24,20 @@
 +]View+   (V)+ View the dataset/file
                    +Or%F3+to cancel.
 )Init
+*REXX(* exth extf extens)
+ parse value '' with exth extf null
+ if extens /= null then do
+    exth = 'OMVS File:'
+    extf = lower(mem)'.'extens
+    end
+if xx = 1 then do
+lower:
+ parse arg input
+ out = translate(input,"abcdefghijklmnopqrstuvwxyz",,
+                       "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+ return out
+ end
+*ENDREXX
  &zwinttl = 'zigi PDS Member Selection Options'
  .zvars = '(zsel)'
  .cursor = zsel

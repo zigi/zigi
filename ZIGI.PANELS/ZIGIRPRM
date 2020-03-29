@@ -27,7 +27,7 @@
  &view   = 'View'
  &Info   = 'Info'
 )Proc
- ver (&zsel,list,S,V,D)
+ ver (&zsel,list,S,V,D,I)
 )PNTS
   Field(select) var(zsel) val('S')
   Field(delete) var(zsel) val('D')

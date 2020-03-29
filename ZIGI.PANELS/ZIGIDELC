@@ -15,7 +15,7 @@
 +
 +Confirm Delete Request@z+(Y or N)
 +
-+Press%Enter+to continue or%F3+to cancel.
+      +Press%Enter+to continue or%F3+to cancel.
 )Init
  .zvars = '(delcg delco delzd delcf)'
  &zwinttl = 'zigi Delete Confirmation'

@@ -1,4 +1,54 @@
-                         zigi Release Notes and Changes
+                             zigi Release Notes
+                                Version 2.7
+
+                         New Features and Functions
+                         --------------------------
+
+Support file extensions for PDS members when copied to OMVS. The extension
+is defined when the PDS is added to zigi for management and only one extension
+is allowed per PDS, and it may NOT be changed. The extension is then removed
+when the file is copied to the PDS.
+
+Redo the Current Repository Action Bar Menu. Split out General and Repository
+into General, Maintenance, and Repository.
+
+New Check command to be used by the user to check the state of the z/OS
+datasets on demand. The check will occur when the repository is opened and
+then only when the user requests. The state of the OMVS files will continue
+to be checked frequently as the user interacts wtih the repository.
+
+Reduce processing overhead by only checking z/OS datasets for changes if
+they have changed since the last date that zigi checked them. The test
+will be to check the dataset if the last reference date (from listdsi)
+is the same as the current day or if it is greater than the last
+reference date as saved by zigi in the users home directory under
+.zigi/filename where filename is the OMVS file copy of the z/OS dataset.
+
+Enable multiple row selection in many instances (not all).
+
+Improved detection of deleted, or renamed, PDS members during PULL
+processing.
+
+Improved detection of deleted, or renamed, PDS members at zigi repository
+startup.
+
+Bug Fixes and Other Updates:
+
+  1. Check z/OS dataset exists before attempting to copy to OMVS
+  2. Table panel updates to use zgsr instead of zscr for scrolling field
+  3. Small cosmetic updates to some panels
+  4. Change ZIGICKOT
+       - check for .zigi/dsn before reading it - in case non-zigi repos
+       - if not there then set recfm/lrecl/blksize defaults
+       - continue to do selective dataset/member restores but do a full
+         ISPF stats reapply
+  5. Remove check for hyphen for 1st char of dsname
+  6. Remove tbquery that is not required
+  7. Remove version from default installation datasets
+
+
+=============================================================================
+                             zigi Release Notes
                                 Version 2.6
 
                          New Features and Functions
@@ -25,16 +75,6 @@ On the Current Repository SET command panel add the option to change the
 dataset prefix. The new prefix must have the same number of qualifiers and
 will result in all the z/OS datasets being renamed along with any OMVS files
 based on the prefix qualifier ignore value.
-
-
-                                   Bug Fixes
-                                   ---------
-
-
-1. Fix ISPF stats update on a dataset Rename by removing the call
-   to create the stats file and just rename the existing stats file.
-
-2. Fix the Taglist extract to correctly deal with the z/OS Prefix
 
 =============================================================================
                              zigi Release Notes

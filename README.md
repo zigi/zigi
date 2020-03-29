@@ -1,7 +1,7 @@
 ![zigi](https://user-images.githubusercontent.com/117615/69496216-051d1580-0ed0-11ea-9ea5-cf0d9153482c.png)
 ## Installing zigi
 
-Make sure you have git installed on your Mainframe. 
+Make sure you have git installed on your Mainframe.
 In order to install git, head on over to https://www.rocketsoftware.com/ and create an account.
 Then download git, bash, gzip and perl and bring all those files to one directory in USS.
 
@@ -12,13 +12,13 @@ Run that script.
 
 You should now have git installed on you Mainframe.
 
-Clone this repository and run the installer via: 
+Clone this repository and run the installer via:
 
     git clone git@github.com:wizardofzos/zigi.git
     cd zigi
     sh install.sh
-    
-### Make sure you can allocate datesets 
+
+### Make sure you are authorizes to allocate the target datasets
 
 
 ## Contributing to zigi?
@@ -33,7 +33,7 @@ Zigi needs to find the git executable in the 'PATH'. To determine the 'PATH' zig
 Make sure one of these files contains the correct EXPORT statements.
 
 ### Weird Certificate Errors
-When faced with a "SSL Certificate problem: unable to get local issuer" this might 'fix' it. Please note that this will 
+When faced with a "SSL Certificate problem: unable to get local issuer" this might 'fix' it. Please note that this will
 disable encryption for all uses of git and this is strongly discouraged in non-sandbox environments.
 
     git config --global http.sslVerify false

@@ -6,22 +6,22 @@
 +Tutorial}-}{zigtitle                                      +-}-}Tutorial
 %Command ===>`zcmd                                                             +
 +
-+ All z/OS datasets have a copy that resides in the OMVS repository directory.
++ Another format for the zigi managed repository is to have file extensions
++ for the PDS members that are copied to the OMVS filesystem. This feature
++ was implemented to enable the repository to be easily updated from both
++ ISPF on z/OS and from distributed git enabled clients.
 +
-+ To translate a z/OS dataset to an OMVS directory or file name:
++ When the z/OS dataset is added to zigi using the ADDDSN dialog, if the
++ dataset is a PDS then a prompt for a file extension will popup. The file
++ extension is optional and if it is blank when the Enter key is pressed then
++ the PDS members will be copied to the OMVS filesystem as before.
 +
-+ 1. Remove from the dataset name any qualifiers that are to be ignored.
-+    e.g. For APP.DEV.PRODUCTX.C remove the 1st two qualifiers
-+         so the OMVS directory would be PRODUCTX.C
-+ 2. Some special characters can present problems in OMVS that are acceptable
-+    in z/OS:
-+      The characters that are         OMVS   z/OS
-+      challenges are the%@#$+        %  _+<->%@
-+      and are escaped using a \      %  .+<->%#
-+      when found.                    %  -+<->%$
-+  3. A .gitattributes file must also exist in the root directory for the
-+     Repository. To make it easy just create a dummy repository using zigi
-+     and copy the .gitattributes from there - then delete the dummy repo.
++ Only one file extension is allowed per PDS. This is to prevent a collision
++ where multiple files have the same name but different extensions.
++
++ Note that the file extension, once defined, may never be changed as it is
++ now an integral part of the zigi managed repository.
++
 +
 +
        +Press%Enter+to continue reading about the zigi repository layout.
@@ -29,7 +29,7 @@
  &zigtitle = '(Characteristics of a zigi Managed Repository)'
 )Proc
  &zup   = zigih600
- &zcont = zigih700
+ &zcont = zigih611
 )end
 /* -------------------------------------------------------- */
 /* zigi - the z/OS ISPF Git Interface                       */

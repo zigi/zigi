@@ -17,7 +17,7 @@
 +| Help +
 <-----------\-\--------------------------------+
 +-\-\#zigtitle   +-\-\
-%Command ===>_zcmd        \ \ %Scroll ===>_zscr+
+%Command ===>_zcmd        \ \ %Scroll ===>_zgsr+
 + \ \%F3  +
 +Dataset/File:@delement
 +
@@ -27,7 +27,7 @@
 _z+ $z                                $z
 )Init
   .ZVARS = '(zsel hdate hauthor)'
-  &zscr = CSR
+  &zgsr = CSR
   .help = zigihhst
 )Proc
  &row = &z

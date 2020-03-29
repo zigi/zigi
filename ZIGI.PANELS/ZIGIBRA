@@ -7,7 +7,7 @@
   # type(output) hilite(reverse) color(turq) caps(off)
 )Body  Expand(\\)
 +-\-\#zigtitle   +-\-\
-%Command ===>_zcmd   \ \ %Scroll ===>_zscr+
+%Command ===>_zcmd   \ \ %Scroll ===>_zgsr+
 +Current Repository : $zigirep                         \ \%F3  +
 +Current HLQ        : $pdshlq
 +Current Branch     : $branch
@@ -27,7 +27,7 @@
   &newb=''
   .cursor = &zcmd
   .help = zigih220
-  &zscr = CSR
+  &zgsr = CSR
 )Proc
  ver (&zsel,list,C,D)
 )End

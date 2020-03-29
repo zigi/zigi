@@ -23,9 +23,9 @@
 +Use%O+to display a command popup selection menu if the menu has been hidden.
 +
 +
-+  "Nothing will work unless you do." - John Wooden
++               "Nothing will work unless you do." - John Wooden
 +
-+Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
  &clone   = 'Clone'

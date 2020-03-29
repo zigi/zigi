@@ -1,5 +1,4 @@
 #!/bin/sh
-VER='V2R5'
 clear
 WHERE=`[ -z "$SSH_CLIENT" ] && echo "OMVS"`
 # Let's make sure we *really* run from sh lol
@@ -31,7 +30,7 @@ echo "      ZZZZZZZZZg               The git interface for the rest of us";
 echo "     ZZZZZZig ";
 echo "    ZZZZZZi                         Henri Kuiper & Lionel Dyck ";
 echo " "
-echo "Welcome to the installer for zigi $VER";
+echo "Welcome to the zigi installer";
 echo "";
 echo "This will install zigi on your mainframe.";
 echo "See https://github.com/wizardofzos/zigi/wiki for more information"
@@ -45,8 +44,8 @@ if [ -n "$GOON" ]
 fi
 
 echo "z/OS datsets used by zigi are:";
-echo "- ZIGI.$VER.EXEC";
-echo "- ZIGI.$VER.PANELS";
+echo "- ZIGI.EXEC";
+echo "- ZIGI.PANELS";
 echo "";
 echo "If you like (or have) to install zigi with another";
 echo "HLQ please provide a PREFIX. Otherwise press ENTER";
@@ -54,8 +53,8 @@ echo ""
 echo "If you do provide a PREFIX, don't end in a dot.";
 echo "Should you decide to use the PREFIX zigi will be";
 echo "installed to:";
-echo "- prefix.ZIGI.$VER.EXEC";
-echo "- prefix.ZIGI.$VER.PANELS";
+echo "- prefix.ZIGI.EXEC";
+echo "- prefix.ZIGI.PANELS";
 
 echo "";
 
@@ -66,19 +65,19 @@ PREFIX=` echo $PREFIX  | tr '[a-z]' '[A-Z]'`
 
 if [ -z $PREFIX ]
   then
-    EXEC=ZIGI.$VER.EXEC
-    PANELS=ZIGI.$VER.PANELS
-    GPL=ZIGI.$VER.GPLLIC
-    README=ZIGI.$VER.README
-    RELEASE=ZIGI.$VER.RELEASE
-    HLQ=ZIGI.$VER.
+    EXEC=ZIGI.EXEC
+    PANELS=ZIGI.PANELS
+    GPL=ZIGI.GPLLIC
+    README=ZIGI.README
+    RELEASE=ZIGI.RELEASE
+    HLQ=ZIGI
   else
-    EXEC=${PREFIX}.ZIGI.$VER.EXEC
-    PANELS=${PREFIX}.ZIGI.$VER.PANELS
-    GPL=${PREFIX}.ZIGI.$VER.GPLLIC
-    README=${PREFIX}.ZIGI.$VER.README
-    RELEASE=${PREFIX}.ZIGI.$VER.RELEASE
-    HLQ=${PREFIX}.ZIGI.$VER.
+    EXEC=${PREFIX}.ZIGI.EXEC
+    PANELS=${PREFIX}.ZIGI.PANELS
+    GPL=${PREFIX}.ZIGI.GPLLIC
+    README=${PREFIX}.ZIGI.README
+    RELEASE=${PREFIX}.ZIGI.RELEASE
+    HLQ=${PREFIX}.ZIGI
 fi
 
 
