@@ -10,6 +10,9 @@ assignees: ''
 **Describe the bug**
 A clear and concise description of what the bug is.
 
+**Release of zigi**
+Which release of zigi are you reporting this bug against?
+
 **To Reproduce**
 Steps to reproduce the behavior:
 1. 
