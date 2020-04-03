@@ -7,7 +7,7 @@
 +Clone Repository+---------------#zigtitle    +---------------------------------
 %Command ===>_zcmd                                                            +
 +
-%Remote Repository: +URL for reference only
+%Remote Repository: +URL must use start with ssh://
  @remote                                                                      +
 +
 %Optional:          +Specific branch to clone (default is master)
@@ -35,6 +35,12 @@
  &resp = .resp
 *REXX(* zedsmsg zedlmsg resp csr)
   zedsmsg = ''
+  if translate(substr(remote,1,6)) <> 'SSH://' then do
+        zedsmsg = 'Error'
+        zedlmsg = 'Cloning only supports ssh, so remote must start',
+          'with ssh://'
+        csr = 'remote'
+     end
   if word(remote,1) = 'git' then
     if word(remote,2) = 'clone' then
         remote = subword(remote,3)
