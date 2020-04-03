@@ -29,6 +29,9 @@
 )Init
  .help = zigih110
  .zvars = '(defcpush)'
+ .cursor = remote
+ .csrpos = 7
+ &remote = 'ssh://'
 )Reinit
  REFRESH(REMOTE LOCALREP)
 )Proc
