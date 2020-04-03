@@ -6588,16 +6588,35 @@ parseGitURI:
   | <user> <site> <port> <repo>                   |
   * --------------------------------------------- */
   parse arg uri
-  if pos('ssh://',uri) = 1 then
-  uri = substr(uri,pos('ssh://', uri) + 6)
-
-  parse var uri user '@' site ':' portorrealuser '/' repo
-  if datatype(portorrealuser) = 'NUM' then port = portorrealuser
-  else do
-    port = 22
-    user = portorrealuser
+  /* port and user defaults */
+  port = 22
+  /* normal style ssh:// processing */
+  if translate(substr(uri,1,6)) = 'SSH://' then do
+     uri = substr(uri,7)
+     if pos('@',uri) > 0 & pos(':',uri) > 0 then
+        /* user and port specified */
+        parse var uri user '@' site ':' port '/' owner '/' repo
+     else
+     if pos('@',uri) > 0 & pos(':') = 0 then
+        /* user but no port specified */
+        parse var uri user '@' site '/' owner '/' repo
+     else
+     if pos('@',uri) = 0 & pos(':') > 0 then
+        /* no user, but port specified */
+        parse var uri site ':' port '/' owner '/' repo
+     else
+        /* no user, but port specified */
+        parse var uri site '/' owner '/' repo
   end
-  return user site port repo
+  /* alternative scp-like processing */
+  else
+     /* user specified */
+     if pos('@',uri) > 0 then
+        parse var uri user '@' site ':' owner '/' repo
+     else
+     /* no user specified */
+        parse var uri site ':' owner '/' repo
+  return owner site port repo
 
   /* -------------------------------------------------- *
   | Routine to update git with the user name and email |
