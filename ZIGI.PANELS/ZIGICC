@@ -7,7 +7,7 @@
 +Clone Repository+---------------#zigtitle    +---------------------------------
 %Command ===>_zcmd                                                            +
 +
-%Remote Repository: +URL must use start with ssh://
+%Remote Repository: +URL must start with ssh://
  @remote                                                                      +
 +
 %Optional:          +Specific branch to clone (default is master)
