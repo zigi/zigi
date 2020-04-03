@@ -3593,7 +3593,7 @@ Clone_Repo:
     if port /= 22 then extrabits = '-p 'port
     else extrabits = null
     /* Let's clone the remote repo... */
-    zs1 = "Cloning "zigirep" by "user
+    zs1 = "Cloning "zigirep" by "owner
     zs2 = "from "host
     call do_popup
     cmd = 'touch 'home'/.ssh/known_hosts && '
@@ -6605,7 +6605,7 @@ parseGitURI:
         /* no user, but port specified */
         parse var uri site ':' port '/' owner '/' repo
      else
-        /* no user, but port specified */
+        /* no user and port specified */
         parse var uri site '/' owner '/' repo
   end
   /* alternative scp-like processing */
