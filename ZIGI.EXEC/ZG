@@ -36,6 +36,8 @@
   |              loaded for use by the LOADISPF routine.       |
   |           2. Must be installed into a default SYSEXEC or   |
   |              SYSPROC library for use.                      |
+  |           3. For the option to open zigi to work the       |
+  |              zigi stub should be installed as in (2).      |
   |                                                            |
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
@@ -109,9 +111,9 @@
   end
 
   /* ----------------------- *
-   | Load inline ISPF Panels |
-   * ----------------------- */
-   load_info = loadispf()
+  | Load inline ISPF Panels |
+  * ----------------------- */
+  load_info = loadispf()
 
   /* ------------ *
   | Clean up Opt |
@@ -138,23 +140,23 @@
     'vput (zgdsns) profile'
     parse value '' with zsel opt
   end
-    wp = wordpos(dsname,zgdsns)
-    if wp > 0 then
-    repo = word(zgdsns,wp+1)
-    if repo /= null then
-    if opt = null then do
-      'Addpop row(4) column(4)'
-      'display panel(zgopt)'
-      drc = rc
-      'rempop'
-      if drc > 0 then do
-        zedsmsg = 'Canceled.'
-        zedlmsg = 'zigi Add canceled.'
-        'setmsg msg(isrz001)'
-    call get_out_of_here
-      end
-      zsel = opt
+  wp = wordpos(dsname,zgdsns)
+  if wp > 0 then
+  repo = word(zgdsns,wp+1)
+  if repo /= null then
+  if opt = null then do
+    'Addpop row(4) column(4)'
+    'display panel(zgopt)'
+    drc = rc
+    'rempop'
+    if drc > 0 then do
+      zedsmsg = 'Canceled.'
+      zedlmsg = 'zigi Add canceled.'
+      'setmsg msg(isrz001)'
+      call get_out_of_here
     end
+    zsel = opt
+  end
 
   /* ------------------- *
   | Open the zigi table |
@@ -304,14 +306,15 @@
     call done
   end
 
-  /* -------------------------------- *
-  | Call zigi to open the repository |
-  * -------------------------------- */
+  /* ------------------------------------------------------------- *
+  | Call zigi to open the repository. Use newappl of ISR to force |
+  | zigi to altlib/libdef it's libraries.                         |
+  * ------------------------------------------------------------- */
   if zsel = 'O' then do
     open = 0
     zigi_repo = zigirep
     'tbend zigirepo'
-    Address ISPExec 'Select cmd(%zigi' zigi_repo')'
+    Address ISPExec 'Select cmd(%zigi' zigi_repo') newappl(isr)'
     hit = 0
   end
 
@@ -727,114 +730,114 @@ get_dsn_info:
   drop s. e.
   return
 
-/* --------------------  rexx procedure  -------------------- *
- * Name:      LoadISPF                                        *
- *                                                            *
- * Function:  Load ISPF elements that are inline in the       *
- *            REXX source code.                               *
- *                                                            *
- * Syntax:    load_info = loadispf()                          *
- *            rc = dropispf(load_info)                        *
- *                                                            *
- *            The inline ISPF resources are limited to        *
- *            ISPF Messages, Panels, and Skeletons,           *
- *                 CLISTs and EXECs are also supported.       *
- *                                                            *
- *            The inline resources must start in column 1     *
- *            and use the following syntax:                   *
- *                                                            *
- *            >START    used to indicate the start of the     *
- *                      inline data                           *
- *                                                            *
- *            >END    - used to indicate the end of the       *
- *                      inline data                           *
- *                                                            *
- *            Each resource begins with a type record:        *
- *            >type name                                      *
- *               where type is CLIST, EXEC, MSG, PANEL, SKEL  *
- *                     name is the name of the element        *
- *                                                            *
- * Sample usage:                                              *
- *          -* rexx *-                                        *
- *          load_info = loadispf()                            *
- *          ... magic code happens here (your code) ...       *
- *          rc = dropispf(load_info)                          *
- *          exit                                              *
- *          >Start inline elements                            *
- *          >Panel panel1                                     *
- *          ...                                               *
- *          >Msg msg1                                         *
- *          ...                                               *
- *          >End of inline elements                           *
- *                                                            *
- * Returns:   the list of ddnames allocated for use along     *
- *            with the libdef's performed or altlib           *
- *                                                            *
- *            format is ddname libdef ddname libdef ...       *
- *                   libdef may be altlibc or altlibe         *
- *                   for altlib clist or altlib exec          *
- *                                                            *
- * Notes:     Entire routine must be included with REXX       *
- *            exec - inline with the code.                    *
- *                                                            *
- * Comments:  The entire rexx program is processed from the   *
- *            last record to the first to find the >START     *
- *            record at which point all records from that     *
- *            point on are processed until the >END           *
- *            statement or the end of the program is found.   *
- *                                                            *
- *            It is *strongly* suggested that the inline      *
- *            elements be at the very end of your code so     *
- *            that the search for them is faster.             *
- *                                                            *
- *            Inline ISPTLIB or ISPLLIB were not supported    *
- *            because the values for these would have to be   *
- *            in hex.                                         *
- *                                                            *
- * Author:    Lionel B. Dyck                                  *
- *                                                            *
- * History:                                                   *
- *            01/09/19 - Include DROPISPF routine             *
- *            08/29/17 - Fixup static values that were vars   *
- *            05/31/17 - Change default directory count       *
- *            12/09/16 - update for add_it routine            *
- *            05/10/16 - correction for clist and exec        *
- *            04/19/16 - bug correction                       *
- *            06/04/04 - Enhancements for speed               *
- *            08/05/02 - Creation                             *
- *                                                            *
- * ---------------------------------------------------------- *
- * Disclaimer: There is no warranty, either explicit or       *
- * implied with this code. Use it at your own risk as there   *
- * is no recourse from either the author or his employeer.    *
- * ---------------------------------------------------------- */
+  /* --------------------  rexx procedure  -------------------- *
+  * Name:      LoadISPF                                        *
+  *                                                            *
+  * Function:  Load ISPF elements that are inline in the       *
+  *            REXX source code.                               *
+  *                                                            *
+  * Syntax:    load_info = loadispf()                          *
+  *            rc = dropispf(load_info)                        *
+  *                                                            *
+  *            The inline ISPF resources are limited to        *
+  *            ISPF Messages, Panels, and Skeletons,           *
+  *                 CLISTs and EXECs are also supported.       *
+  *                                                            *
+  *            The inline resources must start in column 1     *
+  *            and use the following syntax:                   *
+  *                                                            *
+  *            >START    used to indicate the start of the     *
+  *                      inline data                           *
+  *                                                            *
+  *            >END    - used to indicate the end of the       *
+  *                      inline data                           *
+  *                                                            *
+  *            Each resource begins with a type record:        *
+  *            >type name                                      *
+  *               where type is CLIST, EXEC, MSG, PANEL, SKEL  *
+  *                     name is the name of the element        *
+  *                                                            *
+  * Sample usage:                                              *
+  *          -* rexx *-                                        *
+  *          load_info = loadispf()                            *
+  *          ... magic code happens here (your code) ...       *
+  *          rc = dropispf(load_info)                          *
+  *          exit                                              *
+  *          >Start inline elements                            *
+  *          >Panel panel1                                     *
+  *          ...                                               *
+  *          >Msg msg1                                         *
+  *          ...                                               *
+  *          >End of inline elements                           *
+  *                                                            *
+  * Returns:   the list of ddnames allocated for use along     *
+  *            with the libdef's performed or altlib           *
+  *                                                            *
+  *            format is ddname libdef ddname libdef ...       *
+  *                   libdef may be altlibc or altlibe         *
+  *                   for altlib clist or altlib exec          *
+  *                                                            *
+  * Notes:     Entire routine must be included with REXX       *
+  *            exec - inline with the code.                    *
+  *                                                            *
+  * Comments:  The entire rexx program is processed from the   *
+  *            last record to the first to find the >START     *
+  *            record at which point all records from that     *
+  *            point on are processed until the >END           *
+  *            statement or the end of the program is found.   *
+  *                                                            *
+  *            It is *strongly* suggested that the inline      *
+  *            elements be at the very end of your code so     *
+  *            that the search for them is faster.             *
+  *                                                            *
+  *            Inline ISPTLIB or ISPLLIB were not supported    *
+  *            because the values for these would have to be   *
+  *            in hex.                                         *
+  *                                                            *
+  * Author:    Lionel B. Dyck                                  *
+  *                                                            *
+  * History:                                                   *
+  *            01/09/19 - Include DROPISPF routine             *
+  *            08/29/17 - Fixup static values that were vars   *
+  *            05/31/17 - Change default directory count       *
+  *            12/09/16 - update for add_it routine            *
+  *            05/10/16 - correction for clist and exec        *
+  *            04/19/16 - bug correction                       *
+  *            06/04/04 - Enhancements for speed               *
+  *            08/05/02 - Creation                             *
+  *                                                            *
+  * ---------------------------------------------------------- *
+  * Disclaimer: There is no warranty, either explicit or       *
+  * implied with this code. Use it at your own risk as there   *
+  * is no recourse from either the author or his employeer.    *
+  * ---------------------------------------------------------- */
 LoadISPF: Procedure
 
   parse value "" with null kmsg kpanel kskel first returns ,
     kclist kexec
-/* ------------------------------------------------------- *
- * Find the InLine ISPF Elements and load them into a stem *
- * variable.                                               *
- *                                                         *
- * Elements keyword syntax:                                *
- * >START - start of inline data                           *
- * >CLIST name                                             *
- * >EXEC name                                              *
- * >MSG name                                               *
- * >PANEL name                                             *
- * >SKEL name                                              *
- * >END   - end of all inline data (optional if last)      *
- * ------------------------------------------------------- */
+  /* ------------------------------------------------------- *
+  * Find the InLine ISPF Elements and load them into a stem *
+  * variable.                                               *
+  *                                                         *
+  * Elements keyword syntax:                                *
+  * >START - start of inline data                           *
+  * >CLIST name                                             *
+  * >EXEC name                                              *
+  * >MSG name                                               *
+  * >PANEL name                                             *
+  * >SKEL name                                              *
+  * >END   - end of all inline data (optional if last)      *
+  * ------------------------------------------------------- */
   last_line = sourceline()
   do i = last_line to 1 by -1
     line = sourceline(i)
     if translate(left(line,6)) = ">START " then leave
   end
   rec = 0
-/* --------------------------------------------------- *
- * Flag types of ISPF resources by testing each record *
- * then add each record to the data. stem variable.    *
- * --------------------------------------------------- */
+  /* --------------------------------------------------- *
+  * Flag types of ISPF resources by testing each record *
+  * then add each record to the data. stem variable.    *
+  * --------------------------------------------------- */
   do j = i+1 to last_line
     line = sourceline(j)
     if translate(left(line,5)) = ">END "   then leave
@@ -847,22 +850,22 @@ LoadISPF: Procedure
     data.rec = line
   end
 
-/* ----------------------------------------------------- *
- * Now create the Library and Load the Member(s)         *
- * ----------------------------------------------------- */
+  /* ----------------------------------------------------- *
+  * Now create the Library and Load the Member(s)         *
+  * ----------------------------------------------------- */
   Address ISPExec
-/* ----------------------------- *
- * Assign dynamic random ddnames *
- * ----------------------------- */
+  /* ----------------------------- *
+  * Assign dynamic random ddnames *
+  * ----------------------------- */
   clistdd = "lc"random(999)
   execdd  = "le"random(999)
   msgdd   = "lm"random(999)
   paneldd = "lp"random(999)
   skeldd  = "ls"random(999)
 
-/* ---------------------------------------- *
- *  LmInit and LmOpen each resource library *
- * ---------------------------------------- */
+  /* ---------------------------------------- *
+  *  LmInit and LmOpen each resource library *
+  * ---------------------------------------- */
   if kclist <> null then do
     call alloc_dd clistdd
     "Lminit dataid(clist) ddname("clistdd")"
@@ -894,9 +897,9 @@ LoadISPF: Procedure
     returns = strip(returns skeldd 'ISPSLIB')
   end
 
-/* ----------------------------------------------- *
- * Process all records in the data. stem variable. *
- * ----------------------------------------------- */
+  /* ----------------------------------------------- *
+  * Process all records in the data. stem variable. *
+  * ----------------------------------------------- */
   do i = 1 to rec
     record = data.i
     recordu = translate(record)
@@ -936,7 +939,7 @@ LoadISPF: Procedure
       parse value record with x name
       iterate
     end
-   /* --------------------------------------------*
+    /* --------------------------------------------*
     * Put the record into the appropriate library *
     * based on the record type.                   *
     * ------------------------------------------- */
@@ -960,10 +963,10 @@ LoadISPF: Procedure
     end
   end
   if type <> null then call add_it
-/* ---------------------------------------------------- *
- * Processing completed - now lmfree the allocation and *
- * Libdef the library.                                  *
- * ---------------------------------------------------- */
+  /* ---------------------------------------------------- *
+  * Processing completed - now lmfree the allocation and *
+  * Libdef the library.                                  *
+  * ---------------------------------------------------- */
   if kclist <> null then do
     Address TSO,
       "Altlib Act Application(Clist) File("clistdd")"
@@ -988,10 +991,10 @@ LoadISPF: Procedure
   end
   return returns
 
-/* --------------------------- *
- * Add the Member using LmmAdd *
- * based upon type of resource *
- * --------------------------- */
+  /* --------------------------- *
+  * Add the Member using LmmAdd *
+  * based upon type of resource *
+  * --------------------------- */
 Add_It:
   Select
     When type = "Clist" then
@@ -1009,9 +1012,9 @@ Add_It:
   type = null
   return
 
-/* ------------------------------ *
- * ALlocate the temp ispf library *
- * ------------------------------ */
+  /* ------------------------------ *
+  * ALlocate the temp ispf library *
+  * ------------------------------ */
 Alloc_DD:
   arg dd
   Address TSO
@@ -1023,19 +1026,19 @@ Alloc_DD:
     "recfm(f b) lrecl(80) blksize(23440)"
   return
 
-/* --------------------  rexx procedure  -------------------- *
- * Name:      DropISPF                                        *
- *                                                            *
- * Function:  Remove ISPF LIBDEF's and deactivate ALTLIB's    *
- *            that were created by the LoadISPF function.     *
- *                                                            *
- * Syntax:    rc = dropispf(load_info)                        *
- *                                                            *
- * Author:    Janko                                           *
- *                                                            *
- * History:                                                   *
- *            12/05/18 - Creation                             *
- * ---------------------------------------------------------- */
+  /* --------------------  rexx procedure  -------------------- *
+  * Name:      DropISPF                                        *
+  *                                                            *
+  * Function:  Remove ISPF LIBDEF's and deactivate ALTLIB's    *
+  *            that were created by the LoadISPF function.     *
+  *                                                            *
+  * Syntax:    rc = dropispf(load_info)                        *
+  *                                                            *
+  * Author:    Janko                                           *
+  *                                                            *
+  * History:                                                   *
+  *            12/05/18 - Creation                             *
+  * ---------------------------------------------------------- */
 DropISPF: Procedure
   arg load_info
   Address ISPEXEC
