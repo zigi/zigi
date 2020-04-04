@@ -1,0 +1,24 @@
+)Attr
+ $ type(output) caps(off)
+ _ type(input)  caps(on ) hilite(uscore) intens(low)
+)Body Window(76,8)
++Confirm removal of sequential dataset and/or OMVS file
++from the repository and git:
++
++Requested removal:$rxdsn                                        +
++
++Confirm Git removal:  _z  +(YES or NO or%F3+to cancel)
++Confirm delete:       _z+  (Z for z/OS, O for OMVS, B for both, N for none)
++Turn Confirmation off:_z  +(YES or NO)
+)Init
+ .zvars = '(rema remq remc)'
+ &zwinttl = 'zigi Remove Prompt'
+)Proc
+ ver (&rema,nb,list,YES,NO)
+ ver (&remq,nb,list,Z,O,B,N)
+ ver (&remc,nb,list,YES,NO)
+)end
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */
