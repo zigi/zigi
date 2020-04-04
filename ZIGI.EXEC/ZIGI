@@ -1,4 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
+  ver = 'v2r8'
   ver = 'v2r7'
   /*Name:      zigi  (z ISPF Git Interface)                    |
   |                                                            |
@@ -26,6 +27,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            03/30/20 LBD - Enhance RM delete options        |
+  |                         - Set version to 2.8               |
   |            03/28/20 LBD - Support PDS member file          |
   |                           extensions                       |
   |            03/18/20 LBD - Refine ref date check            |
