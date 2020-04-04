@@ -1061,13 +1061,13 @@ DropISPF: Procedure
 )Attr
 _ type(input) hilite(uscore) caps(on) intens(low) just(left)
 )Body Window(43,3)
-+Enter Git Option:_opt+(A, AC, ACP)
++Enter Git Option:_opt+(A, AC, ACP, or O)
 +
 +Press%Enter+to Continue, or%F3+to Cancel.
 )Init
 &zwinttl = 'zigi Git Option'
 )Proc
-ver (&opt,nb,list,A,AC,ACP,S,SC,SCP)
+ver (&opt,nb,list,A,AC,ACP,S,SC,SCP,O)
 )End
 >Panel zgtbl
 )Attr
