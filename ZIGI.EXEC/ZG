@@ -347,6 +347,7 @@ done:
       'setmsg msg(isrz001)'
     end
   end
+
 Get_Out_Of_Here:
   if open /= 0 then do
     'tbend zigirepo'
@@ -433,44 +434,6 @@ usssafe: procedure
   if pos('\$',dsn) > 0 then return dsn
   dsn = strreplace(dsn, '$', '\$')
   return dsn
-
-is_binfile:
-  /* ---------------------------------------------------------\
-  | Name:      is_binfile                                      |
-  |                                                            |
-  | Function:  Checks the global binfiles. stem for the        |
-  |            provided dataset or dataset/member              |
-  \---------------------------------------------------------- */
-  arg file
-  if datatype(binfiles.0) /= 'NUM' then return 0
-  do bi = 1 to binfiles.0
-    if binfiles.bi = file then return 1
-    if right(binfiles.bi,1) = '*' then do
-      parse value file with test'/'.
-      if left(binfiles.bi,length(binfiles.bi)-2) = test
-      then return 1
-    end
-    if binfiles.bi = file then return 1
-  end
-  return 0
-
-get_binfiles:
-  /* ---------------------------------------------------------\
-  | Name:      get_binfiles                                    |
-  |                                                            |
-  | Function:  Fills the global binfiles. stem with all        |
-  |            current repo files that are added as binary.    |
-  \---------------------------------------------------------- */
-  cmd = 'cd 'localrep'/'zigirep' &&'
-  cmd = cmd 'cat .gitattributes | grep git-encoding=BINARY'
-  cmd = cmd '| cut -d" " -f1'
-  x = docmd(cmd)
-  binfiles. = null
-  do b = 1 to so.0
-    binfiles.b = so.b
-  end
-  binfiles.0 = so.0
-  return 0
 
   /* ----------------------------------------------------- *
   | Get the users current OMVS enviornment for use in the |
@@ -654,38 +617,6 @@ view_std:
   Address TSO 'Delete' vdsn
   call outtrap 'off'
   return
-
-  /* ------------------------- *
-  | Validate the dataset name |
-  * ------------------------- */
-dsnvalid: Procedure Expose null
-  /* Tests for a 'potentially valid' z/OS datasetname */
-  parse arg val_dsn
-  if strip(val_dsn) = null then return 'NO'
-  val_dsn = strip(val_dsn,'B',"'")
-  upp = TRANSLATE(val_dsn,".ABCDEFGHIJKLMNOPQRSTUVWXYZ",,
-    ".abcdefghijklmnopqrstuvwxyz")
-  tdsn = translate(val_dsn,' ','.')
-  retval = 'OK'   /* asssume good */
-  do i = 1 to words(tdsn)
-    w = word(tdsn,i)
-    if length(w) > 8 then retval = 'NO'
-    if pos(left(w,1),'ABCDEFGHIJKLMNOPQRSTUVWXYZ-$#@') = 0 then retval = 'NO'
-    w = translate(w,left(' ',39,' '), ,
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZ-$#@0123456789')
-    w = strip(w)
-    if w /= null then retval = 'NO'
-  end
-  if retval /= 'NO' then
-  if upp = val_dsn then do
-    smsg = msg()
-    call msg 'OFF'
-    if sysdsn(val_dsn) = "OK" | sysdsn(val_dsn) = "DATASET NOT FOUND"
-    then retval = 'OK'
-    else retval = "NO"
-    call msg smsg
-  end
-  return retval
 
   /* ------------------------------------------------- *
   |                                                  |
