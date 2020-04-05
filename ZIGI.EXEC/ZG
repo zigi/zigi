@@ -424,7 +424,6 @@ do_cmsg:
     if strip(cmsgd.i) /= null then leave
   end
   cmsgd.0 = i
-  call stemedit 'view',cmsgd.
   file = 'cmsg'random(999)
   fdd  = file
   if sysvar('syspref') = null
