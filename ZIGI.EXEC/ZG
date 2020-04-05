@@ -1100,7 +1100,7 @@ ver (&cmsg1,nb)
 /* zigi - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */
-  >Exec zigistat
+>Exec zigistat
   /* --------------------  rexx procedure  -------------------- *
   | Name:      zigistat                                        |
   |                                                            |
@@ -1533,4 +1533,4 @@ STRREPLACE:
       NEWTXT || SUBSTR(NEWSTR, POS(TMPTXT,NEWSTR) + LENGTH(TMPTXT))
   END
   RETURN NEWSTR
-    >End    End of inline ISPF Panels */
+>End    End of inline ISPF Panels */
