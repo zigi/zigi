@@ -42,6 +42,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            04/05/20 LBD - Expand Commit message to 7 lines |
   |            04/04/20 LBD - Place all ISPF panels inline     |
   |                           to avoid customization req       |
   |            04/01/20 LBD - Add dsn to repo mapping variable |
@@ -291,14 +292,26 @@
     drc = rc
     'Rempop'
     if drc > 0 then call done
+    if strip(cmsg1 cmsg2 cmsg3 cmsg4 cmsg5 cmsg6 cmsg7) /= null
+    then do
+      cfile = 1
+      call do_cmsg
+    end
+    else cfile = 0
     hit = 1
     if pos('P',zsel) > 0
     then  call pop 'Performing Git Commit/Push \ Patience. . .'
     else  call pop 'Performing Git Commit \ Patience. . .'
     cmd = 'cd' localrep'/'zigirep
-    cmd = cmd "&& git commit -vm '"cmsg"'"
+    if cfile =0 then
+    cmd = cmd "&& git commit -vm '"cmsg1"'"
+    else do
+      cmd = cmd "&& git commit -F" file
+    end
     if right(zsel,1) = 'P' then
     cmd = cmd '&& git push -v'
+    if cfile = 1 then
+    cmd = cmd '&& rm' file
     x = docmd(cmd)
     call add_so 'Command:' cmd
     if x > 0 then
@@ -400,6 +413,35 @@ Do_Popup:
   'Display Panel(zigipop)'
   'Rempop'
   call pfshow 'reset'         /* restore pfshow setting */
+  return
+
+do_cmsg:
+  do i = 1 to 7
+    cmsgd.i = value(cmsg''i)
+    cmsgd.i = cmsgd.i' '
+  end
+  do i = 7 to 1 by -1
+    if strip(cmsgd.i) /= null then leave
+  end
+  cmsgd.0 = i
+  call stemedit 'view',cmsgd.
+  file = 'cmsg'random(999)
+  fdd  = file
+  if sysvar('syspref') = null
+  then filem = sysvar('sysuid')'.'file
+  else filem = file
+  file = localrep'/'file
+  file = "'"file"'"
+  address tso
+  'alloc f('fdd') new spa(1,1) tr recfm(f b) lrecl(72) blksize(0)',
+    'ds('filem')'
+  'execio * diskw' fdd '(finis stem cmsgd.'
+  'free  f('fdd')'
+  call outtrap 'x.'
+  'oput' filem file 'Text'
+  'delete' filem
+  call outtrap 'off'
+  address ispexec
   return
 
   /* ---------------------------------- *
@@ -1026,15 +1068,21 @@ Ver (&zsel,list,A,AC,O,S,SC,ACP,SCP)
 >Panel zgcom
 )Attr
 _ type(input) hilite(uscore) caps(off) intens(low) just(left)
-)Body Window(68,4)
+)Body Window(68,10)
 +Enter Commit Message:
-_cmsg                                                             +
+_cmsg1                                                            +
+_cmsg2                                                            +
+_cmsg3                                                            +
+_cmsg4                                                            +
+_cmsg5                                                            +
+_cmsg6                                                            +
+_cmsg7                                                            +
 +
 +Press%Enter+to Continue, or%F3+to Cancel.
 )Init
 &zwinttl = 'zigi Commit Message'
 )Proc
-ver (&cmsg,nb)
+ver (&cmsg1,nb)
 )End
 >Panel zigipop
 )Attr
@@ -1052,7 +1100,7 @@ ver (&cmsg,nb)
 /* zigi - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */
->Exec zigistat
+  >Exec zigistat
   /* --------------------  rexx procedure  -------------------- *
   | Name:      zigistat                                        |
   |                                                            |
@@ -1485,4 +1533,4 @@ STRREPLACE:
       NEWTXT || SUBSTR(NEWSTR, POS(TMPTXT,NEWSTR) + LENGTH(TMPTXT))
   END
   RETURN NEWSTR
->End    End of inline ISPF Panels */
+    >End    End of inline ISPF Panels */
