@@ -42,6 +42,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            04/07/20 LBD - Reset Userid if DEFRUID set      |
   |            04/05/20 LBD - Expand Commit message to 7 lines |
   |            04/04/20 LBD - Place all ISPF panels inline     |
   |                           to avoid customization req       |
@@ -240,14 +241,23 @@
   end
 
   /* --------------------------------------------------- *
-  | Get the list of binary files                        |
   | Get the list of datasets to check for file suffixes |
   * --------------------------------------------------- */
   call get_dsn_info
 
-  /* -------------------------------- *
-  | Process the repository selection |
-  * -------------------------------- */
+  /* ---------------------------------------------- *
+  | Check the current Userid and Change if DEFRUID |
+  * ---------------------------------------------- */
+  if defruid /= null then do
+    "LMINIT DATAID(ruid) DATASET('"workdsn"')"
+    "LMOPEN DATAID("ruid") OPTION(INPUT)"
+    "LMMLIST Dataid("ruid") OPTION(LIST) MEMBER(MEMBER)" ,
+      "STATS(YES)"
+    if zluser /= defruid then
+       'LMMSTATS DATAID('ruid') Member('member') user('defruid')'
+    "LMClose Dataid("ruid")"
+    "LMFree  Dataid("ruid")"
+  end
 
   /* ------------------------------------------------------- *
   | Select/Add dataset or dataset(member) to the repository |
@@ -1184,6 +1194,8 @@ zigistat:
   if filepath = null then return 12
   if opt      = null then return 16
   opt         = translate(opt)   /* make upper case */
+
+  Address ISPExec
 
   /* ------------------ *
   * Define ISPF Dataid *
