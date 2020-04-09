@@ -1,4 +1,13 @@
                              zigi Release Notes
+                                Version 2.8
+
+                         New Features and Functions
+                         --------------------------
+
+Bug Fixes and Other Updates:
+
+  1. Better parsing of remote repo URL in clone and adding remote panel.
+  2.
                                 Version 2.7
 
                          New Features and Functions
