@@ -42,6 +42,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            04/10/20 LBD - Validate dataset is fully quoted |
   |            04/07/20 LBD - Reset Userid if DEFRUID set      |
   |            04/05/20 LBD - Expand Commit message to 7 lines |
   |            04/04/20 LBD - Place all ISPF panels inline     |
@@ -112,6 +113,16 @@
     exit
   end
 
+ /* ------------------------------------------------------ *
+  | If the user entered the dataset(member) without quotes |
+  | then add the user prefix or userid and add quotes.     |
+  * ------------------------------------------------------ */
+  if left(adddsn,1) /= "'" then do
+     if sysvar('syspref') /= null
+     then pref = sysvar('syspref')
+     else pref = sysvar('sysuid')
+     adddsn = "'"pref"."adddsn"'"
+     end
   /* ----------------------- *
   | Load inline ISPF Panels |
   * ----------------------- */
@@ -309,6 +320,7 @@
     end
     else cfile = 0
     hit = 1
+
     if pos('P',zsel) > 0
     then  call pop 'Performing Git Commit/Push \ Patience. . .'
     else  call pop 'Performing Git Commit \ Patience. . .'
