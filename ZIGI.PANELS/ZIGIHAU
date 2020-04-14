@@ -29,12 +29,9 @@
 +
 @Special Thanks To:
 +
-  +Davide Girardi
-  +David Crayford
-  +Jim Taylor
-  +Kadima
-  +Lee Bochicchio
-  +William Schoen
+  +Davide Girardi      +Erik Janssen    +Kadima           +William Schoen
+  +David Crayford      +Jim Taylor      +Lee Bochicchio
+
 +
 )Init
  .cursor = &zcmd
