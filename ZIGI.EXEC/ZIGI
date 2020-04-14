@@ -26,6 +26,10 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            04/12/20 EJA - Improve overview by using        |
+  |                           more function calls              |
+  |                           There should be no functional    |
+  |                           change                           |
   |            03/30/20 LBD - Enhance RM delete options        |
   |                         - Set version to 2.8               |
   |            03/28/20 LBD - Support PDS member file          |
@@ -238,130 +242,514 @@
   * ---------------------------------------------------------- */
   parse arg start_option
 
-  Address ISPExec
-  'vget (zapplid)'
-
   null = ''
 
-  /* ----------------------------------------------------- *
-  | Get the Active HLQ for use with the ALTLIB and LIBDEF |
-  | of the zIGI libraries.                                |
-  | 1st Get the active exec library or dd                 |
-  * ----------------------------------------------------- */
-  parse source TSO Type exec_name DDName exec NameO Env Addr Token
-  if exec = '?' then do
-    x = listdsi(ddname 'FILE')
-    exec = sysdsname
-  end
   /* ------------------------------------------ *
-  | Now extract the HLQ for the Panels Library |
+  | ISPExec is our default host environment    |
   * ------------------------------------------ */
-  zigihlq = translate(exec,' ','.')
-  zigihlq = subword(zigihlq,1,words(zigihlq)-1)
-  zigihlq = translate(zigihlq,'.',' ')
-  /* ---------------------------------------------- *
-  | Fully qualify the EXEC and PANELS library dsns |
-  * ---------------------------------------------- */
-  exec = "'"exec"'"
-  panels = "'"zigihlq".PANELS'"
+  Address ISPExec
+
+  /* ============================================================== */
+  /* ======== main flow          ================================== */
+  /* ============================================================== */
+
+  call init_ispf
+  call display_splash
+  call enable_rfind
+  call init_git
+  call init_repo
+
+  /* ------------------------------------------ *
+  | Handle zigiprim panel                       |
+  * ------------------------------------------ */
+  do forever
+    /* repo was not specified on start command ? */
+    if szcmd = null then do
+       call display_zigiprim
+       /* end selected, exit zigi */
+       if result > 4 then leave
+    end
+
+    /* repo was specified on start command, bypass panel ? */
+    if szcmd /= null then do
+      zcmd = szcmd
+      szcmd = null
+    end
+
+    check_flag = 1
+
+    /* uppercase translate the command part of the zcmd, leaving rest asis */
+    zcmd = strip(translate(word(zcmd,1)) subword(zcmd,2))
+
+    /* turn L(ocate) into F(ind) */
+    if word(zcmd,1) = 'L' then
+    zcmd = 'F' subword(zcmd,2)
+
+    /* --------------------------------- *
+    | Show popup with valid menu options |
+    * --------------------------------- */
+    if abbrev('O',word(zcmd,1),1) = 1 then call display_zigioprm
+
+    /* ------------------------ *
+    | Select a repo by command |
+    * ------------------------ */
+    if abbrev('SELECT',word(zcmd,1),1) = 1 then call handle_zigiprim_select
+
+    /* -------------- *
+    | Process a Find |
+    * -------------- */
+    if zcmd = 'RFIND' then do
+      zcmd = 'FIND' fstring
+      rfs  = rowcnt
+    end
+    else rfs = 0
+    if abbrev('FIND',word(zcmd,1),1) = 1 then call handle_zigiprim_find
+
+    parse value '' with fulldsn dsn defcpush defruid
+    /* Get the row after the clear to get variables */
+    'tbget zigirepo'
+    if defcpush = 'Y' then zpush = 'Y'
+    else zpush = 'N'
+
+   /* -------------------------------- *
+    | Define Set as an alias of Config |
+    * -------------------------------- */
+    if abbrev('SET',zcmd,2) = 1 then zcmd = 'CONFIG'
+
+    /* handle remaining primairy commands */
+    if zcmd /= null then
+    Select
+      When abbrev('CREATE',zcmd,2) = 1 then call handle_zigiprim_create
+      When abbrev('CLONE',zcmd,2) = 1 then call handle_zigiprim_clone
+      When abbrev('CONFIG',zcmd,2) = 1 then call handle_zigiprim_config
+      When abbrev('GITHELP',word(zcmd,1),4) = 1 then
+        Address TSO '%githelp' subword(zcmd,2)
+      when abbrev('LOCAL',zcmd,2) = 1 then call handle_zigiprim_local
+      When abbrev('SORT',word(zcmd,1),2) = 1 then call handle_zigiprim_sort
+      When abbrev('SSH',zcmd,2) = 1 then call handle_zigiprim_ssh
+      when zcmd = 'VIEWD' then call view_debug
+      Otherwise if zcmd /= null then do
+        zerrsm = 'Unknown'
+        zerrlm = zcmd 'is not a recognized command.'
+        'setmsg msg(isrz003)'
+      end
+    end
+
+    /* handle line commands */
+    if zsel = '/' then do
+      'Addpop row(4) column(6)'
+      'Display Panel(zigirprm)'
+      'rempop'
+    end
+
+    if zsel /= null then
+    Select
+      When zsel = 'I' then call handle_zigiprim_lcmd_i
+      When zsel = 'S' then call select_repo
+      When zsel = 'V' then
+        'SELECT PGM(ISRDSLST) PARM(UDL' localrep'/'zigirep') SUSPEND'
+      When zsel = 'D' then call handle_zigiprim_lcmd_d
+      Otherwise do
+        zerrsm = 'Unknown'
+        zerrlm = zsel 'is not a recognized command.'
+        'setmsg msg(isrz003)'
+      end
+    End
+  end
+
+  if rtbl_open = 1 then
+  'tbend' rtbl
+  'tbclose zigirepo'
 
   /* ----------------------------------------------------------- *
-  | Check for running under the ZIGI ISPF application ID and if |
-  | not then recurse into it.                                   |
+  | If the ZIGIDEBG DD was present and the debugging was in use |
+  | then display a list of debug files using the UDList (3.17)  |
+  | utility.                                                    |
   * ----------------------------------------------------------- */
-  if zapplid <> "ZIGI" then do
-    Address ISPExec
-    /* ---------------------------------------- *
-    | If panels/exec then libdef and/or altlib |
-    | but only if not under ZIGI applid.       |
-    * ---------------------------------------- */
-    if panels /= null then
-    'libdef ispplib dataset id('panels') stack'
-    if exec /= null then
-    Address TSO 'altlib act application(exec) dataset('exec')'
-    /* --------------------------------------- *
-    | Make sure we are under the ZIGI applid  |
-    * --------------------------------------- */
-    "Select CMD("exec_name start_option") Newappl(ZIGI) Passlib scrname(zigi)"
-    if panels /= null then
-    'libdef ispplib'
-    if exec /= null then
-    Address TSO 'altlib deact application(exec)'
-    exit 0
+  if zigidebg = 1 then
+  if zigidebg_use = 1 then do
+    "Select Pgm(isrdslst) Parm(UDL ~/zigidebug*) SUSPEND"
   end
-  zigpass = null
-  'vput (zigpass) shared'
+  Exit 0
 
-  parse value '' with null rx zigidebg_flag save_zigirep fulldsn cltime
-  cscnt = 0
-  cdrcnt = 0
+  /* ============================================================== */
+  /* ======== functions          ================================== */
+  /* ============================================================== */
 
-  cmd = 'pwd'
-  x = bpxwunix(cmd,,so.,se.)
-  home    = strip(so.1)
+  /* ------------------------------------------ *
+  | Handle zigiprim panel linecommand i         |
+  * ------------------------------------------ */
+  handle_zigiprim_lcmd_i:
+  'addpop row(3) column(2)'
+  'display panel(zigiinfo)'
+  'rempop'
+  zsel = null
+ Return
 
+  /* ------------------------------------------ *
+  | Handle zigiprim panel linecommand d         |
+  * ------------------------------------------ */
+  handle_zigiprim_lcmd_d:
+  parse value '' with delcg delco delcf delzd
+  'Addpop row(3) column(10)'
+  'Display panel(zigidelc)'
+  drc = rc
+  'rempop'
+  if drc = 0 & delcf = 'Y' then do
+    if delcg = 'Y' then do
+      'tbdelete zigirepo'
+      cmd = 'cd 'localrep'/'zigirep' && rm -rf'
+      cmd = cmd' .git .gitattributes .zigi'
+      x = bpxwunix(cmd,,so.,se.)
+      if x = 0 then do
+        zerrsm = 'Deleted.'
+        delcg = 'Repo removed from zigi, .git files deleted.'
+      end
+      else do
+        zerrsm = 'Partially Deleted.'
+        delcg = 'Repo removed from zigi, .git files not deleted.'
+      end
+    end
+    if delzd = 'Y' then do
+      delzd = 'The z/OS datasets have been deleted.'
+      address syscall 'readdir' localrep'/'zigirep d.
+      do id = 1 to d.0
+        if left(d.id,1) = '.' then iterate
+        deldsn = Add_DSN_HLQ(word(d.id,1))
+        if dsnvalid(deldsn) = 'NO' then iterate
+        call outtrap 'x.'
+        address tso 'delete' deldsn
+        call outtrap 'off'
+      end
+    end
+    else delzd = 'The z/OS datasets were NOT deleted.'
+    if delco = 'Y' then do
+      cmd = 'cd' localrep' && rm -rf 'zigirep
+      x = bpxwunix(cmd,,so.,se.)
+      delco = 'The local repository has been deleted from OMVS.'
+    end
+    else delco = 'The local repository was NOT deleted from OMVS.'
+    zerrlm = left(delcg,76) left(delco,76) left(localrep'/'zigirep,76) ,
+      left(delzd,76)
+    'setmsg msg(isrz003)'
+  end
+  else do
+    zerrsm = 'Retained.'
+    zerrlm = 'The local repository was NOT deleted from zigi, from' ,
+      'OMVS' localrep'/'zigirep', or from z/OS.'
+    'setmsg msg(isrz003)'
+  end
+ Return
+
+  /* ------------------------------------------ *
+  | Handle zigiprim panel primary command ssh   |
+  * ------------------------------------------ */
+  handle_zigiprim_ssh:
+  do forever
+    zcmd = null
+    'display panel(zigisshk)'
+    if rc > 0 then leave
+  end
+ Return
+
+  /* ------------------------------------------ *
+  | Handle zigiprim panel primary command sort  |
+  * ------------------------------------------ */
+  handle_zigiprim_sort:
+  zcmd = translate(zcmd)
+  defrsort = null
+  parse value zcmd with . skey sopt skey2 sopt2
+  if skey = null then do
+    call pfshow 'off'           /* make sure pfshow is off */
+    'Addpop row(4) column(6)'
+    'Display Panel(zigipsrt)'
+    'Rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
+  end
+  if sopt = '' then
+  if lsopt = 'A' then sopt = 'D'
+  else sopt = 'A'
+  select
+    when abbrev('REPOSITORY',skey,1) = 1 then
+    skey = 'zigirep'
+    when abbrev('CATEGORY',skey,1) = 1 then
+    skey = 'zigicat'
+    when abbrev('PREFIX',skey,1) = 1 then
+    skey = 'pdshlq'
+    when abbrev('LAST',skey,1) = 1 then
+    skey = 'sortdate'
+    when abbrev('DATE',skey,1) = 1 then
+    skey = 'sortdate'
+    otherwise skey = 'zigirep'
+  end
+  select
+    when abbrev('REPOSITORY',skey2,1) = 1 then
+    skey2 = 'zigirep'
+    when abbrev('CATEGORY',skey2,1) = 1 then
+    skey2 = 'zigicat'
+    when abbrev('PREFIX',skey2,1) = 1 then
+    skey2 = 'pdshlq'
+    when abbrev('LAST',skey2,1) = 1 then
+    skey2 = 'sortdate'
+    when abbrev('DATE',skey2,1) = 1 then
+    skey2 = 'sortdate'
+    otherwise nop
+  end
+  if left(sopt,1) = 'D' then sopt = 'D'
+  else sopt = 'A'
+  if skey2 /= null then do
+    if left(sopt2,1) = 'D' then sopt2 = 'D'
+    else sopt2 = 'A'
+  end
+  defrsort = skey',c,'sopt
+  if skey2 /= null then
+  defrsort = defrsort','skey2',c,'sopt2
+  'tbsort zigirepo fields('defrsort')'
+  lsopt = sopt
+  'vput (defrsort) profile'
+ Return
+
+  /* ------------------------------------------ *
+  | Handle zigiprim panel primary command local |
+  * ------------------------------------------ */
+  handle_zigiprim_local:
+  if zigtitle = 'Offline'
+  then do
+    zigtitle = '(zigi' ver')'
+    zigi_offline = 0
+  end
+  else do
+    zigtitle = 'Offline'
+    zigi_offline = 1
+  end
+  'vput (zigtitle)'
+ Return
+
+  /* ------------------------------------------- *
+  | Handle zigiprim panel primary command config |
+  * ------------------------------------------- */
+  handle_zigiprim_config:
+  do forever
+     zcmd = null
+     'vget (mgen pnsdef) profile'
+     sl = mgen()
+     'display panel(zigiset)'
+     'vput (mgen pnsdef) profile'
+     call update_config
+     if rc = 0 | rc = 8 then leave
+  end
+ Return
+
+  /* ------------------------------------------- *
+  | Handle zigiprim panel primary command clone  |
+  * ------------------------------------------- */
+  handle_zigiprim_clone:
+  encoding = null
+  call Clone_Repo
+  zsel = null
+ Return
+
+  /* ------------------------------------------- *
+  | Handle zigiprim panel primary command create |
+  * ------------------------------------------- */
+  handle_zigiprim_create:
+  x = Create_Repo()
+  crflag = 1
+  if x = 0 then do
+    zcmd = 'ADDDSN'
+    call work_with_repo
+    zsel = null
+  end
+ Return
+
+  /* ------------------------------------------- *
+  | Handle zigiprim panel primary command find   |
+  * ------------------------------------------- */
+  handle_zigiprim_find:
+  fstring = translate(word(zcmd,2))
+  zcmd = null
+  find = null
+  if fstring = null then do
+    'Addpop row(4) column(6)'
+    'Display Panel(zigifind)'
+    drc = rc
+    'rempop'
+    if drc > 0 then find = null
+    fstring = find
+  end
+  if fstring /= null then do
+    rowcnt = 0
+    'tbtop zigirepo'
+    if rfs > 0 then do
+      'tbskip zigirepo number('rfs')'
+      rowcnt = rfs
+    end
+    do forever
+      'tbskip zigirepo'
+      if rc > 0 then do
+        if rfs > 0 then do
+          rfs = 0
+          'tbtop zigirepo'
+          'tbskip zigirepo'
+          rowcnt = 0
+        end
+        else do
+          zerrsm = 'Not Found'
+          zerrlm = fstring 'not found.'
+          'setmsg msg(isrz003)'
+          Return
+        end
+      end
+      rowcnt = rowcnt + 1
+      'tbget zigirepo'
+      if pos(fstring,translate(zigirep pdshlq)) > 0 then do
+        repo_top = rowcnt
+        zerrsm = 'Found'
+        zerrlm = fstring 'found in row' rowcnt + 0
+        'setmsg msg(isrz003)'
+        Return
+      end
+    end
+  end
+ Return
+
+  /* ------------------------------------------- *
+  | Handle zigiprim panel primary command select |
+  * ------------------------------------------- */
+  handle_zigiprim_select:
+  x = debug('Selecting repo via command:'zcmd)
+  zerrsm = null
+  fstring = word(zcmd,2)
+  zcmd = null
+  if fstring = null then do
+    'addpop row(3) column(4)'
+    'display panel(zigisel)'
+    drc = rc
+    'rempop'
+    if fstring = null then drc = 4
+    if drc > 0 then  do
+      zerrsm = 'Canceled.'
+      zerrlm = 'Select canceled.'
+      'setmsg msg(isrz003)'
+    end
+  end
+  if zerrsm = null then do
+    'tbtop zigirepo'
+    do forever
+      'tbskip zigirepo'
+      if rc > 0 then do
+        zerrsm = 'Not Found'
+        zerrlm = fstring 'repository not found. Verify the spelling and' ,
+          'case.'
+        'setmsg msg(isrz003)'
+        return
+      end
+      if translate(fstring) /= translate(zigirep) then iterate
+      'tbget zigirepo'
+      if defcpush = 'Y' then zpush = 'Y'
+      else zpush = 'N'
+      zcmd = null
+      call select_repo
+      parse value '' with zsel zcmd
+      return
+    end
+  end
+ Return
+
+  init_repo:
   /* ---------------------------------------- *
-  | Check for ZIGIDEBG DD for debug purposes |
+  | Open (or create and open) the Repo Table |
   * ---------------------------------------- */
-  x = listdsi('ZIGIDEBG' 'FILE')
-  if x > 0 then if sysreason = 3 then do
-    zigidebg = 1
-    ztime = time()
-    ztime = left(ztime,2)''substr(ztime,4,2)''substr(ztime,7,2)
-    debugfil = home'/zigidebug.d'date('j')'.t'ztime
-    'vput (debugfil)'
-  end
-  else zigidebg = 0
-  if zigidebg = 0 then
-  "Control Errors Return"
-
-  /* ---------------------------------------------------------------- *
-  | Running under the ZIGI ISPF Application ID so let's do some work |
-  * ---------------------------------------------------------------- */
-  parse value '' with zcmd zsel
-  zigtitle = '(zigi' ver')'
-  'vput (zigtitle ver)'
-  'vget (bypass pnsdef) profile'
-  if pnsdef = null then do
-    pnsdef = 'S'
-    'vput (pnsdef) profile'
-  end
-  bypasso = bypass
-  if translate(start_option) = 'S' then bypass = 'N'
-  if bypass /= 'Y' then do
-    'display panel(zigispls)'
-    if rc = 8 then exit
-    'vput (bypass) profile'
-    if bypasso /= 'Y' then
-    if bypass = 'Y' then do
-      zs1 = 'The splash screen will no longer display per your request.'
-      zs2 = ' '
-      zs3 = 'Start zigi with a parm of S to restore.'
-      zs4 = '--- Press Enter to continue.'
-      call do_popup4p
+  isptabl = 'ISPTABL'
+  x = listdsi(isptabl 'FILE')
+  if x > 0 then isptabl = 'ISPPROF'
+  'TBOpen zigirepo Library('isptabl') Write Share'
+  if rc > 0 then do
+    if rc = 8 then call create_zigirepo
+    if rc > 8 then do
+      'setmsg msg(isrz003)'
     end
   end
 
-  /* ---------------------------------------------------------- *
-  | Enable RFIND (Repeat Find) by adding an RFIND entry to the |
-  | active site command table with a symbolic that will be     |
-  | changed to PASSTHRU prior to each TBDISPL and back to null |
-  | after. This allows RFIND to be passed to our applicaiton.  |
-  * ---------------------------------------------------------- */
-  zctverb  = "RFIND"
-  zcttrunc = 0
-  zctact   = "&ZIGPASS"
-  zctdesc  = "RFIND for zigi Dialog"
-  'vget (zsctpref)'
-  if zsctpref = null
-  then zsctpref = 'ISP'
-  ctab = zsctpref'cmds'
-  'tbtop' ctab
-  'tbscan' ctab 'arglist(zctdesc) condlist(EQ) Next'
-  if rc > 0 then 'tbadd' ctab
-  zigpass = null
-  'vput (zigpass)'
+  /* --------------------------------------------- *
+  | Test to see if the ZIGIREPO table is for V2R0 |
+  | and if not upgrade it.                        |
+  * --------------------------------------------- */
+  call test_repo_table_state
 
+  repo_top = 1
+  'tbtop zigirepo'
+  'vget (defrsort) profile'
+  if words(defrsort) = 2 then defrsort = 'zigirep,c,a'
+  'TBSort zigirepo Fields('defrsort')'
+  parse value '' with zsel szcmd
+  if start_option /= null
+  then if translate(start_option) /= 'S' then
+  szcmd = 'S' start_option
+
+  /* Panel for when there are no repos in profile yet */
+  'TBStats zigirepo rowcurr('tr')'
+  if tr = 0 then do
+    'Addpop row(4) column(6)'
+    'Display Panel(zigi1st)'
+    'rempop'
+  end
+ Return
+
+  /* ------------------------------------------- *
+  | Handle zigiprim panel primary command O      |
+  * ------------------------------------------- */
+  display_zigioprm:
+  parse value '' with findstr selfind
+  if pos('.',zcmd) > 0 then
+  parse value zcmd with x'.'zcmd
+  'Addpop row(4) column(6)'
+  'Display Panel(zigioprm)'
+  'rempop'
+  if findstr /= null
+  then zcmd = 'F' findstr
+  if selfind /= null
+  then zcmd = 'S' selfind
+ Return
+
+  /* ------------------------------------------- *
+  | Display zigiprim panel                       |
+  * ------------------------------------------- */
+  display_zigiprim:
+  parse value '' with zsel row
+  fetch_flag = 0
+  zigpass = 'PASSTHRU'
+  'vput (zigpass) shared'
+  'TBTop zigirepo'
+  'tbskip zigirepo number('repo_top')'
+  localrep = null
+  'vput (localrep) shared'
+  'tbdispl zigirepo panel(zigiprim)'
+  trc = rc
+  zigpass = null
+  'vput (zigpass) shared'
+  if trc > 4 then Return trc
+
+  if ztdsels = 0 then
+  if pnsdef = 'P' then do
+    if row = 0 then zcmd = 'O'
+    if row > 0 then zsel = '/'
+  end
+
+  repo_top = ztdtop
+  if row = 0 then zsel = null
+  if row <> null then
+  if row > 0 then do
+    'TBTop zigirepo'
+    'TBSkip zigirepo Number('row')'
+  end
+ Return
+
+  /* ---------------------------------------------------------- *
+  | See if we have git installed, have a public key, have a    |
+  | correct env and have user.name and user.email set          |
+  * ---------------------------------------------------------- */
+  init_git:
   /* ------------------------------------ *
   | define our working default variables |
   * ------------------------------------ */
@@ -509,407 +897,142 @@
       end
     end
   end
+ Return
 
-  /* ---------------------------------------- *
-  | Open (or create and open) the Repo Table |
-  * ---------------------------------------- */
-  isptabl = 'ISPTABL'
-  x = listdsi(isptabl 'FILE')
-  if x > 0 then isptabl = 'ISPPROF'
-  'TBOpen zigirepo Library('isptabl') Write Share'
-  if rc > 0 then do
-    if rc = 8 then call create_zigirepo
-    if rc > 8 then do
-      'setmsg msg(isrz003)'
+  /* ---------------------------------------------------------- *
+  | Enable RFIND (Repeat Find) by adding an RFIND entry to the |
+  | active site command table with a symbolic that will be     |
+  | changed to PASSTHRU prior to each TBDISPL and back to null |
+  | after. This allows RFIND to be passed to our applicaiton.  |
+  * ---------------------------------------------------------- */
+  enable_rfind:
+
+  zctverb  = "RFIND"
+  zcttrunc = 0
+  zctact   = "&ZIGPASS"
+  zctdesc  = "RFIND for zigi Dialog"
+  'vget (zsctpref)'
+  if zsctpref = null
+  then zsctpref = 'ISP'
+  ctab = zsctpref'cmds'
+  'tbtop' ctab
+  'tbscan' ctab 'arglist(zctdesc) condlist(EQ) Next'
+  if rc > 0 then 'tbadd' ctab
+  zigpass = null
+  'vput (zigpass)'
+ Return
+
+  /* ----------------------------------------------------- *
+  | Display and handle the splash screen                  |
+  * ----------------------------------------------------- */
+  display_splash:
+  /* ---------------------------------------------------------------- *
+  | Running under the ZIGI ISPF Application ID so let's do some work |
+  * ---------------------------------------------------------------- */
+  parse value '' with zcmd zsel
+  zigtitle = '(zigi' ver')'
+  'vput (zigtitle ver)'
+  'vget (bypass pnsdef) profile'
+  if pnsdef = null then do
+    pnsdef = 'S'
+    'vput (pnsdef) profile'
+  end
+  bypasso = bypass
+  if translate(start_option) = 'S' then bypass = 'N'
+  if bypass /= 'Y' then do
+    'display panel(zigispls)'
+    if rc = 8 then exit
+    'vput (bypass) profile'
+    if bypasso /= 'Y' then
+    if bypass = 'Y' then do
+      zs1 = 'The splash screen will no longer display per your request.'
+      zs2 = ' '
+      zs3 = 'Start zigi with a parm of S to restore.'
+      zs4 = '--- Press Enter to continue.'
+      call do_popup4p
     end
   end
+ Return
 
-  /* --------------------------------------------- *
-  | Test to see if the ZIGIREPO table is for V2R0 |
-  | and if not upgrade it.                        |
-  * --------------------------------------------- */
-  call test_repo_table_state
+  /* ----------------------------------------------------- *
+  | Initialize the ispf environment and make sure we      |
+  | are running under the zigi applid                     |
+  * ----------------------------------------------------- */
+  init_ispf:
+  'vget (zapplid)'
 
-  repo_top = 1
-  'tbtop zigirepo'
-  'vget (defrsort) profile'
-  if words(defrsort) = 2 then defrsort = 'zigirep,c,a'
-  'TBSort zigirepo Fields('defrsort')'
-  parse value '' with zsel szcmd
-  if start_option /= null
-  then if translate(start_option) /= 'S' then
-  szcmd = 'S' start_option
-
-  /* Panel for when there are no repos in profile yet */
-  'TBStats zigirepo rowcurr('tr')'
-  if tr = 0 then do
-    'Addpop row(4) column(6)'
-    'Display Panel(zigi1st)'
-    'rempop'
+  /* ----------------------------------------------------- *
+  | Get the Active HLQ for use with the ALTLIB and LIBDEF |
+  | of the zIGI libraries.                                |
+  | 1st Get the active exec library or dd                 |
+  * ----------------------------------------------------- */
+  parse source TSO Type exec_name DDName exec NameO Env Addr Token
+  if exec = '?' then do
+    x = listdsi(ddname 'FILE')
+    exec = sysdsname
   end
-
-  do forever
-    if szcmd = null then do
-      parse value '' with zsel row
-      fetch_flag = 0
-      zigpass = 'PASSTHRU'
-      'vput (zigpass) shared'
-      'TBTop zigirepo'
-      'tbskip zigirepo number('repo_top')'
-      localrep = null
-      'vput (localrep) shared'
-      'tbdispl zigirepo panel(zigiprim)'
-      trc = rc
-      zigpass = null
-      'vput (zigpass) shared'
-      if trc > 4 then leave
-
-      if ztdsels = 0 then
-      if pnsdef = 'P' then do
-        if row = 0 then zcmd = 'O'
-        if row > 0 then zsel = '/'
-      end
-
-      repo_top = ztdtop
-      if row = 0 then zsel = null
-      if row <> null then
-      if row > 0 then do
-        'TBTop zigirepo'
-        'TBSkip zigirepo Number('row')'
-      end
-    end
-
-    if szcmd /= null then do
-      zcmd = szcmd
-      szcmd = null
-    end
-
-    check_flag = 1
-
-    zcmd = strip(translate(word(zcmd,1)) subword(zcmd,2))
-
-    if word(zcmd,1) = 'L' then
-    zcmd = 'F' subword(zcmd,2)
-
-    parse value '' with findstr selfind
-    if pos('.',zcmd) > 0 then
-    parse value zcmd with x'.'zcmd
-    if zcmd = 'O' then do
-      'Addpop row(4) column(6)'
-      'Display Panel(zigioprm)'
-      'rempop'
-    end
-    if findstr /= null
-    then zcmd = 'F' findstr
-    if selfind /= null
-    then zcmd = 'S' selfind
-
-    /* ------------------------ *
-    | Select a repo by command |
-    * ------------------------ */
-    if abbrev('SELECT',word(zcmd,1),1) = 1 then do
-      x = debug('Selecting repo via command:'zcmd)
-      zerrsm = null
-      fstring = word(zcmd,2)
-      zcmd = null
-      if fstring = null then do
-        'addpop row(3) column(4)'
-        'display panel(zigisel)'
-        drc = rc
-        'rempop'
-        if fstring = null then drc = 4
-        if drc > 0 then  do
-          zerrsm = 'Canceled.'
-          zerrlm = 'Select canceled.'
-          'setmsg msg(isrz003)'
-        end
-      end
-      if zerrsm = null then do
-        'tbtop zigirepo'
-        do forever
-          'tbskip zigirepo'
-          if rc > 0 then do
-            zerrsm = 'Not Found'
-            zerrlm = fstring 'repository not found. Verify the spelling and' ,
-              'case.'
-            'setmsg msg(isrz003)'
-            leave
-          end
-          if translate(fstring) /= translate(zigirep) then iterate
-          'tbget zigirepo'
-          if defcpush = 'Y' then zpush = 'Y'
-          else zpush = 'N'
-          zcmd = null
-          call select_repo
-          parse value '' with zsel zcmd
-          leave
-        end
-      end
-    end
-
-    /* -------------- *
-    | Process a Find |
-    * -------------- */
-    if zcmd = 'RFIND' then do
-      zcmd = 'FIND' fstring
-      rfs  = rowcnt
-    end
-    else rfs = 0
-    if abbrev('FIND',word(zcmd,1),1) = 1 then do
-      fstring = translate(word(zcmd,2))
-      zcmd = null
-      find = null
-      if fstring = null then do
-        'Addpop row(4) column(6)'
-        'Display Panel(zigifind)'
-        drc = rc
-        'rempop'
-        if drc > 0 then find = null
-        fstring = find
-      end
-      if fstring /= null then do
-        rowcnt = 0
-        'tbtop zigirepo'
-        if rfs > 0 then do
-          'tbskip zigirepo number('rfs')'
-          rowcnt = rfs
-        end
-        do forever
-          'tbskip zigirepo'
-          if rc > 0 then do
-            if rfs > 0 then do
-              rfs = 0
-              'tbtop zigirepo'
-              'tbskip zigirepo'
-              rowcnt = 0
-            end
-            else do
-              zerrsm = 'Not Found'
-              zerrlm = fstring 'not found.'
-              'setmsg msg(isrz003)'
-              leave
-            end
-          end
-          rowcnt = rowcnt + 1
-          'tbget zigirepo'
-          if pos(fstring,translate(zigirep pdshlq)) > 0 then do
-            repo_top = rowcnt
-            zerrsm = 'Found'
-            zerrlm = fstring 'found in row' rowcnt + 0
-            'setmsg msg(isrz003)'
-            leave
-          end
-        end
-      end
-    end
-
-    parse value '' with fulldsn dsn defcpush defruid
-    /* Get the row after the clear to get variables */
-    'tbget zigirepo'
-    if defcpush = 'Y' then zpush = 'Y'
-    else zpush = 'N'
-
-   /* -------------------------------- *
-    | Define Set as an alias of Config |
-    * -------------------------------- */
-    if abbrev('SET',zcmd,2) = 1 then zcmd = 'CONFIG'
-
-    if zcmd /= null then
-    Select
-      When abbrev('CREATE',zcmd,2) = 1 then do
-        x = Create_Repo()
-        crflag = 1
-        if x = 0 then do
-          zcmd = 'ADDDSN'
-          call work_with_repo
-          zsel = null
-        end
-      end
-      When abbrev('CLONE',zcmd,2) = 1 then do
-        encoding = null
-        call Clone_Repo
-        zsel = null
-      end
-      When abbrev('CONFIG',zcmd,2) = 1 then do forever
-        zcmd = null
-        'vget (mgen pnsdef) profile'
-        sl = mgen()
-        'display panel(zigiset)'
-        'vput (mgen pnsdef) profile'
-        call update_config
-        if rc = 0 | rc = 8 then leave
-      end
-      When abbrev('GITHELP',word(zcmd,1),4) = 1 then
-      Address TSO '%githelp' subword(zcmd,2)
-      when abbrev('LOCAL',zcmd,2) = 1 then do
-        if zigtitle = 'Offline'
-        then do
-          zigtitle = '(zigi' ver')'
-          zigi_offline = 0
-        end
-        else do
-          zigtitle = 'Offline'
-          zigi_offline = 1
-        end
-        'vput (zigtitle)'
-      end
-      When abbrev('SORT',word(zcmd,1),2) = 1 then do
-        zcmd = translate(zcmd)
-        defrsort = null
-        parse value zcmd with . skey sopt skey2 sopt2
-        if skey = null then do
-          call pfshow 'off'           /* make sure pfshow is off */
-          'Addpop row(4) column(6)'
-          'Display Panel(zigipsrt)'
-          'Rempop'
-          call pfshow 'reset'         /* restore pfshow setting */
-        end
-        if sopt = '' then
-        if lsopt = 'A' then sopt = 'D'
-        else sopt = 'A'
-        select
-          when abbrev('REPOSITORY',skey,1) = 1 then
-          skey = 'zigirep'
-          when abbrev('CATEGORY',skey,1) = 1 then
-          skey = 'zigicat'
-          when abbrev('PREFIX',skey,1) = 1 then
-          skey = 'pdshlq'
-          when abbrev('LAST',skey,1) = 1 then
-          skey = 'sortdate'
-          when abbrev('DATE',skey,1) = 1 then
-          skey = 'sortdate'
-          otherwise skey = 'zigirep'
-        end
-        select
-          when abbrev('REPOSITORY',skey2,1) = 1 then
-          skey2 = 'zigirep'
-          when abbrev('CATEGORY',skey2,1) = 1 then
-          skey2 = 'zigicat'
-          when abbrev('PREFIX',skey2,1) = 1 then
-          skey2 = 'pdshlq'
-          when abbrev('LAST',skey2,1) = 1 then
-          skey2 = 'sortdate'
-          when abbrev('DATE',skey2,1) = 1 then
-          skey2 = 'sortdate'
-          otherwise nop
-        end
-        if left(sopt,1) = 'D' then sopt = 'D'
-        else sopt = 'A'
-        if skey2 /= null then do
-          if left(sopt2,1) = 'D' then sopt2 = 'D'
-          else sopt2 = 'A'
-        end
-        defrsort = skey',c,'sopt
-        if skey2 /= null then
-        defrsort = defrsort','skey2',c,'sopt2
-        'tbsort zigirepo fields('defrsort')'
-        lsopt = sopt
-        'vput (defrsort) profile'
-      end
-      When abbrev('SSH',zcmd,2) = 1 then do forever
-        zcmd = null
-        'display panel(zigisshk)'
-        if rc > 0 then leave
-      end
-      when zcmd = 'VIEWD' then call view_debug
-      Otherwise if zcmd /= null then do
-        zerrsm = 'Unknown'
-        zerrlm = zcmd 'is not a recognized command.'
-        'setmsg msg(isrz003)'
-      end
-    end
-
-    if zsel = '/' then do
-      'Addpop row(4) column(6)'
-      'Display Panel(zigirprm)'
-      'rempop'
-    end
-
-    if zsel /= null then
-    Select
-      When zsel = 'I' then do
-        'addpop row(3) column(2)'
-        'display panel(zigiinfo)'
-        'rempop'
-        zsel = null
-      end
-      When zsel = 'S' then call select_repo
-      When zsel = 'V' then do
-        'SELECT PGM(ISRDSLST) PARM(UDL' localrep'/'zigirep') SUSPEND'
-      end
-      When zsel = 'D' then do
-        parse value '' with delcg delco delcf delzd
-        'Addpop row(3) column(10)'
-        'Display panel(zigidelc)'
-        drc = rc
-        'rempop'
-        if drc = 0 & delcf = 'Y' then do
-          if delcg = 'Y' then do
-            'tbdelete zigirepo'
-            cmd = 'cd 'localrep'/'zigirep' && rm -rf'
-            cmd = cmd' .git .gitattributes .zigi'
-            x = bpxwunix(cmd,,so.,se.)
-            if x = 0 then do
-              zerrsm = 'Deleted.'
-              delcg = 'Repo removed from zigi, .git files deleted.'
-            end
-            else do
-              zerrsm = 'Partially Deleted.'
-              delcg = 'Repo removed from zigi, .git files not deleted.'
-            end
-          end
-          if delzd = 'Y' then do
-            delzd = 'The z/OS datasets have been deleted.'
-            address syscall 'readdir' localrep'/'zigirep d.
-            do id = 1 to d.0
-              if left(d.id,1) = '.' then iterate
-              deldsn = Add_DSN_HLQ(word(d.id,1))
-              if dsnvalid(deldsn) = 'NO' then iterate
-              call outtrap 'x.'
-              address tso 'delete' deldsn
-              call outtrap 'off'
-            end
-          end
-          else delzd = 'The z/OS datasets were NOT deleted.'
-          if delco = 'Y' then do
-            cmd = 'cd' localrep' && rm -rf 'zigirep
-            x = bpxwunix(cmd,,so.,se.)
-            delco = 'The local repository has been deleted from OMVS.'
-          end
-          else delco = 'The local repository was NOT deleted from OMVS.'
-          zerrlm = left(delcg,76) left(delco,76) left(localrep'/'zigirep,76) ,
-            left(delzd,76)
-          'setmsg msg(isrz003)'
-        end
-        else do
-          zerrsm = 'Retained.'
-          zerrlm = 'The local repository was NOT deleted from zigi, from' ,
-            'OMVS' localrep'/'zigirep', or from z/OS.'
-          'setmsg msg(isrz003)'
-        end
-      end
-      Otherwise do
-        zerrsm = 'Unknown'
-        zerrlm = zsel 'is not a recognized command.'
-        'setmsg msg(isrz003)'
-      end
-    End
-  end
-
-  if rtbl_open = 1 then
-  'tbend' rtbl
-  'tbclose zigirepo'
+  /* ------------------------------------------ *
+  | Now extract the HLQ for the Panels Library |
+  * ------------------------------------------ */
+  zigihlq = translate(exec,' ','.')
+  zigihlq = subword(zigihlq,1,words(zigihlq)-1)
+  zigihlq = translate(zigihlq,'.',' ')
+  /* ---------------------------------------------- *
+  | Fully qualify the EXEC and PANELS library dsns |
+  * ---------------------------------------------- */
+  exec = "'"exec"'"
+  panels = "'"zigihlq".PANELS'"
 
   /* ----------------------------------------------------------- *
-  | If the ZIGIDEBG DD was present and the debugging was in use |
-  | then display a list of debug files using the UDList (3.17)  |
-  | utility.                                                    |
+  | Check for running under the ZIGI ISPF application ID and if |
+  | not then recurse into it.                                   |
   * ----------------------------------------------------------- */
-  if zigidebg = 1 then
-  if zigidebg_use = 1 then do
-    "Select Pgm(isrdslst) Parm(UDL ~/zigidebug*) SUSPEND"
+  if zapplid <> "ZIGI" then do
+    Address ISPExec
+    /* ---------------------------------------- *
+    | If panels/exec then libdef and/or altlib |
+    | but only if not under ZIGI applid.       |
+    * ---------------------------------------- */
+    if panels /= null then
+    'libdef ispplib dataset id('panels') stack'
+    if exec /= null then
+    Address TSO 'altlib act application(exec) dataset('exec')'
+    /* --------------------------------------- *
+    | Make sure we are under the ZIGI applid  |
+    * --------------------------------------- */
+    "Select CMD("exec_name start_option") Newappl(ZIGI) Passlib scrname(zigi)"
+    if panels /= null then
+    'libdef ispplib'
+    if exec /= null then
+    Address TSO 'altlib deact application(exec)'
+    exit 0
   end
-  Exit 0
+  zigpass = null
+  'vput (zigpass) shared'
+
+  parse value '' with null rx zigidebg_flag save_zigirep fulldsn cltime
+  cscnt = 0
+  cdrcnt = 0
+
+  cmd = 'pwd'
+  x = bpxwunix(cmd,,so.,se.)
+  home    = strip(so.1)
+
+  /* ---------------------------------------- *
+  | Check for ZIGIDEBG DD for debug purposes |
+  * ---------------------------------------- */
+  x = listdsi('ZIGIDEBG' 'FILE')
+  if x > 0 then if sysreason = 3 then do
+    zigidebg = 1
+    ztime = time()
+    ztime = left(ztime,2)''substr(ztime,4,2)''substr(ztime,7,2)
+    debugfil = home'/zigidebug.d'date('j')'.t'ztime
+    'vput (debugfil)'
+  end
+  else zigidebg = 0
+  if zigidebg = 0 then
+  "Control Errors Return"
+Return
 
   /* ------------------------------------- *
   | Select the Current Repository Routine |
