@@ -324,10 +324,10 @@
       When abbrev('CONFIG',zcmd,2) = 1 then call handle_zigiprim_config
       When abbrev('GITHELP',word(zcmd,1),4) = 1 then
         Address TSO '%githelp' subword(zcmd,2)
-      when abbrev('LOCAL',zcmd,2) = 1 then call handle_zigiprim_local
+      When abbrev('LOCAL',zcmd,2) = 1 then call handle_zigiprim_local
       When abbrev('SORT',word(zcmd,1),2) = 1 then call handle_zigiprim_sort
       When abbrev('SSH',zcmd,2) = 1 then call handle_zigiprim_ssh
-      when zcmd = 'VIEWD' then call view_debug
+      When zcmd = 'VIEWD' then call view_debug
       Otherwise if zcmd /= null then do
         zerrsm = 'Unknown'
         zerrlm = zcmd 'is not a recognized command.'
@@ -2281,6 +2281,527 @@ Return
 Return
 
   /* ============================================================== */
+  /* ======== repo file handling ================================== */
+  /* ============================================================== */
+
+  /* ---------------------------------------- *
+  | Process the selected dataset (PDS or PS) |
+  * ---------------------------------------- */
+Work_with_repo_file:
+  remc = 'NO'
+  x = debug('Working with Repo File:' zigirep'/'dsn)
+  x = listdsi(fulldsn)
+  if sysdsorg /= 'PS' then do
+    zs1 = 'Building list of library statuses....'
+    zs2 = 'Patience . . .'
+    call do_popup
+  end
+  /* Determine if the repo item is a PDS or a flat-file */
+  if sysdsorg = 'PS' then
+    call edit_ps
+  else do
+    call WWRF_build_member_table
+    /* ---------------------------------- *
+    | Process the Member list until done |
+    * ---------------------------------- */
+    save_rtll = 0
+    save_ztdsels = ztdsels
+    extens = zdsn.dsn
+    'vput (extens)'
+    Do Forever
+      if rtll_open = 0 then leave
+      call WWRF_display_zigilist
+        if result > 4 then leave
+
+      call WWRF_handle_options
+
+      if zcmd /= null then
+      Select
+        When abbrev('ADDALL',zcmd,2) = 1 then call WWRF_handle_addall
+        When abbrev('COMMIT',zcmd,3) = 1 then call WWRF_handle_commit
+        When abbrev('GITHELP',word(zcmd,1),4) = 1 then
+         Address TSO '%githelp' subword(zcmd,2)
+        When abbrev('GITCMD',zcmd,4) = 1 then
+         'Select cmd(%zigigcmd)'
+        When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
+        When abbrev('GREP',zcmd,2) = 1 then do
+          gds = 'PDS Member'
+          call do_grep localdir'/'dsn
+        end
+        When abbrev('STATUS',zcmd,2) = 1 then call do_status
+        When abbrev('RESET',zcmd,2) = 1 then call do_resetid
+        When abbrev('SORT',word(zcmd,1),2) = 1 then call do_lsort
+        When abbrev("LOCATE",translate(word(zcmd,1)),1) = 1 then
+         call WWRF_handle_locate
+        when zcmd = 'VIEWD' then call view_debug
+        Otherwise do
+          zerrsm = 'Unknown'
+          zerrlm = zcmd 'is not a recognized command.'
+          'setmsg msg(isrz003)'
+        end
+        zsel = null
+        zcmd = null
+      end
+
+      if zsel = '/' then do
+        'Addpop row(4) column(6)'
+        'Display Panel(zigirlst)'
+        'rempop'
+      end
+
+      /* handle line commands */
+      if zsel /= null then
+      if zsel = 'E' then zsel = 'S'
+      Select
+        When zsel = 'B' then call WWRF_handle_lcmd_b
+        When zsel = 'V' then call WWRF_handle_lcmd_v
+        When zsel = 'S' then call WWRF_handle_lcmd_s
+        When zsel = 'H' then call do_history dsn'/'mem
+        When zsel = 'RN' then call WWRF_handle_lcmd_rn
+        When zsel = 'RM' then call WWRF_handle_lcmd_rm
+        when zsel = 'A' then do
+          /* -------------------------------- *
+          | Add member of PDS to staging area|
+          * -------------------------------- */
+          call git_add_member
+          if ztdsels = 1 then call git_add_member_stats
+        end
+        when zsel = 'AB' then call WWRF_handle_lcmd_ab
+        When zsel = 'U' then call do_undo 'M'
+        When zsel = 'D' then call WWRF_handle_lcmd_d
+        otherwise nop
+      end
+    end
+  end
+  ztdsels = save_ztdsels
+  zsel = null
+  return
+
+  /* ============================================================== */
+  /* ======== repo file handling support functions ================ */
+  /* ============================================================== */
+
+ WWRF_build_member_table:
+ /* Do this if it's a PDS */
+ localdir = localrep'/'zigirep
+ 'TBCreate' rtll 'Keys(mem) Names(memstat zlcnorc' ,
+   'zlmdate zlmtime zluser mtype)',
+   'replace NoWrite'
+ rtll_open = 1
+ cmd = 'ls -laT' localrep'/'zigirep'/'usssafe(dsn)
+ x = bpxwunix(cmd,,root.,re.)
+ address ispexec
+ "LMINIT DATAID(DID) Dataset("fulldsn")"
+ "LMOPEN DATAID("did")"
+ cmd = 'cd' localrep'/'zigirep
+ x = docmd(cmd '&& git status --porcelain')
+ file_ext = zdsn.dsn
+ file_extl = length(file_ext)
+ dstat = dsnstat
+ do i = 1 to root.0
+   if left(root.i,1) = ' ' then iterate
+   if word(root.i,1) = 'total' then iterate
+   do
+     mem = word(root.i,12)
+     if file_ext /= null then
+     if right(mem,file_extl) = file_ext then do
+       parse value mem with mem'.'.
+       mem = translate(mem)
+     end
+     else iterate
+     memstat = null
+     if word(root.i,2) = 'binary'
+     then mtype = 'B'
+     else mtype = 'T'
+     do ii = 1 to so.0
+       /* see if we have this file in git status */
+       stat = substr(so.ii,1,2)
+       thepath = word(so.ii,2)
+       parse var thepath FOLDER"/"MEMBER
+       if zdsn.dsn /= null then do
+         parse value member with member'.' .
+         member = translate(member)
+       end
+       if folder /= dsn then iterate
+       if mem = MEMBER then do
+         memstat = porcelain(stat)
+         if FOLDER = "./" & stat = "??" then
+         memstat = '[??] Untracked'
+         leave
+       end
+     end
+   end
+   /* ------------------------------------------------------- *
+   |  The files in OMVS have some chars changed due to cp -M |
+   |  So we fix the name before we save to table :)          |
+   * ------------------------------------------------------- */
+   /* ---------------------------------------------- *
+   | No get ISPF stats for each member for the list |
+   * ---------------------------------------------- */
+   "LMMFind DATAID("did") Member("mem") STATS(YES)"
+   'tbadd' rtll
+ end
+ "LMCLOSE DATAID("did")"
+ "LMFREE DATAID("did")"
+ 'tbsort' rtll 'Fields(mem,c,a)'
+Return
+
+ WWRF_display_zigilist:
+ parse value '' with zsel zcmd row
+ ztdsels = save_rtll
+ if ztdsels > 1 then
+ 'tbdispl' rtll
+ else do
+   'tbtop' rtll
+   'tbskip' rtll 'number('list_top')'
+   'TBdispl' rtll 'Panel(zigilist)'
+ end
+ if rc > 4 then do
+   panel_rc = rc
+   if rtll_open = 1 then
+   'tbend' rtll
+   rtll_open = 0
+   Return panel_rc
+ end
+Return 0
+
+ WWRF_handle_options:
+ /* Make sure we edit (and copy) right dataset when we have
+ a prefix set */
+ list_top = ztdtop
+ save_rtll = ztdsels
+ edsn = strip(fulldsn,'B',"'")
+
+ if ztdsels = 0 then
+ if pnsdef = 'P' then do
+   if row = 0 then zcmd = 'O'
+   if row > 0 then zsel = '/'
+ end
+
+ if row = 0 then zsel = null
+ if row <> null then
+ if row > 0 then do
+   'TBTop' rtll
+   'TBSkip' rtll 'Number('row')'
+ end
+ if pos('.',zcmd) > 0 then
+ parse value zcmd with x'.'zcmd
+ lstloc = null
+ if zcmd = 'O' then do
+   zcmd = null
+   'Addpop row(4) column(6)'
+   'Display Panel(zigiolst)'
+   'rempop'
+ end
+Return
+
+ WWRF_handle_addall:
+ 'tbtop' rtll
+ x = debug('ADDALL started:' zigirep)
+ do forever
+   'tbskip' rtll
+   if rc > 0 then leave
+   hit = 0
+   if pos('Untracked',memstat) > 0 then hit = 1
+   if pos('[M',memstat) > 0 then hit = 1
+   if pos('M]',memstat) > 0 then hit = 1
+   if hit = 0 then iterate
+   zs1 = 'Adding' mem
+   zs2 = 'Making it ready to Commit'
+   call do_popup
+   call git_add_member
+ end
+ call git_add_member_stats
+ cmd = 'cd' localrep'/'zigirep
+ cmd = cmd '&& git add .'
+ x = docmd(cmd)
+ zcmd = null
+ x = debug('ADDALL completed:' zigirep)
+Return
+
+ WWRF_handle_commit:
+ zsel = null
+ call do_commit
+ call work_with_repo_file
+Return
+
+ WWRF_handle_locate:
+ if words(zcmd) = 1 then do
+   'addpop row(3) column(4)'
+   'display panel(zigilocq)'
+   drc = rc
+   'rempop'
+   if drc > 0 then leave
+   zcmd = 'L' filter
+ end
+ mem = translate(word(zcmd,2))
+ zcmd = null
+ 'tbtop' rtll
+ 'tbsarg' rtll
+ 'tbscan' rtll 'arglist(mem) position(scanrow) condlist(ge)'
+ if rc = 0 then do
+   save_top = scanrow
+   zerrsm = null
+   zerrlm = mem 'was found in row' scanrow + 0
+   'Setmsg msg(isrz003)'
+   ztdsels = 1
+ end
+ else do
+   zerrsm = null
+   zerrlm = word(zcmd,2) 'was not found'
+   'Setmsg msg(isrz003)'
+ end
+Return
+
+ /* -------------------------------- *
+ | Browse PDS member or PS dataset  |
+ * -------------------------------- */
+ WWRF_handle_lcmd_b:
+ 'control display save'
+ x = listdsi(fulldsn)
+ edsn = strip(fulldsn,'B',"'")
+ r = usssafe(dsn)
+ if sysdsorg = 'PS'
+ then "Browse Dataset('"edsn"')"
+ else "Browse Dataset('"edsn"("mem")'"
+ 'control display restore'
+Return
+
+ /* -------------------------------- *
+ | View PDS member or PS dataset    |
+ * -------------------------------- */
+ WWRF_handle_lcmd_v:
+ x = listdsi(fulldsn)
+ edsn = strip(fulldsn,'B',"'")
+ r = usssafe(dsn)
+ if is_binfile(r'/'mem) = 1 then do
+   zerrsm = 'Invalid'
+   zerrlm = 'Unable to View a binary dataset.'
+   'setmsg msg(isrz003)'
+   leave
+ end
+ 'control display save'
+ if sysdsorg = 'PS'
+ then "View Dataset('"edsn"')"
+ else "View Dataset('"edsn"("mem")'"
+ 'control display restore'
+Return
+
+ /* -------------------------------- *
+ | Edit PDS member or PS dataset    |
+ * -------------------------------- */
+ WWRF_handle_lcmd_s:
+ x = listdsi(fulldsn)
+ edsn = strip(fulldsn,'B',"'")
+ r = usssafe(dsn)
+ eok = 1
+ if is_binfile(r'/'mem) = 1 then do
+   zerrsm = 'Invalid'
+   zerrlm = 'Unable to Edit a binary dataset.'
+   'setmsg msg(isrz003)'
+   eok = 0
+   zsel = null
+ end
+ if eok = 1 then do
+   'control display save'
+   if sysdsorg = 'PS'
+   then "Edit Dataset('"edsn"')"
+   else "Edit Dataset('"edsn"("mem")'"
+   erc = rc
+   'control display restore'
+ end
+ else erc = 1
+ if erc = 0 then do
+   if ztdsels = 1 then do
+     m = strip(mem)
+     if zdsn.dsn /= null
+     then rm = lower(m)'.'zdsn.dsn
+     else rm = m
+     m = usssafe(m)
+     e = usssafe(edsn)
+     r = usssafe(dsn)
+     /* Binary v1, check if PDS is a bin, then copy binary */
+     if is_binfile(r'/*') = 1 then do
+       binopt = '-B'
+     end
+     else do
+       binopt = null
+     end
+     if is_binfile(r'/'m) = 1 then do
+       binopt = '-B'
+     end
+     else do
+       binopt = null
+     end
+     if sysdsorg = 'PS'
+     then copycmd = "//'"e"'"
+     else copycmd = "//'"e"("m")'"
+     if sysdsorg = 'PO'
+     then r = r'/'rm
+     else r = r'/'
+     copycmd = '"'copycmd'"'
+     copycmd = "cp "binopt" -U -v" copycmd" "localrep"/"zigirep
+     copycmd = copycmd || "/"r
+     x = bpxwunix(copycmd,,so.,se.)
+     if x > 0 then call view_std 'B'
+     x = debug('Copy:' copycmd)
+     if binopt = '-B' then do
+       tagcmd = 'chtag -b 'localrep'/'zigirep'/'r
+       x = bpxwunix(tagcmd,,so.,se.)
+     end
+     if ztdsels = 1 then do
+       call update_repo_metadata
+       call work_with_repo_file
+     end
+   end
+ end
+Return
+
+ /* ------------------- *
+ | reName a PDS Member |
+ * ------------------- */
+ WWRF_handle_lcmd_rn:
+ do forever
+   newmem = mem
+   'Addpop row(4) column(6)'
+   'display panel(zigirenm)'
+   drc = rc
+   'rempop'
+   if drc > 0 then leave
+   olddsn = "'"strip(fulldsn,'B',"'")"("mem")'"
+   newdsn = "'"strip(fulldsn,'B',"'")"("newmem")'"
+   call outtrap 'x.'
+   rc = sysdsn(newdsn)
+   call outtrap 'off'
+   if rc = 'OK' then do
+     zerrsm = 'Error'
+     zerrlm = newmem 'currently exists. Select a different' ,
+       'member name for the rename operation.'
+     'setmsg msg(isrz003)'
+   end
+   else do
+     Address TSO 'Rename' olddsn newdsn
+     cmd = 'cd' localrep'/'zigirep'/'dsn
+     cmd = usssafe(cmd)
+     if zdsn.dsn /= null then do
+       rnmem = lower(mem)'.'zdsn.dsn
+       rnnewmem = lower(newmem)'.'zdsn.dsn
+     end
+     else do
+       rnmem = mem
+       rnnewmem = newmem
+     end
+     cmd = cmd '&& git mv' usssafe(rnmem) usssafe(rnnewmem)
+     x = docmd(cmd)
+     call view_std 'B'
+     'tbdelete' rtll
+     memstat = '[R ] Renamed in index'
+     mem = newmem
+     bstat = 'Changes to be committed:'
+     baction = null
+     'tbadd' rtll 'Order'
+     zerrsm = 'Renamed.'
+     zerrlm = mem 'has been renamed in zigi, git, z/OS, and OMVS.'
+     'setmsg msg(isrz003)'
+     statfile = translate(strip(fulldsn,'B',"'"),' ','.')
+     if qualignr > 0 then
+     statfile = subword(statfile,qualignr+1)
+     statfile = translate(statfile,'.',' ')
+     statfiles = usssafe(statfile)
+     x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'statfiles 'S')
+     cmd = 'cd' localrep'/'zigirep
+     x = docmd(cmd '&&git add .zigi/'statfiles)
+     leave
+   end
+ end
+Return
+
+ /* --------------------------------- *
+ | Remove a PDS member from the Repo |
+ * --------------------------------- */
+ WWRF_handle_lcmd_rm:
+ localdir =  localrep'/'zigirep'/'dsn
+ call outtrap 'x.'
+ rdsn = strip(fulldsn,'B',"'")
+ rdsn = "'"rdsn"("mem")'"
+ rc = confirm_remove(rdsn)
+ if rc = 0 then do
+   Address TSO ,
+     'Delete' rdsn
+   call outtrap 'off'
+   if zdsn.dsn /= null then do
+     rmem = lower(mem)'.'zdsn.dsn
+   end
+   else rmem = mem
+   m = usssafe(rmem)
+   xldir = usssafe(localdir)
+   cmd = 'cd' xldir '&& git rm -f "'usssafe(m)'"'
+   x = docmd(cmd,,so.,se.)
+   memstat = '*Removed'
+   'tbmod' rtll
+   zerrsm = 'Removed.'
+   zerrlm = m 'has been removed from zigi, from git, and has' ,
+     'been deleted from z/OS and OMVS.'
+   'setmsg msg(isrz003)'
+   statfile = translate(strip(fulldsn,'B',"'"),' ','.')
+   if qualignr > 0 then
+   statfile = subword(statfile,qualignr+1)
+   statfile = translate(statfile,'.',' ')
+   cmd = 'cd' localrep'/'zigirep'/.zigi/'
+   stats = usssafe(statfile)
+   x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'stats 'S')
+   cmd = 'cd' localrep'/'zigirep
+   cmd = cmd || '&& git add -v .zigi/'stats
+   x = docmd(cmd)
+   if x > 0 then call view_std 'B'
+ end
+ else do
+   zerrsm = 'Canceled.'
+   zerrlm = 'Removal of' rdsn 'canceled.'
+   'setmsg msg(isrz003)'
+ end
+Return
+
+ /* --------------------------------- *
+ | Add member of PDS to staging area |
+ | as a binary member and copy/tag it|
+ * --------------------------------- */
+ WWRF_handle_lcmd_ab:
+ dsna = translate(strip(fulldsn,'B',"'"),' ','.')
+ add_count = 0
+ dsnapfx = pdshlq
+ sa_dsna = dsna
+ dsna = strip(fulldsn,'B',"'")'('mem')'
+ call do_add_copy 'binary'
+ parse value dsn with dsn'/'mem
+ dsna = sa_dsna
+ call git_add_member
+ if ztdsels < 2 then do
+   call get_binfiles
+   call git_add_member_stats
+ end
+Return
+
+ /* -------------------------------- *
+ | Show the diff for the member     |
+ * -------------------------------- */
+ WWRF_handle_lcmd_d:
+ d = usssafe(dsn)
+ cmd = 'cd' localrep'/'zigirep'/'d
+ m = usssafe(mem)
+ if zdsn.dsn /= null then
+ m = lower(m)'.'zdsn.dsn
+ x = docmd(cmd ' && git diff 'm)
+ if so.0 + se.0 > 0
+ then call View_std 'X' 'V'
+ else do
+   zerrsm = 'No Diff'
+   zerrlm = 'No differnce found.'
+   'Setmsg msg(isrz003)'
+ end
+Return
+
+  /* ============================================================== */
   /* ======== generic support functions       ===================== */
   /* ============================================================== */
 
@@ -3908,486 +4429,6 @@ Clone_Repo:
   uu = uu // 100 /* get micro seconds integer */
   cltime = right(mm+100,2)':'right(ss+100,2)'.'right(uu+100,2)
   call work_with_repo
-  return
-
-  /* ---------------------------------------- *
-  | Process the selected dataset (PDS or PS) |
-  * ---------------------------------------- */
-Work_with_repo_file:
-  remc = 'NO'
-  x = debug('Working with Repo File:' zigirep'/'dsn)
-  x = listdsi(fulldsn)
-  if sysdsorg /= 'PS' then do
-    zs1 = 'Building list of library statuses....'
-    zs2 = 'Patience . . .'
-    call do_popup
-  end
-  /* Determine if the repo item is a PDS or a flat-file */
-  if sysdsorg = 'PS' then do
-    call edit_ps
-  end
-  else do
-    /* Do this if it's a PDS */
-    localdir = localrep'/'zigirep
-    'TBCreate' rtll 'Keys(mem) Names(memstat zlcnorc' ,
-      'zlmdate zlmtime zluser mtype)',
-      'replace NoWrite'
-    rtll_open = 1
-    cmd = 'ls -laT' localrep'/'zigirep'/'usssafe(dsn)
-    x = bpxwunix(cmd,,root.,re.)
-    address ispexec
-    "LMINIT DATAID(DID) Dataset("fulldsn")"
-    "LMOPEN DATAID("did")"
-    cmd = 'cd' localrep'/'zigirep
-    x = docmd(cmd '&& git status --porcelain')
-    file_ext = zdsn.dsn
-    file_extl = length(file_ext)
-    dstat = dsnstat
-    do i = 1 to root.0
-      if left(root.i,1) = ' ' then iterate
-      if word(root.i,1) = 'total' then iterate
-      do
-        mem = word(root.i,12)
-        if file_ext /= null then
-        if right(mem,file_extl) = file_ext then do
-          parse value mem with mem'.'.
-          mem = translate(mem)
-        end
-        else iterate
-        memstat = null
-        if word(root.i,2) = 'binary'
-        then mtype = 'B'
-        else mtype = 'T'
-        do ii = 1 to so.0
-          /* see if we have this file in git status */
-          stat = substr(so.ii,1,2)
-          thepath = word(so.ii,2)
-          parse var thepath FOLDER"/"MEMBER
-          if zdsn.dsn /= null then do
-            parse value member with member'.' .
-            member = translate(member)
-          end
-          if folder /= dsn then iterate
-          if mem = MEMBER then do
-            memstat = porcelain(stat)
-            if FOLDER = "./" & stat = "??" then
-            memstat = '[??] Untracked'
-            leave
-          end
-        end
-      end
-      /* ------------------------------------------------------- *
-      |  The files in OMVS have some chars changed due to cp -M |
-      |  So we fix the name before we save to table :)          |
-      * ------------------------------------------------------- */
-      /* ---------------------------------------------- *
-      | No get ISPF stats for each member for the list |
-      * ---------------------------------------------- */
-      "LMMFind DATAID("did") Member("mem") STATS(YES)"
-      'tbadd' rtll
-    end
-    "LMCLOSE DATAID("did")"
-    "LMFREE DATAID("did")"
-    'tbsort' rtll 'Fields(mem,c,a)'
-    /* ---------------------------------- *
-    | Process the Member list until done |
-    * ---------------------------------- */
-    save_rtll = 0
-    save_ztdsels = ztdsels
-    extens = zdsn.dsn
-    'vput (extens)'
-    Do Forever
-      if rtll_open = 0 then leave
-      parse value '' with zsel zcmd row
-      ztdsels = save_rtll
-      if ztdsels > 1 then
-      'tbdispl' rtll
-      else do
-        'tbtop' rtll
-        'tbskip' rtll 'number('list_top')'
-        'TBdispl' rtll 'Panel(zigilist)'
-      end
-      if rc > 4 then do
-        if rtll_open = 1 then
-        'tbend' rtll
-        rtll_open = 0
-        leave
-      end
-      /* Make sure we edit (and copy) right dataset when we have
-      a prefix set */
-      list_top = ztdtop
-      save_rtll = ztdsels
-      edsn = strip(fulldsn,'B',"'")
-
-      if ztdsels = 0 then
-      if pnsdef = 'P' then do
-        if row = 0 then zcmd = 'O'
-        if row > 0 then zsel = '/'
-      end
-
-      if row = 0 then zsel = null
-      if row <> null then
-      if row > 0 then do
-        'TBTop' rtll
-        'TBSkip' rtll 'Number('row')'
-      end
-
-      if pos('.',zcmd) > 0 then
-      parse value zcmd with x'.'zcmd
-      lstloc = null
-      if zcmd = 'O' then do
-        zcmd = null
-        'Addpop row(4) column(6)'
-        'Display Panel(zigiolst)'
-        'rempop'
-      end
-
-      if zcmd /= null then
-      Select
-        When abbrev('ADDALL',zcmd,2) = 1 then do
-          'tbtop' rtll
-          x = debug('ADDALL started:' zigirep)
-          do forever
-            'tbskip' rtll
-            if rc > 0 then leave
-            hit = 0
-            if pos('Untracked',memstat) > 0 then hit = 1
-            if pos('[M',memstat) > 0 then hit = 1
-            if pos('M]',memstat) > 0 then hit = 1
-            if hit = 0 then iterate
-            zs1 = 'Adding' mem
-            zs2 = 'Making it ready to Commit'
-            call do_popup
-            call git_add_member
-          end
-          call git_add_member_stats
-          cmd = 'cd' localrep'/'zigirep
-          cmd = cmd '&& git add .'
-          x = docmd(cmd)
-          zcmd = null
-          x = debug('ADDALL completed:' zigirep)
-        end
-        When abbrev('COMMIT',zcmd,3) = 1 then do
-          zsel = null
-          call do_commit
-          call work_with_repo_file
-        end
-        When abbrev('GITHELP',word(zcmd,1),4) = 1 then
-        Address TSO '%githelp' subword(zcmd,2)
-        When abbrev('GITCMD',zcmd,4) = 1 then
-        'Select cmd(%zigigcmd)'
-        When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
-        When abbrev('GREP',zcmd,2) = 1 then do
-          gds = 'PDS Member'
-          call do_grep localdir'/'dsn
-        end
-        When abbrev('STATUS',zcmd,2) = 1 then call do_status
-        When abbrev('RESET',zcmd,2) = 1 then call do_resetid
-        When abbrev('SORT',word(zcmd,1),2) = 1 then call do_lsort
-        When abbrev("LOCATE",translate(word(zcmd,1)),1) = 1 then do
-          if words(zcmd) = 1 then do
-            'addpop row(3) column(4)'
-            'display panel(zigilocq)'
-            drc = rc
-            'rempop'
-            if drc > 0 then leave
-            zcmd = 'L' filter
-          end
-          mem = translate(word(zcmd,2))
-          zcmd = null
-          'tbtop' rtll
-          'tbsarg' rtll
-          'tbscan' rtll 'arglist(mem) position(scanrow) condlist(ge)'
-          if rc = 0 then do
-            save_top = scanrow
-            zerrsm = null
-            zerrlm = mem 'was found in row' scanrow + 0
-            'Setmsg msg(isrz003)'
-            ztdsels = 1
-          end
-          else do
-            zerrsm = null
-            zerrlm = word(zcmd,2) 'was not found'
-            'Setmsg msg(isrz003)'
-          end
-        end
-        when zcmd = 'VIEWD' then call view_debug
-        Otherwise do
-          zerrsm = 'Unknown'
-          zerrlm = zcmd 'is not a recognized command.'
-          'setmsg msg(isrz003)'
-        end
-        zsel = null
-        zcmd = null
-      end
-
-      if zsel = '/' then do
-        'Addpop row(4) column(6)'
-        'Display Panel(zigirlst)'
-        'rempop'
-      end
-
-      if zsel /= null then
-      if zsel = 'E' then zsel = 'S'
-      Select
-        when zsel = 'B' then do
-          'control display save'
-          /* -------------------------------- *
-          | Browse PDS member or PS dataset  |
-          * -------------------------------- */
-          x = listdsi(fulldsn)
-          edsn = strip(fulldsn,'B',"'")
-          r = usssafe(dsn)
-          if sysdsorg = 'PS'
-          then "Browse Dataset('"edsn"')"
-          else "Browse Dataset('"edsn"("mem")'"
-          'control display restore'
-        end
-        when zsel = 'V' then do
-          /* -------------------------------- *
-          | View PDS member or PS dataset    |
-          * -------------------------------- */
-          x = listdsi(fulldsn)
-          edsn = strip(fulldsn,'B',"'")
-          r = usssafe(dsn)
-          if is_binfile(r'/'mem) = 1 then do
-            zerrsm = 'Invalid'
-            zerrlm = 'Unable to View a binary dataset.'
-            'setmsg msg(isrz003)'
-            leave
-          end
-          'control display save'
-          if sysdsorg = 'PS'
-          then "View Dataset('"edsn"')"
-          else "View Dataset('"edsn"("mem")'"
-          'control display restore'
-        end
-        when zsel = 'S' then do
-          /* -------------------------------- *
-          | Edit PDS member or PS dataset    |
-          * -------------------------------- */
-          x = listdsi(fulldsn)
-          edsn = strip(fulldsn,'B',"'")
-          r = usssafe(dsn)
-          eok = 1
-          if is_binfile(r'/'mem) = 1 then do
-            zerrsm = 'Invalid'
-            zerrlm = 'Unable to Edit a binary dataset.'
-            'setmsg msg(isrz003)'
-            eok = 0
-            zsel = null
-          end
-          if eok = 1 then do
-            'control display save'
-            if sysdsorg = 'PS'
-            then "Edit Dataset('"edsn"')"
-            else "Edit Dataset('"edsn"("mem")'"
-            erc = rc
-            'control display restore'
-          end
-          else erc = 1
-          if erc = 0 then do
-            if ztdsels = 1 then do
-              m = strip(mem)
-              if zdsn.dsn /= null
-              then rm = lower(m)'.'zdsn.dsn
-              else rm = m
-              m = usssafe(m)
-              e = usssafe(edsn)
-              r = usssafe(dsn)
-              /* Binary v1, check if PDS is a bin, then copy binary */
-              if is_binfile(r'/*') = 1 then do
-                binopt = '-B'
-              end
-              else do
-                binopt = null
-              end
-              if is_binfile(r'/'m) = 1 then do
-                binopt = '-B'
-              end
-              else do
-                binopt = null
-              end
-              if sysdsorg = 'PS'
-              then copycmd = "//'"e"'"
-              else copycmd = "//'"e"("m")'"
-              if sysdsorg = 'PO'
-              then r = r'/'rm
-              else r = r'/'
-              copycmd = '"'copycmd'"'
-              copycmd = "cp "binopt" -U -v" copycmd" "localrep"/"zigirep
-              copycmd = copycmd || "/"r
-              x = bpxwunix(copycmd,,so.,se.)
-              if x > 0 then call view_std 'B'
-              x = debug('Copy:' copycmd)
-              if binopt = '-B' then do
-                tagcmd = 'chtag -b 'localrep'/'zigirep'/'r
-                x = bpxwunix(tagcmd,,so.,se.)
-              end
-              if ztdsels = 1 then do
-                call update_repo_metadata
-                call work_with_repo_file
-              end
-            end
-          end
-        end
-        when zsel = 'H' then do
-          call do_history dsn'/'mem
-        end
-        when zsel = 'RN' then do
-          /* ------------------- *
-          | reName a PDS Member |
-          * ------------------- */
-          do forever
-            newmem = mem
-            'Addpop row(4) column(6)'
-            'display panel(zigirenm)'
-            drc = rc
-            'rempop'
-            if drc > 0 then leave
-            olddsn = "'"strip(fulldsn,'B',"'")"("mem")'"
-            newdsn = "'"strip(fulldsn,'B',"'")"("newmem")'"
-            call outtrap 'x.'
-            rc = sysdsn(newdsn)
-            call outtrap 'off'
-            if rc = 'OK' then do
-              zerrsm = 'Error'
-              zerrlm = newmem 'currently exists. Select a different' ,
-                'member name for the rename operation.'
-              'setmsg msg(isrz003)'
-            end
-            else do
-              Address TSO 'Rename' olddsn newdsn
-              cmd = 'cd' localrep'/'zigirep'/'dsn
-              cmd = usssafe(cmd)
-              if zdsn.dsn /= null then do
-                rnmem = lower(mem)'.'zdsn.dsn
-                rnnewmem = lower(newmem)'.'zdsn.dsn
-              end
-              else do
-                rnmem = mem
-                rnnewmem = newmem
-              end
-              cmd = cmd '&& git mv' usssafe(rnmem) usssafe(rnnewmem)
-              x = docmd(cmd)
-              call view_std 'B'
-              'tbdelete' rtll
-              memstat = '[R ] Renamed in index'
-              mem = newmem
-              bstat = 'Changes to be committed:'
-              baction = null
-              'tbadd' rtll 'Order'
-              zerrsm = 'Renamed.'
-              zerrlm = mem 'has been renamed in zigi, git, z/OS, and OMVS.'
-              'setmsg msg(isrz003)'
-              statfile = translate(strip(fulldsn,'B',"'"),' ','.')
-              if qualignr > 0 then
-              statfile = subword(statfile,qualignr+1)
-              statfile = translate(statfile,'.',' ')
-              statfiles = usssafe(statfile)
-              x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'statfiles 'S')
-              cmd = 'cd' localrep'/'zigirep
-              x = docmd(cmd '&&git add .zigi/'statfiles)
-              leave
-            end
-          end
-        end
-        when zsel = 'RM' then do
-          /* --------------------------------- *
-          | Remove a PDS member from the Repo |
-          * --------------------------------- */
-          localdir =  localrep'/'zigirep'/'dsn
-          call outtrap 'x.'
-          rdsn = strip(fulldsn,'B',"'")
-          rdsn = "'"rdsn"("mem")'"
-          rc = confirm_remove(rdsn)
-          if rc = 0 then do
-            Address TSO ,
-              'Delete' rdsn
-            call outtrap 'off'
-            if zdsn.dsn /= null then do
-              rmem = lower(mem)'.'zdsn.dsn
-            end
-            else rmem = mem
-            m = usssafe(rmem)
-            xldir = usssafe(localdir)
-            cmd = 'cd' xldir '&& git rm -f "'usssafe(m)'"'
-            x = docmd(cmd,,so.,se.)
-            memstat = '*Removed'
-            'tbmod' rtll
-            zerrsm = 'Removed.'
-            zerrlm = m 'has been removed from zigi, from git, and has' ,
-              'been deleted from z/OS and OMVS.'
-            'setmsg msg(isrz003)'
-            statfile = translate(strip(fulldsn,'B',"'"),' ','.')
-            if qualignr > 0 then
-            statfile = subword(statfile,qualignr+1)
-            statfile = translate(statfile,'.',' ')
-            cmd = 'cd' localrep'/'zigirep'/.zigi/'
-            stats = usssafe(statfile)
-            x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'stats 'S')
-            cmd = 'cd' localrep'/'zigirep
-            cmd = cmd || '&& git add -v .zigi/'stats
-            x = docmd(cmd)
-            if x > 0 then call view_std 'B'
-          end
-          else do
-            zerrsm = 'Canceled.'
-            zerrlm = 'Removal of' rdsn 'canceled.'
-            'setmsg msg(isrz003)'
-          end
-        end
-        when zsel = 'A' then do
-          /* -------------------------------- *
-          | Add member of PDS to staging area|
-          * -------------------------------- */
-          call git_add_member
-          if ztdsels = 1 then call git_add_member_stats
-        end
-        when zsel = 'AB' then do
-          /* --------------------------------- *
-          | Add member of PDS to staging area |
-          | as a binary member and copy/tag it|
-          * --------------------------------- */
-          dsna = translate(strip(fulldsn,'B',"'"),' ','.')
-          add_count = 0
-          dsnapfx = pdshlq
-          sa_dsna = dsna
-          dsna = strip(fulldsn,'B',"'")'('mem')'
-          call do_add_copy 'binary'
-          parse value dsn with dsn'/'mem
-          dsna = sa_dsna
-          call git_add_member
-          if ztdsels < 2 then do
-            call get_binfiles
-            call git_add_member_stats
-          end
-        end
-        when zsel = 'U' then call do_undo 'M'
-        when zsel = 'D' then do
-          /* -------------------------------- *
-          | Show the diff for the member     |
-          * -------------------------------- */
-          d = usssafe(dsn)
-          cmd = 'cd' localrep'/'zigirep'/'d
-          m = usssafe(mem)
-          if zdsn.dsn /= null then
-          m = lower(m)'.'zdsn.dsn
-          x = docmd(cmd ' && git diff 'm)
-          if so.0 + se.0 > 0
-          then call View_std 'X' 'V'
-          else do
-            zerrsm = 'No Diff'
-            zerrlm = 'No differnce found.'
-            'Setmsg msg(isrz003)'
-          end
-        end
-        otherwise nop
-      end
-    end
-  end
-  ztdsels = save_ztdsels
-  zsel = null
   return
 
   /* -------------------------------- *
