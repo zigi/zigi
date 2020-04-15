@@ -1,0 +1,1415 @@
+  /* --------------------  rexx procedure  -------------------- *
+  | Name:      zg                                              |
+  |                                                            |
+  | Function:  Add the selected dataset or member to git       |
+  |            with optional commit and push.                  |
+  |                                                            |
+  |            1st time ask for repo name, then remember it    |
+  |            based on the z/OS dataset name.                 |
+  |                                                            |
+  |            Works best when used on an enhanced ISPF        |
+  |            member list row.                                |
+  |                                                            |
+  | Syntax:    %zd dsname(member) opt                          |
+  |                                                            |
+  |            Only PDS members allowed                        |
+  |                                                            |
+  |            opt values:                                     |
+  |            A    Git Add                                    |
+  |            AC   Git Add and Commit                         |
+  |            ACP  Git Add, Commit, and Push                  |
+  |            blank - prompt via popup                        |
+  |            Anything else force prompt for repo             |
+  |                                                            |
+  | Usage Notes: Requires that zigi has been configured        |
+  |              with the local repositories                   |
+  |                                                            |
+  |              Assumes that the member has been updated      |
+  |              as it will be copied to the OMVS repoistory   |
+  |              and then Commited and Push if requested.      |
+  |                                                            |
+  |              A popup for a short Commit message will       |
+  |              be generated on Commit.                       |
+  |                                                            |
+  | Notes:                                                     |
+  |           1. All ISPF Panels are inline and dynamically    |
+  |              loaded for use by the LOADISPF routine.       |
+  |           2. Must be installed into a default SYSEXEC or   |
+  |              SYSPROC library for use.                      |
+  |           3. For the option to open zigi to work the       |
+  |              zigi stub should be installed as in (2).      |
+  |                                                            |
+  | Author:    Lionel B. Dyck                                  |
+  |                                                            |
+  | History:  (most recent on top)                             |
+  |            04/10/20 LBD - Validate dataset is fully quoted |
+  |            04/07/20 LBD - Reset Userid if DEFRUID set      |
+  |            04/05/20 LBD - Expand Commit message to 7 lines |
+  |            04/04/20 LBD - Place all ISPF panels inline     |
+  |                           to avoid customization req       |
+  |            04/01/20 LBD - Add dsn to repo mapping variable |
+  |            03/31/20 LBD - Rework to enhance                |
+  |            03/29/20 LBD - Finally working                  |
+  |            03/09/20 LBD - Creation                         |
+  |                                                            |
+  | ---------------------------------------------------------- |
+  |    zigi - the z/OS ISPF Git Interface                      |
+  |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
+  |                                                            |
+  |    This program is free software: you can redistribute it  |
+  |    and/or modify it under the terms of the GNU General     |
+  |    Public License as published by the Free Software        |
+  |    Foundation, either version 3 of the License, or (at     |
+  |    your option) any later version.                         |
+  |                                                            |
+  |    This program is distributed in the hope that it will be |
+  |    useful, but WITHOUT ANY WARRANTY; without even the      |
+  |    implied warranty of MERCHANTABILITY or FITNESS FOR A    |
+  |    PARTICULAR PURPOSE.  See the GNU General Public License |
+  |    for more details.                                       |
+  |                                                            |
+  |    You should have received a copy of the GNU General      |
+  |    Public License along with this program.  If not, see    |
+  |    <https://www.gnu.org/licenses/>.                        |
+  * ---------------------------------------------------------- */
+  arg adddsn opt
+
+  Address ISPExec
+
+  parse value '' with null hit repo open
+
+  /* ------------------------------------------------- *
+  | Validate the input prior to proceeding.           |
+  |                                                   |
+  | ADDDSN must be a pds with a member name provided. |
+  | Opt if non-blank will for repository selection.   |
+  * ------------------------------------------------- */
+  parse source s1 s2 command s4 .
+
+  if adddsn = '?' then adddsn = null
+  if adddsn = null then do
+    zedsmsg = null
+    zedlmsg = left('zigi Git Command - quick add/commit/push',75) ,
+      left('-',75) ,
+      left(command 'syntax is:',75) ,
+      left('zg dataset(member)',75) ,
+      left('or zg dataset(member) opt',75) ,
+      left('Where opt is X to force a prompt for a repository,',75) ,
+      'or the selection option of A, AC, or ACP.'
+    'setmsg msg(isrz001)'
+    call get_out_of_here
+  end
+
+  'control errors return'
+
+  /* --------------------------------------------- *
+  | Recurse into the zigi applid. This makes it   |
+  | easier to work with the ISPF Profile variable |
+  | with the dsnames and repository names.        |
+  * --------------------------------------------- */
+  'vget (zapplid)'
+  if zapplid /= 'ZIGI' then do
+    'Select cmd(%'command adddsn opt') newappl(zigi) passlib'
+    exit
+  end
+
+ /* ------------------------------------------------------ *
+  | If the user entered the dataset(member) without quotes |
+  | then add the user prefix or userid and add quotes.     |
+  * ------------------------------------------------------ */
+  if left(adddsn,1) /= "'" then do
+     if sysvar('syspref') /= null
+     then pref = sysvar('syspref')
+     else pref = sysvar('sysuid')
+     adddsn = "'"pref"."adddsn"'"
+     end
+  /* ----------------------- *
+  | Load inline ISPF Panels |
+  * ----------------------- */
+  load_info = loadispf()
+
+  /* ------------ *
+  | Clean up Opt |
+  * ------------ */
+  opt = translate(opt,'A','S')
+
+  /* ----------------------------------------------------- *
+  | parse the input dsn for dsn and member with no quotes |
+  * ----------------------------------------------------- */
+  workdsn = strip(adddsn,'B',"'")
+  parse value workdsn with dsname'('member')'
+
+  /* -------------------------- *
+  | Validate the input options |
+  * -------------------------- */
+  zsel = opt
+  'vget (zgdsns) profile'
+
+  if wordpos(opt,'A AC ACP') = 0 then
+  if opt /= null then do
+    wp = wordpos(dsname,zgdsns)
+    if wp = 0 then opt = null   /* dsn not found */
+    zgdsns = delword(zgdsns,wp,2)
+    'vput (zgdsns) profile'
+    parse value '' with zsel opt
+  end
+  wp = wordpos(dsname,zgdsns)
+  if wp > 0 then
+  repo = word(zgdsns,wp+1)
+  if repo /= null then
+  if opt = null then do
+    'Addpop row(4) column(4)'
+    'display panel(zgopt)'
+    drc = rc
+    'rempop'
+    if drc > 0 then do
+      zedsmsg = 'Canceled.'
+      zedlmsg = 'zigi Add canceled.'
+      'setmsg msg(isrz001)'
+      call get_out_of_here
+    end
+    zsel = opt
+  end
+
+  /* ------------------- *
+  | Open the zigi table |
+  * ------------------- */
+  call pop 'Opening zigi Repository Table \ Patience.'
+  isptabl = 'ISPTABL'
+  x = listdsi(isptabl 'FILE')
+  if x > 0 then isptabl = 'ISPPROF'
+  'TBOpen zigirepo Library('isptabl') NoWrite Share'
+  if rc > 8 then do
+    zedsmsg = 'Error.'
+    zedlmsg = 'Unable to open the zigi Local Repository table.' ,
+      'Contact your zigi support individual.'
+    'setmsg msg(isrz001)'
+    call get_out_of_here
+  end
+  open = 1
+
+  call pop 'Looking for current dataset \ in the Repository.'
+  'tbtop zigirepo'
+  if repo /= null then do forever
+    if repo = zigirep then leave
+    'tbskip zigirepo'
+    if rc > 0 then do
+      repo = null
+      leave
+    end
+  end
+
+  /* --------------------------------------- *
+  | Display repository table to select from |
+  * --------------------------------------- */
+  if repo = null then
+  do forever
+    zsel = null
+    'addpop'
+    'tbdispl zigirepo panel(zgtbl)'
+    drc = rc
+    'rempop'
+    if zsel /= null then leave
+    if drc > 0 then do
+      zsel = null
+      call done
+    end
+  end
+
+  /* ----------------------------- *
+  | Get the OMVS environment info |
+  * ----------------------------- */
+  call getenv
+
+  /* ------------------------------------------------- *
+  | Validate that the current dataset is part of repo |
+  * ------------------------------------------------- */
+  if pos('(',workdsn) > 0 then
+  parse value workdsn with workdsn'('member')'
+  else member = null
+  omvsdsn = remove_dsn_hlq(workdsn)
+  cmd = 'cd' localrep'/'zigirep
+  cmd = cmd '&& ls' omvsdsn
+  x = bpxwunix(cmd,,xo.,xe.)
+  if x > 0 then do
+    zedsmsg = 'Invalid.'
+    zedlmsg = left('The requested dataset' adddsn ,76) ,
+      left('is not part of the selected repository:' zigirep,76) ,
+      'as such this command is terminating. Please try again.'
+    'setmsg msg(isrz001)'
+    if wordpos(workdsn,zgdsns) > 0 then do
+      wp = wordpos(workdsn,zgdsns)
+      zgdsns = delword(zgdsns,wp,wp+1)
+      'vput (zgdsns) profile'
+    end
+    call done
+  end
+  drop xo. xe.
+
+  if wordpos(workdsn,zgdsns) = 0 then do
+    zgdsns = zgdsns workdsn zigirep
+    'vput (zgdsns) profile'
+  end
+
+  /* --------------------------------------------------- *
+  | Get the list of datasets to check for file suffixes |
+  * --------------------------------------------------- */
+  call get_dsn_info
+
+  /* ---------------------------------------------- *
+  | Check the current Userid and Change if DEFRUID |
+  * ---------------------------------------------- */
+  if defruid /= null then do
+    "LMINIT DATAID(ruid) DATASET('"workdsn"')"
+    "LMOPEN DATAID("ruid") OPTION(INPUT)"
+    "LMMLIST Dataid("ruid") OPTION(LIST) MEMBER(MEMBER)" ,
+      "STATS(YES)"
+    if zluser /= defruid then
+       'LMMSTATS DATAID('ruid') Member('member') user('defruid')'
+    "LMClose Dataid("ruid")"
+    "LMFree  Dataid("ruid")"
+  end
+
+  /* ------------------------------------------------------- *
+  | Select/Add dataset or dataset(member) to the repository |
+  | - copy from z/OS to OMVS                                |
+  | - git add it                                            |
+  | Copy occurs with the Open request or the select/add.    |
+  * ------------------------------------------------------- */
+  call pop 'Copying the member to OMVS \ Patience. . .'
+  if pos(left(zsel,1),'SAO') > 0 then do
+    hit = 1
+    omvsfile = omvsdsn
+    ofile = usssafe(omvsfile)
+    omem  = usssafe(member)
+    if zdsn.omvsdsn = null
+    then rmem = omem
+    else rmem = lower(omem)'.'zdsn.dsn
+    sdsn = usssafe(dsname)
+    copycmd = "//'"sdsn"("omem")'"
+    copycmd = '"'copycmd'"'
+    copycmd = "cp -U -v" copycmd" "localrep"/"zigirep'/'ofile
+    copycmd = copycmd || "/"rmem
+    x = bpxwunix(copycmd,,so.,se.)
+    call add_so 'Command:' copycmd
+    if x > 0 then
+    call view_std 'B'
+    call pop 'Adding to Git Index \ Patience. . .'
+    cmd = 'cd' localrep'/'zigirep'/'ofile
+    cmd = cmd '&& git add' omem
+    x = docmd(cmd)
+    call add_so 'Command:' cmd
+    if x > 0 then
+    call view_std 'B'
+    call git_add_member_stats
+  end
+
+  /* ----------------------------------------- *
+  | Perform Commit Processing (optional Push) |
+  * ----------------------------------------- */
+  if pos('C',zsel) > 0 then do
+    'Addpop row(4) column(4)'
+    'Display Panel(zgcom)'
+    drc = rc
+    'Rempop'
+    if drc > 0 then call done
+    if strip(cmsg1 cmsg2 cmsg3 cmsg4 cmsg5 cmsg6 cmsg7) /= null
+    then do
+      cfile = 1
+      call do_cmsg
+    end
+    else cfile = 0
+    hit = 1
+
+    if pos('P',zsel) > 0
+    then  call pop 'Performing Git Commit/Push \ Patience. . .'
+    else  call pop 'Performing Git Commit \ Patience. . .'
+    cmd = 'cd' localrep'/'zigirep
+    if cfile =0 then
+    cmd = cmd "&& git commit -vm '"cmsg1"'"
+    else do
+      cmd = cmd "&& git commit -F" file
+    end
+    if right(zsel,1) = 'P' then
+    cmd = cmd '&& git push -v'
+    if cfile = 1 then
+    cmd = cmd '&& rm' file
+    x = docmd(cmd)
+    call add_so 'Command:' cmd
+    if x > 0 then
+    call view_std 'B'
+    call done
+  end
+
+  /* ------------------------------------------------------------- *
+  | Call zigi to open the repository. Use newappl of ISR to force |
+  | zigi to altlib/libdef it's libraries.                         |
+  * ------------------------------------------------------------- */
+  if zsel = 'O' then do
+    open = 0
+    zigi_repo = zigirep
+    'tbend zigirepo'
+    Address ISPExec 'Select cmd(%zigi' zigi_repo') newappl(isr)'
+    hit = 0
+  end
+
+  /* ---------------- *
+  | Done so clean up |
+  * ---------------- */
+done:
+  if hit = 1 then do
+    zigidate = date('n')
+    sortdate = date('b')''right(time('s')+100000,5)
+    'tbmod zigirepo order'
+    cmd = 'cd' localrep'/'zigirep
+    cmd = cmd '&& git status'
+    x = docmd(cmd)
+    if x > 0
+    then call view_std 'B'
+    else do
+      zedsmsg = 'Done.'
+      msg = null
+      if pos('A',zsel) > 0 then msg = msg 'Git Add complete'
+      if pos('C',zsel) > 0 then
+      if msg = null then msg = 'Git Commit complete'
+      else msg = msg', and Git Commit complete'
+      if pos('P',zsel) > 0 then
+      if msg = null then msg = 'Git Push complete'
+      else msg = msg', and Git Push complete'
+      if zsel = 'A' then msg = msg', and a Commit/Push should be planned.'
+      if zsel = 'AC' then msg = msg', and a Push should be planned.'
+      zedlmsg = msg
+      'setmsg msg(isrz001)'
+    end
+  end
+
+Get_Out_Of_Here:
+  if open /= 0 then do
+    'tbend zigirepo'
+  end
+  exit 0
+
+  /* ----------------------- *
+  | Generalized Pop Message |
+  | with msg passed         |
+  * ----------------------- */
+Pop:
+  parse arg zs1 '\' zs2
+  add = address()             /* save addressing environment */
+  Address ISPExec
+  call do_popup
+  Address add                 /* restore addressing environment */
+  return
+
+  /* ------------------------------------------------------ *
+  | The pfshow routine will:                               |
+  | 1. check to see the passed option                      |
+  | 2. if Off then it will save the current pfshow setting |
+  |    - save the current setting                          |
+  |    - turn off pfshow                                   |
+  | 3. if the option is Reset then it will                 |
+  |    - test if pfshow was on and turn it back on         |
+  * ------------------------------------------------------ */
+pfshow:
+  if zpfshow = 'OFF' then return
+  arg pfkopt
+  if pfkopt = 'RESET' then do
+    if pfkeys = 'ON' then
+    'select pgm(ispopf) parm(FKA,ON)'
+  end
+  if pfkopt = 'OFF' then do
+    'vget (zpfshow)'
+    pfkeys = zpfshow
+    if pfkeys /= 'OFF' then
+    'select pgm(ispopf) parm(FKA,OFF)'
+  end
+  return
+
+  /* ---------------------------------------- *
+  | Common routine for normal (2 line) popup |
+  * ---------------------------------------- */
+Do_Popup:
+  call pfshow 'off'           /* make sure pfshow is off */
+  'Control Display Lock'
+  'Addpop row(4) column(12)'
+  'Display Panel(zigipop)'
+  'Rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
+  return
+
+do_cmsg:
+  do i = 1 to 7
+    cmsgd.i = value(cmsg''i)
+    cmsgd.i = cmsgd.i' '
+  end
+  do i = 7 to 1 by -1
+    if strip(cmsgd.i) /= null then leave
+  end
+  cmsgd.0 = i
+  file = 'cmsg'random(999)
+  fdd  = file
+  if sysvar('syspref') = null
+  then filem = sysvar('sysuid')'.'file
+  else filem = file
+  file = localrep'/'file
+  file = "'"file"'"
+  address tso
+  'alloc f('fdd') new spa(1,1) tr recfm(f b) lrecl(72) blksize(0)',
+    'ds('filem')'
+  'execio * diskw' fdd '(finis stem cmsgd.'
+  'free  f('fdd')'
+  call outtrap 'x.'
+  'oput' filem file 'Text'
+  'delete' filem
+  call outtrap 'off'
+  address ispexec
+  return
+
+  /* ---------------------------------- *
+  | Update stats file after member add |
+  * ---------------------------------- */
+Git_Add_Member_Stats:
+  call pop 'Updating member stats in zigi \ Patience.'
+  x = zigistat("'"workdsn"'" ,
+    localrep'/'zigirep'/.zigi/'omvsfile 'S')
+  statfiles = usssafe(omvsfile)
+  x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfiles)
+  return
+
+  /* -------------------------- *
+  | Remove the HLQ for our use |
+  * -------------------------- */
+Remove_DSN_HLQ: Procedure expose qualignr pdshlq
+  arg dsn
+  dsn = translate(strip(dsn,'B',"'"),' ','.')
+  if qualignr > 0 then
+  dsn = subword(dsn,qualignr+1)
+  dsn = translate(dsn,'.',' ')
+  return dsn
+
+  /* ------------------------- *
+  | Make dsn safe for OMVS cp |
+  * ------------------------- */
+usssafe: procedure
+  parse arg dsn
+  if pos('$',dsn) = 0 then return dsn
+  /* Let's not usssafe it twice :) */
+  if pos('\$',dsn) > 0 then return dsn
+  dsn = strreplace(dsn, '$', '\$')
+  return dsn
+
+  /* ----------------------------------------------------- *
+  | Get the users current OMVS enviornment for use in the |
+  | bpxwunix commands.                                    |
+  * ----------------------------------------------------- */
+GETENV:
+  cmd = 'pwd'
+  x = bpxwunix(cmd,,ho.,he.)
+  home    = strip(ho.1)
+  x = bpxwunix('. /etc/profile && env',,env.,se.)
+  envc = env.0
+  call add_env '_BPX_SHAREAS=YES'
+  call add_env '_BPX_SPAWN_SCRIPT=YES'
+  call add_env 'EXPORT _EDC_ADD_ERRORNO2=1'
+  call add_env 'HOME='home
+  env.0 = envc
+  return
+
+  /* -------------------- *
+  | Add info to env stem |
+  * -------------------- */
+add_env:
+  parse arg env_val
+  envc = envc + 1
+  env.envc = env_val
+  return
+
+docmd:
+  parse arg cmd
+  drop so. se.
+  x = bpxwunix(cmd,,so.,se.,env.)
+  return x
+
+docmdx:
+  /* quircky thing, we need to export HOME as we are
+  not running a login shell via bpxwunix */
+  parse arg cmd
+  cmd = 'pwd'
+  x = bpxwunix(cmd,,ho.,he.)
+  home    = strip(ho.1)
+  drop so. se.
+  rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && '
+  c = "[[ -f "home"/.profile ]] && echo f"
+  x = bpxwunix(c,,o.,e.)
+  if o.0 = 1 & o.1 = "f" then do
+    rx = rx '. 'home'/.profile > /dev/null 2>&1 && '
+  end
+  r = rx cmd
+  return r
+
+  /* ----------------------------- *
+  | Add record to end of so. stem |
+  * ----------------------------- */
+Add_so: procedure expose so.
+  parse arg text
+  c = so.0
+  c = c + 1
+  so.c = '  '
+  c = c + 1
+  so.c = text
+  so.0 = c
+  return
+
+  /* ---------------------------------------------------------- *
+  | Generalized routine to view stdout. (so.) or stderr. (se.) |
+  | based on the parm passed                                   |
+  * ---------------------------------------------------------- */
+view_std:
+  arg stdopt viewopt
+  if stdopt = null then viewopt = 'B'
+  if viewopt = null then viewopt = 'B'
+  if stdopt = 'X' then stdopt = null
+  if datatype(so.0) /= 'NUM' then so.0 = 0
+  if datatype(se.0) /= 'NUM' then se.0 = 0
+  if viewopt = 'B' then if so.0 + se.0 = 0 then return
+  /* ------------------------------- *
+  | Randomly define a DDName to use |
+  * ------------------------------- */
+  dd = 'zd'random(9999)
+  /* --------------------------------------- *
+  | Get lrecl to determine dcb for temp d/s |
+  * --------------------------------------- */
+  if stdopt /= 'C' then do
+    vlrecl = 0
+    do li  = 1 to so.0
+      so.li = strip(so.li,'T')
+      if length(so.li) > vlrecl then vlrecl = length(so.li)
+      if so.li = null then so.li = ' '
+    end
+    do li  = 1 to se.0
+      se.li = strip(se.li,'T')
+      if length(se.li) > vlrecl then vlrecl = length(se.li)
+      if se.li = null then se.li = ' '
+    end
+    sec = so.0 + se.0
+  end
+  else do
+    do li = 1 to combine.0
+      if length(combine.li) > vlrecl then vlrecl = length(combine.li)
+    end
+    sec = combine.0
+  end
+  if vlrecl < 81 then vlrecl = 80
+  /* ------------------------------------------ *
+  | Allocate a temporary data set for our data |
+  * ------------------------------------------ */
+  Address TSO
+  /* calculate space needed with avg 50 bytes per record */
+  prim = (((so.0 + se.0) * 50) % 56000) + 1
+  if prim < 2 then prim = 5
+  if viewopt = 'V' then do
+    if sysvar('syspref') = null then pref = userid()'.'
+    else pref = null
+    vdsn = pref'work.zigi.gitdata'
+  end
+  else vdsn = null
+  x = listdsi(vdsn)
+  if x = 0 then do
+    call outtrap 'x.'
+    'delete' vdsn
+    call outtrap 'off'
+  end
+  if vdsn /= null then vdsnp = 'da('vdsn') unit(3390)'
+  else vdsnp = null
+  if vlrecl > 255 then vlrecl = 251
+  'Alloc f('dd') new spa('prim','prim') tr' ,
+    'recfm(v b) lrecl('vlrecl+4') blksize(0)' vdsnp
+  /* ----------------------------- *
+  | If stdopt is 'B' then do both |
+  * ----------------------------- */
+  if stdopt /= 'C' then do
+    stdopt = null
+    sc = so.0
+    do xi = 1 to se.0
+      sc = sc + 1
+      so.sc = se.xi
+    end
+    so.0 = sc
+  end
+  /* ----------------------- *
+  | Write out the stem data |
+  * ----------------------- */
+  if stdopt = 'C' then do
+    'Execio * diskw' dd '(finis stem combine.'
+    drop combine.
+    combine.0 = 0
+  end
+  if stdopt /= 'C' then do
+    if stdopt = null
+    then do
+      'Execio * diskw' dd '(finis stem so.'
+    end
+    else do
+      'Execio * diskw' dd '(finis stem se.'
+    end
+  end
+  /* -------------------------------------------------- *
+  | Access the Temporary Data Set using ISPF           |
+  | Library Services.                                  |
+  | Then using ISPF Browse service to browse the data. |
+  | And use Library Services to Free the Data Set.     |
+  * -------------------------------------------------- */
+  Address ISPExec
+  if sec > 0 then if viewopt = 'B' then do
+    'lminit dataid(ddb) ddname('dd')'
+    'browse dataid('ddb')'
+    'lmfree dataid('ddb')'
+  end
+  else do
+    'view dataset('vdsn')'
+    vtitle = null
+    'verase vtitle'
+  end
+  /* ----------------------------- *
+  | Last Free the z/OS Allocation |
+  * ----------------------------- */
+  call outtrap 'x.'
+  Address TSO ,
+    'Free f('dd')'
+  if vdsn /= null then
+  Address TSO 'Delete' vdsn
+  call outtrap 'off'
+  return
+
+  /* ------------------------------------------------- *
+  |                                                  |
+  | String replace routine                           |
+  | input string                                     |
+  | from string                                      |
+  | to string                                        |
+  | translate is input to from                       |
+  * ------------------------------------------------- */
+strreplace: Procedure
+  string  = arg(1)
+  strfrom = arg(2)
+  strto   = arg(3)
+  if pos(strfrom,string) = 0 then return string
+  newString = ''
+  do i = 1 to length(string)
+    if substr(string,i,1) /= strfrom
+    then newstring = newstring''substr(string,i,1)
+    else  newstring = newstring''strto
+  end
+  return newstring
+
+Lower: Procedure
+  parse arg input
+  out = translate(input,"abcdefghijklmnopqrstuvwxyz",,
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+  return out
+
+  /* ----------------------------------------- *
+  | Get the .zigi/dsn to find file extensions |
+  * ----------------------------------------- */
+get_dsn_info:
+  zdsn. = null
+  cmd = 'cat' localrep'/'zigirep'/.zigi/dsn'
+  x = bpxwunix(cmd,,s.,e.)
+  if x > 0 then return
+  do di = 1 to s.0
+    zd = word(s.di,1)
+    zdsn.zd = word(s.di,6)
+    zdsn.0 = zd
+  end
+  drop s. e.
+  return
+
+  /* --------------------  rexx procedure  -------------------- *
+  * Name:      LoadISPF                                        *
+  *                                                            *
+  * Function:  Load ISPF elements that are inline in the       *
+  *            REXX source code.                               *
+  *                                                            *
+  * Syntax:    load_info = loadispf()                          *
+  *            rc = dropispf(load_info)                        *
+  *                                                            *
+  *            The inline ISPF resources are limited to        *
+  *            ISPF Messages, Panels, and Skeletons,           *
+  *                 CLISTs and EXECs are also supported.       *
+  *                                                            *
+  *            The inline resources must start in column 1     *
+  *            and use the following syntax:                   *
+  *                                                            *
+  *            >START    used to indicate the start of the     *
+  *                      inline data                           *
+  *                                                            *
+  *            >END    - used to indicate the end of the       *
+  *                      inline data                           *
+  *                                                            *
+  *            Each resource begins with a type record:        *
+  *            >type name                                      *
+  *               where type is CLIST, EXEC, MSG, PANEL, SKEL  *
+  *                     name is the name of the element        *
+  *                                                            *
+  * Sample usage:                                              *
+  *          -* rexx *-                                        *
+  *          load_info = loadispf()                            *
+  *          ... magic code happens here (your code) ...       *
+  *          rc = dropispf(load_info)                          *
+  *          exit                                              *
+  *          >Start inline elements                            *
+  *          >Panel panel1                                     *
+  *          ...                                               *
+  *          >Msg msg1                                         *
+  *          ...                                               *
+  *          >End of inline elements                           *
+  *                                                            *
+  * Returns:   the list of ddnames allocated for use along     *
+  *            with the libdef's performed or altlib           *
+  *                                                            *
+  *            format is ddname libdef ddname libdef ...       *
+  *                   libdef may be altlibc or altlibe         *
+  *                   for altlib clist or altlib exec          *
+  *                                                            *
+  * Notes:     Entire routine must be included with REXX       *
+  *            exec - inline with the code.                    *
+  *                                                            *
+  * Comments:  The entire rexx program is processed from the   *
+  *            last record to the first to find the >START     *
+  *            record at which point all records from that     *
+  *            point on are processed until the >END           *
+  *            statement or the end of the program is found.   *
+  *                                                            *
+  *            It is *strongly* suggested that the inline      *
+  *            elements be at the very end of your code so     *
+  *            that the search for them is faster.             *
+  *                                                            *
+  *            Inline ISPTLIB or ISPLLIB were not supported    *
+  *            because the values for these would have to be   *
+  *            in hex.                                         *
+  *                                                            *
+  * Author:    Lionel B. Dyck                                  *
+  *                                                            *
+  * History:                                                   *
+  *            01/09/19 - Include DROPISPF routine             *
+  *            08/29/17 - Fixup static values that were vars   *
+  *            05/31/17 - Change default directory count       *
+  *            12/09/16 - update for add_it routine            *
+  *            05/10/16 - correction for clist and exec        *
+  *            04/19/16 - bug correction                       *
+  *            06/04/04 - Enhancements for speed               *
+  *            08/05/02 - Creation                             *
+  *                                                            *
+  * ---------------------------------------------------------- *
+  * Disclaimer: There is no warranty, either explicit or       *
+  * implied with this code. Use it at your own risk as there   *
+  * is no recourse from either the author or his employeer.    *
+  * ---------------------------------------------------------- */
+LoadISPF: Procedure
+
+  parse value "" with null kmsg kpanel kskel first returns ,
+    kclist kexec
+  /* ------------------------------------------------------- *
+  * Find the InLine ISPF Elements and load them into a stem *
+  * variable.                                               *
+  *                                                         *
+  * Elements keyword syntax:                                *
+  * >START - start of inline data                           *
+  * >CLIST name                                             *
+  * >EXEC name                                              *
+  * >MSG name                                               *
+  * >PANEL name                                             *
+  * >SKEL name                                              *
+  * >END   - end of all inline data (optional if last)      *
+  * ------------------------------------------------------- */
+  last_line = sourceline()
+  do i = last_line to 1 by -1
+    line = sourceline(i)
+    if translate(left(line,6)) = ">START " then leave
+  end
+  rec = 0
+  /* --------------------------------------------------- *
+  * Flag types of ISPF resources by testing each record *
+  * then add each record to the data. stem variable.    *
+  * --------------------------------------------------- */
+  do j = i+1 to last_line
+    line = sourceline(j)
+    if translate(left(line,5)) = ">END "   then leave
+    if translate(left(line,7)) = ">CLIST " then kclist = 1
+    if translate(left(line,6)) = ">EXEC "  then kexec  = 1
+    if translate(left(line,5)) = ">MSG "   then kmsg   = 1
+    if translate(left(line,7)) = ">PANEL " then kpanel = 1
+    if translate(left(line,6)) = ">SKEL "  then kskel  = 1
+    rec  = rec + 1
+    data.rec = line
+  end
+
+  /* ----------------------------------------------------- *
+  * Now create the Library and Load the Member(s)         *
+  * ----------------------------------------------------- */
+  Address ISPExec
+  /* ----------------------------- *
+  * Assign dynamic random ddnames *
+  * ----------------------------- */
+  clistdd = "lc"random(999)
+  execdd  = "le"random(999)
+  msgdd   = "lm"random(999)
+  paneldd = "lp"random(999)
+  skeldd  = "ls"random(999)
+
+  /* ---------------------------------------- *
+  *  LmInit and LmOpen each resource library *
+  * ---------------------------------------- */
+  if kclist <> null then do
+    call alloc_dd clistdd
+    "Lminit dataid(clist) ddname("clistdd")"
+    "LmOpen dataid("clist") Option(Output)"
+    returns = strip(returns clistdd 'ALTLIBC')
+  end
+  if kexec <> null then do
+    call alloc_dd execdd
+    "Lminit dataid(exec) ddname("execdd")"
+    "LmOpen dataid("exec") Option(Output)"
+    returns = strip(returns execdd 'ALTLIBE')
+  end
+  if kmsg <> null then do
+    call alloc_dd msgdd
+    "Lminit dataid(msg) ddname("msgdd")"
+    "LmOpen dataid("msg") Option(Output)"
+    returns = strip(returns msgdd 'ISPMLIB')
+  end
+  if kpanel <> null then do
+    call alloc_dd paneldd
+    "Lminit dataid(panel) ddname("paneldd")"
+    "LmOpen dataid("panel") Option(Output)"
+    returns = strip(returns paneldd 'ISPPLIB')
+  end
+  if kskel <> null then do
+    call alloc_dd skeldd
+    "Lminit dataid(skel) ddname("skeldd")"
+    "LmOpen dataid("skel") Option(Output)"
+    returns = strip(returns skeldd 'ISPSLIB')
+  end
+
+  /* ----------------------------------------------- *
+  * Process all records in the data. stem variable. *
+  * ----------------------------------------------- */
+  do i = 1 to rec
+    record = data.i
+    recordu = translate(record)
+    if left(recordu,5) = ">END " then leave
+    if left(recordu,7) = ">CLIST " then do
+      if first = 1 then call add_it
+      type = "Clist"
+      first = 1
+      parse value record with x name
+      iterate
+    end
+    if left(recordu,6) = ">EXEC " then do
+      if first = 1 then call add_it
+      type = "Exec"
+      first = 1
+      parse value record with x name
+      iterate
+    end
+    if left(recordu,5) = ">MSG " then do
+      if first = 1 then call add_it
+      type = "Msg"
+      first = 1
+      parse value record with x name
+      iterate
+    end
+    if left(recordu,7) = ">PANEL " then do
+      if first = 1 then call add_it
+      type = "Panel"
+      first = 1
+      parse value record with x name
+      iterate
+    end
+    if left(recordu,6) = ">SKEL " then do
+      if first = 1 then call add_it
+      type = "Skel"
+      first = 1
+      parse value record with x name
+      iterate
+    end
+    /* --------------------------------------------*
+    * Put the record into the appropriate library *
+    * based on the record type.                   *
+    * ------------------------------------------- */
+    Select
+      When type = "Clist" then
+      "LmPut dataid("clist") MODE(INVAR)" ,
+        "DataLoc(record) DataLen(255)"
+      When type = "Exec" then
+      "LmPut dataid("exec") MODE(INVAR)" ,
+        "DataLoc(record) DataLen(255)"
+      When type = "Msg" then
+      "LmPut dataid("msg") MODE(INVAR)" ,
+        "DataLoc(record) DataLen(80)"
+      When type = "Panel" then
+      "LmPut dataid("panel") MODE(INVAR)" ,
+        "DataLoc(record) DataLen(80)"
+      When type = "Skel" then
+      "LmPut dataid("skel") MODE(INVAR)" ,
+        "DataLoc(record) DataLen(80)"
+      Otherwise nop
+    end
+  end
+  if type <> null then call add_it
+  /* ---------------------------------------------------- *
+  * Processing completed - now lmfree the allocation and *
+  * Libdef the library.                                  *
+  * ---------------------------------------------------- */
+  if kclist <> null then do
+    Address TSO,
+      "Altlib Act Application(Clist) File("clistdd")"
+    "LmFree dataid("clist")"
+  end
+  if kexec <> null then do
+    Address TSO,
+      "Altlib Act Application(Exec) File("execdd")"
+    "LmFree dataid("exec")"
+  end
+  if kmsg <> null then do
+    "LmFree dataid("msg")"
+    "Libdef ISPMlib Library ID("msgdd") Stack"
+  end
+  if kpanel <> null then do
+    "Libdef ISPPlib Library ID("paneldd") Stack"
+    "LmFree dataid("panel")"
+  end
+  if kskel <> null then do
+    "Libdef ISPSlib Library ID("skeldd") Stack"
+    "LmFree dataid("skel")"
+  end
+  return returns
+
+  /* --------------------------- *
+  * Add the Member using LmmAdd *
+  * based upon type of resource *
+  * --------------------------- */
+Add_It:
+  Select
+    When type = "Clist" then
+    "LmmAdd dataid("clist") Member("name")"
+    When type = "Exec" then
+    "LmmAdd dataid("exec") Member("name")"
+    When type = "Msg" then
+    "LmmAdd dataid("msg") Member("name")"
+    When type = "Panel" then
+    "LmmAdd dataid("panel") Member("name")"
+    When type = "Skel" then
+    "LmmAdd dataid("skel") Member("name")"
+    Otherwise nop
+  end
+  type = null
+  return
+
+  /* ------------------------------ *
+  * ALlocate the temp ispf library *
+  * ------------------------------ */
+Alloc_DD:
+  arg dd
+  Address TSO
+  if pos(left(dd,2),"lc le") > 0 then
+  "Alloc f("dd") unit(sysda) spa(5,5) dir(5)",
+    "recfm(v b) lrecl(255) blksize(32760)"
+  else
+  "Alloc f("dd") unit(sysda) spa(5,5) dir(5)",
+    "recfm(f b) lrecl(80) blksize(23440)"
+  return
+
+  /* --------------------  rexx procedure  -------------------- *
+  * Name:      DropISPF                                        *
+  *                                                            *
+  * Function:  Remove ISPF LIBDEF's and deactivate ALTLIB's    *
+  *            that were created by the LoadISPF function.     *
+  *                                                            *
+  * Syntax:    rc = dropispf(load_info)                        *
+  *                                                            *
+  * Author:    Janko                                           *
+  *                                                            *
+  * History:                                                   *
+  *            12/05/18 - Creation                             *
+  * ---------------------------------------------------------- */
+DropISPF: Procedure
+  arg load_info
+  Address ISPEXEC
+  do until length(load_info) = 0
+    parse value load_info with dd libd load_info
+    if left(libd,6) = "ALTLIB" then do
+      if libd = "ALTLIBC" then lib = "CLIST"
+      else lib = "EXEC"
+      Address TSO,
+        "Altlib Deact Application("lib")"
+    end
+    else "libdef" libd
+    address tso "free f("dd")"
+  end
+  return 0
+
+/*   Start of inline ISPF Panels - do NOT use REXXFORM option CI
+>Start
+>Panel zgopt
+)Attr
+_ type(input) hilite(uscore) caps(on) intens(low) just(left)
+)Body Window(43,3)
++Enter Git Option:_opt+(A, AC, ACP, or O)
++
++Press%Enter+to Continue, or%F3+to Cancel.
+)Init
+&zwinttl = 'zigi Git Option'
+)Proc
+ver (&opt,nb,list,A,AC,ACP,S,SC,SCP,O)
+)End
+>Panel zgtbl
+)Attr
+_ type(input) hilite(uscore) caps(on) intens(low) just(left)
+$ type(output) caps(off)
+] type(output) caps(off) intens(low)
+} type(output) caps(off) intens(low) just(right)
+@ type(text) caps(off) intens(high) color(white) hilite(uscore)
+)Body Window(64,15) expand(\\)
++
+%Command ===>_zcmd       \ \ %Scroll ===>_zscr+
++
++Selection:%A+Add%AC+Add/Commit%ACP+Add/Commit/Push%O+Open zigi
++
+%    @Repository             Category        Last Date  +
+)Model
+_z  +$z                  +  ]z             +}z          +
+)Init
+&zwinttl = 'Update Git Repository'
+&zscr = CSR
+.zvars = '(zsel zigirep zigicat zigidate)'
+)Proc
+Ver (&zsel,list,A,AC,O,S,SC,ACP,SCP)
+)End
+>Panel zgcom
+)Attr
+_ type(input) hilite(uscore) caps(off) intens(low) just(left)
+)Body Window(68,10)
++Enter Commit Message:
+_cmsg1                                                            +
+_cmsg2                                                            +
+_cmsg3                                                            +
+_cmsg4                                                            +
+_cmsg5                                                            +
+_cmsg6                                                            +
+_cmsg7                                                            +
++
++Press%Enter+to Continue, or%F3+to Cancel.
+)Init
+&zwinttl = 'zigi Commit Message'
+)Proc
+ver (&cmsg1,nb)
+)End
+>Panel zigipop
+)Attr
+ $ type(output) caps(off)
+)Body Window(54,4)
++
+  $zs1
+  $zs2
+
+)Init
+ &zwinttl = 'zigi Status Popup'
+)Proc
+)end
+/* -------------------------------------------------------- */
+/* zigi - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */
+>Exec zigistat
+  /* --------------------  rexx procedure  -------------------- *
+  | Name:      zigistat                                        |
+  |                                                            |
+  | Function:  Collect or Compare the ISPF Stats for all       |
+  |            members in a PDS                                |
+  |                                                            |
+  | Syntax:    x=zigistat(dsname filepath option)              |
+  |                                                            |
+  |            dsname is the z/OS dataset name to work with    |
+  |                                                            |
+  |            filepath is the OMVS file where the stats are   |
+  |            stored and consists of:                         |
+  |                localdir/repodir/.zigi/filename             |
+  |                filename is the OMVS file that represents   |
+  |                the z/OS PDS dataset name                   |
+  |                                                            |
+  | Options:   C - compare stats                               |
+  |            S - save stats                                  |
+  |            U - update stats to those saved                 |
+  |                used when creating/refreshing datasets      |
+  |                                                            |
+  | Vars:      statmems ispf variable for selective update     |
+  |                                                            |
+  | Usage                                                      |
+  |   Notes: Subroutine of zigi                                |
+  |          Returns string of members changed                 |
+  |                                                            |
+  | Dependencies:                                              |
+  |          ISPF services                                     |
+  |                                                            |
+  | Return:                                                    |
+  |          0 - stats saved or stats applied                  |
+  |          8 - no dsname provided                            |
+  |         12 - no filepath provided                          |
+  |         16 - no option provided                            |
+  |         20 - stats file in /.zigi missing                  |
+  |     string - string of members with different stats        |
+  |                                                            |
+  | Author:    Lionel B. Dyck                                  |
+  |                                                            |
+  | History:  (most recent on top)                             |
+  |            01/08/20 LBD - Selecitve stat update if statmems|
+  |            01/05/20 LBD - Correct special chars in filepath|
+  |                           using usssafe routine            |
+  |            11/22/19 LBD - If a member has no stats - add   |
+  |            11/18/19 LBD - Many fixes and add Debug         |
+  |            11/15/19 LBD - Creation                         |
+  |                                                            |
+  | ---------------------------------------------------------- |
+  |    zigi - the z/OS ISPF Git Interface                      |
+  |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
+  |                                                            |
+  |    This program is free software: you can redistribute it  |
+  |    and/or modify it under the terms of the GNU General     |
+  |    Public License as published by the Free Software        |
+  |    Foundation, either version 3 of the License, or (at     |
+  |    your option) any later version.                         |
+  |                                                            |
+  |    This program is distributed in the hope that it will be |
+  |    useful, but WITHOUT ANY WARRANTY; without even the      |
+  |    implied warranty of MERCHANTABILITY or FITNESS FOR A    |
+  |    PARTICULAR PURPOSE.  See the GNU General Public License |
+  |    for more details.                                       |
+  |                                                            |
+  |    You should have received a copy of the GNU General      |
+  |    Public License along with this program.  If not, see    |
+  |    <https://www.gnu.org/licenses/>.                        |
+  * ---------------------------------------------------------- */
+zigistat:
+
+  /* --------------- *
+  | Define defaults |
+  * --------------- */
+  parse value '' with null string m. rx allmems
+  zdd = 'ZS'time('s')
+
+  /* --------------------------------- *
+  | Check for parms and return if not |
+  * --------------------------------- */
+  parse arg dsn filepath opt
+  if dsn      = null then return 8
+  if filepath = null then return 12
+  if opt      = null then return 16
+  opt         = translate(opt)   /* make upper case */
+
+  Address ISPExec
+
+  /* ------------------ *
+  * Define ISPF Dataid *
+  * ------------------ */
+  "LMINIT DATAID(STATUS) DATASET("dsn")"
+  "LMOPEN DATAID("STATUS") OPTION(INPUT)"
+
+  /* ------------ *
+  * Set defaults *
+  * ------------ */
+  parse value null with member mem. ,
+    ZLCDATE ZLMDATE ZLVERS ZLMOD ZLMTIME ZLCNORC,
+    ZLINORC ZLMNORC ZLUSER ,
+    zlcnorce zlinorce zlmnorce
+  mem.0  = 0
+
+  /* ----------------------- *
+  * Now process all members *
+  * ----------------------- */
+  do forever
+    "LMMLIST Dataid("status") OPTION(LIST) MEMBER(MEMBER)" ,
+      "STATS(YES)"
+    /* --------------------------------- *
+    * If RC 4 or more leave the do loop *
+    * --------------------------------- */
+    if rc > 3 then leave
+    /* -------------------------------- *
+    | Check if no stats then add them. |
+    * -------------------------------- */
+    if zlcdate = null then do
+      'LMMSTATS DATAID('status') Member('member') user('sysvar(sysuid)')'
+      "LMMFind DATAID("status") Member("member") STATS(YES)"
+    end
+    /* ------------------------------ *
+    * Add each member info to a stem *
+    * ------------------------------ */
+    c = mem.0 + 1
+    mem.c = strip(member ,
+      ZLCDATE  ZLMDATE  ZLVERS ZLMOD ZLMTIME ZLCNORC ,
+      ZLINORC ZLMNORC ZLUSER ,
+      zlcnorce zlinorce zlmnorce)
+    mem.0 = c
+  end
+
+  /* ------------------------- *
+  * Close and Free the Dataid *
+  * ------------------------- */
+  "LMClose Dataid("status")"
+  "LMFree  Dataid("status")"
+
+    /* ----------------------------------------------------- *
+    | Save all stats for all members in the active dataset. |
+    | - data will be saved to /.zigi/filename               |
+    * ----------------------------------------------------- */
+  x = bpxwunix('rm' usssafe(filepath),,so.,se.)
+  call write_stats
+  return 0
+
+  /* ----------------------------------------------------- *
+  | Get the users current OMVS enviornment for use in the |
+  | bpxwunix commands. Being selective.                   |
+  * ----------------------------------------------------- */
+GETENV:
+  cmd  = docmdx('env')
+  rc = bpxwunix(cmd,,so.,se.)
+  envc = 0
+  do ci = 1 to so.0
+    if left(so.ci,3) = 'GIT' then call add_env so.ci
+    if left(so.ci,4) = 'HOME' then call add_env so.ci
+    if left(so.ci,4) = 'PATH' then call add_env so.ci
+    if left(so.ci,4) = 'MANP' then call add_env so.ci
+    if left(so.ci,4) = 'LIBP' then call add_env so.ci
+    if left(so.ci,3) = 'PWD' then call add_env so.ci
+  end
+  call add_env '_BPX_SHAREAS=YES'
+  call add_env '_BPX_SPAWN_SCRIPT=YES'
+  env.0 = envc
+  drop so. se.
+  return
+
+  /* -------------------- *
+  | Add info to env stem |
+  * -------------------- */
+add_env:
+  parse arg env_val
+  envc = envc + 1
+  env.envc = env_val
+  return
+
+docmd:
+  parse arg cmd
+  drop so. se.
+  x = bpxwunix(cmd,,so.,se.,env.)
+  return x
+
+docmdx:
+  /* quircky thing, we need to export HOME as we are
+  not running a login shell via bpxwunix */
+  parse arg cmd
+  drop so. se.
+  if rx = null then do
+    rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && '
+    c = "[[ -f "home"/.profile ]] && echo f"
+    x = bpxwunix(c,,o.,e.)
+    if o.0 = 1 & o.1 = "f" then do
+      rx = rx '. 'home'/.profile > /dev/null 2>&1 && '
+    end
+  end
+  r = rx cmd
+  return r
+
+  /* ----------------------------- *
+  | Write out the ISPF Stats file |
+  * ----------------------------- */
+Write_Stats:
+  call syscalls 'ON'
+  address syscall
+  fpok = strreplace(filepath,'\$', '$')
+  'open' fpok O_rdwr+O_creat+O_trunc 660
+  if retval = -1 then do
+    Address ISPExec
+    zs1 = "Something bad when creating"
+    zs2 = filepath
+    zs4 = 'Press F3 to close this popup and exit.'
+    parse value '' with zs3
+    call do_popup4
+    call syscalls 'OFF'
+    return
+  end
+  fd = retval
+  do is = 1 to mem.0
+    call write_fd mem.is
+  end
+  'close' fd
+  call syscalls 'OFF'
+  Address ISPExec
+  return
+
+  /* ----------------------------------- *
+  | Routine to write out a line of data |
+  * ----------------------------------- */
+Write_FD:
+  parse arg string
+  string = string || ESC_R || ESC_N
+  'write' fd 'string' length(string)
+  return
+
+  /* ----------------------------------- *
+  | Issue popup - turn off pfshow if on |
+  * ----------------------------------- */
+Do_Popup4:
+  call pfshow 'off'           /* make sure pfshow is off */
+  'Addpop row(4) column(6)'
+  'Display Panel(zigipop4)'
+  'Rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
+  return
+
+  /* -------------------------------- *
+  | routine to turn off pfshow if on |
+  * -------------------------------- */
+pfshow:
+  if zpfshow = 'OFF' then return
+  arg pfkopt
+  if pfkopt = 'RESET' then do
+    if pfkeys = 'ON' then
+    'select pgm(ispopf) parm(FKA,ON)'
+  end
+  if pfkopt = 'OFF' then do
+    'vget (zpfshow)'
+    pfkeys = zpfshow
+    if pfkeys /= 'OFF' then
+    'select pgm(ispopf) parm(FKA,OFF)'
+  end
+  return
+
+  /* ---------------------------------- *
+  | Make the z/OS dsname safe for OMVS |
+  * ---------------------------------- */
+usssafe: procedure
+  parse arg dsn
+  if pos('$',dsn) = 0 then return dsn
+  /* Let's not usssafe it twice :) */
+  if pos('\$',dsn) > 0 then return dsn
+  dsn = strreplace(dsn, '$', '\$')
+  return dsn
+
+STRREPLACE:
+  ORIGINAL = ARG(1)
+  OLDTXT = ARG(2)
+  NEWTXT = ARG(3)
+  /* YOU CAN CHANGE THE BELOW KEY (TMPTXT), WHICH IS USED AS A TEMPORARY
+  POINTER TO IDENTIFY THE TEXT TO BE REPLACED */
+  TMPTXT = '6A53CD2EW1F'
+  NEWSTR = ORIGINAL
+  DO WHILE POS(OLDTXT,NEWSTR) > 0
+    NEWSTR = SUBSTR(NEWSTR, 1 , POS(OLDTXT,NEWSTR)-1) ||,
+      TMPTXT || SUBSTR(NEWSTR, POS(OLDTXT,NEWSTR) + LENGTH(OLDTXT))
+  END
+  DO WHILE POS(TMPTXT,NEWSTR) > 0
+    NEWSTR = SUBSTR(NEWSTR, 1 , POS(TMPTXT,NEWSTR)-1) ||,
+      NEWTXT || SUBSTR(NEWSTR, POS(TMPTXT,NEWSTR) + LENGTH(TMPTXT))
+  END
+  RETURN NEWSTR
+>End    End of inline ISPF Panels */

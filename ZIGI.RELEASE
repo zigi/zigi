@@ -4,10 +4,32 @@
                          New Features and Functions
                          --------------------------
 
+New ZG command that is used outside of zigi to add/commit/push a updated PDS
+member from either the ISPF command line or from an enhanced member list.
+NOTE: The ZG exec is self-contained with inline ISPF panels. It must be
+installed in a library in the SYSEXEC or SYSPROC default allocation for use.
+
+Validate during Clone processing to prevent HTTP/HTTPS usage since zigi
+only supports SSH.
+
+When removing (RM) a z/OS dataset or OMVS file provide the option to just
+remove it from git and not delete the dataset or file. If a z/OS dataset
+then provide an option to not delete the dataset or file but to remove it
+from git management. The options provided are Z delete z/OS dataset, O
+delete OMVS file, B to delete both, or N for No delete (only remove from
+Git). **NOTE** this does NOT apply to performing an RM on a PDS member due
+to the way PDS members are managed - performing an RM *will* delete the PDS
+member and the OMVS copy of the member.
+
+
 Bug Fixes and Other Updates:
 
-  1. Better parsing of remote repo URL in clone and adding remote panel.
-  2.
+  1. Check z/OS dataset exists before attempting to copy to OMVS
+  2. Better parsing of remote repo URL in clone and adding remote panel.
+
+=============================================================================
+
+                             zigi Release Notes
                                 Version 2.7
 
                          New Features and Functions
