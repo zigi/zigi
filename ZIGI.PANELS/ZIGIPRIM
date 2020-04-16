@@ -1,12 +1,12 @@
 )Attr
- $ type(output) caps(off)
- ] type(output) caps(off) intens(low)
- } type(output) caps(off) intens(low) just(right)
+ $ type(output) caps(off) color(&srr)
+ ] type(output) caps(off) intens(low) color(&srp)
+ [ type(output) caps(off) intens(low) color(&src)
+ } type(output) caps(off) intens(low) just(right) color(&srl)
  { type(input) caps(off) hilite(uscore) intens(low)
  _ type(input) caps(on ) hilite(uscore) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
  @ type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
- [ type(text) intens(low) hilite(uscore)
  | TYPE(AB)           /* Action bar                */
  < TYPE(ABSL) GE(ON)  /* Action bar separator line */
 )ABC DESC('Commands')

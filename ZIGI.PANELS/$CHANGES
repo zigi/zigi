@@ -9,6 +9,13 @@ member from either the ISPF command line or from an enhanced member list.
 NOTE: The ZG exec is self-contained with inline ISPF panels. It must be
 installed in a library in the SYSEXEC or SYSPROC default allocation for use.
 
+NOTE: For the 'Open zigi' command in the new ZG it's required you have
+      the zigi-startup exec present in your SYSEXEC or SYSPROC library.
+
+The Local Repository table is updated to easily identify the column(s)
+that are sorted. The sorted column(s) will be white and non-sorted in
+turquoise.
+
 Validate during Clone processing to prevent HTTP/HTTPS usage since zigi
 only supports SSH.
 
@@ -25,6 +32,7 @@ member and the OMVS copy of the member.
 Bug Fixes and Other Updates:
 
   1. Check z/OS dataset exists before attempting to copy to OMVS
+  2. Better parsing of remote repo URL in clone and adding remote panel.
 
 =============================================================================
 

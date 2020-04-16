@@ -26,6 +26,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            04/16/20 EJA - Colorize ZIGIPRIM columns        |
+  |                           white = sorted TURQ = not        |
   |            04/12/20 EJA - Improve overview by using        |
   |                           more function calls              |
   |                           There should be no functional    |
@@ -399,7 +401,7 @@ init_repo:
 
   repo_top = 1
   'tbtop zigirepo'
-  'vget (defrsort) profile'
+  'vget (defrsort srr src srp srl) profile'
   if words(defrsort) = 2 then defrsort = 'zigirep,c,a'
   'TBSort zigirepo Fields('defrsort')'
   parse value '' with zsel szcmd
@@ -778,7 +780,7 @@ Create_zigirepo:
     "Names(zigirep localrep pdshlq qualignr zigidate defcpush" ,
     " sortdate defruid zigicat branch remote1)",
     'Library('isptabl') Write Share'
-  'vget (defrsort) profile'
+  'vget (defrsort srr src srp srl) profile'
   'TBSort zigirepo Fields('defrsort')'
   'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
   return
@@ -906,6 +908,14 @@ handle_zigiprim_sort:
     skey2 = 'sortdate'
     otherwise nop
   end
+  if pos('zigirep',skey skey2)  > 0 then srr = 'white'
+                                     else srr = 'turq'
+  if pos('zigicat',skey skey2)  > 0 then src = 'white'
+                                     else src = 'turq'
+  if pos('pdshlq',skey skey2)   > 0 then srp = 'white'
+                                     else srp = 'turq'
+  if pos('sortdate',skey skey2) > 0 then srl = 'white'
+                                     else srl = 'turq'
   if left(sopt,1) = 'D' then sopt = 'D'
   else sopt = 'A'
   if skey2 /= null then do
@@ -917,7 +927,7 @@ handle_zigiprim_sort:
   defrsort = defrsort','skey2',c,'sopt2
   'tbsort zigirepo fields('defrsort')'
   lsopt = sopt
-  'vput (defrsort) profile'
+  'vput (defrsort srr src srp srl) profile'
   Return
 
   /* ------------------------------------------ *
@@ -4416,7 +4426,7 @@ Clone_Repo:
     zigidate = date('n')
     sortdate = date('b')''time('s')
     'tbadd zigirepo order'
-    'vget (defrsort) profile'
+    'vget (defrsort srr src srp srl) profile'
     'TBSort zigirepo Fields('defrsort')'
     'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
     leave
@@ -5145,7 +5155,7 @@ Create_Repo:
     sortdate = date('b')''time('s')
     'tbadd zigirepo order'
     zpush = defcpush
-    'vget (defrsort) profile'
+    'vget (defrsort srr src srp srl) profile'
     'TBSort zigirepo Fields('defrsort')'
     'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
     leave

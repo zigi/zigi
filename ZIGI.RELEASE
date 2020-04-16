@@ -12,6 +12,10 @@ installed in a library in the SYSEXEC or SYSPROC default allocation for use.
 NOTE: For the 'Open zigi' command in the new ZG it's required you have
       the zigi-startup exec present in your SYSEXEC or SYSPROC library.
 
+The Local Repository table is updated to easily identify the column(s)
+that are sorted. The sorted column(s) will be white and non-sorted in
+turquoise.
+
 Validate during Clone processing to prevent HTTP/HTTPS usage since zigi
 only supports SSH.
 
