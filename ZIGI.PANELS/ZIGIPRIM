@@ -35,7 +35,7 @@
 + \ \%F3  +
 %    @repo      +           @pref  +               @cat     +      @last       +
 )Model
-_z+  $z                  +  ]z                    +]z             +}z          +
+_z+  $z                  +  ]z                    +[z             +}z          +
 )Init
  &cat     = 'Category'
  &last    = 'Last Access'

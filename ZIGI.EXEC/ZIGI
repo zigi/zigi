@@ -908,14 +908,18 @@ handle_zigiprim_sort:
     skey2 = 'sortdate'
     otherwise nop
   end
-  if pos('zigirep',skey skey2)  > 0 then srr = 'white'
-                                     else srr = 'turq'
-  if pos('zigicat',skey skey2)  > 0 then src = 'white'
-                                     else src = 'turq'
-  if pos('pdshlq',skey skey2)   > 0 then srp = 'white'
-                                     else srp = 'turq'
-  if pos('sortdate',skey skey2) > 0 then srl = 'white'
-                                     else srl = 'turq'
+  if pos('zigirep',skey skey2)  > 0
+  then srr = 'white'
+  else srr = 'blue'
+  if pos('zigicat',skey skey2)  > 0
+  then src = 'white'
+  else src = 'blue'
+  if pos('pdshlq',skey skey2)   > 0
+  then srp = 'white'
+  else srp = 'blue'
+  if pos('sortdate',skey skey2) > 0
+  then srl = 'white'
+  else srl = 'blue'
   if left(sopt,1) = 'D' then sopt = 'D'
   else sopt = 'A'
   if skey2 /= null then do
