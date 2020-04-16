@@ -8,23 +8,23 @@
 +
                         %Keyboard and Mouse Navigation
 +
-+The zigi application has been designed to support both the traditional
++The zigi application has been designed to support the traditional
 +ISPF Panel navigation by entering the desired commands and table row
 +selections. It has also been designed to support%point-and-shoot+fields
 +for use by those more comfortable with that approach. All point-and-shoot
-+fields are under-scored for easy identification.
++fields are underlined for easy identification.
 +
 +Enabling%Tab to Point-and-Shoot fields+in the ISPF Settings (option 0 on
-+the ISPF Primary Menu) will make these fields easier to use with both the
++the ISPF Primary Menu) makes these fields easier to use with both the
 +keyboard and mouse.
 +
-+Use the keyboard tab key, or newline key, to move to the point-and-shoot fields
++Use the keyboard Tab key, or newline key, to move to the point-and-shoot fields
 +and then just press the%Enter+key to execute that command or table row
 +selection.
 +
 +
 +
-           +Press the%Enter+key to begin your zigi tutorial journey.
+          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor = &zcmd
 )PROC

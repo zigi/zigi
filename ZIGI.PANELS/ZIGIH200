@@ -10,7 +10,7 @@
 +
                               %Current Repository
 +
-%Commands available+(select for more information or press%Enter+to see each):
+%Commands available+(select one more information or press%Enter+to see all):
 +
 [Add   + Add dataset{*   [GitLog+ Show git log       [Row+     Options
 [AddAll+ Add all to Git  [Grep+   Find Strings       [Set+     Set Defaults
