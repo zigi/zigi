@@ -15,9 +15,9 @@ _tagxhlq                         +(no quotes allowed)
       +Press%Enter+to proceed, or%F3+to cancel.
 )Init
  &zwinttl = 'Tag Extract Prompt'
- .help = zigihxxx
+ .help = zigih2i1
 )Proc
- &zerrhm   = 'zigihxxx'
+ &zerrhm   = 'zigih2i1'
  &zerralrm = 'NO'
  &zerrtp   = 'Notify'
  &zerrsm = &z

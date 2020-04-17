@@ -1,5 +1,4 @@
 )attr default(%+_)
-  @ type(input ) caps(off) hilite(uscore)
   _ type( input) intens(low ) just(left ) hilite(uscore)
   ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
   [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
@@ -7,29 +6,29 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                                %Create+
+                                %TagList eXtract
 +
-%Create+executes a 'git init' in the specified path creating a Local
-+Repository. A basic .gitattributes is committed to this repository.
+%eXtract+will prompt for a high-level-qualifier (HLQ) and a new OMVS directory
++to copy all of the z/OS and OMVS elements that were updated by the selected
++Tag.
 +
-%Name+is the name for the new local repository to be created. It is
-+created as a directory within the%Local Repository+defined next.
++This can be useful for creating an APAR or PTF with just the updated elements.
 +
-%Local Repository+is the location where the%Clone+creates a directory or
-+where%Create+initializes the Git repo.
++The copy is%not+Git managed.
 +
-%Notes:
-%*+Don't use spaces in name field.
-%*+Repository is named (and stored) in OMVS as /localdirectory/name
-%*+Fails if /localdirectory/name is present
-+  Override with a%Y+
-%*+Thirty-two characters should be enough for a repo-name :)
++
++
++
++
+               "The most effective way of doing it, is to do it."
+                  -- Amelia Earhart
++
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
- &ZCONT = ZIGIH121
+ &zcont = zigih300
 )END
 /* -------------------------------------------------------- */
 /* zigi - the z/OS ISPF Git Interface                       */
