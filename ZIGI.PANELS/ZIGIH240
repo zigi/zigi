@@ -9,11 +9,11 @@ $Selection ===>_ZCMD                                                          +
                                  $GitCMD+
 +
 +The Git command panel supports entering any Git command to be executed with
-+the results displayed using ISPF Browse. All commands will be executed in the
++the results displayed using ISPF Browse. All commands are executed in the
 +directory of the local Git repository.
 +
-+The first command does not require$Git+to be specified. Additional commands may
-+be entered using$&&+as a separator and will require$git+to be coded. Thus:
++The first command does not require$Git+to be specified. Additional commands
++may be entered using$&&+as a separator and requires$git+to be coded. Thus:
 +
    $git@log --cc -m -n 10 && git status
 +
@@ -22,7 +22,7 @@ $Selection ===>_ZCMD                                                          +
 +See the next tutorial panel for command and selection options.
 +
 +  "Life is 10% what happens to you and 90% how you react to it."
-+        - Charles R. Swindoll
++        -- Charles R. Swindoll
 +
 +Press$Enter+to execute the command after entering or editing it.
 )Init

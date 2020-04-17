@@ -8,10 +8,10 @@
 +
                                  %Replace+
 +
-%Replace+will recreate ALL of the z/OS datasets in the local repository using
+%Replace+recreates ALL of the z/OS datasets in the local repository using
 +the files in the OMVS filesystem.
 +
-+ALL updates that have NOT been committed and pushed will be lost.
++ALL updates that have NOT been committed and pushed are lost.
 +
 %
 +
@@ -20,7 +20,7 @@
 +
 +
                   +"It's what you learn after you know it all
-                  +that counts." - John Wooden
+                  +that counts." -- John Wooden
 +
 +
 +

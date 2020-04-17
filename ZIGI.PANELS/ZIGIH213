@@ -9,19 +9,19 @@
                                 %AddDsn+
 +
 +If there are binary members in the partitioned dataset along with text
-+members then use the %A+option to add the entire PDS to Git. Then from the
-+Current Repository menu select the PDS and in the PDS Member display use
++members, use the %A+option to add the entire PDS to Git. Then, from the
++Current Repository menu, select the PDS and in the PDS Member display use
 +the%AB+line selection to add the member in binary format.
 +
-+The members selected as binary will be copied in binary format to the
-+OMVS filesystem, they will be entered into the .gitattributes file with a
-+binary designation, and they will be tagged in OMVS as binary files.
++The members selected as binary are copied in binary format to the
++OMVS filesystem, they are entered into the .gitattributes file with a
++binary designation, and they are tagged in OMVS as binary files.
 +
 +
 +
-+  "When your work speaks for itself, don't interrupt."
-+                  - Henry J. Kaiser
 +
+            +  "When your work speaks for itself, don't interrupt."
++                     -- Henry J. Kaiser
 +
 
          +Press the%Enter+key to continue your zigi tutorial journey.

@@ -8,15 +8,15 @@
 +
                                   %GitLab
 +
-%1.+Open https://GitLab.com
-%2.+Click on Sign in or Register
-+   if Register then complete the registration
-%3.+Click on the icon in the upper right with a strange avatar
-%5.+Click on Settings
-%6.+Click on SSH keys
-%7.+Click on Add an SSH key
-%8.+Enter a title and then paste your Public key into the box
-%9.+Click on Add key to complete adding the key
+%*+Open https://GitLab.com
+%*+Click Sign in or Register
++  if Register then complete the registration and continue
+%*+Click the icon in the upper right with a strange avatar
+%*+Click Settings
+%*+Click SSH keys
+%*+Click Add an SSH key
+%*+Enter a title and then paste your Public key into the box
+%*+Click Add key to complete adding the key
 +
 +
 +

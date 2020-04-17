@@ -8,7 +8,7 @@
 +
                                  %GitCMD+
 +
-+Available Commands:   CLEAR to empty the table completely.
++Available Commands: CLEAR to empty the table completely.
 +
 +Use these line commands with the table rows:
 +
@@ -17,11 +17,11 @@
    %X+to execute the command and place it into the command entry field
 +
 +The%Githelp+command, available on most of the zigi panels, is very helpful
-+in finding which command to use and it's syntax.
++in finding which command to use and its syntax.
 +
 +
-     +  "I'm a greater believer in luck, and I find the harder I work
-     +  the more I have of it."   - Thomas Jefferson
+    +  "I'm a greater believer in luck, and I find the harder I work
+     +  the more I have of it."   -- Thomas Jefferson
 +
 +
       +Press%Enter+to execute the command after entering or editing it.

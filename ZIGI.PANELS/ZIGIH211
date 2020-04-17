@@ -10,15 +10,15 @@
 +
 %Ignore 1st n qualifiers in prefix:+1
 +
-+The ignore qualifiers is used to generate the file names, or directory names,
++The ignore qualifiers are used to generate the file names, or directory names,
 +of the z/OS datasets in the repository.
 +
-+For example a prefix of GITUSER.DEV with a ignore value of 2, will define a
++For example, a prefix of GITUSER.DEV with an ignore value of 2, will defines a
 +dataset with a name of GITUSER.DEV.BOGUS.COBOL in the repository as
-+BOGUS.COBOL.  This is very useful as other users will be cloning the
-+repository and they will not want to have the file names with some other HLQ.
++BOGUS.COBOL.  This is very useful as other users are cloning the
++repository and they do not want to have the file names with some other HLQ.
 +
-+Command:%Find+to find a string in any dataset name and position the table.
++Command:%FIND+to find a string in any dataset name and position the table.
 +
 +Line selection options:
 +%S+Add %A+Add %AB+Add binary %B+Browse

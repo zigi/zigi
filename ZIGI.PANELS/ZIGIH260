@@ -8,21 +8,21 @@
 +
                                  %Grep+
 +
-%Grep+will search, case sensitive (-i), using the provided text string.
+%Grep+as a command searches all files in the repository in a case insensitve
++search.
 +
 +Result options:
 +
-%D+display a selection list of datasets and files for:
+%D+displays a selection list of datasets and files with the following options:
 +
 +  %S+or%E+to edit the dataset or file
 +  %B+to Browse the dataset or file
 +  %V+to View the dataset or file
 +
-%R+to browse the grep report.
+%R+browses the grep report.
 +
 +
-+
-    +"It's what you learn after you know it all that counts." - John Wooden
+    +"It's what you learn after you know it all that counts." -- John Wooden
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
