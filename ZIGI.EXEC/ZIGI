@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            04/18/20 LBD - Remove residual Commit msgs      |
   |            04/16/20 LBD - Colorize ZIGIPRIM columns        |
   |                           white = sorted TURQ = not        |
   |                         - refacrot zigihist routines       |
@@ -4087,9 +4088,8 @@ Do_Resetid:
   * ------------------------ */
 Do_Commit:
   arg copt
-  zcmd = null
   x = debug('Starting Commit:' zigirep)
-  parse value '' with tagid msg1 cmsg
+  parse value '' with tagid msg1 cmsg file zcmd
   cmtab = 'zc'random(99999)
   'tbcreate' cmtab 'names(cmsg) nowrite'
   if datatype(m.0) = 'NUM' then do
@@ -4100,11 +4100,12 @@ Do_Commit:
         'tbadd' cmtab
       end
     end
-    cmsg = ''
+    cmsg = null
   end
   do i = 1 to 15
     'tbadd' cmtab
   end
+  drop m.
   ctop = 0
   ztdmark = Center('Use F3 to Continue - Cancel if Title blank',79,'-')
   do forever
@@ -4172,6 +4173,8 @@ Do_Commit:
     zerrsm = 'Canceled.'
     zerrlm = 'Commit canceled due to an empty title message.'
     'setmsg msg(isrz003)'
+    'tbend' cmtab
+    drop m.
     return
   end
 
@@ -4184,8 +4187,7 @@ Do_Commit:
   end
   'tbquery' cmtab 'position(lastrow)'
 
-  cmessage = value('msg1')
-  cmsg.1 = cmessage
+  cmsg.1 = value('msg1')
   cmsg.2 = left('-',length(cmsg.1),'-')
   io = 2
 
@@ -4278,6 +4280,7 @@ Do_Commit:
     'setmsg msg(isrz003)'
   end
   x = debug('Commit completed:' zigirep)
+  drop m. cmsg.
   return
 
   /* ------------------------------------------------------ *
