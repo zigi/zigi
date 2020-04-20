@@ -1,3 +1,8 @@
+ *-------------------------------------------------------------------*
+ |  The User Guide and Cheat Sheet can be found at:                  |
+ |  https://github.com/wizardofzos/zigi/wiki/6.-Documentation        |
+ *-------------------------------------------------------------------*
+
                              zigi Release Notes
                                 Version 2.8
 
@@ -31,8 +36,9 @@ member and the OMVS copy of the member.
 
 Bug Fixes and Other Updates:
 
-  1. Check z/OS dataset exists before attempting to copy to OMVS
+  1. Check z/OS dataset exists before attempting to copy to OMVS.
   2. Better parsing of remote repo URL in clone and adding remote panel.
+  3. Correct multiple row delete on row selection D in commit panel.
 
 =============================================================================
 

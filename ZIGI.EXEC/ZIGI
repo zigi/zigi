@@ -4137,9 +4137,6 @@ Do_Commit:
     select
       when zsel = 'D' then 'tbdelete' cmtab
       when left(zsel,1) = 'D' & length(zsel) > 1 then do
-        'tbquery' cmtab 'position(dr)'
-        'tbtop' cmtab
-        'tbskip' cmtab 'number('dr')'
         dc = substr(zsel,2)
         if datatype(dc) /= 'NUM' then dc = 1
         do i = 1 to dc
