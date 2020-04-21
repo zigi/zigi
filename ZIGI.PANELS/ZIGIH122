@@ -17,8 +17,8 @@
 %  cd /                  +Change to the root directory
 %  cd /usr/lpp/          +Change to /usr/lpp/ directory
 %
-+The%CD+command will remember the prior directories during the session
-+so that using%F3+will move back up the directory 'chain'. Enter%CANCEL+
++The%CD+command remembers the prior directories during the session
++so that using%F3+moves back up the directory 'chain'. Enter%CANCEL+
 +to immediately return.
 %
 %

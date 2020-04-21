@@ -8,20 +8,20 @@
 +
                                  %Tag+
 +
-%Tag+will prompt for a tag identifier and an optional tag description
-+and then apply the tag to the current repository. The tag will also
-+be pushed to the remote repository.
+%Tag+prompts for a tag identifier and an optional tag description
++and then applies the tag to the current repository. The tag is also
++pushed to the remote repository.
 +
 +Tag assigns a meaningful name with a specific version in the repository.
 +Tags are very similar to branches, but the difference is that tags are
-+immutable. It means, tag is a branch, which nobody intends to modify.
++immutable. This means that a tag is a branch, which nobody intends to modify.
 +Once a tag is created for a particular commit, even if you create a new
-+commit, it will not be updated. Usually, developers create tags for
++commit, it is not be updated. Usually, developers create tags for
 +product releases.
 +
 +
 +
-+ "There is no elevator to success, you have to take the stairs." - Zig Ziglar
++ "There is no elevator to success, you have to take the stairs." -- Zig Ziglar
 +
 +
          +Press the%Enter+key to continue your zigi tutorial journey.

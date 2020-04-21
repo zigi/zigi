@@ -17,7 +17,7 @@
 +The row selection options are:
 +
 + %C+to checkout, or switch to the selected branch.
-+    This will replace all existing repository, and z/OS datasets, with
++    This replaces all existing repository and z/OS datasets, with
 +    the current state of the selected branch. The current branch is
 +    untouched.
 +

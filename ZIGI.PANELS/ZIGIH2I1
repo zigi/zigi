@@ -6,30 +6,29 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                                     %SELECT+
+                                %TagList eXtract
 +
-%Select+as a command selects the repository passed as the parameter.
+%eXtract+will prompt for a high-level-qualifier (HLQ) and a new OMVS directory
++to copy all of the z/OS and OMVS elements that were updated by the selected
++Tag.
 +
++This can be useful for creating an APAR or PTF with just the updated elements.
 +
-%Syntax:+Select repository-name
-+    or:+S repository-name
-+
-+Note: the repository-name search is case insensitive, thus a search for
-+      abc or AbC or ABC all selects a repository named abc.
-+
-%
++The copy is%not+Git managed.
 +
 +
-              +"The greatest teacher, failure is."  -- Master Yoda
 +
++
++
+               "The most effective way of doing it, is to do it."
+                  -- Amelia Earhart
 +
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
- vget (ztut)
 )PROC
- &zcont = ZIGIH190
+ &zcont = zigih300
 )END
 /* -------------------------------------------------------- */
 /* zigi - the z/OS ISPF Git Interface                       */

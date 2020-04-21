@@ -8,20 +8,20 @@
 +
                                  %Merge+
 +
-%Merge+will merge a (local) branch into the current branch.  When the two
-+branches are the same, nothing happens.
+%Merge+as a command merges a (local) branch into the current branch.  When
++the two branches are the same, nothing happens.
 +
 +Select the branch to merge into the current branch from a list of available
 +branches using the%M+row selection.
 +
-+If the merge is successful, it will be committed to the current branch and %ALL
-+z/OS datasets will be replaced from the update OMVS files.
++If the merge is successful, it is committed to the current branch and %ALL
++z/OS datasets are replaced from the updated OMVS files.
 +
 +If the merge is not successful a popup with three options will be presented:
 +
-+   %1+Continue and attempt to resolve using ISPF Compare
-+   %2+Continue and attempt to resolve using ISPF Edit
-    %3+Abort the Merge
++   %*+Continue and attempt to resolve using ISPF Compare
++   %*+Continue and attempt to resolve using ISPF Edit
+    %*+Abort the Merge
 +
 +
          +Press the%Enter+key to continue your zigi tutorial journey.

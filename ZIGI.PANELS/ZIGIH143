@@ -8,21 +8,21 @@
 +
                          %PDS Member File Extensions
 +
-+PDS member file extensions may be defined, with only one extension allowed
-+per PDS. The extension will be appended to the member name when the member
-+is copied to the repositories OMVS filesystem. The member name and extension
-+will be in lower case.
++PDS member file extensions may be defined with only one extension allowed
++per PDS. The extension is appended to the member name when the member
++is copied to the repository's OMVS filesystem. The member name and extension
++are in lower case.
 +
 +This may be helpful if there are git users who are not using z/OS ISPF but
-+are using a git client on their workstation. Many workstation editors, and
-+GUI git clients, recognize a file based on its file extension.
++are using a git client on their workstation. Many workstation editors and
++GUI git clients recognize a file based on its file extension.
 +
 +By default zigi does not append any file extension when a PDS member is
-+coped to the OMVS filesystem for git management.
++copied to the OMVS filesystem for Git management.
 +
 +
 +
-+            "A good beginning makes a good end" - Louis L'Amour
++            "A good beginning makes a good end" -- Louis L'Amour
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init

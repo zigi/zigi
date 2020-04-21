@@ -42,6 +42,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            04/16/20 LBD - Correct cp if file suffix        |
   |            04/10/20 LBD - Validate dataset is fully quoted |
   |            04/07/20 LBD - Reset Userid if DEFRUID set      |
   |            04/05/20 LBD - Expand Commit message to 7 lines |
@@ -251,11 +252,6 @@
     'vput (zgdsns) profile'
   end
 
-  /* --------------------------------------------------- *
-  | Get the list of datasets to check for file suffixes |
-  * --------------------------------------------------- */
-  call get_dsn_info
-
   /* ---------------------------------------------- *
   | Check the current Userid and Change if DEFRUID |
   * ---------------------------------------------- */
@@ -269,6 +265,11 @@
     "LMClose Dataid("ruid")"
     "LMFree  Dataid("ruid")"
   end
+
+  /* --------------------------------------------------- *
+  | Get the list of datasets to check for file suffixes |
+  * --------------------------------------------------- */
+  call get_dsn_info
 
   /* ------------------------------------------------------- *
   | Select/Add dataset or dataset(member) to the repository |
@@ -284,7 +285,7 @@
     omem  = usssafe(member)
     if zdsn.omvsdsn = null
     then rmem = omem
-    else rmem = lower(omem)'.'zdsn.dsn
+    else rmem = lower(omem)'.'zdsn.omvsdsn
     sdsn = usssafe(dsname)
     copycmd = "//'"sdsn"("omem")'"
     copycmd = '"'copycmd'"'
@@ -296,7 +297,7 @@
     call view_std 'B'
     call pop 'Adding to Git Index \ Patience. . .'
     cmd = 'cd' localrep'/'zigirep'/'ofile
-    cmd = cmd '&& git add' omem
+    cmd = cmd '&& git add' rmem
     x = docmd(cmd)
     call add_so 'Command:' cmd
     if x > 0 then

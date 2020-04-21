@@ -9,7 +9,7 @@
 +
                                %PDS Member List+
 +
-%Commands available+(select for more information or press%Enter+to see each):
+%Commands available+(select one more information or press%Enter+to see all):
 +
   [Addall+   git add all untracked members
   [Commit+   git Commit all elements that have been added
@@ -19,11 +19,11 @@
   [Reset    +change the userid for all members
   [Sort+     sort the member table - prompting if no parms given
   [Status+   display the git status for the repository
-  [Row+      Line selection commands
+  [Row+      line selection commands
 +
 +
 +   "Don't measure yourself by what you have accomplished, but by what
-+    you should have accomplished with your ability." - John Wooden
++    you should have accomplished with your ability." -- John Wooden
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init

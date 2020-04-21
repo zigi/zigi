@@ -15,12 +15,12 @@
 % .gitattributes+        (a zigi generated file for Git)
 % .zigi+                 (a directory for key zigi files)
 + ---%dsn+               (a zigi required file)
++ ---%xxx+               (a zigi generated file for each PDS directory)
 +%Documentation+         (a directory)
 + ---%Users Guide.html+  (a file)
 +%APP.C+                 (a directory as this is a z/OS PDS)
 + ---%KEYAPP+            (a PDS member)
 +%README.ZOS+            (a sequential dataset)
-+
 +
 +        "Today is the only day. Yesterday is gone." -- John Wooden
 +

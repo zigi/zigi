@@ -26,6 +26,11 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            04/19/20 LBD - Correct D# bug in Commit table   |
+  |            04/18/20 LBD - Remove residual Commit msgs      |
+  |            04/16/20 LBD - Colorize ZIGIPRIM columns        |
+  |                           white = sorted TURQ = not        |
+  |                         - refacrot zigihist routines       |
   |            04/12/20 EJA - Improve overview by using        |
   |                           more function calls              |
   |                           There should be no functional    |
@@ -399,7 +404,7 @@ init_repo:
 
   repo_top = 1
   'tbtop zigirepo'
-  'vget (defrsort) profile'
+  'vget (defrsort srr src srp srl) profile'
   if words(defrsort) = 2 then defrsort = 'zigirep,c,a'
   'TBSort zigirepo Fields('defrsort')'
   parse value '' with zsel szcmd
@@ -778,7 +783,7 @@ Create_zigirepo:
     "Names(zigirep localrep pdshlq qualignr zigidate defcpush" ,
     " sortdate defruid zigicat branch remote1)",
     'Library('isptabl') Write Share'
-  'vget (defrsort) profile'
+  'vget (defrsort srr src srp srl) profile'
   'TBSort zigirepo Fields('defrsort')'
   'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
   return
@@ -906,6 +911,18 @@ handle_zigiprim_sort:
     skey2 = 'sortdate'
     otherwise nop
   end
+  if pos('zigirep',skey skey2)  > 0
+  then srr = 'white'
+  else srr = 'blue'
+  if pos('zigicat',skey skey2)  > 0
+  then src = 'white'
+  else src = 'blue'
+  if pos('pdshlq',skey skey2)   > 0
+  then srp = 'white'
+  else srp = 'blue'
+  if pos('sortdate',skey skey2) > 0
+  then srl = 'white'
+  else srl = 'blue'
   if left(sopt,1) = 'D' then sopt = 'D'
   else sopt = 'A'
   if skey2 /= null then do
@@ -917,7 +934,7 @@ handle_zigiprim_sort:
   defrsort = defrsort','skey2',c,'sopt2
   'tbsort zigirepo fields('defrsort')'
   lsopt = sopt
-  'vput (defrsort) profile'
+  'vput (defrsort srr src srp srl) profile'
   Return
 
   /* ------------------------------------------ *
@@ -4072,9 +4089,8 @@ Do_Resetid:
   * ------------------------ */
 Do_Commit:
   arg copt
-  zcmd = null
   x = debug('Starting Commit:' zigirep)
-  parse value '' with tagid msg1 cmsg
+  parse value '' with tagid msg1 cmsg file zcmd
   cmtab = 'zc'random(99999)
   'tbcreate' cmtab 'names(cmsg) nowrite'
   if datatype(m.0) = 'NUM' then do
@@ -4085,11 +4101,12 @@ Do_Commit:
         'tbadd' cmtab
       end
     end
-    cmsg = ''
+    cmsg = null
   end
   do i = 1 to 15
     'tbadd' cmtab
   end
+  drop m.
   ctop = 0
   ztdmark = Center('Use F3 to Continue - Cancel if Title blank',79,'-')
   do forever
@@ -4124,6 +4141,7 @@ Do_Commit:
         if datatype(dc) /= 'NUM' then dc = 1
         do i = 1 to dc
           'tbdelete' cmtab
+          'tbskip' cmtab
         end
       end
       when zsel = 'I' then do
@@ -4157,6 +4175,8 @@ Do_Commit:
     zerrsm = 'Canceled.'
     zerrlm = 'Commit canceled due to an empty title message.'
     'setmsg msg(isrz003)'
+    'tbend' cmtab
+    drop m.
     return
   end
 
@@ -4169,8 +4189,7 @@ Do_Commit:
   end
   'tbquery' cmtab 'position(lastrow)'
 
-  cmessage = value('msg1')
-  cmsg.1 = cmessage
+  cmsg.1 = value('msg1')
   cmsg.2 = left('-',length(cmsg.1),'-')
   io = 2
 
@@ -4263,6 +4282,7 @@ Do_Commit:
     'setmsg msg(isrz003)'
   end
   x = debug('Commit completed:' zigirep)
+  drop m. cmsg.
   return
 
   /* ------------------------------------------------------ *
@@ -4416,7 +4436,7 @@ Clone_Repo:
     zigidate = date('n')
     sortdate = date('b')''time('s')
     'tbadd zigirepo order'
-    'vget (defrsort) profile'
+    'vget (defrsort srr src srp srl) profile'
     'TBSort zigirepo Fields('defrsort')'
     'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
     leave
@@ -5145,7 +5165,7 @@ Create_Repo:
     sortdate = date('b')''time('s')
     'tbadd zigirepo order'
     zpush = defcpush
-    'vget (defrsort) profile'
+    'vget (defrsort srr src srp srl) profile'
     'TBSort zigirepo Fields('defrsort')'
     'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
     leave
@@ -6482,126 +6502,9 @@ do_history:
         'rempop'
       end
       Select
-        /* -------------------------------------------- *
-        | View the commit log for this historical item |
-        * -------------------------------------------- */
-        When zsel = 'C' then do
-          cmd = 'cd' localrep'/'zigirep
-          cmd = cmd '&& git log' hcommit '-n 1 --cc'
-          x = docmd(cmd)
-          'control display save'
-          call view_std 'X' 'V'
-          'control display restore'
-          zsel = null
-        end
-        /* ----------------------------------------------------------- *
-        | Recover the specific historical level of the element. This  |
-        | does NOT use git but copies the git level data into the     |
-        | provided (prompted) target dataset or dataset(member).      |
-        | If the element is a PDS member then it must be recovered to |
-        | a PDS member.                                               |
-        * ----------------------------------------------------------- */
-        When zsel = 'R' then do   /* recovery */
-          cmd = 'cd' localrep'/'zigirep
-          cmd = cmd '&& git show' strip(hcommit)':'element
-          'control display save'
-          x = docmd(cmd)
-          'control display restore'
-          if dsnvalid(fulldsn) = 'NO' then do
-            zerrsm = 'Error.'
-            zerrlm = 'The recovery of a non-z/OS dataset is not supported' ,
-              'at this time. You can use S to view the historical' ,
-              'data and then copy it into the clipboard to paste' ,
-              'into a OMVS file to recover it.'
-            'setmsg msg(isrz003)'
-          end
-          else do
-            if left(fulldsn,1) /= "'" then
-            relement = fulldsn
-            if left(fulldsn,1) = "'" then do
-              if pos('/',element) = 0
-              then relement = fulldsn
-              else do
-                parse value element with .'/'rcmem
-                if zdsn.dsn /= null then
-                parse value rcmem with rcmem'.'.
-                relement = left(fulldsn,length(fulldsn)-1) ,
-                  || "("rcmem")'"
-              end
-            end
-            rdsn = relement
-            ralc = 'N'
-            rans = null
-            rover = null
-            'Addpop row(4) column(8)'
-            'Display Panel(zigiresq)'
-            drc = rc
-            'Rempop'
-            if drc > 0 then leave
-            if rans = 'N' then leave
-            rcdd = 'RC'random(99999)
-            address tso
-            if sysdsn(rdsn) = 'DATASET NOT FOUND' then ralloc = 'Y'
-            else ralloc = 'N'
-            if ralloc = 'N'
-            then 'Alloc f('rcdd') shr reuse da('rdsn')'
-            else 'Alloc f('rcdd') new like('relement') da('rdsn')'
-            save_rdsn = rdsn
-            /* fix up the stem convert nulls to blanks lines */
-            do rc = 1 to so.0
-              if so.rc = null then so.rc = ' '
-            end
-            'Execio * diskw' rcdd '(finis stem so.'
-            'Free f('rcdd')'
-            address ispexec
-            if pos('(',rdsn) > 0 then do
-              parse value rdsn with rdsn"("mem")"
-              if left(rdsn,1) = "'" then rdsn = rdsn"'"
-              "LMINIT DATAID(zstats) DATASET("rdsn")"
-              "LMOPEN DATAID("zstats") OPTION(INPUT)"
-              'LMMSTATS DATAID('zstats') Member('mem') user('zluser')'
-              "LMClose Dataid("zstats")"
-              "LMFree  Dataid("zstats")"
-            end
-            m = usssafe(strip(mem))
-            e = usssafe(strip(rdsn,'B',"'"))
-            r = usssafe(dsn)
-
-            if zdsn.dsn /= null
-            then rm = lower(strip(mem)'.'zdsn.dsn)
-            else rm = m
-            rm = usssafe(rm)
-
-            copycmd = "//'"e"("m")'"
-            copycmd = '"'copycmd'"'
-            copycmd = "cp "binopt" -U -v" copycmd" "localrep"/"zigirep
-            copycmd = copycmd || "/"r"/"rm
-            x = bpxwunix(copycmd,,so.,se.)
-            if x > 0 then call view_std 'B'
-            zerrsm = 'Completed.'
-            zerrlm = relement 'successfully recovered into' save_rdsn ,
-              left(' ',76) ,
-              'the recovered element will be in a Modified state and will' ,
-              'need to be added to the staging index and committed if' ,
-              'desired.'
-            'setmsg msg(isrz003)'
-            if fulldsn = rdsn then update_flag = 1
-          end
-        end
-        /* ---------------------------------------------------------- *
-        | View the Source for the element at the historical (commit) |
-        | point in time.                                             |
-        * ---------------------------------------------------------- */
-        When zsel = 'S' then do
-          cmd = 'cd' localrep'/'zigirep
-          cmd = cmd '&& git show' strip(hcommit)':'element
-          'control display save'
-          x = docmd(cmd)
-          'control display restore'
-          vtitle = element '\' hdate '\' hauthor '\' fulldsn
-          'vput (vtitle)'
-          call view_std 'X' 'V'
-        end
+        When zsel = 'C' then call DoHist_ComView
+        When zsel = 'R' then call DoHist_Recover
+        When zsel = 'S' then call DoHist_ViewSource
         Otherwise nop
       end
     end
@@ -7406,3 +7309,126 @@ Lower: Procedure
   out = translate(input,"abcdefghijklmnopqrstuvwxyz",,
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
   return out
+
+  /* -------------------------------------------- *
+  | View the commit log for this historical item |
+  * -------------------------------------------- */
+DoHist_ComView:
+  cmd = 'cd' localrep'/'zigirep
+  cmd = cmd '&& git log' hcommit '-n 1 --cc'
+  x = docmd(cmd)
+  'control display save'
+  call view_std 'X' 'V'
+  'control display restore'
+  zsel = null
+  return
+
+  /* ----------------------------------------------------------- *
+  | Recover the specific historical level of the element. This  |
+  | does NOT use git but copies the git level data into the     |
+  | provided (prompted) target dataset or dataset(member).      |
+  | If the element is a PDS member then it must be recovered to |
+  | a PDS member.                                               |
+  * ----------------------------------------------------------- */
+DoHist_Recover:
+  cmd = 'cd' localrep'/'zigirep
+  cmd = cmd '&& git show' strip(hcommit)':'element
+  'control display save'
+  x = docmd(cmd)
+  'control display restore'
+  if dsnvalid(fulldsn) = 'NO' then do
+    zerrsm = 'Error.'
+    zerrlm = 'The recovery of a non-z/OS dataset is not supported' ,
+      'at this time. You can use S to view the historical' ,
+      'data and then copy it into the clipboard to paste' ,
+      'into a OMVS file to recover it.'
+    'setmsg msg(isrz003)'
+  end
+  else do
+    if left(fulldsn,1) /= "'" then
+    relement = fulldsn
+    if left(fulldsn,1) = "'" then do
+      if pos('/',element) = 0
+      then relement = fulldsn
+      else do
+        parse value element with .'/'rcmem
+        if zdsn.dsn /= null then
+        parse value rcmem with rcmem'.'.
+        relement = left(fulldsn,length(fulldsn)-1) ,
+          || "("rcmem")'"
+      end
+    end
+    rdsn = relement
+    ralc = 'N'
+    rans = null
+    rover = null
+    'Addpop row(4) column(8)'
+    'Display Panel(zigiresq)'
+    drc = rc
+    'Rempop'
+    if drc > 0 then leave
+    if rans = 'N' then leave
+    rcdd = 'RC'random(99999)
+    address tso
+    if sysdsn(rdsn) = 'DATASET NOT FOUND' then ralloc = 'Y'
+    else ralloc = 'N'
+    if ralloc = 'N'
+    then 'Alloc f('rcdd') shr reuse da('rdsn')'
+    else 'Alloc f('rcdd') new like('relement') da('rdsn')'
+    save_rdsn = rdsn
+    /* fix up the stem convert nulls to blanks lines */
+    do rc = 1 to so.0
+      if so.rc = null then so.rc = ' '
+    end
+    'Execio * diskw' rcdd '(finis stem so.'
+    'Free f('rcdd')'
+    address ispexec
+    if pos('(',rdsn) > 0 then do
+      parse value rdsn with rdsn"("mem")"
+      if left(rdsn,1) = "'" then rdsn = rdsn"'"
+      "LMINIT DATAID(zstats) DATASET("rdsn")"
+      "LMOPEN DATAID("zstats") OPTION(INPUT)"
+      'LMMSTATS DATAID('zstats') Member('mem') user('zluser')'
+      "LMClose Dataid("zstats")"
+      "LMFree  Dataid("zstats")"
+    end
+    m = usssafe(strip(mem))
+    e = usssafe(strip(rdsn,'B',"'"))
+    r = usssafe(dsn)
+
+    if zdsn.dsn /= null
+    then rm = lower(strip(mem)'.'zdsn.dsn)
+    else rm = m
+    rm = usssafe(rm)
+
+    copycmd = "//'"e"("m")'"
+    copycmd = '"'copycmd'"'
+    copycmd = "cp "binopt" -U -v" copycmd" "localrep"/"zigirep
+    copycmd = copycmd || "/"r"/"rm
+    x = bpxwunix(copycmd,,so.,se.)
+    if x > 0 then call view_std 'B'
+    zerrsm = 'Completed.'
+    zerrlm = relement 'successfully recovered into' save_rdsn ,
+      left(' ',76) ,
+      'the recovered element will be in a Modified state and will' ,
+      'need to be added to the staging index and committed if' ,
+      'desired.'
+    'setmsg msg(isrz003)'
+    if fulldsn = rdsn then update_flag = 1
+  end
+  return
+
+  /* ---------------------------------------------------------- *
+  | View the Source for the element at the historical (commit) |
+  | point in time.                                             |
+  * ---------------------------------------------------------- */
+DoHist_ViewSource:
+  cmd = 'cd' localrep'/'zigirep
+  cmd = cmd '&& git show' strip(hcommit)':'element
+  'control display save'
+  x = docmd(cmd)
+  'control display restore'
+  vtitle = element '\' hdate '\' hauthor '\' fulldsn
+  'vput (vtitle)'
+  call view_std 'X' 'V'
+  return

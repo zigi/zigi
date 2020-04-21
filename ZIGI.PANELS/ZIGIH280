@@ -8,7 +8,7 @@
 +
                                  @Network+
 +
-@Network+will draw a text-based graphical representation of the commit and
+@Network+draws a text-based graphical representation of the commit and
 +branch/merge history for the current branch +using the following command:
 +
    @git log --graph --oneline --format="%h %<(50,trunc)%f"
@@ -17,7 +17,7 @@
 +
 +
                +"Success is never final, failure is never fatal.
-                   +It's courage that counts." - John Wooden
+                   +It's courage that counts." -- John Wooden
 +
 +
 +

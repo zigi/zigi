@@ -8,16 +8,16 @@
 +
                                      %SORT+
 +
-%Sort+will sort the fields in the Local Repository table:
+%Sort+as a command sorts the fields in the Local Repository table:
 +
-%Syntax:  Sort field1 order1 field2 order2
++Syntax:% Sort field1 order1 field2 order2
 %
 %Fields:+ Repository (R) or Prefix (P) or Last (L) or Category (C) or Date (D)
 +
 %Order:+  Ascending (A) or  Descending (D)
 +
-+Note:The last sort order will be remembered and used the next time zigi
-+     is started.
++Note:the last sort order is remembered and used the next time zigi is started.
++
 +
 +
 +              "Programming isn't about what you know;

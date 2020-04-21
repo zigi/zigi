@@ -7,20 +7,20 @@
 +
                                %STASH+and%STASHL+
 +
-+On the Stash List display the%Clear+command will remove%all+stashes.
++On the Stash List display, the%Clear+command removes%all+stashes.
 +
-%Shash Pop+will restore the saved stash and remove it from the stash stack.
+%Shash Pop+restores the saved stash and removes it from the stash stack.
 +
 +Pop may%ONLY+be used on a clean git workspace. That means that when you do
-+a Status that the report should be clean. If there are any datasets/files
-+that are listed then the following commands will clean up your workspace:
++a Status, the report should be clean. If there are any datasets/files
++that are listed then the following commands clean up your workspace:
 +
-+  1. Add all untracked datasets/files (command ADDALL)
-+  2. Commit the added changes (command Commit)
++  %*+Add all untracked datasets/files (command ADDALL)
++  %*+Commit the added changes (command Commit)
 +or
-+  1. Do a new Stash - then retry Pop.
++  %*+Do a new Stash - then retry Pop
 +
-+At this time Stash Apply is not supported directly by zigi but you can use
++At this time, Stash Apply is not supported directly by zigi but you can use
 +the Git Command dialog to issue it if desired.
 +
          +Press the%Enter+key to continue your zigi tutorial journey.

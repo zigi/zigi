@@ -8,20 +8,20 @@
 +
                                  %GITLOG+
 +
-%GITLOG+will Browse the git log which is like SYSLOG for git commit messages.
+%GITLOG+as a command browses or views the git log.
 +
-+There are 4 filtering options provided:
++There are 6 filtering options provided:
 +
-+%Number of Commits:+is the number of commits to list.
++%Number of Commits:+is the number of commits to list
 +%        From Date:+a date in the format yyyy/mm/dd
 +%       Until Date:+a date in the format yyyy/mm/dd
 +%           Filter:+any text to filter on
++%    Include diffs:+Y to include diffs or N to exclude them
++%   Browse or View:+B to browse or V to View
 +
 +
        +"If you're not making mistakes, then you're not doing anything.
-           +I'm positive that a doer makes mistakes." - John Wooden
-+
-+
+           +I'm positive that a doer makes mistakes." -- John Wooden
 +
 +
          +Press the%Enter+key to continue your zigi tutorial journey.

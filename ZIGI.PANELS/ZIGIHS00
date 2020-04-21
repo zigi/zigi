@@ -15,13 +15,13 @@
 +
 +It may only be used of datasets that are part of a zigi managed repository.
 +
-+One 1st use in a dataset the user is prompted to selected the zigi managed
++One 1st use in a dataset the user is prompted to select the zigi managed
 +repository. At that point the selected dataset is verified that it is part
-+of the repository, and that information is then saved to bypass the prompt
++of the repository and that information is then saved to bypass the prompt
 +in the future. The member is then copied into the OMVS file system within
 +the repository.
 +
-Three options are provided at this point:
++Three options are provided at this point:
 +  %A  +- Git Add the member to the repository
 +  %AC +- Git Add and Commit the member
 +  %ACP+- Git Add, Commit, and Push the member

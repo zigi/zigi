@@ -8,27 +8,27 @@
 +
                                  %TagList
 +
-%TagList+is similar to Rollback. It will display a list of all defined tags,
+%TagList+is similar to Rollback. It displays a list of all defined tags,
 +including for annotated tags the date,, time, and description.
 +
-+Commands:%Only+to filter the table and%Replace+to rebuild the table.
++Commands:   %Only+to filter the table
+             %Replace+to rebuild the table
 +
-+Row options:   %S+View the full tag information
-+               %C+Create a new branch based on the tag level
-+               %X+Extract just the delta elements from the select tag level
-+                  to a new HLQ and directory
++Row options:%S+View the full tag information
++            %C+Create a new branch based on the tag level
++            %X+Extract just the delta elements from the select tag level
++               to a new HLQ and directory
 %
-+The create option will prompt for a new branch name before proceeding.
++The create option prompts for a new branch name before proceeding.
 +
 +
-           "Nothing worth having comes easy." - Theodore Roosevelt
-+
+           "Nothing worth having comes easy." -- Theodore Roosevelt
 +
          +Press the%Enter+key to continue your zigi tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
- &zcont = zigih300
+ &zcont = zigih2i1
 )END
 /* -------------------------------------------------------- */
 /* zigi - the z/OS ISPF Git Interface                       */
