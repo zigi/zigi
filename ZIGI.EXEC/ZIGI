@@ -1846,9 +1846,9 @@ WWR_handle_remote:
 WWR_handle_flowsel:
   x = check_clean()
   if x = 'NO' then do
-    zedsmsg= 'Not Clean'
-    zedlmsg= "Can't switch flows in dirty workspace"
-    'setmsg msg(isrz001)'
+    zerrsm = 'Not Clean'
+    zerrlm = "Can't switch flows in dirty workspace"
+    'setmsg msg(isrz003)'
   end
   else do
     call flowselect
@@ -1861,9 +1861,9 @@ WWR_handle_flowsel:
 WWR_handle_flowgo:
   x = check_clean()
   if x = 'NO' then do
-    zedsmsg= 'Not Clean'
-    zedlmsg= "Can't start flow in dirty workspace"
-    'setmsg msg(isrz001)'
+    zerrsm = 'Not Clean'
+    zerrlm = "Can't start flow in dirty workspace"
+    'setmsg msg(isrz003)'
   end
   else do
     'Addpop row(3) column(4)'
@@ -1902,9 +1902,9 @@ WWR_handle_flowend:
     x = check_clean()
     if x = 'NO' then do
       /* working dir not clean. abort */
-      zedsmsg= 'Not Clean'
-      zedlmsg= "Can't finish flow. Uncommited changes"
-      'setmsg msg(isrz001)'
+      zerrsm = 'Not Clean'
+      zerrlm = "Can't finish flow. Uncommited changes"
+      'setmsg msg(isrz003)'
     end
     else do
       /* all looks good, let's merge to the feature */
@@ -1949,9 +1949,9 @@ WWR_handle_flowend:
   end
   else do
     /* error for when not in zigiflow */
-    zedsmsg= 'No zigiflow'
-    zedlmsg= "You're not working in a zigiflow"
-    'setmsg msg(isrz001)'
+    zerrsm = 'No zigiflow'
+    zerrlm = "You're not working in a zigiflow"
+    'setmsg msg(isrz003)'
   end
   Return
 
@@ -3478,6 +3478,7 @@ Do_Rset:
   | Process Tag List Request with optional create |
   * --------------------------------------------- */
 Get_TagList:
+  all_tags = null
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd "&& git for-each-ref --format" ,
     "'%(creatordate) %(refname) %(subject)'" ,
@@ -3501,6 +3502,7 @@ Get_TagList:
     end
     ctag = translate(ctag,' ','/')
     ctag = word(ctag,3)
+    all_tags = all_tags ctag
     'tbadd' zcrtbl
   end
   return
@@ -3619,14 +3621,23 @@ Do_TAGLIST:
         prc = rc
         'Rempop'
         call pfshow 'reset'         /* restore pfshow setting */
-        call get_branches
-        bad = 0
-        do bi = 1 to bl.0
-          if newbr = bl.bi then bad = 1
+        if prc > 0 then do
+          zerrsm = 'Canceled.'
+          zerrlm = 'Create branch canceled.'
+          prc = 1
         end
-        if bad = 1 then do
+        if prc = 0 then do
+          call get_branches
+          if wordpos(newbr,all_tags) > 0 then prc = 1
+          if prc = 0 then
+          do bi = 1 to bl.0
+            if newbr = bl.bi then prc = 1
+          end
+        end
+        if prc = 1 then
+        if zerrsm = null then do
           zerrsm = 'Invalid.'
-          zerrlm = newbr 'branch currently exists - pick a different' ,
+          zerrlm = newbr 'branch/tag currently exists - pick a different' ,
             'name for the branch and try again.'
           'setmsg msg(isrz003)'
           prc = 1
@@ -3654,8 +3665,6 @@ Do_TAGLIST:
           call work_with_repo
         end
         if prc > 0 then do
-          zerrsm = 'Canceled.'
-          zerrlm = 'Creating a new branch from the Tag level canceled.'
           'setmsg msg(isrz003)'
           ztdsels = 1
         end
@@ -4162,10 +4171,10 @@ Do_Commit:
       when zsel = null then
       'tbput' cmtab
       Otherwise if zsel /= null then do
-        zedsmsg = 'Invalid.'
-        zedlmsg = zsel 'is an invalid line selection. Try again with a valid' ,
+        zerrsm = 'Invalid.'
+        zerrlm = zsel 'is an invalid line selection. Try again with a valid' ,
           'line selection of I, I#,or D.'
-        'setmsg msg(isrz001)'
+        'setmsg msg(isrz003)'
       end
     end
   end
@@ -7125,11 +7134,11 @@ Do_Tag_Extract:
     if tagxpath = '?' then tagxpath = zigiosel()
   end
   if validate_path(tagxpath) = 8 then do
-     zerrsm = 'Error.'
-     zerrlm = tagxpath e.1
-     'Setmsg msg(isrz003)'
-     return
-     end
+    zerrsm = 'Error.'
+    zerrlm = tagxpath e.1
+    'Setmsg msg(isrz003)'
+    return
+  end
   zs1 = 'Preparing the extract. This could take a minute'
   zs2 = '(or two) so please be patient.'
   call do_popup
@@ -7176,12 +7185,12 @@ Do_Tag_Extract:
   cmd = 'mkdir' '"'tagxpath'"'
   x = bpxwunix(cmd,,so.,se.)
   if se.0 > 0 then do
-      call view_std 'B'
-      zerrsm = 'Error.'
-      zerrlm = 'mkdir failure.'
-      'setmsg msg(isrz003)'
-      return
-      end
+    call view_std 'B'
+    zerrsm = 'Error.'
+    zerrlm = 'mkdir failure.'
+    'setmsg msg(isrz003)'
+    return
+  end
 
   /* ----------------------------------------- *
   | Save a copy of the tag commit information |
