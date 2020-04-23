@@ -39,6 +39,8 @@ Bug Fixes and Other Updates:
   1. Check z/OS dataset exists before attempting to copy to OMVS.
   2. Better parsing of remote repo URL in clone and adding remote panel.
   3. Correct multiple row delete on row selection D in commit panel.
+  4. Correct Locate in PDS member list.
+  5. Update majority of tutorial panels for grammer/spelling/format.
 
 =============================================================================
 

@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            04/23/20 LBD - Fix Locate in Member List        |
   |            04/19/20 LBD - Correct D# bug in Commit table   |
   |            04/18/20 LBD - Remove residual Commit msgs      |
   |            04/16/20 LBD - Colorize ZIGIPRIM columns        |
@@ -2562,6 +2563,7 @@ WWRF_handle_locate:
     zerrlm = mem 'was found in row' scanrow + 0
     'Setmsg msg(isrz003)'
     ztdsels = 1
+    list_top = scanrow
   end
   else do
     zerrsm = null
