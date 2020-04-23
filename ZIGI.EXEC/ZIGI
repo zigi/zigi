@@ -27,6 +27,7 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            04/23/20 LBD - Fix Locate in Member List        |
+  |                         - TagList Extract validate dir     |
   |            04/19/20 LBD - Correct D# bug in Commit table   |
   |            04/18/20 LBD - Remove residual Commit msgs      |
   |            04/16/20 LBD - Colorize ZIGIPRIM columns        |
@@ -7123,6 +7124,12 @@ Do_Tag_Extract:
     then leave
     if tagxpath = '?' then tagxpath = zigiosel()
   end
+  if validate_path(tagxpath) = 8 then do
+     zerrsm = 'Error.'
+     zerrlm = tagxpath e.1
+     'Setmsg msg(isrz003)'
+     return
+     end
   zs1 = 'Preparing the extract. This could take a minute'
   zs2 = '(or two) so please be patient.'
   call do_popup
@@ -7168,7 +7175,13 @@ Do_Tag_Extract:
   * ------------------------------ */
   cmd = 'mkdir' '"'tagxpath'"'
   x = bpxwunix(cmd,,so.,se.)
-  if so.0 + se.0 > 0 then call view_std 'B'
+  if se.0 > 0 then do
+      call view_std 'B'
+      zerrsm = 'Error.'
+      zerrlm = 'mkdir failure.'
+      'setmsg msg(isrz003)'
+      return
+      end
 
   /* ----------------------------------------- *
   | Save a copy of the tag commit information |
@@ -7434,3 +7447,16 @@ DoHist_ViewSource:
   'vput (vtitle)'
   call view_std 'X' 'V'
   return
+
+  /* ------------------------------- *
+  | Validate the provided OMVS Path |
+  * ------------------------------- */
+Validate_path: Procedure expose null e.
+  parse arg path
+  if path = null then return 8
+  path = translate(path,' ','/')
+  path = subword(path,1,words(path)-1)
+  path = '/'translate(path,'/',' ')'/'
+  x = bpxwunix('ls -la' path,,n.,e.)
+  if e.0 > 0 then return 8
+  else return 0
