@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            04/25/20 LBD - Add Commit Import command        |
   |            04/23/20 LBD - Fix Locate in Member List        |
   |                         - TagList Extract validate dir     |
   |            04/19/20 LBD - Correct D# bug in Commit table   |
@@ -4132,6 +4133,8 @@ Do_Commit:
     if rc > 4 then leave
     if translate(zcmd) = 'CANCEL' then leave
     ctop = ztdtop
+    if abbrev('IMPORT',word(translate(zcmd),1),1) = 1
+    then call commit_import
     if left(translate(zcmd),1) = 'I' then
     if words(zcmd) = 1 then
     zcmd = left(zcmd,1) substr(zcmd,2)
@@ -4295,6 +4298,54 @@ Do_Commit:
   end
   x = debug('Commit completed:' zigirep)
   drop m. cmsg.
+  return
+
+  /* ---------------------------------------------------------- *
+  | Import the Commit Prose from a dataset.                    |
+  |                                                            |
+  | If the Import command has no dataset then display popup.   |
+  | If the import dataset is not valid then display the popup. |
+  * ---------------------------------------------------------- */
+Commit_Import:
+  parse value zcmd with imp comimprt .
+  zcmd = null
+  com_prompt = 0
+  if strip(comimprt) = null then com_prompt = 1
+  else do
+    x = sysdsn(comimprt)
+    if x /= 'OK' then do
+      com_prompt = 1
+      zerrsm = 'Error.'
+      zerrlm = left(comimprt,76) x
+      'setmsg msg(isrz003)'
+    end
+  end
+  if com_prompt = 1 then do
+    'addpop row(3) column(4)'
+    'display panel(zigicimp)'
+    drc = rc
+    'rempop'
+    if drc > 0 then return
+  end
+  cdd = 'CI'time('s')
+  Address TSO
+  'Alloc f('cdd') shr reuse ds('comimprt')'
+  'Execio * diskr' cdd '(finis stem cddin.'
+  'Free  f('cdd')'
+  Address ISPExec
+  'tbbottom' cmtab
+  do forever
+    'tbskip' cmtab 'number(-1)'
+    if rc > 0 then leave
+    if strip(cmsg) /= null then leave
+  end
+  'tbquery' cmtab 'position(lastrow)'
+  do cinp = 1 to cddin.0
+    cmsg = cddin.cinp
+    'tbadd' cmtab
+  end
+  'tbtop' cmtab
+  drop cddin.
   return
 
   /* ------------------------------------------------------ *
