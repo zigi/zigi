@@ -7185,9 +7185,12 @@ Do_Tag_Extract:
       'setmsg msg(isrz003)'
       return
     end
-    if tagxpath /= '?'
-    then leave
     if tagxpath = '?' then tagxpath = zigiosel()
+    'Addpop row(3) column(4)'
+    'Display Panel(zigiextq)'
+    drc = rc
+    'Rempop'
+    if sans = 'Y' then leave
   end
   if tagxpath /= null then
   if validate_path(tagxpath) = 8 then do
