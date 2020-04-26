@@ -26,6 +26,8 @@ only supports SSH.
 
 New Import command on the Commit panel to import commit text from a dataset.
 
+Update SNAPSHOT to bypass copy of OMVS directories/files if path is null.
+
 When removing (RM) a z/OS dataset or OMVS file provide the option to just
 remove it from git and not delete the dataset or file. If a z/OS dataset
 then provide an option to not delete the dataset or file but to remove it

@@ -26,6 +26,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            04/26/20 LBD - Update SnapShot to allow a null  |
+  |                           path to bypass OMVS copy         |
   |            04/25/20 LBD - Add Commit Import command        |
   |            04/23/20 LBD - Fix Locate in Member List        |
   |                         - TagList Extract validate dir     |
@@ -1670,6 +1672,7 @@ WWR_handle_snapshot:
       zs2 = 'Please standby'
       call do_popup
       x = docmd(cmd)
+      if path /= null then do
       zs1 = 'Copying' localrep'/'zigirep
       zs2 = 'To:' path
       call do_popup
@@ -1695,6 +1698,7 @@ WWR_handle_snapshot:
       cmd = cmd '>>' path'gitlog.txt'
       x = docmd(cmd)
       if x > 0 then call view_std 'B'
+      end
 
       save_hlq = pdshlq
       call Replace localrep zigirep snaphlq '*'
@@ -1713,6 +1717,7 @@ WWR_handle_snapshot:
         'setmsg msg(isrz003)'
         leave
       end
+      if path /= null then
       'SELECT PGM(ISRDSLST) PARM(UDL' path') SUSPEND'
       "SELECT PGM(ISRDSLST) PARM(DSL '"snaphlq"') SUSPEND"
       zerrsm = 'Completed.'
