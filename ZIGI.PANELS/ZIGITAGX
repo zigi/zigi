@@ -4,12 +4,12 @@
  $ type(output) hilite(uscore) caps(off)
  { type(output) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
-)Body Window(55,8)
+)Body Window(69,8)
 +
 +Enter%New HLQ+for the Tag Extract:
 _tagxhlq                         +(no quotes allowed)
 +
-+Enter%New Path+for OMVS Files: (? to be prompted)
++Enter%New Path+for OMVS Files: (? to be prompted or blank to bypass)
 @tagxpath                                             +
 
       +Press%Enter+to proceed, or%F3+to cancel.
@@ -59,7 +59,6 @@ _tagxhlq                         +(no quotes allowed)
   if tagxpath = '?/' then tagxpath = '?'
 *ENDREXX
  ver (&tagxhlq,nb,dsname)
- ver (&tagxpath,nb)
  .cursor = &cloc
  if (&zerrsm NE &Z)
     .msg = isrz003

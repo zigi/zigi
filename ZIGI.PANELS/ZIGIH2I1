@@ -12,11 +12,11 @@
 +to copy all of the z/OS and OMVS elements that were updated by the selected
 +Tag.
 +
++The OMVS directory may be blank to bypass extracting the OMVS files.
++
 +This can be useful for creating an APAR or PTF with just the updated elements.
 +
 +The copy is%not+Git managed.
-+
-+
 +
 +
 +

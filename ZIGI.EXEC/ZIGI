@@ -28,6 +28,7 @@
   |                                                            |
   |            04/26/20 LBD - Update SnapShot to allow a null  |
   |                           path to bypass OMVS copy         |
+  |                         - Same change for TagList Extract  |
   |            04/25/20 LBD - Add Commit Import command        |
   |            04/23/20 LBD - Fix Locate in Member List        |
   |                         - TagList Extract validate dir     |
@@ -1673,31 +1674,31 @@ WWR_handle_snapshot:
       call do_popup
       x = docmd(cmd)
       if path /= null then do
-      zs1 = 'Copying' localrep'/'zigirep
-      zs2 = 'To:' path
-      call do_popup
-      cmd = 'cp -rp' localrep'/'zigirep path
-      x = bpxwunix(cmd,,so.,se.)
-      if x > 0 then call view_std 'B'
-      zs1 = 'Performing the cleanup of git files'
-      zs2 = 'Please standby'
-      call do_popup
-      cmd = 'cd' path
-      cmd = cmd '&& rm .gitattributes && rm -rf .git && rm -rf .zigi'
-      x = bpxwunix(cmd,,so.,se.)
-      if x > 0 then call view_std 'B'
+        zs1 = 'Copying' localrep'/'zigirep
+        zs2 = 'To:' path
+        call do_popup
+        cmd = 'cp -rp' localrep'/'zigirep path
+        x = bpxwunix(cmd,,so.,se.)
+        if x > 0 then call view_std 'B'
+        zs1 = 'Performing the cleanup of git files'
+        zs2 = 'Please standby'
+        call do_popup
+        cmd = 'cd' path
+        cmd = cmd '&& rm .gitattributes && rm -rf .git && rm -rf .zigi'
+        x = bpxwunix(cmd,,so.,se.)
+        if x > 0 then call view_std 'B'
       /*  create a git log in the snapshot directory */
-      cmd = 'cd' localrep'/'zigirep
-      cmd = cmd "&& echo 'Git Tag for this Snapshot is:' >" ,
-        path'gitlog.txt'
-      cmd = cmd '&& git tag -l' gtag '>>' path'gitlog.txt'
-      cmd = cmd "&& echo ' ' >>" path'gitlog.txt'
-      cmd = cmd "&& echo 'Recent Git Log Entries:' >>" path'gitlog.txt'
-      cmd = cmd "&& echo ' ' >>" path'gitlog.txt'
-      cmd = cmd '&& git log -n 10'
-      cmd = cmd '>>' path'gitlog.txt'
-      x = docmd(cmd)
-      if x > 0 then call view_std 'B'
+        cmd = 'cd' localrep'/'zigirep
+        cmd = cmd "&& echo 'Git Tag for this Snapshot is:' >" ,
+          path'gitlog.txt'
+        cmd = cmd '&& git tag -l' gtag '>>' path'gitlog.txt'
+        cmd = cmd "&& echo ' ' >>" path'gitlog.txt'
+        cmd = cmd "&& echo 'Recent Git Log Entries:' >>" path'gitlog.txt'
+        cmd = cmd "&& echo ' ' >>" path'gitlog.txt'
+        cmd = cmd '&& git log -n 10'
+        cmd = cmd '>>' path'gitlog.txt'
+        x = docmd(cmd)
+        if x > 0 then call view_std 'B'
       end
 
       save_hlq = pdshlq
@@ -7185,10 +7186,10 @@ Do_Tag_Extract:
       return
     end
     if tagxpath /= '?'
-    then if tagxpath /= null
     then leave
     if tagxpath = '?' then tagxpath = zigiosel()
   end
+  if tagxpath /= null then
   if validate_path(tagxpath) = 8 then do
     zerrsm = 'Error.'
     zerrlm = tagxpath e.1
@@ -7238,21 +7239,22 @@ Do_Tag_Extract:
   /* ------------------------------ *
   | Make the target OMVS Directory |
   * ------------------------------ */
-  cmd = 'mkdir' '"'tagxpath'"'
-  x = bpxwunix(cmd,,so.,se.)
-  if se.0 > 0 then do
-    call view_std 'B'
-    zerrsm = 'Error.'
-    zerrlm = 'mkdir failure.'
-    'setmsg msg(isrz003)'
-    return
-  end
+  if tagxpath /= null then do
+    cmd = 'mkdir' '"'tagxpath'"'
+    x = bpxwunix(cmd,,so.,se.)
+    if se.0 > 0 then do
+      call view_std 'B'
+      zerrsm = 'Error.'
+      zerrlm = 'mkdir failure.'
+      'setmsg msg(isrz003)'
+      return
+    end
 
   /* ----------------------------------------- *
   | Save a copy of the tag commit information |
   * ----------------------------------------- */
-  cmd = 'cd' localrep'/'zigirep '&& git show' tags '>' tagxpath'tag.info'
-  x = docmd(cmd)
+    cmd = 'cd' localrep'/'zigirep '&& git show' tags '>' tagxpath'tag.info'
+    x = docmd(cmd)
 
   /* -------------------------------------------------- *
   | Copy the OMVS filesystem OMVS files from the       |
@@ -7260,21 +7262,22 @@ Do_Tag_Extract:
   |                                                    |
   | None of the z/OS OMVS elements will be copied.     |
   * -------------------------------------------------- */
-  if words(omvsfiles) > 0 then do i = 1 to words(omvsfiles)
-    file = word(omvsfiles,i)
-    if pos('/',file) > 0 then do
-      parse value file with sdir'/'file
-      cmd = 'cd' tagxpath '&& mkdir' sdir
-      cmd = cmd '&& cd' localrep'/'zigirep'/'sdir
-      cmd = cmd '&& cp' file '"'tagxpath''sdir'"'
-      x = bpxwunix(cmd,,so.,se.)
-      if so.0 + se.0 > 0 then call view_std 'B'
-    end
-    else do
-      cmd = 'cd' localrep'/'zigirep
-      cmd = cmd '&& cp -r' file '"'tagxpath'"'
-      x = bpxwunix(cmd,,so.,se.)
-      if so.0 + se.0 > 0 then call view_std 'B'
+    if words(omvsfiles) > 0 then do i = 1 to words(omvsfiles)
+      file = word(omvsfiles,i)
+      if pos('/',file) > 0 then do
+        parse value file with sdir'/'file
+        cmd = 'cd' tagxpath '&& mkdir' sdir
+        cmd = cmd '&& cd' localrep'/'zigirep'/'sdir
+        cmd = cmd '&& cp' file '"'tagxpath''sdir'"'
+        x = bpxwunix(cmd,,so.,se.)
+        if so.0 + se.0 > 0 then call view_std 'B'
+      end
+      else do
+        cmd = 'cd' localrep'/'zigirep
+        cmd = cmd '&& cp -r' file '"'tagxpath'"'
+        x = bpxwunix(cmd,,so.,se.)
+        if so.0 + se.0 > 0 then call view_std 'B'
+      end
     end
   end
 
@@ -7305,6 +7308,12 @@ Do_Tag_Extract:
     end
   end
 
+  /* ------------------------------------------- *
+  | UDList the OMVS directory based on the path |
+  * ------------------------------------------- */
+  if tagxpath /= null then
+  'Select Pgm(isrdslst) Parm(UDL' tagxpath ') SUSPEND'
+
   /* ----------------------------------------- *
   | DSList the z/OS datasets based on the hlq |
   * ----------------------------------------- */
@@ -7315,11 +7324,6 @@ Do_Tag_Extract:
       "View(Volume)"
     "LMDFREE LISTID("ListId")"
   end
-
-  /* ------------------------------------------- *
-  | UDList the OMVS directory based on the path |
-  * ------------------------------------------- */
-  'Select Pgm(isrdslst) Parm(UDL' tagxpath ') SUSPEND'
 
   return
 
