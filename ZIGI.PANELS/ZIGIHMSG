@@ -11,7 +11,7 @@
 +The message browse display uses standard ISPF Browse with a customzied
 +Browse panel. All ISPF Browse commands are available for use.
 +
-+This panel is used for many purposes within zigi as it is generalized.
++This panel is used for many purposes within ZIGI as it is generalized.
 +
 +
 %
@@ -24,12 +24,12 @@
           +be the best you can be. That's in your power."   John Wooden
 +
 +
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

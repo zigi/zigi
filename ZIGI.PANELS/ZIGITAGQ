@@ -10,7 +10,7 @@
 +
       %ENTER+to continue, or%F3+to cancel
 )Init
- &zwinttl = 'zigi Tag Recovery Prompt'
+ &zwinttl = 'ZIGI Tag Recovery Prompt'
 )Proc
  ver (&newbr,nb)
  &resp = .resp
@@ -28,6 +28,6 @@
      .msg = isrz001
 )end
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

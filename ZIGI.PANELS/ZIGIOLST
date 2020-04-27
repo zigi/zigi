@@ -20,7 +20,7 @@
 +]Status+   Get current Git status
               +Or%F3+to cancel.
 )Init
- &zwinttl = 'zigi PDS Member Commands'
+ &zwinttl = 'ZIGI PDS Member Commands'
  .zvars = '(zcmd)'
  .cursor = zcmd
   &Addall = 'AddAll'
@@ -48,6 +48,6 @@
  FIELD(STATUS) VAR(ZCMD) VAL('STATUS')
 )End
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

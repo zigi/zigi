@@ -14,7 +14,7 @@
 +]Rollback+(R)+ Rollback
           +Or%F3+to cancel.
 )Init
- &zwinttl = 'zigi Rollback Line Options'
+ &zwinttl = 'ZIGI Rollback Line Options'
  .zvars = '(zsel)'
  .cursor = zsel
  &zsel  = &z
@@ -27,6 +27,6 @@
   Field(rollback ) var(zsel) val('R')
 )End
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

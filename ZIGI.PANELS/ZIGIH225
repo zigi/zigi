@@ -18,19 +18,19 @@
 +The z/OS dataset check consists of the following actions:
 +
 +%*+Check the last reference date for the dataset
-+%*+If it is more recent than the zigi last reference file info then:
++%*+If it is more recent than the ZIGI last reference file info then:
 +   - For sequential datasets: copy them to OMVS where Git checks for updates
 +   - For partitioned datasets: check the ISPF stats and if different,
 +     then copy the member to OMVS where GIT checks for updates
-+ Note: if updating a dataset within zigi the copy occurs upon exit from Edit.
++ Note: if updating a dataset within ZIGI the copy occurs upon exit from Edit.
 +
-+        +Press the%Enter+key to continue your zigi tutorial journey.
++        +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
  &zcont = zigih230
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

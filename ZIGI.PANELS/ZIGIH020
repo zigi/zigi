@@ -8,7 +8,7 @@
 +
                         %Keyboard and Mouse Navigation
 +
-+The zigi application has been designed to support the traditional
++The ZIGI application has been designed to support the traditional
 +ISPF Panel navigation by entering the desired commands and table row
 +selections. It has also been designed to support%point-and-shoot+fields
 +for use by those more comfortable with that approach. All point-and-shoot
@@ -24,13 +24,13 @@
 +
 +
 +
-          +Press the%Enter+key to continue your zigi tutorial journey.
+          +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor = &zcmd
 )PROC
  &zcont = zigih021
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

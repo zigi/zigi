@@ -8,7 +8,7 @@
 +
                           %Finding your SSH Public Key
 +
-%*+From within zigi on the Local Repositories Panel enter the%SSH+command
+%*+From within ZIGI on the Local Repositories Panel enter the%SSH+command
 %*+Select your SSH Public Key using your TN3270 emulator and copy it
 +  to your workstation's clipboard.
    %*+It is now ready to be pasted into the Git server of your choice.
@@ -23,7 +23,7 @@
   %*+It is now ready to be pasted into the Git server of your choice.
 +
 +
-+        +Press the%Enter+key to continue your zigi tutorial journey.
++        +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
  &zgsr = CSR
@@ -31,6 +31,6 @@
  &zcont = zigih710
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

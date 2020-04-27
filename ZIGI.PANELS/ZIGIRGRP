@@ -16,7 +16,7 @@
 +]View+  (V)+View the dataset/file
          +Or%F3+to cancel.
 )Init
- &zwinttl = 'zigi Grep Selection Options'
+ &zwinttl = 'ZIGI Grep Selection Options'
  .zvars = '(zsel)'
  .cursor = zsel
  &zsel  = &z
@@ -33,6 +33,6 @@
   Field(view  ) var(zsel) val('V')
 )End
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

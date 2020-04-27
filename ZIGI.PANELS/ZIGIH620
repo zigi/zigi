@@ -6,9 +6,9 @@
 +Tutorial}-}{zigtitle                                      +-}-}Tutorial
 %Command ===>`zcmd                                                             +
 +
-+ To convert a non-zigi repository into a zigi aware repository where the
-+ PDS members are copied by zigi from the OMVS filesystem to z/OS partitioned
-+ datasets the repositories filesystem needs to conform to one that zigi can
++ To convert a non-ZIGI repository into a ZIGI aware repository where the
++ PDS members are copied by ZIGI from the OMVS filesystem to z/OS partitioned
++ datasets the repositories filesystem needs to conform to one that ZIGI can
 + manage.
 +
 + 1. Clone the repository
@@ -19,20 +19,20 @@
 +    or lowercase with the same file extension for all member files
 + 5. Update the .zigi/dsn file with the directory name (2) and DCB
 +    - if a file extension is used then it is defined after the BLKSIZE
-+ 6. After manually confirming the above open zigi on the repository
++ 6. After manually confirming the above open ZIGI on the repository
 +    and then use the REPLace command to create the z/OS datasets from
 +    the repository.
 + 7. The git repository will need to be updated to reflect the file
 +    moves. This is a manual process - use 'git status' and make notes.
 +
-       +Press%Enter+to continue reading about the zigi repository layout.
+       +Press%Enter+to continue reading about the ZIGI repository layout.
 )Init
- &zigtitle = '(Characteristics of a zigi Managed Repository)'
+ &zigtitle = '(Characteristics of a ZIGI Managed Repository)'
 )Proc
  &zup   = zigih611
  &zcont = zigih630
 )end
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

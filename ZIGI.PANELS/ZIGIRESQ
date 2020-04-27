@@ -16,7 +16,7 @@ _rdsn                                                      +
 +
 +Press%Enter+to continue or%F3+to Cancel.
 )Init
- &zwinttl = 'zigi History Recovery'
+ &zwinttl = 'ZIGI History Recovery'
  .zvars = '(ralc rans)'
  .CURSOR = RDSN
  &rover = &Z
@@ -91,6 +91,6 @@ _rdsn                                                      +
    .CURSOR = &csr
 )End
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

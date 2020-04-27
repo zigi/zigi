@@ -19,13 +19,13 @@
 +Default Push  : $defcpush
 %
 )Init
- &zwinttl = 'zigi Local Repository Summary Info'
+ &zwinttl = 'ZIGI Local Repository Summary Info'
 *REXX(* localrep)
  home = localrep'/'zigirep
 *ENDREXX
 )Proc
 )End
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

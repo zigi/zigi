@@ -1,6 +1,6 @@
   /* --------------------  rexx procedure  ------------------- */
   ver = 'v2r8'
-  /*Name:      zigi  (z ISPF Git Interface)                    |
+  /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
   |            management                                      |
@@ -55,7 +55,7 @@
   |                         - Bypass update check based on     |
   |                           last reference date of dataset   |
   |            03/15/20 LBD - Detect when PDS members deleted  |
-  |                           outside of zigi                  |
+  |                           outside of ZIGI                  |
   |            03/09/20 LBD - Remove unneeded control save/rest|
   |            03/05/20 HBK - Fixed another qualignr 'bug'     |
   |                         - More deletes at remove repo      |
@@ -78,7 +78,7 @@
   |                           datasets during ADDDSN           |
   |            02/13/20 LBD - Enable 2 column sort on Local    |
   |                           Repository and retain sort order |
-  |                           for next time zigi starts.       |
+  |                           for next time ZIGI starts.       |
   |                         - Fix bug with selective OMVS to   |
   |                           z/OS copy during PULL for both   |
   |                           renames and deletes.             |
@@ -232,7 +232,7 @@
   |            06/11/19 LBD - Creation                         |
   |                                                            |
   | ---------------------------------------------------------- |
-  |    zigi - the z/OS ISPF Git Interface                      |
+  |    ZIGI - the z/OS ISPF Git Interface                      |
   |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
   |                                                            |
   |    This program is free software: you can redistribute it  |
@@ -277,7 +277,7 @@
     /* repo was not specified on start command ? */
     if szcmd = null then do
       call display_zigiprim
-      /* end selected, exit zigi */
+      /* end selected, exit ZIGI */
       if result > 4 then leave
     end
 
@@ -488,7 +488,7 @@ init_git:
   zerrhm   = 'zigih00'
   zerralrm = 'NO'
   zerrtp   = 'NOTIFY'
-  zs1 = 'Preparing the zigi environment for use'
+  zs1 = 'Preparing the ZIGI environment for use'
   zs2 = 'Please standby'
   call do_popup
 
@@ -532,7 +532,7 @@ init_git:
     else do
       /* Nope that file is not correct. removing from profile */
       zs1 =  "The env file ("gitenv") does not point me to git :("
-      zs2 =  "Please rerun zigi and specify a valid env file"
+      zs2 =  "Please rerun ZIGI and specify a valid env file"
       zs4 = 'Press Enter to exit and try again.'
       call do_popup4p
       parse value '' with zs3
@@ -641,7 +641,7 @@ enable_rfind:
   zctverb  = "RFIND"
   zcttrunc = 0
   zctact   = "&ZIGPASS"
-  zctdesc  = "RFIND for zigi Dialog"
+  zctdesc  = "RFIND for ZIGI Dialog"
   'vget (zsctpref)'
   if zsctpref = null
   then zsctpref = 'ISP'
@@ -661,7 +661,7 @@ display_splash:
   | Running under the ZIGI ISPF Application ID so let's do some work |
   * ---------------------------------------------------------------- */
   parse value '' with zcmd zsel
-  zigtitle = '(zigi' ver')'
+  zigtitle = '(ZIGI' ver')'
   'vput (zigtitle ver)'
   'vget (bypass pnsdef) profile'
   if pnsdef = null then do
@@ -678,7 +678,7 @@ display_splash:
     if bypass = 'Y' then do
       zs1 = 'The splash screen will no longer display per your request.'
       zs2 = ' '
-      zs3 = 'Start zigi with a parm of S to restore.'
+      zs3 = 'Start ZIGI with a parm of S to restore.'
       zs4 = '--- Press Enter to continue.'
       call do_popup4p
     end
@@ -687,14 +687,14 @@ display_splash:
 
   /* ----------------------------------------------------- *
   | Initialize the ispf environment and make sure we      |
-  | are running under the zigi applid                     |
+  | are running under the ZIGI applid                     |
   * ----------------------------------------------------- */
 init_ispf:
   'vget (zapplid)'
 
   /* ----------------------------------------------------- *
   | Get the Active HLQ for use with the ALTLIB and LIBDEF |
-  | of the zIGI libraries.                                |
+  | of the ZIGI libraries.                                |
   | 1st Get the active exec library or dd                 |
   * ----------------------------------------------------- */
   parse source TSO Type exec_name DDName exec NameO Env Addr Token
@@ -731,7 +731,7 @@ init_ispf:
     /* --------------------------------------- *
     | Make sure we are under the ZIGI applid  |
     * --------------------------------------- */
-    "Select CMD("exec_name start_option") Newappl(ZIGI) Passlib scrname(zigi)"
+    "Select CMD("exec_name start_option") Newappl(ZIGI) Passlib scrname(ZIGI)"
     if panels /= null then
     'libdef ispplib'
     if exec /= null then
@@ -825,11 +825,11 @@ handle_zigiprim_lcmd_d:
       x = bpxwunix(cmd,,so.,se.)
       if x = 0 then do
         zerrsm = 'Deleted.'
-        delcg = 'Repo removed from zigi, .git files deleted.'
+        delcg = 'Repo removed from ZIGI, .git files deleted.'
       end
       else do
         zerrsm = 'Partially Deleted.'
-        delcg = 'Repo removed from zigi, .git files not deleted.'
+        delcg = 'Repo removed from ZIGI, .git files not deleted.'
       end
     end
     if delzd = 'Y' then do
@@ -857,7 +857,7 @@ handle_zigiprim_lcmd_d:
   end
   else do
     zerrsm = 'Retained.'
-    zerrlm = 'The local repository was NOT deleted from zigi, from' ,
+    zerrlm = 'The local repository was NOT deleted from ZIGI, from' ,
       'OMVS' localrep'/'zigirep', or from z/OS.'
     'setmsg msg(isrz003)'
   end
@@ -949,7 +949,7 @@ handle_zigiprim_sort:
 handle_zigiprim_local:
   if zigtitle = 'Offline'
   then do
-    zigtitle = '(zigi' ver')'
+    zigtitle = '(ZIGI' ver')'
     zigi_offline = 0
   end
   else do
@@ -1372,7 +1372,7 @@ WWR_handle_branch:
   Return
 
   /* ----------------------- *
-  | Convert a non-zigi Repo |
+  | Convert a non-ZIGI Repo |
   * ----------------------- */
 WWR_handle_convrepo:
   parse value '' with zcmd ans
@@ -2127,7 +2127,7 @@ WWR_handle_lcmd_rn:
       bstat = 'Changes to be committed:'
       baction = null
       zerrsm = 'Renamed.'
-      zerrlm = fulldsns 'has been renamed in zigi, git, z/OS, and OMVS.'
+      zerrlm = fulldsns 'has been renamed in ZIGI, git, z/OS, and OMVS.'
       'setmsg msg(isrz003)'
       leave
     end
@@ -2224,7 +2224,7 @@ WWR_handle_lcmd_rm:
     'tbmod' rtbl
     if rm_msg /= null then do
       zerrsm = 'Removed.'
-      zerrlm = fulldsn 'has been removed from zigi, from git, and has' ,
+      zerrlm = fulldsn 'has been removed from ZIGI, from git, and has' ,
         'been deleted from' rm_msg
       'setmsg msg(isrz003)'
     end
@@ -2728,7 +2728,7 @@ WWRF_handle_lcmd_rn:
       baction = null
       'tbadd' rtll 'Order'
       zerrsm = 'Renamed.'
-      zerrlm = mem 'has been renamed in zigi, git, z/OS, and OMVS.'
+      zerrlm = mem 'has been renamed in ZIGI, git, z/OS, and OMVS.'
       'setmsg msg(isrz003)'
       statfile = translate(strip(fulldsn,'B',"'"),' ','.')
       if qualignr > 0 then
@@ -2767,7 +2767,7 @@ WWRF_handle_lcmd_rm:
     memstat = '*Removed'
     'tbmod' rtll
     zerrsm = 'Removed.'
-    zerrlm = m 'has been removed from zigi, from git, and has' ,
+    zerrlm = m 'has been removed from ZIGI, from git, and has' ,
       'been deleted from z/OS and OMVS.'
     'setmsg msg(isrz003)'
     statfile = translate(strip(fulldsn,'B',"'"),' ','.')
@@ -4484,7 +4484,7 @@ Clone_Repo:
       Address ISPExec
       return
     end
-    /* Check to see if this is a zigi-managed repo */
+    /* Check to see if this is a ZIGI-managed repo */
     cmd = '[[ ! -d 'localrep'/'zigirep'/.zigi ]] && echo 0'
     x = bpxwunix(cmd,,so.,se.)
     if so.0 = 1 & so.1 = 0 then do
@@ -5263,7 +5263,7 @@ do_git_attributes:
   end
   fd = retval  /* as I think it's weird to write to a retval lol */
   call write_fd ,
-    "# This .gitattributes file is autogenerated with zigi" ver
+    "# This .gitattributes file is autogenerated with ZIGI" ver
   call write_fd ,
     "*   git-encoding=iso8859-1 zos-working-tree-encoding="encoding
   ga3a = ".gitattributes    "
@@ -5320,7 +5320,7 @@ do_git_attributes:
     return
   end
   fd = retval  /* as I think it's weird to write to a retval lol */
-  call write_fd "# zigi dsn-file"
+  call write_fd "# ZIGI dsn-file"
   call write_fd "# This file needs to be here."
   call write_fd "# Don't edit unless you know what you're doing :)"
   call write_fd '#  '
@@ -5350,7 +5350,7 @@ do_git_attributes:
 
   x = docmd('cd 'reporoot' && git add .zigi/dsn')
 
-  commitmsg = "added by zigi"
+  commitmsg = "added by ZIGI"
   x = docmd('cd 'reporoot' && git commit -m "'commitmsg'"')
   return
 
@@ -5699,7 +5699,7 @@ update_repo_metadata:
           /* ------------------------------------------------------- *
           | If any files in the directory do not have a counterpart |
           | in the PDS that indicates the member was deleted from   |
-          | the PDS prior to zigi. Need to remove it from OMVS      |
+          | the PDS prior to ZIGI. Need to remove it from OMVS      |
           | and git.                                                |
           * ------------------------------------------------------- */
           address syscall 'readdir' localrep'/'zigirep'/'r rd.
@@ -6289,7 +6289,7 @@ Do_Add_Copy:
       cmd = cmd '> .gitattributes '
       /* add (and commit) .gitattributes to the index */
       cmd = cmd '&& git add .gitattributes '
-      cmd = cmd '&& git commit -m "zigi changed .gitattributes"'
+      cmd = cmd '&& git commit -m "ZIGI changed .gitattributes"'
       /* finally remove the .gae file */
       cmd = cmd '&& rm .gae'
       x = docmd(cmd)
@@ -6724,7 +6724,7 @@ view_debug:
     zerrsm = 'Invalid.'
     zerrlm = 'VIEWD is not supported when debug is not enabled. To' ,
       'enable debug allocate a ZIGIDEBG DD to Dummy and' ,
-      'restart zigi.'
+      'restart ZIGI.'
     'setmsg msg(isrz003)'
   end
   return
@@ -6928,7 +6928,7 @@ Update_Config:
   end
   'VPut (zigiuid zigimail zigissh) Profile'
   zerrsm = 'Updated.'
-  zerrlm = 'zIGI Settings updated successfully.'
+  zerrlm = 'ZIGI Settings updated successfully.'
   'Setmsg msg(isrz003)'
   return
 
@@ -7146,7 +7146,7 @@ flowselect:
   return
 
   /* ------------------------------------------------------------- *
-  | Convert a non-zig repository to enable zigi management.       |
+  | Convert a non-zig repository to enable ZIGI management.       |
   |  - for this to work the repository must be manually setup     |
   |    by the user after the clone thus:                          |
   |    - All sequential files in the repo root that are z/OS      |

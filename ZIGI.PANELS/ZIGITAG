@@ -8,7 +8,7 @@
 +
 +Press%Enter+to continue or%F3+to Cancel.
 )Init
- &zwinttl = 'zigi Tag Repository'
+ &zwinttl = 'ZIGI Tag Repository'
  .help = zigih2h0
 )Reinit
  Refresh(tagid tagmsg)
@@ -28,6 +28,6 @@
     .msg = isrz001
 )end
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

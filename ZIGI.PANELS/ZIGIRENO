@@ -7,11 +7,11 @@
 +
              %Enter+to continue%F3+to cancel.
 )Init
- &zwinttl = 'zigi OVMVS File Rename'
+ &zwinttl = 'ZIGI OVMVS File Rename'
 )Proc
   ver (&newdsn,nb)
 )end
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

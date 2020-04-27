@@ -11,7 +11,7 @@
 +
 )Init
  .zvars = '(skey sopt skey2 sopt2)'
- &zwinttl = 'zigi Sort Selections'
+ &zwinttl = 'ZIGI Sort Selections'
 )Proc
  ver (&skey,nb,list,R,C,P,D,L)
  ver (&sopt,nb,list,A,D)
@@ -19,6 +19,6 @@
  ver (&sopt2,list,A,D)
 )end
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

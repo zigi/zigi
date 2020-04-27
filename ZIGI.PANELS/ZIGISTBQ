@@ -4,12 +4,12 @@
 +Enter the name of a new branch:
 +=>$bname
 )Init
- &zwinttl = 'zigi Prompt Popup'
+ &zwinttl = 'ZIGI Prompt Popup'
   .cursor = bname
 )Proc
  ver (&bname,nb)
 )end
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

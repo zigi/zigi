@@ -17,14 +17,14 @@
 +are using a git client on their workstation. Many workstation editors and
 +GUI git clients recognize a file based on its file extension.
 +
-+By default zigi does not append any file extension when a PDS member is
++By default ZIGI does not append any file extension when a PDS member is
 +copied to the OMVS filesystem for Git management.
 +
 +
 +
 +            "A good beginning makes a good end" -- Louis L'Amour
 +
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
@@ -34,6 +34,6 @@
      &ZCONT = ZIGIH140
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

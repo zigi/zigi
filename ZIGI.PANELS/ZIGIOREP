@@ -21,7 +21,7 @@
 
                            +Or%F3+to cancel
 )Init
- &zwinttl = 'zigi Current Repository Commands'
+ &zwinttl = 'ZIGI Current Repository Commands'
  .zvars = '(zcmd)'
  &zcmd  = &z
  .cursor = zcmd
@@ -88,6 +88,6 @@
  FIELD(VIEW  )  VAR(ZCMD) VAL('VIEW')
 )End
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

@@ -12,13 +12,13 @@
 +Turn Confirmation off:_z  +(YES or NO)
 )Init
  .zvars = '(rema remq remc)'
- &zwinttl = 'zigi Remove Prompt'
+ &zwinttl = 'ZIGI Remove Prompt'
 )Proc
  ver (&rema,nb,list,YES,NO)
  ver (&remq,nb,list,Z,O,B,N)
  ver (&remc,nb,list,YES,NO)
 )end
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

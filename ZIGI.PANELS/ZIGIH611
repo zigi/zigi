@@ -24,14 +24,14 @@
 +
 +
 +
-       +Press%Enter+to continue reading about the zigi repository layout.
+       +Press%Enter+to continue reading about the ZIGI repository layout.
 )Init
- &zigtitle = '(Characteristics of a zigi Managed Repository)'
+ &zigtitle = '(Characteristics of a ZIGI Managed Repository)'
 )Proc
  &zup   = zigih610
  &zcont = zigih620
 )end
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

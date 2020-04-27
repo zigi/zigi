@@ -10,7 +10,7 @@
 +
         +Disable extension prompting:_z+(Y or N)
 )Init
- &zwinttl = 'zigi PDS Optional Member Extension'
+ &zwinttl = 'ZIGI PDS Optional Member Extension'
  .zvars = '(extans)'
  .help = zigih610
 )Proc
@@ -22,6 +22,6 @@
  ver (&extans,list,Y,N)
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

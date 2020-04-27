@@ -6,7 +6,7 @@
 )Body Window(60,10) Expand(\\)
 %About -\-\~The z ISPF Git Interface (zigi)%\-\- About
 +
-%zigi+is the z/OS ISPF Git Interface designed to provide the
+%ZIGI+is the z/OS ISPF Git Interface designed to provide the
 +z/OS community with an easy to use interface to the Git
 +source code management system (SCM) to manage
 +traditional%z/OS datasets+and%OMVS files.
@@ -19,6 +19,6 @@
  &zcont = zigihabt
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

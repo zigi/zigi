@@ -10,7 +10,7 @@
   |                                                            |
   |            filepath is the OMVS file where the stats are   |
   |            stored and consists of:                         |
-  |                localdir/repodir/.zigi/filename             |
+  |                localdir/repodir/.ZIGI/filename             |
   |                filename is the OMVS file that represents   |
   |                the z/OS PDS dataset name                   |
   |                                                            |
@@ -22,7 +22,7 @@
   | Vars:      statmems ispf variable for selective update     |
   |                                                            |
   | Usage                                                      |
-  |   Notes: Subroutine of zigi                                |
+  |   Notes: Subroutine of ZIGI                                |
   |          Returns string of members changed                 |
   |                                                            |
   | Dependencies:                                              |
@@ -47,7 +47,7 @@
   |            11/15/19 LBD - Creation                         |
   |                                                            |
   | ---------------------------------------------------------- |
-  |    zigi - the z/OS ISPF Git Interface                      |
+  |    ZIGI - the z/OS ISPF Git Interface                      |
   |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
   |                                                            |
   |    This program is free software: you can redistribute it  |
@@ -191,7 +191,7 @@ zigistat:
     end
     /* ---------------------------------------------------------- *
     | Update ISPF Stats:                                         |
-    |  - all members in the zigi stats member will have their    |
+    |  - all members in the ZIGI stats member will have their    |
     |    ispf stats updated to reflect the saved stats           |
     |  - Use statmems ispf var for selective stat updates        |
     |  - new members will not be updated as we don't know about  |

@@ -9,7 +9,7 @@
                                 %Config+
 +
 +The%Config+command displays, and then allows changing key information used
-+by zigi and Git.
++by ZIGI and Git.
 +
 +Both user.name and user.email are required. These are used by Git commit.
 +
@@ -24,13 +24,13 @@
 +If you plan to use file extensions for PDS member names then set the value
 +to N, otherwise set to Y to bypass the prompt when adding datasets.
 +
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
  &ZCONT = ZIGIH141
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

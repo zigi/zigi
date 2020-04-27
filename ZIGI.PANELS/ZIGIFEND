@@ -16,11 +16,11 @@
 
                     +Or press%F3+to cancel.
 )Init
- &zwinttl = 'zigi Finish Current zigiflow.'
+ &zwinttl = 'ZIGI Finish Current zigiflow.'
 )Proc
 )PNTS
 )End
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

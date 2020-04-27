@@ -22,7 +22,7 @@
 +
 %ENTER+to register updates and%F3+to Cancel or Leave the panel.
 )Init
-&zwinttl = 'zigi Set Defaults for Repository'
+&zwinttl = 'ZIGI Set Defaults for Repository'
  .zvars = '(defcpush extfans)'
  if (&pdshlqn = &Z)
     .cursor = PDSHLQN
@@ -71,6 +71,6 @@
  ver (&extans,nb,list,Y,N)
 )End
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */
