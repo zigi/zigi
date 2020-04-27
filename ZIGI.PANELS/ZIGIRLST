@@ -38,7 +38,7 @@ lower:
  return out
  end
 *ENDREXX
- &zwinttl = 'zigi PDS Member Selection Options'
+ &zwinttl = 'ZIGI PDS Member Selection Options'
  .zvars = '(zsel)'
  .cursor = zsel
  &zsel  = &z
@@ -69,6 +69,6 @@ lower:
   Field(view   ) var(zsel) val('V')
 )End
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

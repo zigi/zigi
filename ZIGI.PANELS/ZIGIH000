@@ -6,17 +6,17 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                            %Introduction to zigi+
+                            %Introduction to ZIGI+
 +
 %Getting Started:+
 +
-%zigi+is designed to make working with%Git+very easy for the ISPF developer, but
+%ZIGI+is designed to make working with%Git+very easy for the ISPF developer, but
 +you should still have a basic understanding of%Git+and how your organization
 +uses it. While you can use it solely with open source tools found on GitHub
 +and other%Git+sites, the most cost effective use is to use it as a free
 +distributed version control system (VCS) for source code management (SCM).
 +
-+The%zigi+Local Repositories Panel is where you find a table of all%Git+
++The%ZIGI+Local Repositories Panel is where you find a table of all%Git+
 +repositories that you have cloned or created. It is also the place where you
 +can easily Clone an existing repository or Create a new repository.
 +
@@ -24,7 +24,7 @@
 + "Though a program be but three lines long, someday it will have to be
 +  maintained" -- The Tao of programming
 +
-          +Press the%Enter+key to continue your zigi tutorial journey.
+          +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor = &zcmd
  &ztut = '000'
@@ -34,6 +34,6 @@
  &zcont = zigih004
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

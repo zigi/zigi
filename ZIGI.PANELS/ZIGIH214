@@ -10,13 +10,13 @@
 +
 +Adding an OMVS file or directory requires the following considerations:
 +
-+ %*+The OMVS file or directory must be copied into the zigi managed +
++ %*+The OMVS file or directory must be copied into the ZIGI managed +
 +    repository directory.
 + %*+File names that are uppercase in the repository root are considered
 +    z/OS datasets and are copied to z/OS upon a Replace or Clone.
   %*+If the files are not to be copied to z/OS the file, or directory,
 +    names must be mixed or lower case.
-  %*+After the copy, use zigi to add the now un-tracked file, or directory,
+  %*+After the copy, use ZIGI to add the now un-tracked file, or directory,
 +    to Git management.
 +
 +
@@ -24,7 +24,7 @@
           +   Little things make big things happen."  -- John Wooden
 +
 +
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
  &zgsr = CSR
@@ -32,6 +32,6 @@
  &zcont = zigih215
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

@@ -16,7 +16,7 @@
    %D+to delete a command from the table. Multiple rows may be selected for%D+
    %X+to execute the command and place it into the command entry field
 +
-+The%Githelp+command, available on most of the zigi panels, is very helpful
++The%Githelp+command, available on most of the ZIGI panels, is very helpful
 +in finding which command to use and its syntax.
 +
 +
@@ -31,6 +31,6 @@
  &zcont    = ZIGIH160
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

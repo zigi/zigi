@@ -7,7 +7,7 @@
 @Tutorial -\-\~The z ISPF Git Interface (zigi)@\-\- Tutorial
 +Command ===>_ZCMD                    \ \+Scroll ===>_zgsr
 +
-                        @zigi Authors and Contributors+
+                        @ZIGI Authors and Contributors+
 +
 }help -----------------------------------------------------------------------}
 )Area Help
@@ -17,7 +17,7 @@
 +github.com/wizardofzos)
 +
 +Henri is the instigator and initial developer of zigi. Without his epiphany
-+there wouldn't be a zigi as you see it. He provided the insights, logic, and
++there wouldn't be a ZIGI as you see it. He provided the insights, logic, and
 +code for 99% of the Git processing.
 +
 @Lionel B. Dyck+0f+21st Century Software (www.21stcenturysoftware.com)
@@ -40,6 +40,6 @@
  &ZUP = ZIGIHINT
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

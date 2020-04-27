@@ -8,10 +8,10 @@
 +Tutorial\-\{zigtitle                                      +-\-\Tutorial
 %Command ===>_zcmd                                                             +
 +
-+A zigi managed repository consists of the following characteristics:
++A ZIGI managed repository consists of the following characteristics:
 +
-   %*+A%.zigi+directory in the repository root directory
-   %*+A file with the name of%dsn+in the .zigi directory with
+   %*+A%.ZIGI+directory in the repository root directory
+   %*+A file with the name of%dsn+in the .ZIGI directory with
       information on the z/OS datasets managed by zigi:
 +     # Default DSORG and DCB info
 +     * PO FB 80 32720
@@ -26,13 +26,13 @@
 +
 +     See the next tutorial page for OMVS naming standards for z/OS datasets.
 +
-       +Press%Enter+to continue reading about the zigi repository layout.
+       +Press%Enter+to continue reading about the ZIGI repository layout.
 )Init
- &zigtitle = '(Characteristics of a zigi Managed Repository)'
+ &zigtitle = '(Characteristics of a ZIGI Managed Repository)'
 )Proc
  &zcont = zigih610
 )end
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

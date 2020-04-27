@@ -24,7 +24,7 @@
 +Using%F3+or not updating ALL the conflict files results in a
 %git merge --abort+being processed.
 +
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
  vget (ztut)
@@ -36,6 +36,6 @@
      &zcont = zigih280
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

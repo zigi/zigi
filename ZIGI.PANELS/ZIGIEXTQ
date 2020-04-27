@@ -2,18 +2,17 @@
  _ type(input ) hilite(uscore) caps(on) intens(low )
  $ type(output)  caps(off)
  + type(text) skip(on) caps(off) intens(low)
-)Body Window(57,7)
-+Git Tag:  $gtag                            +
-+z/OS HLQ: $snaphlq                      +
-+OMVS Path:$path                                        +
+)Body Window(58,6)
++z/OS HLQ: $tagxhlq                      +
++OMVS Path:$tagxpath                                     +
 +
 +Confirm the above:_z+(Y or N)
 +
 +Press%Enter+to proceed, or%F3+to cancel.
 )Init
- &zwinttl = ' SnapShot Confirmation'
+ &zwinttl = ' TagList-Extract Confirmation'
  .zvars = '(sans)'
- .help = zigihsnp
+ .help = zigih2i1
 )Proc
  ver (&sans,nb,list,Y,N)
 )end

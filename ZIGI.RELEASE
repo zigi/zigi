@@ -3,26 +3,31 @@
  |  https://github.com/wizardofzos/zigi/wiki/6.-Documentation        |
  *-------------------------------------------------------------------*
 
-                             zigi Release Notes
+                             ZIGI Release Notes
                                 Version 2.8
 
                          New Features and Functions
                          --------------------------
 
-New ZG command that is used outside of zigi to add/commit/push a updated PDS
+New ZG command that is used outside of ZIGI to add/commit/push a updated PDS
 member from either the ISPF command line or from an enhanced member list.
 NOTE: The ZG exec is self-contained with inline ISPF panels. It must be
 installed in a library in the SYSEXEC or SYSPROC default allocation for use.
 
-NOTE: For the 'Open zigi' command in the new ZG it's required you have
-      the zigi-startup exec present in your SYSEXEC or SYSPROC library.
+NOTE: For the 'Open ZIGI' command in the new ZG it's required you have
+      the ZIGI-startup exec present in your SYSEXEC or SYSPROC library.
 
 The Local Repository table is updated to easily identify the column(s)
 that are sorted. The sorted column(s) will be white and non-sorted in
 turquoise.
 
-Validate during Clone processing to prevent HTTP/HTTPS usage since zigi
+Validate during Clone processing to prevent HTTP/HTTPS usage since ZIGI
 only supports SSH.
+
+New Import command on the Commit panel to import commit text from a dataset.
+
+Update SNAPSHOT and TagList Extract to bypass copy of OMVS directories/files
+if path is null.
 
 When removing (RM) a z/OS dataset or OMVS file provide the option to just
 remove it from git and not delete the dataset or file. If a z/OS dataset
@@ -36,20 +41,23 @@ member and the OMVS copy of the member.
 
 Bug Fixes and Other Updates:
 
-  1. Check z/OS dataset exists before attempting to copy to OMVS.
+  1. Check z/OS dataset exists before attempting to copy to OMVS
   2. Better parsing of remote repo URL in clone and adding remote panel.
   3. Correct multiple row delete on row selection D in commit panel.
+  4. Correct Locate in PDS member list.
+  5. Update majority of tutorial panels for grammer/spelling/format.
+  6. Validate the OMVS directory for TagList Extract.
 
 =============================================================================
 
-                             zigi Release Notes
+                             ZIGI Release Notes
                                 Version 2.7
 
                          New Features and Functions
                          --------------------------
 
 Support file extensions for PDS members when copied to OMVS. The extension
-is defined when the PDS is added to zigi for management and only one extension
+is defined when the PDS is added to ZIGI for management and only one extension
 is allowed per PDS, and it may NOT be changed. The extension is then removed
 when the file is copied to the PDS.
 
@@ -62,10 +70,10 @@ then only when the user requests. The state of the OMVS files will continue
 to be checked frequently as the user interacts wtih the repository.
 
 Reduce processing overhead by only checking z/OS datasets for changes if
-they have changed since the last date that zigi checked them. The test
+they have changed since the last date that ZIGI checked them. The test
 will be to check the dataset if the last reference date (from listdsi)
 is the same as the current day or if it is greater than the last
-reference date as saved by zigi in the users home directory under
+reference date as saved by ZIGI in the users home directory under
 .zigi/filename where filename is the OMVS file copy of the z/OS dataset.
 
 Enable multiple row selection in many instances (not all).
@@ -73,7 +81,7 @@ Enable multiple row selection in many instances (not all).
 Improved detection of deleted, or renamed, PDS members during PULL
 processing.
 
-Improved detection of deleted, or renamed, PDS members at zigi repository
+Improved detection of deleted, or renamed, PDS members at ZIGI repository
 startup.
 
 Bug Fixes and Other Updates:
@@ -82,7 +90,7 @@ Bug Fixes and Other Updates:
   2. Table panel updates to use zgsr instead of zscr for scrolling field
   3. Small cosmetic updates to some panels
   4. Change ZIGICKOT
-       - check for .zigi/dsn before reading it - in case non-zigi repos
+       - check for .zigi/dsn before reading it - in case non-ZIGI repos
        - if not there then set recfm/lrecl/blksize defaults
        - continue to do selective dataset/member restores but do a full
          ISPF stats reapply
@@ -92,7 +100,7 @@ Bug Fixes and Other Updates:
 
 
 =============================================================================
-                             zigi Release Notes
+                             ZIGI Release Notes
                                 Version 2.6
 
                          New Features and Functions
@@ -121,29 +129,29 @@ will result in all the z/OS datasets being renamed along with any OMVS files
 based on the prefix qualifier ignore value.
 
 =============================================================================
-                             zigi Release Notes
+                             ZIGI Release Notes
                                 Version 2.5
 
                          New Features and Functions
                          --------------------------
 
-  /--------------------- From zigi 2.0 ------------------------\
+  /--------------------- From ZIGI 2.0 ------------------------\
   | The former use of -M with CP to convert the @#$ special    |
   | characters to/from z/OS for unix has been replaced by      |
   | escaping those characters where required to preserve them. |
   \------------------------------------------------------------/
 
 Implement new feature 'zigiflow' to help the user make controlled
-changes.  The Zigi Flow feature will assist with making updates to
-repositories.  The general use case for using zigi flow is as follows:
+changes.  The ZIGI Flow feature will assist with making updates to
+repositories.  The general use case for using ZIGI flow is as follows:
 
-    - Step 1: Start a new zigi flow
+    - Step 1: Start a new ZIGI flow
     - Step 2: Make all your changes, commit
-    - Step 3: Finish your zigi flow
+    - Step 3: Finish your ZIGI flow
 
-Implemented a basic conversion capability to convert a cloned non-zigi
-configured git repository into a zigi repository. For this to work the
-repository must have been cloned by zigi so that zigi 'knows' about it
+Implemented a basic conversion capability to convert a cloned non-ZIGI
+configured git repository into a ZIGI repository. For this to work the
+repository must have been cloned by ZIGI so that ZIGI 'knows' about it
 and the following requirements of the repository must be met:
 
    - Each PDS is mapped to a subdirectory under the repository root
@@ -177,7 +185,7 @@ saved Stashes with these options:
     - Diff to show the summary and diffs
     - Pop to restore a saved stash
 
-Provided an option to enhance point-and-shoot in the zigi Config panel.
+Provided an option to enhance point-and-shoot in the ZIGI Config panel.
 Option S will leave things as they are. Option P will enable
 point-and-shoot so that a double click outside the table will bring up
 the Options command selection popup, and a double click inside the table
@@ -188,8 +196,8 @@ Repository. Only Fetch when a repository is selected or on demand.
 
 For Removes (deletes) add option to turn off prompting.
 
-New zigi Cheat Sheet (pdf) and zigi User's Guide (pdf, azw3, mobi, epub)
-have been created and are new with v2.5 which can be found at the zigi
+New ZIGI Cheat Sheet (pdf) and ZIGI User's Guide (pdf, azw3, mobi, epub)
+have been created and are new with v2.5 which can be found at the ZIGI
 wiki:
 
    https://github.com/wizardofzos/zigi/wiki/6.-Documentation
@@ -217,7 +225,7 @@ binary) row selection for the binary members.
 Fix for Bitbucket users where the clone clipboard copy contains 'git
 clone' before the SSH info. The 'git clone' will now be automatically
 removed to allow the Bitbucket user to just copy from Bitbucket and
-paste into zigi for clone or remote add.
+paste into ZIGI for clone or remote add.
 
 Add new TAG command on the Current Repository menu to add a git tag to
 the current repository. Both the lightweight tags, without comments, and
@@ -229,8 +237,8 @@ new branch from the tag level.
 
 Add SORT option for the Local Repository display to sort the repository
 list by Repository name, Prefix, or the Last used Date. One or two
-columns may be sorted and the sort order is remembered when zigi ends
-and is used at the next zigi start. The sort popup panel now supports
+columns may be sorted and the sort order is remembered when ZIGI ends
+and is used at the next ZIGI start. The sort popup panel now supports
 both the primary and secondary sort columns.
 
 Added an optional tag field to the commit panel. Now a tag can be added
@@ -246,7 +254,7 @@ Additional validation on the Clone and Create panels to validate the
 OMVS directory that is specified actually exists.
 
 =============================================================================
-                             zigi Release Notes
+                             ZIGI Release Notes
                                 Version 2.0
 
                          New Features and Functions
@@ -288,7 +296,7 @@ refresh of ALL datasets (this is planned to become a selective refresh
 in a future release).
 
 OMVS subdirectories with files are now supported. These directories and
-files must be added outside of zigi at this time and when zigi starts it
+files must be added outside of ZIGI at this time and when ZIGI starts it
 will recognize those as untracked. The untracked directories, and/or
 files, must then be added to the Git staging index for management by
 Git.
@@ -327,7 +335,7 @@ allows for faster access to a repository.
 
 Changed the debug logging when the ZIGIDEBG DD is present to log to a
 file in the users home directory named zigidebug.d(julian
-date).t(hhmmss). On exit from zigi a USS directory list (3.17) will be
+date).t(hhmmss). On exit from ZIGI a USS directory list (3.17) will be
 presented to the user with just these files from which the user can
 browse/edit/delete.
 
@@ -345,14 +353,14 @@ a git add.
 
 Implement a new SNAPSHOT option for the Current Repository that creates
 an Escrow version of the repository - the z/OS datasets and the OMVS
-files. This is outside of zigi and git. It also generates a tag at the
+files. This is outside of ZIGI and git. It also generates a tag at the
 time of the snapshot to enable easy access to the git repository for
 reviewing information.
 
-Implemented binary support. On the 'Add Dataset' panel zigi now supports
+Implemented binary support. On the 'Add Dataset' panel ZIGI now supports
 the 'AB' command. This will do the same as the trusted 'A' command (add
-a dataset) to zigi, however this file will be treated as binary. This
-allows you to have zigi manage your XMIT files, or OBJECT files. Load
+a dataset) to ZIGI, however this file will be treated as binary. This
+allows you to have ZIGI manage your XMIT files, or OBJECT files. Load
 modules obviously not supported. Take note, for a PDS this means ALL the
 members in the PDS will be treated as binary. (this also updates and
 commits the

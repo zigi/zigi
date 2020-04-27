@@ -12,11 +12,11 @@
 +to copy all of the z/OS and OMVS elements that were updated by the selected
 +Tag.
 +
++The OMVS directory may be blank to bypass extracting the OMVS files.
++
 +This can be useful for creating an APAR or PTF with just the updated elements.
 +
 +The copy is%not+Git managed.
-+
-+
 +
 +
 +
@@ -24,13 +24,13 @@
                   -- Amelia Earhart
 +
 +
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
  &zcont = zigih300
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

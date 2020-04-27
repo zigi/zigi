@@ -20,16 +20,16 @@
 +or
 +  %*+Do a new Stash - then retry Pop
 +
-+At this time, Stash Apply is not supported directly by zigi but you can use
++At this time, Stash Apply is not supported directly by ZIGI but you can use
 +the Git Command dialog to issue it if desired.
 +
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
  &zcont = zigih2f0
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

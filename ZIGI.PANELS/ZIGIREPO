@@ -37,7 +37,7 @@
  PDC DESC('Add dataset')                        ACTION RUN(Add     )
  PDC DESC('Add Remote to Repo')                 ACTION RUN(Remote  )
  PDC DESC('Check z/OS Datasets for Updates')    ACTION RUN(Check   )
- PDC DESC('Convert non-zigi Repository')        ACTION RUN(Convrepo)
+ PDC DESC('Convert non-ZIGI Repository')        ACTION RUN(Convrepo)
  PDC DESC('Create Escrow Copy')                 ACTION RUN(Snapshot)
  PDC DESC('Fetch Updated Repo Data')            ACTION RUN(Fetch   )
  PDC DESC('Find String in Repo Files')          ACTION RUN(Grep    )
@@ -101,6 +101,6 @@
 /*  ver (&zsel,list,S,A,U,B,V,RM,RN,H,D,/) */
 )End
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

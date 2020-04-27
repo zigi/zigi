@@ -24,13 +24,13 @@
 +Turn off, or on, prompting for file extensions when adding a partitioned
 +datasets. Be aware that this affects ALL repositories.
 +
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
  &zcont = zigihsnp
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

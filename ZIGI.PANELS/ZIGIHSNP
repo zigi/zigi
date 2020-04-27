@@ -16,7 +16,7 @@
 +   %*+a never used z/OS HLQ (e.g. HLQ.PRODUCT.VRM where HLQ.PRODUCT exists but
 +      the VRM qualifier does not).
 +   %*+an OMVS path the does not exist (e.g. /products/product/vrm where
-+      /products/product/ exists but vrm does not)
++      /products/product/ exists but vrm does not)  %<+or blank to bypass%>+
 +
 +The z/OS datasets are created from the git repository and the OMVS path
 +is created (mkdir) and copied (cp) from the git repository.
@@ -24,13 +24,13 @@
 +A gitlog.txt file with git log information for the tag level is placed
 +into the new path for reference as the Snapshot is not accessible with git.
 +
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
  &zcont = zigih2j0
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

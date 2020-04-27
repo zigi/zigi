@@ -25,7 +25,7 @@
 +   "Don't measure yourself by what you have accomplished, but by what
 +    you should have accomplished with your ability." -- John Wooden
 +
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
  &addall  = 'AddAll'
@@ -77,6 +77,6 @@
  Field(ROW   )  var(zcmd) val('8')
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

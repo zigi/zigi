@@ -10,11 +10,11 @@
 +
       %ENTER+to continue, or%F3+to cancel
 )Init
- &zwinttl = 'zigi Prompt Popup'
+ &zwinttl = 'ZIGI Prompt Popup'
 )Proc
  ver (&newbr,nb)
 )end
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

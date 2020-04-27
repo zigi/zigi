@@ -1,7 +1,7 @@
 )PANEL KEYLIST(ISRSPEC,ISR)
 /* Copied from IBM's ISREDDE2 Panel and modified with panel rexx */
-/* to support the git merge conflict data - zigi 2.0 LBD         */
-/* and to colorize git diff records - zigi 2.0 LBD               */
+/* to support the git merge conflict data - ZIGI 2.0 LBD         */
+/* and to colorize git diff records - ZIGI 2.0 LBD               */
 )ATTR DEFAULT(ˆ‰) FORMAT(MIX)            /* ISREDDE2 - ENGLISH - 7.3 */
  15 TYPE(AB)
  2A TYPE(ABSL) GE(ON)
@@ -132,6 +132,6 @@ FIELD(ZCMD) LEN(255)
 /* ISPDTLC Release: 7.3.  Level: PID                                  */
 /* z/OS 02.03.00.  Created - Date: 13 Mar 2017, Time: 14:48           */
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

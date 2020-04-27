@@ -1,7 +1,7 @@
   /* --------------------  rexx procedure  -------------------- *
   | Name:      zigirefd                                        |
   |                                                            |
-  | Function:  zigi code to check/update the last reference    |
+  | Function:  ZIGI code to check/update the last reference    |
   |            date for a z/OS dataset. Used to determine if   |
   |            the dataset needs to be checked for updates.    |
   |                                                            |
@@ -15,7 +15,7 @@
   |                      U to update                           |
   |                                                            |
   |            check will be a string of datasets that have    |
-  |            changed since the last zigi access.             |
+  |            changed since the last ZIGI access.             |
   |                                                            |
   |            A value of * will indicate to check ALL files.  |
   |                                                            |
@@ -29,7 +29,7 @@
   |            03/18/20 LBD - Refinement                       |
   |            03/17/20 LBD - Creation                         |
   | ---------------------------------------------------------- |
-  |    zigi - the z/OS ISPF Git Interface                      |
+  |    ZIGI - the z/OS ISPF Git Interface                      |
   |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
   |                                                            |
   |    This program is free software: you can redistribute it  |

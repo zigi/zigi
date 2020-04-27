@@ -21,20 +21,17 @@
 +
 +Cancel the%Commit+process by entering%F3+with an empty Commit Title.
 +
++The%Import+command may be used to import text from a dataset into the
++commit prose. If entered without a dataset then the dataset is prompted.
 +
-+         "Make it work, make it right, make it fast." -- Kent Beck
-+
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
  vget (ztut)
 )PROC
- if (&ztut = 200)
-     &zcont = zigih231
- if (&ztut = 300)
-     &zcont = zigih231
+  &zcont = zigih231
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

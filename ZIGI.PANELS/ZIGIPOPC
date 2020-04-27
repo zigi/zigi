@@ -14,10 +14,10 @@
  $zs9
 +
 )Init
- &zwinttl = 'zigi Check Out Processing'
+ &zwinttl = 'ZIGI Check Out Processing'
 )Proc
 )end
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

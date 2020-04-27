@@ -24,13 +24,13 @@
             +Be grateful. Conceit is self-given. Be careful."
                  -- John Wooden
 +
-           +Press the%Enter+key to begin your zigi tutorial journey.
+           +Press the%Enter+key to begin your ZIGI tutorial journey.
 )Init
  .cursor = &zcmd
 )PROC
  &ZCONT = ZIGIH330
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

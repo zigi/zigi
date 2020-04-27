@@ -21,7 +21,7 @@
   |            blank - prompt via popup                        |
   |            Anything else force prompt for repo             |
   |                                                            |
-  | Usage Notes: Requires that zigi has been configured        |
+  | Usage Notes: Requires that ZIGI has been configured        |
   |              with the local repositories                   |
   |                                                            |
   |              Assumes that the member has been updated      |
@@ -36,8 +36,8 @@
   |              loaded for use by the LOADISPF routine.       |
   |           2. Must be installed into a default SYSEXEC or   |
   |              SYSPROC library for use.                      |
-  |           3. For the option to open zigi to work the       |
-  |              zigi stub should be installed as in (2).      |
+  |           3. For the option to open ZIGI to work the       |
+  |              ZIGI stub should be installed as in (2).      |
   |                                                            |
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
@@ -54,7 +54,7 @@
   |            03/09/20 LBD - Creation                         |
   |                                                            |
   | ---------------------------------------------------------- |
-  |    zigi - the z/OS ISPF Git Interface                      |
+  |    ZIGI - the z/OS ISPF Git Interface                      |
   |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
   |                                                            |
   |    This program is free software: you can redistribute it  |
@@ -90,7 +90,7 @@
   if adddsn = '?' then adddsn = null
   if adddsn = null then do
     zedsmsg = null
-    zedlmsg = left('zigi Git Command - quick add/commit/push',75) ,
+    zedlmsg = left('ZIGI Git Command - quick add/commit/push',75) ,
       left('-',75) ,
       left(command 'syntax is:',75) ,
       left('zg dataset(member)',75) ,
@@ -104,7 +104,7 @@
   'control errors return'
 
   /* --------------------------------------------- *
-  | Recurse into the zigi applid. This makes it   |
+  | Recurse into the ZIGI applid. This makes it   |
   | easier to work with the ISPF Profile variable |
   | with the dsnames and repository names.        |
   * --------------------------------------------- */
@@ -165,7 +165,7 @@
     'rempop'
     if drc > 0 then do
       zedsmsg = 'Canceled.'
-      zedlmsg = 'zigi Add canceled.'
+      zedlmsg = 'ZIGI Add canceled.'
       'setmsg msg(isrz001)'
       call get_out_of_here
     end
@@ -173,17 +173,17 @@
   end
 
   /* ------------------- *
-  | Open the zigi table |
+  | Open the ZIGI table |
   * ------------------- */
-  call pop 'Opening zigi Repository Table \ Patience.'
+  call pop 'Opening ZIGI Repository Table \ Patience.'
   isptabl = 'ISPTABL'
   x = listdsi(isptabl 'FILE')
   if x > 0 then isptabl = 'ISPPROF'
   'TBOpen zigirepo Library('isptabl') NoWrite Share'
   if rc > 8 then do
     zedsmsg = 'Error.'
-    zedlmsg = 'Unable to open the zigi Local Repository table.' ,
-      'Contact your zigi support individual.'
+    zedlmsg = 'Unable to open the ZIGI Local Repository table.' ,
+      'Contact your ZIGI support individual.'
     'setmsg msg(isrz001)'
     call get_out_of_here
   end
@@ -343,8 +343,8 @@
   end
 
   /* ------------------------------------------------------------- *
-  | Call zigi to open the repository. Use newappl of ISR to force |
-  | zigi to altlib/libdef it's libraries.                         |
+  | Call ZIGI to open the repository. Use newappl of ISR to force |
+  | ZIGI to altlib/libdef it's libraries.                         |
   * ------------------------------------------------------------- */
   if zsel = 'O' then do
     open = 0
@@ -470,7 +470,7 @@ do_cmsg:
   | Update stats file after member add |
   * ---------------------------------- */
 Git_Add_Member_Stats:
-  call pop 'Updating member stats in zigi \ Patience.'
+  call pop 'Updating member stats in ZIGI \ Patience.'
   x = zigistat("'"workdsn"'" ,
     localrep'/'zigirep'/.zigi/'omvsfile 'S')
   statfiles = usssafe(omvsfile)
@@ -1060,7 +1060,7 @@ _ type(input) hilite(uscore) caps(on) intens(low) just(left)
 +
 +Press%Enter+to Continue, or%F3+to Cancel.
 )Init
-&zwinttl = 'zigi Git Option'
+&zwinttl = 'ZIGI Git Option'
 )Proc
 ver (&opt,nb,list,A,AC,ACP,S,SC,SCP,O)
 )End
@@ -1075,7 +1075,7 @@ $ type(output) caps(off)
 +
 %Command ===>_zcmd       \ \ %Scroll ===>_zscr+
 +
-+Selection:%A+Add%AC+Add/Commit%ACP+Add/Commit/Push%O+Open zigi
++Selection:%A+Add%AC+Add/Commit%ACP+Add/Commit/Push%O+Open ZIGI
 +
 %    @Repository             Category        Last Date  +
 )Model
@@ -1102,7 +1102,7 @@ _cmsg7                                                            +
 +
 +Press%Enter+to Continue, or%F3+to Cancel.
 )Init
-&zwinttl = 'zigi Commit Message'
+&zwinttl = 'ZIGI Commit Message'
 )Proc
 ver (&cmsg1,nb)
 )End
@@ -1115,11 +1115,11 @@ ver (&cmsg1,nb)
   $zs2
 
 )Init
- &zwinttl = 'zigi Status Popup'
+ &zwinttl = 'ZIGI Status Popup'
 )Proc
 )end
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */
 >Exec zigistat
@@ -1147,7 +1147,7 @@ ver (&cmsg1,nb)
   | Vars:      statmems ispf variable for selective update     |
   |                                                            |
   | Usage                                                      |
-  |   Notes: Subroutine of zigi                                |
+  |   Notes: Subroutine of ZIGI                                |
   |          Returns string of members changed                 |
   |                                                            |
   | Dependencies:                                              |
@@ -1172,7 +1172,7 @@ ver (&cmsg1,nb)
   |            11/15/19 LBD - Creation                         |
   |                                                            |
   | ---------------------------------------------------------- |
-  |    zigi - the z/OS ISPF Git Interface                      |
+  |    ZIGI - the z/OS ISPF Git Interface                      |
   |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
   |                                                            |
   |    This program is free software: you can redistribute it  |

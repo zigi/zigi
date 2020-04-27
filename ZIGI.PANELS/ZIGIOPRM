@@ -20,7 +20,7 @@
  ]SSH+     View your SSH public key
              +Or%F3+to cancel.
 )Init
- &zwinttl = 'zigi Local Repository Commands'
+ &zwinttl = 'ZIGI Local Repository Commands'
  .zvars = '(zcmd)'
  .cursor = zcmd
  &zcmd  = &z
@@ -49,6 +49,6 @@
  FIELD(GITHELP ) VAR(ZCMD) VAL('GITHELP')
 )End
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

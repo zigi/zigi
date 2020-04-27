@@ -23,11 +23,11 @@
 +
               +Or%F3+to cancel.
 )Init
- &zwinttl = 'zigi Starting new flow on repository'
+ &zwinttl = 'ZIGI Starting new flow on repository'
 )Proc
  ver (&flowname,NB)
 )End
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */
