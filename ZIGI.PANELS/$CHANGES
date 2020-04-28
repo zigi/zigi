@@ -47,6 +47,9 @@ Bug Fixes and Other Updates:
   4. Correct Locate in PDS member list.
   5. Update majority of tutorial panels for grammer/spelling/format.
   6. Validate the OMVS directory for TagList Extract.
+  7. Correct the sortdate field - was not being consistently set the same
+  8. Correct bug with taglist create to prevent recursion into the repo
+     processing routine
 
 =============================================================================
 

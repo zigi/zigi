@@ -26,6 +26,10 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            04/28/20 LBD - Correct taglist create repo      |
+  |                           display                          |
+  |                         - Change to routine to set the     |
+  |                           sortdate value                   |
   |            04/26/20 LBD - Update SnapShot to allow a null  |
   |                           path to bypass OMVS copy         |
   |                         - Same change for TagList Extract  |
@@ -427,6 +431,13 @@ init_repo:
   end
   Return
 
+  /* ------------------------------ *
+  | Populate the SortDate variable |
+  * ------------------------------ */
+set_sortdate:
+  sortdate = date('b')''right(time('s')+100000,5)
+  return
+
   /* ------------------------------------------- *
   | Handle zigiprim panel primary command O      |
   * ------------------------------------------- */
@@ -770,7 +781,7 @@ init_ispf:
   * ------------------------------------- */
 Select_Repo:
   zigidate = date('n')
-  sortdate = date('b')''right(time('s')+100000,5)
+  call set_sortdate
   'tbmod zigirepo order'
   x = debug('Getting binfiles:' zigirep)
   drop binfiles.
@@ -1098,13 +1109,15 @@ handle_zigiprim_select:
   | Work with the selected repository |
   * --------------------------------- */
 Work_With_Repo:
-
+  arg wwr_opt
   /* -------------------------------------------------- *
   | WWR_init will also call update_metadata             |
   | check command will call work_with_repo recursively  |
   | with check_flag = 1 to force recheck of ispf dsns   |
+  | If called with option then init and then return     |
   * -------------------------------------------------- */
   call WWR_init
+  if wwr_opt /= null then return
   /* -------------------------------- *
   | Process the Repository Data Sets |
   * -------------------------------- */
@@ -1687,7 +1700,7 @@ WWR_handle_snapshot:
         cmd = cmd '&& rm .gitattributes && rm -rf .git && rm -rf .zigi'
         x = bpxwunix(cmd,,so.,se.)
         if x > 0 then call view_std 'B'
-      /*  create a git log in the snapshot directory */
+        /*  create a git log in the snapshot directory */
         cmd = 'cd' localrep'/'zigirep
         cmd = cmd "&& echo 'Git Tag for this Snapshot is:' >" ,
           path'gitlog.txt'
@@ -3504,7 +3517,7 @@ Get_TagList:
       parse value so.cri with day mm dd time yy gmt ctag ctitle
       cdatetim = yy mm dd time
       zd = dd mm yy
-      sortdate = date('b',zd,'n')
+      call set_sortdate
       sorttime = left(time,2)''substr(time,4,2)
     end
     ctag = translate(ctag,' ','/')
@@ -3669,7 +3682,11 @@ Do_TAGLIST:
           end
           if combine.0 > 0 then call view_std 'C'
           call Replace localrep zigirep pdshlq qualignr
-          call work_with_repo
+          /* --------------------------------------- *
+          | Call work_with_repo with flag to return |
+          * --------------------------------------- */
+          call work_with_repo 'x'
+          leave
         end
         if prc > 0 then do
           'setmsg msg(isrz003)'
@@ -4503,7 +4520,7 @@ Clone_Repo:
     call Replace localrep zigirep pdshlq qualignr
     zigikey = localrep'/'zigirep
     zigidate = date('n')
-    sortdate = date('b')''time('s')
+    call set_sortdate
     'tbadd zigirepo order'
     'vget (defrsort srr src srp srl) profile'
     'TBSort zigirepo Fields('defrsort')'
@@ -5231,7 +5248,7 @@ Create_Repo:
     Address ISPExec
     zigikey = localrep'/'zigirep
     zigidate = date('n')
-    sortdate = date('b')''time('s')
+    call set_sortdate
     'tbadd zigirepo order'
     zpush = defcpush
     'vget (defrsort srr src srp srl) profile'
@@ -6847,7 +6864,7 @@ Test_Repo_Table_State:
         When words(zigidate) = 3 then do
           sortdate = date('b',strip(zigidate),'n') 0
         end
-        Otherwise sortdate = date('b')''time('s')
+        Otherwise call set_sortdate
       end
       'tbadd zigirepo order'
       if cat = 0 then do
@@ -7253,18 +7270,18 @@ Do_Tag_Extract:
       return
     end
 
-  /* ----------------------------------------- *
-  | Save a copy of the tag commit information |
-  * ----------------------------------------- */
+    /* ----------------------------------------- *
+    | Save a copy of the tag commit information |
+    * ----------------------------------------- */
     cmd = 'cd' localrep'/'zigirep '&& git show' tags '>' tagxpath'tag.info'
     x = docmd(cmd)
 
-  /* -------------------------------------------------- *
-  | Copy the OMVS filesystem OMVS files from the       |
-  | current repository to the new extract directory.   |
-  |                                                    |
-  | None of the z/OS OMVS elements will be copied.     |
-  * -------------------------------------------------- */
+    /* -------------------------------------------------- *
+    | Copy the OMVS filesystem OMVS files from the       |
+    | current repository to the new extract directory.   |
+    |                                                    |
+    | None of the z/OS OMVS elements will be copied.     |
+    * -------------------------------------------------- */
     if words(omvsfiles) > 0 then do i = 1 to words(omvsfiles)
       file = word(omvsfiles,i)
       if pos('/',file) > 0 then do
