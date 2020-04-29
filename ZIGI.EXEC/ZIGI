@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            04/29/20 LBD - Add volser to Add Dsn display    |
   |            04/28/20 LBD - Correct taglist create repo      |
   |                           display                          |
   |                         - Change to routine to set the     |
@@ -4156,12 +4157,13 @@ Do_Commit:
     if rc > 4 then leave
     if translate(zcmd) = 'CANCEL' then leave
     ctop = ztdtop
-    if abbrev('IMPORT',word(translate(zcmd),1),1) = 1
+    if datatype(right(zcmd,1)) = 'NUM' then
+       zcmd = left(zcmd,1) substr(zcmd,2)
+    if zcmd /= null then
+    Select
+    When abbrev('IMPORT',word(translate(zcmd),1),2) = 1
     then call commit_import
-    if left(translate(zcmd),1) = 'I' then
-    if words(zcmd) = 1 then
-    zcmd = left(zcmd,1) substr(zcmd,2)
-    if abbrev('INSERT',translate(word(zcmd,1)),1) = 1 then do
+    When abbrev('INSERT',translate(word(zcmd,1)),1) = 1 then do
       c = word(zcmd,2)
       if c = null then c = 1
       'tbquery' cmtab 'rownum(cr)'
@@ -4171,6 +4173,8 @@ Do_Commit:
       do i = 1 to c
         'tbadd' cmtab
       end
+    end
+    Otherwise nop
     end
     select
       when zsel = 'D' then 'tbdelete' cmtab
@@ -6129,7 +6133,7 @@ Add_Dataset:
   return
 
 tbcreate_dsnatbl:
-  'tbcreate' dsnatbl 'keys(dsna) names(dastat) nowrite'
+  'tbcreate' dsnatbl 'keys(dsna) names(dastat dsnvol) nowrite'
   return
 
 Get_List:
@@ -6152,6 +6156,7 @@ Get_List:
   do dsni = 1 to x.0
     if word(x.dsni,1) /= 'NONVSAM' then iterate
     dsna = word(x.dsni,2)
+    dsnvol = word(x.dsni,3)
     dastat = null
     do gl = 1 to so.0
       if substr(dsna,length(prefix)+2) = word(so.gl,1)
@@ -6363,12 +6368,15 @@ save_dsninfo:
   'alloc f('sd_dd') shr ds('sd_dsn')'
   'execio * diskr' sd_dd '(finis stem sd.'
   do x = 1 to sd.0
-    if word(sd.x,1) = dsn then do
+    wd = translate(sd.x,' ','/')
+    if word(wd,1) = dsn then do
+      sd.x = '*'sd.x
+      /*
       'free f('sd_dd')'
       'delete' sd_dsn
       call outtrap 'off'
       Address ISPExec
-      return
+      return  */
     end
   end
   slast = sd.0

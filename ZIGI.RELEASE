@@ -50,6 +50,8 @@ Bug Fixes and Other Updates:
   7. Correct the sortdate field - was not being consistently set the same
   8. Correct bug with taglist create to prevent recursion into the repo
      processing routine
+  9. Fix duplicate dataset add by commenting the prior dataset in .zigi/dsn
+ 10. Update test for commit insert command (I###)
 
 =============================================================================
 

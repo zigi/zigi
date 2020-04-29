@@ -14,8 +14,8 @@ member from either the ISPF command line or from an enhanced member list.
 NOTE: The ZG exec is self-contained with inline ISPF panels. It must be
 installed in a library in the SYSEXEC or SYSPROC default allocation for use.
 
-NOTE: For the 'Open zigi' command in the new ZG it's required you have
-      the zigi-startup exec present in your SYSEXEC or SYSPROC library.
+NOTE: For the 'Open ZIGI' command in the new ZG it's required you have
+      the ZIGI-startup exec present in your SYSEXEC or SYSPROC library.
 
 The Local Repository table is updated to easily identify the column(s)
 that are sorted. The sorted column(s) will be white and non-sorted in
@@ -50,6 +50,8 @@ Bug Fixes and Other Updates:
   7. Correct the sortdate field - was not being consistently set the same
   8. Correct bug with taglist create to prevent recursion into the repo
      processing routine
+  9. Fix duplicate dataset add by commenting the prior dataset in .zigi/dsn
+ 10. Update test for commit insert command (I###)
 
 =============================================================================
 
@@ -145,7 +147,7 @@ based on the prefix qualifier ignore value.
   \------------------------------------------------------------/
 
 Implement new feature 'zigiflow' to help the user make controlled
-changes.  The Zigi Flow feature will assist with making updates to
+changes.  The ZIGI Flow feature will assist with making updates to
 repositories.  The general use case for using ZIGI flow is as follows:
 
     - Step 1: Start a new ZIGI flow
@@ -362,7 +364,7 @@ reviewing information.
 
 Implemented binary support. On the 'Add Dataset' panel ZIGI now supports
 the 'AB' command. This will do the same as the trusted 'A' command (add
-a dataset) to zigi, however this file will be treated as binary. This
+a dataset) to ZIGI, however this file will be treated as binary. This
 allows you to have ZIGI manage your XMIT files, or OBJECT files. Load
 modules obviously not supported. Take note, for a PDS this means ALL the
 members in the PDS will be treated as binary. (this also updates and
