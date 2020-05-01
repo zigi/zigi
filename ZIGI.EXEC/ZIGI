@@ -3415,8 +3415,7 @@ Do_Stash_Pop:
   'display panel(zigipop)'
   'rempop'
   xrc = docmd(cmd)
-  if xrc > 0 then do call view_std 'B'
-  end
+  if xrc > 0 then call view_std 'B'
   Return 1
 
 Git_Clean_Check:
