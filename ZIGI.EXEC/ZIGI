@@ -3353,6 +3353,7 @@ Stash_List:
           x = docmd(cmd)
           call view_std 'B'
           call Setup_Selective_Replace 'Stash Branch'
+          'tbdelete' stab
         end
       end
       When zsel = 'P' then do   /* pop */
