@@ -343,6 +343,7 @@ Write_Stats:
     zs4 = 'Press F3 to close this popup and exit.'
     parse value '' with zs3
     call do_popup4
+    'close' fd
     call syscalls 'OFF'
     return
   end

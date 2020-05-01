@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            05/01/20 LBD - Fix Stash and Stash Pop issues   |
   |            04/29/20 LBD - Add volser to Add Dsn display    |
   |            04/28/20 LBD - Correct taglist create repo      |
   |                           display                          |
@@ -3415,8 +3416,11 @@ Do_Stash_Pop:
   'display panel(zigipop)'
   'rempop'
   xrc = docmd(cmd)
-  if xrc > 0 then call view_std 'B'
-  Return 1
+  if xrc > 0 then do
+    call view_std 'B'
+    Return 1
+  end
+  return 0
 
 Git_Clean_Check:
   lcmd = 'cd' localrep'/'zigirep
@@ -7376,6 +7380,10 @@ Check_For_More_Deletes: Procedure Expose delhlq deletes. ,
     if dir = null then iterate
     if left(so.di,1) /= '-' then iterate
     m = word(so.di,9)
+    if pos('.',m) > 0 then do
+       parse value m with m'.'.
+       m = translate(m)
+       end
     if wordpos(m,members) = 0 then do
       c = deletes.0 + 1
       deletes.c = dir'/'m
