@@ -21,6 +21,8 @@ The Local Repository table is updated to easily identify the column(s)
 that are sorted. The sorted column(s) will be white and non-sorted in
 turquoise.
 
+Colorize the Git Log Graph (Network command).
+
 Validate during Clone processing to prevent HTTP/HTTPS usage since ZIGI
 only supports SSH.
 

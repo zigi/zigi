@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            05/02/20 LBD - Support graph view colors        |
   |            05/01/20 LBD - Fix Stash and Stash Pop issues   |
   |            04/29/20 LBD - Add volser to Add Dsn display    |
   |            04/28/20 LBD - Correct taglist create repo      |
@@ -1440,8 +1441,12 @@ WWR_handle_network:
   cmd = 'cd' localdir' && git log --graph --oneline'
   cmd = cmd '--format="%h %<(50,trunc)%f"'
   x = docmd(cmd)
+  vtype = 'graph'
+  'vput (vtype) shared'
   if so.0 + se.0 > 1
-  then call view_std
+  then call view_std 'B' 'V'
+  vtype = null
+  'vput (vtype) shared'
   Return
 
   /* -------------------------------- *
@@ -5284,6 +5289,7 @@ do_git_attributes:
     zs4 = 'Press F3 to close this popup and exit.'
     parse value '' with zs2 zs3
     call do_popup4
+    call syscalls 'OFF'
     return
   end
   fd = retval  /* as I think it's weird to write to a retval lol */
