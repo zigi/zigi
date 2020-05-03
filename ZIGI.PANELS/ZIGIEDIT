@@ -66,7 +66,7 @@ IF (&ZSCED = ' ') &ZSCED = 'PAGE'  /* Blank with page    */
 &MIXED = TRANS(&ZPDMIX N,EBCDIC *,MIX) /* set mixed format */
 vget (vtype)
 *REXX(* zdata zshadow zwidth vtype)
-  alphanum = 'abcdefghijklmnopqrstuvwxyz0123456789'
+  alphanum = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
   colorb = left('B',zwidth,'B')
   colorg = left('G',zwidth,'G')
   colorq = left('Z',zwidth,'Z')
