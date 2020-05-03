@@ -163,7 +163,8 @@ do_gitcmd:
   'tbadd zigigcmd'
   cmd = 'cd' localdir '&& git' gitcmde
   x = bpxwunix(cmd,,so.,se.,env.)
-  if word(gitcmd,1) = 'log' then do
+  if word(gitcmd,1) = 'log' then
+    if wordpos('--graph',gitcmd) > 0 then do
      vtype = 'X'
      'vput (vtype) shared'
      end
