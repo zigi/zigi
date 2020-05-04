@@ -775,7 +775,6 @@ init_ispf:
     'vput (debugfil)'
   end
   else zigidebg = 0
-  if zigidebg = 0 then
   "Control Errors Return"
   Return
 
@@ -6276,6 +6275,7 @@ Do_Add_Copy:
       copycmd = "//'"pdsc"'"
       copycmd = '"'copycmd'"'
       cmd = "cp -U -v "binopt copycmd" "DIR"/"pdss"/"ac_mem
+      x = debug('Copying:' cmd)
       x =bpxwunix(cmd,,so.,se.)
     end
     else do
@@ -6291,6 +6291,7 @@ Do_Add_Copy:
         copycmd = "//'"pdsc"'"
         copycmd = '"'copycmd'"'
         cmd = "cp -U -v "binopt copycmd" "DIR"/"pdss"/"ussmem
+        x = debug('Copying:' cmd)
         x =bpxwunix(cmd,,so.,se.)
       end
     end
