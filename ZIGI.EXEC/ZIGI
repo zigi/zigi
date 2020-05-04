@@ -1829,6 +1829,7 @@ WWR_handle_grep:
   * -------------------------------- */
 WWR_handle_remote:
   zcmd = null
+  origin = null
   'display panel(zigiremo)'
   if rc > 0 then do
     zerrsm = 'Canceled.'
