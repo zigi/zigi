@@ -14,6 +14,7 @@
 +                                           (no quotes required)
 +Enter New Path for OMVS Files:@path                                        +
 +                               (if blank then OMVS files are ignored)
++
 +Tag the current level of the repository as a milestone for easy future
 +reference.
 +
@@ -24,7 +25,6 @@
 +This snapshot may be considered an Escrow copy or a Locked Archive as it is
 +not manageable by git. Use this when a milestone has been reached such as a
 +version, release, maintenance level, or patch.
-+
 +
                   +Press%Enter+to proceed, or%F3+to cancel.
 )Init

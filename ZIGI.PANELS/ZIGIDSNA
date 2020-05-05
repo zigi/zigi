@@ -19,11 +19,11 @@
 +Command:%Find+
 +Line:%S+Add+%A+Add+%AB+Add binary+%B+Browse
 +
-%S   Dataset Name                                Status
+%S   Dataset Name                                Volser  Status
 )Model
-@z +$z                                          $z
+@z +$z                                          $z      $z
 )Init
-  .zvars = '(qualignr zsel dsna dastat)'
+  .zvars = '(qualignr zsel dsna dsnvol dastat)'
   .help = zigih210
   &zgsr = CSR
   if (&dsnapfx EQ &Z)

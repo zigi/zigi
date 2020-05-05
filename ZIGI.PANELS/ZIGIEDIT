@@ -2,6 +2,7 @@
 /* Copied from IBM's ISREDDE2 Panel and modified with panel rexx */
 /* to support the git merge conflict data - ZIGI 2.0 LBD         */
 /* and to colorize git diff records - ZIGI 2.0 LBD               */
+/* colorize git log network records - ZIGI 2.8 LBD               */
 )ATTR DEFAULT(ˆ‰) FORMAT(MIX)            /* ISREDDE2 - ENGLISH - 7.3 */
  15 TYPE(AB)
  2A TYPE(ABSL) GE(ON)
@@ -63,57 +64,79 @@
 VGET (ZSCED) PROFILE        /* Fill Scroll Vars if       */
 IF (&ZSCED = ' ') &ZSCED = 'PAGE'  /* Blank with page    */
 &MIXED = TRANS(&ZPDMIX N,EBCDIC *,MIX) /* set mixed format */
-*REXX(* zdata zshadow zwidth)
-  colorr = left('R',zwidth,'R')
+vget (vtype)
+*REXX(* zdata zshadow zwidth vtype)
+  alphanum = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
   colorb = left('B',zwidth,'B')
-  colorw = left('W',zwidth,'W')
+  colorg = left('G',zwidth,'G')
   colorq = left('Z',zwidth,'Z')
+  colorr = left('R',zwidth,'R')
+  colort = left('T',zwidth,'T')
+  colorw = left('W',zwidth,'W')
+  colory = left('Y',zwidth,'Y')
   blank = left(' ',zwidth,' ')
   if length(zshadow) /= length(zdata) then
-     zshadow = left(' ',length(zdata),' ')
+  zshadow = left(' ',length(zdata),' ')
   do i = 1 to length(zshadow) by zwidth
-     Select
-     when substr(zdata,i+8,1) = '+' then do
-         len = substr(zdata,i+8,zwidth-8)
-         len = translate(len,' ','00'x)
-         len = length(strip(len))
-         zshadow = overlay(colorb,zshadow,i+8,len+1)
-     end
-     when substr(zdata,i+8,1) = '-' then do
-         len = substr(zdata,i+8,zwidth-8)
-         len = translate(len,' ','00'x)
-         len = length(strip(len))
-         zshadow = overlay(colorr,zshadow,i+8,len+1)
-     end
-     when substr(zdata,i+8,7) = '>>>>>>>' then do
-         zshadow = overlay(colorw,zshadow,i+1,6)
-         len = substr(zdata,i+8,zwidth-8)
-         len = translate(len,' ','00'x)
-         len = length(strip(len))
-         zshadow = overlay(colorq,zshadow,i+8,len+1)
-         end
-     when substr(zdata,i+8,7) = '<<<<<<<' then do
-         zshadow = overlay(colorw,zshadow,i+1,6)
-         len = substr(zdata,i+8,zwidth-8)
-         len = translate(len,' ','00'x)
-         len = length(strip(len))
-         zshadow = overlay(colorq,zshadow,i+8,len+1)
-         end
-     when substr(zdata,i+8,7) = '=======' then do
-         zshadow = overlay(colorw,zshadow,i+1,6)
-         len = substr(zdata,i+8,zwidth-8)
-         len = translate(len,' ','00'x)
-         len = length(strip(len))
-         zshadow = overlay(colorq,zshadow,i+8,len+1)
-         end
-     otherwise do
-         len = substr(zdata,i+8,zwidth-8)
-         len = translate(len,' ','00'x)
-         len = length(strip(len))
-         zshadow = overlay(blank,zshadow,i+8,len+1)
-         end
-     end
-     end
+    Select
+      when substr(zdata,i+8,1) = '+' then do
+        len = substr(zdata,i+8,zwidth-8)
+        len = translate(len,' ','00'x)
+        len = length(strip(len))
+        zshadow = overlay(colorb,zshadow,i+8,len+1)
+      end
+      when substr(zdata,i+8,1) = '-' then do
+        len = substr(zdata,i+8,zwidth-8)
+        len = translate(len,' ','00'x)
+        len = length(strip(len))
+        zshadow = overlay(colorr,zshadow,i+8,len+1)
+      end
+      when substr(zdata,i+8,7) = '>>>>>>>' then do
+        zshadow = overlay(colorw,zshadow,i+1,6)
+        len = substr(zdata,i+8,zwidth-8)
+        len = translate(len,' ','00'x)
+        len = length(strip(len))
+        zshadow = overlay(colorq,zshadow,i+8,len+1)
+      end
+      when substr(zdata,i+8,7) = '<<<<<<<' then do
+        zshadow = overlay(colorw,zshadow,i+1,6)
+        len = substr(zdata,i+8,zwidth-8)
+        len = translate(len,' ','00'x)
+        len = length(strip(len))
+        zshadow = overlay(colorq,zshadow,i+8,len+1)
+      end
+      when substr(zdata,i+8,7) = '=======' then do
+        zshadow = overlay(colorw,zshadow,i+1,6)
+        len = substr(zdata,i+8,zwidth-8)
+        len = translate(len,' ','00'x)
+        len = length(strip(len))
+        zshadow = overlay(colorq,zshadow,i+8,len+1)
+      end
+      otherwise do
+        len = substr(zdata,i+8,zwidth-8)
+        len = translate(len,' ','00'x)
+        len = length(strip(len))
+        zshadow = overlay(blank,zshadow,i+8,len+1)
+      end
+    end
+    if vtype /= '' then
+    if substr(zdata,i+8,8) /= '********' then
+    do li = 0 to 50
+      if substr(zdata,i+8+li,2) /= '  ' then
+      if pos(substr(zdata,i+8+li,1),alphanum) = 0 then do
+        if   substr(zdata,i+8+li,1) = '|' then
+        zshadow = overlay(colorw,zshadow,i+8+li,1)
+        if   substr(zdata,i+8+li,1) = '*' then
+        zshadow = overlay(colory,zshadow,i+8+li,1)
+        if   substr(zdata,i+8+li,1) = '/' then
+        zshadow = overlay(colorb,zshadow,i+8+li,1)
+        if   substr(zdata,i+8+li,1) = '\' then
+        zshadow = overlay(colort,zshadow,i+8+li,1)
+        if   substr(zdata,i+8+li,1) = '_' then
+        zshadow = overlay(colory,zshadow,i+8+li,1)
+      end
+    end
+  end
 *ENDREXX
 )REINIT
 REFRESH(*)

@@ -26,6 +26,13 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            05/02/20 LBD - Support graph view colors        |
+  |            05/01/20 LBD - Fix Stash and Stash Pop issues   |
+  |            04/29/20 LBD - Add volser to Add Dsn display    |
+  |            04/28/20 LBD - Correct taglist create repo      |
+  |                           display                          |
+  |                         - Change to routine to set the     |
+  |                           sortdate value                   |
   |            04/26/20 LBD - Update SnapShot to allow a null  |
   |                           path to bypass OMVS copy         |
   |                         - Same change for TagList Extract  |
@@ -427,6 +434,13 @@ init_repo:
   end
   Return
 
+  /* ------------------------------ *
+  | Populate the SortDate variable |
+  * ------------------------------ */
+set_sortdate:
+  sortdate = date('b')''right(time('s')+100000,5)
+  return
+
   /* ------------------------------------------- *
   | Handle zigiprim panel primary command O      |
   * ------------------------------------------- */
@@ -761,7 +775,6 @@ init_ispf:
     'vput (debugfil)'
   end
   else zigidebg = 0
-  if zigidebg = 0 then
   "Control Errors Return"
   Return
 
@@ -770,7 +783,7 @@ init_ispf:
   * ------------------------------------- */
 Select_Repo:
   zigidate = date('n')
-  sortdate = date('b')''right(time('s')+100000,5)
+  call set_sortdate
   'tbmod zigirepo order'
   x = debug('Getting binfiles:' zigirep)
   drop binfiles.
@@ -1098,13 +1111,15 @@ handle_zigiprim_select:
   | Work with the selected repository |
   * --------------------------------- */
 Work_With_Repo:
-
+  arg wwr_opt
   /* -------------------------------------------------- *
   | WWR_init will also call update_metadata             |
   | check command will call work_with_repo recursively  |
   | with check_flag = 1 to force recheck of ispf dsns   |
+  | If called with option then init and then return     |
   * -------------------------------------------------- */
   call WWR_init
+  if wwr_opt /= null then return
   /* -------------------------------- *
   | Process the Repository Data Sets |
   * -------------------------------- */
@@ -1425,8 +1440,12 @@ WWR_handle_network:
   cmd = 'cd' localdir' && git log --graph --oneline'
   cmd = cmd '--format="%h %<(50,trunc)%f"'
   x = docmd(cmd)
+  vtype = 'graph'
+  'vput (vtype) shared'
   if so.0 + se.0 > 1
-  then call view_std
+  then call view_std 'B' 'V'
+  vtype = null
+  'vput (vtype) shared'
   Return
 
   /* -------------------------------- *
@@ -1687,7 +1706,7 @@ WWR_handle_snapshot:
         cmd = cmd '&& rm .gitattributes && rm -rf .git && rm -rf .zigi'
         x = bpxwunix(cmd,,so.,se.)
         if x > 0 then call view_std 'B'
-      /*  create a git log in the snapshot directory */
+        /*  create a git log in the snapshot directory */
         cmd = 'cd' localrep'/'zigirep
         cmd = cmd "&& echo 'Git Tag for this Snapshot is:' >" ,
           path'gitlog.txt'
@@ -1809,6 +1828,7 @@ WWR_handle_grep:
   * -------------------------------- */
 WWR_handle_remote:
   zcmd = null
+  origin = null
   'display panel(zigiremo)'
   if rc > 0 then do
     zerrsm = 'Canceled.'
@@ -3338,6 +3358,7 @@ Stash_List:
           x = docmd(cmd)
           call view_std 'B'
           call Setup_Selective_Replace 'Stash Branch'
+          'tbdelete' stab
         end
       end
       When zsel = 'P' then do   /* pop */
@@ -3401,9 +3422,11 @@ Do_Stash_Pop:
   'display panel(zigipop)'
   'rempop'
   xrc = docmd(cmd)
-  if xrc > 0 then do call view_std 'B'
+  if xrc > 0 then do
+    call view_std 'B'
+    Return 1
   end
-  Return 1
+  return 0
 
 Git_Clean_Check:
   lcmd = 'cd' localrep'/'zigirep
@@ -3504,7 +3527,7 @@ Get_TagList:
       parse value so.cri with day mm dd time yy gmt ctag ctitle
       cdatetim = yy mm dd time
       zd = dd mm yy
-      sortdate = date('b',zd,'n')
+      call set_sortdate
       sorttime = left(time,2)''substr(time,4,2)
     end
     ctag = translate(ctag,' ','/')
@@ -3669,7 +3692,11 @@ Do_TAGLIST:
           end
           if combine.0 > 0 then call view_std 'C'
           call Replace localrep zigirep pdshlq qualignr
-          call work_with_repo
+          /* --------------------------------------- *
+          | Call work_with_repo with flag to return |
+          * --------------------------------------- */
+          call work_with_repo 'x'
+          leave
         end
         if prc > 0 then do
           'setmsg msg(isrz003)'
@@ -4139,12 +4166,13 @@ Do_Commit:
     if rc > 4 then leave
     if translate(zcmd) = 'CANCEL' then leave
     ctop = ztdtop
-    if abbrev('IMPORT',word(translate(zcmd),1),1) = 1
+    if datatype(right(zcmd,1)) = 'NUM' then
+       zcmd = left(zcmd,1) substr(zcmd,2)
+    if zcmd /= null then
+    Select
+    When abbrev('IMPORT',word(translate(zcmd),1),2) = 1
     then call commit_import
-    if left(translate(zcmd),1) = 'I' then
-    if words(zcmd) = 1 then
-    zcmd = left(zcmd,1) substr(zcmd,2)
-    if abbrev('INSERT',translate(word(zcmd,1)),1) = 1 then do
+    When abbrev('INSERT',translate(word(zcmd,1)),1) = 1 then do
       c = word(zcmd,2)
       if c = null then c = 1
       'tbquery' cmtab 'rownum(cr)'
@@ -4154,6 +4182,8 @@ Do_Commit:
       do i = 1 to c
         'tbadd' cmtab
       end
+    end
+    Otherwise nop
     end
     select
       when zsel = 'D' then 'tbdelete' cmtab
@@ -4503,7 +4533,7 @@ Clone_Repo:
     call Replace localrep zigirep pdshlq qualignr
     zigikey = localrep'/'zigirep
     zigidate = date('n')
-    sortdate = date('b')''time('s')
+    call set_sortdate
     'tbadd zigirepo order'
     'vget (defrsort srr src srp srl) profile'
     'TBSort zigirepo Fields('defrsort')'
@@ -5231,7 +5261,7 @@ Create_Repo:
     Address ISPExec
     zigikey = localrep'/'zigirep
     zigidate = date('n')
-    sortdate = date('b')''time('s')
+    call set_sortdate
     'tbadd zigirepo order'
     zpush = defcpush
     'vget (defrsort srr src srp srl) profile'
@@ -5259,6 +5289,7 @@ do_git_attributes:
     zs4 = 'Press F3 to close this popup and exit.'
     parse value '' with zs2 zs3
     call do_popup4
+    call syscalls 'OFF'
     return
   end
   fd = retval  /* as I think it's weird to write to a retval lol */
@@ -6112,7 +6143,7 @@ Add_Dataset:
   return
 
 tbcreate_dsnatbl:
-  'tbcreate' dsnatbl 'keys(dsna) names(dastat) nowrite'
+  'tbcreate' dsnatbl 'keys(dsna) names(dastat dsnvol) nowrite'
   return
 
 Get_List:
@@ -6135,6 +6166,7 @@ Get_List:
   do dsni = 1 to x.0
     if word(x.dsni,1) /= 'NONVSAM' then iterate
     dsna = word(x.dsni,2)
+    dsnvol = word(x.dsni,3)
     dastat = null
     do gl = 1 to so.0
       if substr(dsna,length(prefix)+2) = word(so.gl,1)
@@ -6243,6 +6275,7 @@ Do_Add_Copy:
       copycmd = "//'"pdsc"'"
       copycmd = '"'copycmd'"'
       cmd = "cp -U -v "binopt copycmd" "DIR"/"pdss"/"ac_mem
+      x = debug('Copying:' cmd)
       x =bpxwunix(cmd,,so.,se.)
     end
     else do
@@ -6258,6 +6291,7 @@ Do_Add_Copy:
         copycmd = "//'"pdsc"'"
         copycmd = '"'copycmd'"'
         cmd = "cp -U -v "binopt copycmd" "DIR"/"pdss"/"ussmem
+        x = debug('Copying:' cmd)
         x =bpxwunix(cmd,,so.,se.)
       end
     end
@@ -6346,12 +6380,15 @@ save_dsninfo:
   'alloc f('sd_dd') shr ds('sd_dsn')'
   'execio * diskr' sd_dd '(finis stem sd.'
   do x = 1 to sd.0
-    if word(sd.x,1) = dsn then do
+    wd = translate(sd.x,' ','/')
+    if word(wd,1) = dsn then do
+      sd.x = '*'sd.x
+      /*
       'free f('sd_dd')'
       'delete' sd_dsn
       call outtrap 'off'
       Address ISPExec
-      return
+      return  */
     end
   end
   slast = sd.0
@@ -6847,7 +6884,7 @@ Test_Repo_Table_State:
         When words(zigidate) = 3 then do
           sortdate = date('b',strip(zigidate),'n') 0
         end
-        Otherwise sortdate = date('b')''time('s')
+        Otherwise call set_sortdate
       end
       'tbadd zigirepo order'
       if cat = 0 then do
@@ -7253,18 +7290,18 @@ Do_Tag_Extract:
       return
     end
 
-  /* ----------------------------------------- *
-  | Save a copy of the tag commit information |
-  * ----------------------------------------- */
+    /* ----------------------------------------- *
+    | Save a copy of the tag commit information |
+    * ----------------------------------------- */
     cmd = 'cd' localrep'/'zigirep '&& git show' tags '>' tagxpath'tag.info'
     x = docmd(cmd)
 
-  /* -------------------------------------------------- *
-  | Copy the OMVS filesystem OMVS files from the       |
-  | current repository to the new extract directory.   |
-  |                                                    |
-  | None of the z/OS OMVS elements will be copied.     |
-  * -------------------------------------------------- */
+    /* -------------------------------------------------- *
+    | Copy the OMVS filesystem OMVS files from the       |
+    | current repository to the new extract directory.   |
+    |                                                    |
+    | None of the z/OS OMVS elements will be copied.     |
+    * -------------------------------------------------- */
     if words(omvsfiles) > 0 then do i = 1 to words(omvsfiles)
       file = word(omvsfiles,i)
       if pos('/',file) > 0 then do
@@ -7352,6 +7389,10 @@ Check_For_More_Deletes: Procedure Expose delhlq deletes. ,
     if dir = null then iterate
     if left(so.di,1) /= '-' then iterate
     m = word(so.di,9)
+    if pos('.',m) > 0 then do
+       parse value m with m'.'.
+       m = translate(m)
+       end
     if wordpos(m,members) = 0 then do
       c = deletes.0 + 1
       deletes.c = dir'/'m

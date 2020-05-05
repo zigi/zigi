@@ -21,6 +21,8 @@ The Local Repository table is updated to easily identify the column(s)
 that are sorted. The sorted column(s) will be white and non-sorted in
 turquoise.
 
+Colorize the Git Log Graph (Network command).
+
 Validate during Clone processing to prevent HTTP/HTTPS usage since ZIGI
 only supports SSH.
 
@@ -47,6 +49,11 @@ Bug Fixes and Other Updates:
   4. Correct Locate in PDS member list.
   5. Update majority of tutorial panels for grammer/spelling/format.
   6. Validate the OMVS directory for TagList Extract.
+  7. Correct the sortdate field - was not being consistently set the same
+  8. Correct bug with taglist create to prevent recursion into the repo
+     processing routine
+  9. Fix duplicate dataset add by commenting the prior dataset in .zigi/dsn
+ 10. Update test for commit insert command (I###)
 
 =============================================================================
 
