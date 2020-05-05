@@ -7486,7 +7486,7 @@ DoHist_Recover:
           || "("rcmem")'"
       end
     end
-    rdsn = relement
+    rdsn = null
     ralc = 'N'
     rans = null
     rover = null
