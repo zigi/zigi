@@ -7494,7 +7494,7 @@ DoHist_Recover:
     'Display Panel(zigiresq)'
     drc = rc
     'Rempop'
-    if drc > 0 then leave
+    if drc > 0 then return
     if rans = 'N' then leave
     rcdd = 'RC'random(99999)
     address tso
