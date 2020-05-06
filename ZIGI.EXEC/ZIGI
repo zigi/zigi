@@ -6712,7 +6712,7 @@ GETENV:
   envc = env.0
   call add_env '_BPX_SHAREAS=YES'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
-  call add_env 'EXPORT _EDC_ADD_ERRORNO2=1'
+  call add_env 'EXPORT _EDC_ADD_ERRNO2=1'
   env.0 = envc
   drop so. se.
   x = debug('Finished collection of env variables')
