@@ -21,7 +21,7 @@
 +Command:%FIND+to find a string in any dataset name and position the table.
 +
 +Line selection options:
-+%S+Add %A+Add %AB+Add binary %B+Browse
++%S+Add+%A+Add+%AB+Add binary+%B+Browse
 +
 +
 +

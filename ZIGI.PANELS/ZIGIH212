@@ -12,7 +12,7 @@
 +considerations:
 +
 + %*+All datasets must be under the same High-Level Qualifier (HLQ)
-+ %*+All datasets must be RECFM=FB or RECFM=VB
++ %*+Datasets with RECFM=U will be added as -X (executable)
 + %*+Partitioned datasets (PDS) may contain a mix of text and binary
 +    - use the SA line command to selectively add members in binary
 +
