@@ -6306,8 +6306,15 @@ Do_Add_Copy:
       call outtrap 'cm.'
       address tso 'listd' "'"pds"' m"
       call outtrap 'off'
+      hit = 0
       do ci = 7 to cm.0
+        if pos(')',cm.ci) > 0 then do
+          hit = 0
+          iterate
+        end
+        if hit = 1 then iterate
         mem = word(cm.ci,1)
+        if pos('ALIAS(',cm.ci) > 0 then hit = 1
         ussmem = lower(mem)'.'zdsn.dsnb
         zs2 = 'to' dsnb'/'ussmem
         call do_popup4
@@ -7630,7 +7637,7 @@ Check_Load_Library: procedure
   * -------------------------------------------------- */
 Check_LMOD_PTF:
   cmd = 'cp -X -I "//'
-    cmd = cmd"'SYS1.LINKLIB(IEFBR14)'"
+  cmd = cmd"'SYS1.LINKLIB(IEFBR14)'"
   cmd = cmd '"  test'
-    x = bpxwunix(cmd,,so.,se.)
+  x = bpxwunix(cmd,,so.,se.)
   return x
