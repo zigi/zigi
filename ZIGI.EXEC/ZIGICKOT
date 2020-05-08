@@ -15,6 +15,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            05/08/20 LBD - Support for Load Libraries       |
+  |                           Change OGET to cp                |
   |            03/27/20 LBD - Remove defined extensions an U/C |
   |            03/24/20 LBD - Replace alloc/execio/free with   |
   |                           cat for .zigi/dsn                |
@@ -230,8 +232,7 @@
       'recfm('recfm') lrecl('lrecl') blksize('blksize')'
     'free ds('fileg')'
     call outtrap 'x.'
-    m = fileg
-    'oget' odir m type
+    'oget' odir fileg type
     call outtrap 'off'
   end
 
@@ -260,6 +261,7 @@
     zs4 = 'Tracks allocated:       ' fix_num(tracks)
     call pop_status
     call alloc_copy_pds
+    if recfm /= 'U' then
     call add_stats
   end
 
@@ -302,6 +304,10 @@ Alloc_Copy_PDS:
   call pop_status
   if pullmems.sub = null then do
     call get_dcb
+    if recfm = 'U' then do
+    type = 'Load module'
+    zs7 = 'Type:                   ' type
+    end
     if mgen > 0 then gens = 'maxgens('mgen')'
     else gens = null
     'Alloc new spa('tracks','tracks') recfm('recfm') lrecl('lrecl')' ,
@@ -339,10 +345,21 @@ Alloc_Copy_PDS:
     if wordpos(m,pullmems.sub) = 0 then iterate
     src = rdir'/'mems.ii
     bin = is_binfile(sub'/'mems.ii)
+    if bin = 1 then binopt = '-B'
+       else binopt = null
+    if recfm = 'U' then binopt = '-X -I'
+    src = usssafe(mems.ii)
+    zos = usssafe("//'"target"("m")'")
+    cmd = 'cd' rdir
+    cmd = cmd '&& cp -U -v' binopt src '"'zos'"'
+    x = docmd(cmd)
+    if x > 0 then call view_std 'B'
+    /* Comment Start
     if bin = 1 then type = 'Binary'
     else type = 'Text'
     Address TSO
     'OGET' "'"src"'" "'"target"("m")'" type
+       Comment End */
     Address ISPexec
   end
   call syscalls 'OFF'
@@ -360,6 +377,14 @@ get_dcb:
     blksize = def_blksize
   end
   return
+
+usssafe: procedure
+  parse arg dsn
+  if pos('$',dsn) = 0 then return dsn
+  /* Let's not usssafe it twice :) */
+  if pos('\$',dsn) > 0 then return dsn
+  dsn = strreplace(dsn, '$', '\$')
+  return dsn
 
   /* ------------ *
   | PopUp Status |
@@ -514,3 +539,125 @@ docmdx:
   end
   r = rx ' ' cmd
   return r
+
+  /* ---------------------------------------------------------- *
+  | Generalized routine to view stdout. (so.) or stderr. (se.) |
+  | based on the parm passed                                   |
+  * ---------------------------------------------------------- */
+view_std:
+  arg stdopt viewopt
+  if stdopt = null then viewopt = 'B'
+  if viewopt = null then viewopt = 'B'
+  if stdopt = 'X' then stdopt = null
+  if datatype(so.0) /= 'NUM' then so.0 = 0
+  if datatype(se.0) /= 'NUM' then se.0 = 0
+  if viewopt = 'B' then if so.0 + se.0 = 0 then return
+  /* ------------------------------- *
+  | Randomly define a DDName to use |
+  * ------------------------------- */
+  dd = 'zd'random(9999)
+  /* --------------------------------------- *
+  | Get lrecl to determine dcb for temp d/s |
+  * --------------------------------------- */
+  if stdopt /= 'C' then do
+    vlrecl = 0
+    do li  = 1 to so.0
+      so.li = strip(so.li,'T')
+      if length(so.li) > vlrecl then vlrecl = length(so.li)
+      if so.li = null then so.li = ' '
+    end
+    do li  = 1 to se.0
+      se.li = strip(se.li,'T')
+      if length(se.li) > vlrecl then vlrecl = length(se.li)
+      if se.li = null then se.li = ' '
+    end
+    sec = so.0 + se.0
+  end
+  else do
+    do li = 1 to combine.0
+      if length(combine.li) > vlrecl then vlrecl = length(combine.li)
+    end
+    sec = combine.0
+  end
+  if vlrecl < 81 then vlrecl = 80
+  /* ------------------------------------------ *
+  | Allocate a temporary data set for our data |
+  * ------------------------------------------ */
+  Address TSO
+  /* calculate space needed with avg 50 bytes per record */
+  prim = (((so.0 + se.0) * 50) % 56000) + 1
+  if prim < 2 then prim = 5
+  if viewopt = 'V' then do
+    if sysvar('syspref') = null then pref = userid()'.'
+    else pref = null
+    vdsn = pref'work.zigi.gitdata'
+  end
+  else vdsn = null
+  x = listdsi(vdsn)
+  if x = 0 then do
+    call outtrap 'x.'
+    'delete' vdsn
+    call outtrap 'off'
+  end
+  if vdsn /= null then vdsnp = 'da('vdsn') unit(3390)'
+  else vdsnp = null
+  if vlrecl > 255 then vlrecl = 251
+  'Alloc f('dd') new spa('prim','prim') tr' ,
+    'recfm(v b) lrecl('vlrecl+4') blksize(0)' vdsnp
+  /* ----------------------------- *
+  | If stdopt is 'B' then do both |
+  * ----------------------------- */
+  if stdopt /= 'C' then do
+    stdopt = null
+    sc = so.0
+    do xi = 1 to se.0
+      sc = sc + 1
+      so.sc = se.xi
+    end
+    so.0 = sc
+  end
+  /* ----------------------- *
+  | Write out the stem data |
+  * ----------------------- */
+  if stdopt = 'C' then do
+    'Execio * diskw' dd '(finis stem combine.'
+    drop combine.
+    combine.0 = 0
+  end
+  if stdopt /= 'C' then do
+    if stdopt = null
+    then do
+      'Execio * diskw' dd '(finis stem so.'
+    end
+    else do
+      'Execio * diskw' dd '(finis stem se.'
+    end
+  end
+  /* -------------------------------------------------- *
+  | Access the Temporary Data Set using ISPF           |
+  | Library Services.                                  |
+  | Then using ISPF Browse service to browse the data. |
+  | And use Library Services to Free the Data Set.     |
+  * -------------------------------------------------- */
+  Address ISPExec
+  if sec > 0 then if viewopt = 'B' then do
+    'lminit dataid(ddb) ddname('dd')'
+    'browse dataid('ddb') panel(zigibrow)'
+    'lmfree dataid('ddb')'
+  end
+  else do
+    vmac = 'Panel(zigiedit) macro(zigivmac)'
+    'view dataset('vdsn')' vmac
+    vtitle = null
+    'verase vtitle'
+  end
+  /* ----------------------------- *
+  | Last Free the z/OS Allocation |
+  * ----------------------------- */
+  call outtrap 'x.'
+  Address TSO ,
+    'Free f('dd')'
+  if vdsn /= null then
+  Address TSO 'Delete' vdsn
+  call outtrap 'off'
+  return

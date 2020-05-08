@@ -26,6 +26,11 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            05/08/20 LBD - Add support for executables      |
+  |                           from RECFM=U libraries (-X -I)   |
+  |                     HBK - Test for -X/-I support           |
+  |                     LBD - On repo delete rm the last       |
+  |                           reference file                   |
   |            05/02/20 LBD - Support graph view colors        |
   |            05/01/20 LBD - Fix Stash and Stash Pop issues   |
   |            04/29/20 LBD - Add volser to Add Dsn display    |
@@ -839,6 +844,7 @@ handle_zigiprim_lcmd_d:
       if x = 0 then do
         zerrsm = 'Deleted.'
         delcg = 'Repo removed from ZIGI, .git files deleted.'
+        del_refd = zigirefd(localrep'/'zigirep pdshlq 1 'D')
       end
       else do
         zerrsm = 'Partially Deleted.'
@@ -2680,6 +2686,12 @@ WWRF_handle_lcmd_s:
       else do
         binopt = null
       end
+      /* Check if a Load Library and update binary option variable */
+      if sysrecfm = 'U' then do
+        binopt = null
+        cplmod = '-X -I'
+      end
+      else cplmod = null
       if sysdsorg = 'PS'
       then copycmd = "//'"e"'"
       else copycmd = "//'"e"("m")'"
@@ -2687,12 +2699,12 @@ WWRF_handle_lcmd_s:
       then r = r'/'rm
       else r = r'/'
       copycmd = '"'copycmd'"'
-      copycmd = "cp "binopt" -U -v" copycmd" "localrep"/"zigirep
+      copycmd = "cp "binopt cplmod" -U -v" copycmd" "localrep"/"zigirep
       copycmd = copycmd || "/"r
       x = bpxwunix(copycmd,,so.,se.)
       if x > 0 then call view_std 'B'
       x = debug('Copy:' copycmd)
-      if binopt = '-B' then do
+      if strip(binopt''cplmod) /= null then do
         tagcmd = 'chtag -b 'localrep'/'zigirep'/'r
         x = bpxwunix(tagcmd,,so.,se.)
       end
@@ -4167,23 +4179,23 @@ Do_Commit:
     if translate(zcmd) = 'CANCEL' then leave
     ctop = ztdtop
     if datatype(right(zcmd,1)) = 'NUM' then
-       zcmd = left(zcmd,1) substr(zcmd,2)
+    zcmd = left(zcmd,1) substr(zcmd,2)
     if zcmd /= null then
     Select
-    When abbrev('IMPORT',word(translate(zcmd),1),2) = 1
-    then call commit_import
-    When abbrev('INSERT',translate(word(zcmd,1)),1) = 1 then do
-      c = word(zcmd,2)
-      if c = null then c = 1
-      'tbquery' cmtab 'rownum(cr)'
-      'tbtop' cmtab
-      'tbskip' cmtab 'number('cr')'
-      cmsg = ' '
-      do i = 1 to c
-        'tbadd' cmtab
+      When abbrev('IMPORT',word(translate(zcmd),1),2) = 1
+      then call commit_import
+      When abbrev('INSERT',translate(word(zcmd,1)),1) = 1 then do
+        c = word(zcmd,2)
+        if c = null then c = 1
+        'tbquery' cmtab 'rownum(cr)'
+        'tbtop' cmtab
+        'tbskip' cmtab 'number('cr')'
+        cmsg = ' '
+        do i = 1 to c
+          'tbadd' cmtab
+        end
       end
-    end
-    Otherwise nop
+      Otherwise nop
     end
     select
       when zsel = 'D' then 'tbdelete' cmtab
@@ -5714,14 +5726,19 @@ update_repo_metadata:
             else do
               binopt = null
             end
+            if sysrecfm = 'U' then do
+              binopt = null
+              cplmod = '-X -I'
+            end
+            else cplmod = null
             copycmd = "//'"e"("m")'"
             copycmd = '"'copycmd'"'
-            copycmd = "cp "binopt" -U -v" copycmd" "localrep"/"zigirep
+            copycmd = "cp "binopt cplmod" -U -v" copycmd" "localrep"/"zigirep
             copycmd = copycmd || "/"r"/"rm
             x = bpxwunix(copycmd,,so.,se.)
             if x > 0 then call view_std 'B'
             x = debug('Copy:' copycmd)
-            if binopt = '-B' then do
+            if strip(binopt''cplmod) /= null then do
               tagcmd = 'chtag -b 'localrep'/'zigirep'/'r'/'rm
               x = bpxwunix(tagcmd,,so.,se.)
             end
@@ -5777,14 +5794,19 @@ update_repo_metadata:
             else do
               binopt = null
             end
+            if sysrecfm = 'U' then do
+              binopt = null
+              cplmod = '-X -I'
+            end
+            else cplmod = null
             copycmd = "//"s
             copycmd = '"'copycmd'"'
-            copycmd = "cp "binopt" -U -v" copycmd" "localrep"/"zigirep
+            copycmd = "cp "binopt cplmod" -U -v" copycmd" "localrep"/"zigirep
             copycmd = copycmd || "/"r
             x = bpxwunix(copycmd,,so.,se.)
             if x > 0 then call view_std 'B'
             x = debug('Copy:' copycmd)
-            if binopt = '-B' then do
+            if strip(binopt''cplmod) /= null then do
               tagcmd = 'chtag -b 'localrep'/'zigirep'/'r
               x = bpxwunix(tagcmd,,so.,se.)
             end
@@ -6119,9 +6141,13 @@ Add_Dataset:
         else "Browse Dataset('"dsna"')"
       end
       when zsel = 'S' | zsel = 'A' then do
+        rc = Check_Load_Library(dsna)
+        if rc = 0 then
         call do_add_copy
       end
       when zsel = 'AB' then do
+        rc = Check_Load_Library(dsna)
+        if rc = 0 then
         call do_add_copy 'binary'
         gaupdate = 1
       end
@@ -6226,17 +6252,14 @@ Do_Add_Copy:
   zs4 = 'Patience . . .'
   call do_popup4
   DIR = localrep'/'zigirep
-  if sysrecfm = 'U' then do
-    if ztdsels = 1 then do
-      zerrsm = 'Invalid'
-      zerrlm = 'Dataset' what 'is not a valid Git dataset. Must be' ,
-        'RECFM of Fixed or Variable and not U.'
-      'Setmsg msg(isrz003)'
-    end
-    dastat = 'Invalid Recfm'
-    'tbmod' dsnatbl
-    return
+  if sysrecfm = 'U'
+  then do
+    cplmod = '-X -I'
+    binopt = null
+    option = 'binary'
+    zs3 = 'Copy as Load Module'
   end
+  else cplmod = null
   if SYSDSORG = 'PO' then do
     pds = what
     PDS = strip(PDS,"B","'")
@@ -6249,6 +6272,7 @@ Do_Add_Copy:
     binopt = null
     if option = 'binary' then
     if bin_already(dsnb) = 0 then do
+      if cplmod = null then
       binopt = '-B'
       if ac_mem = null then ga_mem = '*'
       else ga_mem = ac_mem
@@ -6274,7 +6298,7 @@ Do_Add_Copy:
       if ac_mem /= null then pdsc = pdsc"("ac_mem")"
       copycmd = "//'"pdsc"'"
       copycmd = '"'copycmd'"'
-      cmd = "cp -U -v "binopt copycmd" "DIR"/"pdss"/"ac_mem
+      cmd = "cp -U -v "binopt cplmod copycmd" "DIR"/"pdss"/"ac_mem
       x = debug('Copying:' cmd)
       x =bpxwunix(cmd,,so.,se.)
     end
@@ -6282,15 +6306,22 @@ Do_Add_Copy:
       call outtrap 'cm.'
       address tso 'listd' "'"pds"' m"
       call outtrap 'off'
+      hit = 0
       do ci = 7 to cm.0
+        if pos(')',cm.ci) > 0 then do
+          hit = 0
+          iterate
+        end
+        if hit = 1 then iterate
         mem = word(cm.ci,1)
+        if pos('ALIAS(',cm.ci) > 0 then hit = 1
         ussmem = lower(mem)'.'zdsn.dsnb
         zs2 = 'to' dsnb'/'ussmem
         call do_popup4
         pdsc = pds"("mem")"
         copycmd = "//'"pdsc"'"
         copycmd = '"'copycmd'"'
-        cmd = "cp -U -v "binopt copycmd" "DIR"/"pdss"/"ussmem
+        cmd = "cp -U -v "binopt cplmod copycmd" "DIR"/"pdss"/"ussmem
         x = debug('Copying:' cmd)
         x =bpxwunix(cmd,,so.,se.)
       end
@@ -6329,9 +6360,12 @@ Do_Add_Copy:
       x = docmd(cmd)
       call get_binfiles
     end
+    if sysrecfm = 'U'
+    then binopt = binopt '-X -I'
     copycmd = "//'"W"'"
     copycmd = '"'copycmd'"'
     copycmd = "cp -U -v "binopt copycmd" "DIR"/"pss
+    x = debug('Copying:' copycmd)
     x =bpxwunix(copycmd,,so.,se.)
     if option = 'binary' then do
       /* for some reason the git autotagging due to .gitattributes
@@ -6383,12 +6417,6 @@ save_dsninfo:
     wd = translate(sd.x,' ','/')
     if word(wd,1) = dsn then do
       sd.x = '*'sd.x
-      /*
-      'free f('sd_dd')'
-      'delete' sd_dsn
-      call outtrap 'off'
-      Address ISPExec
-      return  */
     end
   end
   slast = sd.0
@@ -6712,7 +6740,7 @@ GETENV:
   envc = env.0
   call add_env '_BPX_SHAREAS=YES'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
-  call add_env 'EXPORT _EDC_ADD_ERRORNO2=1'
+  call add_env 'EXPORT _EDC_ADD_ERRNO2=1'
   env.0 = envc
   drop so. se.
   x = debug('Finished collection of env variables')
@@ -7390,9 +7418,9 @@ Check_For_More_Deletes: Procedure Expose delhlq deletes. ,
     if left(so.di,1) /= '-' then iterate
     m = word(so.di,9)
     if pos('.',m) > 0 then do
-       parse value m with m'.'.
-       m = translate(m)
-       end
+      parse value m with m'.'.
+      m = translate(m)
+    end
     if wordpos(m,members) = 0 then do
       c = deletes.0 + 1
       deletes.c = dir'/'m
@@ -7486,7 +7514,7 @@ DoHist_Recover:
           || "("rcmem")'"
       end
     end
-    rdsn = relement
+    rdsn = null
     ralc = 'N'
     rans = null
     rover = null
@@ -7494,7 +7522,7 @@ DoHist_Recover:
     'Display Panel(zigiresq)'
     drc = rc
     'Rempop'
-    if drc > 0 then leave
+    if drc > 0 then return
     if rans = 'N' then leave
     rcdd = 'RC'random(99999)
     address tso
@@ -7511,6 +7539,9 @@ DoHist_Recover:
     'Execio * diskw' rcdd '(finis stem so.'
     'Free f('rcdd')'
     address ispexec
+    x = check_llib(rdsn)
+    if x = 0 then binopt = binopt '-X -I'
+    if pos('-X',binopt) = 0 then
     if pos('(',rdsn) > 0 then do
       parse value rdsn with rdsn"("mem")"
       if left(rdsn,1) = "'" then rdsn = rdsn"'"
@@ -7573,3 +7604,40 @@ Validate_path: Procedure expose null e.
   x = bpxwunix('ls -la' path,,n.,e.)
   if e.0 > 0 then return 8
   else return 0
+
+  /* -------------------------------------------------- *
+  | Check for load library                             |
+  |  - argument passed is fully qualified dataset name |
+  |  - return codes                                    |
+  |    0 = load library                                |
+  |    1 = not a load library                          |
+  * -------------------------------------------------- */
+Check_LLib: procedure
+  arg dsn
+  x = listdsi(dsn)
+  if sysrecfm = 'U'
+  then return 0
+  else return 1
+
+Check_Load_Library: procedure
+  arg dsn
+  x = listdsi("'"dsn"'")
+  if sysrecfm /= 'U' then return 0
+  x = check_lmod_ptf()
+  if x = 0 then return 0
+  zerrsm = 'Not Supported.'
+  zerrlm = 'Load Library support is not available. To enable it install' ,
+    'PTF UJ01358 for z/OS 2.2 or UJ01356 for z/OS 2.3.'
+  'setmsg msg(isrz003)'
+  return 4
+
+  /* -------------------------------------------------- *
+  | Validate that the PTF with the -I support has been |
+  | installed and return 0 if good and >0 if not       |
+  * -------------------------------------------------- */
+Check_LMOD_PTF:
+  cmd = 'cp -X -I "//'
+  cmd = cmd"'SYS1.LINKLIB(IEFBR14)'"
+  cmd = cmd '"  test'
+  x = bpxwunix(cmd,,so.,se.)
+  return x

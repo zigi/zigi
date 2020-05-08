@@ -9,6 +9,19 @@
                          New Features and Functions
                          --------------------------
 
+New support for z/OS load modules, and associated aliaes, to be managed by
+ZIGI and Git. This is transparent to the user. If a PDS is RECFM=U then it
+is treated as a load library. Be aware that when copying a load module from
+USS to a z/OS load library that the binder is invoked which may change the
+blocking of the load module but will retain all entry points, aliases,
+attributes, etc.
+
+   * ------------------------------------------------------------------ *
+   | NOTE: If your z/OS is not on z/OS 2.4 and you wish to utilize the  |
+   |       ability to have ZIGI and Git manage load modules then        |
+   |       install UJ01358 for z/OS 2.2 and UJ01356 for z/OS 2.3.       |
+   * ------------------------------------------------------------------ *
+
 New ZG command that is used outside of ZIGI to add/commit/push a updated PDS
 member from either the ISPF command line or from an enhanced member list.
 NOTE: The ZG exec is self-contained with inline ISPF panels. It must be
@@ -20,6 +33,8 @@ NOTE: For the 'Open ZIGI' command in the new ZG it's required you have
 The Local Repository table is updated to easily identify the column(s)
 that are sorted. The sorted column(s) will be white and non-sorted in
 turquoise.
+
+Colorize the Git Log Graph (Network command).
 
 Validate during Clone processing to prevent HTTP/HTTPS usage since ZIGI
 only supports SSH.
@@ -52,6 +67,9 @@ Bug Fixes and Other Updates:
      processing routine
   9. Fix duplicate dataset add by commenting the prior dataset in .zigi/dsn
  10. Update test for commit insert command (I###)
+ 11. On repository delete remove the last reference date file
+ 12. Fix check for last reference date is the repository is not in the users
+     home directory
 
 =============================================================================
 

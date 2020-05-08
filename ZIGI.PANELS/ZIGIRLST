@@ -11,8 +11,8 @@
 +
 +Enter Selection:_z +
 +
-+]Add+    (A)+ Add the member as Text to the git Index
-+]AddBin+ (AB)+Add the member as Binary to the git Index
++]Add+    (A)+ Add the member as Text to the Git Index
++]AddBin+ (AB)+Add the member as Binary to the Git Index
 +]Browse+ (B)+ Browse the dataset/file
 +]Edit+   (E)+ Edit the dataset/file
 +]Diff+   (D)+ Show the Diff's
