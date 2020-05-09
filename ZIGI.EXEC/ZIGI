@@ -681,7 +681,7 @@ display_splash:
   * ---------------------------------------------------------------- */
   parse value '' with zcmd zsel
   zigtitle = '(ZIGI' ver')'
-  'vput (zigtitle ver)'
+  'vput (zigtitle ver) shared'
   'vget (bypass pnsdef) profile'
   if pnsdef = null then do
     pnsdef = 'S'
