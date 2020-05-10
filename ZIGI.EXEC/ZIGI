@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            05/10/20 LBD - Fix TagList sort date            |
   |            05/08/20 LBD - Add support for executables      |
   |                           from RECFM=U libraries (-X -I)   |
   |                     HBK - Test for -X/-I support           |
@@ -3539,7 +3540,8 @@ Get_TagList:
       parse value so.cri with day mm dd time yy gmt ctag ctitle
       cdatetim = yy mm dd time
       zd = dd mm yy
-      call set_sortdate
+      sortdate = dd mm yy
+      sortdate = date('b',sortdate,'n')
       sorttime = left(time,2)''substr(time,4,2)
     end
     ctag = translate(ctag,' ','/')
