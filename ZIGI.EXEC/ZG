@@ -112,7 +112,7 @@
   'vget (zapplid)'
   if zapplid /= 'ZIGI' then do
     'Select cmd(%'command adddsn opt') newappl(zigi) passlib'
-    exit
+    exit rc
   end
 
   /* ------------------------------------------------------ *
