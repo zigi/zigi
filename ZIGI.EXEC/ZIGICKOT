@@ -15,6 +15,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            05/10/20 LBD - Bug fix in strreplace (null)     |
   |            05/08/20 LBD - Support for Load Libraries       |
   |                           Change OGET to cp                |
   |            03/27/20 LBD - Remove defined extensions an U/C |
@@ -299,7 +300,7 @@ Alloc_Copy_PDS:
     'delete' pds
     call outtrap 'off'
   end
-  else zs8 = 'Using existing allocation'
+  else zs8 = 'Allocating New'
   zs5 = 'Allocating PDSE:        ' pds
   call pop_status
   if pullmems.sub = null then do
@@ -436,10 +437,11 @@ pfshow:
   end
   return
 
-strreplace: Procedure Expose null
+strreplace: Procedure
   string  = arg(1)
   strfrom = arg(2)
   strto   = arg(3)
+  null = ''
   if pos(strfrom,string) = 0 then return string
   newString = null
   do i = 1 to length(string)
