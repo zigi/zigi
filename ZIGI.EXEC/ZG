@@ -42,6 +42,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            05/10/20 LBD - Check for and prevent RECFM=U    |
   |            04/16/20 LBD - Correct cp if file suffix        |
   |            04/10/20 LBD - Validate dataset is fully quoted |
   |            04/07/20 LBD - Reset Userid if DEFRUID set      |
@@ -114,16 +115,31 @@
     exit
   end
 
- /* ------------------------------------------------------ *
+  /* ------------------------------------------------------ *
   | If the user entered the dataset(member) without quotes |
   | then add the user prefix or userid and add quotes.     |
   * ------------------------------------------------------ */
   if left(adddsn,1) /= "'" then do
-     if sysvar('syspref') /= null
-     then pref = sysvar('syspref')
-     else pref = sysvar('sysuid')
-     adddsn = "'"pref"."adddsn"'"
-     end
+    if sysvar('syspref') /= null
+    then pref = sysvar('syspref')
+    else pref = sysvar('sysuid')
+    adddsn = "'"pref"."adddsn"'"
+  end
+
+  /* -------------------------- *
+  | Validate the input dataset |
+  | to prevent Load Modules    |
+  * -------------------------- */
+  x = listdsi(adddsn)
+  if sysrecfm = 'U' then do
+    zedsmsg = 'Invalid DCB'
+    zedlmsg = adddsn 'is a Load Library which is NOT supported by the ZG' ,
+      'command. For Binary and/or Load Library support use the full' ,
+      'ZIGI dialog.'
+    'Setmsg msg(isrz001)'
+    exit 4
+  end
+
   /* ----------------------- *
   | Load inline ISPF Panels |
   * ----------------------- */
@@ -261,7 +277,7 @@
     "LMMLIST Dataid("ruid") OPTION(LIST) MEMBER(MEMBER)" ,
       "STATS(YES)"
     if zluser /= defruid then
-       'LMMSTATS DATAID('ruid') Member('member') user('defruid')'
+    'LMMSTATS DATAID('ruid') Member('member') user('defruid')'
     "LMClose Dataid("ruid")"
     "LMFree  Dataid("ruid")"
   end
