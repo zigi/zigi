@@ -26,6 +26,18 @@
  &zwinttl = 'ZIGI Starting new flow on repository'
 )Proc
  ver (&flowname,NB)
+ &resp = .resp
+ *Rexx(* zedsmsg zedlmsg resp)
+ parse value '' with null zedsmsg zedlmsg
+ if resp = 'END' then exit
+ flowname = strip(flowname)
+ if pos(' ',flowname) > 0 then do
+    zedsmsg = 'Invalid.'
+    zedlmsg = flowname 'may not have blanks. Try again.'
+    end
+ *EndRexx
+ if (&zedsmsg NE &Z)
+     .msg = isrz001
 )End
 /* -------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                       */
