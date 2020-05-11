@@ -6251,9 +6251,6 @@ Do_Add_Copy:
   else do
     zs3 = 'Copy as Text'
   end
-  zs4 = 'Patience . . .'
-  call do_popup4
-  DIR = localrep'/'zigirep
   if sysrecfm = 'U'
   then do
     cplmod = '-X -I'
@@ -6262,6 +6259,9 @@ Do_Add_Copy:
     zs3 = 'Copy as Load Module'
   end
   else cplmod = null
+  zs4 = 'Patience . . .'
+  call do_popup4
+  DIR = localrep'/'zigirep
   if SYSDSORG = 'PO' then do
     pds = what
     PDS = strip(PDS,"B","'")
