@@ -5713,7 +5713,7 @@ update_repo_metadata:
             e = usssafe(edsn)
             r = usssafe(file)
             if zdsn.file /= null
-            then rm = lower(strip(mem)'.'zdsn.file)
+            then rm = lower(strip(m)'.'zdsn.file)
             else rm = m
             /* Binary v1, check if PDS is a bin, then copy binary */
             if is_binfile(r'/*') = 1 then do
