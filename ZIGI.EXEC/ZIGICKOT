@@ -15,6 +15,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            05/14/20 LBD - Remove (k) from space calc       |
+  |                         - Fix omvs files starting with #   |
   |            05/10/20 LBD - Bug fix in strreplace (null)     |
   |            05/08/20 LBD - Support for Load Libraries       |
   |                           Change OGET to cp                |
@@ -257,7 +259,7 @@
     if pullmems.sub /= null then dir.sub = words(pullmems.sub)
     zs1 = 'Processing subdirectory:' sub
     zs2 = 'Members:                ' fix_num(dir.sub)
-    zs3 = 'Total bytes (k):        ' fix_num(size.sub)
+    zs3 = 'Total bytes:            ' fix_num(size.sub)
     tracks =  (size.sub%50000 + 1) * 2
     zs4 = 'Tracks allocated:       ' fix_num(tracks)
     call pop_status
@@ -291,13 +293,15 @@ fix_num: procedure
   * ----------------------------------------------------------------- */
 Alloc_Copy_PDS:
   pds = "'"ckothlq"."sub"'"
-  odir = "'"ckotdir"/"sub"/"
+  odir = "'"ckotdir"/"sub"/'"
   zs8 = ''
+  deleted = 0
   if pullmems.sub = null then
   if sysdsn(pds) = 'OK' then do
     zs8 = 'Re-Allocating'
     call outtrap 'x.'
     'delete' pds
+    deleted = 1
     call outtrap 'off'
   end
   else zs8 = 'Allocating New'
@@ -315,7 +319,6 @@ Alloc_Copy_PDS:
       'Blksize('blksize') Dsntype(Library,2) dsorg(po) dir(1)' ,
       'dsn('pds')' gens
     'Free ds('pds')'
-    zs8 = 'Re-Allocated'
   end
   zs6 =  'Populating from:        ' odir
   call pop_status
@@ -350,17 +353,12 @@ Alloc_Copy_PDS:
        else binopt = null
     if recfm = 'U' then binopt = '-X -I'
     src = usssafe(mems.ii)
+    if left(src,1) = '#' then src = '\'src
     zos = usssafe("//'"target"("m")'")
     cmd = 'cd' rdir
     cmd = cmd '&& cp -U -v' binopt src '"'zos'"'
     x = docmd(cmd)
     if x > 0 then call view_std 'B'
-    /* Comment Start
-    if bin = 1 then type = 'Binary'
-    else type = 'Text'
-    Address TSO
-    'OGET' "'"src"'" "'"target"("m")'" type
-       Comment End */
     Address ISPexec
   end
   call syscalls 'OFF'
