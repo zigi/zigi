@@ -71,6 +71,7 @@ Bug Fixes and Other Updates:
  12. Fix check for last reference date is the repository is not in the users
      home directory
  13. PDS members starting with # break cp going to z/OS
+ 14. Add a progress indicator to the OMVS->z/OS Copy (ZIGICKOT)
 
 =============================================================================
 

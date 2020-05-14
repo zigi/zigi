@@ -1,6 +1,6 @@
 )Attr
  $ type(output) caps(off)
-)Body Window(67,12)
+)Body Window(68,13)
 +
  $zs1
  $zs2
@@ -13,6 +13,7 @@
 +
  $zs9
 +
+ $zs10
 )Init
  &zwinttl = 'ZIGI Check Out Processing'
 )Proc
