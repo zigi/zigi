@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            05/15/20 HBK - Fix bug adding with extensions   |
   |            05/10/20 LBD - Fix TagList sort date            |
   |            05/08/20 LBD - Add support for executables      |
   |                           from RECFM=U libraries (-X -I)   |
@@ -4568,9 +4569,43 @@ Clone_Repo:
   | Add Member to Git for Committing |
   * -------------------------------- */
 Git_Add_Member:
+  /* The member 'can' have an extension in the local-repo
+     of course this information is not present in the member-name
+     as shown in the table. So we 'should' check the dsn-info file
+     and check if it has an extension (and if so which one).
+  */
+  repodir = localrep'/'zigirep
+  x = bpxwunix("cat '"repodir"/.zigi/dsn'",,ck.)
+  extension = null
+  do i = 1 to ck.0
+    if left(ck.i,1) = '#' then iterate
+    if word(ck.i,1) = '*' then do
+      parse value ck.i with . def_dsorg def_recfm def_lrecl def_blksiz  e .
+    end
+    else do
+      idsn = word(ck.i,1)          /* dataset name less hlq */
+      if idsn = dsn then do
+        if word(ck.i,6) <> "" then do
+          /* we have an extension for this library */
+          extension = word(ck.i,6)
+          leave
+        end
+      end
+    end
+  end
+
   d = usssafe(dsn)
-  cmd = 'cd' localrep'/'zigirep
-  x = docmd(cmd ' && git add -v 'd'/'usssafe(mem))
+  cmd = 'cd' repodir
+
+  if extension \= null then do
+    /* so we have an extension, better add correctly */
+    toadd = lower(usssafe(mem))'.'extension
+  end
+  else do
+    /* regular add */
+    toadd = usssafe(mem)
+  end
+  x = docmd(cmd ' && git add -v 'd'/'toadd)
   return
 
   /* ---------------------------------- *
