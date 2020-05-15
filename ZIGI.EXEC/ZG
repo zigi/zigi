@@ -448,7 +448,7 @@ pfshow:
 Do_Popup:
   call pfshow 'off'           /* make sure pfshow is off */
   'Control Display Lock'
-  'Addpop row(4) column(12)'
+  'Addpop row(4) column(8)'
   'Display Panel(zigipop)'
   'Rempop'
   call pfshow 'reset'         /* restore pfshow setting */
@@ -1125,7 +1125,7 @@ ver (&cmsg1,nb)
 >Panel zigipop
 )Attr
  $ type(output) caps(off)
-)Body Window(54,4)
+)Body Window(60,4)
 +
   $zs1
   $zs2
