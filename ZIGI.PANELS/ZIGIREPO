@@ -59,8 +59,8 @@
 )ABC DESC(Help) MNEM(1)
  PDC DESC('About') ACTION RUN(Tutor) Parm('zigihabt')
  PDC DESC('Change History') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%zigichg)')
- PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigih200')
  PDC DESC('Git Help') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%GITHELP)')
+ PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigih200')
  PDC DESC('End')                                Action Run(END)
 )ABCINIT
   .ZVARS = 'MENUZ'

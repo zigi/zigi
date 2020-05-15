@@ -26,6 +26,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            05/15/20 LBD - New Z line command repo/pds to   |
+  |                           view the omvs directory/file     |
   |            05/15/20 HBK - Fix bug adding with extensions   |
   |            05/10/20 LBD - Fix TagList sort date            |
   |            05/08/20 LBD - Add support for executables      |
@@ -1228,10 +1230,13 @@ Work_With_Repo:
       When zsel = 'V' then call WWR_handle_lcmd_v
       When zsel = 'RN' then call WWR_handle_lcmd_rn
       When zsel = 'RM' then call WWR_handle_lcmd_rm
-      When zsel = 'S' & left(fulldsn,1) /= "'" then call WWR_handle_lcmd_s_omvs
-      When zsel = 'S' & zosflg = 1 then call WWR_handle_lcmd_s_mvs
+      When zsel = 'S' & left(fulldsn,1) /= "'" then
+      call WWR_handle_lcmd_s_omvs
+      When zsel = 'S' & zosflg = 1 then
+      call WWR_handle_lcmd_s_mvs
       When zsel = 'A' then call WWR_handle_lcmd_a
       When zsel = 'U' then call WWR_handle_lcmd_u
+      When zsel = 'Z' then call WWR_handle_lcmd_z
       Otherwise nop
     end
   end
@@ -2334,6 +2339,16 @@ WWR_handle_lcmd_u:
   end
   Return
 
+  /* -------------------------------- *
+   | View the OMVS file or directory. |
+   * -------------------------------- */
+WWR_handle_lcmd_z:
+    fdsn = localrep'/'zigirep'/'dsn
+    'control display save'
+    'View file(fdsn)'
+    'control display restore'
+    return
+
   /* ============================================================== */
   /* ======== repo file handling ================================== */
   /* ============================================================== */
@@ -2423,6 +2438,7 @@ Work_with_repo_file:
         when zsel = 'AB' then call WWRF_handle_lcmd_ab
         When zsel = 'U' then call do_undo 'M'
         When zsel = 'D' then call WWRF_handle_lcmd_d
+        When zsel = 'Z' then call WWRF_handle_lcmd_z
         otherwise nop
       end
     end
@@ -2861,6 +2877,16 @@ WWRF_handle_lcmd_d:
     'Setmsg msg(isrz003)'
   end
   Return
+
+WWRF_handle_lcmd_z:
+  if zdsn.dsn /= null
+  then m = lower(mem)'.'zdsn.dsn
+  else m = mem
+  fdsn = localrep'/'zigirep'/'dsn'/'m
+    'control display save'
+    'View file(fdsn)'
+    'control display restore'
+  return
 
   /* ============================================================== */
   /* ======== generic support functions       ===================== */
@@ -7487,6 +7513,10 @@ Get_PDS_Members:
   drop pdsmems.
   return
 
+/* -------------------------------------------------------- *
+ | Get the file extension information for the datasets from |
+ | .zigi/dsn.                                               |
+ * -------------------------------------------------------- */
 get_dsn_info:
   zdsn. = null
   cmd = 'cat' localrep'/'zigirep'/.zigi/dsn'

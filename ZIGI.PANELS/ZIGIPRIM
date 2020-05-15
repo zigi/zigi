@@ -14,7 +14,6 @@
  PDC DESC('Config View/Update Configuration')    ACTION RUN(CONFIG)
  PDC DESC('Create Local repository')             ACTION RUN(CREATE)
  PDC DESC('Find text in table')                  ACTION RUN(FIND)
- PDC DESC('GIT Help') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%GITHELP)')
  PDC DESC('Select a Repo to work with')          ACTION RUN(SELECT)
  PDC DESC('Sort the Table')                      ACTION RUN(SORT)
  PDC DESC('View your SSH public key')            ACTION RUN(SSH)
@@ -24,6 +23,7 @@
 )ABC DESC(Help)
  PDC DESC('About') ACTION RUN(Tutor) Parm('zigihabt')
  PDC DESC('Change History') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%zigichg)')
+ PDC DESC('GIT Help') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%GITHELP)')
  PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigihint')
 )ABCINIT
   .ZVARS = HELPX

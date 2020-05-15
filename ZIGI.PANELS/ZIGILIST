@@ -13,7 +13,6 @@
  PDC DESC('AddAll')          ACTION RUN(ADDALL)
  PDC DESC('Commit')                      ACTION RUN(COMMIT)
  PDC DESC('GIT Commands') ACTION RUN(zigigcmd)
- PDC DESC('GIT Help') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%GITHELP)')
  PDC DESC('GitLog')                              ACTION RUN(GITLOG)
  PDC DESC('Grep')            ACTION RUN(GREP)
  PDC DESC('Locate')                     ACTION RUN(LOCATE)
@@ -26,6 +25,7 @@
 )ABC DESC(Help)
  PDC DESC('About') ACTION RUN(Tutor) Parm('zigihabt')
  PDC DESC('Change History') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%zigichg)')
+ PDC DESC('GIT Help') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%GITHELP)')
  PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigih300')
 )ABCINIT
   .ZVARS = HELPX
