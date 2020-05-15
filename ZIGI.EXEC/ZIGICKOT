@@ -320,7 +320,7 @@ Alloc_Copy_PDS:
       'dsn('pds')' gens
     'Free ds('pds')'
   end
-  zs6 =  'Populating from:        ' odir
+  zs6 =  'Populating from:        ' strip(odir,'B',"'")
   call pop_status
   /* ---------------------------------------------------- *
   | Read directory to get all member file names and then |
