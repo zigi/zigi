@@ -6413,6 +6413,9 @@ Do_Add_Copy:
         zs2 = 'to' dsnb'/'ussmem
         call do_popup4
         pdsc = pds"("mem")"
+        pdss = usssafe(pdss)
+        pdsc = usssafe(pdsc)
+        ussmem = usssafe(ussmem)
         copycmd = "//'"pdsc"'"
         copycmd = '"'copycmd'"'
         cmd = "cp -U -v "binopt cplmod copycmd" "DIR"/"pdss"/"ussmem
