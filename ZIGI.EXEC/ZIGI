@@ -26,6 +26,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            05/16/20 LBD - Fix last ref date file if hlq    |
+  |                           changed on set                   |
   |            05/15/20 LBD - New Z line command repo/pds to   |
   |                           view the omvs directory/file     |
   |            05/15/20 HBK - Fix bug adding with extensions   |
@@ -3531,7 +3533,14 @@ Do_Rset:
         if x > 0 then call view_std 'B'
       end
     end
+    x = debug('Calling zigirefd to update last access info.')
+    /* Delete the old reference date file */
+    x = zigirefd(localrep'/'zigirep pdshlq qualignr 'D')
+    /* reset the hlq variable */
     pdshlq = pdshlqn
+    /* update/create the last reference date file */
+    x = zigirefd(localrep'/'zigirep pdshlq qualignr 'U')
+    x = debug('Completed the last access update.')
   end
   'tbmod zigirepo order'
   'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
