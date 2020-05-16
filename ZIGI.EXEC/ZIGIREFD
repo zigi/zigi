@@ -13,7 +13,7 @@
   |            qualignr- # of hlq quals to ignore              |
   |            option  - C to check                            |
   |                      U to update                           |
-  |                      D to update                           |
+  |                      D to delete                           |
   |                                                            |
   |            check will be a string of datasets that have    |
   |            changed since the last ZIGI access.             |
