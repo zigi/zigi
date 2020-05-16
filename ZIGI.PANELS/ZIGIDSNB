@@ -15,11 +15,11 @@
 +Command:%Find+
 +Line:%S+Add+%A+Add+%AB+Add binary+%B+Browse
 +
-%S   Dataset Name                                Status
+%S   Dataset Name                                Volser  Status
 )Model
-@z +$z                                          $z
+@z +$z                                          $z      $z
 )Init
-  .zvars = '(qualignr zsel dsna dastat)'
+  .zvars = '(qualignr zsel dsna dsnvol dastat)'
   .help = zigih210
   &zgsr = CSR
   .CURSOR = ZCMD
@@ -42,6 +42,6 @@
  ver (&zsel,list,S,B,A,AB)
 )End
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

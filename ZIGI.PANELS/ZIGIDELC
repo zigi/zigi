@@ -7,7 +7,7 @@
 +
 +Repository:$zigirep
 +
-+Remove from zigi management   @z+(Y or N)
++Remove from ZIGI management   @z+(Y or N)
 +Delete the OMVS files         @z+(Y or N)
 +Delete the z/OS Datasets      @z+(Y or N)
 +
@@ -18,7 +18,7 @@
       +Press%Enter+to continue or%F3+to cancel.
 )Init
  .zvars = '(delcg delco delzd delcf)'
- &zwinttl = 'zigi Delete Confirmation'
+ &zwinttl = 'ZIGI Delete Confirmation'
  .help = zigihdel
 )Proc
 *REXX(*)
@@ -41,6 +41,6 @@
      ver (&delco,nb,list,N)
 )end
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

@@ -9,22 +9,22 @@
                                 %AddDsn+
 +
 +If there are binary members in the partitioned dataset along with text
-+members then use the %A+option to add the entire PDS to Git. Then from the
-+Current Repository menu select the PDS and in the PDS Member display use
++members, use the %A+option to add the entire PDS to Git. Then, from the
++Current Repository menu, select the PDS and in the PDS Member display use
 +the%AB+line selection to add the member in binary format.
 +
-+The members selected as binary will be copied in binary format to the
-+OMVS filesystem, they will be entered into the .gitattributes file with a
-+binary designation, and they will be tagged in OMVS as binary files.
++The members selected as binary are copied in binary format to the
++OMVS filesystem, they are entered into the .gitattributes file with a
++binary designation, and they are tagged in OMVS as binary files.
++
++Datasets with RECFM=U are Load Libraries and will be added using (A or AB)
++as type X (executable) elements using -I to retain Aliases.
 +
 +
-+
-+  "When your work speaks for itself, don't interrupt."
-+                  - Henry J. Kaiser
-+
-+
+            +  "When your work speaks for itself, don't interrupt."
++                     -- Henry J. Kaiser
 
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
  &zgsr = CSR
@@ -32,6 +32,6 @@
  &zcont = zigih214
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

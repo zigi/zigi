@@ -8,7 +8,7 @@
 +
                                  %View+
 +
-%View+will open up the ISPF OMVS (USS) Data List (UDLIST) application
+%View+will opens up the ISPF OMVS (USS) Data List (UDLIST) application
 +(ISPF 3.17) on the current local repository.
 +
 +
@@ -21,16 +21,16 @@
 %
 +
 +
-    +"Failure is not fatal, but failure to change might be."   John Wooden
+    +"Failure is not fatal, but failure to change might be." -- John Wooden
 +
 +
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
  &zcont = zigih2h0
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

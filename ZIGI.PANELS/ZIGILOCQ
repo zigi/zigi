@@ -8,10 +8,10 @@
 +
 +Press%Enter+to continue or%F3+to cancel.
 )Init
- &zwinttl = 'zigi Locate Prompt'
+ &zwinttl = 'ZIGI Locate Prompt'
 )Proc
 )end
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

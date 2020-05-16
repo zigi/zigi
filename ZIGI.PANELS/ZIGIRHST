@@ -12,10 +12,10 @@
 +
 +]Commit+ (C) View Commit history
 +]Recover+(R) Recover the historical Level
-+]Select+ (S) Browse the dataset/file
++]Select+ (S) View the dataset/file
             +Or%F3+to cancel.
 )Init
- &zwinttl = 'zigi History Selection Options'
+ &zwinttl = 'ZIGI History Selection Options'
  .zvars = '(zsel)'
  .cursor  = zsel
  &zsel    = &z
@@ -30,6 +30,6 @@
   Field(recover) var(zsel) val('R')
 )End
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

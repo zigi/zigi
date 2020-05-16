@@ -8,29 +8,29 @@
 +
                                  %Remote+
 +
-%Remote+will add a remote repository to the current local repository.
+%Remote+adds a remote repository to the current local repository.
 +
-+This will execute a%git remote add origin+followed by a
-%git push -u origin master+
++This executes a%git remote add origin+followed by a
+%git push -u origin master+.
 +
 %Make sure the remote repository exists and you're authorized to
 +push to master.
 %
-%Note:+This is best done on a%brand new+repository.
+%Note:+this is best done on a%brand-new+repository.
 +
 %
 +
 +
+                  "The best confidence builder is experience."
++                      -- Clone Wars (Rookies)
 +
-+
-+
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
  &zcont = zigih2d0
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

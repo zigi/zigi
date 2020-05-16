@@ -8,29 +8,29 @@
 +
                                 %SSH+
 +
-%SSH+will display your personal Public SSH Key location and key contents.
-+The key contents may be copied and pasted into your account security settings
-+at the remote%Git+repository that you will be working with.
+%SSH+displays your personal Public SSH Key location and key contents. The
++key contents may be copied and pasted into your account security settings
++at the remote%Git+repository that you are be working with.
 %
-+This is your personal key that was created by you prior to using the%zigi+
-+application, or during your first execution of the%zigi+application.
++This is your personal key that was created by you prior to using the%ZIGI+
++application, or during your first execution of the%ZIGI+application.
 %
 +
 +
 +
 +
++      "Never interrupt someone doing what you said couldn't be done."
++             -- Amelia Earhart
 +
 +
 +
-+
-+
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
  &ZCONT = ZIGIH140
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

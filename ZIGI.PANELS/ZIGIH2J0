@@ -8,11 +8,11 @@
 +
                                %STASH+and%STASHL+
 +
-%Shash+will save (push) your current git workspace and restore the workspace
+%Shash+saves (push) your current git workspace and restores the workspace
 +to the last commit level. This allows you to quickly switch what you're working
 +on and work on something else without forcing a commit.
 +
-+Stash will ask for a short description since you may have multiple stashes
++Stash asks for a short description since you may have multiple stashes
 +with your project.
 +
 +Use the command%STASHL+to list all active stashes with the following options:
@@ -24,13 +24,13 @@
    %Show   +Show stash summary
 +
 +
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
  &zcont = zigih2j1
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

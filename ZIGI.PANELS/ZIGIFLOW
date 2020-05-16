@@ -18,7 +18,7 @@
  &l1 = '1'
  &l2 = '2'
  &l3 = '3'
- &zwinttl = 'zigi Flow Menu'
+ &zwinttl = 'ZIGI Flow Menu'
  .zvars = '(zcmd l1 l2 l3)'
  &zcmd  = &z
  .cursor = zcmd
@@ -35,6 +35,6 @@
  FIELD(L3    )  VAR(ZCMD) VAL('FLOWSEL')
 )End
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

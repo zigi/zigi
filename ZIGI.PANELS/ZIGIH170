@@ -8,13 +8,13 @@
 +
                                      %FIND+
 +
-%Find+and%Repeat Find+search for the provided string in all of the fields in
-+the row. The table will then be positioned so that row is the top row.
+%Find+and%Repeat Find+search for the provided string in all fields in
++the row. The table is then positioned so that row is the top row.
 +
 +The find string is case insensitive.
 +
-%Syntax:+Find string
-+    or  F5 for repeat find
++Syntax:%Find+string
++    or %F5+for repeat find
 +
 +
 %
@@ -24,7 +24,7 @@
 +       - Oswald Chambers
 +
 +
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
  vget (ztut)
@@ -35,6 +35,6 @@
      &zcont = ZIGIH2K0
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

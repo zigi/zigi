@@ -1,12 +1,12 @@
 )Attr
- $ type(output) caps(off)
- ] type(output) caps(off) intens(low)
- } type(output) caps(off) intens(low) just(right)
+ $ type(output) caps(off) color(&srr)
+ ] type(output) caps(off) intens(low) color(&srp)
+ [ type(output) caps(off) intens(low) color(&src)
+ } type(output) caps(off) intens(low) just(right) color(&srl)
  { type(input) caps(off) hilite(uscore) intens(low)
  _ type(input) caps(on ) hilite(uscore) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
  @ type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
- [ type(text) intens(low) hilite(uscore)
  | TYPE(AB)           /* Action bar                */
  < TYPE(ABSL) GE(ON)  /* Action bar separator line */
 )ABC DESC('Commands')
@@ -14,7 +14,6 @@
  PDC DESC('Config View/Update Configuration')    ACTION RUN(CONFIG)
  PDC DESC('Create Local repository')             ACTION RUN(CREATE)
  PDC DESC('Find text in table')                  ACTION RUN(FIND)
- PDC DESC('GIT Help') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%GITHELP)')
  PDC DESC('Select a Repo to work with')          ACTION RUN(SELECT)
  PDC DESC('Sort the Table')                      ACTION RUN(SORT)
  PDC DESC('View your SSH public key')            ACTION RUN(SSH)
@@ -24,6 +23,7 @@
 )ABC DESC(Help)
  PDC DESC('About') ACTION RUN(Tutor) Parm('zigihabt')
  PDC DESC('Change History') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%zigichg)')
+ PDC DESC('GIT Help') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%GITHELP)')
  PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigihint')
 )ABCINIT
   .ZVARS = HELPX
@@ -35,7 +35,7 @@
 + \ \%F3  +
 %    @repo      +           @pref  +               @cat     +      @last       +
 )Model
-_z+  $z                  +  ]z                    +]z             +}z          +
+_z+  $z                  +  ]z                    +[z             +}z          +
 )Init
  &cat     = 'Category'
  &last    = 'Last Access'
@@ -68,6 +68,6 @@ _z+  $z                  +  ]z                    +]z             +}z          +
  FIELD(REPO    ) VAR(ZCMD) VAL('SORT REPOSITORY')
 )end
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

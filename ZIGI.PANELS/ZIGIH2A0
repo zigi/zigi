@@ -8,29 +8,29 @@
 +
                                  %Push+
 +
-%Push+will update the remote repository with all the locally committed updates.
+%Push+updates the remote repository with all the locally committed updates.
 +
-+That means that only updates processed by the Commit command will be pushed
++That means that only updates processed by the Commit command are pushed
 +to the remote repository.
 +
-%Git+will only push the discrete updates which saves time and bandwidth.
+%Git+only pushes the discrete updates, which saves time and bandwidth.
 +
 %
 +
 +
-            +"Don't measure yourself by what you have accomplished,
+           +"Don't measure yourself by what you have accomplished,
             +but by what you should have accomplished with your
-            +ability." - John Wooden
+            +ability." -- John Wooden
 +
 +
 +
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
  &zcont = zigih2b0
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

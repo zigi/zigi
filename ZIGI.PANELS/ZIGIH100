@@ -9,12 +9,12 @@
 +
                               %Local Repositories+
 +
-%Commands available+(select for more information or press%Enter+to see each):
+%Commands available+(select one for more information or press%Enter+to see all)
 +
   [Clone+  Make a local copy of a remote repository
   [Config+ Review/Update your name and e-mail for%Git+
   [Create+ Create a new local repository
-  [Find+   Find/RFind a string in either the repository name or the prefix.
+  [Find+   Find/RFind a string in either the repository name or the prefix
   [Githelp+Navigate the Git help output via ISPF panels
   [Select+ Select a repository by name
   [SOrt+   Sort the table
@@ -23,9 +23,9 @@
 +Use%O+to display a command popup selection menu if the menu has been hidden.
 +
 +
-+               "Nothing will work unless you do." - John Wooden
++               "Nothing will work unless you do." -- John Wooden
 +
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
  &clone   = 'Clone'
@@ -76,6 +76,6 @@
  Field(sort   ) var(zcmd) val('8')
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

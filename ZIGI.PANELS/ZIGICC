@@ -35,6 +35,13 @@
  &resp = .resp
 *REXX(* zedsmsg zedlmsg resp csr)
   zedsmsg = ''
+  if translate(substr(remote,1,4)) = 'HTTP' then do
+     zedsmsg = 'Error'
+     zedlmsg = 'Only ssh is supported for cloning, using full syntax',
+          'ssh://[user@]host.xz[:port]/path/to/repo.git/ or',
+          'scp-like syntax [user@]host.xz:path/to/repo.git/'
+     csr = 'remote'
+  end
   if word(remote,1) = 'git' then
     if word(remote,2) = 'clone' then
         remote = subword(remote,3)
@@ -72,6 +79,6 @@
   ver (&defruid,dsname)
 )end
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

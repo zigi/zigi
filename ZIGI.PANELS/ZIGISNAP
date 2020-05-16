@@ -13,18 +13,18 @@
 +Enter New HLQ for the Snapshot datasets:   _snaphlq                      +
 +                                           (no quotes required)
 +Enter New Path for OMVS Files:@path                                        +
++                               (if blank then OMVS files are ignored)
 +
 +Tag the current level of the repository as a milestone for easy future
 +reference.
 +
 +Create a snapshot of the entire repository consisting of all z/OS datasets and
-+OMVS files. The HLQ must be empty and the path should not exist (it will be
++OMVS files. The HLQ must not exist and the path should not exist (it will be
 +created).
 +
 +This snapshot may be considered an Escrow copy or a Locked Archive as it is
 +not manageable by git. Use this when a milestone has been reached such as a
 +version, release, maintenance level, or patch.
-+
 +
                   +Press%Enter+to proceed, or%F3+to cancel.
 )Init
@@ -76,12 +76,11 @@
 *ENDREXX
  ver (&gtag,nb)
  ver (&snaphlq,nb,dsname)
- ver (&path,nb)
  .cursor = &cloc
  if (&zerrsm NE &Z)
     .msg = isrz003
 )end
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

@@ -10,7 +10,7 @@
   |                                                            |
   |            filepath is the OMVS file where the stats are   |
   |            stored and consists of:                         |
-  |                localdir/repodir/.zigi/filename             |
+  |                localdir/repodir/.ZIGI/filename             |
   |                filename is the OMVS file that represents   |
   |                the z/OS PDS dataset name                   |
   |                                                            |
@@ -22,7 +22,7 @@
   | Vars:      statmems ispf variable for selective update     |
   |                                                            |
   | Usage                                                      |
-  |   Notes: Subroutine of zigi                                |
+  |   Notes: Subroutine of ZIGI                                |
   |          Returns string of members changed                 |
   |                                                            |
   | Dependencies:                                              |
@@ -39,6 +39,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            05/08/20 LBD - Support Load Libraries           |
   |            01/08/20 LBD - Selecitve stat update if statmems|
   |            01/05/20 LBD - Correct special chars in filepath|
   |                           using usssafe routine            |
@@ -47,7 +48,7 @@
   |            11/15/19 LBD - Creation                         |
   |                                                            |
   | ---------------------------------------------------------- |
-  |    zigi - the z/OS ISPF Git Interface                      |
+  |    ZIGI - the z/OS ISPF Git Interface                      |
   |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
   |                                                            |
   |    This program is free software: you can redistribute it  |
@@ -123,6 +124,11 @@ zigistat:
   "LMINIT DATAID(STATUS) DATASET("dsn")"
   "LMOPEN DATAID("STATUS") OPTION(INPUT)"
 
+ /* ---------------------------------- *
+  | Get dataset recfm (check for lmod) |
+  * ---------------------------------- */
+  x = listdsi(dsn)
+
   /* ------------ *
   * Set defaults *
   * ------------ */
@@ -130,7 +136,8 @@ zigistat:
   parse value null with member mem. ,
     ZLCDATE ZLMDATE ZLVERS ZLMOD ZLMTIME ZLCNORC,
     ZLINORC ZLMNORC ZLUSER ,
-    zlcnorce zlinorce zlmnorce
+    zlcnorce zlinorce zlmnorce ,
+    zlsize zlamod zlrmode zlattr zlalias zlssi
   mem.0  = 0
 
   /* ----------------------- *
@@ -154,10 +161,13 @@ zigistat:
     * Add each member info to a stem *
     * ------------------------------ */
     c = mem.0 + 1
-    mem.c = strip(member ,
+    if sysrecfm /= 'U'
+    then mem.c = strip(member ,
       ZLCDATE  ZLMDATE  ZLVERS ZLMOD ZLMTIME ZLCNORC ,
       ZLINORC ZLMNORC ZLUSER ,
       zlcnorce zlinorce zlmnorce)
+    else mem.c = strip(member ,
+    zlsize zlamod zlrmode zlattr zlalias zlssi)
     mem.0 = c
     if opt = 'C' then allmems = allmems member
   end
@@ -191,7 +201,7 @@ zigistat:
     end
     /* ---------------------------------------------------------- *
     | Update ISPF Stats:                                         |
-    |  - all members in the zigi stats member will have their    |
+    |  - all members in the ZIGI stats member will have their    |
     |    ispf stats updated to reflect the saved stats           |
     |  - Use statmems ispf var for selective stat updates        |
     |  - new members will not be updated as we don't know about  |
@@ -199,7 +209,8 @@ zigistat:
     |  - members with no stats will have stats added if they are |
     |    in the saved stats member                               |
     * ---------------------------------------------------------- */
-    When opt = 'U' then do
+    When opt = 'U' then
+      if sysrecfm /= 'U' then do
       x = debug('Performing ISPF Stats file update for:' dsn)
       'vget (statmems)'
       if statmems /= null then do
@@ -343,6 +354,7 @@ Write_Stats:
     zs4 = 'Press F3 to close this popup and exit.'
     parse value '' with zs3
     call do_popup4
+    'close' fd
     call syscalls 'OFF'
     return
   end

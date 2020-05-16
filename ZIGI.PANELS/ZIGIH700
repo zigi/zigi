@@ -10,26 +10,25 @@
                         %Connecting with a Git Server
 +
 +Working with Git requires a Git Server and that means registering with the
-+server and registering your SSH Public Key with the server.
++server and provoding your SSH Public Key when you register. Click on%SSH+
++below to find where to get your SSH Public Key.
 +
-+These are the Git Servers that have connection information available for
-+(there are more and if you have info on them please share):
++These are some of the Git Servers that we have information on. Select one
++to view that information, or press%Enter+to view all.
 +
-  [SSHKey +    How to find your SSH Public Key
+  [SSH+        How to find your SSH Public Key
   [Bitbuc   +  Bitbucket.org
   [GitHub+     GitHub.com
   [GitLab+     GitLab.com
 +
-+
-+
 +  "Knowing is not enough; we must apply.
 +         Willing is not enough; we must do."
-+                  - Johann Wolfgang von Goetheou
++                 -- Johann Wolfgang von Goetheou
 +
-+Press the%Enter+key to continue your zigi tutorial journey.
++Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
- &sshkey    = 'SSH'
+ &ssh       = 'SSH'
  &bitbuc    = 'Bitbucket'
  &github    = 'GitHub'
  &gitlab    = 'GitLab'
@@ -48,6 +47,6 @@
  Field(GITLAB ) var(zcmd) val('4')
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

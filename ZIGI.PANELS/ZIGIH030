@@ -8,29 +8,29 @@
 +
                              %Special Characters+
 +
-+Special characters in z/OS datasets and member names will be escaped for
++Special characters in z/OS datasets and member names are escaped for
 +OMVS processes using the \ escape character.
 +
-+The characters that are         OMVS   z/OS
-+challenges are the%@#$+        %  _+<->%@
-+                               %  .+<->%#
-+                               %  -+<->%$
++The characters that are challenges are the%@#$+charactes:
 +
-+
+                  OMVS   z/OS
+                 %  _+<->%@
+                 %  .+<->%#
+                 %  -+<->%$
 +
 +
 +
 +
      "The best competition I have is against myself to become better."
-         - John Wooden
+        -- John Wooden
 +
-           +Press the%Enter+key to begin your zigi tutorial journey.
+          +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor = &zcmd
 )PROC
  &zcont = zigih100
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

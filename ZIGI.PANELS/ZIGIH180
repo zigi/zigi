@@ -8,23 +8,23 @@
 +
                                      %SELECT+
 +
-%Select+as a command will select the repository passed as the parameter.
+%Select+as a command selects the repository passed as the parameter.
 +
 +
 %Syntax:+Select repository-name
 +    or:+S repository-name
 +
-+Note: that the repository-name search is case insensitive. Thus a search for
-+      abc or AbC or ABC will all select a repository named abc.
++Note: the repository-name search is case insensitive, thus a search for
++      abc or AbC or ABC all selects a repository named abc.
 +
 %
 +
 +
-+  "The greatest teacher, failure is."   Master Yoda
-+       - Master Yoda
+              +"The greatest teacher, failure is."  -- Master Yoda
 +
 +
-         +Press the%Enter+key to continue your zigi tutorial journey.
++
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
  vget (ztut)
@@ -32,6 +32,6 @@
  &zcont = ZIGIH190
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

@@ -11,14 +11,14 @@
  PDC DESC('Only - filter the table')   ACTION RUN(ONLY)
  PDC DESC('Replace the table')         ACTION RUN(REPLACE)
  PDC DESC('GIT Commands') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%ZIGIGCMD)')
- PDC DESC('GIT Help') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%GITHELP)')
  PDC DESC('End') Action Run(END)
 )ABCINIT
   .ZVARS = 'MENUX'
 )ABC DESC(Help)
  PDC DESC('About') ACTION RUN(Tutor) Parm('zigihabt')
- PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigih210')
  PDC DESC('Change History') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%zigichg)')
+ PDC DESC('GIT Help') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%GITHELP)')
+ PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigih210')
 )ABCINIT
   .ZVARS = HELPX
 )Body  Expand(\\)
@@ -56,6 +56,6 @@ _z+ $z                   $z
  ver (&zsel,list,S,C,/,X)
 )End
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

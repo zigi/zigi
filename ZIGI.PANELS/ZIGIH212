@@ -11,20 +11,20 @@
 +Adding a dataset to the current repository requires the following
 +considerations:
 +
-+ %1.+All datasets must be under the same High Level Qualifier (HLQ)
-+ %2.+All datasets must be RECFM=FB or RECFM=VB
-+ %3.+Partitioned datasets (PDS) may contain a mix of text and binary
-+     - use the SA line command to selectively add members in binary
++ %*+All datasets must be under the same High-Level Qualifier (HLQ)
++ %*+Datasets with RECFM=U will be added as -X (executable)
++ %*+Partitioned datasets (PDS) may contain a mix of text and binary
++    - use the SA line command to selectively add members in binary
 +
 +Enter a valid HLQ and press Enter to view the datasets available under
 +that HLQ. Then select the individual datasets to add to the repository.
 +
-+If the dataset does not match the above criteria then it will be rejected.
++If the dataset does not match the above criteria, then it is rejected.
 +
 +The Ignore n qualifiers value is used to remove the 1st n qualifiers from
 +the HLQ (prefix) to define the OMVS file name or directory.
 
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
  &zgsr = CSR
@@ -32,6 +32,6 @@
  &zcont = zigih213
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

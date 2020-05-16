@@ -11,26 +11,26 @@
 +The use of PDSE Member Generations can provide additional recovery
 +capabilities as it allows access to previous versions, up to the generation
 +limit defined for the PDSE. However, to access a generation requires the use
-+of a generations enabled application.
++of a generations-enabled application.
 +
-+Notes+1. Generations may not be accessed from JCL or Dynamic Allocation,
-+         or from the majority of IBM and ISV ISPF applications.
-+      2. Member Removes (delete) and Renames should be done within a
-+         Generation enabled application if the member has generations.
-+         Otherwise orphan members will remain as only the base is
-+         deleted or renamed, but they are hidden to all but generation
-+         enabled tools.
++Notes:
++  %*+Generations may not be accessed from JCL or Dynamic Allocation, or
++     from the majority of IBM and ISV ISPF applications.
++  %*+Member Removes (delete) and Renames should be done within a
++     generation-enabled application if the member has generations.
++     Otherwise orphan members will remain as only the base is deleted or
++     renamed, but they are hidden to all but generation-enabled tools.
 +
 +"Programming isn't about what you know; it's about what you can figure out."
-+       - Chris Pine
++      -- Chris Pine
 +
-         +Press the%Enter+key to continue your zigi tutorial journey.
++        +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
  &ZCONT = ZIGIH142
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

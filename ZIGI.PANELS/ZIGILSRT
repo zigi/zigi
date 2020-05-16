@@ -9,7 +9,7 @@
 +
 )Init
  .zvars = '(sfx sc)'
- &zwinttl = 'zigi Sort Selections'
+ &zwinttl = 'ZIGI Sort Selections'
 )Proc
  ver (&sfx,nb,range,1,6)
  ver (&sc,nb,list,A,D)
@@ -27,6 +27,6 @@
      &sf = 'USERID'
 )end
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

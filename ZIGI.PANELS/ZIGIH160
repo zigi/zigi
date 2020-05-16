@@ -9,8 +9,8 @@
                                 %GITHELP+
 +
 %GITHELP+displays all the available%Git+commands, along with other%Git+pages
-+with more information. This will help the Git novice, and%Git+guru to better
-+use%Git+and%zigi.
++with more information. This helps the Git novice, and%Git+guru to better use
+%Git+and%zigi.
 %
 %Syntax: GITHelp optional-git-command +(e.g. gith commit)
 %
@@ -24,7 +24,7 @@
 +   (may also put cursor on the row and press enter or double click)
 +
 +
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
  vget (ztut)
@@ -35,6 +35,6 @@
      &zcont = ZIGIH250
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

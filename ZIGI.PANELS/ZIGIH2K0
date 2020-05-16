@@ -8,29 +8,29 @@
 +
                                    %ZIGIFLOW+
 +
-+The%Zigi Flow+feature will assist with making updates to repositories.
-+The general use case for using zigi flow is as follows:
++The%Zigi Flow+feature assists with making updates to repositories.
++The general use case for using ZIGI flow is as follows:
++
++  %*+Start a new ZIGI flow (FLOWGO or via Action Bar)
++  %*+Make all your changes, and then commit (as often as you like)
++  %*+Finish your ZIGI flow (FLOWEND or via Action Bar)
++
+ %FLOWGO +Creates a new branch based on%master+named zigiflow-%your-flow-name.
+         +You can do this whenever your workingspace is 'clean'.
+         +(it also creates an identical branch named%your-flow-name+)
+ %FLOWEND+Squashes all commits from zigiflow-%your-flow-name+into the +
+         %your-flow-name+branch. And prepopulates a commit panel.
+ %FLOWSEL+Enables you to select another flow to work on (efixes?)
 +
 +
-+ - Step 1: Start a new zigi flow (FLOWGO or via Action Bar)
-+ - Step 2: Make all your changes, commit (as often as you like)
-+ - Step 3: Finish your zigi flow (FLOWEND or via Action Bar)
 +
-+
-   %FLOWGO +Creates a new branch based on%master+named zigiflow-%your-flow-name.
-           +You can do this whenever your workingspace is 'clean'.
-           +(it also creates an identical branch named%your-flow-name+)
-   %FLOWEND+Squashes all commits from zigiflow-%your-flow-name+into the +
-           %your-flow-name+branch. And prepopulates a commit panel.
-   %FLOWSEL+Enables you to select another flow to work on (efixes?)
-+
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
  &zcont = zigih240
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

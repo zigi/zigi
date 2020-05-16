@@ -7,11 +7,11 @@
 +
 %Enter+to continue%F3+to cancel.
 )Init
- &zwinttl = 'zigi PDS Member Rename'
+ &zwinttl = 'ZIGI PDS Member Rename'
 )Proc
   ver (&newmem,nb,dsname)
 )end
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

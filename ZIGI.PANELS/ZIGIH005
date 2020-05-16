@@ -6,31 +6,31 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                               %Starting zigi
+                               %Starting ZIGI
 +
-+Starting%zigi+is easy. If the sample startup stub has been installed then all
-+that is required is to issue the command%TSO zigi+from any ISPF panel.
++Starting%ZIGI+is easy. If the sample startup stub has been installed then all
++that is required is to issue the command%TSO ZIGI+from any ISPF panel.
 +
 +If the bypass option on the splash panel has been enabled (using Y) and you
-+wish to see the splash panel again then the command would be %TSO zigi S+ to
++wish to see the splash panel again, then the command would be %TSO ZIGI S+to
 %start zigi.
 +
 +If you know the name of a specific repository you want to start with then
-+the command would be%TSO zigi repository-name+and zigi will open that
-+repository and bypass the Local Repository table.
++the command would be%TSO ZIGI repository-name+and ZIGI opens that
++repository and bypasses the Local Repository table.
 +
 +
 +
 +   "Don't hurry your code. Make sure it works well and is well designed.
-     Don't worry about timing"            Linus Torvalds
+     Don't worry about timing"  -- Linus Torvalds
 +
-           +Press the%Enter+key to begin your zigi tutorial journey.
+          +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor = &zcmd
 )PROC
  &ZCONT = ZIGIH010
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

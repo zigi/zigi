@@ -11,12 +11,13 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            05/02/20 LBD - If git log set vtype variable    |
   |            01/12/20 LBD - Add CLEAR command to clear all   |
   |            12/13/19 LBD - Add Browse / View options        |
   |            11/27/19 LBD - Creation                         |
   |                                                            |
   | ---------------------------------------------------------- |
-  |    zigi - the z/OS ISPF Git Interface                      |
+  |    ZIGI - the z/OS ISPF Git Interface                      |
   |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
   |                                                            |
   |    This program is free software: you can redistribute it  |
@@ -64,7 +65,7 @@
   * ------------------------------------ */
   if localrep = null then do
      zerrsm = 'Error.'
-     zerrlm = 'The zigi git Command dialog will only work while in' ,
+     zerrlm = 'The ZIGI git Command dialog will only work while in' ,
        'a repository.'
      'Setmsg msg(isrz003)'
      exit
@@ -162,7 +163,14 @@ do_gitcmd:
   'tbadd zigigcmd'
   cmd = 'cd' localdir '&& git' gitcmde
   x = bpxwunix(cmd,,so.,se.,env.)
+  if word(gitcmd,1) = 'log' then
+    if wordpos('--graph',gitcmd) > 0 then do
+     vtype = 'X'
+     'vput (vtype) shared'
+     end
   call view_std
+  vtype = null
+  'vput (vtype) shared'
   return
 
   /* ------------------------------------- *

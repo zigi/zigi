@@ -1,15 +1,15 @@
 )Attr
  $ type(output) caps(off)
-)Body Window(54,4)
+)Body Window(60,4)
 +
   $zs1
   $zs2
 
 )Init
- &zwinttl = 'zigi Status Popup'
+ &zwinttl = 'ZIGI Status Popup'
 )Proc
 )end
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

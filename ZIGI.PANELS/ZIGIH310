@@ -8,7 +8,7 @@
 +
                                    %Locate+
 +
-%Locate+will scroll the table to the member that closely matches the member
+%Locate+scrolls the table to the member that closely matches the member
 +name provided. The member name can be a partial member name (no wild cards).
 +
 %Syntax:+   Locate member
@@ -21,16 +21,16 @@
 +
 +
             +"If you don't have time to do it right,
-            + when will you have time to do it over?"   John Wooden
+            + when will you have time to do it over?" -- John Wooden
 +
 +
-           +Press the%Enter+key to begin your zigi tutorial journey.
+           +Press the%Enter+key to begin your ZIGI tutorial journey.
 )Init
  .cursor = &zcmd
 )PROC
  &ZCONT = ZIGIH320
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

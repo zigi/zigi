@@ -10,27 +10,27 @@
 +
 %Rollback+ALL changes to a specific Commit point into a new branch.
 +
-+The command will bring up a list of the last 10 commits to select from. The
++The command brings up a list of the last 10 commits to select from. The
 +number of commits to review can be changed on the prompting panel.
 +
-+Commands%Only+will limit the table to the specified string in the title.
-         %Replace+will return the table to all entries.
++Commands:%* Only+will limit the table to the specified string in the title
+          %* Replace+will return the table to all entries
 
-+Each commit is available to be%S+selected which will browse the commit
++Each commit is available to be%S+selected, which browses the commit
 +to allow the user to fully understand what the commit consisted of.
 %
-+The%R+selection will initiate the rollback process.
++The%R+selection initiates the rollback process.
 %
-+A confirmation prompt will popup requiring the name of a new branch to be
++A confirmation prompt pops up requiring the name of a new branch to be
 +created to prevent overlaying the current branch.
 +
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
  &zcont = zigih2e0
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

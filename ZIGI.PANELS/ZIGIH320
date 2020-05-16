@@ -8,10 +8,10 @@
 +
                                    %RESET+
 +
-%Reset+will change the ISPF statistics userid for all members to the userid
+%Reset+changes the ISPF statistics userid for all members to the userid
 +that is provided on the prompting panel.
 +
-+After the reset the ISPF statistics file is update and added to the Git index
++After the reset, the ISPF statistics file is updated and added to the Git index
 +so it is ready for the next Commit to make it a permanent part of the local
 +repository.
 +
@@ -22,15 +22,15 @@
 +
             +"Talent is God given. Be humble. Fame is man-given.
             +Be grateful. Conceit is self-given. Be careful."
-             - John Wooden
+                 -- John Wooden
 +
-           +Press the%Enter+key to begin your zigi tutorial journey.
+           +Press the%Enter+key to begin your ZIGI tutorial journey.
 )Init
  .cursor = &zcmd
 )PROC
  &ZCONT = ZIGIH330
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

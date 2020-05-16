@@ -5,7 +5,7 @@
   % type(text) intens(high) skip(on)
   @ type(output) hilite(reverse) color(turq) caps(off)
 )Body  Expand(\\)
-+OMVS Selection+------------------#zigtitle   +---------------------------------
++OMVS Selection+------------------@zigtitle   +---------------------------------
 %Command ===>_zcmd
 + \ \%F3  +
 +Directory: $fromdir
@@ -22,6 +22,6 @@ _z+$z$z                                                      $z           $z  +
     ver (&ocsel,list,B,I,S,L,b,i,s,l,&z)
 )End
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

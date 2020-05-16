@@ -12,7 +12,7 @@
 +       Include diffs:$z+         +Y or N
 +      Browse or View:$z+         +B or V
 )Init
- &zwinttl = 'zigi Log Filter'
+ &zwinttl = 'ZIGI Log Filter'
  .zvars = '(incldiff lbv)'
 )Proc
 *REXX(logdfrom,logdto)
@@ -32,6 +32,6 @@
 *ENDREXX
 )end
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

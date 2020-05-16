@@ -7,27 +7,27 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-%zigi+is the z/OS ISPF Git Interface designed to provide the z/OS community
-+with an easy to use interface to the Git source code management
-+system (SCM) to manage traditional%z/OS datasets+and%OMVS files.
+%ZIGI+is the z/OS ISPF Git Interface designed to provide the z/OS community
++with an easy-to-use interface to the Git source code management (SCM)
++system to manage traditional%z/OS datasets+and%OMVS files.
 +
 +This tutorial covers the following topics, presented in sequence or by
-+selecting number, or selected using point and shoot:
++selecting a number, or selected using point and shoot:
 +
-  [z+Introduction (Getting Started)   [z+Common Scenarios  (tbd)
-  [z+Local Repositories Panel         [z+zigi Repository Layout
-  [z+Current Repository Panel         [z+Registering SSH Keys
-  [z+PDS Member List Panel            [z+zigi Authors and Contributing *
-  [z+Getting Started   (tbd)          [z+GPL License
-+ [z+Convert non-zigi Repo
+  [z+Introduction (Getting Started)  [z+Convert non-ZIGI Repo
+  [z+Local Repositories Panel        [z+Common Scenarios  (tbd)
+  [z+Current Repository Panel        [z+ZIGI Repository Layout
+  [z+PDS Member List Panel           [z+Registering SSH Keys
+  [z+ZG stand-alone Command          [z+ZIGI Authors and Contributing *
+  [z+Getting Started   (tbd)         [z+GPL License
 +
 +
 +
-%Note:+the panels with command menus have an option of%O+for a popup menu
+%Note:+the panels with command menus have an option of%O+for a pop-up menu
 +
-           +Press the%Enter+key to begin your zigi tutorial journey.
+           +Press the%Enter+key to begin your ZIGI tutorial journey.
 )Init
-  .ZVARS = '(L0 L6 L1 L7 L2 L8 L3 LA L4 LG L5)'
+  .ZVARS = '(L0 L6 L1 L7 L2 L8 L3 L9 L4 LA L5 LG)'
    &L0 = '0'
    &L1 = '1'
    &L2 = '2'
@@ -36,9 +36,10 @@
    &L5 = '5'
    &L6 = '6'
    &L7 = '7'
+   &L8 = '8'
+   &L9 = '9'
    &LA = 'A'
    &LG = 'L'
-   &L8 = '8'
  .cursor = &zcmd
  &ztut = 'HINT'
  vput (ztut)
@@ -48,12 +49,13 @@
            1,zigih100   /* Primary Menu                   */
            2,zigih200   /* Repository Panel               */
            3,zigih300   /* Member List Panel              */
-           4,zigih400   /* Getting Started   (tbd)        */
-           5,zigih800   /* non-zigi conversion            */
-           6,zigih500   /* Common Scenarios  (tbd)        */
-           7,zigih600   /* Repository Layout              */
-           8,zigih700   /* SSH Key Registration           */
-           A,*zigihau   /* zigi Authors and Contributing  */
+           4,zigihs00   /* ZG stand-alone command         */
+           5,zigih400   /* Getting Started   (tbd)        */
+           6,zigih800   /* non-ZIGI conversion            */
+           7,zigih500   /* Common Scenarios  (tbd)        */
+           8,zigih600   /* Repository Layout              */
+           9,zigih700   /* SSH Key Registration           */
+           A,*zigihau   /* ZIGI Authors and Contributing  */
            L,*zigigpl   /* GPL License                    */
            *,'?'
            )
@@ -67,10 +69,11 @@
  Field(l6) var(zcmd) val(6)
  Field(l7) var(zcmd) val(7)
  Field(l8) var(zcmd) val(8)
+ Field(l9) var(zcmd) val(9)
  Field(lA) var(zcmd) val(A)
  Field(lL) var(zcmd) val(L)
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

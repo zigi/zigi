@@ -8,23 +8,23 @@
 +
                                   %GitHub
 +
-%1.+Open https://GitHub.com
-%2.+Click on Sign in or Sign up
-%3.+Click on the icon in the upper right with your initials (or picture)
-%5.+Click on Settings
-%6.+Click on SSH and GPG keys
-%7.+Click on New SSH key
-%8.+Enter a title and then paste your Public key into the box
-%9.+Click on Add SSH key to complete adding the key
+  %*+Open https://GitHub.com
+  %*+Click Sign in or Sign up
+  %*+Click the icon in the upper right with your initials (or picture)
+  %*+Click Settings
+  %*+Click SSH and GPG keys
+  %*+Click New SSH key
+  %*+Enter a title and then paste your Public key into the box
+  %*+Click Add SSH key to complete adding the key
 +
 +
 +
 +
-+  "Walking on water and developing software from a specification
-+       are easy if both are frozen."
-+            --  Edward V. Berard
++       "Walking on water and developing software from a specification
++            are easy if both are frozen."
++                 --  Edward V. Berard
 +
-+        +Press the%Enter+key to continue your zigi tutorial journey.
++        +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
  &zgsr = CSR
@@ -32,6 +32,6 @@
  &zcont = zigih730
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

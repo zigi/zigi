@@ -8,10 +8,10 @@
 +
                                  %Status+
 +
-%Status+will display the current%git status+information. This will report
+%Status+displays the current%git status+information. This reports
 +the status of the local repository, any files that are new (untracked), any
 +files that have been modified but not added to the index (not ready to be
-+Committed), and files which have been added and are ready to be Committed.
++Committed), and files that have been added and are ready to be Committed.
 +
 %
 +
@@ -21,10 +21,10 @@
 %
 +
                 +"Do not let what you cannot do interfere with
-                +what you can do." - John Wooden
+                +what you can do." -- John Wooden
 +
 +
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
  vget (ztut)
@@ -35,6 +35,6 @@
     &zcont = ZIGIH340
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

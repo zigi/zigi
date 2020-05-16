@@ -8,9 +8,9 @@
 +
                           %Menus and the Action Bar
 +
-+Using point-and-shoot capabilities works well with zigi. Double click anywhere
-+outside the table and a popup menu appears with point-and-shoot selections.
-+Double click within the table and a popup appears for row selection options for
++Using point-and-shoot capabilities works well with zigi. Double-click anywhere
++outside the table and a pop-up menu appears with point-and-shoot selections.
++Double-click within the table and a popup appears for row selection options for
 +that specific row.
 +
 +The F3 below the Scroll field may be used as a point-and-shoot field to invoke
@@ -21,16 +21,16 @@
 +
 +
 + "If no mistake you have made, losing you are. A different game
-+     you should play."        -- Master Yoda
++     you should play."    -- Master Yoda
 +
 +
-           +Press the%Enter+key to begin your zigi tutorial journey.
+          +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor = &zcmd
 )PROC
  &zcont = zigih030
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

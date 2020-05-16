@@ -8,29 +8,30 @@
 +
                                  %Clone+
 +
-%Clone+will clone a%Remote Repository+and then create a set of z/OS Datasets
-+based on the%files+and%folders+from the remote repository (optionally prefixed
-+with your%PREFIX+. For the remote repository the 'clone with ssh' url should
-+be used. Requires access to the remote repository via public key.
+%Clone+as a command clones a%Remote Repository+and then creates a set of
++z/OS Datasets based on the%files+and%folders+from the remote repository
++(optionally prefixed with your%PREFIX+qualifier). For the remote repository,
++the 'clone with ssh' url should be used. This requires access to the remote
++repository via public key.
 +
 %Optional:+is the name of a specific branch to clone. The default is master.
 +
-%Local Repository+is the location where the%Clone+will create a directory or
-+where%Create+will initialize the Git repo.
+%Local Repository+is the location where the%Clone+creates a directory or
++where%Create+initializes the Git repo.
 +
-%PREFIX+is a set of high level qualifiers (0,n) that will be prefixed
+%PREFIX+is a set of high-level qualifiers (0,n) that are prefixed
 +to the Datasets from the remote repository. This%does not+change the names
 +of the files and folders in OMVS.
 +
-%Note+Each PDS will be allocated as a PDSE with the user configured generations.
+%Note+each PDS is allocated as a PDSE with the user-configured generations.
 +
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
  &zcont = zigih111
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

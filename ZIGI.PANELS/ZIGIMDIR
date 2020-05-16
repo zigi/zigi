@@ -11,7 +11,7 @@
 +
 %ENTER+to continue, or%F3+to Cancel.
 )Init
-&zwinttl = 'zigi Make Directory (MKDIR)'
+&zwinttl = 'ZIGI Make Directory (MKDIR)'
 if (&mkdir = &Z)
    .CURSOR = MKDIR
 if (&mkdir NE &Z)
@@ -53,6 +53,6 @@ if bad = 1 then do
     .CURSOR = MP
 )End
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

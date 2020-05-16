@@ -1,7 +1,7 @@
   /* --------------------  rexx procedure  -------------------- *
   | Name:      zigirefd                                        |
   |                                                            |
-  | Function:  zigi code to check/update the last reference    |
+  | Function:  ZIGI code to check/update the last reference    |
   |            date for a z/OS dataset. Used to determine if   |
   |            the dataset needs to be checked for updates.    |
   |                                                            |
@@ -13,9 +13,10 @@
   |            qualignr- # of hlq quals to ignore              |
   |            option  - C to check                            |
   |                      U to update                           |
+  |                      D to delete                           |
   |                                                            |
   |            check will be a string of datasets that have    |
-  |            changed since the last zigi access.             |
+  |            changed since the last ZIGI access.             |
   |                                                            |
   |            A value of * will indicate to check ALL files.  |
   |                                                            |
@@ -26,10 +27,12 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            05/08/20 HBK - Fix bug if dir is not in home    |
+  |                     LBD - Add D (delete) option            |
   |            03/18/20 LBD - Refinement                       |
   |            03/17/20 LBD - Creation                         |
   | ---------------------------------------------------------- |
-  |    zigi - the z/OS ISPF Git Interface                      |
+  |    ZIGI - the z/OS ISPF Git Interface                      |
   |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
   |                                                            |
   |    This program is free software: you can redistribute it  |
@@ -67,38 +70,41 @@
     hlq = translate(hlq,'.'," ")
   end
 
-/* ---------------------------- *
- | Get the users home directory |
- * ---------------------------- */
+  /* ---------------------------- *
+  | Get the users home directory |
+  * ---------------------------- */
   Address syscall
   'getcwd homedir'
 
-/* ---------------------------------------------------------- *
- | Get the repositories subdirectory by removing the users    |
- | home directory from it and use the entire thing if the pwd |
- | is not part of it.  Remove trailing /.                     |
- * ---------------------------------------------------------- */
+  /* ---------------------------------------------------------- *
+  | Get the repositories subdirectory by removing the users    |
+  | home directory from it and use the entire thing if the pwd |
+  | is not part of it.  Remove trailing /.                     |
+  * ---------------------------------------------------------- */
   homedir = homedir'/'
   dl = length(homedir)
-  if left(dir,dl) = homedir then wdir = substr(dir,dl+1)
+  if left(dir,dl) = homedir
+  then wdir = substr(dir,dl+1)
+  else wdir = dir
   if right(wdir,1) = '/' then wdir = strip(wdir,'T','/')
 
-/* ------------------------------ *
- | Translate the directory / to _ |
- * ------------------------------ */
+  /* ------------------------------ *
+  | Translate the directory / to _ |
+  * ------------------------------ */
   refdir = translate(wdir,'_','/')
   ref_file = homedir'.zigi/'refdir
 
   'lstat' homedir'.zigi/' stem.
   if stem.0 = 0 then do
-     'mkdir' homedir'.zigi/ 755'
-     end
+    'mkdir' homedir'.zigi/ 755'
+  end
 
- Address TSO
+  Address TSO
 
   opt = translate(opt)
 
-  if opt = 'C' then do
+  Select
+  When opt = 'C' then do
     cmd = 'cat' ref_file
     x = bpxwunix(cmd,,so.,se.)
     if x > 0 then return '*'
@@ -110,7 +116,13 @@
     call check_files
     if check = null then check = '*'
   end
-  else call update
+  When opt = 'D' then do
+    cmd = 'rm' ref_file
+    x = bpxwunix(cmd,,so.,se.)
+    check = 0
+    end
+  otherwise call update
+  end
 
   return check
 
@@ -141,12 +153,12 @@ Check_files:
     parse value sysrefdate with yyyy'/'ddd
     sysrefdate = yyyy''ddd
     if opt = 'C' then
-      Select
+    Select
       When sysrefdate = today then check = check sysdsname
       when datatype(files.file) /= 'NUM' then check = check sysdsname
       When sysrefdate > files.file then check = check sysdsname
       otherwise nop
-      end
+    end
     else do
       outc = outc + 1
       outfiles.outc = sysdsname sysrefdate

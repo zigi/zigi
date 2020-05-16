@@ -8,7 +8,7 @@
 +
                                   %AddAll
 +
-%ADDALL+ will add all Untracked or Modified datasets and files to the Git
+%ADDALL+adds all Untracked or Modified datasets and files to the Git
 +staging area so they are eligible to be Committed.
 +
 +
@@ -20,11 +20,11 @@
 +
 +
 +
-+  "Kites rise highest against the wind - not with it."
-+                      -- Winston Churchill
++             "Kites rise highest against the wind - not with it."
++                          -- Winston Churchill
 +
 +
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
  &zgsr = CSR
@@ -32,6 +32,6 @@
  &zcont = zigih220
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

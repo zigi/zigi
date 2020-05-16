@@ -6,12 +6,12 @@
 +Tutorial}-}{zigtitle                                      +-}-}Tutorial
 %Command ===>`zcmd                                                             +
 +
-+ Another format for the zigi managed repository is to have file extensions
++ Another format for the ZIGI managed repository is to have file extensions
 + for the PDS members that are copied to the OMVS filesystem. This feature
 + was implemented to enable the repository to be easily updated from both
 + ISPF on z/OS and from distributed git enabled clients.
 +
-+ When the z/OS dataset is added to zigi using the ADDDSN dialog, if the
++ When the z/OS dataset is added to ZIGI using the ADDDSN dialog, if the
 + dataset is a PDS then a prompt for a file extension will popup. The file
 + extension is optional and if it is blank when the Enter key is pressed then
 + the PDS members will be copied to the OMVS filesystem as before.
@@ -20,18 +20,18 @@
 + where multiple files have the same name but different extensions.
 +
 + Note that the file extension, once defined, may never be changed as it is
-+ now an integral part of the zigi managed repository.
++ now an integral part of the ZIGI managed repository.
 +
 +
 +
-       +Press%Enter+to continue reading about the zigi repository layout.
+       +Press%Enter+to continue reading about the ZIGI repository layout.
 )Init
- &zigtitle = '(Characteristics of a zigi Managed Repository)'
+ &zigtitle = '(Characteristics of a ZIGI Managed Repository)'
 )Proc
  &zup   = zigih600
  &zcont = zigih611
 )end
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

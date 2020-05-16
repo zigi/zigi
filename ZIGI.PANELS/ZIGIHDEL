@@ -4,9 +4,9 @@
  + type(text) skip(on) intens(low)
 )Body Window(48,14)
 +
-+Deleting a repository from zigi management will
-+remove the repo from zigi and delete the .git,
-+.gitattributes, and .zigi from the repo-folder
++Deleting a repository from ZIGI management will
++remove the repo from ZIGI and delete the .git,
++.gitattributes, and .ZIGI from the repo-folder
 +in OMVS. It will not+delete the OMVS files or
 +the z/OS datasets.
 +
@@ -18,10 +18,10 @@
 +
                 +Press%F3+to continue.
 )Init
- &zwinttl = 'zigi Delete Confirmation Tutorial'
+ &zwinttl = 'ZIGI Delete Confirmation Tutorial'
 )Proc
 )end
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

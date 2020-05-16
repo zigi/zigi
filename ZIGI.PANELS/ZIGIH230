@@ -11,30 +11,27 @@
 %Commit+processing takes the changes that have been made in the managed
 +datasets and adds them to Git management.
 +
-+Commit allows for, and it is encouraged, to provide a short summary of the
++Commit allows for, and it is encouraged to provide, a short summary of the
 +changes to be captured in the git log for historical tracking. The summary
-+typically consists of up to a 50 character title, followed by up to 72
++typically consists of up to a 50-character title, followed by up to 72
 +character lines of explanation. This dialog allows up to 16 lines of text.
 +
-+If there is a issue or ticket number it is suggested that it be included in
++If there is an issue or ticket number, it is suggested that it be included in
 +the title (e.g. Ticket: title text).
 +
 +Cancel the%Commit+process by entering%F3+with an empty Commit Title.
 +
++The%Import+command may be used to import text from a dataset into the
++commit prose. If entered without a dataset then the dataset is prompted.
 +
-+         "Make it work, make it right, make it fast."   Kent Beck
-+
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
  vget (ztut)
 )PROC
- if (&ztut = 200)
-     &zcont = zigih231
- if (&ztut = 300)
-     &zcont = zigih231
+  &zcont = zigih231
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

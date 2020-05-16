@@ -22,15 +22,15 @@
 %  S    -+Select the file or directory and return for processing
 +
   +Only files with a%T+(type) of%blank+are allowed with%B+or%S+
-  +Only files with a%T+(type) of%d+will work with%L+or%S+
+  +Only files with a%T+(type) of%d+works with%L+or%S+
 +
-         +Press the%Enter+key to continue your zigi tutorial journey.
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
  &ZCONT = ZIGIH122
 )END
 /* -------------------------------------------------------- */
-/* zigi - the z/OS ISPF Git Interface                       */
+/* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */
