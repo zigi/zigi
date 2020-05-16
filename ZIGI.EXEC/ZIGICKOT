@@ -258,11 +258,12 @@
       'abcdefghijklmnopqrstuvwxyz')
     if pos('?',fx) > 0 then iterate
     if pullmems.sub /= null then dir.sub = words(pullmems.sub)
-    zs1 = 'Processing subdirectory:' sub
-    zs2 = 'Members:                ' fix_num(dir.sub)
-    zs3 = 'Total bytes:            ' fix_num(size.sub)
+    zs1 = 'Populating from:        ' ckotdir
+    zs2 = 'Processing subdirectory:' sub
+    zs3 = 'Members:                ' fix_num(dir.sub)
+    zs4 = 'Total bytes:            ' fix_num(size.sub)
     tracks =  (size.sub%50000 + 1) * 2
-    zs4 = 'Tracks allocated:       ' fix_num(tracks)
+    zs5 = 'Tracks allocated:       ' fix_num(tracks)
     call pop_status
     call alloc_copy_pds
     if recfm /= 'U' then
@@ -305,13 +306,13 @@ Alloc_Copy_PDS:
     call outtrap 'off'
   end
   else zs8 = 'Allocating New'
-  zs5 = 'Allocating PDSE:        ' pds
+  zs6 = 'Allocating PDSE:        ' pds
   call pop_status
   if pullmems.sub = null then do
     call get_dcb
     if recfm = 'U' then do
     type = 'Load module'
-    zs7 = 'Type:                   ' type
+    zs8 = 'Type:                   ' type
     end
     if mgen > 0 then gens = 'maxgens('mgen')'
     else gens = null
@@ -320,7 +321,6 @@ Alloc_Copy_PDS:
       'dsn('pds')' gens
     'Free ds('pds')'
   end
-  zs6 =  'Populating from:        ' strip(odir,'B',"'")
   call pop_status
   /* ---------------------------------------------------- *
   | Read directory to get all member file names and then |
@@ -405,7 +405,7 @@ Pop_Status:
   Address ISPExec
   call pfshow 'off'
   'Control Display Lock'
-  'Addpop row(3) column(3)'
+  'Addpop row(3) column(2)'
   'Display Panel(zigipopc)'
   'Rempop'
   call pfshow 'reset'

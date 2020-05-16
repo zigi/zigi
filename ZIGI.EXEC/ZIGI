@@ -826,7 +826,7 @@ Create_zigirepo:
   | Handle zigiprim panel linecommand i         |
   * ------------------------------------------ */
 handle_zigiprim_lcmd_i:
-  'addpop row(3) column(2)'
+  'addpop row(3) column(1)'
   'display panel(zigiinfo)'
   'rempop'
   zsel = null
@@ -1239,7 +1239,13 @@ Work_With_Repo:
       When zsel = 'A' then call WWR_handle_lcmd_a
       When zsel = 'U' then call WWR_handle_lcmd_u
       When zsel = 'Z' then call WWR_handle_lcmd_z
-      Otherwise nop
+      Otherwise do
+        zerrsm = 'Invalid.'
+        zerrlm = zsel 'is not a valid selection value. Review the' ,
+          'ISPF Tutorial using F1 for available line selection' ,
+          'options.'
+        'setmsg msg(isrz003)'
+      end
     end
   end
   if ztdsels < 2 then do
@@ -2345,11 +2351,11 @@ WWR_handle_lcmd_u:
    | View the OMVS file or directory. |
    * -------------------------------- */
 WWR_handle_lcmd_z:
-    fdsn = localrep'/'zigirep'/'dsn
-    'control display save'
-    'View file(fdsn)'
-    'control display restore'
-    return
+  fdsn = localrep'/'zigirep'/'dsn
+  'control display save'
+  'View file(fdsn)'
+  'control display restore'
+  return
 
   /* ============================================================== */
   /* ======== repo file handling ================================== */
@@ -2441,7 +2447,13 @@ Work_with_repo_file:
         When zsel = 'U' then call do_undo 'M'
         When zsel = 'D' then call WWRF_handle_lcmd_d
         When zsel = 'Z' then call WWRF_handle_lcmd_z
-        otherwise nop
+        Otherwise do
+          zerrsm = 'Invalid.'
+          zerrlm = zsel 'is not a valid selection value. Review the' ,
+            'ISPF Tutorial using F1 for available line selection' ,
+            'options.'
+          'setmsg msg(isrz003)'
+        end
       end
     end
   end
@@ -2885,9 +2897,9 @@ WWRF_handle_lcmd_z:
   then m = lower(mem)'.'zdsn.dsn
   else m = mem
   fdsn = localrep'/'zigirep'/'dsn'/'m
-    'control display save'
-    'View file(fdsn)'
-    'control display restore'
+  'control display save'
+  'View file(fdsn)'
+  'control display restore'
   return
 
   /* ============================================================== */

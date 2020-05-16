@@ -5,11 +5,11 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
-)Body Window(67,12)
+)Body Window(75,12)
 
 +Repository    : $zigirep
 +Branch        : $branch
-+Remote        : $remote1
++Remote        : $remotex
 +Home Directory: $home
 +Category      : $zigicat
 +z/OS HLQ      : $pdshlq
@@ -20,8 +20,9 @@
 %
 )Init
  &zwinttl = 'ZIGI Local Repository Summary Info'
-*REXX(* localrep)
+*REXX(* localrep remotex remote1)
  home = localrep'/'zigirep
+ remotex = subword(remote1,2)
 *ENDREXX
 )Proc
 )End
