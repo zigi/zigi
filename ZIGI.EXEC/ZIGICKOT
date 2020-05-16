@@ -360,7 +360,7 @@ Alloc_Copy_PDS:
     if left(src,1) = '#' then src = '\'src
     zos = usssafe("//'"target"("m")'")
     mcount = mcount + 1
-    zs9 = 'Copying' mcount 'of' left(tcount,11) 'Member:' m
+    zs9 = left('Copying' mcount 'of' tcount,24) 'Member:' m
     /* Comment Start
     x = mcount//10
     if tcount < 30 then x = 0
