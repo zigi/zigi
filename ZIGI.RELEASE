@@ -12,6 +12,8 @@
 
  1. Enable GITHELP to be open in multiple screens or stacked
  2. Fix merge resolution ISPF stats update error
+ 3. Fix failure after selecting multiple files/datasets in the Current
+    Repository display
 
 =============================================================================
 
