@@ -51,11 +51,11 @@
   * ---------------------------------------------------------- */
 
   parse value '' with rx null status
-  passone = 0                   /* determine wrap with only */
+  passone   = 0                 /* determine wrap with only */
   save_floc = 0                 /* Save last find location  */
   save_find = null              /* save last find string    */
-  scrl = 'CSR'                  /* default scroll amt       */
-  ghtbl = 'GH'time('s')         /* dynamic table name       */
+  scrl      = 'CSR'             /* default scroll amt       */
+  ghtbl     = 'GH'time('s')     /* dynamic table name       */
 
   arg gitfuncs   /* wjs*/
   do forever

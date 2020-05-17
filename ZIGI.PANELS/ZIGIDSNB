@@ -19,10 +19,10 @@
 )Model
 @z +$z                                          $z      $z
 )Init
-  .zvars = '(qualignr zsel dsna dsnvol dastat)'
-  .help = zigih210
-  &zgsr = CSR
-  .CURSOR = ZCMD
+ .zvars = '(qualignr zsel dsna dsnvol dastat)'
+ .help = zigih210
+ &zgsr = CSR
+ .CURSOR = ZCMD
 )Proc
  &row = &z
  if (&ZCMD = &Z)
