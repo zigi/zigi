@@ -26,6 +26,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            05/17/20 LBD - Fix merge resolution stats if    |
+  |                           file extensions in use           |
   |            05/16/20 LBD - Fix last ref date file if hlq    |
   |                           changed on set                   |
   |            05/15/20 LBD - New Z line command repo/pds to   |
@@ -5230,7 +5232,9 @@ Merge_it:
             if fix_stats /= null
             then do fs = 1 to words(fix_stats)
               sfile = usssafe(word(fix_stats,fs))
-              pds = usssafe(pdshlqt'.'substr(sfile,7))
+              wfile = translate(word(fix_stats,fs),' ','/')
+              wfile = subword(wfile,words(wfile))
+              pds = usssafe(pdshlqt'.'wfile)
               Address TSO '%zigistat' "'"pds"'" sfile 'S'
               x = docmd('cd' localrep'/'zigirep '&& git add' sfile)
             end
