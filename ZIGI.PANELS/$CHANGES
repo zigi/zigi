@@ -4,6 +4,21 @@
  *-------------------------------------------------------------------*
 
                              ZIGI Release Notes
+                                Version 2.9
+
+                         New Features and Functions
+
+ 2.9 is a bug fix release
+
+ 1. Enable GITHELP to be open in multiple screens or stacked
+ 2. Fix merge resolution ISPF stats update error
+
+ *-------------------------------------------------------------------*
+ |  The User Guide and Cheat Sheet can be found at:                  |
+ |  https://github.com/wizardofzos/zigi/wiki/6.-Documentation        |
+ *-------------------------------------------------------------------*
+
+                             ZIGI Release Notes
                                 Version 2.8
 
                          New Features and Functions
