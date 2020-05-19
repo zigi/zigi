@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            05/19/20 EJA - Improve status field for PDS     |
   |            05/17/20 LBD - Fix merge resolution stats if    |
   |                           file extensions in use           |
   |                         - Fix current repo multi-select    |
