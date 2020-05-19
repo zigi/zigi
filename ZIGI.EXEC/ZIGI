@@ -5953,10 +5953,19 @@ update_repo_metadata:
           PATH = substr(so.ii,4)
           dsnstat = null
           if pos('/',path) > 0
-          then parse value path with test'/'.
-          else test = path
+          then do
+            parse value path with test'/'.
+            type = 'pds'
+          end
+          else do
+            test = path
+            type = 'seq'
+          end
           if dsn = test then do
-            dsnstat = porcelain(stat)
+            if type = 'seq' then
+               dsnstat = porcelain(stat)
+            else
+               dsnstat = 'Uncommitted changes'
             leave
           end
         end
