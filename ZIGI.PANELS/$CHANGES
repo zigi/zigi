@@ -8,7 +8,9 @@
 
                          New Features and Functions
 
- 2.9 is a bug fix release
+Add progress information on startup (checkout) and dataset add.
+
+Bug Fixes and Other Updates:
 
  1. Enable GITHELP to be open in multiple screens or stacked
  2. Fix merge resolution ISPF stats update error
@@ -66,7 +68,6 @@ delete OMVS file, B to delete both, or N for No delete (only remove from
 Git). **NOTE** this does NOT apply to performing an RM on a PDS member due
 to the way PDS members are managed - performing an RM *will* delete the PDS
 member and the OMVS copy of the member.
-
 
 Bug Fixes and Other Updates:
 
