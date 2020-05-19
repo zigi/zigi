@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            05/19/20 EJA - Improve status field for PDS     |
   |            05/17/20 LBD - Fix merge resolution stats if    |
   |                           file extensions in use           |
   |                         - Fix current repo multi-select    |
@@ -5953,10 +5954,19 @@ update_repo_metadata:
           PATH = substr(so.ii,4)
           dsnstat = null
           if pos('/',path) > 0
-          then parse value path with test'/'.
-          else test = path
+          then do
+            parse value path with test'/'.
+            type = 'pds'
+          end
+          else do
+            test = path
+            type = 'seq'
+          end
           if dsn = test then do
-            dsnstat = porcelain(stat)
+            if type = 'seq' then
+               dsnstat = porcelain(stat)
+            else
+               dsnstat = 'Uncommitted changes'
             leave
           end
         end
