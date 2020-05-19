@@ -23,14 +23,14 @@
 )Model
 @z +$z                                          $z      $z
 )Init
-  .zvars = '(qualignr zsel dsna dsnvol dastat)'
-  .help = zigih210
-  &zgsr = CSR
-  if (&dsnapfx EQ &Z)
-     .CURSOR = DSNAPFX
-  if (&qualignr EQ &Z)
-     .CURSOR = QUALIGNR
+ .zvars = '(qualignr zsel dsna dsnvol dastat)'
+ .help = zigih210
+ &zgsr = CSR
  .CURSOR = ZCMD
+ if (&dsnapfx EQ &Z)
+    .CURSOR = DSNAPFX
+ if (&qualignr EQ &Z)
+    .CURSOR = QUALIGNR
 )ReInit
  Refresh (qualignr)
 )Proc
