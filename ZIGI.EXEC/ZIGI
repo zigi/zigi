@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            05/25/20 LBD - Improve status field for all     |
   |            05/19/20 EJA - Improve status field for PDS     |
   |            05/17/20 LBD - Fix merge resolution stats if    |
   |                           file extensions in use           |
@@ -5949,27 +5950,36 @@ update_repo_metadata:
       if dsnvalid(root.i) = "OK" then do
         x = debug('Get the git status and fill dsnstat' root.i)
         dsn = root.i
+        filet. = null
         do ii = 1 to so.0
           stat = substr(so.ii,1,2)
           PATH = substr(so.ii,4)
           dsnstat = null
           if pos('/',path) > 0
-          then do
-            parse value path with test'/'.
-            type = 'pds'
-          end
-          else do
-            test = path
-            type = 'seq'
-          end
-          if dsn = test then do
-            if type = 'seq' then
-               dsnstat = porcelain(stat)
-            else
-               dsnstat = 'Uncommitted changes'
-            leave
-          end
+          then parse value path with test'/'.
+          else test = path
+          if test = dsn then
+          Select
+               When stat = '??' then do
+                    filet.dsn = stat
+                    leave
+                    end
+               When pos('M',stat) > 0 & filet.dsn /= null then
+                    filet.dsn = stat
+               When pos('A',stat) > 0 & filet.dsn /= null then
+                    filet.dsn = stat
+               When pos('D',stat) > 0 & filet.dsn /= null then
+                    filet.dsn = stat
+               When pos('C',stat) > 0 & filet.dsn /= null then
+                    filet.dsn = stat
+               When pos('R',stat) > 0 & filet.dsn /= null then
+                    filet.dsn = stat
+               Otherwise filet.dsn = stat
+               end
         end
+
+        if filet.dsn /= null then
+        dsnstat = porcelain(filet.dsn)
         x = debug('done')
 
         if qualignr = null then do
