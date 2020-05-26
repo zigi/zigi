@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            05/26/20 LBD - Correct RM if untracked          |
   |            05/25/20 LBD - Improve status field for all     |
   |            05/19/20 EJA - Improve status field for PDS     |
   |            05/17/20 LBD - Fix merge resolution stats if    |
@@ -2832,7 +2833,10 @@ WWRF_handle_lcmd_rm:
     else rmem = mem
     m = usssafe(rmem)
     xldir = usssafe(localdir)
-    cmd = 'cd' xldir '&& git rm -f "'usssafe(m)'"'
+    cmd = 'cd' xldir
+    if pos('??',memstat) = 0
+       then cmd = cmd '&& git rm -f "'m'"'
+       else cmd = cmd '&& rm -f' m
     x = docmd(cmd,,so.,se.)
     memstat = '*Removed'
     'tbmod' rtll
