@@ -5964,7 +5964,7 @@ update_repo_metadata:
                     filet.dsn = stat
                     leave
                     end
-               When right(stat,1) /= ' ' & filet.dsn = null
+               When right(stat,1) /= ' '
                     then filet.dsn = ' M'
                When left(stat,1) /= ' ' & filet.dsn = null
                     then filet.dsn = 'M '
