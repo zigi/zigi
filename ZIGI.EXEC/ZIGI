@@ -5964,6 +5964,11 @@ update_repo_metadata:
                     filet.dsn = stat
                     leave
                     end
+               When right(stat,1) /= ' ' & filet.dsn = null
+                    then filet.dsn = ' M'
+               When left(stat,1) /= ' ' & filet.dsn = null
+                    then filet.dsn = 'M '
+               /* Comment Start
                When pos('M',stat) > 0 & filet.dsn /= null then
                     filet.dsn = stat
                When pos('A',stat) > 0 & filet.dsn /= null then
@@ -5974,7 +5979,8 @@ update_repo_metadata:
                     filet.dsn = stat
                When pos('R',stat) > 0 & filet.dsn /= null then
                     filet.dsn = stat
-               Otherwise filet.dsn = stat
+                  Comment End */
+               Otherwise nop
                end
         end
 
@@ -6070,12 +6076,6 @@ porcelain:
     When stat == " R" then res = "Renamed"
     When stat == " C" then res = "Copied"
     When stat == "M " then res = "Ready to commit"
-    When left(stat,1) == " " then res = "Not Updated"
-    When left(stat,1) == "M" then res = "Updated in index"
-    When left(stat,1) == "A" then res = "Added to index"
-    When left(stat,1) == "D" then res = "Deleted from index"
-    When left(stat,1) == "R" then res = "Renamed in index"
-    When left(stat,1) == "C" then res = "Copied in index"
     When stat == "??" then res = "Untracked"
     When stat == "MM" then res = "Modified"
     When stat == "AM" then res = "Modified"
@@ -6089,6 +6089,12 @@ porcelain:
     When stat == "DC" then res = "Copied"
     When stat == "??" then res = "Untracked"
     When stat == "!!" then res = "Ignored"
+    When left(stat,1) == " " then res = "Not Updated"
+    When left(stat,1) == "M" then res = "Updated in index"
+    When left(stat,1) == "A" then res = "Added to index"
+    When left(stat,1) == "D" then res = "Deleted from index"
+    When left(stat,1) == "R" then res = "Renamed in index"
+    When left(stat,1) == "C" then res = "Copied in index"
     Otherwise res = null
   end
   return '[' || stat || '] ' || res
