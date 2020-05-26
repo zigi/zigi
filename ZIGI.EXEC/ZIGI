@@ -5968,18 +5968,6 @@ update_repo_metadata:
                     then filet.dsn = ' M'
                When left(stat,1) /= ' ' & filet.dsn = null
                     then filet.dsn = 'M '
-               /* Comment Start
-               When pos('M',stat) > 0 & filet.dsn /= null then
-                    filet.dsn = stat
-               When pos('A',stat) > 0 & filet.dsn /= null then
-                    filet.dsn = stat
-               When pos('D',stat) > 0 & filet.dsn /= null then
-                    filet.dsn = stat
-               When pos('C',stat) > 0 & filet.dsn /= null then
-                    filet.dsn = stat
-               When pos('R',stat) > 0 & filet.dsn /= null then
-                    filet.dsn = stat
-                  Comment End */
                Otherwise nop
                end
         end
