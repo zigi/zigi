@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            05/27/20 LBD - Add error messages on browse     |
   |            05/26/20 LBD - Correct RM if untracked          |
   |            05/25/20 LBD - Improve status field for all     |
   |            05/19/20 EJA - Improve status field for PDS     |
@@ -2071,12 +2072,20 @@ WWR_handle_lcmd_b:
     if sysdsorg = 'PO' then do
       'LMInit Dataid(zigdid) Dataset('fulldsn')'
       "Memlist Dataid("zigdid") Default(B)"
+      drc = rc
       "LMfree Dataid("zigdid")"
     end
-    else 'Browse Dataset('fulldsn')'
+    else do
+      'Browse Dataset('fulldsn')'
+      drc = rc
+    end
   end
-  else Address TSO 'Obrowse' localrep'/'zigirep'/'fulldsn
+  else do
+    Address TSO 'Obrowse' localrep'/'zigirep'/'fulldsn
+    drc = rc
+  end
   'control display restore'
+  if drc > 0 then 'setmsg msg(isrz003)'
   Return
 
   /* -------------------------------- *
@@ -2656,7 +2665,9 @@ WWRF_handle_lcmd_b:
   if sysdsorg = 'PS'
   then "Browse Dataset('"edsn"')"
   else "Browse Dataset('"edsn"("mem")'"
+  brc = rc
   'control display restore'
+  if brc > 0 then 'setmsg msg(isrz003)'
   Return
 
   /* -------------------------------- *
@@ -2835,8 +2846,8 @@ WWRF_handle_lcmd_rm:
     xldir = usssafe(localdir)
     cmd = 'cd' xldir
     if pos('??',memstat) = 0
-       then cmd = cmd '&& git rm -f "'m'"'
-       else cmd = cmd '&& rm -f' m
+    then cmd = cmd '&& git rm -f "'m'"'
+    else cmd = cmd '&& rm -f' m
     x = docmd(cmd,,so.,se.)
     memstat = '*Removed'
     'tbmod' rtll
@@ -5964,16 +5975,16 @@ update_repo_metadata:
           else test = path
           if test = dsn then
           Select
-               When stat = '??' then do
-                    filet.dsn = stat
-                    leave
-                    end
-               When right(stat,1) /= ' '
-                    then filet.dsn = ' M'
-               When left(stat,1) /= ' ' & filet.dsn = null
-                    then filet.dsn = 'M '
-               Otherwise nop
-               end
+            When stat = '??' then do
+              filet.dsn = stat
+              leave
+            end
+            When right(stat,1) /= ' '
+            then filet.dsn = ' M'
+            When left(stat,1) /= ' ' & filet.dsn = null
+            then filet.dsn = 'M '
+            Otherwise nop
+          end
         end
 
         if filet.dsn /= null then
@@ -6379,8 +6390,8 @@ Do_Add_Copy:
   end
   else cplmod = null
   if sysmembers /= null
-     then patmem = 'Members to copy:' sysmembers
-     else patmem = null
+  then patmem = 'Members to copy:' sysmembers
+  else patmem = null
   zs4 = 'Patience . . .' patmem
   call do_popup4
   DIR = localrep'/'zigirep
