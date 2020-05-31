@@ -26,6 +26,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            05/31/20 LBD - Use SHAREVAR routine for passing |
+  |                           variables to zigickot            |
   |            05/27/20 LBD - Add error messages on browse     |
   |            05/26/20 LBD - Correct RM if untracked          |
   |            05/25/20 LBD - Improve status field for all     |
@@ -4809,7 +4811,10 @@ Replace:
     ckothlq = translate(ckothlq,'.',' ')
   end
   ckotqual = qualignr
-  'vput (ckotdir ckothlq pulldsns ckotqual)'
+
+  x = sharevar('put' 'zigi' ,
+     'binfiles. env. gitenv ckothlq ckotdir pulldsns mgen ckotqual')
+
   'Select cmd(%zigickot)'
   return
 
@@ -7797,3 +7802,122 @@ Check_LMOD_PTF:
   cmd = cmd '"  test'
   x = bpxwunix(cmd,,so.,se.)
   return x
+
+/* --------------------  rexx procedure  -------------------- *
+ | Name:      SHAREVAR                                        |
+ |                                                            |
+ | Function:  Share REXX variables, including stems, among    |
+ |            different REXX routines using an ISPF variable. |
+ |                                                            |
+ | Syntax:    rc = sharevar(action ispfvar list)              |
+ |                                                            |
+ |            rc = return code                                |
+ |                                                            |
+ |            Action is:  Put or Get                          |
+ |                  Put will create the ispf variable with    |
+ |                      the provided list of rexx variables   |
+ |                      'encoded' within.                     |
+ |                  Get will restore the rexx variables       |
+ |                                                            |
+ |            ispfvar is the ISPF variable name to use        |
+ |                                                            |
+ |            list is a list, enclosed in quotes, of REXX     |
+ |                    variables to be Put (shared).           |
+ |                                                            |
+ | Examples:  rc = sharevar('put' 'myispfvar' ,               |
+ |                          'userid var1 var2 stem1. stem2.') |
+ |            rc = sharevar('get' 'myisfvar')                 |
+ |                                                            |
+ | Usage Notes: This code must be copied into each of the     |
+ |              REXX execs in which it will be used           |
+ |                                                            |
+ |              Each REXX variable will be 'encoded' between  |
+ |              x'01' and for a stem each stem will be        |
+ |              encoded individually.                         |
+ |                                                            |
+ |              Procedure is not used as it hides all the     |
+ |              routines variables which must be exposed.     |
+ |              Since we don't know which variables to        |
+ |              expose - none are.                            |
+ |                                                            |
+ | Dependencies: Must be used under ISPF and under            |
+ |               Address ISPExec                              |
+ |                                                            |
+ | Author:    Lionel B. Dyck                                  |
+ |                                                            |
+ | History:  (most recent on top)                             |
+ |            05/30/20 LBD - Creation                         |
+ |                                                            |
+ * ---------------------------------------------------------- */
+ShareVar:
+  arg @svact @svispfv @svlist
+
+/* ------------------- *
+ | Define our defaults |
+ * ------------------- */
+  @svshrv = ''
+  @svx01   = '01'x   /* separator */
+
+/* ------------------ *
+ | Process the Action |
+ * ------------------ */
+  Select
+/* -------------------------------------------------------------- *
+ | Action: PUT                                                    |
+ |                                                                |
+ | Captures the requested rexx variables and adds them to an      |
+ | ispf variable. For stem variables each stem # will be added    |
+ | with it's #. Stems that do not use #'s for the suffix are      |
+ | not supported.                                                 |
+ |                                                                |
+ | Each rexx variable, or stem variable, is separated by a hex 01 |
+ | which will be used to parse them on the GET.                   |
+ * -------------------------------------------------------------- */
+    When @svact = 'PUT' then do
+      do @svri = 1 to words(@svlist)
+        @sv = word(@svlist,@svri)
+        if right(@sv,1) /= '.'
+        then  @svshrv = @svshrv''@svx01''@sv value(@sv)
+        else do
+          @sv = substr(@sv,1,length(@sv)-1)
+          @svc = value(@sv'.0')
+          @svshrv = @svshrv''@svx01'' @sv'.0' @svc
+          do @svi = 1 to @svc
+            @svs = value(@sv'.'@svi)
+            @svshrv = @svshrv''@svx01'' @sv'.'@svi @svs
+          end
+        end
+      end
+      /* set the ispf variable name in @svispfv
+         contents to the value of the data in
+         @svshrv variable */
+      x = value(@svispfv,@svshrv)
+      'vput ('@svispfv') shared'
+    end
+/* ---------------------------------------------------------- *
+ | Action: GET                                                |
+ |                                                            |
+ | VGET the ISPF variable and parse it out to recreate all of |
+ | the REXX variables that were PUT.                          |
+ * ---------------------------------------------------------- */
+    When @svact = 'GET' then do
+      'vget ('@svispfv') shared'
+      @vputvar = value(@svispfv)
+      do until strip(@vputvar) = ''
+        parse value @vputvar with @rxs (@svx01) @vputvar
+        if strip(@rxs) = '' then iterate
+        parse value @rxs with @rxv @rxs
+        x = value(@rxv,@rxs)
+      end
+      'verase ('@svispfv') shared'
+    end
+    Otherwise return 8
+  end
+
+/* ---------------------- *
+ | Clean up our variables |
+ * ---------------------- */
+  drop @vputvar @svact @svispfv @svlist ,
+    @sv @rxv @rxs @svs @svi @svri @svc @svx01
+
+  return 0

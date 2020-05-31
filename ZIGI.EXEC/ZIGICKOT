@@ -15,6 +15,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            05/31/20 LBD - Use SHAREVAR routine for passed  |
+  |                           variables from zigi              |
   |            05/14/20 LBD - Remove (k) from space calc       |
   |                         - Fix omvs files starting with #   |
   |                         - Add progress info on copy        |
@@ -75,7 +77,7 @@
   | Get the ISPF Variables with our instructions |
   * -------------------------------------------- */
   Address ISPExec
-  'vget (ckothlq ckotdir pulldsns mgen ckotqual)'
+  x = sharevar('get' 'zigi')
   if datatype(mgen) /= 'NUM' then mgen = 0
 
   Address TSO
@@ -135,13 +137,6 @@
       end
     end
   end
-
-  /* ------------------------------- *
-  | Get the list of Binary Datasets |
-  * ------------------------------- */
-  Address ISPExec 'vget (gitenv) profile'
-  call getenv
-  call get_binfiles
 
   /* ---------------------------------------------------- *
   | Process the results of the ls command to:            |
@@ -361,11 +356,6 @@ Alloc_Copy_PDS:
     zos = usssafe("//'"target"("m")'")
     mcount = mcount + 1
     zs9 = left('Copying' mcount 'of' tcount,24) 'Member:' m
-    /* Comment Start
-    x = mcount//10
-    if tcount < 30 then x = 0
-    if x = 0 then call pop_status
-       Comment End */
     call pop_status
     cmd = 'cd' rdir
     cmd = cmd '&& cp -U -v' binopt src '"'zos'"'
@@ -674,3 +664,122 @@ view_std:
   Address TSO 'Delete' vdsn
   call outtrap 'off'
   return
+
+/* --------------------  rexx procedure  -------------------- *
+ | Name:      SHAREVAR                                        |
+ |                                                            |
+ | Function:  Share REXX variables, including stems, among    |
+ |            different REXX routines using an ISPF variable. |
+ |                                                            |
+ | Syntax:    rc = sharevar(action ispfvar list)              |
+ |                                                            |
+ |            rc = return code                                |
+ |                                                            |
+ |            Action is:  Put or Get                          |
+ |                  Put will create the ispf variable with    |
+ |                      the provided list of rexx variables   |
+ |                      'encoded' within.                     |
+ |                  Get will restore the rexx variables       |
+ |                                                            |
+ |            ispfvar is the ISPF variable name to use        |
+ |                                                            |
+ |            list is a list, enclosed in quotes, of REXX     |
+ |                    variables to be Put (shared).           |
+ |                                                            |
+ | Examples:  rc = sharevar('put' 'myispfvar' ,               |
+ |                          'userid var1 var2 stem1. stem2.') |
+ |            rc = sharevar('get' 'myisfvar')                 |
+ |                                                            |
+ | Usage Notes: This code must be copied into each of the     |
+ |              REXX execs in which it will be used           |
+ |                                                            |
+ |              Each REXX variable will be 'encoded' between  |
+ |              x'01' and for a stem each stem will be        |
+ |              encoded individually.                         |
+ |                                                            |
+ |              Procedure is not used as it hides all the     |
+ |              routines variables which must be exposed.     |
+ |              Since we don't know which variables to        |
+ |              expose - none are.                            |
+ |                                                            |
+ | Dependencies: Must be used under ISPF and under            |
+ |               Address ISPExec                              |
+ |                                                            |
+ | Author:    Lionel B. Dyck                                  |
+ |                                                            |
+ | History:  (most recent on top)                             |
+ |            05/30/20 LBD - Creation                         |
+ |                                                            |
+ * ---------------------------------------------------------- */
+ShareVar:
+  arg @svact @svispfv @svlist
+
+/* ------------------- *
+ | Define our defaults |
+ * ------------------- */
+  @svshrv = ''
+  @svx01   = '01'x   /* separator */
+
+/* ------------------ *
+ | Process the Action |
+ * ------------------ */
+  Select
+/* -------------------------------------------------------------- *
+ | Action: PUT                                                    |
+ |                                                                |
+ | Captures the requested rexx variables and adds them to an      |
+ | ispf variable. For stem variables each stem # will be added    |
+ | with it's #. Stems that do not use #'s for the suffix are      |
+ | not supported.                                                 |
+ |                                                                |
+ | Each rexx variable, or stem variable, is separated by a hex 01 |
+ | which will be used to parse them on the GET.                   |
+ * -------------------------------------------------------------- */
+    When @svact = 'PUT' then do
+      do @svri = 1 to words(@svlist)
+        @sv = word(@svlist,@svri)
+        if right(@sv,1) /= '.'
+        then  @svshrv = @svshrv''@svx01''@sv value(@sv)
+        else do
+          @sv = substr(@sv,1,length(@sv)-1)
+          @svc = value(@sv'.0')
+          @svshrv = @svshrv''@svx01'' @sv'.0' @svc
+          do @svi = 1 to @svc
+            @svs = value(@sv'.'@svi)
+            @svshrv = @svshrv''@svx01'' @sv'.'@svi @svs
+          end
+        end
+      end
+      /* set the ispf variable name in @svispfv
+         contents to the value of the data in
+         @svshrv variable */
+      x = value(@svispfv,@svshrv)
+      'vput ('@svispfv') shared'
+    end
+/* ---------------------------------------------------------- *
+ | Action: GET                                                |
+ |                                                            |
+ | VGET the ISPF variable and parse it out to recreate all of |
+ | the REXX variables that were PUT.                          |
+ * ---------------------------------------------------------- */
+    When @svact = 'GET' then do
+      'vget ('@svispfv') shared'
+      @vputvar = value(@svispfv)
+      do until strip(@vputvar) = ''
+        parse value @vputvar with @rxs (@svx01) @vputvar
+        if strip(@rxs) = '' then iterate
+        parse value @rxs with @rxv @rxs
+        x = value(@rxv,@rxs)
+      end
+      'verase ('@svispfv') shared'
+    end
+    Otherwise return 8
+  end
+
+/* ---------------------- *
+ | Clean up our variables |
+ * ---------------------- */
+  drop @vputvar @svact @svispfv @svlist ,
+    @sv @rxv @rxs @svs @svi @svri @svc @svx01
+
+  return 0
