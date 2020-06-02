@@ -70,7 +70,7 @@
 +Current Repository+--------------#zigtitle   +---------------------------------
 %Command ===>_zcmd            \ \  %Scroll ===>_zgsr+
 +Local dir     :$localdir                                                 %F3  +
-+Remote path   :$remote1
++Remote path   :$remote1                                                    $z
 +Current Branch:$branch                                      +
 %               !bstat                                                     +
 %               $baction                                                   +
@@ -79,7 +79,7 @@
 )Model
 @z +$z                       $z                                            ]z
 )Init
- .zvars = '(zsel dsnstat fulldsn filetype)'
+ .zvars = '(sind zsel dsnstat fulldsn filetype)'
  .cursor = &zcmd
  .help = zigih200
  &zgsr = CSR
@@ -100,6 +100,8 @@
  if (&row = 0)
      &zsel = &z
 /*  ver (&zsel,list,S,A,U,B,V,RM,RN,H,D,/) */
+)Field
+ Field(remote1) ind(sind,'<>') len(255)
 )End
 /* -------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                       */
