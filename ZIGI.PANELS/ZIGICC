@@ -8,8 +8,8 @@
 %Command ===>_zcmd                                                            +
 +
 %Remote Repository: +URL for reference only
- @remote                                                                      +
-+
+ @remote
+                                                                         +
 %Optional:          +Specific branch to clone (default is master)
  @remotebr                                   +
 +

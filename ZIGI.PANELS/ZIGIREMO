@@ -6,8 +6,8 @@
 +Add Remote+----------------------#zigtitle   +---------------------------------
 %Command ===>_zcmd
 +
-+Add remote _origin                                                         +
-+
++Add remote _origin
+                                                                         +
 +Default Push on Commit:$z+(Y or N)
 +
 +Default Userid to set prior to Commit:$defruid + or blank
