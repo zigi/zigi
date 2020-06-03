@@ -4984,6 +4984,7 @@ Branch_it:
   'tbend' rtbb
   rtbb_open = 0
   ztdsels = 0
+  zsel = null
   return
 
   /* ----------------------------- *
