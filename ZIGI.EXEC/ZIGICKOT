@@ -15,6 +15,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/04/20 LBD - Remove obsolete code (git)       |
   |            05/14/20 LBD - Remove (k) from space calc       |
   |                         - Fix omvs files starting with #   |
   |                         - Add progress info on copy        |
@@ -100,7 +101,7 @@
   /* ------------------------- *
   | Define our work variables |
   * ------------------------- */
-  parse value '' with subs files null pullmems.
+  parse value '' with subs files null pullmems. rx
   hit = 0
 
   /* ------------------------------------ *
@@ -140,7 +141,6 @@
   | Get the list of Binary Datasets |
   * ------------------------------- */
   Address ISPExec 'vget (gitenv) profile'
-  call getenv
   call get_binfiles
 
   /* ---------------------------------------------------- *
@@ -504,54 +504,11 @@ is_binfile:
   end
   return res
 
-  /* ----------------------------------------------------- *
-  | Get the users current OMVS enviornment for use in the |
-  | bpxwunix commands.                                    |
-  * ----------------------------------------------------- */
-GETENV:
-  cmd  = docmdx('env')
-  rc = bpxwunix(cmd,,env.,se.)
-  envc = env.0
-  call add_env '_BPX_SHAREAS=YES'
-  call add_env '_BPX_SPAWN_SCRIPT=YES'
-  call add_env 'EXPORT _EDC_ADD_ERRORNO2=1'
-  env.0 = envc
-  drop so. se.
-  return
-
-  /* -------------------- *
-  | Add info to env stem |
-  * -------------------- */
-add_env:
-  parse arg env_val
-  envc = envc + 1
-  env.envc = env_val
-  return
-
 docmd:
   parse arg cmd
   drop so. se.
-  if gitenv /= null then do
-    cmd = ". "gitenv" > /dev/null 2>&1 && "cmd
-  end
-  x = bpxwunix(cmd,,so.,se.,env.)
+  x = bpxwunix(cmd,,so.,se.)
   return x
-
-docmdx:
-  /* quircky thing, we need to export HOME as we are
-  not running a login shell via bpxwunix */
-  parse arg cmd
-  drop so. se.
-  if rx = null then do
-    rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && '
-    c = "[[ -f "home"/.profile ]] && echo f"
-    x = bpxwunix(c,,o.,e.)
-    if o.0 = 1 & o.1 = "f" then do
-      rx = rx '. 'home'/.profile > /dev/null 2>&1 && '
-    end
-  end
-  r = rx ' ' cmd
-  return r
 
   /* ---------------------------------------------------------- *
   | Generalized routine to view stdout. (so.) or stderr. (se.) |
