@@ -1,0 +1,58 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+)Body  Expand(\\) Window(46,9)
++Command ===>_zcmd   \ \ +
+%
++Review/Update New Directory Info
+%
++New Directory:_mkdir                        +
++
++Permissions:_mp + (755 is the default)
++
+%ENTER+to continue, or%F3+to Cancel.
+)Init
+&zwinttl = 'ZIGI Make Directory (MKDIR)'
+if (&mkdir = &Z)
+   .CURSOR = MKDIR
+if (&mkdir NE &Z)
+   .CURSOR = MP
+)Proc
+ ver (&mkdir,nb)
+ ver (&mp,nb,num)
+ &resp = .resp
+*REXX(* zedsmsg zedlmsg resp)
+if resp = 'END' then exit
+parse value '' with zedsmsg zedlmsg
+bad = 0
+ cmd = 'ls -la' mkdir
+ x = bpxwunix(cmd,,so.,se.)
+ if se.0 = 0 then do
+    zedsmsg = 'Error.'
+    zedlmsg = mkdir 'exists and it must not exist for MKDIR to work.'
+    bad = 2
+    end
+ if bad = 0 then
+ if mp /= 755 then
+ Select
+   when datatype(mp) /= 'NUM' then bad = 1
+   when length(mp) > 3 then bad = 1
+   when mp /= 755 then do
+      if left(mp,1) > 7 then bad = 1
+      if substr(mp,2,1) > 7 then bad = 1
+      if right(mp,1) > 7 then bad = 1
+      end
+  otherwise nop
+  end
+if bad = 1 then do
+   zedsmsg = 'Invalid.'
+   zedlmsg = mp 'is not a valid file permission. Suggest using 755.'
+   end
+*ENDREXX
+ IF (&zedsmsg NE &Z)
+    .MSG = ISRZ001
+    .CURSOR = MP
+)End
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

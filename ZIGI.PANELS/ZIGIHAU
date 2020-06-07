@@ -1,0 +1,45 @@
+)attr default(@+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) color(white)
+  } area(SCRL) Extend(ON)
+)Body Expand(\\)
+@Tutorial -\-\~The z ISPF Git Interface (zigi)@\-\- Tutorial
++Command ===>_ZCMD                    \ \+Scroll ===>_zgsr
++
+                        @ZIGI Authors and Contributors+
++
+}help -----------------------------------------------------------------------}
+)Area Help
+@Authors+
++
+@Henri Kuiper+of zDevOps (www.zdevops.com, www.zigi.rocks and
++github.com/wizardofzos)
++
++Henri is the instigator and initial developer of zigi. Without his epiphany
++there wouldn't be a ZIGI as you see it. He provided the insights, logic, and
++code for 99% of the Git processing.
++
+@Lionel B. Dyck+0f+21st Century Software (www.21stcenturysoftware.com)
++
++Lionel nudged Henri to get the project rolling beyond Henri's initial efforts
++and is the impetus for the ISPF elements and other features. Lionel is
++a prolific tool creator who has been blessed with management allowing him to
++share his creations, which can be found at www.lbdsoftware.com.
++
+@Special Thanks To our Contributors:
++
+  +Davide Girardi      +Erik Janssen    +Kadima           +William Schoen
+  +David Crayford      +Jim Taylor      +Lee Bochicchio   +Kate Domenichella
+
++
+)Init
+ .cursor = &zcmd
+ &zgsr = CSR
+)PROC
+ &ZUP = ZIGIHINT
+)END
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

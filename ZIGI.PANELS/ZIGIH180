@@ -1,0 +1,37 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                                     %SELECT+
++
+%Select+as a command selects the repository passed as the parameter.
++
++
+%Syntax:+Select repository-name
++    or:+S repository-name
++
++Note: the repository-name search is case insensitive, thus a search for
++      abc or AbC or ABC all selects a repository named abc.
++
+%
++
++
+              +"The greatest teacher, failure is."  -- Master Yoda
++
++
++
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
+)Init
+ .cursor  = &zcmd
+ vget (ztut)
+)PROC
+ &zcont = ZIGIH190
+)END
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

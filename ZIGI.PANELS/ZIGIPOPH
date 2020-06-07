@@ -1,0 +1,20 @@
+)Attr
+ $ type(output) caps(off)
+ _ type(input)  caps(off) hilite(uscore) intens(low)
+)Body Window(47,7)
++Confirm you really want to perform a rollback
++to the selected Commit level?
++
+%New Branch Name:_newbr                      +
++The new branch will be at the rollback level.
++
+      %ENTER+to continue, or%F3+to cancel
+)Init
+ &zwinttl = 'ZIGI Prompt Popup'
+)Proc
+ ver (&newbr,nb)
+)end
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

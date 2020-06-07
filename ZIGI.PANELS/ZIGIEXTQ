@@ -1,0 +1,22 @@
+)Attr
+ _ type(input ) hilite(uscore) caps(on) intens(low )
+ $ type(output)  caps(off)
+ + type(text) skip(on) caps(off) intens(low)
+)Body Window(58,6)
++z/OS HLQ: $tagxhlq                      +
++OMVS Path:$tagxpath                                     +
++
++Confirm the above:_z+(Y or N)
++
++Press%Enter+to proceed, or%F3+to cancel.
+)Init
+ &zwinttl = ' TagList-Extract Confirmation'
+ .zvars = '(sans)'
+ .help = zigih2i1
+)Proc
+ ver (&sans,nb,list,Y,N)
+)end
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

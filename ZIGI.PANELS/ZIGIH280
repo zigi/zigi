@@ -1,0 +1,36 @@
+)attr default(@+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(!!)
+@Tutorial -!-!~The z ISPF Git Interface (zigi)@!-!- Tutorial
+@Selection ===>_ZCMD                                                          +
++
+                                 @Network+
++
+@Network+draws a text-based graphical representation of the commit and
++branch/merge history for the current branch using the following command:
++
+   @git log --graph --oneline --format="%h %<(50,trunc)%f"
++
++
++Notes:@*+The top is the most recent commit, the bottom is the oldest
++      @*+Branches are vertical lines
++      @*+Asterisk identifies which branch the current commit references
++      @*+The \ is where 2 branches converge/merge
++      @*+The / is where 2 branches split
++
++
+               +"Success is never final, failure is never fatal.
+                   +It's courage that counts." -- John Wooden
++
+         +Press the@Enter+key to continue your ZIGI tutorial journey.
+)Init
+ .cursor  = &zcmd
+)PROC
+ &zcont = zigih290
+)END
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

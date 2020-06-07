@@ -1,0 +1,37 @@
+)attr default(%+`)
+ { type(output) hilite(reverse) color(turq) caps(off)
+ ` type( input) intens(low ) just(left ) hilite(uscore)
+ + type(text ) intens(low) skip(on)
+)Body Expand(}})
++Tutorial}-}{zigtitle                                      +-}-}Tutorial
+%Command ===>`zcmd                                                             +
++
+                 +%Disable+or%Enable+File Extension Prompting
++
++ To enable, or disable, prompting for a file extension when adding a
++ partitioned dataset use the%CONFIG+command on the Local Repository
++ panel, or the%SET+command on the Current Repository panel. It can
++ also be disabled during the prompt when adding a partitioned dataset
++ to the Current Repository.
++
++
++
++
++
++
++ "Code is like humor. When you have to explain it, it's bad."
++      -- Cory House
++
++
++
+       +Press%Enter+to continue reading about the ZIGI repository layout.
+)Init
+ &zigtitle = '(Characteristics of a ZIGI Managed Repository)'
+)Proc
+ &zup   = zigih610
+ &zcont = zigih620
+)end
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

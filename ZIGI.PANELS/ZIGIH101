@@ -1,0 +1,36 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore) caps(on)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on) color(white)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                              %Local Repositories+
++
+%Row selections:
++
+  %S+Select a repository to open and work with
++    - The repository is opened with a list of managed z/OS datasets
++      and/or OMVS files.
+  %I+Info on the repository
+  %V+View the OMVS file system for the local repository
++    - Open the ISPF 3.17 (UDList) to allow viewing of the local repository
+  %D+Delete the repository on the local file system with prompts for:
+     - Removal of OMVS files
++    - Deletion of z/OS datasets
++ %/+Display a popup for row selection options.
++
++    "Some things are so unexpected that no one is prepared for them."
++       -- Leo Rosten
++
++Press the%Enter+key to continue your ZIGI tutorial journey.
+)Init
+ .cursor  = &zcmd
+ &zcont = zigih110
+)PROC
+)END
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

@@ -1,0 +1,54 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  } type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+  @ type(output) intens(high) caps(off) just(left )
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+  ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
+)Body  window(44,11)
++Enter Selection:_z        +
++
+ ]Clone+   remote repository
+ ]Config+  View Git configuration
+ ]Create+  a local repo from scratch
+ ]Find+    string in table fields:_findstr +
+ ]Githelp+ Display menu of Git Help pages
+ ]SElect+  Select a Repository:}selfind +
+ ]SOrt+    Sort the table
+ ]SSH+     View your SSH public key
+             +Or%F3+to cancel.
+)Init
+ &zwinttl = 'ZIGI Local Repository Commands'
+ .zvars = '(zcmd)'
+ .cursor = zcmd
+ &zcmd  = &z
+ &clone   = 'Clone'
+ &create  = 'Create'
+ &ssh     = 'SSH'
+ &find    = 'FIND'
+ &select  = 'Select'
+ &sort    = 'Sort'
+ &config  = 'Config'
+ &githelp = 'GitHelp'
+ .help = zigih100
+)Proc
+*REXX(*)
+ if abbrev('FIND',zcmd,1) = 1 then zcmd = 'FIND'
+*ENDREXX
+ if (&zcmd EQ 'FIND')
+    ver (&findstr,nb)
+)PNTS
+ FIELD(CLONE   ) VAR(ZCMD) VAL('CLONE')
+ FIELD(CREATE  ) VAR(ZCMD) VAL('CREATE')
+ FIELD(SELECT  ) VAR(ZCMD) VAL('SELECT')
+ FIELD(SORT    ) VAR(ZCMD) VAL('SORT')
+ FIELD(SSH     ) VAR(ZCMD) VAL('SSH')
+ FIELD(CONFIG  ) VAR(ZCMD) VAL('CONFIG')
+ FIELD(GITHELP ) VAR(ZCMD) VAL('GITHELP')
+)End
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

@@ -1,0 +1,315 @@
+  /* --------------------  rexx procedure  -------------------- *
+  | Name:      zigicnvt                                        |
+  |                                                            |
+  | Function:  ZIGI convert a non-ZIGI repo to ZIGI format     |
+  |                                                            |
+  | Syntax:    %zigicnvt                                       |
+  |                                                            |
+  | Usage Notes:                                               |
+  |            1. ISPF Variables will pass the                 |
+  |               - default HLQ to be used                     |
+  |            2. The OMVS Directory where the project is      |
+  |            3. Sequential files that have no lowercase      |
+  |               will be processed.                           |
+  |            4. Directories that are all upper case and      |
+  |               8 chars or less will be assumed to be        |
+  |               a PDS                                        |
+  |            5. Files ending in .bin will have the .bin      |
+  |               removed and be defined as binary             |
+  |                                                            |
+  | Dependencies: Will call zigickot when done to upload       |
+  |               to z/OS                                      |
+  |                                                            |
+  | Author:    Lionel B. Dyck                                  |
+  |                                                            |
+  | History:  (most recent on top)                             |
+  |            03/02/20 LBD - Minor cleanup                    |
+  |            02/27/20 LBD - Creation                         |
+  | ---------------------------------------------------------- |
+  |    ZIGI - the z/OS ISPF Git Interface                      |
+  |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
+  |                                                            |
+  |    This program is free software: you can redistribute it  |
+  |    and/or modify it under the terms of the GNU General     |
+  |    Public License as published by the Free Software        |
+  |    Foundation, either version 3 of the License, or (at     |
+  |    your option) any later version.                         |
+  |                                                            |
+  |    This program is distributed in the hope that it will be |
+  |    useful, but WITHOUT ANY WARRANTY; without even the      |
+  |    implied warranty of MERCHANTABILITY or FITNESS FOR A    |
+  |    PARTICULAR PURPOSE.  See the GNU General Public License |
+  |    for more details.                                       |
+  |                                                            |
+  |    You should have received a copy of the GNU General      |
+  |    Public License along with this program.  If not, see    |
+  |    <https://www.gnu.org/licenses/>.                        |
+  * ---------------------------------------------------------- */
+
+  address ispexec,
+    'vget (convdir)'
+
+  parse value '' with null fail binfiles.
+
+  if convdir = null then exit 8
+
+  x = syscalls('ON')
+  call readdir convdir
+  /* process the root directory */
+  do i = 1 to d.0
+    fileo = d.i
+    type = s.i.st_type  /* 3 = ps 1 = dir */
+    if left(fileo,1) = '.' then iterate
+    if right(fileo,3) = '.md' then iterate
+    file = translate(fileo)
+    if dsnvalid(file) = 'OK' then call convert
+  end
+
+  x = syscalls('OFF')
+
+  call outtrap 'x.'
+  call make_dsn convdir
+  call outtrap 'off'
+  exit 0
+
+convert:
+  zs1 = 'Working on conversion'
+  zs2 = 'Patience.'
+  call pop
+  if type = 1 then do
+    dir = convdir'/'fileo
+    zs1 = 'Reading' dir
+    zs2 = 'Patience.'
+    call pop
+    call readsub dir
+    do di = 1 to sd.0
+      stype = ss.di.st_type  /* 3 = ps 1 = dir */
+      if stype = 1 then iterate
+      dfile = sd.di
+      if left(dfile,1) = '.' then iterate
+      parse value dfile with ndfile'.'suf
+      ndfile = translate(ndfile)
+      cmd = 'cd' dir '&& mv' dfile ndfile
+      zs1 = 'Converting:' dfile
+      zs2 = 'To:        ' ndfile
+      call pop
+      x = bpxwunix(cmd,,so.,se.)
+      if x > 0 then do
+        do z = 1 to so.0;say so.z;end
+        do z = 1 to se.0;say se.z;end
+      end
+      if translate(suf) = 'BIN' then do
+        call set_binary
+      end
+    end
+    zs1 = 'Renaming Directory:' fileo
+    zs2 = 'To                :' file
+    call pop
+    cmd = 'cd' convdir '&& mv' fileo file
+    x = bpxwunix(cmd,,so.,se.)
+    if x > 0 then do
+      do z = 1 to so.0;say so.z;end
+      do z = 1 to se.0;say se.z;end
+    end
+  end
+  if type = 3 then do
+    if right(file,4) = '.BIN' then do
+      parse value file with file'.BIN'
+      call set_binary
+    end
+    if file /= fileo then do
+      zs1 = 'Converting:' fileo
+      zs2 = 'To        :' file
+      call pop
+      cmd = 'cd' convdir '&& mv' fileo file
+      x = bpxwunix(cmd,,so.,se.)
+      if x > 0 then do
+        do z = 1 to so.0;say so.z;end
+        do z = 1 to se.0;say se.z;end
+      end
+    end
+  end
+  return
+
+  /* ----------------------- *
+  | Generalized Pop Message |
+  * ----------------------- */
+Pop:
+  add = address()             /* save addressing environment */
+  Address ISPExec
+  call do_popup
+  Address add                 /* restore addressing environment */
+  return
+
+  /* ---------------------------------------- *
+  | Common routine for normal (2 line) popup |
+  * ---------------------------------------- */
+Do_Popup:
+  call pfshow 'off'           /* make sure pfshow is off */
+  'Control Display Lock'
+  'Addpop row(4) column(8)'
+  'Display Panel(zigipop)'
+  'Rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
+  return
+
+  /* ------------------------------------------------------ *
+  | The pfshow routine will:                               |
+  | 1. check to see the passed option                      |
+  | 2. if Off then it will save the current pfshow setting |
+  |    - save the current setting                          |
+  |    - turn off pfshow                                   |
+  | 3. if the option is Reset then it will                 |
+  |    - test if pfshow was on and turn it back on         |
+  * ------------------------------------------------------ */
+pfshow:
+  if zpfshow = 'OFF' then return
+  arg pfkopt
+  if pfkopt = 'RESET' then do
+    if pfkeys = 'ON' then
+    'select pgm(ispopf) parm(FKA,ON)'
+  end
+  if pfkopt = 'OFF' then do
+    'vget (zpfshow)'
+    pfkeys = zpfshow
+    if pfkeys /= 'OFF' then
+    'select pgm(ispopf) parm(FKA,OFF)'
+  end
+  return
+
+Readsub:
+  parse arg dir
+  address syscall 'readdir' dir 'sd. ss.'
+  return
+
+Readdir:
+  parse arg dir
+  address syscall 'readdir' dir  'd. s.'
+  return
+
+Make_dsn:
+  parse arg dir
+  x = bpxwunix('cd' dir '&& mkdir .zigi && chmod 755 .zigi')
+  r.1 = "# ZIGI dsn-file "
+  r.2 = "# This file needs to be here."
+  r.3 = "# Don't edit unless you know what you're doing :)"
+  r.4 = '#  '
+  r.5 = '# record format is (case insensitive):'
+  r.6 = '#  '
+  r.7 = '# Position - description'
+  r.8 = '#  '
+  r.9 = '# 1 - directory name which will be prefixed by the'
+  r.10 = '#     defined HLQ to create the z/OS dataset'
+  r.11 = '#     (* defines the default)'
+  r.12 = '# 2 - PS or PO (dataset organization)'
+  r.13 = '#     PS for a flat file'
+  r.14 = '#     PO for a directory and thus a partitioned dataset'
+  r.15 = '# 3 - record format (FB or VB)'
+  r.16 = '# 4 - lrecl'
+  r.17 = '# 5 - blksize'
+  r.18 = '#     0 is allowed if system determined blksize is enabled'
+  r.19 = '# 6 - file-extension (optional and no-period)'
+  r.20 = '#  '
+  r.21 = '# Default DSORG and DCB info'
+  r.22 = '* PO FB 80 32720'
+  r.0 = 22
+  Address TSO
+  dsn = "'"dir"/.zigi/dsn'"
+  dd = 'cv'random(9999)
+  if sysvar('syspref') = null
+  then pref = sysvar('sysuid')
+  else pref = sysvar('syspref')
+  'alloc f('dd') new spa(1,1) tr recfm(f b) lrecl(80) blksize(0)' ,
+    "ds('"pref'.'dd"')"
+  'Execio * diskw' dd '(finis stem r.'
+  'free f('dd')'
+  'oput' "'"pref'.'dd"'" dsn 'text'
+  'delete' "'"pref"."dd"'"
+  return
+
+dsnvalid: Procedure Expose null
+  /* Tests for a 'potentially valid' z/OS datasetname */
+  parse arg val_dsn
+  if strip(val_dsn) = null then return 'NO'
+  val_dsn = strip(val_dsn,'B',"'")
+  upp = TRANSLATE(val_dsn,".ABCDEFGHIJKLMNOPQRSTUVWXYZ",,
+    ".abcdefghijklmnopqrstuvwxyz")
+  tdsn = translate(val_dsn,' ','.')
+  retval = 'OK'   /* asssume good */
+  do i = 1 to words(tdsn)
+    w = word(tdsn,i)
+    if length(w) > 8 then retval = 'NO'
+    if pos(left(w,1),'ABCDEFGHIJKLMNOPQRSTUVWXYZ$#@') = 0 then retval = 'NO'
+    w = translate(w,left(' ',39,' '), ,
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZ-$#@0123456789')
+    w = strip(w)
+    if w /= null then retval = 'NO'
+  end
+  if retval /= 'NO' then
+  if upp = val_dsn then do
+    smsg = msg()
+    call msg 'OFF'
+    if sysdsn(val_dsn) = "OK" | sysdsn(val_dsn) = "DATASET NOT FOUND"
+    then retval = 'OK'
+    else retval = "NO"
+    call msg smsg
+  end
+  return retval
+
+Set_Binary:
+  if bin_already(ndfile) = 0 then do
+    binopt = '-B'
+      /* setting the gitattributes file */
+      /* first convert the ASCII atrtib file to ebcdic :( */
+    gabs = 'git-encoding=BINARY zos-working-tree-encoding=BINARY binary'
+    cmd = 'cd' convdir '&& iconv -f ISO8859-1 -t IBM-1047 '
+    cmd = cmd '.gitattributes > .gae'
+      /* then append the binary attrib for this file */
+    if type = 1 then
+    cmd = cmd '&& echo "'file'/'ndfile' 'gabs'" >> .gae '
+    if type = 3 then
+    cmd = cmd '&& echo "'file gabs'" >> .gae '
+      /* convert it back to ascii */
+    cmd = cmd '&& iconv -f IBM-1047 -t ISO8859-1 .gae '
+    cmd = cmd '> .gitattributes '
+    cmd = cmd '&& rm .gae'
+    x = bpxwunix(cmd,,so.,se.)
+      /* make sure the file is tagged as binary */
+    if type = 1 then
+    tagcmd = 'chtag -bR' convdir'/'fileo'/'ndfile
+    if type = 3 then
+    tagcmd = 'chtag -bR' convdir'/'fileo
+    x = bpxwunix(tagcmd,,so.,se.)
+    call get_binfiles
+  end
+  return
+
+get_binfiles:
+  /* ---------------------------------------------------------\
+  | Name:      get_binfiles                                    |
+  |                                                            |
+  | Function:  Fills the global binfiles. stem with all        |
+  |            current repo files that are added as binary.    |
+  \---------------------------------------------------------- */
+  cmd = 'cd 'localrep'/'zigirep' &&'
+  cmd = cmd 'cat .gitattributes | grep git-encoding=BINARY'
+  cmd = cmd '| cut -d" " -f1'
+  x = bpxwunix(cmd,,so.,se.)
+  binfiles. = null
+  do b = 1 to so.0
+    binfiles.b = so.b
+  end
+  binfiles.0 = so.0
+  return 0
+
+bin_already: Procedure expose binfiles.
+  arg file
+  if datatype(binfiles.0) /= 'NUM' then call get_binfiles
+  do b = 1 to binfiles.0
+    if file = binfiles.b then return 1
+    if pos('/',binfiles.b) = 0
+    then test = binfiles.b
+    else parse value binfiles.b with test'/'.
+    if file = test then return 1
+  end
+  return 0

@@ -1,0 +1,24 @@
+)Attr
+ $ type(output) caps(off)
+)Body Window(68,13)
++
+ $zs1
+ $zs2
+ $zs3
+ $zs4
+ $zs5
+ $zs6
+ $zs7
+ $zs8
++
+ $zs9
++
+ $zs10
+)Init
+ &zwinttl = 'ZIGI Check Out Processing'
+)Proc
+)end
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

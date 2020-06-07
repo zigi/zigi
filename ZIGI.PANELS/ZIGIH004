@@ -1,0 +1,36 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                               %Basic ZIGI Usage
++
+%ZIGI+is designed provide an easy to use ISPF interface to local and
++remote Git repositories. It is%not+designed to be a full application
++development environment - there are better tools for that available in native
++ISPF, open source ISPF tools, and vendor tools.
++
+%ZIGI+is; however designed to make it easy to be the easy interface to Git for
++source code version control for your application development team.
++
++It is recommended that each team working with%ZIGI+develop a plan on how to
++use it. This is no different from the plan on how teams are to use any SCM.
++
+%Note+each developer should work with their own local repository and then
++commit and push updates to the remote repository.
++
+  +"By failing to prepare, you are preparing to fail." --  Benjamin Franklin
++
+          +Press the%Enter+key to continue your ZIGI tutorial journey.
+)Init
+ .cursor = &zcmd
+)PROC
+ &ZCONT = ZIGIH005
+)END
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

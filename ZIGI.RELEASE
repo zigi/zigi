@@ -16,8 +16,6 @@ Bug Fixes and Other Updates:
  2. Fix merge resolution ISPF stats update error
  3. Fix failure after selecting multiple files/datasets in the Current
     Repository display
- 4. Improve status field on primary repo panel when PDS has uncommited
-    changes
 
 =============================================================================
 

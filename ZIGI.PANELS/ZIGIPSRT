@@ -1,0 +1,24 @@
+)Attr
+ _ type(input)  caps(on ) hilite(uscore) intens(low)
+ + type(text) skip(on) intens(low)
+)Body Window(52,7)
++
++Enter Primary Sort Key:  _z+   Order:_z+
++Enter Secondary Sort Key:_z+   Order:_z+
+
++Sort Keys: %C+Category%D+Date%P+Prefix%R+Repository
++Sort Order:%A+(ascending)%D+(descending)
++
+)Init
+ .zvars = '(skey sopt skey2 sopt2)'
+ &zwinttl = 'ZIGI Sort Selections'
+)Proc
+ ver (&skey,nb,list,R,C,P,D,L)
+ ver (&sopt,nb,list,A,D)
+ ver (&skey2,list,R,C,P,D,L)
+ ver (&sopt2,list,A,D)
+)end
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

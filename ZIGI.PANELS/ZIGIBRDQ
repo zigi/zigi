@@ -1,0 +1,17 @@
+)Attr
+ $ type(output) caps(off)
+ _ type(input)  caps(on ) hilite(uscore) intens(low)
+)Body Window(41,3)
++Confirm deletion of the request branch:
++ $bname
++Answer:_z+(Y or N)
+)Init
+ &zwinttl = 'ZIGI Prompt Popup'
+ .zvars = '(ans)'
+)Proc
+ ver (&ans,nb,list,Y,N)
+)end
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

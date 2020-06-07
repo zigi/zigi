@@ -1,0 +1,36 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                              %Member Generations
++
++The use of PDSE Member Generations can provide additional recovery
++capabilities as it allows access to previous versions, up to the generation
++limit defined for the PDSE. However, to access a generation requires the use
++of a generations-enabled application.
++
++Notes:
++  %*+Generations may not be accessed from JCL or Dynamic Allocation, or
++     from the majority of IBM and ISV ISPF applications.
++  %*+Member Removes (delete) and Renames should be done within a
++     generation-enabled application if the member has generations.
++     Otherwise orphan members will remain as only the base is deleted or
++     renamed, but they are hidden to all but generation-enabled tools.
++
++"Programming isn't about what you know; it's about what you can figure out."
++      -- Chris Pine
++
++        +Press the%Enter+key to continue your ZIGI tutorial journey.
+)Init
+ .cursor  = &zcmd
+)PROC
+ &ZCONT = ZIGIH142
+)END
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

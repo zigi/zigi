@@ -1,0 +1,82 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore) caps(on)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on) color(white)
+    hilite(uscore)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                               %PDS Member List+
++
+%Commands available+(select one more information or press%Enter+to see all):
++
+  [Addall+   git add all untracked members
+  [Commit+   git Commit all elements that have been added
+  [Gitlog+   view the git log with filtering options
+  [Grep+     search all repository elements for a string
+  [Locate+   locate a member in the member list
+  [Reset    +change the userid for all members
+  [Sort+     sort the member table - prompting if no parms given
+  [Status+   display the git status for the repository
+  [Row+      line selection commands
++
++
++   "Don't measure yourself by what you have accomplished, but by what
++    you should have accomplished with your ability." -- John Wooden
++
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
+)Init
+ .cursor  = &zcmd
+ &addall  = 'AddAll'
+ &commit  = 'Commit'
+ &gitlog  = 'Gitlog'
+ &grep    = 'Grep'
+ &locate  = 'Locate'
+ &reset   = 'Reset-IDs'
+ &sort    = 'Sort'
+ &status  = 'Status'
+ &row     = 'Row'
+ &ztut = '300'
+ vput (ztut)
+)PROC
+*REXX(* zcmd zsel)
+  Select
+    When abbrev('ADDALL',zcmd,2) = 1 then zcmd = 0
+    When abbrev('COMMIT',zcmd,2) = 1 then zcmd = 1
+    When abbrev('GITLOG',zcmd,4) = 1 then zcmd = 2
+    When abbrev('GREP',zcmd,2) = 1 then zcmd = 3
+    When abbrev('LOCATE',zcmd,1) = 1 then zcmd = 4
+    When abbrev('RESET',zcmd,2) = 1 then zcmd = 5
+    When abbrev('SORT',zcmd,2) = 1 then zcmd = 6
+    When abbrev('STATUS',zcmd,2) = 1 then zcmd = 7
+    Otherwise nop
+  end
+*Endrexx
+ &ZSEL = TRANS( &ZCMD
+           0,zigih305  /*   ADDALL            */
+           1,zigih230  /*   COMMIT            */
+           2,zigih250  /*   GITLOG            */
+           3,zigih260  /*   GREP              */
+           4,zigih310  /*   LOCATE            */
+           5,zigih320  /*   RESET             */
+           6,zigih330  /*   SORT              */
+           7,zigih2f0  /*   STATUS            */
+           8,zigih340  /*   Row options       */
+           *,'?'
+           )
+)PNTS
+ Field(ADDALL)  var(zcmd) val('0')
+ Field(COMMIT)  var(zcmd) val('1')
+ Field(GITLOG)  var(zcmd) val('2')
+ Field(GREP  )  var(zcmd) val('3')
+ Field(LOCATE)  var(zcmd) val('4')
+ Field(RESET )  var(zcmd) val('5')
+ Field(SORT  )  var(zcmd) val('6')
+ Field(STATUS)  var(zcmd) val('7')
+ Field(ROW   )  var(zcmd) val('8')
+)END
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

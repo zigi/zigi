@@ -1,0 +1,44 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  } type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+  @ type(output) intens(high) caps(off) just(left )
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+  ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
+)Body  window(44,12)
++
++Enter Selection:_z     +
++
+ You currently are not managing any
+ repositories with zigi. You can create
+ or clone a repository by typing the command
+ above or use point-and-shoot below.
+
+ ]Clone+   remote repository
+ ]Create+  a local repo from scratch
+
+             +Or%F3+to cancel.
+)Init
+ &zwinttl = 'No Repositories for current profile'
+ .zvars = '(SZCMD)'
+ .cursor = SZCMD
+ &SZCMD = &z
+ &clone   = 'Clone'
+ &create  = 'Create'
+ .help = zigih100
+)Proc
+*REXX(*)
+ if abbrev('FIND',SZCMD,1) = 1 then SZCMD = 'FIND'
+*ENDREXX
+ if (&SZCMD EQ 'FIND')
+    ver (&findstr,nb)
+)PNTS
+ FIELD(CLONE   ) VAR(SZCMD) VAL('CLONE')
+ FIELD(CREATE  ) VAR(SZCMD) VAL('CREATE')
+)End
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

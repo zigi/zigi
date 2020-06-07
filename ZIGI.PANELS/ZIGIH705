@@ -1,0 +1,36 @@
+)attr default(%+$)
+  $ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>$ZCMD
++
+                          %Finding your SSH Public Key
++
+%*+From within ZIGI on the Local Repositories Panel enter the%SSH+command
+%*+Select your SSH Public Key using your TN3270 emulator and copy it
++  to your workstation's clipboard.
+   %*+It is now ready to be pasted into the Git server of your choice.
++
+                             %Alternate approach
++
+%*+Download the%.ssh/id_rsa.pub+file to your workstation from your home
++  directory. It should NOT be downloaded in binary as it is a text file.
+%*+Open the file in Notepad or similar text editor.
+%*+Use Control-A (in Windows) to select all to copy the key to the
++  workstation's clipboard.
+  %*+It is now ready to be pasted into the Git server of your choice.
++
++
++        +Press the%Enter+key to continue your ZIGI tutorial journey.
+)Init
+ .cursor  = &zcmd
+ &zgsr = CSR
+)PROC
+ &zcont = zigih710
+)END
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

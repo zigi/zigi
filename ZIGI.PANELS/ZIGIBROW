@@ -1,0 +1,26 @@
+)ATTR
+   _ type(input) caps(off) intens(low )
+   ` type(text) intens(high) caps(off) just(asis) color(turq)
+   | area(dynamic) extend(on) scroll(on)
+   } type(output) intens(high) just(asis) caps(off)
+)BODY Width(&zscreenw) EXPAND(//)
+%Browse+                     }title          / /%Lines }zlinex    +
+%Command ===>_zcmd                 / /                        %Scroll ===>_Z   +
+|ZDATA ----------------------------/-/-----------------------------------------|
+|                                  / /                                         |
+| ---------------------------------/-/-----------------------------------------|
+)INIT
+  .HELP = ZIGIHMSG
+  .ZVARS = 'ZSCBR'
+  &Title = 'ZIGI Git Messages'
+)Reinit
+  Refresh(ZCMD,ZSCBR,ZDATA,zlinex)
+)PROC
+  &ZCURSOR = .CURSOR
+  &ZCSROFF = .CSRPOS
+  &ZLVLINE = LVLINE(ZDATA)
+)END
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

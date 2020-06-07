@@ -1,0 +1,40 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  @ type(output) intens(high) caps(off) just(left )
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+ | TYPE(AB)           /* Action bar                */
+ < TYPE(ABSL) GE(ON)  /* Action bar separator line */
+)ABC DESC('Commands')
+ PDC DESC('Clear- Remove ALL stashes')   ACTION RUN(CLEAR)
+ PDC DESC('End') Action Run(END)
+)ABCINIT
+  .ZVARS = 'MENUX'
+)ABC DESC(Help)
+ PDC DESC('About') ACTION RUN(Tutor) Parm('zigihabt')
+ PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigih2j0')
+ PDC DESC('Change History') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%zigichg)')
+)ABCINIT
+  .ZVARS = HELPX
+)Body  Expand(\\)
++| Commands | Help +
+<-----------\-\--------------------------------+
++Stash Summary +-----------\-\------#zigtitle +------\-\------------------------
+%Command ===>_zcmd        \ \ %Scroll ===>_zgsr+
++ \ \%F3  +
++Sel Stash-ID    Comments
++
+)Model
+_z+ $z          $z
+)Init
+  .ZVARS = '(zsel stashid stashcmt)'
+  &zgsr = CSR
+  .help = ZIGIH2J0
+)Proc
+)End
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

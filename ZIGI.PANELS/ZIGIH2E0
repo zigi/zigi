@@ -1,0 +1,36 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                                 %SET+
++
+%SET+brings up a panel that allows the user to set two default values
++specific to the current repository:
++
+%*+Configure the default push option on a Commit. This option can be
++  over-ridden on the Commit panel for any individual Commit if desired.
++
+%*+Configure a userid to be set for all PDS Members that have been Added and
++  are ready to be Committed. The userid is changed prior to the Commit
++  process and updates the ISPF statistics file that is part of the repository.
++
++The repository's z/OS dataset HLQ may be changed with the requirement that
++the number of qualifiers remain the same as the previous HLQ.
++
++Turn off, or on, prompting for file extensions when adding a partitioned
++datasets. Be aware that this affects ALL repositories.
++
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
+)Init
+ .cursor  = &zcmd
+)PROC
+ &zcont = zigihsnp
+)END
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

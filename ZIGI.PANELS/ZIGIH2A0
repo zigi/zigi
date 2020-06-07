@@ -1,0 +1,36 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                                 %Push+
++
+%Push+updates the remote repository with all the locally committed updates.
++
++That means that only updates processed by the Commit command are pushed
++to the remote repository.
++
+%Git+only pushes the discrete updates, which saves time and bandwidth.
++
+%
++
++
+           +"Don't measure yourself by what you have accomplished,
+            +but by what you should have accomplished with your
+            +ability." -- John Wooden
++
++
++
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
+)Init
+ .cursor  = &zcmd
+)PROC
+ &zcont = zigih2b0
+)END
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */
