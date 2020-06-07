@@ -19,6 +19,8 @@ Bug Fixes and Other Updates:
  4. RM of untracked corrected
  5. Add error message if Browse (B) fails
  6. Improved file status checking for Partitioned Data Sets
+ 7. Correct bug in ZIGICKOT on cd if file name had $
+ 8. Correct binary file detection in ZIGI (remove usssafe)
 
 =============================================================================
 

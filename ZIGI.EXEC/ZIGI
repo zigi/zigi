@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            06/07/20 LBD - Correct binfile check (no safe)  |
   |            05/27/20 LBD - Add error messages on browse     |
   |            05/26/20 LBD - Correct RM if untracked          |
   |            05/25/20 LBD - Improve status field for all     |
@@ -2677,7 +2678,7 @@ WWRF_handle_lcmd_v:
   x = listdsi(fulldsn)
   edsn = strip(fulldsn,'B',"'")
   r = usssafe(dsn)
-  if is_binfile(r'/'mem) = 1 then do
+  if is_binfile(dsn'/'mem) = 1 then do
     zerrsm = 'Invalid'
     zerrlm = 'Unable to View a binary dataset.'
     'setmsg msg(isrz003)'
@@ -2698,7 +2699,7 @@ WWRF_handle_lcmd_s:
   edsn = strip(fulldsn,'B',"'")
   r = usssafe(dsn)
   eok = 1
-  if is_binfile(r'/'mem) = 1 then do
+  if is_binfile(dsn'/'mem) = 1 then do
     zerrsm = 'Invalid'
     zerrlm = 'Unable to Edit a binary dataset.'
     'setmsg msg(isrz003)'
@@ -2724,13 +2725,13 @@ WWRF_handle_lcmd_s:
       e = usssafe(edsn)
       r = usssafe(dsn)
       /* Binary v1, check if PDS is a bin, then copy binary */
-      if is_binfile(r'/*') = 1 then do
+      if is_binfile(dsn'/*') = 1 then do
         binopt = '-B'
       end
       else do
         binopt = null
       end
-      if is_binfile(r'/'m) = 1 then do
+      if is_binfile(dsn'/'m) = 1 then do
         binopt = '-B'
       end
       else do
@@ -5825,13 +5826,13 @@ update_repo_metadata:
             else rm = m
             rm = strip(rm)
             /* Binary v1, check if PDS is a bin, then copy binary */
-            if is_binfile(r'/*') = 1 then do
+            if is_binfile(file'/*') = 1 then do
               binopt = '-B'
             end
             else do
               binopt = null
             end
-            if is_binfile(r'/'m) = 1 then do
+            if is_binfile(file'/'m) = 1 then do
               binopt = '-B'
             end
             else do
@@ -6644,7 +6645,7 @@ Do_Undo:
     drop combine.
     combine.0 = 0
     call combine_msgs
-    if is_binfile(d) = 1 then cpbin = '-B'
+    if is_binfile(dsn) = 1 then cpbin = '-B'
     else cpbin = null
     if uopt = 'M' then do
       cmd = 'cd' localrep'/'zigirep'/'d

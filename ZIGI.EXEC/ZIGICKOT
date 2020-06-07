@@ -15,6 +15,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/07/20 LBD - usssafe omvs directory on cd     |
   |            06/04/20 LBD - Remove obsolete code (git)       |
   |            05/14/20 LBD - Remove (k) from space calc       |
   |                         - Fix omvs files starting with #   |
@@ -367,7 +368,7 @@ Alloc_Copy_PDS:
     if x = 0 then call pop_status
        Comment End */
     call pop_status
-    cmd = 'cd' rdir
+    cmd = 'cd' usssafe(rdir)
     cmd = cmd '&& cp -U -v' binopt src '"'zos'"'
     x = docmd(cmd)
     if x > 0 then call view_std 'B'
