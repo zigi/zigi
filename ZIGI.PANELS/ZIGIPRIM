@@ -30,7 +30,7 @@
 )Body Expand(\\)
 +| Commands | Help +
 <-----------\-\--------------------------------+
-+Local Repositories+--------------#zigtitle   +---------------------------------
++Local Repositories+--------------#zigtitle    +--------------------------------
 %Command ===>{zcmd       \ \ %Scroll ===>_zgsr+
 + \ \%F3  +
 %    @repo      +           @pref  +               @cat     +      @last       +
