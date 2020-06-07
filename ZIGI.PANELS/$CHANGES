@@ -4,6 +4,25 @@
  *-------------------------------------------------------------------*
 
                              ZIGI Release Notes
+                                Version 2.10
+
+                         New Features and Functions
+
+tbd
+
+Bug Fixes and Other Updates:
+
+ 1. Expand URL field for longer URLs (Clone and Remote) and make
+    the field a scrollable field in other panels
+ 2. Expand title field for version (2.x to 2.xx)
+ 3. Correct row selection warning after a branch (residual variable)
+ 4. RM of untracked corrected
+ 5. Add error message if Browse (B) fails
+ 6. Improved file status checking for Partitioned Data Sets
+
+=============================================================================
+
+                             ZIGI Release Notes
                                 Version 2.9
 
                          New Features and Functions
