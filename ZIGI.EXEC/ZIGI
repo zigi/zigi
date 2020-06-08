@@ -6451,7 +6451,7 @@ Do_Add_Copy:
       address tso 'listd' "'"pds"' m"
       call outtrap 'off'
       hit = 0
-      cm_count = cm.0 - 7
+      cm_count = cm.0 - 6
       do ci = 7 to cm.0
         if pos(')',cm.ci) > 0 then do
           hit = 0
