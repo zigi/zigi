@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            06/08/20 LBD - Fix add member counter           |
   |            06/07/20 LBD - Correct binfile check (no safe)  |
   |            05/27/20 LBD - Add error messages on browse     |
   |            05/26/20 LBD - Correct RM if untracked          |
@@ -6455,7 +6456,7 @@ Do_Add_Copy:
         if pos('ALIAS(',cm.ci) > 0 then hit = 1
         ussmem = lower(mem)'.'zdsn.dsnb
         zs2 = 'to' dsnb'/'ussmem
-        zs4 = 'Patience . . .' ci-7 'of' cm_count
+        zs4 = 'Patience . . .' ci-6 'of' cm_count
         call do_popup4
         pdsc = pds"("mem")"
         pdss = usssafe(pdss)
