@@ -15,6 +15,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/08/20 LBD - Add Parse to arg for is_binfile  |
+  |                         - Add Procedure to is_binfile      |
   |            06/07/20 LBD - usssafe omvs directory on cd     |
   |            06/04/20 LBD - Remove obsolete code (git)       |
   |            05/14/20 LBD - Remove (k) from space calc       |
@@ -485,16 +487,15 @@ get_binfiles:
   binfiles.0 = so.0
   return 0
 
-is_binfile:
+is_binfile: procedure expose binfiles.
   /* ---------------------------------------------------------\
   | Name:      is_binfile                                      |
   |                                                            |
   | Function:  Checks the global binfiles. stem for the        |
   |            provided dataset or dataset/member              |
   \---------------------------------------------------------- */
-  arg file
-  res = 0
-  if datatype(binfiles.0) /= 'NUM' then return res
+  parse arg file
+  if datatype(binfiles.0) /= 'NUM' then return 0
   do bi = 1 to binfiles.0
     if right(binfiles.bi,1) = '*' then do
       parse value file with test'/'.
@@ -503,7 +504,7 @@ is_binfile:
     end
     if binfiles.bi = file then return 1
   end
-  return res
+  return 0
 
 docmd:
   parse arg cmd

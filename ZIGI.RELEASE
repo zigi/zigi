@@ -8,7 +8,8 @@
 
                          New Features and Functions
 
-tbd
+Enhance the element copy progress popup on a change detection to include
+the type of copy (text, binary, lmod).
 
 Bug Fixes and Other Updates:
 
@@ -21,6 +22,9 @@ Bug Fixes and Other Updates:
  6. Improved file status checking for Partitioned Data Sets
  7. Correct bug in ZIGICKOT on cd if file name had $
  8. Correct binary file detection in ZIGI (remove usssafe)
+ 9. Correct ADDDSN PDS member copy counter x of y (x was off)
+10. Correct binary detection if a file extension in use
+11. Correct bug in binary test routine - added procedure expose binfiles.
 
 =============================================================================
 
