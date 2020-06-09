@@ -1,0 +1,487 @@
+  /*---------------------  rexx procedure  -------------------- *
+  | Name:      zgbatch                                         |
+  |                                                            |
+  | Function:  ZIGI Batch is a batch interface to zigi and     |
+  |            git. It supports only text based files.         |
+  |                                                            |
+  |            Processing is identical to ZIGI                 |
+  |                                                            |
+  |            PS datasets are always copied from z/OS to OMVS |
+  |                                                            |
+  |            PDS datasets have their members ISPF stats      |
+  |            checked and if different from the ZIGI managed  |
+  |            stats the members that differ will be copied    |
+  |            from z/OS to OMVS.                              |
+  |                                                            |
+  |            If any copies were performed then ZGBATCH will  |
+  |            perform a 'git add .' to add all the updated    |
+  |            files to the git index.                         |
+  |                                                            |
+  |            A Git Commit using a constructed short message  |
+  |            with the date and time will be processed.       |
+  |                                                            |
+  |            If specified then a Git Push will also be       |
+  |            processed.                                      |
+  |                                                            |
+  |            Informational messages will be written to the   |
+  |            SYSPRINT DD during processing.                  |
+  |                                                            |
+  | Syntax:    %zgbatch hlq qualignr omvsfs compush            |
+  |                                                            |
+  |    Where:  HLQ is HLQ/Prefix used in ZIGI for the z/OS     |
+  |            datasets associated with the repository         |
+  |                                                            |
+  |            QUALIGNR is the Ignore Qualifier number used    |
+  |            by ZIGI                                         |
+  |                                                            |
+  |            OMVSFS is the directory where of the Git        |
+  |            repository that is managed by ZIGI              |
+  |                                                            |
+  |            COMPUSH is Commit (C) or Push (P) to instruct   |
+  |            ZGBATCH to do:                                  |
+  |                                                            |
+  |                 C - Commit Only      (default)             |
+  |                 P - Commit and Push                        |
+  |                                                            |
+  | Usage Notes:                                               |
+  |                                                            |
+  |           Intended as a scheduled batch interface to       |
+  |           capture and commit, or commit/push, changes      |
+  |           to the datasets within a Git repository.         |
+  |                                                            |
+  | Dependencies:                                              |
+  |                                                            |
+  |           The Git repository must be ZIGI managed.         |
+  |                                                            |
+  |           The ZIGI REXX Library must be defined -          |
+  |           do a find for CUSTOMIZE.                         |
+  |                                                            |
+  | Author:    Lionel B. Dyck                                  |
+  |                                                            |
+  | History:  (most recent on top)                             |
+  |            06/09/20 LBD - Add LMOD support                 |
+  |            06/08/20 LBD - Cleanup and Add Binary Support   |
+  |            06/06/20 LBD - More comments                    |
+  |                         - Support file extensions          |
+  |            06/05/20 LBD - Creation                         |
+  |                                                            |
+  |___________________________________________________________ |
+  | Sample JCL:                                                |
+  |                                                            |
+  |  //ISPF     EXEC PGM=IKJEFT1B,DYNAMNBR=50                  |
+  |  //SYSEXEC  DD  DISP=SHR,DSN=zigi.exec   <=== change       |
+  |  //ISPMLIB  DD DISP=SHR,DSN=ISP.SISPMENU                   |
+  |  //ISPTLIB DD  DISP=SHR,DSN=ISP.SISPTENU                   |
+  |  //ISPPLIB DD  DISP=(,DELETE),SPACE=(TRK,(1,1,1)),UNIT=VIO,|
+  |  //            DCB=(RECFM=FB,LRECL=80,BLKSIZE=6160)        |
+  |  //ISPSLIB DD  DISP=(,DELETE),SPACE=(TRK,(1,1,1)),UNIT=VIO,|
+  |  //            DCB=(RECFM=FB,LRECL=80,BLKSIZE=6160)        |
+  |  //ISPPROF DD  DISP=(,DELETE),SPACE=(TRK,(1,1,1)),UNIT=VIO,|
+  |  //            DCB=(RECFM=FB,LRECL=80,BLKSIZE=6160)        |
+  |  //SYSTSPRT DD   SYSOUT=*                                  |
+  |  //SYSTSIN  DD   *                                         |
+  |  PROFILE PREFIX(userid or user-prefix)   <=== change       |
+  |  ISPF CMD(%ZGBATCH hlq qualignr /u/home/xxx p) <=== change |
+  |  //                                                        |
+  |___________________________________________________________ |
+  |  Examples: the omvs directory is case sensitive            |
+  |                                                            |
+  |  ISPF CMD(%ZGBATCH ibmuser.git 1 /u/ibmuser/git p)         |
+  |  ISPF CMD(%ZGBATCH ibmuser.prod 2 /u/ibmuser/Prod p)       |
+  * ---------------------------------------------------------- */
+  parse arg hlq qualignr omvsfs compush
+
+  Say 'Batch ZIGI Processing   Date:' date() 'Time:' time()
+  say ' '
+
+  /* ------------------- *
+  | Define our defaults |
+  * ------------------- */
+  hit = 0
+  parse value '' with null rx
+
+  /* ---------------------------- *
+  | Validate qualignr is numeric |
+  * ---------------------------- */
+  if datatype(qualignr) /= 'NUM' then do
+    say 'QUALIGNR is invalid as it is not a number.'
+    exit 8
+  end
+  if qualignr > 7 then do
+    say 'QUALIGNR appears to be invalid and it is greater than 7.'
+    exit 8
+  end
+
+  /* -------------------------------------- *
+  | Remove trailing / from omvs filesystem |
+  | and validate it exists                 |
+  * -------------------------------------- */
+  if right(omvsfs,1) = '/' then
+  omvsfs = left(omvsfs,length(omvsfs)-1)
+  say 'Checking state of OMVS Directory . . .'
+  cmd = 'ls -la' omvsfs
+  x = bpxwunix(cmd,,so.,se.)
+  if pos('not found',se.1) > 0 then do
+    say 'Error with the OMVS Filesystem' omvsfs
+    say se.1
+    exit 8
+  end
+  say 'OMVS Directory exists.'
+
+  /* ------------------------------------------------ *
+  | Confirm the OMVS directory is a ZIGI repository. |
+  * ------------------------------------------------ */
+  cmd = 'ls -la' omvsfs'/.zigi'
+  say 'Checking the state of the Git OMVS Repository . . .'
+  x = bpxwunix(cmd,,so.,se.)
+  if pos('not found',se.1) > 0 then do
+    say 'Error with the OMVS Filesystem' omvsfs
+    say 'It is not a ZIGI managed repository filesystem.'
+    exit 8
+  end
+  say 'Repository is in ZIGI format and thus allowed.'
+
+  /* ---------------- *
+  | Clean up ComPush |
+  * ---------------- */
+  compush = translate(strip(compush))
+  if compush = null then compush = 'C'
+  else select
+    When left(compush,1) = 'C' then compush = 'C'
+    When left(compush,1) = 'P' then compush = 'P'
+    Otherwise do
+      say 'Invalid Commit/Push value of:' compush
+      say 'Only C or P are allowed.'
+      say 'Defaulting to C'
+      compush = 'C'
+    end
+  end
+
+  /* ---------------------------------------- *
+  | Get the HLQ to use based on the QUALIGNR |
+  * ---------------------------------------- */
+  hlq = translate(hlq)
+  original_hlq = hlq
+  hlq = translate(hlq,' ','.')
+  hlq = subword(hlq,1,qualignr)
+  hlq = translate(hlq,'.',' ')
+
+  /* --------------------- *
+  | Report Options in Use |
+  * --------------------- */
+  say ' '
+  say left('-',70,'-')
+  say 'Using   HLQ:' original_hlq
+  say '   qualignr:' qualignr
+  say '   OMVS Dir:' omvsfs
+  if compush = 'C'
+  then say 'Commit/Push: Commit'
+  else say 'Commit/Push: Commit then Push'
+  say left('-',70,'-')
+  say ' '
+
+  /* ---------------- *
+  | Begin Processing |
+  * ---------------- */
+  call get_binfiles
+  call get_dsn_info
+  call get_omvs
+
+  /* ------------------------------------------- *
+  | If any datasets were copied then invoke git |
+  * ------------------------------------------- */
+  if hit > 0 then call do_git
+
+  /* -------- *
+  | All done |
+  * -------- */
+Done:
+  Exit 0
+
+  /* --------------------------------------------- *
+  | Get a list of all files in the OMVS directory |
+  |  - if a directory then call the pds routine   |
+  |  - otherwise call the ps (sequential) routine |
+  * --------------------------------------------- */
+Get_omvs:
+  cmd = 'cd' omvsfs '&& ls -l'
+  x = bpxwunix(cmd,,so.,se.)
+  do i = 2 to so.0
+    if left(so.i,1) = 'd' then call check_pds
+    else call check_ps
+  end
+  return
+
+  /* ------------------------------------------- *
+  | Construct variables                         |
+  |   for the zigi stats files                  |
+  |   z/OS dataset name fully qualified         |
+  | Check ISPF statistics using ZIGISTAT        |
+  | Copy any members (delta) that have changed. |
+  * ------------------------------------------- */
+check_pds:
+  hit = 1
+  omvsdsn = word(so.i,9)
+  omvsstat = omvsfs'/.zigi/'omvsdsn
+  omvsdir  = omvsfs'/'omvsdsn
+  zosdsn = "'"hlq"."omvsdsn"'"
+  say 'Checking for changes in PDS:' zosdsn
+  x = listdsi(zosdsn)
+  if x > 0 then do
+    say sysmsglvl1
+    say sysmsglvl2
+    call no_changes
+    return
+  end
+  zosdsnw = hlq'.'word(so.i,9)
+  call check_pds_memstats 'C'
+  if delta = 0 then do
+    call no_changes
+    return
+  end
+  if words(delta) = 0 then do
+    call no_changes
+    return
+  end
+  do ci = 1 to words(delta)
+    mem = word(delta,ci)
+    omem = mem
+    if zdsn.omvsdsn /= null
+    then omem = lower(omem)'.'zdsn.omvsdsn
+    if is_binfile(omvsdsn'/'omem) = 1
+    then do
+      binopt = '-B'
+      bintxt = 'Binary'
+      if sysrecfm = 'U' then do
+         binopt = '-X -I'
+         bintxt = 'Load Module'
+         end
+    end
+    else do
+      binopt = null
+      bintxt = 'Text'
+    end
+    pds = "'"zosdsnw"("mem")'"
+    cmd = 'cd' omvsfs'/'omvsdsn
+    cmd = cmd '&& cp -U -v' binopt '"//'pds'"' omem
+    cmd = usssafe(cmd)
+    say '   Copying PDS member:' pds 'to' omem 'as' bintxt
+    x = bpxwunix(cmd,,co.,ce.)
+    if x > 0 then call show_cmd 'C'
+    if binopt /= null then do
+      cmd = 'cd' omvsdir '&& chtag -b' omem
+      cmd = usssafe(cmd)
+      x = bpxwunix(cmd,,so.,se.)
+    end
+  end
+  call check_pds_memstats 'S'
+  return
+
+/* ------------------ *
+ | No changes routine |
+ * ------------------ */
+No_Changes:
+  say 'No changes detected'
+  return
+
+  /* -------------------------------------------- *
+  | For sequntial datasets copy them and let Git |
+  | determine if they have changed.              |
+  * -------------------------------------------- */
+check_ps:
+  hit = 1
+  zosdsn = "'"hlq"."word(so.i,9)"'"
+  if sysdsn(zosdsn) /= 'OK' then return
+  cmd = 'cd' omvsfs
+  cmd = cmd '&& cp -U -v "//'zosdsn'"' word(so.i,9)
+  cmd = usssafe(cmd)
+  say 'Copying PS:' zosdsn
+  x = bpxwunix(cmd,,co.,ce.)
+  if x > 0 then call show_cmd 'C'
+  return
+
+  /* ------------------------------------------ *
+  | Routine to check the PDS member statistics |
+  * ------------------------------------------ */
+check_pds_memstats:
+  arg stat_opt
+  Address ispexec
+  delta = zigistat(zosdsn omvsstat stat_opt)
+  return
+
+  /* ------------------------------------------- *
+  | Display any messages from the OMVS commands |
+  * ------------------------------------------- */
+show_cmd:
+  arg sopt
+  if sopt = 'C' then do
+    do si = 1 to co.0;say co.si;end
+    do si = 1 to ce.0;say ce.si;end
+  end
+  if sopt = 'S' then do
+    do si = 1 to so.0;say so.si;end
+    do si = 1 to se.0;say se.si;end
+  end
+  return
+
+  /* -------------------------------- *
+  | Routine to invoke Git processing |
+  * -------------------------------- */
+Do_Git:
+  call getenv
+  say ' '
+  say 'Performing Git Processing . . .'
+  cmd = 'cd' omvsfs '&& git add .'
+  cmd = cmd '&& git status'
+  cmd = cmd "&& git commit -vm 'Automated Commit" date() time() "'"
+  x = docmd(cmd)
+  call show_cmd 'S'
+  say ' '
+  say 'Git Processing completed.'
+  return
+
+  /* ----------------------------------------------------- *
+  | Get the users current OMVS enviornment for use in the |
+  | bpxwunix commands.                                    |
+  * ----------------------------------------------------- */
+GETENV:
+  cmd  = docmdx('env')
+  rc = bpxwunix(cmd,,env.,se.)
+  envc = env.0
+  call add_env '_BPX_SHAREAS=YES'
+  call add_env '_BPX_SPAWN_SCRIPT=YES'
+  call add_env 'EXPORT _EDC_ADD_ERRORNO2=1'
+  env.0 = envc
+  drop so. se.
+  return
+
+  /* -------------------- *
+  | Add info to env stem |
+  * -------------------- */
+add_env:
+  parse arg env_val
+  envc = envc + 1
+  env.envc = env_val
+  return
+
+  /* ------------------------------------------------ *
+  | Invoke the Git command with the Environment info |
+  * ------------------------------------------------ */
+docmd:
+  parse arg cmd
+  drop so. se.
+  x = bpxwunix(cmd,,so.,se.,env.)
+  return x
+
+  /* ------------------------------------- *
+  | Command to get things setup for docmd |
+  * ------------------------------------- */
+docmdx:
+  /* quircky thing, we need to export HOME as we are
+  not running a login shell via bpxwunix */
+  parse arg cmdx
+  cmd = 'pwd'
+  x = bpxwunix(cmd,,so.,se.)
+  home    = strip(so.1)
+  drop so. se.
+  if rx = null then do
+    rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && '
+    c = "[[ -f "home"/.profile ]] && echo f"
+    x = bpxwunix(c,,o.,e.)
+    if o.0 = 1 & o.1 = "f" then do
+      rx = rx '. 'home'/.profile > /dev/null 2>&1 && '
+    end
+  end
+  r = rx ' ' cmdx
+  return r
+
+  /* ------------------------------------------------------------- *
+  | Check for any $ characters and insert an escape character (\) |
+  | before each.                                                  |
+  * ------------------------------------------------------------- */
+usssafe: procedure
+  parse arg dsn
+  if pos('$',dsn) = 0 then return dsn
+  /* Let's not usssafe it twice :) */
+  if pos('\$',dsn) > 0 then return dsn
+  dsn = strreplace(dsn, '$', '\$')
+  return dsn
+
+  /* -------------------------- *
+  | String replace routine     |
+  |  input string              |
+  |  from string               |
+  |  to string                 |
+  | translate is input to from |
+  * -------------------------- */
+strreplace: Procedure
+  string  = arg(1)
+  strfrom = arg(2)
+  strto   = arg(3)
+  if pos(strfrom,string) = 0 then return string
+  newString = ''
+  do i = 1 to length(string)
+    if substr(string,i,1) /= strfrom
+    then newstring = newstring''substr(string,i,1)
+    else  newstring = newstring''strto
+  end
+  return newstring
+
+/* ----------------------------- *
+ | Lowercase the provided string |
+ * ----------------------------- */
+Lower: Procedure
+  parse arg input
+  out = translate(input,"abcdefghijklmnopqrstuvwxyz",,
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+  return out
+
+  /* ----------------------------------------- *
+  | Get the .zigi/dsn to find file extensions |
+  * ----------------------------------------- */
+get_dsn_info:
+  zdsn. = null
+  cmd = 'cat' omvsfs'/.zigi/dsn'
+  x = bpxwunix(cmd,,s.,e.)
+  if x > 0 then return
+  do di = 1 to s.0
+    zd = word(s.di,1)
+    zdsn.zd = word(s.di,6)
+    zdsn.0 = zd
+  end
+  drop s. e.
+  return
+
+get_binfiles:
+  /* ---------------------------------------------------------\
+  | Name:      binfiles                                        |
+  |                                                            |
+  | Function:  Fills the global binfiles. stem with all        |
+  |            current repo files that are added as binary.    |
+  \---------------------------------------------------------- */
+  cmd = 'cd' omvsfs'/ &&'
+  cmd = 'cat -W filecodeset=UTF-8,pgmcodeset=IBM-1047' omvsfs'/.gitattributes'
+  cmd = cmd ' | grep git-encoding=BINARY'
+  cmd = cmd '| cut -d" " -f1'
+  x = bpxwunix(cmd,,binfiles.,se.)
+  return 0
+
+is_binfile:
+  /* ---------------------------------------------------------\
+  | Name:      is_binfile                                      |
+  |                                                            |
+  | Function:  Checks the global binfiles. stem for the        |
+  |            provided dataset or dataset/member              |
+  \---------------------------------------------------------- */
+  parse arg file
+  res = 0
+  if datatype(binfiles.0) /= 'NUM' then return res
+  do bi = 1 to binfiles.0
+    if right(binfiles.bi,1) = '*' then do
+      parse value file with test'/'.
+      if left(binfiles.bi,length(binfiles.bi)-2) = test
+      then return 1
+    end
+    if binfiles.bi = file then return 1
+  end
+  return res

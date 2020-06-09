@@ -11,6 +11,11 @@
 Enhance the element copy progress popup on a change detection to include
 the type of copy (text, binary, lmod).
 
+New ZGBATCH to provide the ability to run ZIGI in batch to add and
+commit/push updates (changes and new) elements. Must be run using a
+SYSEXEC/SYSPROC that uses the ZIGI EXEC library. Sample JCL included in the
+comments of the EXEC.
+
 Bug Fixes and Other Updates:
 
  1. Expand URL field for longer URLs (Clone and Remote) and make
