@@ -15,6 +15,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/10/20 LBD - Add OMVS Environment Variables   |
   |            06/08/20 LBD - Add Parse to arg for is_binfile  |
   |                         - Add Procedure to is_binfile      |
   |            06/07/20 LBD - usssafe omvs directory on cd     |
@@ -84,12 +85,19 @@
 
   Address TSO
 
+/* ------------------------------------- *
+ | Define bpxwunix Environment Variables |
+ * ------------------------------------- */
+  env.1 = '_BPX_SHAREAS=YES'
+  env.2 = '_BPX_SPAWN_SCRIPT=YES'
+  env.0 = 2
+
   /* -------------------------------------------------------- *
   | Issue the ls command to get file names and sizes for all |
   | files in the current directory and sub-directories.      |
   * -------------------------------------------------------- */
   cmd = 'ls -laRk' ckotdir
-  rc = bpxwunix(cmd,,stdout.,stderr.)
+  rc = bpxwunix(cmd,,stdout.,stderr.,env.)
 
   /* ---------------------------------------------- *
   | Display any error messages and if so then exit |
@@ -107,11 +115,12 @@
   parse value '' with subs files null pullmems. rx
   hit = 0
 
+
   /* ------------------------------------ *
   | Read in ../.zigi/dsn to get dcb info |
   * ------------------------------------ */
   cmd = 'cd' ckotdir '&& ls -la .zigi'
-  x = bpxwunix(cmd,,co.,ce.)
+  x = bpxwunix(cmd,,co.,ce.,env.)
   if x > 0 then do
     def_recfm = 'FB'
     def_lrecl = 80
@@ -123,7 +132,7 @@
     ckdd = 'ck'time('s')
     if sysvar('syspref') = null then pref = sysvar('sysuid')
     else pref = sysvar('syspref')
-    x = bpxwunix("cat '"ckotdir"/.zigi/dsn'",,ck.)
+    x = bpxwunix("cat '"ckotdir"/.zigi/dsn'",,ck.,,env.)
     def. = null
     zdsn. = null
     call outtrap 'off'
@@ -509,7 +518,7 @@ is_binfile: procedure expose binfiles.
 docmd:
   parse arg cmd
   drop so. se.
-  x = bpxwunix(cmd,,so.,se.)
+  x = bpxwunix(cmd,,so.,se.,env.)
   return x
 
   /* ---------------------------------------------------------- *
