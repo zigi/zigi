@@ -195,7 +195,9 @@ Lower: Procedure
   * ----------------------------------------------------- */
 GETENV: procedure expose env.
   cmd = 'pwd'
-  x = bpxwunix(cmd,,so.,se.)
+  e.1 = '_BPX_SHAREAS=YES'
+  e.0 = 1
+  x = bpxwunix(cmd,,so.,se.,e.)
   home    = strip(so.1)
   cmd  = docmd('env')
   rc = bpxwunix(cmd,,env.,se.)

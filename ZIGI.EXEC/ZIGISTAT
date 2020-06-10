@@ -111,7 +111,7 @@ zigistat:
     if rc > 0 then return x
     x = debug('Reading the ISPF stats file')
     drop stats.
-    cmd = 'cat' filepath
+    cmd = 'cat' usssafe(filepath)
     x = bpxwunix(cmd,,stats.,se.)
     do i = 1 to stats.0
       stats.i = translate(stats.i,' ','0D'x)

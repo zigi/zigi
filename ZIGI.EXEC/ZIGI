@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            06/10/20 LBD - Speed up bpxwunix with shareas   |
   |            06/08/20 LBD - Fix add member counter           |
   |                         - Add Parse to Arg is_binfile      |
   |                         - Correct is_binfile (procedure)   |
@@ -617,17 +618,17 @@ init_git:
     zigimail = null
   end
   cmd = 'cat 'home'/.ssh/id_rsa.pub'
-  x = bpxwunix(cmd,,so.,se.)
+  x = bpxwunix(cmd,,so.,se.,env.)
   if x > 0 then do
     zs1 = 'No SSH identity found in 'home'/.ssh/id_rsa'
     zs2 = 'Generating keypair, please standby'
     call do_popup
     cmd = 'mkdir -p 'home'/.ssh'
-    x = bpxwunix(cmd,,so.,se.)
+    x = bpxwunix(cmd,,so.,se.,env.)
     cmd = 'cd 'home' && ssh-keygen -t rsa -f .ssh/id_rsa'
-    x = bpxwunix(cmd,,so.,se.)
+    x = bpxwunix(cmd,,so.,se.,env.)
     cmd = 'cat 'home'/.ssh/id_rsa.pub'
-    x = bpxwunix(cmd,,so.,se.)
+    x = bpxwunix(cmd,,so.,se.,env.)
   end
   x = so.0
   zigissh = so.x
@@ -783,7 +784,9 @@ init_ispf:
   cdrcnt = 0
 
   cmd = 'pwd'
-  x = bpxwunix(cmd,,so.,se.)
+  env.1 = '_BPX_SHAREAS=YES'
+  env.0 = 1
+  x = bpxwunix(cmd,,so.,se.,env.)
   home    = strip(so.1)
 
   /* ---------------------------------------- *
@@ -858,7 +861,7 @@ handle_zigiprim_lcmd_d:
       'tbdelete zigirepo'
       cmd = 'cd 'localrep'/'zigirep' && rm -rf'
       cmd = cmd' .git .gitattributes .zigi'
-      x = bpxwunix(cmd,,so.,se.)
+      x = bpxwunix(cmd,,so.,se.,env.)
       if x = 0 then do
         zerrsm = 'Deleted.'
         delcg = 'Repo removed from ZIGI, .git files deleted.'
@@ -884,7 +887,7 @@ handle_zigiprim_lcmd_d:
     else delzd = 'The z/OS datasets were NOT deleted.'
     if delco = 'Y' then do
       cmd = 'cd' localrep' && rm -rf 'zigirep
-      x = bpxwunix(cmd,,so.,se.)
+      x = bpxwunix(cmd,,so.,se.,env.)
       delco = 'The local repository has been deleted from OMVS.'
     end
     else delco = 'The local repository was NOT deleted from OMVS.'
@@ -1614,7 +1617,7 @@ WWR_handle_pull:
           call delete_member "'"pdshlq"."delds"'" mem
           cmd = 'cd' localrep'/'zigirep'/'delds
           cmd = cmd '&& rm' mem
-          x = bpxwunix(cmd)
+          x = bpxwunix(cmd,,so.,se.,env.)
         end
       end
       call outtrap 'off'
@@ -1730,14 +1733,14 @@ WWR_handle_snapshot:
         zs2 = 'To:' path
         call do_popup
         cmd = 'cp -rp' localrep'/'zigirep path
-        x = bpxwunix(cmd,,so.,se.)
+        x = bpxwunix(cmd,,so.,se.,env.)
         if x > 0 then call view_std 'B'
         zs1 = 'Performing the cleanup of git files'
         zs2 = 'Please standby'
         call do_popup
         cmd = 'cd' path
         cmd = cmd '&& rm .gitattributes && rm -rf .git && rm -rf .zigi'
-        x = bpxwunix(cmd,,so.,se.)
+        x = bpxwunix(cmd,,so.,se.,env.)
         if x > 0 then call view_std 'B'
         /*  create a git log in the snapshot directory */
         cmd = 'cd' localrep'/'zigirep
@@ -1881,7 +1884,7 @@ WWR_handle_remote:
     cmd = cmd 'then ssh-keyscan 'extrabits' -t rsa,dsa 'host
     cmd = cmd ' 2>/dev/null >> 'home'/.ssh/known_hosts ;'
     cmd = cmd 'fi'
-    x = bpxwunix(cmd,,so.,se.)
+    x = bpxwunix(cmd,,so.,se.,env.)
     cmd = 'cd' localrep'/'zigirep
     x = docmd(cmd '&& git remote add origin 'origin)
     call View_std 'B'
@@ -2150,7 +2153,7 @@ WWR_handle_lcmd_rn:
       else do
         cmd = 'cd' localrep'/'zigirep
         cmd = cmd '&& mv' '"'fulldsn'" "'newdsn'"'
-        x = bpxwunix(cmd,,so.,se.)
+        x = bpxwunix(cmd,,so.,se.,env.)
       end
       cmd = 'cd' localrep'/'zigirep
       newdsns = usssafe(newdsn)
@@ -2493,7 +2496,7 @@ WWRF_build_member_table:
     'replace NoWrite'
   rtll_open = 1
   cmd = 'ls -laT' localrep'/'zigirep'/'usssafe(dsn)
-  x = bpxwunix(cmd,,root.,re.)
+  x = bpxwunix(cmd,,root.,re.,env.)
   address ispexec
   "LMINIT DATAID(DID) Dataset("fulldsn")"
   "LMOPEN DATAID("did")"
@@ -2755,12 +2758,12 @@ WWRF_handle_lcmd_s:
       copycmd = '"'copycmd'"'
       copycmd = "cp "binopt cplmod" -U -v" copycmd" "localrep"/"zigirep
       copycmd = copycmd || "/"r
-      x = bpxwunix(copycmd,,so.,se.)
+      x = bpxwunix(copycmd,,so.,se.,env.)
       if x > 0 then call view_std 'B'
       x = debug('Copy:' copycmd)
       if strip(binopt''cplmod) /= null then do
         tagcmd = 'chtag -b 'localrep'/'zigirep'/'r
-        x = bpxwunix(tagcmd,,so.,se.)
+        x = bpxwunix(tagcmd,,so.,se.,env.)
       end
       if ztdsels = 1 then do
         call update_repo_metadata
@@ -3133,7 +3136,7 @@ Do_Post_Pull:
         Address TSO 'Delete' delds
         cmd = 'cd' localrep'/'zigirep
         cmd = cmd '&& rm' deletes.dc
-        x = bpxwunix(cmd,,so.,se.)
+        x = bpxwunix(cmd,,so.,se.,env.)
       end
       else do
         parse value deletes.dc with delds'/'mem
@@ -3142,7 +3145,7 @@ Do_Post_Pull:
         call delete_member "'"delhlq"."delds"'" mem
         cmd = 'cd' localrep'/'zigirep'/'delds
         cmd = cmd '&& rm -f' mem
-        x = bpxwunix(cmd,,so.,se.)
+        x = bpxwunix(cmd,,so.,se.,env.)
       end
     end
     call outtrap 'off'
@@ -3237,13 +3240,13 @@ Stash_IT:
           if pos('/',w) = 0 then do
             cmd = 'cd' localrep'/'zigirep
             cmd = cmd '&& rm' usssafe(w)
-            x = bpxwunix(cmd)
+            x = bpxwunix(cmd,,stdo.,stde.,env.)
           end
           else do
             parse value w with w'/'m
             cmd = 'cd' localrep'/'zigirep'/'usssafe(w)
             cmd = cmd '&& rm' usssafe(w)
-            x = bpxwunix(cmd)
+            x = bpxwunix(cmd,,stdo.,stde.,env.)
             if wordpos(w,pulldsns) = 0 then
             pulldsns = pulldsns w
           end
@@ -4587,7 +4590,7 @@ Clone_Repo:
     cmd = cmd ' 2>&1 | sort -u - 'home'/.ssh/known_hosts >'
     cmd = cmd ' 'home'/.ssh/tmp_hosts && '
     cmd = cmd 'mv 'home'/.ssh/tmp_hosts 'home'/.ssh/known_hosts'
-    x = bpxwunix(cmd,,so.,se.)
+    x = bpxwunix(cmd,,so.,se.,env.)
     localrep = strip(localrep,'T','/')
     x = time('r')  /* begin timer */
     cmd = 'cd 'localrep
@@ -4603,7 +4606,7 @@ Clone_Repo:
     end
     /* Check to see if this is a ZIGI-managed repo */
     cmd = '[[ ! -d 'localrep'/'zigirep'/.zigi ]] && echo 0'
-    x = bpxwunix(cmd,,so.,se.)
+    x = bpxwunix(cmd,,so.,se.,env.)
     if so.0 = 1 & so.1 = 0 then do
       call do_git_attributes
       'Addpop row(4) column(7)'
@@ -4647,7 +4650,7 @@ Git_Add_Member:
      and check if it has an extension (and if so which one).
   */
   repodir = localrep'/'zigirep
-  x = bpxwunix("cat '"repodir"/.zigi/dsn'",,ck.)
+  x = bpxwunix("cat '"repodir"/.zigi/dsn'",,ck.,,env.)
   extension = null
   do i = 1 to ck.0
     if left(ck.i,1) = '#' then iterate
@@ -4721,7 +4724,7 @@ Edit_PS:
     copcm = "//'"edsn"'"
     /* -M was replaced with -v in all CP commands */
     copcm = 'cp -U -v "'copcm'" 'localrep'/'zigirep'/'usssafe(dsn)
-    x = bpxwunix(copcm,,so.,se.)
+    x = bpxwunix(copcm,,so.,se.,env.)
     if x > 0 then call view_std 'B'
     if ztdsels < 2 then
     call update_repo_metadata
@@ -5219,7 +5222,7 @@ Merge_it:
                   md = usssafe(mrgdir)
                   mdsns = usssafe(mdsn)
                   cmd = 'cd' md '&& cp' mdsns mrgfile
-                  x = bpxwunix(cmd)
+                  x = bpxwunix(cmd,,stdo.,stde.,env.)
                   parm = 'M'
                   'vput (mrgdir mdsn mrgfile) shared'
                   'Edit file(mrgfile) macro(zigimrgm) parm(parm)'
@@ -5238,7 +5241,7 @@ Merge_it:
                 end
                 'tbmod' zmergtbl
                 cmd = 'rm' mrgfile
-                x = bpxwunix(cmd)
+                x = bpxwunix(cmd,,stdo.,stde.,env.)
               end
               When zsel = 'V' then do
                 ofile = mrgdir'/'mdsn
@@ -5361,11 +5364,11 @@ Create_Repo:
     if encoding = null then encoding = 'ibm-1047'
     /* test if localrep is present */
     cmd = '[[ -d 'localrep' ]] && echo 1'
-    x = bpxwunix(cmd,,so.,se.)
+    x = bpxwunix(cmd,,so.,se.,env.)
     if so.0 = 1 & so.1 = 1 then do
       /* ok, localrep is there. better not have zigirep */
       cmd = '[[ -d 'localrep'/'zigirep' ]] && echo 1'
-      x = bpxwunix(cmd,,so.,se.)
+      x = bpxwunix(cmd,,so.,se.,env.)
       if so.0 = 1 & so.1 = 1 then do
         zerrsm = "Failed."
         zerrlm = "Error: "localrep"/"zigirep" exists and must not."
@@ -5399,7 +5402,7 @@ do_git_attributes:
   /* The git repo is initialized. Time to stick a
   .gitattributes (ASCII) in there */
   cmd = 'ls' localrep'/'zigirep'/.gitattributes'
-  x = bpxwunix(cmd,,so.,se.)
+  x = bpxwunix(cmd,,so.,se.,env.)
   if so.0 = 1 then return
   call syscalls 'ON'
   address syscall
@@ -5446,20 +5449,20 @@ do_git_attributes:
   cmd = 'cd 'localrep'/'zigirep' && '
   cmd = cmd 'iconv -f ibm-1047 -t iso8859-1 .ga'
   cmd = cmd ' > .gitattributes'
-  x = bpxwunix(cmd,,so.,se.)
+  x = bpxwunix(cmd,,so.,se.,env.)
 
   /* delete the .ga file */
   cmd = 'cd 'localrep'/'zigirep' && rm -rf .ga'
-  x = bpxwunix(cmd,,so.,se.)
+  x = bpxwunix(cmd,,so.,se.,env.)
 
   /* tag it and bag it */
   cmd = 'cd 'localrep'/'zigirep' && '
   cmd = cmd 'chtag -tc iso8859-1 .gitattributes'
-  x = bpxwunix(cmd,,so.,se.)
+  x = bpxwunix(cmd,,so.,se.,env.)
 
   /* Create the .zigi folder in the repo and add the dsn-file */
   cmd = 'cd 'localrep'/'zigirep' && mkdir .zigi'
-  x = bpxwunix(cmd,,so.se.)
+  x = bpxwunix(cmd,,so.se.,env.)
 
   /* Fill dsn file with the comments */
   path = localrep"/"zigirep"/.zigi/dsn"
@@ -5652,7 +5655,7 @@ Build_SSH:
 catsshk:
   drop so. se.
   cmd = 'cat' keyfile
-  x = bpxwunix(cmd,,so.,se.)
+  x = bpxwunix(cmd,,so.,se.,env.)
   if se.0 = 0
   then do
     zigissh = so.1
@@ -5796,7 +5799,7 @@ update_repo_metadata:
         x = debug('   check file or dir')
         cmd = '[ -d 'localrep'/'zigirep'/'r' ] && echo "DIR"'
         so.1 = null
-        x = bpxwunix(cmd,,so.,se.)
+        x = bpxwunix(cmd,,so.,se.,env.)
         y = debug('   done')
         fulldsn = add_dsn_hlq(root.i)
         edsn = strip(fulldsn,'B',"'")
@@ -5858,12 +5861,12 @@ update_repo_metadata:
             zs2 = 'Member: ' mem 'to' '/'clean(r)'/'clean(rm)
             zs3 = 'Progress:' im 'of' left(memcount,6) bintext
             call do_popup3
-            x = bpxwunix(copycmd,,so.,se.)
+            x = bpxwunix(copycmd,,so.,se.,env.)
             if x > 0 then call view_std 'B'
             x = debug('Copy:' copycmd)
             if strip(binopt''cplmod) /= null then do
               tagcmd = 'chtag -b 'localrep'/'zigirep'/'r'/'rm
-              x = bpxwunix(tagcmd,,so.,se.)
+              x = bpxwunix(tagcmd,,so.,se.,env.)
             end
             mem_hit = 1
           end
@@ -5926,12 +5929,12 @@ update_repo_metadata:
             copycmd = '"'copycmd'"'
             copycmd = "cp "binopt cplmod" -U -v" copycmd" "localrep"/"zigirep
             copycmd = copycmd || "/"r
-            x = bpxwunix(copycmd,,so.,se.)
+            x = bpxwunix(copycmd,,so.,se.,env.)
             if x > 0 then call view_std 'B'
             x = debug('Copy:' copycmd)
             if strip(binopt''cplmod) /= null then do
               tagcmd = 'chtag -b 'localrep'/'zigirep'/'r
-              x = bpxwunix(tagcmd,,so.,se.)
+              x = bpxwunix(tagcmd,,so.,se.,env.)
             end
           end
         end
@@ -6324,7 +6327,7 @@ Get_List:
   end
   else prefix = dsnapfx
   cmd = 'ls' localrep'/'zigirep
-  x = bpxwunix(cmd,,so.,se.)
+  x = bpxwunix(cmd,,so.,se.,env.)
   Address TSO
   call outtrap 'x.'
   '%zigircsi 'dsnapfx'.**'
@@ -6412,7 +6415,7 @@ Do_Add_Copy:
     if pos('/',pdss) > 0 then
     parse value pdss with pdss'/'.
     mkdir = "mkdir -p "DIR"/"pdss
-    x = bpxwunix(mkdir,,so.,se.)
+    x = bpxwunix(mkdir,,so.,se.,env.)
     binopt = null
     if option = 'binary' then
     if bin_already(dsnb) = 0 then do
@@ -6444,7 +6447,7 @@ Do_Add_Copy:
       copycmd = '"'copycmd'"'
       cmd = "cp -U -v "binopt cplmod copycmd" "DIR"/"pdss"/"ac_mem
       x = debug('Copying:' cmd)
-      x =bpxwunix(cmd,,so.,se.)
+      x =bpxwunix(cmd,,so.,se.,env.)
     end
     else do
       call outtrap 'cm.'
@@ -6472,7 +6475,7 @@ Do_Add_Copy:
         copycmd = '"'copycmd'"'
         cmd = "cp -U -v "binopt cplmod copycmd" "DIR"/"pdss"/"ussmem
         x = debug('Copying:' cmd)
-        x =bpxwunix(cmd,,so.,se.)
+        x =bpxwunix(cmd,,so.,se.,env.)
       end
     end
     if option = 'binary' then do
@@ -6480,7 +6483,7 @@ Do_Add_Copy:
       does not work all the time (?? weird) so we tag it if binary
       */
       tagcmd = 'chtag -bR 'DIR'/'pdss'/'ac_mem
-      x = bpxwunix(tagcmd,,so.,se.)
+      x = bpxwunix(tagcmd,,so.,se.,env.)
     end
     Address TSO '%zigistat' "'"pds"'" dir"/.zigi/"pdss 'S'
     x = docmd('cd' dir '&& git add .zigi/'pdss)
@@ -6515,13 +6518,13 @@ Do_Add_Copy:
     copycmd = '"'copycmd'"'
     copycmd = "cp -U -v "binopt copycmd" "DIR"/"pss
     x = debug('Copying:' copycmd)
-    x =bpxwunix(copycmd,,so.,se.)
+    x =bpxwunix(copycmd,,so.,se.,env.)
     if option = 'binary' then do
       /* for some reason the git autotagging due to .gitattributes
       does not work all the time (?? weird) so we tag it if binary
       */
       tagcmd = 'chtag -b 'DIR'/'pss
-      x =bpxwunix(tagcmd,,so.,se.)
+      x =bpxwunix(tagcmd,,so.,se.,env.)
     end
   end
   dsnstat = '[??] Untracked'
@@ -6929,11 +6932,11 @@ docmdx:
   /* quircky thing, we need to export HOME as we are
   not running a login shell via bpxwunix */
   parse arg cmd
-  drop so. se.
+  drop o. se.
   if rx = null then do
     rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && '
     c = "[[ -f "home"/.profile ]] && echo f"
-    x = bpxwunix(c,,o.,e.)
+    x = bpxwunix(c,,o.,se.)
     if o.0 = 1 & o.1 = "f" then do
       rx = rx '. 'home'/.profile > /dev/null 2>&1 && '
     end
@@ -6960,7 +6963,7 @@ debug:
     parse arg msg
     msg = Date() Time()' : 'msg
     c = 'echo "'msg'" >>' debugfil
-    x = bpxwunix(c,,dso.,dse.)
+    x = bpxwunix(c,,dso.,dse.,env.)
     zigidebg_use = 1
   end
   return 0
@@ -7004,7 +7007,7 @@ Combine_msgs: procedure expose so. se. combine. null
   * -------------------------------------------- */
 get_fd_date: procedure expose null
   parse arg file_var
-  x = bpxwunix('ls -la' file_var,,so.,se.)
+  x = bpxwunix('ls -la' file_var,,so.,se.,env.)
   fdate = subword(so.1,6,3)
   return fdate
 
@@ -7470,7 +7473,7 @@ Do_Tag_Extract:
   * ------------------------------ */
   if tagxpath /= null then do
     cmd = 'mkdir' '"'tagxpath'"'
-    x = bpxwunix(cmd,,so.,se.)
+    x = bpxwunix(cmd,,so.,se.,env.)
     if se.0 > 0 then do
       call view_std 'B'
       zerrsm = 'Error.'
@@ -7498,13 +7501,13 @@ Do_Tag_Extract:
         cmd = 'cd' tagxpath '&& mkdir' sdir
         cmd = cmd '&& cd' localrep'/'zigirep'/'sdir
         cmd = cmd '&& cp' file '"'tagxpath''sdir'"'
-        x = bpxwunix(cmd,,so.,se.)
+        x = bpxwunix(cmd,,so.,se.,env.)
         if so.0 + se.0 > 0 then call view_std 'B'
       end
       else do
         cmd = 'cd' localrep'/'zigirep
         cmd = cmd '&& cp -r' file '"'tagxpath'"'
-        x = bpxwunix(cmd,,so.,se.)
+        x = bpxwunix(cmd,,so.,se.,env.)
         if so.0 + se.0 > 0 then call view_std 'B'
       end
     end
@@ -7566,7 +7569,7 @@ Check_For_More_Deletes: Procedure Expose delhlq deletes. ,
     localrep zigirep null
 
   cmd = 'cd' localrep'/'zigirep '&& ls -lR'
-  x = bpxwunix(cmd,,so.,se.)
+  x = bpxwunix(cmd,,so.,se.,env.)
 
   dir = null
 
@@ -7608,7 +7611,7 @@ Get_PDS_Members:
 get_dsn_info:
   zdsn. = null
   cmd = 'cat' localrep'/'zigirep'/.zigi/dsn'
-  x = bpxwunix(cmd,,s.,e.)
+  x = bpxwunix(cmd,,s.,e.,env.)
   if x > 0 then return
   do di = 1 to s.0
     zd = word(s.di,1)
@@ -7729,7 +7732,7 @@ DoHist_Recover:
     copycmd = '"'copycmd'"'
     copycmd = "cp "binopt" -U -v" copycmd" "localrep"/"zigirep
     copycmd = copycmd || "/"r"/"rm
-    x = bpxwunix(copycmd,,so.,se.)
+    x = bpxwunix(copycmd,,so.,se.,env.)
     if x > 0 then call view_std 'B'
     zerrsm = 'Completed.'
     zerrlm = relement 'successfully recovered into' save_rdsn ,
@@ -7766,7 +7769,7 @@ Validate_path: Procedure expose null e.
   path = translate(path,' ','/')
   path = subword(path,1,words(path)-1)
   path = '/'translate(path,'/',' ')'/'
-  x = bpxwunix('ls -la' path,,n.,e.)
+  x = bpxwunix('ls -la' path,,n.,e.,env.)
   if e.0 > 0 then return 8
   else return 0
 
@@ -7804,5 +7807,5 @@ Check_LMOD_PTF:
   cmd = 'cp -X -I "//'
   cmd = cmd"'SYS1.LINKLIB(IEFBR14)'"
   cmd = cmd '"  test'
-  x = bpxwunix(cmd,,so.,se.)
+  x = bpxwunix(cmd,,so.,se.,env.)
   return x

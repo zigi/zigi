@@ -30,6 +30,8 @@ Bug Fixes and Other Updates:
  9. Correct ADDDSN PDS member copy counter x of y (x was off)
 10. Correct binary detection if a file extension in use
 11. Correct bug in binary test routine - added procedure expose binfiles.
+12. For many of the exec's add to bpxwunix the environment stem so that
+    SHAREAS=YES is honored to speed things up (no spawning)
 
 =============================================================================
 
