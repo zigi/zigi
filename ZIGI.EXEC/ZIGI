@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            06/11/20 LBD - Tag Extract corrections          |
   |            06/10/20 LBD - Speed up bpxwunix with shareas   |
   |            06/08/20 LBD - Fix add member counter           |
   |                         - Add Parse to Arg is_binfile      |
@@ -3638,6 +3639,7 @@ Do_TAGLIST:
   call get_TAGLIST
   ztdsels = 0
   ztdtop = 1
+  tags = null
   'tbsort' zcrtbl 'fields(sortdate,n,d,sorttime,n,d)'
   'tbtop' zcrtbl
   do forever
@@ -3717,12 +3719,8 @@ Do_TAGLIST:
         end
       end
       when zsel = 'X' then do
-        tags = ctag
-        do forever
-          'tbskip' zcrtbl 'number(-1)'
-          if rc > 0 then leave
-          tags = ctag tags
-        end
+        tags = tags ctag
+        if ztdsels = 1 then
         call do_tag_extract
       end
       when zsel = 'S' then do
@@ -7543,6 +7541,7 @@ Do_Tag_Extract:
   /* ------------------------------------------- *
   | UDList the OMVS directory based on the path |
   * ------------------------------------------- */
+  'Control Display Save'
   if tagxpath /= null then
   'Select Pgm(isrdslst) Parm(UDL' tagxpath ') SUSPEND'
 
@@ -7556,6 +7555,7 @@ Do_Tag_Extract:
       "View(Volume)"
     "LMDFREE LISTID("ListId")"
   end
+  'Control Display Restore'
 
   return
 

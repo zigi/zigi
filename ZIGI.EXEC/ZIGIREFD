@@ -27,6 +27,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/10/20 LBD - Use SHAREAS=YES                  |
   |            05/08/20 HBK - Fix bug if dir is not in home    |
   |                     LBD - Add D (delete) option            |
   |            03/18/20 LBD - Refinement                       |
@@ -70,6 +71,9 @@
     hlq = translate(hlq,'.'," ")
   end
 
+  bpxenv.1 = '_BPX_SHAREAS=YES'
+  bpxenv.0 = 1
+
   /* ---------------------------- *
   | Get the users home directory |
   * ---------------------------- */
@@ -106,7 +110,7 @@
   Select
   When opt = 'C' then do
     cmd = 'cat' ref_file
-    x = bpxwunix(cmd,,so.,se.)
+    x = bpxwunix(cmd,,so.,se.,bpxenv.)
     if x > 0 then return '*'
     last_check = strip(substr(so.i,2))
     do i = 1 to so.0
@@ -118,7 +122,7 @@
   end
   When opt = 'D' then do
     cmd = 'rm' ref_file
-    x = bpxwunix(cmd,,so.,se.)
+    x = bpxwunix(cmd,,so.,se.,bpxenv.)
     check = 0
     end
   otherwise call update

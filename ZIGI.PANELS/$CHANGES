@@ -32,6 +32,10 @@ Bug Fixes and Other Updates:
 11. Correct bug in binary test routine - added procedure expose binfiles.
 12. For many of the exec's add to bpxwunix the environment stem so that
     SHAREAS=YES is honored to speed things up (no spawning)
+13. Correct TagList Extract issues
+    - TBDispl Failure after extract (added control display save/restore)
+    - Correct support for multiple extract tag selection
+14. Bypass Edit/View hilite if lrecl > 255
 
 =============================================================================
 

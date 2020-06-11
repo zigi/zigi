@@ -43,6 +43,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/10/20 - Use SHAREAS=YES                      |
   |            05/09/20 - Get zigtitle for panel title         |
   |            02/27/20 - Convert S to L on . and ..           |
   |            01/24/20 - Improve prompt for mkdir             |
@@ -107,6 +108,8 @@
   zerrhm   = 'zigih00'
   zerralrm = 'NO'
   zerrtp   = 'NOTIFY'
+  bpxenv.1 = '_BPX_SHAREAS=YES'
+  bpxenv.0 = 1
   Address ISPExec
   'Control Errors return'
 
@@ -159,7 +162,7 @@ Exit:
   /* ------------------------------ *
   | Change to a new OMVS Directory |
   * ------------------------------ */
-Change_ODIR: procedure expose zcmd home_dir omcsu ver
+Change_ODIR: procedure expose zcmd home_dir omcsu ver bpxenv.
   parse arg fromdir
   parse value '' with null selections stack_dir
   if fromdir = '~' then fromdir = home_dir
@@ -208,9 +211,9 @@ Restart:
             leave
           end
           cmd = 'mkdir' fromdir'/'mkdir
-          rc = bpxwunix(cmd,,stdout.,stderr.)
+          rc = bpxwunix(cmd,,stdout.,stderr.,bpxenv.)
           cmd = 'chmod' mp fromdir
-          rc = bpxwunix(cmd,,stdout.,stderr.)
+          rc = bpxwunix(cmd,,stdout.,stderr.,bpxenv.)
           zerrsm = null
           zerrlm = 'Permissions set to:' mp
           'setmsg msg(isrz003)'
@@ -317,7 +320,7 @@ Restart:
 Do_Restart:
   do forever
     cmd = 'ls -la' fromdir
-    rc = bpxwunix(cmd,,stdout.,stderr.)
+    rc = bpxwunix(cmd,,stdout.,stderr.,bpxenv.)
     if stdout.0 = 0 then do
       zerrsm = 'Invalid Dir'
       zerrlm = fromdir stderr.1
@@ -395,7 +398,7 @@ do_dirlist:
 List_Info:
   cmd = 'ls -la' fromdir''ofile
   drop stdout. stderr.
-  rc = bpxwunix(cmd,,stdout.,stderr.)
+  rc = bpxwunix(cmd,,stdout.,stderr.,bpxenv.)
   /* allocate a temp file to browse the results */
   Address TSO
   cmd_dd = "C"random()

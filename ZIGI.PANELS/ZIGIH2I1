@@ -16,13 +16,13 @@
 +
 +This can be useful for creating an APAR or PTF with just the updated elements.
 +
-+The copy is%not+Git managed.
++Note: The copy is%not+Git managed.
 +
++Multiple tags may be selected at one time.
 +
 +
                "The most effective way of doing it, is to do it."
                   -- Amelia Earhart
-+
 +
          +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init

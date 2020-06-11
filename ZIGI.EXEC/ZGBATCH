@@ -101,7 +101,8 @@
   hit = 0
   parse value '' with null rx
   bpxenv.1 = '_BPX_SHAREAS=YES'
-  bpxenv.0 = 1
+  bpxenv.2 = '_BPX_SPAWN_SCRIPT=YES'
+  bpxenv.0 = 2
 
   /* ---------------------------- *
   | Validate qualignr is numeric |
