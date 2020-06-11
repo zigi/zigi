@@ -6,11 +6,11 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                                %TagList eXtract
+                                %eXtract
 +
 %eXtract+will prompt for a high-level-qualifier (HLQ) and a new OMVS directory
 +to copy all of the z/OS and OMVS elements that were updated by the selected
-+Tag.
++Tag or Commit.
 +
 +The OMVS directory may be blank to bypass extracting the OMVS files.
 +
@@ -18,7 +18,7 @@
 +
 +Note: The copy is%not+Git managed.
 +
-+Multiple tags may be selected at one time.
++Multiple commits/tags may be selected at one time.
 +
 +
                "The most effective way of doing it, is to do it."

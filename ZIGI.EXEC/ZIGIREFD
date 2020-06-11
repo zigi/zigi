@@ -151,6 +151,7 @@ Check_files:
   do i = 1 to f.0
     file = f.i
     if left(file,1) = '.' then iterate
+    if dsnvalid("'"hlq"."file"'") /= 'OK' then iterate
     x = listdsi("'"hlq"."file"'")
     if x > 0 then iterate
     file = sysdsname
@@ -169,3 +170,33 @@ Check_files:
     end
   end
   return
+
+dsnvalid: Procedure Expose null
+  /* Tests for a 'potentially valid' z/OS datasetname */
+  parse arg val_dsn
+  if left(val_dsn,1) = '.' then return 'NO'
+  if strip(val_dsn) = null then return 'NO'
+  val_dsn = strip(val_dsn,'B',"'")
+  upp = TRANSLATE(val_dsn,".ABCDEFGHIJKLMNOPQRSTUVWXYZ",,
+    ".abcdefghijklmnopqrstuvwxyz")
+  tdsn = translate(val_dsn,' ','.')
+  retval = 'OK'   /* asssume good */
+  do i = 1 to words(tdsn)
+    w = word(tdsn,i)
+    if length(w) > 8 then retval = 'NO'
+    if pos(left(w,1),'ABCDEFGHIJKLMNOPQRSTUVWXYZ$#@') = 0 then retval = 'NO'
+    w = translate(w,left(' ',39,' '), ,
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZ-$#@0123456789')
+    w = strip(w)
+    if w /= null then retval = 'NO'
+  end
+  if retval /= 'NO' then
+  if upp = val_dsn then do
+    smsg = msg()
+    call msg 'OFF'
+    if sysdsn(val_dsn) = "OK" | sysdsn(val_dsn) = "DATASET NOT FOUND"
+    then retval = 'OK'
+    else retval = "NO"
+    call msg smsg
+  end
+  return retval

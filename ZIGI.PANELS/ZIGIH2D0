@@ -6,29 +6,29 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                                 %Rollback+
+                                 %Extract
 +
-%Rollback+ALL changes to a specific Commit point into a new branch.
+%Extract+ALL changes to a specific Commit point into a new branch or to new
++datasets for packaging.
 +
 +The command brings up a list of the last 10 commits to select from. The
 +number of commits to review can be changed on the prompting panel.
 +
-+Commands:%* Only+will limit the table to the specified string in the title
-          %* Replace+will return the table to all entries
-
-+Each commit is available to be%S+selected, which browses the commit
-+to allow the user to fully understand what the commit consisted of.
++Commands:%Only+will limit the table to the specified string in the title
++         %Replace+will return the table to all entries
++
++Options:%S+Display the details of the selected commit.
++        %X+Extract the elements changed in the selected commits to new
++           datasets for packaging.
++        %R+Rollback creates a new branch from the commit level.
 %
-+The%R+selection initiates the rollback process.
-%
-+A confirmation prompt pops up requiring the name of a new branch to be
-+created to prevent overlaying the current branch.
++
 +
          +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
- &zcont = zigih2e0
+ &zcont = zigih170
 )END
 /* -------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                       */

@@ -286,6 +286,7 @@
   parse arg start_option
 
   null = ''
+  parse value '' with null repo_ztdsels fetch_flag
 
   /* ------------------------------------------ *
   | ISPExec is our default host environment    |
@@ -1201,7 +1202,7 @@ Work_With_Repo:
       When abbrev('PULL',zcmd,3) = 1 then call WWR_handle_pull
       When abbrev('FETCH',zcmd,2) = 1 then call WWR_handle_fetch
       When abbrev('REPLACE',zcmd,3) = 1 then call WWR_handle_replace
-      When abbrev('ROLLBACK',zcmd,2) = 1 then call WWR_handle_rollback
+      When abbrev('EXTRACT',zcmd,2) = 1 then call WWR_handle_extract
       When abbrev('STASH',zcmd,4) = 1 then call stash_it
       When zcmd = 'STASHL' then call stash_list
       When abbrev('SNAPSHOT',zcmd,2) = 1 then call WWR_handle_snapshot
@@ -1698,15 +1699,15 @@ WWR_handle_replace:
   Return
 
   /* -------------------------------- *
-  | Rollback to a Commit Tab         |
+  | Extract/Rollback a Commit        |
   * -------------------------------- */
-WWR_handle_rollback:
+WWR_handle_extract:
   if words(save_zigirep) > 0 then do
     zerrsm = 'Invalid.'
-    zerrlm = 'Rollback is not supported in subdirectories.'
+    zerrlm = 'Extract is not supported in subdirectories.'
     'setmsg msg(isrz003)'
   end
-  else call do_rollback
+  else call do_extract
   Return
 
   /* -------------------------------- *
@@ -2639,7 +2640,7 @@ WWRF_handle_locate:
     'display panel(zigilocq)'
     drc = rc
     'rempop'
-    if drc > 0 then leave
+    if drc > 0 then return
     zcmd = 'L' filter
   end
   mem = translate(word(zcmd,2))
@@ -2689,7 +2690,7 @@ WWRF_handle_lcmd_v:
     zerrsm = 'Invalid'
     zerrlm = 'Unable to View a binary dataset.'
     'setmsg msg(isrz003)'
-    leave
+    return
   end
   'control display save'
   if sysdsorg = 'PS'
@@ -3654,7 +3655,8 @@ Do_TAGLIST:
     if rc > 4 then leave
 
     if ztdsels = 0 then
-    if pnsdef = 'P' then do
+    if pnsdef = 'P' then
+    if crcnt = ocrcnt then do
       if row = 0 then zcmd = 'O'
       if row > 0 then zsel = '/'
     end
@@ -3719,15 +3721,16 @@ Do_TAGLIST:
         end
       end
       when zsel = 'X' then do
+        ext_type = 'T'
         tags = tags ctag
         if ztdsels = 1 then
         call do_tag_extract
       end
       when zsel = 'S' then do
         cmd = 'cd' localrep'/'zigirep
-        cmd = cmd '&& git show' ctag
+        cmd = cmd '&& git show -P' ctag
         x = docmd(cmd)
-        call view_std 'X' 'V'
+        call view_std 'B'
       end
       when zsel = 'C' then do
         zcmd  = null
@@ -3798,16 +3801,18 @@ Do_TAGLIST:
   drop cr.
   return
 
-Do_Rollback:
+Do_Extract:
   zcmd = null
-  crcnt = 10
-  ocrcnt = 10
+  crcnt = 1000
+  ocrcnt = 1000
   zcrtbl = 'ZR'time('s')
-  call do_rollback_log
+  ext_type = 'C'
+  call do_extract_log
   ztdsels = 0
   ztdtop = 1
+  tags = null
   'tbtop' zcrtbl
-  'tbsort' zcrtbl 'fields(gdsn,c,a)'
+  'tbsort' zcrtbl 'fields(cdatetim,c,d)'
   do forever
     zsel = null
     if ztdsels > 1
@@ -3815,36 +3820,38 @@ Do_Rollback:
     else do
       'tbtop' zcrtbl
       'tbskip' zcrtbl 'number('ztdtop')'
-      'tbdispl' zcrtbl 'panel(zigiroll)'
+      'tbdispl' zcrtbl 'panel(zigicomx)'
     end
     if rc > 4 then leave
 
     if ztdsels = 0 then
-    if pnsdef = 'P' then do
+    if pnsdef = 'P' then
+    if crcnt = ocrcnt then do
       if row = 0 then zcmd = 'O'
       if row > 0 then zsel = '/'
     end
 
     if zsel = '/' then do
       'Addpop row(4) column(10)'
-      'Display Panel(zigirrol)'
+      'Display Panel(zigicomo)'
       'rempop'
     end
 
     if zcmd = 'O' then do
       zcmd = null
       'Addpop row(4) column(6)'
-      'Display Panel(zigiorol)'
+      'Display Panel(zigicomc)'
       'rempop'
     end
 
     if crcnt /= ocrcnt then do
       ocrcnt = crcnt
       'tbend' zcrtbl
-      call do_rollback_log
+      call do_extract_log
       ztdtop = 1
       zsel = null
       ztdsels = 0
+      row = null
     end
     if row /= null then do
       'tbtop' zcrtbl
@@ -3853,7 +3860,7 @@ Do_Rollback:
     Select
       When abbrev('REPLACE',word(zcmd,1),1) = 1 then do
         'tbend' zcrtbl
-        call do_rollback_log
+        call do_extract_log
       end
       When abbrev('ONLY',word(zcmd,1),1) = 1 then do
         if words(zcmd) = 1 then do
@@ -3877,7 +3884,7 @@ Do_Rollback:
           end
           if rc > 0 then do
             'tbend' zcrtbl
-            call do_rollback_log
+            call do_extract_log
             zerrsm = 'Not Found.'
             zerrlm = fw 'not found in the rollback log.'
             'Setmsg msg(isrz003)'
@@ -3889,16 +3896,17 @@ Do_Rollback:
           else ohit = 1
         end
       end
+      when zsel = 'X' then do
+        tags = tags ctag
+        if ztdsels = 1 then
+        call do_tag_extract
+      end
       when zsel = 'S' then do
-        soo = 0
-        drop so.
-        do si = 1 to cr.ctag.0
-          soo = soo + 1
-          so.soo = cr.ctag.si
-          so.0 = soo
-        end
-        se.0 = 0
-        call view_std 'X' 'V'
+        drop so. se.
+        cmd = 'cd' localrep'/'zigirep
+        cmd = cmd '&& git log -n 1' ctag
+        x = docmd(cmd)
+        call view_std 'B'
       end
       when zsel = 'R' then do
         zcmd  = null
@@ -3959,30 +3967,27 @@ Do_Rollback:
   drop cr.
   return
 
-Do_Rollback_Log:
-  cmd = 'cd' localdir
-  x = docmd(cmd '&& git log --cc -m -n' ocrcnt)
+Do_Extract_Log:
   'TBCreate' zcrtbl 'Keys(ctag) Names(cdatetim ctitle) nowrite share'
-  do cri = 1 to so.0
-    if word(so.cri,1) = 'commit' then do
-      ctag = word(so.cri,2)
-      crc = 1
-      cr.ctag.crc = so.1
-      cr.ctag.0 = crc
+  cmd = 'cd' localdir
+  if ext_type = 'T' then do
+    x = docmd(cmd '&& git log --cc -m -n' ocrcnt)
+    do cri = 1 to so.0
+      parse value so.cri with 'refs/tags/'ctag dow mon day time year . ctitle
+      mon = wordpos(mon,'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec')
+      cdatetim = year'/'right(mon+100,2)'/'right(day+100,2) time
+      'tbadd' zcrtbl
     end
-    else do
-      crc = crc + 1
-      if so.cri = null then so.cri = ' '
-      cr.ctag.crc = so.cri
-      cr.ctag.0 = crc
-      if word(so.cri,1) = 'Date:' then do
-        parse value so.cri with 'Date:' dow mon day time year .
-        mon = wordpos(mon,'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec')
-        cdatetim = year'/'right(mon+100,2)'/'right(day+100,2) time
-        ctc = cri + 2
-        ctitle = strip(so.ctc)
-        'tbadd' zcrtbl
-      end
+  end
+  else do
+    x = docmd(cmd "&& git for-each-ref --format '%(creatordate)" ,
+      " %(refname:short) %(objectname:short) %(subject) %(HEAD)'" ,
+      "--count="ocrcnt)
+    do cri = 1 to so.0
+      parse value so.cri with dow mon day time year . . ctag ctitle
+      mon = wordpos(mon,'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec')
+      cdatetim = year'/'right(mon+100,2)'/'right(day+100,2) time
+      'tbadd' zcrtbl
     end
   end
   return
@@ -5665,6 +5670,7 @@ catsshk:
 dsnvalid: Procedure Expose null
   /* Tests for a 'potentially valid' z/OS datasetname */
   parse arg val_dsn
+  if left(val_dsn,1) = '.' then return 'NO'
   if strip(val_dsn) = null then return 'NO'
   val_dsn = strip(val_dsn,'B',"'")
   upp = TRANSLATE(val_dsn,".ABCDEFGHIJKLMNOPQRSTUVWXYZ",,
@@ -5786,9 +5792,7 @@ update_repo_metadata:
   end
   else check_files = '*'
   do i = 1 to root.0
-    if root.i = "." | root.i = ".." then do
-      iterate
-    end
+    if left(root.i,1) = "." then iterate
     else do
       /* not the . and .. things */
       if dsnvalid(root.i) = "OK" then do
@@ -5848,8 +5852,8 @@ update_repo_metadata:
             end
             else cplmod = null
             if binopt = null
-               then bintext = 'as Text'
-               else bintext = 'as Binary'
+            then bintext = 'as Text'
+            else bintext = 'as Binary'
             if cplmod /= null then bintext = 'as LMod'
             copycmd = "//'"e"("m")'"
             copycmd = '"'copycmd'"'
@@ -7003,7 +7007,7 @@ Combine_msgs: procedure expose so. se. combine. null
   /* -------------------------------------------- *
   | Get the date/time for the provided omvs file |
   * -------------------------------------------- */
-get_fd_date: procedure expose null
+get_fd_date: procedure expose null env.
   parse arg file_var
   x = bpxwunix('ls -la' file_var,,so.,se.,env.)
   fdate = subword(so.1,6,3)
@@ -7100,11 +7104,11 @@ parseGitURI:
     /* user and port specified */
     parse var uri user '@' site ':' port '/' owner '/' repo
     else
-    if pos('@',uri) > 0 & pos(':') = 0 then
+    if pos('@',uri) > 0 & pos(':',uri) = 0 then
     /* user but no port specified */
     parse var uri user '@' site '/' owner '/' repo
     else
-    if pos('@',uri) = 0 & pos(':') > 0 then
+    if pos('@',uri) = 0 & pos(':',uri) > 0 then
     /* no user, but port specified */
     parse var uri site ':' port '/' owner '/' repo
     else
@@ -7566,7 +7570,7 @@ Do_Tag_Extract:
   | to be removed from the z/OS PDS.                          |
   * --------------------------------------------------------- */
 Check_For_More_Deletes: Procedure Expose delhlq deletes. ,
-    localrep zigirep null
+    localrep zigirep null env.
 
   cmd = 'cd' localrep'/'zigirep '&& ls -lR'
   x = bpxwunix(cmd,,so.,se.,env.)
@@ -7691,7 +7695,7 @@ DoHist_Recover:
     drc = rc
     'Rempop'
     if drc > 0 then return
-    if rans = 'N' then leave
+    if rans = 'N' then return
     rcdd = 'RC'random(99999)
     address tso
     if sysdsn(rdsn) = 'DATASET NOT FOUND' then ralloc = 'Y'
@@ -7763,7 +7767,7 @@ DoHist_ViewSource:
   /* ------------------------------- *
   | Validate the provided OMVS Path |
   * ------------------------------- */
-Validate_path: Procedure expose null e.
+Validate_path: Procedure expose null e. env.
   parse arg path
   if path = null then return 8
   path = translate(path,' ','/')

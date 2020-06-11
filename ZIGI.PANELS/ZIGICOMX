@@ -1,0 +1,49 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  @ type(output) intens(high) caps(off) just(left )
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+)Body  Expand(\\)
++Repository Extract+----\-\------#zigtitle     +-----\-\------------------------
+%Command ===>_zcmd        \ \ %Scroll ===>_zgsr+
++ \ \%F3  +
++Commits to Review:_z   +(1 to 9999)
++
++Commands%Only+limit table%Refresh+table
++Options:%S+Display%X+Extract%R+Rollback
++
++Sel Date/Time            Tag
+     Title
++
+)Model
+_z+ $z                   $z
+    @z
+)Init
+  .ZVARS = '(crcnt zsel cdatetim ctag ctitle)'
+  &zgsr = CSR
+  .help = zigih2d0
+)Proc
+ &row = &z
+ if (&ZCMD = &Z)
+     if (&ztdsels = 0000)
+        &row = .csrrow
+        if (&row ^= &z)
+            if (&zsel = &z)
+                &zsel = S
+     if (&ztdsels ^= 0000)
+         &row = &z
+     if (&ZSEL ^= &Z)
+       if (&Zsel = '=')
+           &Zsel = &osel
+     &osel = &zsel
+ if (&row = 0)
+     &zsel = &z
+ ver (&crcnt,nb,range,1,9999)
+ ver (&zsel,list,S,R,X)
+)End
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

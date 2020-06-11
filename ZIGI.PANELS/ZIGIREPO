@@ -28,7 +28,7 @@
  PDC DESC('Commit Changes')                     ACTION RUN(Commit  )
  PDC DESC('Stash')                              ACTION RUN(Stash   )
  PDC DESC('Stash List' )                        ACTION RUN(StashL  )
- PDC DESC('Rollback to Prior Commit Level')     ACTION RUN(Rollback)
+ PDC DESC('Extract or Rollback')                ACTION RUN(Extract)
  PDC DESC('Tag')                                ACTION RUN(Tag     )
  PDC DESC('Tag List')                           ACTION RUN(TagList )
  PDC DESC('Create / Checkout Branch')           ACTION RUN(Br      )

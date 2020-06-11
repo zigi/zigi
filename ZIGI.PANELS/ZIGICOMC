@@ -1,0 +1,44 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  @ type(output) intens(high) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+  ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
+)Body Window(35,6)
++
++Enter Selection:_z          +
++
++]Only+    Filter:_fw             +
++]Replace+ Replace the table
+         +Or%F3+to cancel.
+)Init
+ &zwinttl = 'ZIGI Extract Commands'
+ .zvars = '(zcmd)'
+ .cursor = zcmd
+ &zcmd  = &z
+ &only   = 'Only'
+ &Replace = 'Replace'
+)Proc
+*REXX(* zcmd zsel fw zedsmsg zedlmsg)
+  zedsmsg = ''
+  if fw /= '' then zcmd = 'O' fw
+  if zcmd = 'O' then do
+     if fw = '' then do
+        zedsmsg = 'Error.'
+        zedlmsg = 'Only requires a filter.'
+        end
+  else zcmd = zcmd fw
+  end
+  Call ISPPRXVP 'T'
+*ENDREXX
+ if (&zedsmsg NE &Z)
+    .msg = isrz001
+)PNTS
+  Field(Replace) var(zcmd) val('R')
+  Field(only  ) var(zcmd) val('O')
+)End
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

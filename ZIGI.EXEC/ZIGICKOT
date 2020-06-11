@@ -324,7 +324,7 @@ Alloc_Copy_PDS:
     call get_dcb
     if recfm = 'U' then do
     type = 'Load module'
-    zs8 = 'Type:                   ' type
+    zs7 = 'Type:                   ' type
     end
     if mgen > 0 then gens = 'maxgens('mgen')'
     else gens = null

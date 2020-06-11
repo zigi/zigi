@@ -16,7 +16,7 @@ Clone this repository and run the installer via:
 
     git clone git@github.com:wizardofzos/zigi.git
     cd zigi
-    sh install.sh
+    ./zginstall.rex
 
 ### Make sure you are authorizes to allocate the target datasets
 

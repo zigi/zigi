@@ -12,15 +12,15 @@
 +
 %Commands available+(select one more information or press%Enter+to see all):
 +
-[Add   + Add dataset{*   [GitLog+ Show git log       [Row+     Options
-[AddAll+ Add all to Git  [Grep+   Find Strings       [Set+     Set Defaults
-[Br    + Change Branch{* [Merge+   Merge Branches{*  [Snapshot+Escrow
-[Check+  Check z/OS DSNs [Network+ Network Report    [Stash+   Stash Save
-[Commit+ Record Changes  [Pull+    Pull from origin  [StashL+  Stash List
-[Find+   Find in table   [Push+    Push to origin    [Status+  Git Status
-[Flow+   ZIGI Flow       [Replace+ Replace Datasets{*[Tag+     Git Tag
-[GitCMD +Git Commands    [Remote+  Add remote        [TagList+ List Tags
-[Githelp+Git Help        [Rollback+Revert{*          [View+    OMVS Dir
+[Add   + Add dataset{*   [Githelp+Git Help          [Row+     Options
+[AddAll+ Add all to Git  [GitLog+ Show git log      [Set+     Set Defaults
+[Br    + Change Branch{* [Grep+   Find Strings      [Snapshot+Escrow
+[Check+  Check z/OS DSNs [Merge+  Merge Branches{*  [Stash+   Stash Save
+[Commit+ Record Changes  [Network+Network Report    [StashL+  Stash List
+[Extract+Package{*       [Pull+   Pull from origin  [Status+  Git Status
+[Find+   Find in table   [Push+   Push to origin    [Tag+     Git Tag
+[Flow+   ZIGI Flow       [Replace+Replace Datasets{*[TagList+ List Tags
+[GitCMD +Git Commands    [Remote+ Add remote        [View+    OMVS Dir
 +
 {*+not supported within subdirectories.
 +
@@ -46,7 +46,7 @@
  &Push    = 'Push'
  &Replace = 'Replace'
  &Remote  = 'Remote'
- &Rollback  = 'Rollback'
+ &Extract  = 'Extract'
  &Snapshot  = 'SnapShot'
  &Row     = 'Row'
  &Set     = 'Set'
@@ -67,19 +67,19 @@
     When abbrev('BRANCH',zcmd,2)  = 1 then zcmd = 3
     When abbrev('CHECK',zcmd,2)   = 1 then zcmd = 4
     When abbrev('COMMIT',zcmd,2)  = 1 then zcmd = 5
-    When abbrev('FIND',zcmd,2)    = 1 then zcmd = 6
-    When abbrev('FLOW',zcmd,2)    = 1 then zcmd = 7
-    When abbrev('GITCMD',zcmd,4)  = 1 then zcmd = 8
-    When abbrev('GITHELP',zcmd,4) = 1 then zcmd = 9
-    When abbrev('GITLOG',zcmd,4)  = 1 then zcmd = 10
-    When abbrev('GREP',zcmd,2)    = 1 then zcmd = 11
-    When abbrev('MERGE',zcmd,2)   = 1 then zcmd = 12
-    When abbrev('NETWORK',zcmd,2) = 1 then zcmd = 13
-    When abbrev('PULL',zcmd,3)    = 1 then zcmd = 14
-    When abbrev('PUSH',zcmd,3)    = 1 then zcmd = 15
-    When abbrev('REPLACE',zcmd,3) = 1 then zcmd = 16
-    When abbrev('REMOTE',zcmd,3)  = 1 then zcmd = 17
-    When abbrev('ROLLBACK',zcmd,2) = 1 then zcmd = 18
+    When abbrev('Extract',zcmd,2) = 1 then zcmd = 6
+    When abbrev('FIND',zcmd,2)    = 1 then zcmd = 7
+    When abbrev('FLOW',zcmd,2)    = 1 then zcmd = 8
+    When abbrev('GITCMD',zcmd,4)  = 1 then zcmd = 9
+    When abbrev('GITHELP',zcmd,4) = 1 then zcmd = 10
+    When abbrev('GITLOG',zcmd,4)  = 1 then zcmd = 11
+    When abbrev('GREP',zcmd,2)    = 1 then zcmd = 12
+    When abbrev('MERGE',zcmd,2)   = 1 then zcmd = 13
+    When abbrev('NETWORK',zcmd,2) = 1 then zcmd = 14
+    When abbrev('PULL',zcmd,3)    = 1 then zcmd = 15
+    When abbrev('PUSH',zcmd,3)    = 1 then zcmd = 16
+    When abbrev('REPLACE',zcmd,3) = 1 then zcmd = 17
+    When abbrev('REMOTE',zcmd,3)  = 1 then zcmd = 18
     When abbrev('SET',zcmd,2)     = 1 then zcmd = 19
     When abbrev('SNAPSHOT',zcmd,2) = 1 then zcmd = 20
     When abbrev('STASH',zcmd,2)   = 1 then zcmd =21
@@ -98,19 +98,19 @@
            3,zigih220  /* BRANCH         */
            4,zigih225  /* CHECK          */
            5,zigih230  /* COMMIT         */
-           6,zigih170  /* FIND           */
-           7,zigih2k0  /* FLOW           */
-           8,zigih240  /* GITCMD         */
-           9,zigih160  /* GITHELP        */
-          10,zigih250  /* GITLOG         */
-          11,zigih260  /* GREP           */
-          12,zigih270  /* MERGE          */
-          13,zigih280  /* NETWORK        */
-          14,zigih290  /* PULL           */
-          15,zigih2A0  /* PUSH           */
-          16,zigih2B0  /* Replace        */
-          17,zigih2C0  /* REMOTE         */
-          18,zigih2D0  /* ROLLBACK       */
+           6,zigih2D0  /* Extract        */
+           7,zigih170  /* FIND           */
+           8,zigih2k0  /* FLOW           */
+           9,zigih240  /* GITCMD         */
+          10,zigih160  /* GITHELP        */
+          11,zigih250  /* GITLOG         */
+          12,zigih260  /* GREP           */
+          13,zigih270  /* MERGE          */
+          14,zigih280  /* NETWORK        */
+          15,zigih290  /* PULL           */
+          16,zigih2A0  /* PUSH           */
+          17,zigih2B0  /* Replace        */
+          18,zigih2C0  /* REMOTE         */
           19,zigih2E0  /* SET            */
           20,zigihsnp  /* Snapshot       */
           21,zigih2j0  /* Stash/Stashl   */
@@ -127,19 +127,19 @@
  FIELD(BR    )  VAR(ZCMD)  VAL('3')
  FIELD(CHECK )  VAR(ZCMD)  VAL('4')
  FIELD(COMMIT)  VAR(ZCMD)  VAL('5')
- FIELD(FIND  )  VAR(ZCMD)  VAL('6')
- FIELD(FLOW  )  VAR(ZCMD)  VAL('7')
- FIELD(GITCMD)  VAR(ZCMD)  VAL('8')
- FIELD(GITHELP) VAR(ZCMD)  VAL('9')
- FIELD(GITLOG)  VAR(ZCMD)  VAL('10')
- FIELD(GREP  )  VAR(ZCMD)  VAL('11')
- FIELD(MERGE)   VAR(ZCMD)  VAL('12')
- FIELD(NETWORK) VAR(ZCMD)  VAL('13')
- FIELD(PULL  )  VAR(ZCMD)  VAL('14')
- FIELD(PUSH  )  VAR(ZCMD)  VAL('15')
- FIELD(REPLACE) VAR(ZCMD)  VAL('16')
- FIELD(REMOTE)  VAR(ZCMD)  VAL('17')
- FIELD(ROLLBACK) VAR(ZCMD) VAL('18')
+ FIELD(EXTRACT)  VAR(ZCMD) VAL('6')
+ FIELD(FIND  )  VAR(ZCMD)  VAL('7')
+ FIELD(FLOW  )  VAR(ZCMD)  VAL('8')
+ FIELD(GITCMD)  VAR(ZCMD)  VAL('9')
+ FIELD(GITHELP) VAR(ZCMD)  VAL('10')
+ FIELD(GITLOG)  VAR(ZCMD)  VAL('11')
+ FIELD(GREP  )  VAR(ZCMD)  VAL('12')
+ FIELD(MERGE)   VAR(ZCMD)  VAL('13')
+ FIELD(NETWORK) VAR(ZCMD)  VAL('14')
+ FIELD(PULL  )  VAR(ZCMD)  VAL('15')
+ FIELD(PUSH  )  VAR(ZCMD)  VAL('16')
+ FIELD(REPLACE) VAR(ZCMD)  VAL('17')
+ FIELD(REMOTE)  VAR(ZCMD)  VAL('18')
  FIELD(SET   )  VAR(ZCMD)  VAL('19')
  FIELD(SNAPSHOT) VAR(ZCMD) VAL('20')
  FIELD(STASH )  VAR(ZCMD)  VAL('21')
@@ -153,3 +153,4 @@
 /* ZIGI - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */
+

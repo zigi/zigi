@@ -13,8 +13,24 @@ the type of copy (text, binary, lmod).
 
 New ZGBATCH to provide the ability to run ZIGI in batch to add and
 commit/push updates (changes and new) elements. Must be run using a
-SYSEXEC/SYSPROC that uses the ZIGI EXEC library. Sample JCL included in the
-comments of the EXEC.
+SYSEXEC/SYSPROC that uses the ZIGI EXEC library. Sample JCL included in
+the comments of the EXEC.
+
+Replaced ROLLBACK dialog with EXTRACT dialog. This is the same as ROLLBACK
+with the addition of an eXtract option to create a set of z/OS datasets
+and OMVS files for the selected (one or more) commits. These are not Git
+managed and are intended to be used to create a delta package (aka PTF)
+with the changed elements only.
+
+New installer - a generic ZIGI installer. It is being used for ZIGI and in
+the near future there will be an option to prime an existing ZIGI managed
+repository with it. The new installer, zginstall.rex, is in the root of
+the repositories OMVS directory. It copies the OMVS files that map to z/OS
+datasets into new z/OS datasets. Then it generates a z/OS REXX Exec,
+hlq.ZGSTAT.EXEC, which will apply the ISPF statistics to each z/OS
+Partitioned dataset member.
+
+             -----------------------------------------------
 
 Bug Fixes and Other Updates:
 
@@ -36,6 +52,7 @@ Bug Fixes and Other Updates:
     - TBDispl Failure after extract (added control display save/restore)
     - Correct support for multiple extract tag selection
 14. Bypass Edit/View hilite if lrecl > 255
+15. Several coding bugs found with REXX compiler :(
 
 =============================================================================
 
