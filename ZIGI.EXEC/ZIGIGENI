@@ -1,0 +1,97 @@
+  /* --------------------  rexx procedure  -------------------- *
+  | Name:      zigigeni                                        |
+  |                                                            |
+  | Function:  ZIGI Generalized Installer Setup Routine        |
+  |                                                            |
+  |            Will copy the generalized installer exec from   |
+  |            the ZIGI Exec library into the ZIGI managed     |
+  |            repositories root directory as zginstall.rex    |
+  |            with a chmod +x.                                |
+  |                                                            |
+  | Syntax:    rc = zigigeni(omvsdir)                          |
+  |                                                            |
+  |            rc = 0 is ok                                    |
+  |            rc = 4 is not                                   |
+  |                                                            |
+  | Author:    Lionel B. Dyck                                  |
+  |                                                            |
+  | History:  (most recent on top)                             |
+  |            06/11/20 LBD - Creation                         |
+  | ---------------------------------------------------------- |
+  |    zigi - the z/OS ISPF Git Interface                      |
+  |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
+  |                                                            |
+  |    This program is free software: you can redistribute it  |
+  |    and/or modify it under the terms of the GNU General     |
+  |    Public License as published by the Free Software        |
+  |    Foundation, either version 3 of the License, or (at     |
+  |    your option) any later version.                         |
+  |                                                            |
+  |    This program is distributed in the hope that it will be |
+  |    useful, but WITHOUT ANY WARRANTY; without even the      |
+  |    implied warranty of MERCHANTABILITY or FITNESS FOR A    |
+  |    PARTICULAR PURPOSE.  See the GNU General Public License |
+  |    for more details.                                       |
+  |                                                            |
+  |    You should have received a copy of the GNU General      |
+  |    Public License along with this program.  If not, see    |
+  |    <https://www.gnu.org/licenses/>.                        |
+  * ---------------------------------------------------------- */
+
+  parse arg omvsdir
+
+  parse value '' with null
+  zerrhm   = 'zigih00'
+  zerralrm = 'NO'
+  zerrtp   = 'NOTIFY'
+
+  /* ----------------------------- *
+  | Find active exec library name |
+  * ----------------------------- */
+  parse source x1 x2 x3 ddn dsn .
+
+  if dsn = '?' then do
+    x = listdsi(ddn 'FILE')
+    dsn = sysdsname
+  end
+
+  panels = translate(dsn,' ','.')
+  panels = subword(panels,1,words(panels)-1)' PANELS'
+  panels = translate(panels,'.',' ')
+  panels = "'"panels"(ZIGIGENI)'"
+
+  dsn = "'"sysdsname"(zginstal)'"
+  if sysdsn(dsn) /= 'OK' then do
+    zerrsm = 'Error'
+    zerrlm = 'There was a problem finding the ZGINSTAL REXX Exec Library.'
+    Address ISPExec 'Setmsg msg(isrz003)'
+    return 4
+  end
+
+  /* -------------------------------------- *
+  | Define the BPX environmental variables |
+  * -------------------------------------- */
+  env.1 = '_BPX_SHAREAS=YES'
+  env.2 = '_BPX_SPAWN_SCRIPT=YES'
+  env.0 = 2
+
+  /* ------------------------------------------------------------- *
+  | Copy the ZGINSTAL REXX member into zginstall.rex and copy the |
+  | ZIGIGENI ISPF Panel member (not really a panel) into          |
+  | zginstall.readme                                              |
+  * ------------------------------------------------------------- */
+  cmd = 'cd' omvsdir
+  cmd = cmd '&& cp -v "//'dsn'" zginstall.rex'
+  cmd = cmd '&& chmod +x zginstall.rex'
+  cmd = cmd '&& cp -v "//'panels'" zginstall.readme'
+  x = bpxwunix(cmd,,so.,se.,env.)
+
+  zerrsm = ''
+  zerrlm = left('The ZIGI Generalized Installation Tool has been' ,
+    'copied into the Git',72) ,
+    left('repository. Both' ,
+    'zginstall.rex and zginstall.readme have been created.',72) ,
+    left('-------------------------------------',76) ,
+    'A ZIGI ADDALL and then a COMMIT with a PUSH should now be performed.'
+  Address ISPExec 'Setmsg msg(isrz003)'
+  return 0
