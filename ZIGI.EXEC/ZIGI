@@ -6160,6 +6160,7 @@ pfshow:
 Add_Dataset:
   parse value '' with zcmd what list dsnapfx zsel
   call get_dsn_info
+  save_extfile = extfile
   dsnapfx = pdshlq
   lc_count = 0
   add_count = 0
@@ -6210,6 +6211,7 @@ Add_Dataset:
       if add_count > 0 then
       'tbmod zigirepo order'
       'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
+      extfile = save_extfile
       return
     end
     if row = 0 then zsel = null
@@ -6312,6 +6314,7 @@ Add_Dataset:
   if ztdels < 2 then
   if gaupdate = 1 then
   call get_binfiles
+  extfile = save_extfile
   return
 
 tbcreate_dsnatbl:
@@ -6377,10 +6380,8 @@ Do_Add_Copy:
     drc = rc
     'rempop'
     if drc = 0 then zdsn.dsnb = ext
-    if extans = 'Y' then do
+    if extans = 'Y' then
       extfile = 'Y'
-      'vput (extfile) profile'
-    end
   end
   if ac_mem /= null then
   if zdsn.dsnb /= null then do
@@ -7791,7 +7792,7 @@ Check_LLib: procedure
   then return 0
   else return 1
 
-Check_Load_Library: procedure
+Check_Load_Library: procedure expose env.
   arg dsn
   x = listdsi("'"dsn"'")
   if sysrecfm /= 'U' then return 0
