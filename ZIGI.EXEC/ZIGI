@@ -2507,11 +2507,11 @@ WWRF_build_member_table:
   file_ext = zdsn.dsn
   file_extl = length(file_ext)
   dstat = dsnstat
-  do i = 1 to root.0
-    if left(root.i,1) = ' ' then iterate
-    if word(root.i,1) = 'total' then iterate
+  do bmi = 1 to root.0
+    if left(root.bmi,1) = ' ' then iterate
+    if word(root.bmi,1) = 'total' then iterate
     do
-      mem = word(root.i,12)
+      mem = word(root.bmi,12)
       if file_ext /= null then
       if right(mem,file_extl) = file_ext then do
         parse value mem with mem'.'.
@@ -2519,7 +2519,7 @@ WWRF_build_member_table:
       end
       else iterate
       memstat = null
-      if word(root.i,2) = 'binary'
+      if word(root.bmi,2) = 'binary'
       then mtype = 'B'
       else mtype = 'T'
       do ii = 1 to so.0
@@ -3231,9 +3231,9 @@ Stash_IT:
   deletes.0 = 0
   renames.0 = 0
   dc = 0
-  do i = 1 to so.0
-    if pos('|',so.i) = 0 then iterate
-    parse value so.i with w '|' c
+  do stashi = 1 to so.0
+    if pos('|',so.stashi) = 0 then iterate
+    parse value so.stashi with w '|' c
     w = strip(w)
     if left(w,1) = '.' then iterate
     Select
@@ -3297,8 +3297,8 @@ Stash_IT:
     end
   end
   call do_post_pull 'Stash Push/Save'
-  do i = 1 to renames.0
-    parse value renames.i with newname oldname
+  do rename_i = 1 to renames.0
+    parse value renames.rename_i with newname oldname
     if pos('/',newname) = 0 then do
       call outtrap 'x.'
       address tso ,
@@ -3333,16 +3333,8 @@ Stash_IT:
 Add_DSN_HLQ:
   arg addsn newhlq
   if newhlq = null
-  then adwhlq = pdshlq
-  else adwhlq = newhlq
-  if qualignr = 0
-  then nhlq = adwhlq
-  else do
-    nhlq = translate(adwhlq,' ','.')
-    if qualignr /= '*' then
-    nhlq = subword(nhlq,1,qualignr)
-    nhlq = translate(nhlq,'.',' ')
-  end
+  then nhlq = pdshlq
+  else nhlq = newhlq
   addsn = "'"nhlq"."addsn"'"
   return addsn
 
@@ -3373,9 +3365,9 @@ Stash_List:
   cmd = cmd '&& git stash list'
   x = docmd(cmd)
   hit = 0
-  do i = 1 to so.0
-    if left(so.i,5) /= 'stash' then iterate
-    parse value so.i  with stashid':' stashcmt
+  do sti = 1 to so.0
+    if left(so.sti,5) /= 'stash' then iterate
+    parse value so.sti with stashid':' stashcmt
     if hit = 0 then do
       stab = 'STAB'random(9999)
       'tbcreate' stab 'names(stashid stashcmt) nowrite'
@@ -4235,14 +4227,14 @@ Do_Commit:
   if datatype(m.0) = 'NUM' then do
     if copt /= null then do
       msg1 = m.1
-      do i = 2 to m.0
-        cmsg = m.i
+      do dci = 2 to m.0
+        cmsg = m.dci
         'tbadd' cmtab
       end
     end
     cmsg = null
   end
-  do i = 1 to 15
+  do dci = 1 to 15
     'tbadd' cmtab
   end
   drop m.
@@ -4272,7 +4264,7 @@ Do_Commit:
         'tbtop' cmtab
         'tbskip' cmtab 'number('cr')'
         cmsg = ' '
-        do i = 1 to c
+        do ix = 1 to c
           'tbadd' cmtab
         end
       end
@@ -4283,7 +4275,7 @@ Do_Commit:
       when left(zsel,1) = 'D' & length(zsel) > 1 then do
         dc = substr(zsel,2)
         if datatype(dc) /= 'NUM' then dc = 1
-        do i = 1 to dc
+        do ix = 1 to dc
           'tbdelete' cmtab
           'tbskip' cmtab
         end
@@ -4491,13 +4483,13 @@ fixup_userids:
   if qualignr > 0 then
   hlq = subword(hlq,1,qualignr)
   hlq = translate(hlq,'.',' ')
-  do i = 1 to so.0
-    if word(so.i,1) = 'Untracked' then leave
-    if word(so.i,1) = 'Changes not' then leave
-    if left(so.i,1) /= '05'x then iterate
-    if pos('new file',so.i) = 0
-    then parse value so.i with . file .
-    else parse value so.i with . . file .
+  do iw = 1 to so.0
+    if word(so.iw,1) = 'Untracked' then leave
+    if word(so.iw,1) = 'Changes not' then leave
+    if left(so.iw,1) /= '05'x then iterate
+    if pos('new file',so.iw) = 0
+    then parse value so.iw with . file .
+    else parse value so.iw with . . file .
     if left(file,1) = '.' then iterate
     parse value file with file'/'mem .
     if wordpos(file,dsns) = 0 then do
@@ -4655,17 +4647,17 @@ Git_Add_Member:
   repodir = localrep'/'zigirep
   x = bpxwunix("cat '"repodir"/.zigi/dsn'",,ck.,,env.)
   extension = null
-  do i = 1 to ck.0
-    if left(ck.i,1) = '#' then iterate
-    if word(ck.i,1) = '*' then do
-      parse value ck.i with . def_dsorg def_recfm def_lrecl def_blksiz  e .
+  do cki = 1 to ck.0
+    if left(ck.cki,1) = '#' then iterate
+    if word(ck.cki,1) = '*' then do
+      parse value ck.cki with . def_dsorg def_recfm def_lrecl def_blksiz e .
     end
     else do
-      idsn = word(ck.i,1)          /* dataset name less hlq */
+      idsn = word(ck.cki,1)        /* dataset name less hlq */
       if idsn = dsn then do
-        if word(ck.i,6) <> "" then do
+        if word(ck.cki,6) <> "" then do
           /* we have an extension for this library */
-          extension = word(ck.i,6)
+          extension = word(ck.cki,6)
           leave
         end
       end
@@ -4842,8 +4834,8 @@ Branch_it:
   end
   bl. = null
   bl.0 = 0
-  do i = 1 to so.0
-    b1 = strip(so.i,'B')
+  do bri = 1 to so.0
+    b1 = strip(so.bri,'B')
     if pos('/',b1) > 0 then do
       /* this is a remote branch we (maybe) have never checked out */
       seen_this_branch = 0
@@ -4880,7 +4872,7 @@ Branch_it:
       /* this is already a local branch */
       if pos('*',b1) = 0 then do
         /* Add it to the table if it's not the current (*) branch */
-        bname = strip(so.i)
+        bname = strip(so.bri)
         ni = bl.0 + 1
         bl.ni = b1
         bl.0 = ni
@@ -5017,8 +5009,8 @@ Merge_it:
   end
   bl. = null
   bl.0 = 0
-  do i = 1 to so.0
-    b1 = strip(so.i,'B')
+  do bri = 1 to so.0
+    b1 = strip(so.bri,'B')
     if pos('/',b1) > 0 then do
       /* this is a remote branch we (maybe) have never checked out */
       seen_this_branch = 0
@@ -5055,7 +5047,7 @@ Merge_it:
       /* this is already a local branch */
       if pos('*',b1) = 0 then do
         /* Add it to the table if it's not the current (*) branch */
-        bname = strip(so.i)
+        bname = strip(so.bri)
         ni = bl.0 + 1
         bl.ni = b1
         bl.0 = ni
@@ -5299,7 +5291,7 @@ Merge_it:
   /* --------------------------------------- *
   | Delete a PDS Member using ISPF Services |
   * --------------------------------------- */
-Delete_member: Procedure
+Delete_member:
   arg dsn mem
   "LMInit Dataid(test) dataset("dsn") enq(shrw)"
   "LMOpen Dataid("test") Option(Output)"
@@ -5324,8 +5316,8 @@ get_branches:
   end
   bl. = null
   bc = 0
-  do i = 1 to so.0
-    branch = strip(so.i)
+  do bri = 1 to so.0
+    branch = strip(so.bri)
     if word(branch,1) = '*' then branch = word(branch,2)
     if pos('->',branch) > 0 then iterate
     if pos('/',branch) > 0 then do
@@ -5667,7 +5659,7 @@ catsshk:
   else zigissh = null
   return
 
-dsnvalid: Procedure Expose null
+dsnvalid:
   /* Tests for a 'potentially valid' z/OS datasetname */
   parse arg val_dsn
   if left(val_dsn,1) = '.' then return 'NO'
@@ -5677,8 +5669,8 @@ dsnvalid: Procedure Expose null
     ".abcdefghijklmnopqrstuvwxyz")
   tdsn = translate(val_dsn,' ','.')
   retval = 'OK'   /* asssume good */
-  do i = 1 to words(tdsn)
-    w = word(tdsn,i)
+  do dsnvi = 1 to words(tdsn)
+    w = word(tdsn,dsnvi)
     if length(w) > 8 then retval = 'NO'
     if pos(left(w,1),'ABCDEFGHIJKLMNOPQRSTUVWXYZ$#@') = 0 then retval = 'NO'
     w = translate(w,left(' ',39,' '), ,
@@ -5705,15 +5697,15 @@ dsnvalid: Procedure Expose null
   | to string                                        |
   | translate is input to from                       |
   * ------------------------------------------------- */
-strreplace: Procedure
+strreplace:
   string  = arg(1)
   strfrom = arg(2)
   strto   = arg(3)
   if pos(strfrom,string) = 0 then return string
   newString = ''
-  do i = 1 to length(string)
-    if substr(string,i,1) /= strfrom
-    then newstring = newstring''substr(string,i,1)
+  do repi = 1 to length(string)
+    if substr(string,repi,1) /= strfrom
+    then newstring = newstring''substr(string,repi,1)
     else  newstring = newstring''strto
   end
   return newstring
@@ -5791,19 +5783,19 @@ update_repo_metadata:
     x = debug('Check complete.')
   end
   else check_files = '*'
-  do i = 1 to root.0
-    if left(root.i,1) = "." then iterate
+  do umdi = 1 to root.0
+    if left(root.umdi,1) = "." then iterate
     else do
       /* not the . and .. things */
-      if dsnvalid(root.i) = "OK" then do
+      if dsnvalid(root.umdi) = "OK" then do
         /* and only for valid z/OS-datasets (skip README.md et al) */
-        r = usssafe(root.i)
+        r = usssafe(root.umdi)
         x = debug('   check file or dir')
         cmd = '[ -d 'localrep'/'zigirep'/'r' ] && echo "DIR"'
         so.1 = null
         x = bpxwunix(cmd,,so.,se.,env.)
         y = debug('   done')
-        fulldsn = add_dsn_hlq(root.i)
+        fulldsn = add_dsn_hlq(root.umdi)
         edsn = strip(fulldsn,'B',"'")
         if check_files /= null then
         if wordpos(edsn,check_files) = 0 then iterate
@@ -5814,9 +5806,9 @@ update_repo_metadata:
           x = debug('its a dir...lmmstat all the things' edsn)
           Address TSO
           /* Oh yeah we need this */
-          root.i = usssafe(root.i)
-          statpath = localrep'/'zigirep'/.zigi/'root.i
-          statfile = root.i
+          root.umdi = usssafe(root.umdi)
+          statpath = localrep'/'zigirep'/.zigi/'root.umdi
+          statfile = root.umdi
           mem_delta = zigistat("'"edsn"'" statpath 'C')
           if mem_delta = 0 then mem_delta = null
           Address ISPExec
@@ -5824,7 +5816,7 @@ update_repo_metadata:
           memcount = words(mem_delta)
           do im = 1 to words(mem_delta)
             mem = word(mem_delta,im)
-            file = root.i
+            file = root.umdi
             m = strip(mem)
             m = usssafe(m)
             e = usssafe(edsn)
@@ -5967,18 +5959,18 @@ update_repo_metadata:
   address ispexec
   x = debug('done')
   x = debug('iterate the files')
-  do i = 1 to root.0
+  do rooti = 1 to root.0
     zs1 = 'Updating dataset and file Git status to display.'
     zs2 = 'Patience . . .'
     call do_popup
     dsnstat = null
-    if root.i = "." | root.i = ".." then do
+    if root.rooti = "." | root.rooti = ".." then do
       iterate
     end
     else do
-      if dsnvalid(root.i) = "OK" then do
-        x = debug('Get the git status and fill dsnstat' root.i)
-        dsn = root.i
+      if dsnvalid(root.rooti) = "OK" then do
+        x = debug('Get the git status and fill dsnstat' root.rooti)
+        dsn = root.rooti
         filet. = null
         do ii = 1 to so.0
           stat = substr(so.ii,1,2)
@@ -6023,9 +6015,9 @@ update_repo_metadata:
       | make sure it isn't a . file and then add it        |
       * -------------------------------------------------- */
       else do
-        if left(root.i,1) /= '.' then do
-          dsn = root.i
-          if rstat.i.1 = 1 then filetype = '(D)'
+        if left(root.rooti,1) /= '.' then do
+          dsn = root.rooti
+          if rstat.rooti.1 = 1 then filetype = '(D)'
           else filetype = null
           fulldsn = dsn
           do ii = 1 to so.0
@@ -6116,19 +6108,19 @@ porcelain:
   end
   return '[' || stat || '] ' || res
 
-clean: procedure
+clean:
   parse arg string
   if pos('\',string) = 0 then return string
   string = translate(string,' ','\')
   return strip(string)
 
-usssafe: procedure
-  parse arg dsn
-  if pos('$',dsn) = 0 then return dsn
+usssafe:
+  parse arg safedsn
+  if pos('$',safedsn) = 0 then return safedsn
   /* Let's not usssafe it twice :) */
-  if pos('\$',dsn) > 0 then return dsn
-  dsn = strreplace(dsn, '$', '\$')
-  return dsn
+  if pos('\$',safedsn) > 0 then return safedsn
+  safedsn = strreplace(safedsn, '$', '\$')
+  return safedsn
 
   /* ------------------------------------------------------ *
   | The pfshow routine will:                               |
@@ -6974,41 +6966,41 @@ debug:
   /* --------------------------------- *
   | Add a message to the combine stem |
   * --------------------------------- */
-Add_Combine: procedure expose combine. null
+Add_Combine:
   parse arg msg
-  c = combine.0
-  c = c + 1
-  combine.c = '   '
-  c = c + 1
-  combine.c = msg
-  c = c + 1
-  combine.c = '   '
-  combine.0 = c
+  combine_count = combine.0
+  combine_count = combine_count + 1
+  combine.combine_count = '   '
+  combine_count = combine_count + 1
+  combine.combine_count = msg
+  combine_count = combine_count + 1
+  combine.combine_count = '   '
+  combine.0 = combine_count
   return
 
   /* --------------------------------------------------------- *
   | Combine the stdout and stderr messages into combine. stem |
   | for viewing.                                              |
   * --------------------------------------------------------- */
-Combine_msgs: procedure expose so. se. combine. null
-  c = combine.0
-  do i = 1 to so.0
-    c = c + 1
-    combine.c = strip(so.i,'T')
-    if combine.c = null then combine.c = ' '
+Combine_msgs:
+  combine_count = combine.0
+  do combi = 1 to so.0
+    combine_count = combine_count + 1
+    combine.combine_count = strip(so.combi,'T')
+    if combine.combine_count = null then combine.combine_count = ' '
   end
-  do i = 1 to se.0
-    c = c + 1
-    combine.c = strip(se.i,'T')
-    if combine.c = null then combine.c = ' '
+  do combi = 1 to se.0
+    combine_count = combine_count + 1
+    combine.combine_count = strip(se.combi,'T')
+    if combine.combine_count = null then combine.combine_count = ' '
   end
-  combine.0 = c
+  combine.0 = combine_count
   return
 
   /* -------------------------------------------- *
   | Get the date/time for the provided omvs file |
   * -------------------------------------------- */
-get_fd_date: procedure expose null env.
+get_fd_date:
   parse arg file_var
   x = bpxwunix('ls -la' file_var,,so.,se.,env.)
   fdate = subword(so.1,6,3)
@@ -7164,36 +7156,7 @@ Update_Config:
   'Setmsg msg(isrz003)'
   return
 
-  /* --------------------------------------------------------- *
-  | Save the so. and se. variables for later use as some code |
-  | will overlay them but we need to use them again later.    |
-  * --------------------------------------------------------- */
-Save_DoVars: procedure expose so. se. sso. sse.
-  do i = 1 to so.0
-    sso.i = so.i
-  end
-  do i = 1 to se.0
-    sse.i = se.i
-  end
-  sso.0 = so.0
-  sse.0 = se.0
-  return
-
-  /* ----------------------------------------- *
-  | Restore the so. and se. variables for use |
-  * ----------------------------------------- */
-Rest_DoVars: procedure expose so. se. sso. sse.
-  do i = 1 to sso.0
-    so.i = sso.i
-  end
-  do i = 1 to sse.0
-    se.i = sse.i
-  end
-  so.0 = sso.0
-  se.0 = sse.0
-  return
-
-MGEN: Procedure
+MGEN:
   /* ---------------------------------------------------------- |
   | Name:      MGEN                                            |
   |                                                            |
@@ -7241,7 +7204,7 @@ bin_already:
   end
   return 0
 
-is_binfile:  Procedure expose binfiles.
+is_binfile:
   /* ---------------------------------------------------------\
   | Name:      is_binfile                                      |
   |                                                            |
@@ -7293,8 +7256,8 @@ flowselect:
   end
   bl. = null
   bl.0 = 0
-  do i = 1 to so.0
-    b1 = strip(so.i,'B')
+  do flowi = 1 to so.0
+    b1 = strip(so.flowi,'B')
     if pos('/',b1) > 0 then do
       /* this is a remote branch we (maybe) have never checked out */
       seen_this_branch = 0
@@ -7334,7 +7297,7 @@ flowselect:
       /* this is already a local branch */
       if pos('*',b1) = 0 then do
         /* Add it to the table if it's not the current (*) branch */
-        bname = strip(so.i)
+        bname = strip(so.flowi)
         ni = bl.0 + 1
         bl.ni = b1
         bl.0 = ni
@@ -7485,6 +7448,10 @@ Do_Tag_Extract:
       return
     end
 
+/* ----------------- $$$$$$$$$$$$$$ ---------------- *
+ | >>> save current repository name and create a new |
+ | >>> working repository for the extract here       |
+ * ------------------------------------------------- */
     /* ----------------------------------------- *
     | Save a copy of the tag commit information |
     * ----------------------------------------- */
@@ -7516,9 +7483,17 @@ Do_Tag_Extract:
     end
   end
 
+/* ------------------- $$$$$$$$$$$$ ------------------------- *
+ | >>> Change to NOT copy the existing z/OS datasets          |
+ | >>>                                                        |
+ | >>> 1. identify the z/OS datasets with changes and members |
+ | >>> 2. call zigickot to copy those to z/OS                 |
+ | >>> 3. checkout original repository                        |
+ | >>> 4. remove the working branch                           |
+ * ---------------------------------------------------------- */
   extdd = 'XD'random(99999)
-  do i = 1 to words(files)
-    f = word(files,i)
+  do xdi = 1 to words(files)
+    f = word(files,xdi)
     oldfile = Add_DSN_HLQ(f)
     newfile = "'"tagxhlq'.'f"'"
     x = listdsi(oldfile)
@@ -7570,29 +7545,25 @@ Do_Tag_Extract:
   | deleted and thus no longer in the OMVS directory and need |
   | to be removed from the z/OS PDS.                          |
   * --------------------------------------------------------- */
-Check_For_More_Deletes: Procedure Expose delhlq deletes. ,
-    localrep zigirep null env.
-
+Check_For_More_Deletes:
   cmd = 'cd' localrep'/'zigirep '&& ls -lR'
   x = bpxwunix(cmd,,so.,se.,env.)
-
-  dir = null
-
-  do di = 1 to so.0
-    if left(so.di,2) = './' then do
-      parse value so.di with './'dir':'
+  ckd_dir = null
+  do ck_i = 1 to so.0
+    if left(so.ck_i,2) = './' then do
+      parse value so.ck_i with './'ckd_dir':'
       call Get_PDS_Members
     end
-    if dir = null then iterate
-    if left(so.di,1) /= '-' then iterate
-    m = word(so.di,9)
+    if ckd_dir = null then iterate
+    if left(so.ck_i,1) /= '-' then iterate
+    m = word(so.ck_i,9)
     if pos('.',m) > 0 then do
       parse value m with m'.'.
       m = translate(m)
     end
     if wordpos(m,members) = 0 then do
       c = deletes.0 + 1
-      deletes.c = dir'/'m
+      deletes.c = ckd_dir'/'m
       deletes.0 = c
     end
   end
@@ -7633,11 +7604,11 @@ get_dsn_info:
   *                                       *
   * Syntax:   x=lower(input)              *
   * ------------------------------------- */
-Lower: Procedure
-  parse arg input
-  out = translate(input,"abcdefghijklmnopqrstuvwxyz",,
+Lower:
+  parse arg Lower_Input
+  Lower_Out = translate(Lower_Input,"abcdefghijklmnopqrstuvwxyz",,
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-  return out
+  return Lower_Out
 
   /* -------------------------------------------- *
   | View the commit log for this historical item |
@@ -7768,13 +7739,13 @@ DoHist_ViewSource:
   /* ------------------------------- *
   | Validate the provided OMVS Path |
   * ------------------------------- */
-Validate_path: Procedure expose null e. env.
-  parse arg path
-  if path = null then return 8
-  path = translate(path,' ','/')
-  path = subword(path,1,words(path)-1)
-  path = '/'translate(path,'/',' ')'/'
-  x = bpxwunix('ls -la' path,,n.,e.,env.)
+Validate_path:
+  parse arg valid_path
+  if valid_path = null then return 8
+  valid_path = translate(valid_path,' ','/')
+  valid_path = subword(valid_path,1,words(valid_path)-1)
+  valid_path = '/'translate(valid_path,'/',' ')'/'
+  x = bpxwunix('ls -la' valid_path,,n.,e.,env.)
   if e.0 > 0 then return 8
   else return 0
 
@@ -7785,16 +7756,16 @@ Validate_path: Procedure expose null e. env.
   |    0 = load library                                |
   |    1 = not a load library                          |
   * -------------------------------------------------- */
-Check_LLib: procedure
-  arg dsn
-  x = listdsi(dsn)
+Check_LLib:
+  arg check_llib_dsn
+  x = listdsi(check_llib_dsn)
   if sysrecfm = 'U'
   then return 0
   else return 1
 
-Check_Load_Library: procedure expose env.
-  arg dsn
-  x = listdsi("'"dsn"'")
+Check_Load_Library:
+  arg check_loadlib_dsn
+  x = listdsi("'"check_loadlib_dsn"'")
   if sysrecfm /= 'U' then return 0
   x = check_lmod_ptf()
   if x = 0 then return 0
