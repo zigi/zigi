@@ -15,6 +15,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/13/20 LBD - Cleanup Allocation Test for PDS  |
+  |            06/12/20 LBD - Remove ckotqual (not used)       |
   |            06/10/20 LBD - Add OMVS Environment Variables   |
   |            06/08/20 LBD - Add Parse to arg for is_binfile  |
   |                         - Add Procedure to is_binfile      |
@@ -80,7 +82,7 @@
   | Get the ISPF Variables with our instructions |
   * -------------------------------------------- */
   Address ISPExec
-  'vget (ckothlq ckotdir pulldsns mgen ckotqual)'
+  'vget (ckothlq ckotdir pulldsns mgen)'
   if datatype(mgen) /= 'NUM' then mgen = 0
 
   Address TSO
@@ -309,18 +311,20 @@ Alloc_Copy_PDS:
   odir = "'"ckotdir"/"sub"/'"
   zs8 = ''
   deleted = 0
+  dsnstat = sysdsn(pds)
   if pullmems.sub = null then
-  if sysdsn(pds) = 'OK' then do
+  if dsnstat = 'OK' then do
     zs8 = 'Re-Allocating'
     call outtrap 'x.'
     'delete' pds
     deleted = 1
     call outtrap 'off'
   end
-  else zs8 = 'Allocating New'
+  else  zs8 = 'Allocating New'
   zs6 = 'Allocating PDSE:        ' pds
   call pop_status
-  if pullmems.sub = null then do
+  if dsnstat /= 'OK' then deleted = 1
+  if deleted = 1 then do
     call get_dcb
     if recfm = 'U' then do
     type = 'Load module'

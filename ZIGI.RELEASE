@@ -20,7 +20,9 @@ Replaced ROLLBACK dialog with EXTRACT dialog. This is the same as ROLLBACK
 with the addition of an eXtract option to create a set of z/OS datasets
 and OMVS files for the selected (one or more) commits. These are not Git
 managed and are intended to be used to create a delta package (aka PTF)
-with the changed elements only.
+with the changed elements only. The Extract and the TAGList Extract use
+the same ZIGIEXTR routine, one uses the Commit hash and the other uses
+the tag.
 
 New installer - a generic ZIGI installer. It is being used for ZIGI and in
 the near future there will be an option to prime an existing ZIGI managed
