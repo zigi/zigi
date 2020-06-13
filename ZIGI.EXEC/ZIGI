@@ -3333,21 +3333,21 @@ Stash_IT:
   | where HLQ is optional and will default to the active       |
   | pdshlq value.                                              |
   * ---------------------------------------------------------- */
- Add_DSN_HLQ:
-    arg addsn newhlq
-    if newhlq = null
-    then adwhlq = pdshlq
-    else adwhlq = newhlq
-    if qualignr = 0
-    then nhlq = adwhlq
-    else do
-      nhlq = translate(adwhlq,' ','.')
-      if qualignr /= '*' then
-      nhlq = subword(nhlq,1,qualignr)
-      nhlq = translate(nhlq,'.',' ')
-    end
-    addsn = "'"nhlq"."addsn"'"
-    return addsn
+Add_DSN_HLQ:
+  arg addsn newhlq
+  if newhlq = null
+  then adwhlq = pdshlq
+  else adwhlq = newhlq
+  if qualignr = 0
+  then nhlq = adwhlq
+  else do
+    nhlq = translate(adwhlq,' ','.')
+    if qualignr /= '*' then
+    nhlq = subword(nhlq,1,qualignr)
+    nhlq = translate(nhlq,'.',' ')
+  end
+  addsn = "'"nhlq"."addsn"'"
+  return addsn
 
 Remove_DSN_HLQ:
   arg rmdsn
@@ -6384,7 +6384,7 @@ Do_Add_Copy:
     'rempop'
     if drc = 0 then zdsn.dsnb = ext
     if extans = 'Y' then
-      extfile = 'Y'
+    extfile = 'Y'
   end
   if ac_mem /= null then
   if zdsn.dsnb /= null then do
@@ -7380,17 +7380,14 @@ Convert_Repo:
   return
 
 Do_Tag_Extract:
-  cmd = 'cd' localrep'/'zigirep
-  cmd = cmd '&& git status'
-  x = docmd(cmd)
-  if pos('working tree clean',so.sol) = 0 then do
-     zs1 = 'The current repository is not clean. There are'
-     zs2 = 'changes waiting to be addressed. '
-     zs3 = 'Add/Commit or Reverse the changes and try again.'
-     zs4 = 'Press Enter of F3 to continue.'
-     call do_popup4p
-     return 4
-     end
+  x = check_clean()
+  if x = 'NO' then do
+    zerrsm = null
+    zerrlm = left('The current repository has uncommited changes.',74) ,
+             'Resolve and try again.'
+    'setmsg msg(isrz003)'
+    return
+  end
   do forever
     'Addpop row(3) column(4)'
     'Display Panel(zigitagx)'

@@ -178,8 +178,9 @@ Do_Extract:
   zs2 = 'Please standby'
   call do_popup
   cmd = 'cd' omvsdir
-  cmd = cmd '&& git checkout' latest_hash
-  cmd = cmd '&& mkdir' tempDir
+  cmd = cmd '&& git checkout -b' tempBranch latest_hash
+  cmd = cmd '&& mkdir' tempDir '&& git status'
+  x = docmd(cmd)
   if x > 0 then call view_std 'B'
   call do_omvscopy
   zs1 = 'Returning to the original Branch'
@@ -189,7 +190,6 @@ Do_Extract:
   cmd = cmd '&& git checkout' activeBranch
   x = docmd(cmd)
   if x > 0 then call view_std 'B'
-  call view_std 'B'
   ckotdir = tempDir
   ckothlq = translate(zoshlq)
   zs1 = 'Creating the z/OS Datasets'
@@ -198,6 +198,8 @@ Do_Extract:
   'vput (ckotdir ckothlq pulldsns)'
   'Select cmd(%zigickot)'
   cmd = 'rm -r' tempDir
+  cmd = cmd '&& cd' omvsdir
+  cmd = cmd '&& git branch  -D' tempBranch
   x = docmd(cmd)
   if x > 0 then call view_std 'B'
   return
@@ -220,10 +222,21 @@ Do_OmvsCopy:
     zs2 = 'Please standby'
     call do_popup
     if s.ocopyi.st_type = '1'
-    then cdir = '-R'
-    else cdir = null
+    then do
+      cdir = '-R'
+      file = file'/'
+      newdir = tempDir'/'file
+      odir = file
+      end
+    else do
+      cdir = null
+      newdir = null
+      odir = null
+      end
     cmd = 'cd' omvsdir
-    cmd = cmd '&& cp' cdir omvsdir'/'file tempDir'/'
+    if newdir /= null then
+    cmd = cmd '&& mkdir' newdir
+    cmd = cmd '&& cp' cdir omvsdir'/'file tempDir'/'odir
     cmd = usssafe(cmd)
     x = docmd(cmd)
     if x > 0 then call view_std 'B'
