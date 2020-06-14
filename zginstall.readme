@@ -11,7 +11,8 @@ To use zginstall.rex:
        repository is located
     3. Enter at the OMVS prompt ./zginstall.rex
     4. Enter when prompted the z/OS dataset high level qualifier to be
-       used for the z/OS datasets to be created from this Git repository
+       used for the z/OS datasets to be created from this Git
+       repository
     5. When zginstall.rex completes all of the z/OS datasets that are
        part of the Git repository will have been copied into newly
        allocated z/OS datasets.
