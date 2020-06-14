@@ -49,6 +49,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/14/20 LBD - Correct copy of OMVS subdirs     |
   |            06/13/20 LBD - Lots of work - appears ready     |
   |            06/12/20 LBD - Creation                         |
   | ---------------------------------------------------------- |
@@ -100,6 +101,7 @@
   /* -------------------------- *
   | Check the OMVS directories |
   * -------------------------- */
+  if extdir /= '.' then
   call check_omvs
 
   /* ------------- *
@@ -192,11 +194,48 @@ Do_Extract:
   if x > 0 then call view_std 'B'
   ckotdir = tempDir
   ckothlq = translate(zoshlq)
+  if strip(pulldsns) = null then do
+    zs1 = 'Nothing to do'
+    zs2 = 'There are no z/OS datasets or OMVS files that changed' ,
+      'with the selected Commit Hash or Tag.'
+    call do_popupP
+    return
+  end
   zs1 = 'Creating the z/OS Datasets'
   zs2 = ckotdir ckothlq
   call do_popup
   'vput (ckotdir ckothlq pulldsns)'
   'Select cmd(%zigickot)'
+
+/* ------------------------------- *
+ | Now copy the omvsfiles (if any) |
+ * ------------------------------- */
+  say 'omvsfiles:' omvsfiles
+  if extdir /= '.' then
+  if words(omvsfiles) >> 0 then
+  do omvi = 1 to words(omvsfiles)
+    file= word(omvsfiles,omvi)
+    zs1 = 'Copying OMVS file:'
+    zs2 = 'to' extDir
+    call do_popup
+    if  pos('/',file) > 0 then do
+      cpdir = '-R'
+      ndir = translate(file,' ','/')
+      ndir = subword(ndir,1,words(ndir)-1)
+      ndir = translate(ndir,'/',' ')
+    end
+    else do
+      ndir = null
+      cpdir = null
+    end
+    cmd = 'cd' tempDir
+    if ndir /= null then
+    cmd = cmd '&& mkdir' extDir''ndir
+    cmd = cmd '&& cp -v' cpdir file extDir''file
+    say 'cmd:' cmd
+    x = docmd(cmd)
+    if x > 0 then call view_std 'B'
+  end
   cmd = 'rm -r' tempDir
   cmd = cmd '&& cd' omvsdir
   cmd = cmd '&& git branch  -D' tempBranch
@@ -227,12 +266,12 @@ Do_OmvsCopy:
       file = file'/'
       newdir = tempDir'/'file
       odir = file
-      end
+    end
     else do
       cdir = null
       newdir = null
       odir = null
-      end
+    end
     cmd = 'cd' omvsdir
     if newdir /= null then
     cmd = cmd '&& mkdir' newdir
@@ -338,11 +377,13 @@ Get_Repo_Info:
   * ----------------------------------------------------- */
 Update_Pulldsns:
   if dsnvalid(file) = 'NO' then do
+    if mbr /= null then file = file'/'mbr
     if wordpos(file,omvsfiles) = 0 then
     omvsfiles = omvsfiles file
     if ofile /= file then do
       wp = wordpos(ofile,pulldsns)
       interpret 'zv'wp '= (members)'
+      zv.wp = members
       'vput zv'wp
       members = null
       ofile = file
@@ -355,6 +396,7 @@ Update_Pulldsns:
       if ofile /= file then do
         wp = wordpos(ofile,pulldsns)
         interpret 'zv'wp '= (members)'
+        zv.wp = members
         'vput zv'wp
         members = null
         ofile = file
@@ -619,11 +661,22 @@ view_std:
   return
 
   /* ---------------------------------------- *
-  | Common routine for normal (2 line) popup |
+  | Common routine for locked (2 line) popup |
   * ---------------------------------------- */
 Do_Popup:
   call pfshow 'off'           /* make sure pfshow is off */
   'Control Display Lock'
+  'Addpop row(4) column(8)'
+  'Display Panel(zigipop)'
+  'Rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
+  return
+
+  /* ---------------------------------------- *
+  | Common routine for normal (2 line) popup |
+  * ---------------------------------------- */
+Do_PopupP:
+  call pfshow 'off'           /* make sure pfshow is off */
   'Addpop row(4) column(8)'
   'Display Panel(zigipop)'
   'Rempop'
