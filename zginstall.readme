@@ -7,7 +7,7 @@ install the repositories z/OS datasets from the Git OMVS repository.
 To use zginstall.rex:
 
     1. Enter OMVS
-    2. At the OMVS prompot change to the OMVS directory where the Git
+    2. At the OMVS prompt change to the OMVS directory where the Git
        repository is located
     3. Enter at the OMVS prompt ./zginstall.rex
     4. Enter when prompted the z/OS dataset high level qualifier to be
