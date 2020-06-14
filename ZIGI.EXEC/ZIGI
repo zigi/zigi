@@ -5925,7 +5925,11 @@ update_repo_metadata:
             x = confirm_mem_deletes()
             if x = 0 then do
               cmd = 'cd' localrep'/'zigirep'/'r
+              cmd = cmd '&& rm -f' usssafe(mem_omvs)
               cmd = cmd '&& git rm -f' usssafe(mem_omvs)
+              zs1 = 'Deletions being processed.'
+              zs2 = 'Should not take long.'
+              call do_popup
               x = docmd(cmd)
             end
           end
@@ -6124,8 +6128,9 @@ Confirm_Mem_Deletes:
   do forever
     dsel = null
     'tbdispl' tbcd 'panel(zigicdm)'
-    if delconf = 'Y' then rc = 4
-    if rc > 0 then leave
+    drc = rc
+    if delconf = 'YES' then drc = 4
+    if drc > 0 then leave
     if dsel /= null then
     Select
       When dsel = 'R' then say 'Not implemented yet'
@@ -6136,8 +6141,7 @@ Confirm_Mem_Deletes:
         'obrowse' localrep'/'zigirep'/'r'/'dmorig
     end
   end
-  drc = rc
-  'tbend' tbcd
+  if delconf = 'YES' then drc = 0
   return drc
 
 porcelain:
