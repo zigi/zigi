@@ -2376,8 +2376,8 @@ WWR_handle_lcmd_u:
   Return
 
   /* -------------------------------- *
-   | View the OMVS file or directory. |
-   * -------------------------------- */
+  | View the OMVS file or directory. |
+  * -------------------------------- */
 WWR_handle_lcmd_z:
   fdsn = localrep'/'zigirep'/'dsn
   'control display save'
@@ -3530,18 +3530,34 @@ Do_Rset:
   zcmd = null
   pdshlqn = pdshlq
   hlq_change = 0
-  extfans = extfile
-  'Addpop row(4) column(4)'
+  extans = extfile
+  zginst = 'N'
+  'Addpop row(2) column(4)'
   'Display Panel(zigirset)'
   drc = rc
   'rempop'
   if drc > 0 then return
-  if extfans /= null then do
-    extfile = extfans
+  if extans /= null then do
+    extfile = extans
     'vput (extfile) profile'
   end
   if defcpush = 'Y' then zpush = 'Y'
   else zpush = 'N'
+
+  /* ---------------------------------- *
+  | Check for zginstall.rex enablement |
+  * ---------------------------------- */
+  if zginst = 'Y' then do
+    rc = zigigeni(localrep'/'zigirep)
+    cmd = 'cd' localrep'/'zigirep
+    cmd = cmd '&& git add zginstall.rex zginstall.readme'
+    x = docmd(cmd)
+    call view_std 'B'
+  end
+
+  /* ------------------------------ *
+  | Check for change in HLQ Prefix |
+  * ------------------------------ */
   if pdshlqn /= pdshlq then do
     hlq_change = 1
     hlqnw = words(translate(pdshlqn,' ','.'))
@@ -3591,9 +3607,11 @@ Do_Rset:
   'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
   if defcpush = 'Y' then zpush = 'Y'
   else zpush = 'N'
-  zerrsm = 'Updated.'
-  zerrlm = 'Repository default actions updates and saved.'
-  'setmsg msg(isrz003)'
+  if zginst /= 'N' then do
+    zerrsm = 'Updated.'
+    zerrlm = 'Repository default actions updates and saved.'
+    'setmsg msg(isrz003)'
+  end
   if hlq_change = 1 then
   call work_with_repo
   return
@@ -4651,9 +4669,9 @@ Clone_Repo:
   * -------------------------------- */
 Git_Add_Member:
   /* The member 'can' have an extension in the local-repo
-     of course this information is not present in the member-name
-     as shown in the table. So we 'should' check the dsn-info file
-     and check if it has an extension (and if so which one).
+  of course this information is not present in the member-name
+  as shown in the table. So we 'should' check the dsn-info file
+  and check if it has an extension (and if so which one).
   */
   repodir = localrep'/'zigirep
   x = bpxwunix("cat '"repodir"/.zigi/dsn'",,ck.,,env.)
@@ -7384,7 +7402,7 @@ Do_Tag_Extract:
   if x = 'NO' then do
     zerrsm = null
     zerrlm = left('The current repository has uncommited changes.',74) ,
-             'Resolve and try again.'
+      'Resolve and try again.'
     'setmsg msg(isrz003)'
     return
   end
@@ -7463,10 +7481,10 @@ Get_PDS_Members:
   drop pdsmems.
   return
 
-/* -------------------------------------------------------- *
- | Get the file extension information for the datasets from |
- | .zigi/dsn.                                               |
- * -------------------------------------------------------- */
+  /* -------------------------------------------------------- *
+  | Get the file extension information for the datasets from |
+  | .zigi/dsn.                                               |
+  * -------------------------------------------------------- */
 get_dsn_info:
   zdsn. = null
   cmd = 'cat' localrep'/'zigirep'/.zigi/dsn'

@@ -5,7 +5,7 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
-)Body Window(67,15) Expand(\\)
+)Body Window(65,17) Expand(\\)
 +Command ===>_zcmd   \ \ +
 %
 +Review/Update Repository Settings:
@@ -18,12 +18,14 @@
 +
 +Default Userid to set prior to Commit:@defruid + or blank
 +
-+Disable File Extension Prompt on Dataset Add:@z+(Y or N) %Global
++Disable File Extension Prompt on Dataset Add:@z+(Y or N)
++
++Prime Respository with zginstall.rex:@z+(Y or N)
 +
 %ENTER+to register updates and%F3+to Cancel or Leave the panel.
 )Init
 &zwinttl = 'ZIGI Set Defaults for Repository'
- .zvars = '(defcpush extfans)'
+ .zvars = '(defcpush extans zginst)'
  if (&pdshlqn = &Z)
     .cursor = PDSHLQN
  if (&defcpush = &Z)
@@ -33,6 +35,9 @@
  if (&extans = &Z)
     &extans = 'N'
     .cursor = EXTANS
+ if (&zginst = &Z)
+    &zginst = 'N'
+    .cursor = ZGINST
  .help = zigih2e0
  &zgsr = CSR
 )Proc
@@ -69,6 +74,7 @@
  ver (&pdshlqn,dsname)
  ver (&defcpush,nb,list,Y,N)
  ver (&extans,nb,list,Y,N)
+ ver (&zginst,nb,list,Y,N)
 )End
 /* -------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                       */

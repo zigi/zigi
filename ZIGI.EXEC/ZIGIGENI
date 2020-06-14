@@ -16,6 +16,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/14/20 LBD - Update long message remove add.  |
   |            06/11/20 LBD - Creation                         |
   | ---------------------------------------------------------- |
   |    zigi - the z/OS ISPF Git Interface                      |
@@ -92,6 +93,6 @@
     left('repository. Both' ,
     'zginstall.rex and zginstall.readme have been created.',72) ,
     left('-------------------------------------',76) ,
-    'A ZIGI ADDALL and then a COMMIT with a PUSH should now be performed.'
+    'A COMMIT with a PUSH should now be performed.'
   Address ISPExec 'Setmsg msg(isrz003)'
   return 0

@@ -4,7 +4,7 @@
  *-------------------------------------------------------------------*
 
                              ZIGI Release Notes
-                                Version 2.10
+                                Version 3.0
 
                          New Features and Functions
 
@@ -31,6 +31,9 @@ the repositories OMVS directory. It copies the OMVS files that map to z/OS
 datasets into new z/OS datasets. Then it generates a z/OS REXX Exec,
 hlq.ZGSTAT.EXEC, which will apply the ISPF statistics to each z/OS
 Partitioned dataset member.
+
+Update to the Current Repository SET dialog with an option to add
+zginstall.rex, and a zginstall.readme, to the current repository.
 
              -----------------------------------------------
 

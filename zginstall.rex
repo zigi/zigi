@@ -1,10 +1,18 @@
 /* REXX */
   /* ---------------------------------------------------------- *
-  | Name:      zginstall                                       |
+  | Name:      zginstall.rex                                   |
   |                                                            |
   | Function:  ZIGI Package Installation Script                |
   |                                                            |
-  | Syntax:    %zginstall                                      |
+  | Syntax:    ./zginstall.rex                                 |
+  |                                                            |
+  | Installation: This script should be installed in the root  |
+  |               OMVS directory for the ZIGI managed Git      |
+  |               repository.                                  |
+  |                                                            |
+  |               It is included in this library so that it    |
+  |               can be accessed by ZIGI to prime a new, or   |
+  |               existing, repository.                        |
   |                                                            |
   | Usage Notes:                                               |
   |            1. Prompt for                                   |
@@ -13,14 +21,18 @@
   |               will be processed.                           |
   |            3. Directories that are all uppercase will      |
   |               be assumed to be PDS directories             |
-  |                                                            |
-  | Post Install Notes:                                        |
-  |            Consider using the ZGSTAT exec with this        |
-  |            tool to provide a complete package.             |
+  |            4. Upon completing the upload of all z/OS       |
+  |               datasets the hlq.ZGSTAT.EXEC dataset will    |
+  |               be generated. It will be pre-configured for  |
+  |               the uploaded datasets and when executed will |
+  |               apply the ISPF statistics to all partitioned |
+  |               dataset members from the ISPF statistics     |
+  |               files found in the .zigi directory.          |
   |                                                            |
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/11/20 LBD - Redesign self contained exec     |
   |            06/10/20 LBD - Tweak for zgstat.exec dsn        |
   |            06/09/20 LBD - Creation from zigickot           |
   | ---------------------------------------------------------- |
