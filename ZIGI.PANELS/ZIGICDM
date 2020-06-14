@@ -1,0 +1,36 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+  @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+)Body  Expand(\\)
++-\-\#zigtitle    +\-\
+%Command ===>_zcmd   \ \ %Scroll ===>_zgsr+
++
++The following members were not found in the z/OS PDS but were
++found in the OMVS directory. They will be deleted upon confirmation.
++
++Confirm:@z  +  Enter%YES+to confirm or %NO+or hit%F3+to cancel Deletes.
++
++Dataset:$fulldsn
++
++S  Member                    +Selections:%B+Browse%E+Edit%R+Recover
+)Model
+@z+$dmrow
+)Init
+ &delconf = &z
+  .zvars = '(delconf dsel)'
+  .cursor = &zcmd
+  .help = zigihcdm
+  &zgsr = CSR
+)Proc
+ if (&dsel EQ &Z)
+    ver (&delconf,nb,list,YES,NO)
+ ver (&dsel,list,E,B,R)
+)End
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

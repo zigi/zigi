@@ -1,0 +1,36 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                         %Delete Member Confirmation
++
++A Partitioned Dataset Member is missing, probably deleted, while the OMVS
++copy of the member still exists.
++
++You have two options:
+     %1+Enter%YES+to confirm deletion and proceed
+     %2+Enter%NO+or press%F3+to cancel the deletes and proceed
++
++The row selection options:
+    %B+Browse the OMVS version of the member
+    %E+Edit the OMVS version of the member
+    %R+Recover the member by copying from OMVS back to the PDS
++
++
+           +"Overconfidence is the most dangerous form of carelessness."
+            +" -- Clone Wars quote"
++
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
+)Init
+ .cursor  = &zcmd
+)PROC
+ &zcont = zigihcdm
+)END
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

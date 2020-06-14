@@ -26,6 +26,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            06/14/20 LBD - Add prompt for delete processing |
+  |                           if PDS member mia but OMVS not   |
   |            06/13/20 LBD - Replace Extract routines  with   |
   |                           call to zigiextr                 |
   |            06/12/20 LBD - Numerous bug fixes all small     |
@@ -4520,6 +4522,7 @@ fixup_userids:
     then parse value so.iw with . file .
     else parse value so.iw with . . file .
     if left(file,1) = '.' then iterate
+    if dsnvalid(file) = 'NO' then iterate
     parse value file with file'/'mem .
     if wordpos(file,dsns) = 0 then do
       dsns = dsns file
@@ -5919,9 +5922,12 @@ update_repo_metadata:
             x = debug('PDS members deleted - removing from OMVS:' ,
               mem_omvs)
             mem_hit = 1
-            cmd = 'cd' localrep'/'zigirep'/'r
-            cmd = cmd '&& git rm -f' usssafe(mem_omvs)
-            x = docmd(cmd)
+            x = confirm_mem_deletes()
+            if x = 0 then do
+              cmd = 'cd' localrep'/'zigirep'/'r
+              cmd = cmd '&& git rm -f' usssafe(mem_omvs)
+              x = docmd(cmd)
+            end
           end
           /* --------------------------------------------------------- *
           | If members were updated then need to update the stat file |
@@ -6101,6 +6107,38 @@ update_repo_metadata:
   dsn = save_dsn
   x = debug('Done with update_repo_metadata' zigirep)
   return
+
+Confirm_Mem_Deletes:
+  tbcd = 'zcd'time('s')
+  'tbcreate' tbcd 'names(dmrow dmorig) nowrite'
+  do cmdi = 1 to words(mem_omvs)
+    dmrow = word(mem_omvs,cmdi)
+    dmorig = dmrow
+    if pos('.',dmrow) > 0 then do
+      parse value dmrow with dmrow'.'.
+      dmrow = translate(dmrow)
+    end
+    'tbadd' tbcd
+  end
+  'tbtop' tbcd
+  do forever
+    dsel = null
+    'tbdispl' tbcd 'panel(zigicdm)'
+    if delconf = 'Y' then rc = 4
+    if rc > 0 then leave
+    if dsel /= null then
+    Select
+      When dsel = 'R' then say 'Not implemented yet'
+      When dsel = 'E' then
+      Address TSO ,
+        'oedit' localrep'/'zigirep'/'r'/'dmorig
+      Otherwise Address TSO ,
+        'obrowse' localrep'/'zigirep'/'r'/'dmorig
+    end
+  end
+  drc = rc
+  'tbend' tbcd
+  return drc
 
 porcelain:
   parse arg stat
