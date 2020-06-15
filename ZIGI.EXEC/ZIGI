@@ -28,6 +28,7 @@
   |                                                            |
   |            06/15/20 LBD - Support recovery in mem delete   |
   |                         - enhance repo status info         |
+  |                         - Clean up clone time message      |
   |            06/14/20 LBD - Add prompt for delete processing |
   |                           if PDS member mia but OMVS not   |
   |            06/13/20 LBD - Replace Extract routines  with   |
@@ -1295,6 +1296,7 @@ WWR_init:
     zerrlm  = left('Cloning completed for:' zigirep,76) ,
       'Total time to clone was:' cltime
     'setmsg msg(isrz003)'
+  cltime = null
   end
   'vput (localrep zigirep) shared'
   'tbsort' rtbl 'Fields(dsn,c,a)'
