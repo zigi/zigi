@@ -65,6 +65,7 @@ Bug Fixes and Other Updates:
     - Correct support for multiple extract tag selection
 14. Bypass Edit/View hilite if lrecl > 255
 15. Several coding bugs found with REXX compiler :(
+16. Correct member list sort to support members created/updated in 19xx
 
 =============================================================================
 

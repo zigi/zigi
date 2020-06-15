@@ -29,6 +29,7 @@
   |            06/15/20 LBD - Support recovery in mem delete   |
   |                         - enhance repo status info         |
   |                         - Clean up clone time message      |
+  |                         - Correct Member list sort date    |
   |            06/14/20 LBD - Add prompt for delete processing |
   |                           if PDS member mia but OMVS not   |
   |            06/13/20 LBD - Replace Extract routines  with   |
@@ -2500,7 +2501,7 @@ WWRF_build_member_table:
   /* Do this if it's a PDS */
   localdir = localrep'/'zigirep
   'TBCreate' rtll 'Keys(mem) Names(memstat zlcnorc' ,
-    'zlmdate zlmtime zluser mtype)',
+    'zlmdate zlmtime zluser mtype zlm4date)',
     'replace NoWrite'
   rtll_open = 1
   cmd = 'ls -laT' localrep'/'zigirep'/'usssafe(dsn)
@@ -2550,9 +2551,9 @@ WWRF_build_member_table:
     |  The files in OMVS have some chars changed due to cp -M |
     |  So we fix the name before we save to table :)          |
     * ------------------------------------------------------- */
-    /* ---------------------------------------------- *
-    | No get ISPF stats for each member for the list |
-    * ---------------------------------------------- */
+    /* ----------------------------------------------- *
+    | Now get ISPF stats for each member for the list |
+    * ----------------------------------------------- */
     "LMMFind DATAID("did") Member("mem") STATS(YES)"
     'tbadd' rtll
   end
@@ -4814,10 +4815,10 @@ Do_LSort:
     return
   end
   sw = wordpos(sort_field,'MEMBER STATUS SIZE DATE TIME USERID')
-  sort_field = subword('mem memstat zlcnorc zlmdate zlmtime zluser',sw,1)
+  sort_field = subword('mem memstat zlcnorc zlm4date zlmtime zluser',sw,1)
   if sw = 3 then sort_type = 'N'
   else sort_type = 'C'
-  if sort_field /= zlmdate
+  if sort_field /= zlm4date
   then 'tbsort' rtll 'fields('sort_field','sort_type','sort_order')'
   else 'tbsort' rtll 'fields('sort_field','sort_type','sort_order',' ,
     'zlmtime,'sort_type','sort_order')'
