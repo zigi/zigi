@@ -4,7 +4,7 @@
  *-------------------------------------------------------------------*
 
                              ZIGI Release Notes
-                                Version 2.10
+                                Version 3.0
 
                          New Features and Functions
 
@@ -31,6 +31,16 @@ the repositories OMVS directory. It copies the OMVS files that map to z/OS
 datasets into new z/OS datasets. Then it generates a z/OS REXX Exec,
 hlq.ZGSTAT.EXEC, which will apply the ISPF statistics to each z/OS
 Partitioned dataset member.
+
+Update to the Current Repository SET dialog with an option to add
+zginstall.rex, and a zginstall.readme, to the current repository.
+
+Adding a prompt to confirm/prevent deletions when checking for updates.
+Currently when a PDS member is missing but the OMVS version of it still
+exists, the PDS member is just deleted. This occurs during a Pull,
+Merge, or just entering the repository when all datasets are checked for
+updates. An option is provided to Browse/Edit the OMVS file along with
+an option to recover the member from the OMVS file.
 
              -----------------------------------------------
 

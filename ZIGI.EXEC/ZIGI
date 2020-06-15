@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v2r10'
+  ver = 'v3r00'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            06/15/20 LBD - Support recovery in mem delete   |
   |            06/14/20 LBD - Add prompt for delete processing |
   |                           if PDS member mia but OMVS not   |
   |            06/13/20 LBD - Replace Extract routines  with   |
@@ -5922,7 +5923,10 @@ update_repo_metadata:
             x = debug('PDS members deleted - removing from OMVS:' ,
               mem_omvs)
             mem_hit = 1
+            cmrecover = 0
+            delkeep_members = null
             x = confirm_mem_deletes()
+            if strip(mem_omvs) = null then x = 4
             if x = 0 then do
               cmd = 'cd' localrep'/'zigirep'/'r
               cmd = cmd '&& rm -f' usssafe(mem_omvs)
@@ -5931,7 +5935,9 @@ update_repo_metadata:
               zs2 = 'Should not take long.'
               call do_popup
               x = docmd(cmd)
+              if x > 0 then call view_std 'B'
             end
+            if cmrecover = 1 then call fix_mem_stats
           end
           /* --------------------------------------------------------- *
           | If members were updated then need to update the stat file |
@@ -6112,6 +6118,9 @@ update_repo_metadata:
   x = debug('Done with update_repo_metadata' zigirep)
   return
 
+/* ----------------------------------------------------- *
+ | Confirm the delete of a member with optional recovery |
+ * ----------------------------------------------------- */
 Confirm_Mem_Deletes:
   tbcd = 'zcd'time('s')
   'tbcreate' tbcd 'names(dmrow dmorig) nowrite'
@@ -6125,15 +6134,41 @@ Confirm_Mem_Deletes:
     'tbadd' tbcd
   end
   'tbtop' tbcd
+  cmtop = 0
+  cmtsels = 0
   do forever
     dsel = null
-    'tbdispl' tbcd 'panel(zigicdm)'
+    if cmtsels < 2 then do
+      if cmtop > 0 then do
+        'tbtop' tbcd
+        'tbskip' tbcd 'number('cmtop')'
+      end
+      'tbdispl' tbcd 'panel(zigicdm)'
+    end
+    else 'tbdispl' tbcd
     drc = rc
-    if delconf = 'YES' then drc = 4
-    if drc > 0 then leave
+    if delconf = 'STOP' then return 4
+    if drc > 0 then return 0
+    cmtop = ztdtop
     if dsel /= null then
     Select
-      When dsel = 'R' then say 'Not implemented yet'
+      When dsel = 'R' then do
+        cmrecover = 1
+        delkeep_members = delkeep_members dmrow
+        if is_binfile(r'/'dmrow) = 1
+        then cbinopt = '-B'
+        else cbinopt = null
+        x = listdsi(fulldsn)
+        if sysrecfm = 'U' then cbinopt = '-X -I'
+        dw = wordpos(dmorig,mem_omvs)
+        mem_omvs = delword(mem_omvs,dw,1)
+        tdsn = "'"strip(fulldsn,'B',"'")"("dmrow")'"
+        cmd = 'cd' localrep'/'zigirep'/'r
+        cmd = cmd '&& cp -v -U' cbinopt dmorig '"//'tdsn'"'
+        x = docmd(cmd)
+        if x > 0 then call view_std 'B'
+        'tbdelete' tbcd
+      end
       When dsel = 'E' then
       Address TSO ,
         'oedit' localrep'/'zigirep'/'r'/'dmorig
@@ -6141,8 +6176,19 @@ Confirm_Mem_Deletes:
         'obrowse' localrep'/'zigirep'/'r'/'dmorig
     end
   end
-  if delconf = 'YES' then drc = 0
-  return drc
+  return 0
+
+Fix_mem_stats:
+  cmd = 'cd' localrep'/'zigirep'/.zigi/'
+  cmd = cmd '&& cat' r
+  x = docmd(cmd)
+  do fmsi = 1 to so.0
+    do fmsim = 1 to words(delkeep_members)
+      dmbr = word(delkeep_members,fmsim)
+      if word(so.fmsi,1) = dmbr then call add_stats so.i
+    end
+  end
+  return
 
 porcelain:
   parse arg stat
@@ -7728,3 +7774,25 @@ Check_LMOD_PTF:
   cmd = cmd '"  test'
   x = bpxwunix(cmd,,so.,se.,env.)
   return x
+
+  /* --------------------------- *
+  | Add statistics to a member. |
+  * --------------------------- */
+Add_Stats:
+  arg mstats
+  zstats = 'ZS'time('s')
+  "LMINIT DATAID(zstats) DATASET("fulldsn")"
+  "LMOPEN DATAID("zstats") OPTION(INPUT)"
+  parse value mstats with upmbr ZLCDATE ZLMDATE ZLVERS ZLMOD ,
+    ZLMTIME ZLCNORC ZLINORC ZLMNORC ZLUSER ZLCNORCE ,
+    ZLINORCE ZLMNORCE .
+  if zlcdate = null then ,
+    'LMMSTATS DATAID('zstats') Member('upmbr') user('sysvar(sysuid)')'
+  else ,
+    'LMMSTATS DATAID('zstats') MEMBER('upmbr') VERSION('zlvers')' ,
+    'MODLEVEL('zlmod') CREATED('zlcdate') MODDATE('zlmdate')' ,
+    'MODTIME('zlmtime') INITSIZE('zlinorc')' ,
+    'MODRECS('zlmnorc') USER('zluser')'
+  "LMClose Dataid("zstats")"
+  "LMFree  Dataid("zstats")"
+  return

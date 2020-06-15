@@ -9,10 +9,10 @@
 +-\-\#zigtitle    +\-\
 %Command ===>_zcmd   \ \ %Scroll ===>_zgsr+
 +
-+The following members were not found in the z/OS PDS but were
-+found in the OMVS directory. They will be deleted upon confirmation.
++The following members were not found in the z/OS PDS but were found in the
++OMVS directory. To prevent them from being deleted confirm retention.
 +
-+Confirm:@z  +  Enter%YES+to confirm or %NO+or hit%F3+to cancel Deletes.
++Confirm:@z   +  Enter%STOP+to prevent Delete or press%F3+to Delete.
 +
 +Dataset:$fulldsn
 +
@@ -27,7 +27,7 @@
   &zgsr = CSR
 )Proc
  if (&dsel EQ &Z)
-    ver (&delconf,nb,list,YES,NO)
+    ver (&delconf,list,STOP)
  ver (&dsel,list,E,B,R)
 )End
 /* -------------------------------------------------------- */
