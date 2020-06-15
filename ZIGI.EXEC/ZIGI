@@ -27,6 +27,7 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            06/15/20 LBD - Support recovery in mem delete   |
+  |                         - enhance repo status info         |
   |            06/14/20 LBD - Add prompt for delete processing |
   |                           if PDS member mia but OMVS not   |
   |            06/13/20 LBD - Replace Extract routines  with   |
@@ -1664,12 +1665,9 @@ WWR_handle_fetch:
   x = docmd(cmd '&& git fetch && git status')
   fetch_flag = 1
   branch = word(so.1,3)
-  if so.0 > 1 then do
-    branch_status = word(so.2,4)
-    parse var so.2 bstat","baction
-  end
+  if so.0 > 1 then call Update_Status
   else do
-    parse value '' with branch_status bstat baction
+    parse value '' with bstat baction
   end
   Return
 
@@ -6104,12 +6102,9 @@ update_repo_metadata:
   x = debug('getting git status for current branch')
   x = docmd('cd 'localdir' && git status')
   branch = word(so.1,3)
-  if so.0 > 1 then do
-    branch_status = word(so.2,4)
-    parse var so.2 bstat","baction
-  end
+  if so.0 > 1 then call Update_Status
   else do
-    parse value '' with branch_status bstat baction
+    parse value '' with bstat baction
   end
   'tbsort' rtbl 'fields(dsn,c,a)'
   fulldsn = save_fulldsn
@@ -6118,9 +6113,30 @@ update_repo_metadata:
   x = debug('Done with update_repo_metadata' zigirep)
   return
 
-/* ----------------------------------------------------- *
- | Confirm the delete of a member with optional recovery |
- * ----------------------------------------------------- */
+  /* -------------------------------------------- *
+  | Update the status with more meaningful info. |
+  * -------------------------------------------- */
+Update_Status:
+  parse value '' with bstat baction
+  do usi = 1 to so.0
+    Select
+      When bstat = null & ,
+        pos('up-to-date',so.usi) > 0 then bstat = so.usi
+      When bstat = null & ,
+        pos('branch is behind',so.usi) > 0 then
+      parse value so.usi with bstat',' .
+      When pos('working tree clean',so.usi) > 0 then baction = so.usi
+      When pos('Untracked files:',so.usi)   > 0 then baction = so.usi
+      When pos('Changes not staged',so.usi) > 0 then baction = so.usi
+      When pos('Changes to be comm',so.usi) > 0 then baction = so.usi
+      Otherwise nop
+    end
+  end
+  Return
+
+  /* ----------------------------------------------------- *
+  | Confirm the delete of a member with optional recovery |
+  * ----------------------------------------------------- */
 Confirm_Mem_Deletes:
   tbcd = 'zcd'time('s')
   'tbcreate' tbcd 'names(dmrow dmorig) nowrite'
