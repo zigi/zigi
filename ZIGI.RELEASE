@@ -66,6 +66,9 @@ Bug Fixes and Other Updates:
 14. Bypass Edit/View hilite if lrecl > 255
 15. Several coding bugs found with REXX compiler :(
 16. Correct member list sort to support members created/updated in 19xx
+17. Set the default permissions to 755 in the MKDIR popup
+18. Fix invalid selection in PDS member list after some commands
+19. Fix setting the default userid on commit
 
 =============================================================================
 

@@ -26,6 +26,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            06/16/20 LBD - Fix SET ID on Commit             |
+  |                         - Fix Invalid Selection on PDS List|
   |            06/15/20 LBD - Support recovery in mem delete   |
   |                         - enhance repo status info         |
   |                         - Clean up clone time message      |
@@ -1297,7 +1299,7 @@ WWR_init:
     zerrlm  = left('Cloning completed for:' zigirep,76) ,
       'Total time to clone was:' cltime
     'setmsg msg(isrz003)'
-  cltime = null
+    cltime = null
   end
   'vput (localrep zigirep) shared'
   'tbsort' rtbl 'Fields(dsn,c,a)'
@@ -2459,32 +2461,33 @@ Work_with_repo_file:
       end
 
       /* handle line commands */
-      if zsel /= null then
-      if zsel = 'E' then zsel = 'S'
-      Select
-        When zsel = 'B' then call WWRF_handle_lcmd_b
-        When zsel = 'V' then call WWRF_handle_lcmd_v
-        When zsel = 'S' then call WWRF_handle_lcmd_s
-        When zsel = 'H' then call do_history dsn'/'mem
-        When zsel = 'RN' then call WWRF_handle_lcmd_rn
-        When zsel = 'RM' then call WWRF_handle_lcmd_rm
-        when zsel = 'A' then do
+      if zsel /= null then do
+        if zsel = 'E' then zsel = 'S'
+        Select
+          When zsel = 'B' then call WWRF_handle_lcmd_b
+          When zsel = 'V' then call WWRF_handle_lcmd_v
+          When zsel = 'S' then call WWRF_handle_lcmd_s
+          When zsel = 'H' then call do_history dsn'/'mem
+          When zsel = 'RN' then call WWRF_handle_lcmd_rn
+          When zsel = 'RM' then call WWRF_handle_lcmd_rm
+          when zsel = 'A' then do
           /* -------------------------------- *
           | Add member of PDS to staging area|
           * -------------------------------- */
-          call git_add_member
-          if ztdsels = 1 then call git_add_member_stats
-        end
-        when zsel = 'AB' then call WWRF_handle_lcmd_ab
-        When zsel = 'U' then call do_undo 'M'
-        When zsel = 'D' then call WWRF_handle_lcmd_d
-        When zsel = 'Z' then call WWRF_handle_lcmd_z
-        Otherwise do
-          zerrsm = 'Invalid.'
-          zerrlm = zsel 'is not a valid selection value. Review the' ,
-            'ISPF Tutorial using F1 for available line selection' ,
-            'options.'
-          'setmsg msg(isrz003)'
+            call git_add_member
+            if ztdsels = 1 then call git_add_member_stats
+          end
+          when zsel = 'AB' then call WWRF_handle_lcmd_ab
+          When zsel = 'U' then call do_undo 'M'
+          When zsel = 'D' then call WWRF_handle_lcmd_d
+          When zsel = 'Z' then call WWRF_handle_lcmd_z
+          Otherwise do
+            zerrsm = 'Invalid.'
+            zerrlm = zsel 'is not a valid selection value. Review the' ,
+              'ISPF Tutorial using F1 for available line selection' ,
+              'options.'
+            'setmsg msg(isrz003)'
+          end
         end
       end
     end
@@ -4524,8 +4527,8 @@ fixup_userids:
     then parse value so.iw with . file .
     else parse value so.iw with . . file .
     if left(file,1) = '.' then iterate
+    if pos('/',file) > 0 then parse value file with file'/'mem
     if dsnvalid(file) = 'NO' then iterate
-    parse value file with file'/'mem .
     if wordpos(file,dsns) = 0 then do
       dsns = dsns file
     end
@@ -4543,8 +4546,7 @@ fixup_userids:
       "LMMFind DATAID("reset") Member("member") STATS(YES)"
       if rc > 7 then iterate
       if zluser /= defruid then do
-        zluser = defruid
-        'LMMSTATS DATAID('reset') Member('member') user('zluser')'
+        'LMMSTATS DATAID('reset') Member('member') user('defruid')'
       end
     end
     "LMClose Dataid("reset")"
