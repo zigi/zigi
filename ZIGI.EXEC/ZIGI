@@ -29,6 +29,7 @@
   |            06/16/20 LBD - Fix SET ID on Commit             |
   |                         - Fix Invalid Selection on PDS List|
   |                         - vput Default UID on Repo Open    |
+  |                         - Speed Add_Copy with 1 cp         |
   |            06/15/20 LBD - Support recovery in mem delete   |
   |                         - enhance repo status info         |
   |                         - Clean up clone time message      |
@@ -6503,6 +6504,7 @@ Do_Add_Copy:
   FC = listdsi("'"WHAT"'" "DIR")
   dsnb = remove_dsn_hlq(dsna)
   ext = null
+  if acopt = null then
   if extfile = 'N' then
   if sysdsorg = 'PO' then
   if zdsn.dsnb = null then do
@@ -6536,9 +6538,12 @@ Do_Add_Copy:
     zs3 = 'Copy as Load Module'
   end
   else cplmod = null
+  if ac_mem = null then do
   if sysmembers /= null
   then patmem = 'Members to copy:' sysmembers
   else patmem = null
+  end
+  else patmem = 'Copying' ac_mem
   zs4 = 'Patience . . .' patmem
   call do_popup4
   DIR = localrep'/'zigirep
@@ -6576,43 +6581,15 @@ Do_Add_Copy:
       x = docmd(cmd)
       call get_binfiles
     end
-    if zdsn.dsnb = null then do
+       if zdsn.dsnb /= null
+          then extopt = '-S a=.'zdsn.dsnb
+          else extopt = '-U'
       if ac_mem /= null then pdsc = pdsc"("ac_mem")"
       copycmd = "//'"pdsc"'"
       copycmd = '"'copycmd'"'
-      cmd = "cp -U -v "binopt cplmod copycmd" "DIR"/"pdss"/"ac_mem
+      cmd = "cp -v "binopt extopt cplmod copycmd" "DIR"/"pdss"/"ac_mem
       x = debug('Copying:' cmd)
       x =bpxwunix(cmd,,so.,se.,env.)
-    end
-    else do
-      call outtrap 'cm.'
-      address tso 'listd' "'"pds"' m"
-      call outtrap 'off'
-      hit = 0
-      cm_count = cm.0 - 6
-      do ci = 7 to cm.0
-        if pos(')',cm.ci) > 0 then do
-          hit = 0
-          iterate
-        end
-        if hit = 1 then iterate
-        mem = word(cm.ci,1)
-        if pos('ALIAS(',cm.ci) > 0 then hit = 1
-        ussmem = lower(mem)'.'zdsn.dsnb
-        zs2 = 'to' dsnb'/'ussmem
-        zs4 = 'Patience . . .' ci-6 'of' cm_count
-        call do_popup4
-        pdsc = pds"("mem")"
-        pdss = usssafe(pdss)
-        pdsc = usssafe(pdsc)
-        ussmem = usssafe(ussmem)
-        copycmd = "//'"pdsc"'"
-        copycmd = '"'copycmd'"'
-        cmd = "cp -U -v "binopt cplmod copycmd" "DIR"/"pdss"/"ussmem
-        x = debug('Copying:' cmd)
-        x =bpxwunix(cmd,,so.,se.,env.)
-      end
-    end
     if option = 'binary' then do
       /* for some reason the git autotagging due to .gitattributes
       does not work all the time (?? weird) so we tag it if binary
