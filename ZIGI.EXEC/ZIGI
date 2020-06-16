@@ -28,6 +28,7 @@
   |                                                            |
   |            06/16/20 LBD - Fix SET ID on Commit             |
   |                         - Fix Invalid Selection on PDS List|
+  |                         - vput Default UID on Repo Open    |
   |            06/15/20 LBD - Support recovery in mem delete   |
   |                         - enhance repo status info         |
   |                         - Clean up clone time message      |
@@ -829,6 +830,7 @@ Select_Repo:
   call get_binfiles
   x = debug('Got 'binfiles.0' binfiles')
   x = debug('Selecting repo:' zigirep)
+  'vput (defruid)'
   call Work_With_Repo
   x = debug('Return from repo:' zigirep)
   Return

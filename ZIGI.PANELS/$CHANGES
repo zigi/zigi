@@ -69,6 +69,8 @@ Bug Fixes and Other Updates:
 17. Set the default permissions to 755 in the MKDIR popup
 18. Fix invalid selection in PDS member list after some commands
 19. Fix setting the default userid on commit
+20. Use the Default (commit) userid when opening a repo if a PDS member
+    does not have any ISPF statistics instead of using the users userid
 
 =============================================================================
 

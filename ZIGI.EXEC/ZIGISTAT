@@ -39,6 +39,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/16/20 LBD - Use DEFRUID if it exists         |
   |            06/09/20 LBD - Bypass stat update for lmod      |
   |            05/08/20 LBD - Support Load Libraries           |
   |            01/08/20 LBD - Selecitve stat update if statmems|
@@ -94,7 +95,7 @@ zigistat:
   else zigidebg = 0
 
   Address ISPExec
-  'vget (debugfil)'
+  'vget (debugfil defruid)'
 
   x = debug('start of zigistat with option:' opt)
 
@@ -140,6 +141,9 @@ zigistat:
     zlcnorce zlinorce zlmnorce ,
     zlsize zlamod zlrmode zlattr zlalias zlssi
   mem.0  = 0
+  if defruid = null
+     then newuid = sysvar('sysuid')
+     else newuid = defruid
 
   /* ----------------------- *
   * Now process all members *
@@ -156,7 +160,7 @@ zigistat:
     * -------------------------------- */
     if sysrecfm /= 'U' then
     if zlcdate = null then do
-      'LMMSTATS DATAID('status') Member('member') user('sysvar(sysuid)')'
+      'LMMSTATS DATAID('status') Member('member') user('newuid')'
       "LMMFind DATAID("status") Member("member") STATS(YES)"
     end
     /* ------------------------------ *
