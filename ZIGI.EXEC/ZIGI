@@ -5860,8 +5860,14 @@ update_repo_metadata:
             e = usssafe(edsn)
             r = usssafe(file)
             if zdsn.file /= null
-            then rm = lower(strip(m)'.'zdsn.file)
-            else rm = m
+            then do
+              rm = lower(strip(m)'.'zdsn.file)
+              extopt = null
+            end
+            else do
+              rm = m
+              extopt = '-U'
+            end
             rm = strip(rm)
             /* Binary v1, check if PDS is a bin, then copy binary */
             if is_binfile(file'/*') = 1 then do
@@ -5887,7 +5893,8 @@ update_repo_metadata:
             if cplmod /= null then bintext = 'as LMod'
             copycmd = "//'"e"("m")'"
             copycmd = '"'copycmd'"'
-            copycmd = "cp "binopt cplmod" -U -v" copycmd" "localrep"/"zigirep
+            copycmd = "cp" binopt cplmod extopt "-v" copycmd ,
+              localrep"/"zigirep
             copycmd = copycmd || "/"r"/"rm
             zs1 = 'Copying:' fulldsn
             zs2 = 'Member: ' mem 'to' '/'clean(r)'/'clean(rm)
@@ -6539,9 +6546,9 @@ Do_Add_Copy:
   end
   else cplmod = null
   if ac_mem = null then do
-  if sysmembers /= null
-  then patmem = 'Members to copy:' sysmembers
-  else patmem = null
+    if sysmembers /= null
+    then patmem = 'Members to copy:' sysmembers
+    else patmem = null
   end
   else patmem = 'Copying' ac_mem
   zs4 = 'Patience . . .' patmem
@@ -6581,15 +6588,15 @@ Do_Add_Copy:
       x = docmd(cmd)
       call get_binfiles
     end
-       if zdsn.dsnb /= null
-          then extopt = '-S a=.'zdsn.dsnb
-          else extopt = '-U'
-      if ac_mem /= null then pdsc = pdsc"("ac_mem")"
-      copycmd = "//'"pdsc"'"
-      copycmd = '"'copycmd'"'
-      cmd = "cp -v "binopt extopt cplmod copycmd" "DIR"/"pdss"/"ac_mem
-      x = debug('Copying:' cmd)
-      x =bpxwunix(cmd,,so.,se.,env.)
+    if zdsn.dsnb /= null
+    then extopt = '-S a=.'zdsn.dsnb
+    else extopt = '-U'
+    if ac_mem /= null then pdsc = pdsc"("ac_mem")"
+    copycmd = "//'"pdsc"'"
+    copycmd = '"'copycmd'"'
+    cmd = "cp -v "binopt extopt cplmod copycmd" "DIR"/"pdss"/"ac_mem
+    x = debug('Copying:' cmd)
+    x =bpxwunix(cmd,,so.,se.,env.)
     if option = 'binary' then do
       /* for some reason the git autotagging due to .gitattributes
       does not work all the time (?? weird) so we tag it if binary
