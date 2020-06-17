@@ -26,6 +26,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            06/17/20 LBD - Backout cp change on add copy    |
+  |                         - Add PopUp when Commit starts     |
   |            06/16/20 LBD - Fix SET ID on Commit             |
   |                         - Fix Invalid Selection on PDS List|
   |                         - vput Default UID on Repo Open    |
@@ -4353,6 +4355,10 @@ Do_Commit:
     drop m.
     return
   end
+
+  zs1 = 'Commit processing started.'
+  zs2 = null
+  call do_popup
 
   /* find last row */
   'tbbottom' cmtab
