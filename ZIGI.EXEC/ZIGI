@@ -4982,72 +4982,13 @@ Branch_it:
       end
       else do
         x = docmd('cd 'localdir' && git checkout 'bname)
-     /* -------------------------------------------------------- *
-      | This commented block of code was an attempt to determine |
-      | what changed from current branch to the new branch to    |
-      | avoid having to reallocate every dataset.                |
-      |                                                          |
-      | It doesn't work as detecting what actually changed is    |
-      | more of a challenge.                                     |
-      |                                                          |
-      | Leaving just in case an insight hits.                    |
-      * -------------------------------------------------------- *
-        cmd = 'cd 'localdir' && git checkout 'bname
-        cmd = cmd '&& git show --name-status' bname branch
-        x = docmd(cmd)
-        x05 = '05'x
-        parse value '' with brdsns brmems. brdeletes pullmems.
-        /* ------------------------------- *
-        | Process the differences report: |
-        | M = modified                    |
-        | A = added                       |
-        | D = deleted                     |
-        | R = renamed                     |
-        * ------------------------------- */
-        do bri = 1 to so.0
-          if pos(x05,so.bri) = 0 then iterate
-          data = translate(so.bri,' ',x05)
-          parse value data with change_flag change_file
-          if left(change_file,1) = '.' then iterate
-          change_flag = left(change_flag,1)
-          call brDelta
-        end
-        if qualignr = 0
-        then ckothlq = pdshlq
-        else do
-          ckothlq = translate(pdshlq,' ','.')
-          if qualignr /= '*' then
-          ckothlq = subword(ckothlq,1,qualignr)
-          ckothlq = translate(ckothlq,'.',' ')
-        end
-        do zz = 1 to words(brdsns)
-          zd = word(brdsns,zz)
-say 'dsn:' zd
-          zw = words(brmems.zd)
-          ldsn = "'"ckothlq"."zd"'"
-say 'ldsn:' ldsn
-          x = listdsi(ldsn "dir")
-          if sysdsorg /= 'PO' then iterate
-          interpret 'zv'zz '= (brmems.zd)'
-          'vput zv'zz
-interpret 'say zv'zz
-        end
-        ckotdir = localrep'/'zigirep
-        pulldsns = brdsns
-say 'hlq:' ckothlq 'ckotdir:' ckotdir
-say 'pulldsns:' pulldsns
-        'vput (ckotdir ckothlq pulldsns)'
-        'Select cmd(%zigickot)'
-        do brdel = 1 to words(brdeletes)
-           deldsn = "'"ckothlq"."word(brdeletes,brdel)"'"
-           Address TSO
-           call outtrap 'brd.'
-say        'Delete' deldsn
-           'Delete' deldsn
-           call outtrap 'off'
-           Address ISPExec
-           end
-        Comment End */
+        /* ---------------------------------------------------------------- *
+        | See commented code at the end of this exec for code that could   |
+        | (when fixed) go into this section.  The code should detect whats |
+        | changed from the current branch to the new branch and then only  |
+        | replace those datasets/members (including deletes) instead of    |
+        | replacing all datasets.                                          |
+        * ---------------------------------------------------------------- */
         call Replace localrep zigirep pdshlq qualignr
         call update_repo_metadata
         branch = bname
@@ -6626,6 +6567,7 @@ Do_Add_Copy:
   FC = listdsi("'"WHAT"'" "DIR")
   dsnb = remove_dsn_hlq(dsna)
   ext = null
+  if acopt = null then
   if extfile = 'N' then
   if sysdsorg = 'PO' then
   if zdsn.dsnb = null then do
@@ -6659,9 +6601,12 @@ Do_Add_Copy:
     zs3 = 'Copy as Load Module'
   end
   else cplmod = null
-  if sysmembers /= null
-  then patmem = 'Members to copy:' sysmembers
-  else patmem = null
+  if ac_mem = null then do
+    if sysmembers /= null
+    then patmem = 'Members to copy:' sysmembers
+    else patmem = null
+  end
+  else patmem = 'Copying' ac_mem
   zs4 = 'Patience . . .' patmem
   call do_popup4
   DIR = localrep'/'zigirep
@@ -6699,11 +6644,14 @@ Do_Add_Copy:
       x = docmd(cmd)
       call get_binfiles
     end
+    if zdsn.dsnb /= null
+    then extopt = '-S a=.'zdsn.dsnb
+    else extopt = '-U'
     if zdsn.dsnb = null then do
       if ac_mem /= null then pdsc = pdsc"("ac_mem")"
       copycmd = "//'"pdsc"'"
       copycmd = '"'copycmd'"'
-      cmd = "cp -U -v "binopt cplmod copycmd" "DIR"/"pdss"/"ac_mem
+      cmd = "cp -v "binopt extopt cplmod copycmd" "DIR"/"pdss"/"ac_mem
       x = debug('Copying:' cmd)
       x =bpxwunix(cmd,,so.,se.,env.)
     end
@@ -7307,7 +7255,8 @@ Test_Repo_Table_State:
     'TBErase zigirepo Library('isptabl')'
     call create_zigirepo
     do i = 1 to key.0
-      parse value key.i with zigikey'\'localrep'\'pdshlq'\'qualignr'\'zigirep ,
+      parse value key.i with zigikey'\'localrep'\'pdshlq'\'qualignr ,
+        '\'zigirep ,
         '\'defcpush'\'defruid'\'zigidate'\'sortdate'\'zigicat ,
         '\'branch'\'remote1
       if right(localrep,1) = '/' then localrep = strip(localrep,'T','/')
@@ -7942,3 +7891,70 @@ Add_Stats:
   "LMClose Dataid("zstats")"
   "LMFree  Dataid("zstats")"
   return
+
+  /* -------------------------------------------------------- *
+  | This commented block of code was an attempt to determine |
+  | what changed from current branch to the new branch to    |
+  | avoid having to reallocate every dataset.                |
+  |                                                          |
+  | It doesn't work as detecting what actually changed is    |
+  | more of a challenge.                                     |
+  |                                                          |
+  | Leaving just in case an insight hits.                    |
+  * -------------------------------------------------------- *
+  cmd = 'cd 'localdir' && git checkout 'bname
+  cmd = cmd '&& git show --name-status' bname branch
+  x = docmd(cmd)
+  x05 = '05'x
+  parse value '' with brdsns brmems. brdeletes pullmems.
+  /* ------------------------------- *
+  | Process the differences report: |
+  | M = modified                    |
+  | A = added                       |
+  | D = deleted                     |
+  | R = renamed                     |
+  * ------------------------------- */
+  do bri = 1 to so.0
+    if pos(x05,so.bri) = 0 then iterate
+    data = translate(so.bri,' ',x05)
+    parse value data with change_flag change_file
+    if left(change_file,1) = '.' then iterate
+    change_flag = left(change_flag,1)
+    call brDelta
+  end
+  if qualignr = 0
+  then ckothlq = pdshlq
+  else do
+    ckothlq = translate(pdshlq,' ','.')
+    if qualignr /= '*' then
+    ckothlq = subword(ckothlq,1,qualignr)
+    ckothlq = translate(ckothlq,'.',' ')
+  end
+  do zz = 1 to words(brdsns)
+    zd = word(brdsns,zz)
+    say 'dsn:' zd
+    zw = words(brmems.zd)
+    ldsn = "'"ckothlq"."zd"'"
+    say 'ldsn:' ldsn
+    x = listdsi(ldsn "dir")
+    if sysdsorg /= 'PO' then iterate
+    interpret 'zv'zz '= (brmems.zd)'
+    'vput zv'zz
+    interpret 'say zv'zz
+  end
+  ckotdir = localrep'/'zigirep
+  pulldsns = brdsns
+  say 'hlq:' ckothlq 'ckotdir:' ckotdir
+  say 'pulldsns:' pulldsns
+  'vput (ckotdir ckothlq pulldsns)'
+  'Select cmd(%zigickot)'
+  do brdel = 1 to words(brdeletes)
+    deldsn = "'"ckothlq"."word(brdeletes,brdel)"'"
+    Address TSO
+    call outtrap 'brd.'
+    say        'Delete' deldsn
+    'Delete' deldsn
+    call outtrap 'off'
+    Address ISPExec
+  end
+    Comment End */
