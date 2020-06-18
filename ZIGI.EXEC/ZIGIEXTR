@@ -210,7 +210,6 @@ Do_Extract:
 /* ------------------------------- *
  | Now copy the omvsfiles (if any) |
  * ------------------------------- */
-  say 'omvsfiles:' omvsfiles
   if extdir /= '.' then
   if words(omvsfiles) >> 0 then
   do omvi = 1 to words(omvsfiles)
@@ -232,7 +231,6 @@ Do_Extract:
     if ndir /= null then
     cmd = cmd '&& mkdir' extDir''ndir
     cmd = cmd '&& cp -v' cpdir file extDir''file
-    say 'cmd:' cmd
     x = docmd(cmd)
     if x > 0 then call view_std 'B'
   end

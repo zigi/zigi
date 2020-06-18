@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            06/18/20 LBD - Correct Extract list and Show    |
   |            06/17/20 LBD - Backout cp change on add copy    |
   |                         - Add PopUp when Commit starts     |
   |            06/16/20 LBD - Fix SET ID on Commit             |
@@ -2475,9 +2476,9 @@ Work_with_repo_file:
           When zsel = 'RN' then call WWRF_handle_lcmd_rn
           When zsel = 'RM' then call WWRF_handle_lcmd_rm
           when zsel = 'A' then do
-          /* -------------------------------- *
-          | Add member of PDS to staging area|
-          * -------------------------------- */
+            /* -------------------------------- *
+            | Add member of PDS to staging area|
+            * -------------------------------- */
             call git_add_member
             if ztdsels = 1 then call git_add_member_stats
           end
@@ -3936,9 +3937,9 @@ Do_Extract:
       when zsel = 'S' then do
         drop so. se.
         cmd = 'cd' localrep'/'zigirep
-        cmd = cmd '&& git log -n 1' ctag
+        cmd = cmd '&& git show -P' ctag
         x = docmd(cmd)
-        call view_std 'B'
+        call view_std 'B' 'V'
       end
       when zsel = 'R' then do
         zcmd  = null
@@ -4012,11 +4013,11 @@ Do_Extract_Log:
     end
   end
   else do
-    x = docmd(cmd "&& git for-each-ref --format '%(creatordate)" ,
-      " %(refname:short) %(objectname:short) %(subject) %(HEAD)'" ,
-      "--count="ocrcnt)
+    x = docmd(cmd "&& git log -n" ocrcnt "--abbrev=commit" ,
+      " --pretty=format:'%H    %cd subject:%f'")
     do cri = 1 to so.0
-      parse value so.cri with dow mon day time year . . ctag ctitle
+      parse value so.cri with ctag dow mon day time year . 'subject:'ctitle
+      ctag = left(ctag,7)
       mon = wordpos(mon,'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec')
       cdatetim = year'/'right(mon+100,2)'/'right(day+100,2) time
       'tbadd' zcrtbl
@@ -4981,6 +4982,72 @@ Branch_it:
       end
       else do
         x = docmd('cd 'localdir' && git checkout 'bname)
+     /* -------------------------------------------------------- *
+      | This commented block of code was an attempt to determine |
+      | what changed from current branch to the new branch to    |
+      | avoid having to reallocate every dataset.                |
+      |                                                          |
+      | It doesn't work as detecting what actually changed is    |
+      | more of a challenge.                                     |
+      |                                                          |
+      | Leaving just in case an insight hits.                    |
+      * -------------------------------------------------------- *
+        cmd = 'cd 'localdir' && git checkout 'bname
+        cmd = cmd '&& git show --name-status' bname branch
+        x = docmd(cmd)
+        x05 = '05'x
+        parse value '' with brdsns brmems. brdeletes pullmems.
+        /* ------------------------------- *
+        | Process the differences report: |
+        | M = modified                    |
+        | A = added                       |
+        | D = deleted                     |
+        | R = renamed                     |
+        * ------------------------------- */
+        do bri = 1 to so.0
+          if pos(x05,so.bri) = 0 then iterate
+          data = translate(so.bri,' ',x05)
+          parse value data with change_flag change_file
+          if left(change_file,1) = '.' then iterate
+          change_flag = left(change_flag,1)
+          call brDelta
+        end
+        if qualignr = 0
+        then ckothlq = pdshlq
+        else do
+          ckothlq = translate(pdshlq,' ','.')
+          if qualignr /= '*' then
+          ckothlq = subword(ckothlq,1,qualignr)
+          ckothlq = translate(ckothlq,'.',' ')
+        end
+        do zz = 1 to words(brdsns)
+          zd = word(brdsns,zz)
+say 'dsn:' zd
+          zw = words(brmems.zd)
+          ldsn = "'"ckothlq"."zd"'"
+say 'ldsn:' ldsn
+          x = listdsi(ldsn "dir")
+          if sysdsorg /= 'PO' then iterate
+          interpret 'zv'zz '= (brmems.zd)'
+          'vput zv'zz
+interpret 'say zv'zz
+        end
+        ckotdir = localrep'/'zigirep
+        pulldsns = brdsns
+say 'hlq:' ckothlq 'ckotdir:' ckotdir
+say 'pulldsns:' pulldsns
+        'vput (ckotdir ckothlq pulldsns)'
+        'Select cmd(%zigickot)'
+        do brdel = 1 to words(brdeletes)
+           deldsn = "'"ckothlq"."word(brdeletes,brdel)"'"
+           Address TSO
+           call outtrap 'brd.'
+say        'Delete' deldsn
+           'Delete' deldsn
+           call outtrap 'off'
+           Address ISPExec
+           end
+        Comment End */
         call Replace localrep zigirep pdshlq qualignr
         call update_repo_metadata
         branch = bname
@@ -5030,6 +5097,49 @@ Branch_it:
   rtbb_open = 0
   ztdsels = 0
   zsel = null
+  return
+
+BrDelta:
+  Select
+    When change_flag = 'M' then BrType = 'A'
+    When change_flag = 'A' then BrType = 'A'
+    When change_flag = 'D' then do
+      if pos('/',change_file) > 0
+      then do
+        parse value change_file with change_file'/'brdmem
+        if pos('.',brdmem) > 0 then
+        parse value brdmem with brdmem'.'.
+        change_file = change_file"("brdmem")"
+      end
+      brdeletes = brdeletes change_file
+      BrType = 'D'
+    end
+    When change_flag = 'R' then do
+      parse value change_file with brdelfile change_file
+      if pos('/',brdelFile) > 0
+      then do
+        parse value brdelFile with brdelFile'/'brdmem
+        if pos('.',brdmem) > 0 then
+        parse value brdmem with brdmem'.'.
+        brdelFile = brdelFile"("brdmem")"
+      end
+      brdeletes = brdeletes brdelFile
+      BrType = 'A'
+    end
+    Otherwise nop
+  end
+  if BrType = 'D' then return
+  if pos('/',change_file) = 0 then do
+    brdsns = brdsns change_file
+  end
+  else do
+    parse value change_file with change_file'/'BrMem
+    if wordpos(change_file,brdsns) = 0 then
+    brdsns = brdsns change_file
+    if pos('.',brmem) > 0 then
+    parse value brmem with brmem'.'.
+    brmems.change_file = brmems.change_file BrMem
+  end
   return
 
   /* ----------------------------- *
