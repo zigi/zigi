@@ -90,6 +90,9 @@
 /* ------------------------------------- *
  | Define bpxwunix Environment Variables |
  * ------------------------------------- */
+  /* Comment Start
+  env.1 = '_BPX_SHAREAS=YES'
+     Comment End */
   env.1 = '_BPX_SHAREAS=YES'
   env.2 = '_BPX_SPAWN_SCRIPT=YES'
   env.0 = 2

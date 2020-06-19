@@ -26,7 +26,12 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            06/19/20 LBD - swap git rm and rm if mbr gone   |
   |            06/18/20 LBD - Correct Extract list and Show    |
+  |                         - On Add Dataset copy all using    |
+  |                           a single cp if not mixed (t/b)   |
+  |                         - On Add Dataset RECFM=U is set    |
+  |                           to Binary Load Module on S/A     |
   |            06/17/20 LBD - Backout cp change on add copy    |
   |                         - Add PopUp when Commit starts     |
   |            06/16/20 LBD - Fix SET ID on Commit             |
@@ -5998,8 +6003,8 @@ update_repo_metadata:
             if strip(mem_omvs) = null then x = 4
             if x = 0 then do
               cmd = 'cd' localrep'/'zigirep'/'r
-              cmd = cmd '&& rm -f' usssafe(mem_omvs)
               cmd = cmd '&& git rm -f' usssafe(mem_omvs)
+              cmd = cmd '&& rm -f' usssafe(mem_omvs)
               zs1 = 'Deletions being processed.'
               zs2 = 'Should not take long.'
               call do_popup
@@ -6488,6 +6493,10 @@ Add_Dataset:
         rc = Check_Load_Library(dsna)
         if rc = 0 then
         call do_add_copy
+        else do
+          call do_add_copy 'binary'
+          gaupdate = 1
+      end
       end
       when zsel = 'AB' then do
         rc = Check_Load_Library(dsna)
@@ -6606,7 +6615,6 @@ Do_Add_Copy:
     then patmem = 'Members to copy:' sysmembers
     else patmem = null
   end
-  else patmem = 'Copying' ac_mem
   zs4 = 'Patience . . .' patmem
   call do_popup4
   DIR = localrep'/'zigirep
@@ -6620,8 +6628,8 @@ Do_Add_Copy:
     mkdir = "mkdir -p "DIR"/"pdss
     x = bpxwunix(mkdir,,so.,se.,env.)
     binopt = null
-    if option = 'binary' then
-    if bin_already(dsnb) = 0 then do
+    if translate(option) = 'BINARY' then
+    if is_binfile(dsnb) = 0 then do
       if cplmod = null then
       binopt = '-B'
       if ac_mem = null then ga_mem = '*'
@@ -6639,21 +6647,25 @@ Do_Add_Copy:
       cmd = cmd '&& git add .gitattributes '
       cmd = cmd '&& git commit -m "zigi changed .gitattributes"'
       cmd = cmd ".gitattributes"
-      /* finally remove the .gae file */
-      cmd = cmd '&& rm .gae'
       x = docmd(cmd)
+      /* finally remove the .gae file */
+      cmd = 'cd 'DIR' && rm .gae'
+      x = docmd(cmd)
+      call view_std 'B'
       call get_binfiles
     end
     if zdsn.dsnb /= null
     then extopt = '-S a=.'zdsn.dsnb
     else extopt = '-U'
-    if zdsn.dsnb = null then do
+    if check_mixed_bintext(dsnb) = 0 then do
       if ac_mem /= null then pdsc = pdsc"("ac_mem")"
+      call bpxwdyn "alloc da('"pdsc"') shr rtddn(ddname)"
       copycmd = "//'"pdsc"'"
       copycmd = '"'copycmd'"'
       cmd = "cp -v "binopt extopt cplmod copycmd" "DIR"/"pdss"/"ac_mem
       x = debug('Copying:' cmd)
       x =bpxwunix(cmd,,so.,se.,env.)
+      call bpxwdyn "free  fi("|| ddname ||")"
     end
     else do
       call outtrap 'cm.'
@@ -6661,6 +6673,7 @@ Do_Add_Copy:
       call outtrap 'off'
       hit = 0
       cm_count = cm.0 - 6
+      call bpxwdyn "alloc da('"pds"') shr rtddn(ddname)"
       do ci = 7 to cm.0
         if pos(')',cm.ci) > 0 then do
           hit = 0
@@ -6672,9 +6685,17 @@ Do_Add_Copy:
         ussmem = lower(mem)'.'zdsn.dsnb
         zs2 = 'to' dsnb'/'ussmem
         zs4 = 'Patience . . .' ci-6 'of' cm_count
+        binopt = null
+        if is_binfile(pdss'/'ussmem) = 1 then
+        if cplmod = null then do
+          binopt = '-B'
+          zs3 = 'Copy as Binary'
+        end
+        else zs3 = 'Copy as Text'
         call do_popup4
         pdsc = pds"("mem")"
         pdss = usssafe(pdss)
+        trace 'off'
         pdsc = usssafe(pdsc)
         ussmem = usssafe(ussmem)
         copycmd = "//'"pdsc"'"
@@ -6683,6 +6704,7 @@ Do_Add_Copy:
         x = debug('Copying:' cmd)
         x =bpxwunix(cmd,,so.,se.,env.)
       end
+      call bpxwdyn "free  fi("|| ddname ||")"
     end
     if option = 'binary' then do
       /* for some reason the git autotagging due to .gitattributes
@@ -6699,7 +6721,7 @@ Do_Add_Copy:
     PSS = usssafe(dsnb)
     binopt = null
     if option = 'binary' then
-    if bin_already(dsnb) = 0 then do
+    if is_binfile(dsnb) = 0 then do
       binopt = '-B'
       /* setting the gitattributes file */
       /* first convert the ASCII atrtib file to ebcdic :( */
@@ -7108,6 +7130,9 @@ GETENV:
   cmd  = docmdx('env')
   rc = bpxwunix(cmd,,env.,se.)
   envc = env.0
+  /* Comment Start
+  call add_env '_BPX_SHAREAS=YES'
+     Comment End */
   call add_env '_BPX_SHAREAS=YES'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
   call add_env 'EXPORT _EDC_ADD_ERRNO2=1'
@@ -7404,18 +7429,6 @@ get_binfiles:
   binfiles.0 = so.0
   return 0
 
-bin_already:
-  arg file
-  if datatype(binfiles.0) /= 'NUM' then return 0
-  do b = 1 to binfiles.0
-    if file = binfiles.b then return 1
-    if pos('/',binfiles.b) = 0
-    then test = binfiles.b
-    else parse value binfiles.b with test'/'.
-    if file = test then return 1
-  end
-  return 0
-
 is_binfile:
   /* ---------------------------------------------------------\
   | Name:      is_binfile                                      |
@@ -7432,9 +7445,25 @@ is_binfile:
       if left(binfiles.bi,length(binfiles.bi)-2) = test
       then return 1
     end
-    if binfiles.bi = checkForBinFile then return 1
   end
   return 0
+
+/* ---------------------------------------- *
+ | Check if a PDS has mixed binary and text |
+ * ---------------------------------------- */
+Check_Mixed_BinText:
+  parse arg checkForBinFile
+  cmbtRC = 0
+  if datatype(binfiles.0) /= 'NUM' then return 0
+  do bi = 1 to binfiles.0
+    parse value binfiles.bi with cmbtfile'/'cmbtmbr
+    parse value checkForBinFile with checkFile'/'checkmbr
+    if cmbtfile = checkFile then
+    if cmbtmbr = '*' then cmbtRC = 0
+    else return 1
+    if binfiles.bi = checkForBinFile then return 1
+  end
+  return cmbtRC
 
 check_clean:
   /* ---------------------------------------------------------\
@@ -7844,7 +7873,10 @@ Check_LLib:
   arg check_llib_dsn
   x = listdsi(check_llib_dsn)
   if sysrecfm = 'U'
-  then return 0
+  then do
+    x = check_load_library(dsn)
+    return rc
+  end
   else return 1
 
 Check_Load_Library:

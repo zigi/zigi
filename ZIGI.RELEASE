@@ -71,6 +71,9 @@ Bug Fixes and Other Updates:
 19. Fix setting the default userid on commit
 20. Use the Default (commit) userid when opening a repo if a PDS member
     does not have any ISPF statistics instead of using the users userid
+21. During repository check for updates, if a PDS member is missing the it
+    is deleted from OMVS and Git. Swapped the deletes so git rm is before
+    omvs rm.
 
 =============================================================================
 
