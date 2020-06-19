@@ -8,6 +8,12 @@
 
                          New Features and Functions
 
+In many situation where PDS members are copied, from PDS to OMVS or OMVS
+to PDS, the copy operation will now copy all members in one cp command.
+This means the progress popup with member name will not be available in
+this situation. In some cases where only a few of the PDS members are
+being copied then the member progress popup will remain.
+
 Enhance the element copy progress popup on a change detection to include
 the type of copy (text, binary, lmod).
 
@@ -74,6 +80,11 @@ Bug Fixes and Other Updates:
 21. During repository check for updates, if a PDS member is missing the it
     is deleted from OMVS and Git. Swapped the deletes so git rm is before
     omvs rm.
+22. In the Network display the _ was being colored and shouldn't have been
+    if it is part of the prose and not the network diagram - fixed
+23. Ignore LMOD aliases as the cp command will handle those.
+24. Converted many bpxwunix calls to call docmd for consistency.
+25. In ZIGIDSNA correct cursor positioning if no prefix ignore.
 
 =============================================================================
 
@@ -99,7 +110,7 @@ Bug Fixes and Other Updates:
                          New Features and Functions
                          --------------------------
 
-New support for z/OS load modules, and associated aliaes, to be managed by
+New support for z/OS load modules, and associated aliases, to be managed by
 ZIGI and Git. This is transparent to the user. If a PDS is RECFM=U then it
 is treated as a load library. Be aware that when copying a load module from
 USS to a z/OS load library that the binder is invoked which may change the
