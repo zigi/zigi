@@ -15,6 +15,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/20/20 LBD - Fix copy counter                 |
   |            06/19/20 LBD - If a PDS is not Text and Binary  |
   |                           (mixed) then do a single cp      |
   |            06/13/20 LBD - Cleanup Allocation Test for PDS  |
@@ -392,8 +393,6 @@ Alloc_Copy_PDS:
       src = usssafe(mems.ii)
       if left(src,1) = '#' then src = '\'src
       zos = usssafe("//'"target"("m")'")
-      mcount = mcount + 1
-      zs9 = left('Copying' mcount 'of' tcount,24) 'Member:' m
       m = mems.ii    /* ignore the translation */
       if zdsn.sub /= null then
       if right(m,length(zdsn.sub)) = zdsn.sub then do

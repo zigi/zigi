@@ -49,6 +49,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/20/20 LBD - Fix getting newest hash          |
+  |                           (major update)                   |
   |            06/14/20 LBD - Correct copy of OMVS subdirs     |
   |            06/13/20 LBD - Lots of work - appears ready     |
   |            06/12/20 LBD - Creation                         |
@@ -112,7 +114,7 @@
   /* ------------------------------------------- *
   | Get Current Repoistory Info and commit info |
   * ------------------------------------------- */
-  call get_latest_hash_tag
+  call get_newest_hash_tag
   call get_repo_info
   if extdir /= '.' then
   call create_new_omvsdir
@@ -150,7 +152,10 @@ Create_New_OmvsDir:
   zs2 = null
   call do_popup
   cmd = 'cd' omvsdir
-  cmd = cmd "&& git show" latest_hash
+  do ai = 1 to words(all_hash)
+    hloc = word(all_hash,ai)
+    cmd = cmd '&& git log  --diff-filter="ACDMRT" -1 -U' Hloc
+  end
   cmd = cmd '>' extDir'/Extract.info'
   x = docmd(cmd)
   if x > 0 then call view_std 'B'
@@ -180,7 +185,7 @@ Do_Extract:
   zs2 = 'Please standby'
   call do_popup
   cmd = 'cd' omvsdir
-  cmd = cmd '&& git checkout -b' tempBranch latest_hash
+  cmd = cmd '&& git checkout -b' tempBranch newest_hash
   cmd = cmd '&& mkdir' tempDir '&& git status'
   x = docmd(cmd)
   if x > 0 then call view_std 'B'
@@ -284,45 +289,33 @@ Do_OmvsCopy:
   | If more than one hash/tag was provided we need to get the most |
   | recent hash. If a tag then we need the hash.                   |
   * -------------------------------------------------------------- */
-Get_Latest_Hash_Tag:
+Get_Newest_Hash_Tag:
   zs1 = 'Getting the commit/tag specifics.'
   zs2 = 'Please standby'
   call do_popup
   cmd = 'cd' omvsdir
-  cmd = cmd '&& git show-ref --abbrev'
-  cmd = cmd "&& git for-each-ref --format" ,
-    "'%(creatordate)  %(objectname:short)'"
+  cmd = cmd "&& git log --abbrev-commit --pretty=format:'%h %cd'"
   x = docmd(cmd)
   if x > 0 then call view_std 'B'
   latest = 0
-  latest_hash = null
+  newest_hash = null
+  oldest_hash = null
+  all_hash = null
+  test_tags = tags
+  hash_counter = 0
   do glht = 1 to so.0
-    if words(so.glht) = 2 then do
-      if pos('refs/tags/',so.glht) = 0 then iterate
-      parse value so.glht with hash 'refs/tags/'tag .
-      if wordpos(tag,tags) > 0 then
-      if tagl.hash = null then do
-        tagl.hash = hash
-        tags = tags hash
-        hash_tags = hash_tags hash
-      end
+    hash = word(so.glht,1)
+    hash_counter = hash_counter + 1
+    if wordpos(hash,test_tags) > 0 then do
+      all_hash = all_hash hash
+      HashLoc.hash = glht
+      hp = wordpos(hash,test_tags)
+      test_tags = strip(delword(test_tags,hp,1))
+      if newest_hash = null then
+      newest_hash = hash
+      oldest_hash = hash
     end
-    if words(so.glht) = 7 then do
-      hash = word(so.glht,7)
-      if wordpos(hash,hash_tags) = 0
-      then hash_tags = hash_tags hash
-      parse value so.glht with dow mon day time year .
-      mon = wordpos(mon,'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec')
-      time = left(time,2)''substr(time,3,2)''right(time,2)
-      hash_date = year''right(mon+100,2)''right(day+100,2)''time
-      if tagl.hash = hash then tagl.hash = hash_date
-      if tagl.hash = null then tagl.hash = hash_date
-      if wordpos(hash,tags) > 0 then
-      if hash_date > latest then do
-        latest = hash_date
-        latest_hash = hash
-      end
-    end
+    if test_tags = null then return
   end
   return
 
@@ -343,21 +336,36 @@ Get_Repo_Info:
   zs2 = 'Please standby'
   call do_popup
   cmd = 'cd' omvsdir
-  cmd = cmd "&& git show" latest_hash "| grep '+++'"
+  do ai = 1 to words(all_hash)
+    hloc = word(all_hash,ai)
+    cmd = cmd '&& git log  --diff-filter="ACDMRT" -1 -U' Hloc
+    cmd = cmd " | grep -e '+++' -e 'Binary'"
+  end
   x = docmd(cmd)
   if x > 0 then call view_std 'B'
   call stem_sort
   old = null
   do i = 1 to so.0
-    if old = so.i then iterate
-    old = so.i
-    parse value so.i with '+++ b/'file
-    if left(file,1) = '/' then iterate
-    if left(file,1) = '.' then iterate
-    if pos('/',file) > 0
-    then parse value file with file'/'mbr
-    else mbr = null
-    if ofile = null then ofile = file
+    if left(so.i,1) = '+' then do
+      if old = so.i then iterate
+      old = so.i
+      parse value so.i with '+++ b/'file
+      if left(file,1) = '/' then iterate
+      if left(file,1) = '.' then iterate
+      if pos('/',file) > 0
+      then parse value file with file'/'mbr
+      else mbr = null
+      if ofile = null then ofile = file
+    end
+    else do
+      parse value so.i with . . . . 'b/'file 'differ'
+      if left(file,1) = '/' then iterate
+      if left(file,1) = '.' then iterate
+      if pos('/',file) > 0
+      then parse value file with file'/'mbr
+      else mbr = null
+      if ofile = null then ofile = file
+    end
     call update_pulldsns
   end
   last = 1
