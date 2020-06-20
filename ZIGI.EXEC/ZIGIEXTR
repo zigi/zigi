@@ -77,6 +77,7 @@
 
   Parse Arg omvsdir zoshlq extdir tags
 
+
   if sysvar('sysispf') /= 'ACTIVE' then do
     say 'ZIGIEXTR requires ISPF services which are currently unavailable.'
     say 'Try again under ISPF.'
@@ -155,8 +156,8 @@ Create_New_OmvsDir:
   do ai = 1 to words(all_hash)
     hloc = word(all_hash,ai)
     cmd = cmd '&& git log  --diff-filter="ACDMRT" -1 -U' Hloc
+    cmd = cmd '>>' extDir'/Extract.info'
   end
-  cmd = cmd '>' extDir'/Extract.info'
   x = docmd(cmd)
   if x > 0 then call view_std 'B'
   return
@@ -302,11 +303,13 @@ Get_Newest_Hash_Tag:
   oldest_hash = null
   all_hash = null
   test_tags = tags
+  hit = 0
   hash_counter = 0
   do glht = 1 to so.0
     hash = word(so.glht,1)
     hash_counter = hash_counter + 1
     if wordpos(hash,test_tags) > 0 then do
+      hit = 1
       all_hash = all_hash hash
       HashLoc.hash = glht
       hp = wordpos(hash,test_tags)
@@ -315,6 +318,7 @@ Get_Newest_Hash_Tag:
       newest_hash = hash
       oldest_hash = hash
     end
+    else if hit = 1 then all_hash = all_hash hash
     if test_tags = null then return
   end
   return
@@ -342,6 +346,7 @@ Get_Repo_Info:
     cmd = cmd " | grep -e '+++' -e 'Binary'"
   end
   x = docmd(cmd)
+  call stemedit 'view',so.
   if x > 0 then call view_std 'B'
   call stem_sort
   old = null

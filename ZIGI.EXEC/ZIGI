@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            06/20/20 LBD - Add object hash to taglist tag   |
   |            06/19/20 LBD - swap git rm and rm if mbr gone   |
   |            06/18/20 LBD - Correct Extract list and Show    |
   |                         - On Add Dataset copy all using    |
@@ -3640,11 +3641,11 @@ Get_TagList:
   all_tags = null
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd "&& git for-each-ref --format" ,
-    "'%(creatordate) %(refname) %(subject)'" ,
+    "'%(creatordate) %(refname) %(objectname) %(subject)'" ,
     "refs/tags"
   x = docmd(cmd)
-  'TBCreate' zcrtbl 'Keys(ctag) Names(cdatetim ctitle sortdate sorttime)' ,
-    'nowrite share'
+  'TBCreate' zcrtbl 'Keys(ctag) Names(cdatetim ctitle chash' ,
+    'sortdate sorttime) nowrite share'
   do cri = 1 to so.0
     if left(strip(so.cri),4) = 'refs' then do
       parse value so.cri with ctag ctitle
@@ -3653,7 +3654,7 @@ Get_TagList:
       sorttime = 0
     end
     else do
-      parse value so.cri with day mm dd time yy gmt ctag ctitle
+      parse value so.cri with day mm dd time yy gmt ctag chash ctitle
       cdatetim = yy mm dd time
       zd = dd mm yy
       sortdate = dd mm yy
@@ -3663,6 +3664,7 @@ Get_TagList:
     ctag = translate(ctag,' ','/')
     ctag = word(ctag,3)
     all_tags = all_tags ctag
+    chash = left(chash,7)
     'tbadd' zcrtbl
   end
   return
@@ -3760,7 +3762,7 @@ Do_TAGLIST:
       end
       when zsel = 'X' then do
         ext_type = 'T'
-        tags = tags ctag
+        tags = tags chash
         if ztdsels = 1 then
         call do_tag_extract
       end
