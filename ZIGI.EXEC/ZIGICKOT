@@ -367,7 +367,7 @@ Alloc_Copy_PDS:
       end
       else binopt = null
       if recfm = 'U' then binopt = '-X -I'
-      zs9 = 'Copying' tcount 'members - be patient.'
+      zs9 = 'Copying' tcount 'members.'
       call pop_status
       cmd = 'cp -A -v' binopt rdir'/*' '"//'pds'"'
       x = docmd(cmd)
