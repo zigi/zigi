@@ -19,10 +19,10 @@
 +
 +Options:%S+Display the details of the selected commit.
 +        %X+Extract the elements changed in the selected commits to new
-+           datasets for packaging.
++           datasets for packaging with ability to select multiple and all
++           the commits/tags between the oldest and newest will be extracted.
 +        %R+Rollback creates a new branch from the commit level.
 %
-+
 +
          +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
