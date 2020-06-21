@@ -49,6 +49,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/21/20 LBD - View the extract log if omvsdir  |
   |            06/20/20 LBD - Fix getting newest hash          |
   |                           (major update)                   |
   |            06/14/20 LBD - Correct copy of OMVS subdirs     |
@@ -124,6 +125,8 @@
   Address ISPExec
   'Control Display Save'
   if extdir /= '.' then do
+   ofile = extDir'/Extract.info'
+   'View file(ofile) panel(zigiedit)'
     "Select Pgm(ISRDSLST) PARM(UDL" extdir") SUSPEND"
   end
 
