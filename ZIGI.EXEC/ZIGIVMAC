@@ -40,8 +40,10 @@
   if lrecl < 255 then
   if last > 1 then
   'hilite off'
-  Address ISPExec 'vget (vtitle gitcmde)'
+  Address ISPExec 'vget (vtitle gitcmde localrep zigirep)'
   if gitcmde /= '' then do
+    data = 'Current Directory:' localrep'/'zigirep
+    'line_before 1 = msgline (data)'
     data = 'Git Command: git' gitcmde
     'line_before 1 = msgline (data)'
     data = left('-',length(data),'-')
