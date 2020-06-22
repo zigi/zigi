@@ -11,6 +11,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/22/20 LBD - Save command in ISPF var         |
   |            06/17/20 LBD - Message on command completion    |
   |            05/02/20 LBD - If git log set vtype variable    |
   |            01/12/20 LBD - Add CLEAR command to clear all   |
@@ -173,8 +174,10 @@ do_gitcmd:
   zerrlm = 'The command completed processing. There may, or may not, be' ,
            'messages. If there are then the messages will be displayed.'
   'Setmsg msg(isrz003)'
+  'vput (gitcmde) shared'
   call view_std
   vtype = null
+  'verase (gitcmde)'
   'vput (vtype) shared'
   return
 

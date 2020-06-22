@@ -7,6 +7,7 @@
  | Author:    Lionel B. Dyck                                  |
  |                                                            |
  | History:  (most recent on top)                             |
+ |            06/22/20 LBD - Add Git Command msg if present   |
  |            06/11/20 LBD - If lrecl > 255 no hilite         |
  |            03/07/20 LBD - Check for > 1 records for hilite |
  |            12/16/19 LBD - creation                         |
@@ -39,7 +40,13 @@
   if lrecl < 255 then
   if last > 1 then
   'hilite off'
-  Address ISPExec 'vget (vtitle)'
+  Address ISPExec 'vget (vtitle gitcmde)'
+  if gitcmde /= '' then do
+    data = 'Git Command: git' gitcmde
+    'line_before 1 = msgline (data)'
+    data = left('-',length(data),'-')
+    'line_before 1 = msgline (data)'
+  end
   if vtitle = '' then exit
   parse value vtitle with element'\'hdate'\'hauthor'\'fulldsn .
   if left(fulldsn,1) = "'" then do

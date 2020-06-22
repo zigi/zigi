@@ -22,6 +22,8 @@ commit/push updates (changes and new) elements. Must be run using a
 SYSEXEC/SYSPROC that uses the ZIGI EXEC library. Sample JCL included in
 the comments of the EXEC.
 
+Add the git command as a message in the View of the GITCMD results.
+
 Replaced ROLLBACK dialog with EXTRACT dialog. This is the same as ROLLBACK
 with the addition of an eXtract option to create a set of z/OS datasets
 and OMVS files for the selected (one or more) commits. These are not Git
