@@ -6,12 +6,13 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(46,12)
+)Body Window(46,13)
 +
 +Enter Selection:_z                        +
 +
 +]Addall+   Add all Untracked to Git
 +]Commit+   Register all changes with Git
++]GitCmd+   Issue Git Commands
 +]Gitlog+   Review the Git log
 +]Grep+     Search the repository for a string
 +]Locate+  _lstloc  +Locate a member
@@ -26,6 +27,7 @@
   &Addall = 'AddAll'
   &Locate = 'Locate'
   &Commit = 'Commit'
+  &gitcmd = 'GitCmd'
   &gitlog = 'Gitlog'
   &grep   = 'Grep'
   &sort   = 'Sort'
@@ -41,6 +43,7 @@
     ver (&lstloc,nb)
 )PNTS
  FIELD(COMMIT) VAR(ZCMD) VAL('COMMIT')
+ FIELD(GITCMD) VAR(ZCMD) VAL('GITCMD')
  FIELD(GITLOG) VAR(ZCMD) VAL('GITLOG')
  FIELD(GREP )  VAR(ZCMD) VAL('GREP')
  FIELD(RESET ) VAR(ZCMD) VAL('RESET')
