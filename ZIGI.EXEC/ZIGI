@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            06/23/20 LBD - Enable Prompt for AB extensions  |
   |            06/20/20 LBD - Add object hash to taglist tag   |
   |            06/19/20 LBD - swap git rm and rm if mbr gone   |
   |            06/18/20 LBD - Correct Extract list and Show    |
@@ -2590,6 +2591,7 @@ WWRF_display_zigilist:
     panel_rc = rc
     if rtll_open = 1 then
     'tbend' rtll
+    list_top = 0
     rtll_open = 0
     Return panel_rc
   end
@@ -4988,14 +4990,10 @@ Branch_it:
         call view_std 'B'
       end
       else do
+        /* Comment Start
+        call check_branch_delta
+           Comment End */
         x = docmd('cd 'localdir' && git checkout 'bname)
-        /* ---------------------------------------------------------------- *
-        | See commented code at the end of this exec for code that could   |
-        | (when fixed) go into this section.  The code should detect whats |
-        | changed from the current branch to the new branch and then only  |
-        | replace those datasets/members (including deletes) instead of    |
-        | replacing all datasets.                                          |
-        * ---------------------------------------------------------------- */
         call Replace localrep zigirep pdshlq qualignr
         call update_repo_metadata
         branch = bname
@@ -5047,6 +5045,10 @@ Branch_it:
   zsel = null
   return
 
+/* -------------------------------------------------------------- *
+ | Process the branch delta from the git diff command to identify |
+ | the files changed.                                             |
+ * -------------------------------------------------------------- */
 BrDelta:
   Select
     When change_flag = 'M' then BrType = 'A'
@@ -6579,7 +6581,6 @@ Do_Add_Copy:
   FC = listdsi("'"WHAT"'" "DIR")
   dsnb = remove_dsn_hlq(dsna)
   ext = null
-  if acopt = null then
   if extfile = 'N' then
   if sysdsorg = 'PO' then
   if zdsn.dsnb = null then do
@@ -7925,6 +7926,7 @@ Add_Stats:
   "LMFree  Dataid("zstats")"
   return
 
+  Check_Branch_Delta:
   /* -------------------------------------------------------- *
   | This commented block of code was an attempt to determine |
   | what changed from current branch to the new branch to    |
@@ -7934,7 +7936,7 @@ Add_Stats:
   | more of a challenge.                                     |
   |                                                          |
   | Leaving just in case an insight hits.                    |
-  * -------------------------------------------------------- *
+  * -------------------------------------------------------- */
   cmd = 'cd 'localdir' && git checkout 'bname
   cmd = cmd '&& git show --name-status' bname branch
   x = docmd(cmd)
@@ -7946,6 +7948,7 @@ Add_Stats:
   | A = added                       |
   | D = deleted                     |
   | R = renamed                     |
+  |     - ignore the xxx in Rxxx    |
   * ------------------------------- */
   do bri = 1 to so.0
     if pos(x05,so.bri) = 0 then iterate
@@ -7990,4 +7993,4 @@ Add_Stats:
     call outtrap 'off'
     Address ISPExec
   end
-    Comment End */
+  return

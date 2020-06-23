@@ -35,38 +35,53 @@
  &resp = .resp
 *REXX(* zedsmsg zedlmsg resp csr)
   zedsmsg = ''
+  if resp = 'END' then exit
+
   if translate(substr(remote,1,4)) = 'HTTP' then do
-     zedsmsg = 'Error'
-     zedlmsg = 'Only ssh is supported for cloning, using full syntax',
-          'ssh://[user@]host.xz[:port]/path/to/repo.git/ or',
-          'scp-like syntax [user@]host.xz:path/to/repo.git/'
-     csr = 'remote'
+    zedsmsg = 'Error'
+    zedlmsg = 'Only ssh is supported for cloning, using full syntax',
+      'ssh://[user@]host.xz[:port]/path/to/repo.git/ or',
+      'scp-like syntax [user@]host.xz:path/to/repo.git/'
+    csr = 'remote'
   end
   if word(remote,1) = 'git' then
-    if word(remote,2) = 'clone' then
-        remote = subword(remote,3)
+  if word(remote,2) = 'clone' then
+  remote = subword(remote,3)
+
+  if zedsmsg = '' then
+  if localrep /= '' then
   if localrep /= '?' then do
-    x = bpxwunix('ls -la' localrep)
-    if x > 0 then do
+    x = bpxwunix('ls -la' localrep,,so.,se.)
+    if so.0 = 0 then do
       zedsmsg = 'Error.'
-      zedlmsg = localrep 'is not a valid OMVS directory. Change to a valid' ,
-        'directory, or create a new directory and try again.'
+      zedlmsg = localrep 'does not exist. Create it and try again.'
       csr = 'LOCALREP'
     end
-  end
-  if zedsmsg = '' then do
-    if length(defruid) = 8 then do
-      CVT      = C2D(Storage(10,4))
-      TVT      = C2D(Storage(D2X(CVT + 156),4))   /* cvt + 9c */
-      TSVTUMXL = C2D(Storage(D2X(tvt  + 6),1))  /* tvt + 6 */
-      if tsvtumxl < 8 then do
-        zedsmsg = 'Error'
-        zedlmsg = defruid 'is 8 characters and this system does not' ,
-          'support 8 character TSO userids at this time.'
-        csr = 'DEFRUID'
+    if so.0 > 3 then do
+      x = bpxwunix('ls -la' localrep'/.zigi',,so.,se.)
+      if so.0 > 0 then do
+        zedsmsg = 'Error.'
+        zedlmsg = localrep 'is currently a ZIGI repository and thus' ,
+           'not valid for cloning.' ,
+          'Change to an empty directory and try again.'
+        csr = 'LOCALREP'
       end
     end
   end
+
+  if zedsmsg = '' then
+  if length(defruid) = 8 then do
+    CVT      = C2D(Storage(10,4))
+    TVT      = C2D(Storage(D2X(CVT + 156),4))   /* cvt + 9c */
+    TSVTUMXL = C2D(Storage(D2X(tvt  + 6),1))  /* tvt + 6 */
+    if tsvtumxl < 8 then do
+      zedsmsg = 'Error'
+      zedlmsg = defruid 'is 8 characters and this system does not' ,
+        'support 8 character TSO userids at this time.'
+      csr = 'DEFRUID'
+    end
+  end
+
 *ENDREXX
  if (&zedsmsg NE &Z)
     .MSG = ISRZ001

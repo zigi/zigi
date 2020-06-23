@@ -24,6 +24,11 @@ the comments of the EXEC.
 
 Add the git command as a message in the View of the GITCMD results.
 
+Improve checking on Repository Create, Clone, or Extract on the use of
+the provided HLQ's and OMVS directories.
+
+Add GITCMD to the Current Repository options popup menu.
+
 Replaced ROLLBACK dialog with EXTRACT dialog. This is the same as ROLLBACK
 with the addition of an eXtract option to create a set of z/OS datasets
 and OMVS files for the selected (one or more) commits. These are not Git
@@ -87,6 +92,7 @@ Bug Fixes and Other Updates:
 23. Ignore LMOD aliases as the cp command will handle those.
 24. Converted many bpxwunix calls to call docmd for consistency.
 25. In ZIGIDSNA correct cursor positioning if no prefix ignore.
+26. Improve target directory check for cloning and creation.
 
 =============================================================================
 
