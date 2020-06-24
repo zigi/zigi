@@ -7912,7 +7912,7 @@ Check_Branch_Delta:
   call add_report 'From branch:' branch
   call add_report 'To branch:  ' bname
   call add_report ' '
-  call add_report 'Elements changed from branch:' branch
+  call add_report 'Elements added or changed from branch:' branch
   call add_report ' '
   /* Get the HLQ for use */
   if qualignr = 0
@@ -7955,6 +7955,7 @@ Check_Branch_Delta:
   if words(brdeletes) > 0 then do
     call add_report ' '
     call add_report 'Elements not in the To branch:' bname
+    call add_report '(They may not exist, have been deleted, or renamed)'
     call add_report ' '
   end
   do brdel = 1 to words(brdeletes)
