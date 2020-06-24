@@ -8,6 +8,10 @@
 
                          New Features and Functions
 
+When performing a branch change to an existing branch, instead of
+completely replacing all the z/OS datasets, only replace (or delete) the
+changed elements.
+
 In many situation where PDS members are copied, from PDS to OMVS or OMVS
 to PDS, the copy operation will now copy all members in one cp command.
 This means the progress popup with member name will not be available in

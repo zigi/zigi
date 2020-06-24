@@ -26,6 +26,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            06/24/20 LBD - On a branch only update/copy/del |
+  |                           changed elements                 |
   |            06/23/20 LBD - Enable Prompt for AB extensions  |
   |            06/20/20 LBD - Add object hash to taglist tag   |
   |            06/19/20 LBD - swap git rm and rm if mbr gone   |
@@ -1440,6 +1442,17 @@ WWR_handle_check:
   | Branch dialog - create or change |
   * -------------------------------- */
 WWR_handle_branch:
+  x = check_clean()
+  if x = 'NO' then do
+    zs1 = 'Cannot checkout branch as it is not clean.'
+    zs2 = 'Use the Status command and fix then try again.'
+    call pfshow 'off'           /* make sure pfshow is off */
+    'Addpop row(4) column(8)'
+    'Display Panel(zigipop)'
+    'Rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
+    return
+  end
   if words(save_zigirep) > 0 then do
     zerrsm = 'Invalid.'
     zerrlm = 'Branch is not supported in subdirectories.'
@@ -4978,10 +4991,10 @@ Branch_it:
     | Checkout the selected bname   |
     * ----------------------------- */
     if zsel = "C" then do
-      x = docmd('cd 'localdir' && git status --porcelain')
-      if so.0 > 0 then do
-        zs1 = 'Cannot checkout branch.'
-        zs2 = so.1
+      x = check_clean()
+      if x = 'NO' then do
+        zs1 = 'Cannot checkout branch as it is not clean.'
+        zs2 = 'Use the Status command and fix then try again.'
         call pfshow 'off'           /* make sure pfshow is off */
         'Addpop row(4) column(8)'
         'Display Panel(zigipop)'
@@ -4990,11 +5003,11 @@ Branch_it:
         call view_std 'B'
       end
       else do
-        /* Comment Start
         call check_branch_delta
-           Comment End */
+        /* Comment Start
         x = docmd('cd 'localdir' && git checkout 'bname)
         call Replace localrep zigirep pdshlq qualignr
+        Comment End */
         call update_repo_metadata
         branch = bname
       end
@@ -5043,53 +5056,6 @@ Branch_it:
   rtbb_open = 0
   ztdsels = 0
   zsel = null
-  return
-
-/* -------------------------------------------------------------- *
- | Process the branch delta from the git diff command to identify |
- | the files changed.                                             |
- * -------------------------------------------------------------- */
-BrDelta:
-  Select
-    When change_flag = 'M' then BrType = 'A'
-    When change_flag = 'A' then BrType = 'A'
-    When change_flag = 'D' then do
-      if pos('/',change_file) > 0
-      then do
-        parse value change_file with change_file'/'brdmem
-        if pos('.',brdmem) > 0 then
-        parse value brdmem with brdmem'.'.
-        change_file = change_file"("brdmem")"
-      end
-      brdeletes = brdeletes change_file
-      BrType = 'D'
-    end
-    When change_flag = 'R' then do
-      parse value change_file with brdelfile change_file
-      if pos('/',brdelFile) > 0
-      then do
-        parse value brdelFile with brdelFile'/'brdmem
-        if pos('.',brdmem) > 0 then
-        parse value brdmem with brdmem'.'.
-        brdelFile = brdelFile"("brdmem")"
-      end
-      brdeletes = brdeletes brdelFile
-      BrType = 'A'
-    end
-    Otherwise nop
-  end
-  if BrType = 'D' then return
-  if pos('/',change_file) = 0 then do
-    brdsns = brdsns change_file
-  end
-  else do
-    parse value change_file with change_file'/'BrMem
-    if wordpos(change_file,brdsns) = 0 then
-    brdsns = brdsns change_file
-    if pos('.',brmem) > 0 then
-    parse value brmem with brmem'.'.
-    brmems.change_file = brmems.change_file BrMem
-  end
   return
 
   /* ----------------------------- *
@@ -7450,9 +7416,9 @@ is_binfile:
   end
   return 0
 
-/* ---------------------------------------- *
- | Check if a PDS has mixed binary and text |
- * ---------------------------------------- */
+  /* ---------------------------------------- *
+  | Check if a PDS has mixed binary and text |
+  * ---------------------------------------- */
 Check_Mixed_BinText:
   parse arg checkForBinFile
   cmbtRC = 0
@@ -7926,22 +7892,37 @@ Add_Stats:
   "LMFree  Dataid("zstats")"
   return
 
-  Check_Branch_Delta:
-  /* -------------------------------------------------------- *
-  | This commented block of code was an attempt to determine |
-  | what changed from current branch to the new branch to    |
-  | avoid having to reallocate every dataset.                |
-  |                                                          |
-  | It doesn't work as detecting what actually changed is    |
-  | more of a challenge.                                     |
-  |                                                          |
-  | Leaving just in case an insight hits.                    |
-  * -------------------------------------------------------- */
+  /* ------------------------------------------------------------- *
+  | Change to the new branch                                      |
+  | Then determine what changed from the previous branch to       |
+  | this branch.                                                  |
+  | Based on the delta setup the zigickot input to make the       |
+  | changes for only those affected elements (and handle deletes) |
+  * ------------------------------------------------------------- */
+Check_Branch_Delta:
   cmd = 'cd 'localdir' && git checkout 'bname
-  cmd = cmd '&& git show --name-status' bname branch
+  cmd = cmd '&& git diff --name-status' branch'..'bname
   x = docmd(cmd)
+  if x > 0 then call view_std 'B'
   x05 = '05'x
-  parse value '' with brdsns brmems. brdeletes pullmems.
+  parse value '' with brdsns brmems. brdeletes pullmems. report.
+  rcr = 0
+  call add_report 'ZIGI Branch Change Report' copies(' ',10) ,
+       date('n') time('c')
+  call add_report 'From branch:' branch
+  call add_report 'To branch:  ' bname
+  call add_report ' '
+  call add_report 'Elements changed from branch:' branch
+  call add_report ' '
+  /* Get the HLQ for use */
+  if qualignr = 0
+  then ckothlq = pdshlq
+  else do
+    ckothlq = translate(pdshlq,' ','.')
+    if qualignr /= '*' then
+    ckothlq = subword(ckothlq,1,qualignr)
+    ckothlq = translate(ckothlq,'.',' ')
+  end
   /* ------------------------------- *
   | Process the differences report: |
   | M = modified                    |
@@ -7958,39 +7939,93 @@ Add_Stats:
     change_flag = left(change_flag,1)
     call brDelta
   end
-  if qualignr = 0
-  then ckothlq = pdshlq
-  else do
-    ckothlq = translate(pdshlq,' ','.')
-    if qualignr /= '*' then
-    ckothlq = subword(ckothlq,1,qualignr)
-    ckothlq = translate(ckothlq,'.',' ')
-  end
   do zz = 1 to words(brdsns)
     zd = word(brdsns,zz)
-    say 'dsn:' zd
     zw = words(brmems.zd)
     ldsn = "'"ckothlq"."zd"'"
-    say 'ldsn:' ldsn
     x = listdsi(ldsn "dir")
     if sysdsorg /= 'PO' then iterate
     interpret 'zv'zz '= (brmems.zd)'
     'vput zv'zz
-    interpret 'say zv'zz
   end
   ckotdir = localrep'/'zigirep
   pulldsns = brdsns
-  say 'hlq:' ckothlq 'ckotdir:' ckotdir
-  say 'pulldsns:' pulldsns
   'vput (ckotdir ckothlq pulldsns)'
   'Select cmd(%zigickot)'
+  if words(brdeletes) > 0 then do
+    call add_report ' '
+    call add_report 'Elements not in the To branch:' bname
+    call add_report ' '
+  end
   do brdel = 1 to words(brdeletes)
     deldsn = "'"ckothlq"."word(brdeletes,brdel)"'"
+    call add_report translate(deldsn)
     Address TSO
     call outtrap 'brd.'
-    say        'Delete' deldsn
     'Delete' deldsn
     call outtrap 'off'
     Address ISPExec
+  end
+  drop so. se.
+  do copyr = 1 to report.0
+    so.copyr = report.copyr
+  end
+  so.0 = report.0
+  call view_std
+  return
+
+Add_Report:
+  parse arg br_text
+  rcr = rcr + 1
+  report.rcr = br_text
+  report.0 = rcr
+  return
+
+  /* -------------------------------------------------------------- *
+  | Process the branch delta from the git diff command to identify |
+  | the files changed.                                             |
+  * -------------------------------------------------------------- */
+BrDelta:
+  Select
+    When change_flag = 'M' then BrType = 'A'
+    When change_flag = 'A' then BrType = 'A'
+    When change_flag = 'D' then do
+      if pos('/',change_file) > 0
+      then do
+        parse value change_file with change_file'/'brdmem
+        if pos('.',brdmem) > 0 then
+        parse value brdmem with brdmem'.'.
+        change_file = change_file"("brdmem")"
+      end
+      brdeletes = brdeletes change_file
+      BrType = 'D'
+    end
+    When change_flag = 'R' then do
+      parse value change_file with brdelfile change_file
+      if pos('/',brdelFile) > 0
+      then do
+        parse value brdelFile with brdelFile'/'brdmem
+        if pos('.',brdmem) > 0 then
+        parse value brdmem with brdmem'.'.
+        brdelFile = brdelFile"("brdmem")"
+      end
+      brdeletes = brdeletes brdelFile
+      BrType = 'A'
+    end
+    Otherwise nop
+  end
+  if BrType = 'D' then return
+  if pos('/',change_file) = 0 then do
+    brdsns = brdsns change_file
+    call add_report "'"ckothlq"."change_file"'"
+  end
+  else do
+    parse value change_file with change_file'/'BrMem
+    if wordpos(change_file,brdsns) = 0 then
+    brdsns = brdsns change_file
+    if pos('.',brmem) > 0 then
+    parse value brmem with brmem'.'.
+    brmems.change_file = brmems.change_file BrMem
+    call add_report "'"ckothlq"."change_file'('translate(brmem)')'"'"
   end
   return

@@ -15,6 +15,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/24/20 LBD - Fix LMOD selective copy          |
   |            06/20/20 LBD - Fix copy counter                 |
   |            06/19/20 LBD - If a PDS is not Text and Binary  |
   |                           (mixed) then do a single cp      |
@@ -348,6 +349,8 @@ Alloc_Copy_PDS:
   | Read directory to get all member file names and then |
   | adjust according and then do individual cp           |
   * ---------------------------------------------------- */
+  x = listdsi(pds)
+  recfm = sysrecfm
   target = strip(pds,'B',"'")
   call syscalls 'ON'
   address syscall
@@ -382,23 +385,9 @@ Alloc_Copy_PDS:
       if right(m,length(zdsn.sub)) = zdsn.sub then do
         parse value m with m'.'.
         m = translate(m)
+        aopt = '-A'
       end
-      if pullmems.sub /= null then
-      if wordpos(m,pullmems.sub) = 0 then iterate
-      src = rdir'/'mems.ii
-      bin = is_binfile(sub'/'mems.ii)
-      if bin = 1 then binopt = '-B'
-      else binopt = null
-      if recfm = 'U' then binopt = '-X -I'
-      src = usssafe(mems.ii)
-      if left(src,1) = '#' then src = '\'src
-      zos = usssafe("//'"target"("m")'")
-      m = mems.ii    /* ignore the translation */
-      if zdsn.sub /= null then
-      if right(m,length(zdsn.sub)) = zdsn.sub then do
-        parse value m with m'.'.
-        m = translate(m)
-      end
+      else aopt = null
       if pullmems.sub /= null then
       if wordpos(m,pullmems.sub) = 0 then iterate
       src = rdir'/'mems.ii
@@ -413,7 +402,7 @@ Alloc_Copy_PDS:
       zs9 = left('Copying' mcount 'of' tcount,24) 'Member:' m
       call pop_status
       cmd = 'cd' usssafe(rdir)
-      cmd = cmd '&& cp -v' binopt src '"'zos'"'
+      cmd = cmd '&& cp -v' aopt binopt src '"'zos'"'
       x = docmd(cmd)
       if x > 0 then call view_std 'B'
       Address ISPexec
