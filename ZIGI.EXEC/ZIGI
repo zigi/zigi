@@ -26,6 +26,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            06/25/20 LBD - Correct .gitattributes update for|
+  |                           load library add                 |
   |            06/24/20 LBD - On a branch only update/copy/del |
   |                           changed elements                 |
   |            06/23/20 LBD - Enable Prompt for AB extensions  |
@@ -6538,6 +6540,7 @@ Do_Add_Copy:
   arg acopt
   parse arg option with ''
   gabs = 'git-encoding=BINARY zos-working-tree-encoding=BINARY binary'
+  call get_binfiles
   zsel = null
   ac_mem = null
   copy_dsna = dsna
@@ -6666,7 +6669,6 @@ Do_Add_Copy:
         call do_popup4
         pdsc = pds"("mem")"
         pdss = usssafe(pdss)
-        trace 'off'
         pdsc = usssafe(pdsc)
         ussmem = usssafe(ussmem)
         copycmd = "//'"pdsc"'"
