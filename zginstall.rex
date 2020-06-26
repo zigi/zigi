@@ -32,6 +32,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/26/20 LBD - Fixup zgstat.exec dsname quotes  |
   |            06/11/20 LBD - Redesign self contained exec     |
   |            06/10/20 LBD - Tweak for zgstat.exec dsn        |
   |            06/09/20 LBD - Creation from zigickot           |
@@ -267,7 +268,7 @@
  'close' fd
  Address TSO
 
- zgstat_dsn = "'"ckothlq".zgstat.exec'"
+ zgstat_dsn = "'"ckothlq".ZGSTAT.EXEC'"
  cmd = 'cp -v  lrhg.rex "//'zgstat_dsn '"'
  cmd = cmd '&& rm lrhg.rex'
  x = bpxwunix(cmd,,so.,se.)
@@ -291,7 +292,7 @@
   say 'To recreate the ISPF statistics execute the following command'
   say 'after returning to TSO/ISPF:'
   say ' '
-  say 'TSO EX' "'"zgstat_dsn"'" 'EX'
+  say 'TSO EX' zgstat_dsn 'EX'
   say ' '
   say 'After it completes successfully it can be deleted.'
 

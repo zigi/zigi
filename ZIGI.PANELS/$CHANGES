@@ -41,18 +41,17 @@ with the changed elements only. The Extract and the TAGList Extract use
 the same ZIGIEXTR routine, one uses the Commit hash and the other uses
 the tag.
 
-New installer - a generic ZIGI installer. It is being used for ZIGI and in
-the near future there will be an option to prime an existing ZIGI managed
-repository with it. The new installer, zginstall.rex, is in the root of
-the repositories OMVS directory. It copies the OMVS files that map to z/OS
-datasets into new z/OS datasets. Then it generates a z/OS REXX Exec,
-hlq.ZGSTAT.EXEC, which will apply the ISPF statistics to each z/OS
-Partitioned dataset member.
+New installer - a generic ZIGI installer. It is being used for ZIGI and
+there is an option to prime an existing ZIGI managed repository with it.
+The new installer, zginstall.rex, is in the root of the repositories OMVS
+directory. It copies the OMVS files that map to z/OS datasets into new
+z/OS datasets. Then it generates a z/OS REXX Exec, hlq.ZGSTAT.EXEC, which
+will apply the ISPF statistics to each z/OS Partitioned dataset member.
 
 Update to the Current Repository SET dialog with an option to add
 zginstall.rex, and a zginstall.readme, to the current repository.
 
-Adding a prompt to confirm/prevent deletions when checking for updates.
+Added a prompt to confirm/prevent deletions when checking for updates.
 Currently when a PDS member is missing but the OMVS version of it still
 exists, the PDS member is just deleted. This occurs during a Pull,
 Merge, or just entering the repository when all datasets are checked for
