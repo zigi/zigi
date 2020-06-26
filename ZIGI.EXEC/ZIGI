@@ -5006,10 +5006,6 @@ Branch_it:
       end
       else do
         call check_branch_delta
-        /* Comment Start
-        x = docmd('cd 'localdir' && git checkout 'bname)
-        call Replace localrep zigirep pdshlq qualignr
-        Comment End */
         call update_repo_metadata
         branch = bname
       end
@@ -5148,7 +5144,21 @@ Merge_it:
     | Checkout the selected bname   |
     * ----------------------------- */
     if zsel = "M" then do
-      tmp_bname = 'trial'RANDOM(9999)
+      /* ----------------------------------------- */
+      /* code for future use for selective copies  */
+      /* after a merge - this is so we know the    */
+      /* delta information.                        */
+      /* ----------------------------------------- */
+      cmd = 'cd 'localdir
+      cmd = cmd '&& git diff --name-status' branch'..'bname
+      x = docmd(cmd)
+      /* save the delta info for future use */
+      drop save_so.
+      do mi = 1 to so.0
+        save_so.mi = so.mi
+      end
+      save_so.0 = so.0
+      /* ----------------------------------------- */
       cmd = 'cd 'localdir' && git merge --no-commit --no-ff'
       cmd = cmd || ' refs/heads/'bname
       x = docmd(cmd)
@@ -7065,7 +7075,7 @@ Do_Popup:
 Do_Popup3:
   call pfshow 'off'           /* make sure pfshow is off */
   'Control Display Lock'
-  'Addpop row(4) column(8)'
+  'Addpop row(4) column(4)'
   'Display Panel(zigipop3)'
   'Rempop'
   call pfshow 'reset'         /* restore pfshow setting */
@@ -7910,7 +7920,7 @@ Check_Branch_Delta:
   parse value '' with brdsns brmems. brdeletes pullmems. report.
   rcr = 0
   call add_report 'ZIGI Branch Change Report' copies(' ',10) ,
-       date('n') time('c')
+    date('n') time('c')
   call add_report 'From branch:' branch
   call add_report 'To branch:  ' bname
   call add_report ' '
@@ -7952,8 +7962,10 @@ Check_Branch_Delta:
   end
   ckotdir = localrep'/'zigirep
   pulldsns = brdsns
-  'vput (ckotdir ckothlq pulldsns)'
-  'Select cmd(%zigickot)'
+  if pulldsns /= null then do
+    'vput (ckotdir ckothlq pulldsns)'
+    'Select cmd(%zigickot)'
+  end
   if words(brdeletes) > 0 then do
     call add_report ' '
     call add_report 'Elements not in the To branch:' bname
@@ -7970,11 +7982,13 @@ Check_Branch_Delta:
     Address ISPExec
   end
   drop so. se.
-  do copyr = 1 to report.0
-    so.copyr = report.copyr
+  if pulldsns /= null then do
+    do copyr = 1 to report.0
+      so.copyr = report.copyr
+    end
+    so.0 = report.0
+    call view_std
   end
-  so.0 = report.0
-  call view_std
   return
 
 Add_Report:
