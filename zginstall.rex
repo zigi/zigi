@@ -59,9 +59,16 @@
   |    <https://www.gnu.org/licenses/>.                        |
   * ---------------------------------------------------------- */
 
+  arg options
+
+  parse value options with ckothlq'/'opt
+
+  ckothlq = strip(ckothlq)
+
   /* ------------------- *
   | Prompt for z/OS HLQ |
   * ------------------- */
+  if ckothlq = '' then do
   say 'Enter the z/OS High Level Qualifier to use:'
   pull ckothlq
   if ckothlq = '' then do
@@ -69,6 +76,7 @@
     exit 8
   end
   ckothlq = translate(ckothlq)
+  end
 
   /* --------------------- *
   | Set Default Env and   |
@@ -359,7 +367,9 @@ Alloc_Copy_PDS:
   'readdir' rdir 'mems.'
   tcount = mems.0 - 2
 
+  if opt /= null then
   mixed = check_mixed_bintext(sub)
+  else mixed = 1
 
   if mixed = 0 then do
     bin = is_binfile(sub)

@@ -4,7 +4,16 @@
   |                                                            |
   | Function:  ZIGI Package Installation Script                |
   |                                                            |
-  | Syntax:    ./zginstall.rex                                 |
+  | Syntax:    ./zginstall.rex hlq \ option                    |
+  |                                                            |
+  | Usage:     If hlq is not provided it will be prompted for  |
+  |            and used for the z/OS dataset hlq.              |
+  |                                                            |
+  |            \  - delimeter                                  |
+  |                                                            |
+  |            x - any non-blank will cause zginstall to       |
+  |                use a single cp for each PDS instead of     |
+  |                for each member.                            |
   |                                                            |
   | Installation: This script should be installed in the root  |
   |               OMVS directory for the ZIGI managed Git      |
@@ -59,9 +68,16 @@
   |    <https://www.gnu.org/licenses/>.                        |
   * ---------------------------------------------------------- */
 
+  arg options
+
+  parse value options with ckothlq'/'opt
+
+  ckothlq = strip(ckothlq)
+
   /* ------------------- *
   | Prompt for z/OS HLQ |
   * ------------------- */
+  if ckothlq = '' then do
   say 'Enter the z/OS High Level Qualifier to use:'
   pull ckothlq
   if ckothlq = '' then do
@@ -69,6 +85,7 @@
     exit 8
   end
   ckothlq = translate(ckothlq)
+  end
 
   /* --------------------- *
   | Set Default Env and   |
@@ -359,7 +376,9 @@ Alloc_Copy_PDS:
   'readdir' rdir 'mems.'
   tcount = mems.0 - 2
 
+  if opt /= null then
   mixed = check_mixed_bintext(sub)
+  else mixed = 1
 
   if mixed = 0 then do
     bin = is_binfile(sub)
