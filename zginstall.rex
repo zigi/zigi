@@ -4,7 +4,16 @@
   |                                                            |
   | Function:  ZIGI Package Installation Script                |
   |                                                            |
-  | Syntax:    ./zginstall.rex                                 |
+  | Syntax:    ./zginstall.rex hlq \ option                    |
+  |                                                            |
+  | Usage:     If hlq is not provided it will be prompted for  |
+  |            and used for the z/OS dataset hlq.              |
+  |                                                            |
+  |            \  - delimeter                                  |
+  |                                                            |
+  |            x - any non-blank will cause zginstall to       |
+  |                copy individual files into the PDS instead  |
+  |                of all at once..                            |
   |                                                            |
   | Installation: This script should be installed in the root  |
   |               OMVS directory for the ZIGI managed Git      |
@@ -113,6 +122,26 @@
   mgen = 0
   hit = 0
   filec = 0
+
+/* -------------------------------------------------------------- *
+ | Inform the user that if there are directories with a lot of    |
+ | members to be copied into a PDS tht the OMVS shell may enter   |
+ | an INPUT state and to just press F10 - meanwhile the copy (cp) |
+ | is proceeding.                                                 |
+ * -------------------------------------------------------------- */
+ if opt = null then do
+    call zmsg ' '
+    call zmsg 'If the repository being installed has partitioned datasets'
+    call zmsg 'with a large number of members, the copy operation will take'
+    call zmsg 'longer than the TN3270 polling expects. This will cause'
+    call zmsg 'the OMVS Shell to change from RUNNING to INPUT.'
+    call zmsg 'Just press the F10 key to return to a RUNNING state. '
+    call zmsg ' '
+    call zmsg 'Do not worry, however, as the copy operation is still running'
+    call zmsg 'and will report out when it completes (but only if the shell'
+    call zmsg 'is in a RUNNING state.'
+    call zmsg ' '
+    end
 
   /* ------------------------------------ *
   | Read in ../.zigi/dsn to get dcb info |
@@ -312,6 +341,13 @@
 
   Exit
 
+zmsg:
+  parse arg message
+  if strip(message) = null then
+     message = copies('-',64)
+  say '* 'left(message,64)' *'
+  return
+
   /* ----------------------------------------------------- */
   /* number format code thanks to Doug Nadel               */
   /* ----------------------------------------------------- */
@@ -369,7 +405,7 @@ Alloc_Copy_PDS:
 
   if opt /= null then
   mixed = check_mixed_bintext(sub)
-  else mixed = 1
+  else mixed = 0
 
   if mixed = 0 then do
     bin = is_binfile(sub)
