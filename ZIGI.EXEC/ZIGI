@@ -6572,6 +6572,7 @@ Do_Add_Copy:
   FC = listdsi("'"WHAT"'" "DIR")
   dsnb = remove_dsn_hlq(dsna)
   ext = null
+  if ac_mem = null then
   if extfile = 'N' then
   if sysdsorg = 'PO' then
   if zdsn.dsnb = null then do
@@ -6611,6 +6612,7 @@ Do_Add_Copy:
     then patmem = 'Members to copy:' sysmembers
     else patmem = null
   end
+  else patmem = null
   zs4 = 'Patience . . .' patmem
   call do_popup4
   DIR = localrep'/'zigirep
@@ -6653,7 +6655,7 @@ Do_Add_Copy:
     if zdsn.dsnb /= null
     then extopt = '-S a=.'zdsn.dsnb
     else extopt = '-U'
-    if check_mixed_bintext(dsnb) = 0 then do
+    if check_mixed_bintext(dsnb) = 0 | ac_mem /= null then do
       if ac_mem /= null then pdsc = pdsc"("ac_mem")"
       call bpxwdyn "alloc da('"pdsc"') shr rtddn(ddname)"
       copycmd = "//'"pdsc"'"
