@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            06/27/20 LBD - Correct check on repo select     |
   |            06/25/20 LBD - Correct .gitattributes update for|
   |                           load library add                 |
   |            06/24/20 LBD - On a branch only update/copy/del |
@@ -836,6 +837,7 @@ init_ispf:
   | Select the Current Repository Routine |
   * ------------------------------------- */
 Select_Repo:
+  check_flag = 1
   zigidate = date('n')
   call set_sortdate
   'tbmod zigirepo order'
@@ -5145,9 +5147,8 @@ Merge_it:
     * ----------------------------- */
     if zsel = "M" then do
       /* ----------------------------------------- */
-      /* code for future use for selective copies  */
-      /* after a merge - this is so we know the    */
-      /* delta information.                        */
+      /* Get the delta of the elements between the */
+      /* branches being merged.                    */
       /* ----------------------------------------- */
       cmd = 'cd 'localdir
       cmd = cmd '&& git diff --name-status' branch'..'bname
@@ -5176,8 +5177,19 @@ Merge_it:
         /* No issues. Commit the merge then execute a Replace */
         /* Maybe popup a panel here for the commit message? */
         x = docmd('cd 'localdir' && git commit -m "Merge 'bname'"')
+        Report_Header = 'Merge Report'
+        delta_from = bname
+        delta_to   = branch
+        drop so.
+        do mi = 1 to save_so.0
+           so.mi = save_so.mi
+           end
+        so.0 = save_so.0
+        call check_delta
+        /* Comment Start
         call Replace localrep zigirep pdshlq qualignr
         call update_repo_metadata
+           Comment End */
       end
       else do
         /* Merge went fubar */
@@ -7916,15 +7928,29 @@ Check_Branch_Delta:
   cmd = cmd '&& git diff --name-status' branch'..'bname
   x = docmd(cmd)
   if x > 0 then call view_std 'B'
+  Report_Header = 'ZIGI Branch Change Report'
+        delta_from = branch
+        delta_to   = bname
+  call  Check_Delta
+  return
+
+Add_Report:
+  parse arg br_text
+  rcr = rcr + 1
+  report.rcr = br_text
+  report.0 = rcr
+  return
+
+Check_Delta:
   x05 = '05'x
   parse value '' with brdsns brmems. brdeletes pullmems. report.
   rcr = 0
-  call add_report 'ZIGI Branch Change Report' copies(' ',10) ,
+  call add_report report_header copies(' ',10) ,
     date('n') time('c')
-  call add_report 'From branch:' branch
-  call add_report 'To branch:  ' bname
+  call add_report 'From branch:' delta_from
+  call add_report 'To branch:  ' delta_to
   call add_report ' '
-  call add_report 'Elements added or changed from branch:' branch
+  call add_report 'Elements added or changed from branch:' delta_from
   call add_report ' '
   /* Get the HLQ for use */
   if qualignr = 0
@@ -7968,7 +7994,7 @@ Check_Branch_Delta:
   end
   if words(brdeletes) > 0 then do
     call add_report ' '
-    call add_report 'Elements not in the To branch:' bname
+    call add_report 'Elements not in the To branch:' delta_to
     call add_report '(They may not exist, have been deleted, or renamed)'
     call add_report ' '
   end
@@ -7989,14 +8015,7 @@ Check_Branch_Delta:
     so.0 = report.0
     call view_std
   end
-  return
-
-Add_Report:
-  parse arg br_text
-  rcr = rcr + 1
-  report.rcr = br_text
-  report.0 = rcr
-  return
+  Return
 
   /* -------------------------------------------------------------- *
   | Process the branch delta from the git diff command to identify |

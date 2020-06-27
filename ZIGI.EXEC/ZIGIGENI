@@ -109,7 +109,7 @@
   * ---------------------------------------- */
 Do_Popup:
   call pfshow 'off'           /* make sure pfshow is off */
-  'Addpop row(4) column(8)'
+  'Addpop row(4) column(4)'
   'Display Panel(zigipop3)'
   'Rempop'
   call pfshow 'reset'         /* restore pfshow setting */
