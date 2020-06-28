@@ -340,7 +340,9 @@ say " "
   cmd = 'cp -v  lrhg.rex "//'zgstat_dsn '"'
   cmd = cmd '&& rm lrhg.rex'
   x = bpxwunix(cmd,,so.,se.,env.)
-  do i = 1 to so.0 say so.i;end
+  if so.0 > 0 then
+  do i = 1 to so.0;say so.i;end
+  if se.0 > 0 then
   do i = 1 to se.0;say se.i;end
 
   /* -------------------- *
