@@ -15,6 +15,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/28/20 LBD - Fix Aopt for indiv member cp     |
   |            06/24/20 LBD - Fix LMOD selective copy          |
   |            06/20/20 LBD - Fix copy counter                 |
   |            06/19/20 LBD - If a PDS is not Text and Binary  |
@@ -381,13 +382,13 @@ Alloc_Copy_PDS:
     do ii = 1 to mems.0
       if left(mems.ii,1) = "." then iterate
       m = mems.ii    /* ignore the translation */
+      aopt = null
       if zdsn.sub /= null then
       if right(m,length(zdsn.sub)) = zdsn.sub then do
         parse value m with m'.'.
         m = translate(m)
         aopt = '-A'
       end
-      else aopt = null
       if pullmems.sub /= null then
       if wordpos(m,pullmems.sub) = 0 then iterate
       src = rdir'/'mems.ii
