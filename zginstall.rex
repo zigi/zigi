@@ -74,6 +74,31 @@
 
   ckothlq = strip(ckothlq)
 
+do i = 1 to 20;say ' ';end
+say ""
+say "                                        .zZ.     Zz "
+say "                   ZZZZZZZZ           ZZZZZZZ "
+say "       ZZZZZZZZZZZZZZZZZZZZZZ   ZZ   ZZZ         zZ "
+say "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZ        ZZZ    .zZZ   ZZ "
+say "ZZZZZZZZZZZZZZZZ      ZZZZZZZ   ZZ   ZZZ  ..zZZZ  Zz "
+say "ZZZZZZZZZZ,         ZZZZZZZZZ   ZZZ  ZzZ      ZZ  ZZ         ZZZZZZZ"
+say "ZZZZ               ZZZZZZZZ     ZZZ   ZZZZZZZZZZZ      ZZZZZZZZZZZ "
+say "                 ZZZZZZZZ       ZZZZ    ZZZZZZ      ZZZZZZZZZg "
+say "                ZZZZZZZZ        ZZZ            ZZZZZZZZZ "
+say "               ZZZZZZZ              zZZZZZZZZZZZZZZ "
+say "             ZZZZZZZ           ZZZZZZZZZZZZZZ "
+say "           .ZZZZZZZ      ZZZZZZZZZZZZZZ "
+say "          ZZZZZZZZZZZZZZZZZZZZZZ "
+say "          ZZZZZZZZZZZZZZZZZ             zOS ISPF Git Interface "
+say "         ZZZZZZZZZZZZ "
+say "        ZZZZZZZZZg               The git interface for the rest of us"
+say "       ZZZZZZig "
+say "      ZZZZZZi                         Henri Kuiper & Lionel Dyck "
+say " "
+
+
+
+
   /* ------------------- *
   | Prompt for z/OS HLQ |
   * ------------------- */
@@ -315,7 +340,7 @@
   cmd = 'cp -v  lrhg.rex "//'zgstat_dsn '"'
   cmd = cmd '&& rm lrhg.rex'
   x = bpxwunix(cmd,,so.,se.,env.)
-  do i = 1 to so.0;say so.i;end
+  do i = 1 to so.0 say so.i;end
   do i = 1 to se.0;say se.i;end
 
   /* -------------------- *
