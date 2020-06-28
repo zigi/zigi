@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            06/28/20 LBD - After edit use usssafe on cp     |
   |            06/27/20 LBD - Correct check on repo select     |
   |            06/25/20 LBD - Correct .gitattributes update for|
   |                           load library add                 |
@@ -2779,7 +2780,7 @@ WWRF_handle_lcmd_s:
       else do
         binopt = null
       end
-      if is_binfile(dsn'/'m) = 1 then do
+      if is_binfile(dsn'/'mem) = 1 then do
         binopt = '-B'
       end
       else do
@@ -2797,6 +2798,7 @@ WWRF_handle_lcmd_s:
       if sysdsorg = 'PO'
       then r = r'/'rm
       else r = r'/'
+      r = usssafe(r)
       copycmd = '"'copycmd'"'
       copycmd = "cp "binopt cplmod" -U -v" copycmd" "localrep"/"zigirep
       copycmd = copycmd || "/"r
