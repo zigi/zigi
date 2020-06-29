@@ -41,6 +41,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/29/20 LBD - Add generic installer prose      |
+  |            06/28/20 LBD - Add text graphics                |
   |            06/27/20 LBD - Use a single cp if the pds is    |
   |                           not mixed (text & binary)        |
   |            06/26/20 LBD - Fixup zgstat.exec dsname quotes  |
@@ -75,26 +77,26 @@
   ckothlq = strip(ckothlq)
 
 do i = 1 to 20;say ' ';end
-say ""
-say "                                        .zZ.     Zz "
-say "                   ZZZZZZZZ           ZZZZZZZ "
-say "       ZZZZZZZZZZZZZZZZZZZZZZ   ZZ   ZZZ         zZ "
-say "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZ        ZZZ    .zZZ   ZZ "
-say "ZZZZZZZZZZZZZZZZ      ZZZZZZZ   ZZ   ZZZ  ..zZZZ  Zz "
-say "ZZZZZZZZZZ,         ZZZZZZZZZ   ZZZ  ZzZ      ZZ  ZZ         ZZZZZZZ"
-say "ZZZZ               ZZZZZZZZ     ZZZ   ZZZZZZZZZZZ      ZZZZZZZZZZZ "
-say "                 ZZZZZZZZ       ZZZZ    ZZZZZZ      ZZZZZZZZZg "
-say "                ZZZZZZZZ        ZZZ            ZZZZZZZZZ "
-say "               ZZZZZZZ              zZZZZZZZZZZZZZZ "
-say "             ZZZZZZZ           ZZZZZZZZZZZZZZ "
-say "           .ZZZZZZZ      ZZZZZZZZZZZZZZ "
-say "          ZZZZZZZZZZZZZZZZZZZZZZ "
-say "          ZZZZZZZZZZZZZZZZZ             zOS ISPF Git Interface "
-say "         ZZZZZZZZZZZZ "
-say "        ZZZZZZZZZg               The git interface for the rest of us"
-say "       ZZZZZZig "
-say "      ZZZZZZi                         Henri Kuiper & Lionel Dyck "
-say " "
+say copies('-',73)
+say "                                         .zZ.     Zz "
+say "                    ZZZZZZZZ           ZZZZZZZ "
+say "        ZZZZZZZZZZZZZZZZZZZZZZ   ZZ   ZZZ         zZ "
+say " ZZZZZZZZZZZZZZZZZZZZZZZZZZZZ        ZZZ    .zZZ   ZZ "
+say " ZZZZZZZZZZZZZZZZ      ZZZZZZZ   ZZ   ZZZ  ..zZZZ  Zz "
+say " ZZZZZZZZZZ,         ZZZZZZZZZ   ZZZ  ZzZ      ZZ  ZZ         ZZZZZZZ"
+say " ZZZZ               ZZZZZZZZ     ZZZ   ZZZZZZZZZZZ      ZZZZZZZZZZZ "
+say "                  ZZZZZZZZ       ZZZZ    ZZZZZZ      ZZZZZZZZZg "
+say "                 ZZZZZZZZ        ZZZ            ZZZZZZZZZ "
+say "                ZZZZZZZ              zZZZZZZZZZZZZZZ       Common"
+say "              ZZZZZZZ           ZZZZZZZZZZZZZZ               Installation"
+say "            .ZZZZZZZ      ZZZZZZZZZZZZZZ                       Tool"
+say "           ZZZZZZZZZZZZZZZZZZZZZZ "
+say "           ZZZZZZZZZZZZZZZZZ             zOS ISPF Git Interface "
+say "          ZZZZZZZZZZZZ "
+say "         ZZZZZZZZZg               The git interface for the rest of us"
+say "        ZZZZZZig "
+say "       ZZZZZZi                         Henri Kuiper & Lionel Dyck "
+say copies('-',73)
 
 
 
