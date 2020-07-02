@@ -15,6 +15,9 @@ changed elements.
 When performing a merge, instead of completely replacing all the z/OS
 datasets, only replace (or delete) the changed elements.
 
+Improve cursor positioning on the Commit Panel for a more intelligent and
+logical placement.
+
 In many situation where PDS members are copied, from PDS to OMVS or OMVS
 to PDS, the copy operation will now copy all members in one cp command.
 This means the progress popup with member name will not be available in

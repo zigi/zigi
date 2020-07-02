@@ -19,7 +19,11 @@
 )Init
   .zvars = '(zpush zsel)'
   &ccsr = 'CSR'
-  .cursor = msg1
+  if (&MSG1 EQ &Z)
+     .cursor = msg1
+  if (&MSG1 NE &Z)
+     if (&cmsg EQ &Z)
+        .cursor = cmsg
   if (&zpush EQ &Z)
       &zpush = 'N'
   .help = zigih230
