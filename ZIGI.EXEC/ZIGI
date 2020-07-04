@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            07/04/20 HBK - Fix bug in zigi-flow             |
   |            06/28/20 LBD - After edit use usssafe on cp     |
   |            06/27/20 LBD - Correct check on repo select     |
   |            06/25/20 LBD - Correct .gitattributes update for|
@@ -2041,6 +2042,10 @@ WWR_handle_flowend:
         x = docmd(cmd)
         /* perform the commit */
         call do_commit 'x'
+        /* Make sure remote has the new branch */
+        cmd = 'cd' localrep'/'zigirep
+        cmd = cmd || ' && git push --set-upstream origin '
+        cmd = cmd || 'refs/heads/'flowname
         /* delete the work branch */
         cmd = 'cd' localrep'/'zigirep
         cmd = cmd || ' && git branch -D zigiflow-'flowname
