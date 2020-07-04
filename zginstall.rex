@@ -41,6 +41,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            07/04/20 LBD - Use Clear to clear screen        |
   |            06/29/20 LBD - Add generic installer prose      |
   |            06/28/20 LBD - Add text graphics                |
   |            06/27/20 LBD - Use a single cp if the pds is    |
@@ -76,7 +77,7 @@
 
   ckothlq = strip(ckothlq)
 
-do i = 1 to 20;say ' ';end
+x = bpxwunix('clear')
 say copies('-',73)
 say "                                         .zZ.     Zz "
 say "                    ZZZZZZZZ           ZZZZZZZ "
@@ -97,9 +98,6 @@ say "         ZZZZZZZZZg               The git interface for the rest of us"
 say "        ZZZZZZig "
 say "       ZZZZZZi                         Henri Kuiper & Lionel Dyck "
 say copies('-',73)
-
-
-
 
   /* ------------------- *
   | Prompt for z/OS HLQ |

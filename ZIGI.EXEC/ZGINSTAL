@@ -41,6 +41,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            07/04/20 LBD - Use Clear to clear screen        |
   |            06/29/20 LBD - Add generic installer prose      |
   |            06/28/20 LBD - Add text graphics                |
   |                         - Add prose about INPUT state      |
@@ -77,57 +78,39 @@
 
   ckothlq = strip(ckothlq)
 
-  do i = 1 to 20;say ' ';end
-  call zmsg copies('*',76)
-  call zmsg ,
-    "                                            .zZ.     Zz "
-  call zmsg ,
-    "                       ZZZZZZZZ           ZZZZZZZ "
-  call zmsg ,
-    "           ZZZZZZZZZZZZZZZZZZZZZZ   ZZ   ZZZ         zZ "
-  call zmsg ,
-    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZ            ZZZ    .zZZ   ZZ "
-  call zmsg ,
-    "ZZZZZZZZZZZZZZZZ          ZZZZZZZ   ZZ   ZZZ  ..zZZZ  Zz "
-  call zmsg ,
-    "ZZZZZZZZZZ,             ZZZZZZZZZ   ZZZ  ZzZ      ZZ  ZZ         ZZZZZZZ"
-  call zmsg ,
-    "ZZZZ                   ZZZZZZZZ     ZZZ   ZZZZZZZZZZZ      ZZZZZZZZZZZ "
-  call zmsg ,
-    "                     ZZZZZZZZ       ZZZZ    ZZZZZZ      ZZZZZZZZZg "
-  call zmsg ,
-    "                    ZZZZZZZZ        ZZZ            ZZZZZZZZZ "
-  call zmsg ,
-    "                   ZZZZZZZ              zZZZZZZZZZZZZZZ       Common"
-  call zmsg ,
- "                 ZZZZZZZ           ZZZZZZZZZZZZZZ               Installation"
-  call zmsg ,
-    "               .ZZZZZZZ      ZZZZZZZZZZZZZZ                       Tool"
-  call zmsg ,
-    "              ZZZZZZZZZZZZZZZZZZZZZZ "
-  call zmsg ,
-    "              ZZZZZZZZZZZZZZZZZ             zOS ISPF Git Interface "
-  call zmsg ,
-    "             ZZZZZZZZZZZZ "
-  call zmsg ,
-    "            ZZZZZZZZZg               The git interface for the rest of us"
-  call zmsg ,
-    "           ZZZZZZig "
-  call zmsg ,
-    "          ZZZZZZi                         Henri Kuiper & Lionel Dyck "
-  call zmsg copies('*',76)
+x = bpxwunix('clear')
+say copies('-',73)
+say "                                         .zZ.     Zz "
+say "                    ZZZZZZZZ           ZZZZZZZ "
+say "        ZZZZZZZZZZZZZZZZZZZZZZ   ZZ   ZZZ         zZ "
+say " ZZZZZZZZZZZZZZZZZZZZZZZZZZZZ        ZZZ    .zZZ   ZZ "
+say " ZZZZZZZZZZZZZZZZ      ZZZZZZZ   ZZ   ZZZ  ..zZZZ  Zz "
+say " ZZZZZZZZZZ,         ZZZZZZZZZ   ZZZ  ZzZ      ZZ  ZZ         ZZZZZZZ"
+say " ZZZZ               ZZZZZZZZ     ZZZ   ZZZZZZZZZZZ      ZZZZZZZZZZZ "
+say "                  ZZZZZZZZ       ZZZZ    ZZZZZZ      ZZZZZZZZZg "
+say "                 ZZZZZZZZ        ZZZ            ZZZZZZZZZ "
+say "                ZZZZZZZ              zZZZZZZZZZZZZZZ       Common"
+say "              ZZZZZZZ           ZZZZZZZZZZZZZZ               Installation"
+say "            .ZZZZZZZ      ZZZZZZZZZZZZZZ                       Tool"
+say "           ZZZZZZZZZZZZZZZZZZZZZZ "
+say "           ZZZZZZZZZZZZZZZZZ             zOS ISPF Git Interface "
+say "          ZZZZZZZZZZZZ "
+say "         ZZZZZZZZZg               The git interface for the rest of us"
+say "        ZZZZZZig "
+say "       ZZZZZZi                         Henri Kuiper & Lionel Dyck "
+say copies('-',73)
 
   /* ------------------- *
   | Prompt for z/OS HLQ |
   * ------------------- */
   if ckothlq = '' then do
-    say 'Enter the z/OS High Level Qualifier to use:'
-    pull ckothlq
-    if ckothlq = '' then do
-      say 'no qualifier entered - exiting for now.'
-      exit 8
-    end
-    ckothlq = translate(ckothlq)
+  say 'Enter the z/OS High Level Qualifier to use:'
+  pull ckothlq
+  if ckothlq = '' then do
+    say 'no qualifier entered - exiting for now.'
+    exit 8
+  end
+  ckothlq = translate(ckothlq)
   end
 
   /* --------------------- *
@@ -166,13 +149,13 @@
   hit = 0
   filec = 0
 
-  /* -------------------------------------------------------------- *
-  | Inform the user that if there are directories with a lot of    |
-  | members to be copied into a PDS tht the OMVS shell may enter   |
-  | an INPUT state and to just press F10 - meanwhile the copy (cp) |
-  | is proceeding.                                                 |
-  * -------------------------------------------------------------- */
-  if opt = null then do
+/* -------------------------------------------------------------- *
+ | Inform the user that if there are directories with a lot of    |
+ | members to be copied into a PDS tht the OMVS shell may enter   |
+ | an INPUT state and to just press F10 - meanwhile the copy (cp) |
+ | is proceeding.                                                 |
+ * -------------------------------------------------------------- */
+ if opt = null then do
     call zmsg ' '
     call zmsg 'If the repository being installed has partitioned datasets'
     call zmsg 'with a large number of members, the copy operation will take'
@@ -184,7 +167,7 @@
     call zmsg 'and will report out when it completes (but only if the shell'
     call zmsg 'is in a RUNNING state.'
     call zmsg ' '
-  end
+    end
 
   /* ------------------------------------ *
   | Read in ../.zigi/dsn to get dcb info |
