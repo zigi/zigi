@@ -1,0 +1,20 @@
+)Attr
+)Body Window(70,9)
++If you would like to provide the ZIGI developers with feedback copy
++the following URL and paste it into your browser.
++
+                    %https://zigi.rocks/feedback
++
++To report bugs copy the following URL and paste it into your browser.
++
++                   %https://zigi.rocks/issues
++
+)Init
+ &zwinttl = 'ZIGI Feedback'
+)Proc
+.help = zigih000
+)end
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

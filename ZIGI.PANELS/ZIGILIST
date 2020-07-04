@@ -25,6 +25,7 @@
 )ABC DESC(Help)
  PDC DESC('About') ACTION RUN(Tutor) Parm('zigihabt')
  PDC DESC('Change History') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%zigichg)')
+ PDC DESC('Feedback') ACTION RUN(Tutor) Parm('zigifdbk')
  PDC DESC('GIT Help') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%GITHELP)')
  PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigih300')
 )ABCINIT
