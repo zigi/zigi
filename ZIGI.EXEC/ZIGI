@@ -2046,6 +2046,7 @@ WWR_handle_flowend:
         cmd = 'cd' localrep'/'zigirep
         cmd = cmd || ' && git push --set-upstream origin '
         cmd = cmd || 'refs/heads/'flowname
+        x = docmd(cmd)
         /* delete the work branch */
         cmd = 'cd' localrep'/'zigirep
         cmd = cmd || ' && git branch -D zigiflow-'flowname
