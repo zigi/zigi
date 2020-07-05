@@ -29,6 +29,7 @@
   |            07/05/20 LBD - Fix member delete on pull        |
   |                         - Support Repoistory Name          |
   |                           unique from directory name       |
+  |                         - Update Stats after member chg    |
   |            07/04/20 HBK - Fix bug in zigi-flow             |
   |            06/28/20 LBD - After edit use usssafe on cp     |
   |            06/27/20 LBD - Correct check on repo select     |
@@ -846,14 +847,14 @@ Select_Repo:
   zigidate = date('n')
   call set_sortdate
   'tbmod zigirepo order'
-  x = debug('Getting binfiles:' zigirep)
+  x = debug('Getting binfiles:' reponame)
   drop binfiles.
   call get_binfiles
   x = debug('Got 'binfiles.0' binfiles')
-  x = debug('Selecting repo:' zigirep)
+  x = debug('Selecting repo:' reponame)
   'vput (defruid)'
   call Work_With_Repo
-  x = debug('Return from repo:' zigirep)
+  x = debug('Return from repo:' reponame)
   Return
 
   /* ------------------------------ *
@@ -1154,7 +1155,7 @@ handle_zigiprim_select:
         'setmsg msg(isrz003)'
         return
       end
-      if translate(fstring) /= translate(zigirep) then iterate
+      if translate(fstring) /= translate(reponame) then iterate
       'tbget zigirepo'
       if defcpush = 'Y' then zpush = 'Y'
       else zpush = 'N'
@@ -2558,6 +2559,11 @@ Work_with_repo_file:
             'setmsg msg(isrz003)'
           end
         end
+          if zigi_changed = 1 then
+            if ztdsels = 1 then do
+              call update_repo_metadata
+              call work_with_repo_file
+            end
       end
     end
   end
@@ -2640,6 +2646,7 @@ WWRF_display_zigilist:
   if ztdsels > 1 then
   'tbdispl' rtll
   else do
+    zigi_changed = 0
     'tbtop' rtll
     'tbskip' rtll 'number('list_top')'
     'TBdispl' rtll 'Panel(zigilist)'
@@ -2848,10 +2855,7 @@ WWRF_handle_lcmd_s:
         tagcmd = 'chtag -b 'localrep'/'zigirep'/'r
         x = docmd(tagcmd)
       end
-      if ztdsels = 1 then do
-        call update_repo_metadata
-        call work_with_repo_file
-      end
+      zigi_changed = 1
     end
   end
   Return
@@ -2894,10 +2898,8 @@ WWRF_handle_lcmd_rn:
       x = docmd(cmd)
       call view_std 'B'
       'tbdelete' rtll
-      memstat = '[R ] Renamed in index'
+      zigi_changed = 1
       mem = newmem
-      bstat = 'Changes to be committed:'
-      baction = null
       'tbadd' rtll 'Order'
       zerrsm = 'Renamed.'
       zerrlm = mem 'has been renamed in ZIGI, git, z/OS, and OMVS.'
@@ -2910,6 +2912,7 @@ WWRF_handle_lcmd_rn:
       x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'statfiles 'S')
       cmd = 'cd' localrep'/'zigirep
       x = docmd(cmd '&&git add .zigi/'statfiles)
+      zigi_changed = 1
       leave
     end
   end
@@ -2956,6 +2959,7 @@ WWRF_handle_lcmd_rm:
     cmd = cmd || '&& git add -v .zigi/'stats
     x = docmd(cmd)
     if x > 0 then call view_std 'B'
+    zigi_changed = 1
   end
   else do
     zerrsm = 'Canceled.'
@@ -2978,6 +2982,7 @@ WWRF_handle_lcmd_ab:
   parse value dsn with dsn'/'mem
   dsna = sa_dsna
   call git_add_member
+  zigi_changed = 1
   if ztdsels < 2 then do
     call get_binfiles
     call git_add_member_stats
@@ -4788,6 +4793,7 @@ Git_Add_Member:
     toadd = usssafe(mem)
   end
   x = docmd(cmd ' && git add -v 'd'/'toadd)
+  zigi_changed = 1
   return
 
   /* ---------------------------------- *
@@ -7345,12 +7351,12 @@ Test_Repo_Table_State:
         zigicat = null
       end
     end
+    zerrsm = null
+    zerrlm = 'The ZIGI Repository Table has been upgraded with new variables' ,
+             'and the prior version of the table has been saved in DD' isptabl ,
+             'as ZIGIREPO.'
+    'setmsg msg(isrz003)'
   end
-  zerrsm = null
-  zerrlm = 'The ZIGI Repository Table has been upgraded with new variables' ,
-           'and the prior version of the table has been saved in DD' isptabl ,
-           'as ZIGIREPO.'
-  'setmsg msg(isrz003)'
   Return
 
 parseGitURI:
