@@ -27,6 +27,8 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            07/05/20 LBD - Fix member delete on pull        |
+  |                         - Support Repoistory Name          |
+  |                           unique from directory name       |
   |            07/04/20 HBK - Fix bug in zigi-flow             |
   |            06/28/20 LBD - After edit use usssafe on cp     |
   |            06/27/20 LBD - Correct check on repo select     |
@@ -860,8 +862,8 @@ Select_Repo:
 Create_zigirepo:
   "TBCreate zigirepo Keys(zigikey)",
     "Names(zigirep localrep pdshlq qualignr zigidate defcpush" ,
-    " sortdate defruid zigicat branch remote1)",
-    'Library('isptabl') Write Share'
+    " sortdate defruid zigicat branch remote1 reponame)",
+    'Library('isptabl') Write Share Replace'
   'vget (defrsort srr src srp srl) profile'
   'TBSort zigirepo Fields('defrsort')'
   'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
@@ -5515,6 +5517,7 @@ Create_Repo:
     Address ISPExec
     zigikey = localrep'/'zigirep
     zigidate = date('n')
+    reponame = zigirep
     call set_sortdate
     'tbadd zigirepo order'
     zpush = defcpush
@@ -7280,23 +7283,16 @@ Test_Repo_Table_State:
   | and if not upgrade it.                        |
   * --------------------------------------------- */
   'TBQuery zigirepo Names(names)'
-  if pos('BRANCH',names) = 0 then do
+  if pos('REPONAME',names) = 0 then do
     zs1 = 'Upgrading the ZIGI Repository ISPF Table'
     zs2 = 'This should not take long.'
     call do_popup
-    if pos('ZIGICAT',names) > 0 then cat = 1
-    else cat = 0
-    if pos('BRANCH',names) > 0 then tbranch = 1
-    else tbranch = 0
     'tbtop zigirepo'
-    if tbranch = 0 then do
-      branch = null
-      remote1 = null
-    end
-    if cat = 0 then do
-      zigicat = null
-      sortdate = null
-    end
+    branch = null
+    remote1 = null
+    reponame = null
+    sortdate = null
+    zigicat = null
     tc = 0
     do forever
       'tbskip zigirepo'
@@ -7305,18 +7301,19 @@ Test_Repo_Table_State:
       tc = tc + 1
       key.tc = zigikey'\'localrep'\'pdshlq'\'qualignr'\'zigirep ,
         '\'defcpush '\'defruid'\'zigidate '\' sortdate '\' zigicat ,
-        '\' branch '\' remote1
+        '\' branch '\' remote1 '\' reponame
     end
     key.0 = tc
-    'tbend zigirepo'
-    'TBErase zigirepo Library('isptabl')'
+    'TBErase zigiorep Library('isptabl')'
+    'tbclose zigirepo name(zigiorep) library('isptabl')'
     call create_zigirepo
     do i = 1 to key.0
       parse value key.i with zigikey'\'localrep'\'pdshlq'\'qualignr ,
         '\'zigirep ,
         '\'defcpush'\'defruid'\'zigidate'\'sortdate'\'zigicat ,
-        '\'branch'\'remote1
+        '\'branch'\'remote1'\'reponame
       if right(localrep,1) = '/' then localrep = strip(localrep,'T','/')
+      if reponame = null then reponame = zigirep
       localdir = strip(localdir)
       zigirep  = strip(zigirep)
       zigicat  = strip(zigicat)
@@ -7349,6 +7346,11 @@ Test_Repo_Table_State:
       end
     end
   end
+  zerrsm = null
+  zerrlm = 'The ZIGI Repository Table has been upgraded with new variables' ,
+           'and the prior version of the table has been saved in DD' isptabl ,
+           'as ZIGIREPO.'
+  'setmsg msg(isrz003)'
   Return
 
 parseGitURI:

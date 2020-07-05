@@ -37,6 +37,11 @@ the comments of the EXEC.
 
 Add the git command as a message in the View of the GITCMD results.
 
+Add a new value for Repository Name that is different from the Git
+repository name. This will allow the cloning of the same Git repository
+multiple times under different names - providing the PREFIX and OMVS
+directories are different.
+
 Improve checking on Repository Create, Clone, or Extract on the use of
 the provided HLQ's and OMVS directories.
 
@@ -105,6 +110,7 @@ Bug Fixes and Other Updates:
 24. Converted many bpxwunix calls to call docmd for consistency.
 25. In ZIGIDSNA correct cursor positioning if no prefix ignore.
 26. Improve target directory check for cloning and creation.
+27. Correct bug when pulling where member deletes are included.
 
 =============================================================================
 

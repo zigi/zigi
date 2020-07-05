@@ -7,6 +7,8 @@
 +Clone Repository+---------------#zigtitle    +---------------------------------
 %Command ===>_zcmd                                                            +
 +
+%Repository Name:@reponame           +
++
 %Remote Repository: +URL for reference only
  @remote
                                                                          +
@@ -17,12 +19,10 @@
  @localrep                                                                    +
 +
 %Category for Repository:@zigicat      +            (optional)
-+
 %PREFIX for datasets:    $pdshlq                  + (no quotes)
-+
 %Default Push on Commit: $z+                        (Y or N)
-+
 %Default Userid set prior to Commit:$defruid +      (or blank
++
 +
 +
                   +Press%Enter+to continue, or%F3+to cancel
@@ -37,6 +37,14 @@
   zedsmsg = ''
   if resp = 'END' then exit
 
+  if pos(' ',reponame) > 0 then do
+    zedsmsg = 'Error'
+    zedlmsg = 'The Repository Name may not have blanks. Use a - or _',
+              'in place of a blank.'
+    csr = 'reponame'
+  end
+
+  if zedsmsg = '' then
   if translate(substr(remote,1,4)) = 'HTTP' then do
     zedsmsg = 'Error'
     zedlmsg = 'Only ssh is supported for cloning, using full syntax',
@@ -87,6 +95,7 @@
     .MSG = ISRZ001
     .CURSOR = &CSR
  if (&zedsmsg EQ &Z)
+  ver (&reponame,nb)
   ver (&remote,nb)
   ver (&localrep,nb)
   ver (&pdshlq,nb,dsname)

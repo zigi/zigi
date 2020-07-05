@@ -43,7 +43,7 @@ _z+  $z                    +]z                    +[z             +}z          +
  &pref    = 'Prefix'
  &repo    = 'Repository'
  &zgsr = CSR
- .zvars = '(zsel zigirep pdshlq zigicat zigidate)'
+ .zvars = '(zsel reponame pdshlq zigicat zigidate)'
  .help = zigihint
 )Proc
  &row = &z
