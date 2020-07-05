@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            07/05/20 LBD - Fix member delete on pull        |
   |            07/04/20 HBK - Fix bug in zigi-flow             |
   |            06/28/20 LBD - After edit use usssafe on cp     |
   |            06/27/20 LBD - Correct check on repo select     |
@@ -1591,11 +1592,32 @@ WWR_handle_pull:
         delds = word(so.pi,4)
         dhit = 1
         if left(delds,1) = '.' then dhit = 0
-        if dsnvalid(delds) = 'NO' then dhit = 0
         if dhit = 1 then do
           dc = deletes.0 + 1
+          if pos('/',delds) > 0 then do
+             parse value delds with dd'/'dm
+             if pos('.',dm) > 0 then do
+                parse value dm with dm'.'.
+                delds = dd'/'translate(dm)
+             end
+             end
           deletes.dc = delds
           deletes.0 = dc
+          if pos('/',delds) = 0 then do
+             wp = wordpos(delds,pulldsns)
+             pulldsns = delword(pulldsns,wp,1)
+             end
+          else do
+               parse value delds with dd'/'dm
+               ext = zdsn.dd
+               if ext = null
+               then wp = wordpos(dm,pullmems.dd)
+               else do
+                    dm = lower(dm'.'ext)
+                    wp = wordpos(dm,pullmems.dd)
+                    end
+               pullmems.dd = delword(pullmems.dd,wp,1)
+               end
         end
       end
       if left(so.pi,5) = 'From' then leave
@@ -1658,8 +1680,11 @@ WWR_handle_pull:
         end
         else do
           parse value deletes.dc with delds'/'mem
-          dm.dc = "'"pdshlq"."delds"("mem")'"
-          call delete_member "'"pdshlq"."delds"'" mem
+          if pos('.',mem) > 0
+             then parse value mem with m'.'.
+             else m = mem
+          dm.dc = "'"pdshlq"."delds"("m")'"
+          call delete_member "'"pdshlq"."delds"'" m
           cmd = 'cd' localrep'/'zigirep'/'delds
           cmd = cmd '&& rm' mem
           x = docmd(cmd)
@@ -6834,7 +6859,6 @@ Write_FD:
   * ----------------------------------------------------------- */
 Do_Undo:
   arg uopt
-
   if uopt = 'D' then mem = null
   zerrsm = null
   /* -------------------------------- *
