@@ -2432,6 +2432,12 @@ WWR_handle_lcmd_a:
   | Un-Modify entire dataset         |
   * -------------------------------- */
 WWR_handle_lcmd_u:
+  if dsnvalid(fulldsn) = 'NO' then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'Undo is only valid on a PDS member and not on an OMVS file.'
+    'setmsg msg(isrz003)'
+    return
+  end
   x = listdsi(fulldsn)
   if sysdsorg = 'PS' then call do_undo 'D'
   else do
