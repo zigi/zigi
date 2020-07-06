@@ -78,6 +78,18 @@
   end
 
   if zedsmsg = '' then
+  if localrep /= '' then
+  if reponame /= '' then do
+      x = bpxwunix('ls -la' localrep'/'reponame,,so.,se.)
+      if so.0 > 0 then do
+        zedsmsg = 'Error.'
+        zedlmsg = localrep'/'reponame 'currently exists and is' ,
+           'not valid for cloning.'
+        csr = 'REPONAME'
+    end
+  end
+
+  if zedsmsg = '' then
   if length(defruid) = 8 then do
     CVT      = C2D(Storage(10,4))
     TVT      = C2D(Storage(D2X(CVT + 156),4))   /* cvt + 9c */
