@@ -4719,6 +4719,7 @@ Clone_Repo:
       return
     end
     if reponame /= null then zigirep = reponame
+    else reponame = zigirep
     /* Check to see if this is a ZIGI-managed repo */
     cmd = '[[ ! -d 'localrep'/'zigirep'/.zigi ]] && echo 0'
     x = docmd(cmd)

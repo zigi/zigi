@@ -107,7 +107,6 @@
     .MSG = ISRZ001
     .CURSOR = &CSR
  if (&zedsmsg EQ &Z)
-  ver (&reponame,nb)
   ver (&remote,nb)
   ver (&localrep,nb)
   ver (&pdshlq,nb,dsname)
