@@ -111,6 +111,7 @@ Bug Fixes and Other Updates:
 25. In ZIGIDSNA correct cursor positioning if no prefix ignore.
 26. Improve target directory check for cloning and creation.
 27. Correct bug when pulling where member deletes are included.
+28. Improve process when F3 (cancel) on Rollback prompt popup
 
 =============================================================================
 

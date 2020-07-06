@@ -26,6 +26,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            07/06/20 LBD - Correct F3 on Rollback process   |
+  |                         - Fix zigirep with reponame        |
+  |                           and vice versa                   |
   |            07/05/20 LBD - Fix member delete on pull        |
   |                         - Support Repoistory Name          |
   |                           unique from directory name       |
@@ -4009,6 +4012,7 @@ Do_Extract:
         call do_tag_extract
       end
       when zsel = 'S' then do
+        zsel = null
         drop so. se.
         cmd = 'cd' localrep'/'zigirep
         cmd = cmd '&& git show -P' ctag
@@ -4017,6 +4021,7 @@ Do_Extract:
       end
       when zsel = 'R' then do
         zcmd  = null
+        zsel  = null
         newbr = null
         rolla = 'Cancel'
         call pfshow 'off'           /* make sure pfshow is off */
@@ -4025,6 +4030,14 @@ Do_Extract:
         prc = rc
         'Rempop'
         call pfshow 'reset'         /* restore pfshow setting */
+        if prc > 0 then do
+          zerrsm = 'Canceled.'
+          zerrlm = 'Rollback canceled.'
+          'setmsg msg(isrz003)'
+          prc = 1
+          newbr = null
+          return
+           end
         call get_branches
         bad = 0
         do bi = 1 to bl.0
