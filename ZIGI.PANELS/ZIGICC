@@ -7,22 +7,22 @@
 +Clone Repository+---------------#zigtitle    +---------------------------------
 %Command ===>_zcmd                                                            +
 +
-%Repository Name:@reponame           +
-+
-%Remote Repository: +URL for reference only
- @remote
+%Remote Repository: + Git Repository URL
+@remote
                                                                          +
-%Optional:          +Specific branch to clone (default is master)
- @remotebr                                   +
 +
-%Local Directory:   +? to browse OMVS folder structure
- @localrep                                                                    +
++Branch Name:       +Specific branch to clone (default is master)
+@remotebr                                   +
 +
-%Category for Repository:@zigicat      +            (optional)
 %PREFIX for datasets:    $pdshlq                  + (no quotes)
 %Default Push on Commit: $z+                        (Y or N)
-%Default Userid set prior to Commit:$defruid +      (or blank
 +
+%Repository Root Directory:   +? to browse OMVS folder structure
+@localrep                                                                    +
++
++Repository Name:        @reponame           +      (optional)
++Category for Repository:@zigicat      +            (optional)
++Default Userid set prior to Commit:$defruid +      (or blank)
 +
 +
                   +Press%Enter+to continue, or%F3+to cancel
