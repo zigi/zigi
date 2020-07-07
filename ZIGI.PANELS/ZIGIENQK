@@ -23,6 +23,7 @@
  .zvars = '(enqact)'
  &xscr = 'CSR'
  &zwinttl = 'ZIGI Outstanding ENQs'
+ .help = zigihenq
 )Proc
  ver (&enqact,nb,list,R,A)
 )end

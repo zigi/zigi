@@ -12,6 +12,11 @@ When performing a branch change to an existing branch, instead of
 completely replacing all the z/OS datasets, only replace (or delete) the
 changed elements.
 
+Added Dataset Allocation (ENQ) checking prior to performing a copy from the
+OMVS Git repository to a z/OS dataset with an option to Retry or Abort. This
+is to prevent a catastrophic failure with the OMVS cp (copy) command if the
+target z/OS dataset is allocated.
+
 Add Feedback command and action bar (under Help) to display a popup
 with a link to a feedback website.
 

@@ -1,0 +1,36 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                                %ENQ Display
++
++When this table display appears that means that the listed datasets are
++currently allocated and may cause a problem when ZIGI copies the updates in
++the Git Repository from the OMVS filesystem to one, or more, of the listed
++z/OS datasets.
++
++The solution is to do an ISPF Swap to a new screen and release the dataset
++allocations.%Hint+use TSO ISRDDN to find them and use the F (free)
++selection.
++
++Or%A+(abort) the update and try again later.
++
++
++           "Success isn't Final, Failure isn't Fatal"
++             -- Sir Winston Churchill
++
++
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
+)Init
+ .cursor  = &zcmd
+)PROC
+ &zcont = zigih100
+)END
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */
