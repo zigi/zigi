@@ -11,7 +11,7 @@
 %Extract+ALL changes to a specific Commit point into a new branch or to new
 +datasets for packaging.
 +
-+The command brings up a list of the last 10 commits to select from. The
++The command brings up a list of the last 1000 commits to select from. The
 +number of commits to review can be changed on the prompting panel.
 +
 +Commands:%Only+will limit the table to the specified string in the title

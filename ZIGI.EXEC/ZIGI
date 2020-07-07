@@ -27,8 +27,6 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            07/07/20 LBD - Ensure status update after A/AB  |
-  |                         - Test for dataset enq before      |
-  |                           calling zigickot (after pull)    |
   |            07/06/20 LBD - Correct F3 on Rollback process   |
   |                         - Fix zigirep with reponame        |
   |                           and vice versa                   |
@@ -1309,11 +1307,11 @@ Work_With_Repo:
       end
     end
     if zigi_changed = 1 then
-       if ztdsels < 2 then do
-         'tbend' rtbl
-         rtbl_open = 0
-         call work_with_repo
-       end
+    if ztdsels < 2 then do
+      'tbend' rtbl
+      rtbl_open = 0
+      call work_with_repo
+    end
   end
   if zigi_changed = 1 then call update_repo_metadata
   return
@@ -1614,29 +1612,29 @@ WWR_handle_pull:
         if dhit = 1 then do
           dc = deletes.0 + 1
           if pos('/',delds) > 0 then do
-             parse value delds with dd'/'dm
-             if pos('.',dm) > 0 then do
-                parse value dm with dm'.'.
-                delds = dd'/'translate(dm)
-             end
-             end
+            parse value delds with dd'/'dm
+            if pos('.',dm) > 0 then do
+              parse value dm with dm'.'.
+              delds = dd'/'translate(dm)
+            end
+          end
           deletes.dc = delds
           deletes.0 = dc
           if pos('/',delds) = 0 then do
-             wp = wordpos(delds,pulldsns)
-             pulldsns = delword(pulldsns,wp,1)
-             end
+            wp = wordpos(delds,pulldsns)
+            pulldsns = delword(pulldsns,wp,1)
+          end
           else do
-               parse value delds with dd'/'dm
-               ext = zdsn.dd
-               if ext = null
-               then wp = wordpos(dm,pullmems.dd)
-               else do
-                    dm = lower(dm'.'ext)
-                    wp = wordpos(dm,pullmems.dd)
-                    end
-               pullmems.dd = delword(pullmems.dd,wp,1)
-               end
+            parse value delds with dd'/'dm
+            ext = zdsn.dd
+            if ext = null
+            then wp = wordpos(dm,pullmems.dd)
+            else do
+              dm = lower(dm'.'ext)
+              wp = wordpos(dm,pullmems.dd)
+            end
+            pullmems.dd = delword(pullmems.dd,wp,1)
+          end
         end
       end
       if left(so.pi,5) = 'From' then leave
@@ -1657,22 +1655,6 @@ WWR_handle_pull:
       if dsnvalid(w) = 'OK' then iterate
       pulldsns = delword(pulldsns,ip,1)
     end
-
-/* ----------------------------------------------------------- *
- | Call routine to:                                            |
- |                                                             |
- | 1. Check for any ENQ's on any of the datasets to be updated |
- |    during the pull                                          |
- | 2. If any found then:                                       |
- |    a. inform the user to free the allocation and retry      |
- |    b. abort and perform a reset back to prior to the pull   |
- | 3. If none found or retry successful then proceed           |
- * ----------------------------------------------------------- */
-  x = check_enqs()
-  if x = 1 then do
-     say 'pull aborted ...'
-     end
-  else do
     /* create the ispf variable with member names for
     the dataset using the dataset offset in pulldsns
     for the variable suffix */
@@ -1702,6 +1684,10 @@ WWR_handle_pull:
     end
     if pulldsns /= null then do
       call Replace localrep zigirep pdshlq qualignr pulldsns
+      if replace_state = 1 then do
+      call reverse_pull
+      return
+      end
       'Verase pulldsns Both'
       call outtrap 'x.'
       if deletes.0 > 0 then do dc = 1 to deletes.0
@@ -1716,8 +1702,8 @@ WWR_handle_pull:
         else do
           parse value deletes.dc with delds'/'mem
           if pos('.',mem) > 0
-             then parse value mem with m'.'.
-             else m = mem
+          then parse value mem with m'.'.
+          else m = mem
           dm.dc = "'"pdshlq"."delds"("m")'"
           call delete_member "'"pdshlq"."delds"'" m
           cmd = 'cd' localrep'/'zigirep'/'delds
@@ -1747,7 +1733,6 @@ WWR_handle_pull:
       zerrlm = left('Pull was a success.',76) pullmsg
       'setmsg msg(isrz003)'
     end
-  end
   end
   Return
 
@@ -1789,6 +1774,7 @@ WWR_handle_replace:
     if prc > 0 then refa = 'NO'
     if refa = 'YES' then do
       call Replace localrep zigirep pdshlq qualignr
+      if replace_state = 1 then return
       call update_repo_metadata
     end
     else do
@@ -2591,11 +2577,11 @@ Work_with_repo_file:
             'setmsg msg(isrz003)'
           end
         end
-          if zigi_changed = 1 then
-            if ztdsels = 1 then do
-              call update_repo_metadata
-              call work_with_repo_file
-            end
+        if zigi_changed = 1 then
+        if ztdsels = 1 then do
+          call work_with_repo_file
+          call update_repo_metadata
+        end
       end
     end
   end
@@ -4064,7 +4050,7 @@ Do_Extract:
           prc = 1
           newbr = null
           return
-           end
+        end
         call get_branches
         bad = 0
         do bi = 1 to bl.0
@@ -4957,9 +4943,9 @@ Do_LSort:
   * ----------------------------- */
 Replace:
   parse arg localrep zigirep pdshlq qualignr pulldsns
-  zs1 = "Replacing from repository"
   zs2 = "   OMVS -> z/OS      "
   call do_popup
+  replace_state = 0
 
   ckotdir = localrep'/'zigirep
   if qualignr /= '*' then
@@ -4974,6 +4960,16 @@ Replace:
   end
   'vput (ckotdir ckothlq pulldsns)'
   'Select cmd(%zigickot)'
+  'vget (badckot) shared'
+  if badckot = 1 then do
+     zerrsm = 'Failed.'
+     zerrlm = 'z/OS Dataset Update failed due to one, or more, of the' ,
+              'target datasets are allocated. Free those allocations and' ,
+              'try again.'
+     'Setmsg Msg(isrz003)'
+     'verase (badckot) shared'
+     replace_state = 1
+     end
   return
 
   /* ----------------------------- *
@@ -5273,14 +5269,10 @@ Merge_it:
         delta_to   = branch
         drop so.
         do mi = 1 to save_so.0
-           so.mi = save_so.mi
-           end
+          so.mi = save_so.mi
+        end
         so.0 = save_so.0
         call check_delta
-        /* Comment Start
-        call Replace localrep zigirep pdshlq qualignr
-        call update_repo_metadata
-           Comment End */
       end
       else do
         /* Merge went fubar */
@@ -7396,9 +7388,10 @@ Test_Repo_Table_State:
       end
     end
     zerrsm = null
-    zerrlm = 'The ZIGI Repository Table has been upgraded with new variables' ,
-             'and the prior version of the table has been saved in DD' isptabl ,
-             'as ZIGIREPO.'
+    zerrlm = 'The ZIGI Repository Table has been upgraded' ,
+      'with new variables' ,
+      'and the prior version of the table has been saved in DD' ,
+      isptabl 'as ZIGIREPO.'
     'setmsg msg(isrz003)'
   end
   Return
@@ -7562,81 +7555,18 @@ check_clean:
   if pos('working tree clean',so.clast) > 0 then return 'YES'
   else return "NO"
 
-/* --------------------------------------------------------- *
- | Determine is any of the datasets to be updated by pull    |
- | have any outstanding enq's (they are allocated somewhere) |
- |                                                           |
- | If so inform the user and prompt them to release the      |
- | allocation and retry                                      |
- |                                                           |
- | Or abort the pull (not sure how to do that yet)           |
- * --------------------------------------------------------- */
-Check_ENQS:
-  enq_clean = 1
-  /* do until no more enq's or an abort request */
-  do until enq_clean = 0
-  major = '*'
-  minor = pdshlq
-  save = 'Z'random(99999)
-  if right(minor,1) /= '*' then minor = minor'*'
-  "QueryENQ Qname(major) Rname(minor) XSYS Table("save")"
-  qrc = rc
-  if qrc < 8 then do
-  'tbquery' save 'rownum(cer)'
-  if cer = 0 then do
-     'tbend' save
-     return 0
-     end
-    if qualignr > 0 then do
-      prefix = translate(pdshlq,' ','.')
-      prefix = subword(prefix,1,qualignr)
-      prefix = translate(prefix,'.',' ')
-    end
-    else prefix = pdshlq
-    hits = 0
-    do ice = 1 to words(pulldsns)
-      cw = word(pulldsns,ice)
-      ckdsn = prefix"."cw
-      'tbtop' save
-      do forever
-        'tbskip' save
-        if rc > 0 then leave
-        if pos(ckdsn,zenrname) = 0 then do
-           'tbdelete' save
-           iterate
-           end
-        hits = 1
-      end
-      if hits > 0 then do
-        'addpop row(2) column(2)'
-        'tbdispl' save 'panel(zigienqk)'
-        'rempop'
-        if enqact = 'R' then enq_clean = 1 /* retry */
-        else do
-             call reverse_pull
-             enq_clean = 0
-             end
-      end
-      else enq_clean = 0
-    end
-    'TBEnd' save
-    end
-    else enq_clean = 0
-    end
-    if enq_clean = 0 then return 0
-    return 1
-
 /* -------------------------------------------------------- *
  | This is where the most recent pull will be reversed.     |
  |                                                          |
  | The reverse will use the last hash saved in: rev_head    |
  * -------------------------------------------------------- */
 Reverse_Pull:
-say 'a miracle happens here to:' rev_head
-say 'In theory use:'
-say 'git reset --hard' rev_head
-say 'git status'
-return
+  cmd = 'cd' localrep'/'zigirep
+  cmd = cmd '&& git reset --hard' rev_head
+  cmd = cmd '&& git status'
+  x = docmd(cmd)
+  call view_std 'B'
+  return
 
 flowselect:
   /* ----------------------------- *
@@ -7806,6 +7736,7 @@ Do_Tag_Extract:
   zs1 = 'Preparing the extract. This could take a minute'
   zs2 = '(or two) so please be patient.'
   call do_popup
+  say 'tags:' tags
   exhlq = tagxhlq
   expath = tagxpath
   if expath = null then expath = '.'
@@ -8097,8 +8028,8 @@ Check_Branch_Delta:
   x = docmd(cmd)
   if x > 0 then call view_std 'B'
   Report_Header = 'ZIGI Branch Change Report'
-        delta_from = branch
-        delta_to   = bname
+  delta_from = branch
+  delta_to   = bname
   call  Check_Delta
   return
 
@@ -8160,6 +8091,16 @@ Check_Delta:
     'vput (ckotdir ckothlq pulldsns)'
     'Select cmd(%zigickot)'
   end
+  'vget (badckot) shared'
+  if badckot = 1 then do
+     zerrsm = 'Failed.'
+     zerrlm = 'z/OS Dataset Update failed due to one, or more, of the' ,
+              'target datasets are allocated. Free those allocations and' ,
+              'try again.'
+     'Setmsg Msg(isrz003)'
+     'verase (badckot) shared'
+     return
+     end
   if words(brdeletes) > 0 then do
     call add_report ' '
     call add_report 'Elements not in the To branch:' delta_to
