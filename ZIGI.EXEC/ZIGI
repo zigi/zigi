@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            07/08/20 LBD - Correct copy after member edit   |
   |            07/07/20 LBD - Ensure status update after A/AB  |
   |                         - Support members w/ext for defurid|
   |            07/06/20 LBD - Correct F3 on Rollback process   |
@@ -2830,7 +2831,6 @@ WWRF_handle_lcmd_s:
   end
   else erc = 1
   if erc = 0 then do
-    if ztdsels = 1 then do
       m = strip(mem)
       if zdsn.dsn /= null
       then rm = lower(m)'.'zdsn.dsn
@@ -2875,7 +2875,6 @@ WWRF_handle_lcmd_s:
         x = docmd(tagcmd)
       end
       zigi_changed = 1
-    end
   end
   Return
 
