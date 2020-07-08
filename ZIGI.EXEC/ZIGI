@@ -27,6 +27,7 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            07/07/20 LBD - Ensure status update after A/AB  |
+  |                         - Support members w/ext for defurid|
   |            07/06/20 LBD - Correct F3 on Rollback process   |
   |                         - Fix zigirep with reponame        |
   |                           and vice versa                   |
@@ -4552,7 +4553,6 @@ Do_Commit:
   if x > 0 then do
     call view_std 'C'
   end
-  call update_repo_metadata
   if left(remote1,1) /= '<' then
   if zpush = 'N' then do
     zerrsm = 'Push Needed.'
@@ -4652,6 +4652,8 @@ fixup_userids:
     "LMOPEN DATAID("reset") OPTION(INPUT)"
     do im = 1 to words(members.file)
       member = word(members.file,im)
+      if pos('.',member) > 0 then
+         parse value member with member'.' .
       "LMMFind DATAID("reset") Member("member") STATS(YES)"
       if rc > 7 then iterate
       if zluser /= defruid then do
@@ -7736,7 +7738,6 @@ Do_Tag_Extract:
   zs1 = 'Preparing the extract. This could take a minute'
   zs2 = '(or two) so please be patient.'
   call do_popup
-  say 'tags:' tags
   exhlq = tagxhlq
   expath = tagxpath
   if expath = null then expath = '.'
