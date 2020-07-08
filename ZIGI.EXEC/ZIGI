@@ -1309,7 +1309,7 @@ Work_With_Repo:
       end
     end
     if zigi_changed = 1 then
-    if ztdsels < 2 then do
+    if ztdsels = 1 then do
       'tbend' rtbl
       rtbl_open = 0
       call work_with_repo
@@ -2564,7 +2564,6 @@ Work_with_repo_file:
             | Add member of PDS to staging area|
             * -------------------------------- */
             call git_add_member
-            if ztdsels = 1 then call git_add_member_stats
             zigi_changed = 1
           end
           when zsel = 'AB' then call WWRF_handle_lcmd_ab
@@ -2579,12 +2578,11 @@ Work_with_repo_file:
             'setmsg msg(isrz003)'
           end
         end
-        if zigi_changed = 1 then
-        if ztdsels = 1 then do
+      end
+        if zigi_changed = 1 then do
           call work_with_repo_file
           call update_repo_metadata
         end
-      end
     end
   end
   ztdsels = save_ztdsels
@@ -2874,9 +2872,25 @@ WWRF_handle_lcmd_s:
         tagcmd = 'chtag -b 'localrep'/'zigirep'/'r
         x = docmd(tagcmd)
       end
+      call update_mem_stats
       zigi_changed = 1
   end
   Return
+
+Update_Mem_Stats:
+/* r = dsn/mem */
+  cmd = 'cd' localrep'/'zigirep
+  cmd = cmd '&& git status --porcelain' r
+  x = docmd(cmd)
+  if so.0 = 1 then do
+     memstat = porcelain(left(so.1,2))
+    'tbmod' rtll
+     end
+  x = zigistat(fulldsn ,
+    localrep'/'zigirep'/.zigi/'dsn 'S')
+  cmd = 'cd' localrep'/'zigirep
+  x = docmd(cmd '&&git add .zigi/'dsn)
+ return
 
   /* ------------------- *
   | reName a PDS Member |
@@ -2915,21 +2929,22 @@ WWRF_handle_lcmd_rn:
       cmd = cmd '&& git mv' usssafe(rnmem) usssafe(rnnewmem)
       x = docmd(cmd)
       call view_std 'B'
+      call update_mem_stats
       'tbdelete' rtll
-      zigi_changed = 1
       mem = newmem
       'tbadd' rtll 'Order'
       zerrsm = 'Renamed.'
       zerrlm = mem 'has been renamed in ZIGI, git, z/OS, and OMVS.'
       'setmsg msg(isrz003)'
+      r = dsn'/'rnnewmem
+      /* Comment Start
       statfile = translate(strip(fulldsn,'B',"'"),' ','.')
       if qualignr > 0 then
       statfile = subword(statfile,qualignr+1)
       statfile = translate(statfile,'.',' ')
       statfiles = usssafe(statfile)
       x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'statfiles 'S')
-      cmd = 'cd' localrep'/'zigirep
-      x = docmd(cmd '&&git add .zigi/'statfiles)
+         Comment End */
       zigi_changed = 1
       leave
     end
@@ -3001,9 +3016,11 @@ WWRF_handle_lcmd_ab:
   dsna = sa_dsna
   call git_add_member
   zigi_changed = 1
+  if zdsn.dsn /= null then
+     mem = lower(zdsn.dsn'.'mem)
+  r = dsn'/'mem
   if ztdsels < 2 then do
     call get_binfiles
-    call git_add_member_stats
   end
   Return
 
@@ -4825,6 +4842,8 @@ Git_Add_Member:
     toadd = usssafe(mem)
   end
   x = docmd(cmd ' && git add -v 'd'/'toadd)
+  r = d'/'toadd
+  call update_mem_stats
   zigi_changed = 1
   return
 
