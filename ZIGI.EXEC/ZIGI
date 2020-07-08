@@ -4564,6 +4564,7 @@ Do_Commit:
   end
   x = debug('Commit completed:' zigirep)
   drop m. cmsg.
+  call update_repo_metadata
   return
 
   /* ---------------------------------------------------------- *
