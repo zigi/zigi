@@ -5275,7 +5275,6 @@ Merge_it:
       cmd = 'cd 'localdir' && git merge --no-commit --no-ff'
       cmd = cmd || ' refs/heads/'bname
       x = docmd(cmd)
-call stemedit 'view',so.
       if so.1 = 'Already up-to-date.' then do
         /* No need to merge! */
         zs1 = "Merge not needed"
