@@ -2505,6 +2505,7 @@ Work_with_repo_file:
     | Process the Member list until done |
     * ---------------------------------- */
     save_rtll = 0
+    zigi_changed = 0
     save_ztdsels = ztdsels
     extens = zdsn.dsn
     'vput (extens)'
@@ -2578,11 +2579,11 @@ Work_with_repo_file:
             'setmsg msg(isrz003)'
           end
         end
-      end
         if zigi_changed = 1 then do
           call work_with_repo_file
           call update_repo_metadata
         end
+      end
     end
   end
   ztdsels = save_ztdsels
@@ -3456,6 +3457,8 @@ Add_DSN_HLQ:
   if newhlq = null
   then adwhlq = pdshlq
   else adwhlq = newhlq
+  if length(qualignr) = 0 then qualignr = 0
+  if datatype(qualignr) /= 'NUM' then qualignr = 0
   if qualignr = 0
   then nhlq = adwhlq
   else do
@@ -4979,7 +4982,8 @@ Replace:
     ckothlq = subword(ckothlq,1,qualignr)
     ckothlq = translate(ckothlq,'.',' ')
   end
-  'vput (ckotdir ckothlq pulldsns)'
+  ckotqual = qualignr
+  'vput (ckotdir ckothlq pulldsns ckotqual)'
   'Select cmd(%zigickot)'
   'vget (badckot) shared'
   if badckot = 1 then do
@@ -5271,6 +5275,7 @@ Merge_it:
       cmd = 'cd 'localdir' && git merge --no-commit --no-ff'
       cmd = cmd || ' refs/heads/'bname
       x = docmd(cmd)
+call stemedit 'view',so.
       if so.1 = 'Already up-to-date.' then do
         /* No need to merge! */
         zs1 = "Merge not needed"
@@ -6037,7 +6042,7 @@ update_repo_metadata:
             else do
               binopt = null
             end
-            if is_binfile(file'/'m) = 1 then do
+            if is_binfile(file'/'rm) = 1 then do
               binopt = '-B'
             end
             else do
@@ -6707,7 +6712,7 @@ Do_Add_Copy:
   then do
     cplmod = '-X -I'
     binopt = null
-    option = 'binary'
+    option = 'BINARY'
     acopt = 'BINARY'
     zs3 = 'Copy as Load Module'
   end
@@ -6731,10 +6736,10 @@ Do_Add_Copy:
     mkdir = "mkdir -p "DIR"/"pdss
     x = docmd(mkdir)
     binopt = null
-    if translate(option) = 'BINARY' then
-    if is_binfile(dsnb) = 0 then do
+    if translate(option) = 'BINARY' then do
       if cplmod = null then
       binopt = '-B'
+    if is_binfile(dsnb) = 0 then do
       if ac_mem = null then ga_mem = '*'
       else ga_mem = ac_mem
       /* setting the gitattributes file */
@@ -6757,11 +6762,15 @@ Do_Add_Copy:
       call view_std 'B'
       call get_binfiles
     end
+    end
     if zdsn.dsnb /= null
     then extopt = '-S a=.'zdsn.dsnb
     else extopt = '-U'
     if check_mixed_bintext(dsnb) = 0 | ac_mem /= null then do
-      if ac_mem /= null then pdsc = pdsc"("ac_mem")"
+      if pos('.',ac_mem) = 0
+        then cmem = ac_mem
+        else parse value ac_mem with cmem'.'.
+      if ac_mem /= null then pdsc = pdsc"("cmem")"
       call bpxwdyn "alloc da('"pdsc"') shr rtddn(ddname)"
       copycmd = "//'"pdsc"'"
       copycmd = '"'copycmd'"'
@@ -6808,7 +6817,7 @@ Do_Add_Copy:
       end
       call bpxwdyn "free  fi("|| ddname ||")"
     end
-    if option = 'binary' then do
+    if translate(option) = 'BINARY' then do
       /* for some reason the git autotagging due to .gitattributes
       does not work all the time (?? weird) so we tag it if binary
       */
@@ -6822,7 +6831,7 @@ Do_Add_Copy:
     W = usssafe(WHAT)
     PSS = usssafe(dsnb)
     binopt = null
-    if option = 'binary' then
+    if translate(option) = 'BINARY' then
     if is_binfile(dsnb) = 0 then do
       binopt = '-B'
       /* setting the gitattributes file */
@@ -6849,7 +6858,7 @@ Do_Add_Copy:
     copycmd = "cp -U -v "binopt copycmd" "DIR"/"pss
     x = debug('Copying:' copycmd)
     x =docmd(copycmd)
-    if option = 'binary' then do
+    if translate(option) = 'BINARY' then do
       /* for some reason the git autotagging due to .gitattributes
       does not work all the time (?? weird) so we tag it if binary
       */
@@ -8108,7 +8117,8 @@ Check_Delta:
   ckotdir = localrep'/'zigirep
   pulldsns = brdsns
   if pulldsns /= null then do
-    'vput (ckotdir ckothlq pulldsns)'
+    ckotqual = qualignr
+    'vput (ckotdir ckothlq pulldsns ckotqual)'
     'Select cmd(%zigickot)'
   end
   'vget (badckot) shared'

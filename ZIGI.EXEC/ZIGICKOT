@@ -17,6 +17,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            07/08/20 LBD - Corrections for binary copy      |
+  |                           that broke with single cp        |
   |            07/07/20 LBD - Check ENQ's before Alloc/cp      |
   |            06/28/20 LBD - Fix Aopt for indiv member cp     |
   |            06/24/20 LBD - Fix LMOD selective copy          |
@@ -90,7 +92,7 @@
   | Get the ISPF Variables with our instructions |
   * -------------------------------------------- */
   Address ISPExec
-  'vget (ckothlq ckotdir pulldsns mgen)'
+  'vget (ckothlq ckotdir pulldsns mgenl)'
   if datatype(mgen) /= 'NUM' then mgen = 0
 
   Address TSO
@@ -392,19 +394,24 @@ Alloc_Copy_PDS:
   if pullmems.sub = null
   then tcount = mems.0 - 2
   else tcount = words(pullmems.sub)
-  if pullmems.sub = null then do
-    if check_mixed_bintext(rdir) = 0 then do
-      if is_binfile(rdir) = 1 then do
-        binopt = '-B'
-      end
-      else binopt = null
-      if recfm = 'U' then binopt = '-X -I'
-      zs9 = 'Copying' tcount 'members.'
-      call pop_status
-      cmd = 'cp -A -v' binopt rdir'/*' '"//'pds'"'
-      x = docmd(cmd)
-      if x > 0 then call view_std 'B'
+  if pullmems.sub = null & check_mixed_bintext(sub) = 0 then do
+    if is_binfile(sub) = 1 then do
+      binopt = '-B'
+      type = 'Binary'
     end
+    else do
+      binopt = null
+      type = 'Text'
+    end
+    if recfm = 'U' then do
+      binopt = '-X -I'
+      type = 'Load Module'
+    end
+    zs9 = 'Copying' tcount 'members.'
+    call pop_status
+    cmd = 'cp -A -v' binopt rdir'/*' '"//'pds'"'
+    x = docmd(cmd)
+    if x > 0 then call view_std 'B'
   end
   else do
     do ii = 1 to mems.0
@@ -424,6 +431,12 @@ Alloc_Copy_PDS:
       if bin = 1 then binopt = '-B'
       else binopt = null
       if recfm = 'U' then binopt = '-X -I'
+      Select
+        when pos('-B',binopt) > 0 then type = 'Binary'
+        when pos('-U',binopt) > 0 then type = 'Load Module'
+        otherwise type = 'Text'
+      end
+      zs7 = 'Type:                   ' type
       src = usssafe(mems.ii)
       if left(src,1) = '#' then src = '\'src
       zos = usssafe("//'"target"("m")'")
@@ -703,7 +716,7 @@ Check_Mixed_BinText:
   cmbtRC = 0
   if datatype(binfiles.0) /= 'NUM' then return 0
   do bi = 1 to binfiles.0
-    parse value binfiles.bi with cmbtfile'/'cmbtmmbr
+    parse value binfiles.bi with cmbtfile'/'cmbtmbr
     parse value checkForBinFile with checkFile'/'checkmbr
     if cmbtfile = checkFile then
     if cmbtmbr = '*' then cmbtRC = 0
