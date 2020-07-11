@@ -1317,6 +1317,7 @@ Work_With_Repo:
       'tbend' rtbl
       rtbl_open = 0
       call work_with_repo
+      zigi_changed = 0
     end
   end
   if zigi_changed = 1 then call update_repo_metadata
@@ -5339,7 +5340,7 @@ Merge_it:
         | ISPF stats files                                                |
         * --------------------------------------------------------------- */
         if zcmd = 1 then do
-call stemedit 'view',so.
+if so.0 > 0 then call stemedit 'view',so.
           pdshlqt = translate(pdshlq,' ','.')
           if qualignr > 0 then
           pdshlqt = subword(pdshlqt,1,qualignr)
@@ -5925,6 +5926,7 @@ strreplace:
   return newstring
 
 update_repo_metadata:
+  zigi_changed = 0
   save_fulldsn = fulldsn
   x = debug('update_repo_metadata: zcmd:'zcmd ,
     'zsel:' zsel 'zigirep:' zigirep)
