@@ -1,8 +1,8 @@
 )Attr
- @ type(input ) caps(off) hilite(uscore)
- $ type(input ) caps(on ) hilite(uscore)
+ @ type(input ) caps(off) hilite(uscore) intens(low)
+ $ type(input ) caps(on ) hilite(uscore) intens(low)
+ _ type( input) intens(low ) just(left ) hilite(uscore)
  # type(output) hilite(reverse) color(turq) caps(off)
- _ type(input) hilite(uscore)
 )Body Expand(\\)
 +Clone Repository+---------------#zigtitle    +---------------------------------
 %Command ===>_zcmd                                                            +

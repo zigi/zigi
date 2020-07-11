@@ -27,8 +27,22 @@ _rdsn                                                      +
   parse value '' with zedsmsg zedlmsg csr null
   msgvalue = msg()              /* Save the current TSO Message State */
   call msg 'off'                /* Turn off TSO Messages */
+
+  if left(rdsn,1) /= "'" then do
+     if sysvar('syspref') = null
+        then pref = sysvar('sysuid')
+        else pref = sysvar('syspref')
+     rdsn = "'"pref"."rdsn"'"
+     end
+
+  teste = strip(relement,'B',"'")
+  testr = strip(rdsn,'B',"'")
+  parse value teste with teste'('.
+  parse value testr with testr'('.
+
+  if zedsmsg = null then
   if rover /= 1 then
-  if relement = rdsn then do
+  if teste = testr then do
     rans = null
     rover = 1
     zedsmsg = 'Warning.'

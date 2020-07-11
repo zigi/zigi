@@ -26,6 +26,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            07/11/20 LBD - Correct member status after RN   |
+  |                         - Correct merge conflict on ispf   |
+  |                           stats member (do automatically)  |
   |            07/08/20 LBD - Correct copy after member edit   |
   |            07/07/20 LBD - Ensure status update after A/AB  |
   |                         - Support members w/ext for defurid|
@@ -1045,6 +1048,15 @@ handle_zigiprim_local:
   Return
 
   /* ------------------------------------------- *
+  | Handle zigiprim panel primary command clone  |
+  * ------------------------------------------- */
+handle_zigiprim_clone:
+  encoding = null
+  call Clone_Repo
+  zsel = null
+  Return
+
+  /* ------------------------------------------- *
   | Handle zigiprim panel primary command config |
   * ------------------------------------------- */
 handle_zigiprim_config:
@@ -1059,14 +1071,6 @@ handle_zigiprim_config:
   end
   Return
 
-  /* ------------------------------------------- *
-  | Handle zigiprim panel primary command clone  |
-  * ------------------------------------------- */
-handle_zigiprim_clone:
-  encoding = null
-  call Clone_Repo
-  zsel = null
-  Return
 
   /* ------------------------------------------- *
   | Handle zigiprim panel primary command create |
@@ -1687,8 +1691,8 @@ WWR_handle_pull:
     if pulldsns /= null then do
       call Replace localrep zigirep pdshlq qualignr pulldsns
       if replace_state = 1 then do
-      call reverse_pull
-      return
+        call reverse_pull
+        return
       end
       'Verase pulldsns Both'
       call outtrap 'x.'
@@ -2346,14 +2350,16 @@ WWR_handle_lcmd_rm:
       end
       when pos(remq,'ZOB') > 0 & rtype = 'PS' then do
         if pos(remq,'ZB') > 0 then do
-          call outtrap 'x.'
-          Address TSO ,
-            'Delete' fulldsn
-          call outtrap 'off'
-          rm_msg = 'z/OS'
-        end
+            call outtrap 'x.'
+            Address TSO ,
+              'Delete' fulldsn
+            call outtrap 'off'
+            rm_msg = 'z/OS'
+          end
         if pos(remq,'OB') > 0 then do
           cmd = 'cd' localdir '&& git rm -rf' usssafe(dsn)
+          x = docmd(cmd,,so.,se.)
+          cmd = 'cd' localdir '&& rm -rf' usssafe(dsn)
           x = docmd(cmd,,so.,se.)
           if rm_msg /= null
           then rm_msg = rm_msg 'and OMVS.'
@@ -2369,10 +2375,15 @@ WWR_handle_lcmd_rm:
           rm_msg = 'z/OS'
         end
         if pos(remq,'OB') > 0 then do
-          cmd = 'cd' localdir '&& git rm -rf' usssafe(dsn)
-          cmd = cmd '&& rm -f .zigi/'usssafe(dsn)
-          cmd = cmd '&& rm -f' usssafe(dsn)
+          cmd = 'cd' localdir '&& git rm -rf' dsn
+          cmd = usssafe(cmd)
           x = docmd(cmd,,so.,se.)
+          cmd = 'cd' localdir
+          cmd = cmd '&& rm -f' localdir'/.zigi/'dsn
+          cmd = cmd '&& rm -f' localdir'/'dsn
+          cmd = usssafe(cmd)
+          x = docmd(cmd,,so.,se.)
+          if x > 0 then call view_std 'B'
           if rm_msg /= null
           then rm_msg = rm_msg 'and OMVS.'
           else rm_msg = 'OMVS.'
@@ -2830,68 +2841,68 @@ WWRF_handle_lcmd_s:
   end
   else erc = 1
   if erc = 0 then do
-      m = strip(mem)
-      if zdsn.dsn /= null
-      then rm = lower(m)'.'zdsn.dsn
-      else rm = m
-      m = usssafe(m)
-      e = usssafe(edsn)
-      r = usssafe(dsn)
-      /* Binary v1, check if PDS is a bin, then copy binary */
-      if is_binfile(dsn'/*') = 1 then do
-        binopt = '-B'
-      end
-      else do
-        binopt = null
-      end
-      if is_binfile(dsn'/'mem) = 1 then do
-        binopt = '-B'
-      end
-      else do
-        binopt = null
-      end
-      /* Check if a Load Library and update binary option variable */
-      if sysrecfm = 'U' then do
-        binopt = null
-        cplmod = '-X -I'
-      end
-      else cplmod = null
-      if sysdsorg = 'PS'
-      then copycmd = "//'"e"'"
-      else copycmd = "//'"e"("m")'"
-      if sysdsorg = 'PO'
-      then r = r'/'rm
-      else r = r'/'
-      r = usssafe(r)
-      copycmd = '"'copycmd'"'
-      copycmd = "cp "binopt cplmod" -U -v" copycmd" "localrep"/"zigirep
-      copycmd = copycmd || "/"r
-      x = docmd(copycmd)
-      if x > 0 then call view_std 'B'
-      x = debug('Copy:' copycmd)
-      if strip(binopt''cplmod) /= null then do
-        tagcmd = 'chtag -b 'localrep'/'zigirep'/'r
-        x = docmd(tagcmd)
-      end
-      call update_mem_stats
-      zigi_changed = 1
+    m = strip(mem)
+    if zdsn.dsn /= null
+    then rm = lower(m)'.'zdsn.dsn
+    else rm = m
+    m = usssafe(m)
+    e = usssafe(edsn)
+    r = usssafe(dsn)
+    /* Binary v1, check if PDS is a bin, then copy binary */
+    if is_binfile(dsn'/*') = 1 then do
+      binopt = '-B'
+    end
+    else do
+      binopt = null
+    end
+    if is_binfile(dsn'/'mem) = 1 then do
+      binopt = '-B'
+    end
+    else do
+      binopt = null
+    end
+    /* Check if a Load Library and update binary option variable */
+    if sysrecfm = 'U' then do
+      binopt = null
+      cplmod = '-X -I'
+    end
+    else cplmod = null
+    if sysdsorg = 'PS'
+    then copycmd = "//'"e"'"
+    else copycmd = "//'"e"("m")'"
+    if sysdsorg = 'PO'
+    then r = r'/'rm
+    else r = r'/'
+    r = usssafe(r)
+    copycmd = '"'copycmd'"'
+    copycmd = "cp "binopt cplmod" -U -v" copycmd" "localrep"/"zigirep
+    copycmd = copycmd || "/"r
+    x = docmd(copycmd)
+    if x > 0 then call view_std 'B'
+    x = debug('Copy:' copycmd)
+    if strip(binopt''cplmod) /= null then do
+      tagcmd = 'chtag -b 'localrep'/'zigirep'/'r
+      x = docmd(tagcmd)
+    end
+    call update_mem_stats
+    zigi_changed = 1
   end
   Return
 
 Update_Mem_Stats:
-/* r = dsn/mem */
+  /* r = dsn/mem */
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git status --porcelain' r
   x = docmd(cmd)
   if so.0 = 1 then do
-     memstat = porcelain(left(so.1,2))
+    memstat = porcelain(left(so.1,2))
     'tbmod' rtll
-     end
+  end
   x = zigistat(fulldsn ,
     localrep'/'zigirep'/.zigi/'dsn 'S')
   cmd = 'cd' localrep'/'zigirep
   x = docmd(cmd '&&git add .zigi/'dsn)
- return
+  return
 
   /* ------------------- *
   | reName a PDS Member |
@@ -2930,7 +2941,6 @@ WWRF_handle_lcmd_rn:
       cmd = cmd '&& git mv' usssafe(rnmem) usssafe(rnnewmem)
       x = docmd(cmd)
       call view_std 'B'
-      call update_mem_stats
       'tbdelete' rtll
       mem = newmem
       'tbadd' rtll 'Order'
@@ -2938,14 +2948,7 @@ WWRF_handle_lcmd_rn:
       zerrlm = mem 'has been renamed in ZIGI, git, z/OS, and OMVS.'
       'setmsg msg(isrz003)'
       r = dsn'/'rnnewmem
-      /* Comment Start
-      statfile = translate(strip(fulldsn,'B',"'"),' ','.')
-      if qualignr > 0 then
-      statfile = subword(statfile,qualignr+1)
-      statfile = translate(statfile,'.',' ')
-      statfiles = usssafe(statfile)
-      x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'statfiles 'S')
-         Comment End */
+      call update_mem_stats
       zigi_changed = 1
       leave
     end
@@ -3018,7 +3021,7 @@ WWRF_handle_lcmd_ab:
   call git_add_member
   zigi_changed = 1
   if zdsn.dsn /= null then
-     mem = lower(zdsn.dsn'.'mem)
+  mem = lower(zdsn.dsn'.'mem)
   r = dsn'/'mem
   if ztdsels < 2 then do
     call get_binfiles
@@ -4673,7 +4676,7 @@ fixup_userids:
     do im = 1 to words(members.file)
       member = word(members.file,im)
       if pos('.',member) > 0 then
-         parse value member with member'.' .
+      parse value member with member'.' .
       "LMMFind DATAID("reset") Member("member") STATS(YES)"
       if rc > 7 then iterate
       if zluser /= defruid then do
@@ -4966,35 +4969,36 @@ Do_LSort:
   | Replace z/OS side of repo     |
   * ----------------------------- */
 Replace:
-  parse arg localrep zigirep pdshlq qualignr pulldsns
+  parse arg r_localrep r_zigirep r_pdshlq r_qualignr r_pulldsns
   zs2 = "   OMVS -> z/OS      "
   call do_popup
   replace_state = 0
 
-  ckotdir = localrep'/'zigirep
-  if qualignr /= '*' then
-  if datatype(qualignr) /= 'NUM' then qualignr = 0
-  if qualignr = 0
-  then ckothlq = pdshlq
+  ckotdir = r_localrep'/'r_zigirep
+  if r_qualignr /= '*' then
+  if datatype(r_qualignr) /= 'NUM' then r_qualignr = 0
+  if r_qualignr = 0
+  then ckothlq = r_pdshlq
   else do
-    ckothlq = translate(pdshlq,' ','.')
-    if qualignr /= '*' then
-    ckothlq = subword(ckothlq,1,qualignr)
+    ckothlq = translate(r_pdshlq,' ','.')
+    if r_qualignr /= '*' then
+    ckothlq = subword(ckothlq,1,r_qualignr)
     ckothlq = translate(ckothlq,'.',' ')
   end
-  ckotqual = qualignr
+  ckotqual = r_qualignr
+  pulldsns = r_pulldsns
   'vput (ckotdir ckothlq pulldsns ckotqual)'
   'Select cmd(%zigickot)'
   'vget (badckot) shared'
   if badckot = 1 then do
-     zerrsm = 'Failed.'
-     zerrlm = 'z/OS Dataset Update failed due to one, or more, of the' ,
-              'target datasets are allocated. Free those allocations and' ,
-              'try again.'
-     'Setmsg Msg(isrz003)'
-     'verase (badckot) shared'
-     replace_state = 1
-     end
+    zerrsm = 'Failed.'
+    zerrlm = 'z/OS Dataset Update failed due to one, or more, of the' ,
+      'target datasets are allocated. Free those allocations and' ,
+      'try again.'
+    'Setmsg Msg(isrz003)'
+    'verase (badckot) shared'
+    replace_state = 1
+  end
   return
 
   /* ----------------------------- *
@@ -5335,6 +5339,7 @@ Merge_it:
         | ISPF stats files                                                |
         * --------------------------------------------------------------- */
         if zcmd = 1 then do
+call stemedit 'view',so.
           pdshlqt = translate(pdshlq,' ','.')
           if qualignr > 0 then
           pdshlqt = subword(pdshlqt,1,qualignr)
@@ -5349,8 +5354,14 @@ Merge_it:
           do si = 1 to so.0
             mem = null
             if word(so.si,1) /= 'CONFLICT' then iterate
-            mrgm = 'Merge conflict in'
-            parse value so.si with x (mrgm) mdsn .
+            Select
+            When pos('rename/',word(so.si,2)) > 0 then
+                 parse value so.si with . '->'mdsn .
+            When pos('modify/',word(so.si,2)) > 0 then
+                 parse value so.si with . 'Version'. 'of' mdsn .
+            Otherwise
+                 parse value so.si with 'CONFLICT' . 'in' mdsn .
+            End
             mfile = mrgdir'/'mdsn
             if mdsn /= '.zigi/dsn' then
             if left(mdsn,6) = '.zigi/' then do
@@ -5705,8 +5716,9 @@ do_git_attributes:
 
   x = docmd('cd 'reporoot' && git add .zigi/dsn')
 
-  commitmsg = "added by ZIGI"
+  commitmsg = ".gitattributed created and added by ZIGI"
   x = docmd('cd 'reporoot' && git commit -m "'commitmsg'"')
+  return
   return
 
   /* ---------------------------------------------------------- *
@@ -6107,8 +6119,11 @@ update_repo_metadata:
             if strip(mem_omvs) = null then x = 4
             if x = 0 then do
               cmd = 'cd' localrep'/'zigirep'/'r
-              cmd = cmd '&& git rm -f' usssafe(mem_omvs)
-              cmd = cmd '&& rm -f' usssafe(mem_omvs)
+              cmd = cmd '&& rm -f' mem_omvs
+              cmd = usssafe(cmd)
+              cmd = 'cd' localrep'/'zigirep'/'r
+              cmd = cmd '&& git rm -f' mem_omvs
+              cmd = usssafe(cmd)
               zs1 = 'Deletions being processed.'
               zs2 = 'Should not take long.'
               call do_popup
@@ -6738,37 +6753,37 @@ Do_Add_Copy:
     if translate(option) = 'BINARY' then do
       if cplmod = null then
       binopt = '-B'
-    if is_binfile(dsnb) = 0 then do
-      if ac_mem = null then ga_mem = '*'
-      else ga_mem = ac_mem
-      /* setting the gitattributes file */
-      /* first convert the ASCII atrtib file to ebcdic :( */
-      cmd = 'cd 'DIR' && iconv -f ISO8859-1 -t IBM-1047 '
-      cmd = cmd '.gitattributes > .gae'
-      /* then append the binary attrib for this file */
-      cmd = cmd '&& echo "'pdss'/'ga_mem' 'gabs'" >> .gae '
-      /* convert it back to ascii */
-      cmd = cmd '&& iconv -f IBM-1047 -t ISO8859-1 .gae '
-      cmd = cmd '> .gitattributes '
-      /* add (and commit) .gitattributes to the index */
-      cmd = cmd '&& git add .gitattributes '
-      cmd = cmd '&& git commit -m "zigi changed .gitattributes"'
-      cmd = cmd ".gitattributes"
-      x = docmd(cmd)
-      /* finally remove the .gae file */
-      cmd = 'cd 'DIR' && rm .gae'
-      x = docmd(cmd)
-      call view_std 'B'
-      call get_binfiles
-    end
+      if is_binfile(dsnb) = 0 then do
+        if ac_mem = null then ga_mem = '*'
+        else ga_mem = ac_mem
+        /* setting the gitattributes file */
+        /* first convert the ASCII atrtib file to ebcdic :( */
+        cmd = 'cd 'DIR' && iconv -f ISO8859-1 -t IBM-1047 '
+        cmd = cmd '.gitattributes > .gae'
+        /* then append the binary attrib for this file */
+        cmd = cmd '&& echo "'pdss'/'ga_mem' 'gabs'" >> .gae '
+        /* convert it back to ascii */
+        cmd = cmd '&& iconv -f IBM-1047 -t ISO8859-1 .gae '
+        cmd = cmd '> .gitattributes '
+        /* add (and commit) .gitattributes to the index */
+        cmd = cmd '&& git add .gitattributes '
+        cmd = cmd '&& git commit -m "zigi changed .gitattributes"'
+        cmd = cmd ".gitattributes"
+        x = docmd(cmd)
+        /* finally remove the .gae file */
+        cmd = 'cd 'DIR' && rm .gae'
+        x = docmd(cmd)
+        call view_std 'B'
+        call get_binfiles
+      end
     end
     if zdsn.dsnb /= null
     then extopt = '-S a=.'zdsn.dsnb
     else extopt = '-U'
     if check_mixed_bintext(dsnb) = 0 | ac_mem /= null then do
       if pos('.',ac_mem) = 0
-        then cmem = ac_mem
-        else parse value ac_mem with cmem'.'.
+      then cmem = ac_mem
+      else parse value ac_mem with cmem'.'.
       if ac_mem /= null then pdsc = pdsc"("cmem")"
       call bpxwdyn "alloc da('"pdsc"') shr rtddn(ddname)"
       copycmd = "//'"pdsc"'"
@@ -7196,6 +7211,17 @@ Do_Popup:
   return
 
   /* ---------------------------------------- *
+  | Common routine for normal (2 line) popup |
+  * ---------------------------------------- */
+Do_PopupP:
+  call pfshow 'off'           /* make sure pfshow is off */
+  'Addpop row(4) column(8)'
+  'Display Panel(zigipop)'
+  'Rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
+  return
+
+  /* ---------------------------------------- *
   | Common routine for normal (3 line) popup |
   * ---------------------------------------- */
 Do_Popup3:
@@ -7584,11 +7610,11 @@ check_clean:
   if pos('working tree clean',so.clast) > 0 then return 'YES'
   else return "NO"
 
-/* -------------------------------------------------------- *
- | This is where the most recent pull will be reversed.     |
- |                                                          |
- | The reverse will use the last hash saved in: rev_head    |
- * -------------------------------------------------------- */
+  /* -------------------------------------------------------- *
+  | This is where the most recent pull will be reversed.     |
+  |                                                          |
+  | The reverse will use the last hash saved in: rev_head    |
+  * -------------------------------------------------------- */
 Reverse_Pull:
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git reset --hard' rev_head
@@ -7901,6 +7927,7 @@ DoHist_Recover:
     if drc > 0 then return
     if rans = 'N' then return
     rcdd = 'RC'random(99999)
+
     address tso
     if sysdsn(rdsn) = 'DATASET NOT FOUND' then ralloc = 'Y'
     else ralloc = 'N'
@@ -7908,13 +7935,23 @@ DoHist_Recover:
     then 'Alloc f('rcdd') shr reuse da('rdsn')'
     else 'Alloc f('rcdd') new like('relement') da('rdsn')'
     save_rdsn = rdsn
+
     /* fix up the stem convert nulls to blanks lines */
     do rc = 1 to so.0
       if so.rc = null then so.rc = ' '
     end
+
     'Execio * diskw' rcdd '(finis stem so.'
     'Free f('rcdd')'
     address ispexec
+
+    teste = strip(relement,'B',"'")
+    testr = strip(rdsn,'B',"'")
+    parse value teste with teste'('.
+    parse value testr with testr'('.
+
+    if is_binfile(rdsn) = 1 then binopt = '-B'
+    else binopt = null
     x = check_llib(rdsn)
     if x = 0 then binopt = binopt '-X -I'
     if pos('-X',binopt) = 0 then
@@ -7927,8 +7964,15 @@ DoHist_Recover:
       "LMClose Dataid("zstats")"
       "LMFree  Dataid("zstats")"
     end
+    if teste = testr then do
     m = usssafe(strip(mem))
-    e = usssafe(strip(rdsn,'B',"'"))
+    if sysvar('syspref') = null
+       then pref = sysvar('sysuid')
+       else pref = sysvar('syspref')
+    if left(rdsn,1) /= "'"
+       then rdsne = pref'.'rdsn
+       else rdsne = rdsn
+    e = usssafe(strip(rdsne,'B',"'"))
     r = usssafe(dsn)
 
     if zdsn.dsn /= null
@@ -7950,6 +7994,7 @@ DoHist_Recover:
       'desired.'
     'setmsg msg(isrz003)'
     if fulldsn = rdsn then update_flag = 1
+  end
   end
   return
 
@@ -8122,14 +8167,14 @@ Check_Delta:
   end
   'vget (badckot) shared'
   if badckot = 1 then do
-     zerrsm = 'Failed.'
-     zerrlm = 'z/OS Dataset Update failed due to one, or more, of the' ,
-              'target datasets are allocated. Free those allocations and' ,
-              'try again.'
-     'Setmsg Msg(isrz003)'
-     'verase (badckot) shared'
-     return
-     end
+    zerrsm = 'Failed.'
+    zerrlm = 'z/OS Dataset Update failed due to one, or more, of the' ,
+      'target datasets are allocated. Free those allocations and' ,
+      'try again.'
+    'Setmsg Msg(isrz003)'
+    'verase (badckot) shared'
+    return
+  end
   if words(brdeletes) > 0 then do
     call add_report ' '
     call add_report 'Elements not in the To branch:' delta_to

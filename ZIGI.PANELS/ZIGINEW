@@ -1,25 +1,26 @@
 )Attr
- @ type(input ) caps(off) hilite(uscore)
- $ type(input ) caps(on ) hilite(uscore)
+ @ type(input ) caps(off) hilite(uscore) intens(low)
+ $ type(input ) caps(on ) hilite(uscore) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
 )Body Expand(\\)
 +Create New Repository+-----------#zigtitle    +--------------------------------
 %Command ===>_zcmd
 +
-%Name:        @zigirep                         +
+%Name:@zigirep                         +
 +
 %Local Directory:   +? to browse OMVS folder structure
  @localrep                                                                    +
 +
-%Category for Repository:@zigicat      + (optional)
+%PREFIX for datasets:   $pdshlq                  +     no quotes
+%Default Push on Commit:$z+                            Y or N
 +
-%PREFIX for datasets:    $pdshlq                  + (no quotes)
+%Category for Repository:              @zigicat      + optional
+%Default Userid to set prior to Commit:$defruid +      or blank
+%Specify zos-workingtree-encoding:     $encoding+      ibm-1047 if blank
 +
-%Default Push on Commit: $z+(Y or N)
 +
-%Default Userid to set prior to Commit:$defruid + or blank
 +
-%Specify zos-workingtree-encoding:$encoding+ (ibm-1047 if blank)
 +
 +
 +

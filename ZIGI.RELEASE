@@ -20,6 +20,8 @@ target z/OS dataset is allocated.
 Add Feedback command and action bar (under Help) to display a popup
 with a link to a feedback website.
 
+Allow MV as an alias of RN (rename).
+
 When performing a merge, instead of completely replacing all the z/OS
 datasets, only replace (or delete) the changed elements.
 
@@ -118,6 +120,7 @@ Bug Fixes and Other Updates:
 27. Correct bug when pulling where member deletes are included.
 28. Improve process when F3 (cancel) on Rollback prompt popup
 29. Correct default userid reset if member has file extension
+30. Correct member status after a rename
 
 =============================================================================
 

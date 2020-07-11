@@ -1,5 +1,5 @@
 )Attr
- $ type(input ) caps(off) hilite(uscore)
+ $ type(input ) caps(off) hilite(uscore) intens(low)
 )Body Window(41,3)
 +Enter the name of a new branch:
 +=>$bname

@@ -8,6 +8,7 @@
 +
 +Add remote _origin
                                                                          +
++
 +Default Push on Commit:$z+(Y or N)
 +
 +Default Userid to set prior to Commit:$defruid + or blank
@@ -19,7 +20,6 @@
 +push to master.
 +
 %Note:+This is best done on a 'brand new' repository :-)
-+
 +
 +
 +

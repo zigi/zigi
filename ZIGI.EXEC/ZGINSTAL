@@ -100,6 +100,18 @@ say "        ZZZZZZig "
 say "       ZZZZZZi                         Henri Kuiper & Lionel Dyck "
 say copies('-',73)
 
+
+  /* --------------------- *
+  | Set Default Env and   |
+  | Get current directory |
+  * --------------------- */
+  env.1 = '_BPX_SHAREAS=YES'
+  env.2 = '_BPX_SPAWN_SCRIPT=YES'
+  env.0 = 2
+  cmd = 'pwd'
+  x = bpxwunix(cmd,,so.,se.,env.)
+  ckotdir = strip(so.1)
+
   /* ------------------- *
   | Prompt for z/OS HLQ |
   * ------------------- */
@@ -112,17 +124,6 @@ say copies('-',73)
   end
   ckothlq = translate(ckothlq)
   end
-
-  /* --------------------- *
-  | Set Default Env and   |
-  | Get current directory |
-  * --------------------- */
-  env.1 = '_BPX_SHAREAS=YES'
-  env.2 = '_BPX_SPAWN_SCRIPT=YES'
-  env.0 = 2
-  cmd = 'pwd'
-  x = bpxwunix(cmd,,so.,se.,env.)
-  ckotdir = strip(so.1)
 
   /* -------------------------------------------------------- *
   | Issue the ls command to get file names and sizes for all |

@@ -1,5 +1,5 @@
 )Attr
- $ type(input) caps(on) hilite(uscore)
+ $ type(input) caps(on) hilite(uscore) intens(low)
 )Body Window(58,4)
 +Enter a dataset to import Git Commit comments:
 +=>$comimprt                                             +

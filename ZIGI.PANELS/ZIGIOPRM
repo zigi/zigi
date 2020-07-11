@@ -10,10 +10,10 @@
 )Body  window(44,11)
 +Enter Selection:_z        +
 +
- ]Clone+   remote repository
+ ]Clone+   Remote repository
  ]Config+  View Git configuration
- ]Create+  a local repo from scratch
- ]Find+    string in table fields:_findstr +
+ ]Create+  Local repo from scratch
+ ]Find+    String in table fields:_findstr +
  ]Githelp+ Display menu of Git Help pages
  ]SElect+  Select a Repository:}selfind +
  ]SOrt+    Sort the table

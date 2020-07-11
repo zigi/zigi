@@ -100,6 +100,8 @@
      &osel = &zsel
  if (&row = 0)
      &zsel = &z
+ if (&zsel = 'MV')
+     &zsel = 'RN'
 /*  ver (&zsel,list,S,A,U,B,V,RM,RN,H,D,/) */
 )Field
  Field(remote1) ind(sind,'<>') len(255)
