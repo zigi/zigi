@@ -2591,6 +2591,7 @@ Work_with_repo_file:
             'setmsg msg(isrz003)'
           end
         end
+        if ztdsels = 1 then
         if zigi_changed = 1 then do
           call work_with_repo_file
           call update_repo_metadata
