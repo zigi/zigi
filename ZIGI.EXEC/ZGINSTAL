@@ -41,6 +41,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            07/12/20 LBD - Define OMVS env stem             |
   |            07/04/20 LBD - Use Clear to clear screen        |
   |            06/29/20 LBD - Add generic installer prose      |
   |            06/28/20 LBD - Add text graphics                |
@@ -811,6 +812,13 @@ $repodir                                                      +
   |    <https://www.gnu.org/licenses/>.                        |
   * ---------------------------------------------------------- */
 zigistat: Procedure
+
+  /* --------------------------------- *
+   | Define OMVS Environment Variables |
+   * --------------------------------- */
+  env.1 = '_BPX_SHAREAS=YES'
+  env.2 = '_BPX_SPAWN_SCRIPT=YES'
+  env.0 = 2
 
   /* --------------- *
   | Define defaults |
