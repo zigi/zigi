@@ -26,6 +26,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            07/12/20 LBD - Resolve merge deletion issue     |
+  |                         - Fix multiple member RM issue     |
   |            07/11/20 LBD - Correct member status after RN   |
   |                         - Correct merge conflict on ispf   |
   |                           stats member (do automatically)  |
@@ -5380,12 +5382,18 @@ Merge_it:
         'TBCreate' zmergtbl 'Keys(mdsn)' ,
           'Names(mfile mstat) nowrite share'
         mrgdir = localrep'/'zigirep
+        merge_rms = null
         do si = 1 to so.0
           mem = null
           if word(so.si,1) /= 'CONFLICT' then iterate
           Select
             When pos('rename/',word(so.si,2)) > 0 then
             parse value so.si with . '->'mdsn .
+            When pos('/delete',word(so.si,2)) > 0 then do
+              parse value so.si with . 'Version'. 'of' mdsn .
+              merge_rms = merge_rms mdsn
+              iterate
+              end
             When pos('modify/',word(so.si,2)) > 0 then
             parse value so.si with . 'Version'. 'of' mdsn .
             Otherwise
@@ -5498,6 +5506,7 @@ Merge_it:
         'tbend' zmergtbl
         zsel = null
         if zmcount = 0 then do
+          call do_merge_conflict_rms
           cmd = 'cd' mrgdir '&& git commit -m "Resolve merge conflicts"'
           x = docmd(cmd)
           call Replace localrep zigirep pdshlq qualignr
@@ -5532,6 +5541,16 @@ Merge_it:
     'tbend' rtbm
     ztdsels = 1
     zsel = null
+    return
+
+/* -------------------------------------------------------- *
+ | During a merge if there are deletions then those need to |
+ | be handled via a git rm.                                 |
+ * -------------------------------------------------------- */
+do_merge_conflict_rms:
+   cmd = 'cd' mrgdir '&& git rm' usssafe(merge_rms)
+   x = docmd(cmd)
+   if x > 0 then call view_std 'B'
     return
 
   /* --------------------------------------- *
