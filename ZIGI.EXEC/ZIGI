@@ -5179,6 +5179,7 @@ Branch_it:
   rtbb_open = 0
   ztdsels = 0
   zsel = null
+  call update_repo_metadata /* to reflect status after branch */
   return
 
   /* ----------------------------- *
