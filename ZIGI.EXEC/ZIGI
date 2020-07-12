@@ -2885,7 +2885,7 @@ WWRF_handle_lcmd_s:
       tagcmd = 'chtag -b 'localrep'/'zigirep'/'r
       x = docmd(tagcmd)
     end
-    call update_mem_stats r m
+    call update_mem_stats r mem
     zigi_changed = 0
   end
   Return
