@@ -89,7 +89,7 @@
       Select
       when pos('<<<<<<<',data) > 0 then do
         'delete' i
-        hit = 0
+        hit = 1
       end
       when pos('=======',data) > 0 then do
         'delete' i
