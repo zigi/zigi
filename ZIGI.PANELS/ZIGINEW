@@ -16,7 +16,7 @@
 %Default Push on Commit:$z+                            Y or N
 +
 %Category for Repository:              @zigicat      + optional
-%Default Userid to set prior to Commit:$defruid +      or blank
+%Default Userid to set prior to Commit:$defruid +      or blank for no change
 %Specify zos-workingtree-encoding:     $encoding+      ibm-1047 if blank
 +
 +
