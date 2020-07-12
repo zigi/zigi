@@ -2895,6 +2895,7 @@ Update_Mem_Stats:
   parse arg ums_file ums_mem
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git status --porcelain' ums_file
+  cmd = usssafe(cmd)
   x = docmd(cmd)
   if so.0 = 1 then do
     memstat = porcelain(left(so.1,2))
@@ -2906,7 +2907,9 @@ Update_Mem_Stats:
   x = zigistat(fulldsn ,
     localrep'/'zigirep'/.zigi/'dsn 'S')
   cmd = 'cd' localrep'/'zigirep
-  x = docmd(cmd '&&git add .zigi/'dsn)
+  cmd = cmd '&&git add .zigi/'dsn
+  cmd = usssafe(cmd)
+  x = docmd(cmd)
   return
 
   /* ------------------- *
@@ -2933,8 +2936,6 @@ WWRF_handle_lcmd_rn:
     end
     else do
       Address TSO 'Rename' olddsn newdsn
-      cmd = 'cd' localrep'/'zigirep'/'dsn
-      cmd = usssafe(cmd)
       if zdsn.dsn /= null then do
         rnmem = lower(mem)'.'zdsn.dsn
         rnnewmem = lower(newmem)'.'zdsn.dsn
@@ -2943,7 +2944,9 @@ WWRF_handle_lcmd_rn:
         rnmem = mem
         rnnewmem = newmem
       end
-      cmd = cmd '&& git mv' usssafe(rnmem) usssafe(rnnewmem)
+      cmd = 'cd' localrep'/'zigirep'/'dsn
+      cmd = cmd '&& git mv' rnmem rnnewmem
+      cmd = usssafe(cmd)
       x = docmd(cmd)
       call view_std 'B'
       'tbdelete' rtll
