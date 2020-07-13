@@ -2644,7 +2644,9 @@ WWRF_build_member_table:
       do ii = 1 to so.0
         /* see if we have this file in git status */
         stat = substr(so.ii,1,2)
-        thepath = word(so.ii,2)
+        if pos('R',stat) = 0
+           then thepath = word(so.ii,2)
+           else thepath = word(so.ii,4)
         parse var thepath FOLDER"/"MEMBER
         if zdsn.dsn /= null then do
           parse value member with member'.' .
@@ -6086,8 +6088,7 @@ do_merge_conflict_rms:
             do im = 1 to words(mem_delta)
               mem = word(mem_delta,im)
               file = root.umdi
-              m = strip(mem)
-              m = usssafe(m)
+              m = usssafe(strip(mem))
               e = usssafe(edsn)
               r = usssafe(file)
               if zdsn.file /= null
@@ -6289,10 +6290,7 @@ do_merge_conflict_rms:
           dsnstat = porcelain(filet.dsn)
           x = debug('done')
 
-          if qualignr = null then do
             'tbmod zigirepo order'
-            qualignr = 0
-          end
           fulldsn = add_dsn_hlq(dsn)
           if nonzigi = 0 then do
             call outtrap 'x.'
