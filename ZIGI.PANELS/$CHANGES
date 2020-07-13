@@ -122,6 +122,8 @@ Bug Fixes and Other Updates:
 29. Correct default userid reset if member has file extension
 30. Correct member status after a rename
 31. Resolve issue with ZG command failure on TBOpen (removed NoWrite)
+32. Change Clone and Create to test for home/.git instead of home/.zigi
+    for a non-git directory.
 
 =============================================================================
 

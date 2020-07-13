@@ -69,7 +69,7 @@
       x = bpxwunix('ls -la' localrep'/.git',,so.,se.)
       if so.0 > 0 then do
         zedsmsg = 'Error.'
-        zedlmsg = localrep 'is currently a ZIGI repository and thus' ,
+        zedlmsg = localrep 'is currently a Git repository and thus' ,
            'not valid for cloning.' ,
           'Change to an empty directory and try again.'
         csr = 'LOCALREP'
