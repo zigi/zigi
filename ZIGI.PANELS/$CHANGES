@@ -121,6 +121,7 @@ Bug Fixes and Other Updates:
 28. Improve process when F3 (cancel) on Rollback prompt popup
 29. Correct default userid reset if member has file extension
 30. Correct member status after a rename
+31. Resolve issue with ZG command failure on TBOpen (removed NoWrite)
 
 =============================================================================
 
