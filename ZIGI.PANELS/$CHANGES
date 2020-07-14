@@ -126,6 +126,7 @@ Bug Fixes and Other Updates:
     for a non-git directory.
 33. Change the DSCB reference file directory from home/.zigi to
     home/.zigirefd
+34. Make sure ZIGI checks for updates on entry
 
 =============================================================================
 

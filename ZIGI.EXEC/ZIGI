@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            07/14/20 LBD - Fix bug detecting entry updates  |
   |            07/12/20 LBD - Resolve merge deletion issue     |
   |                         - Fix multiple member RM issue     |
   |            07/11/20 LBD - Correct member status after RN   |
@@ -5979,8 +5980,7 @@ do_merge_conflict_rms:
     end
     return newstring
 
-  update_repo_metadata:
-    zigi_changed = 0
+Update_repo_metadata:
     save_fulldsn = fulldsn
     x = debug('update_repo_metadata: zcmd:'zcmd ,
       'zsel:' zsel 'zigirep:' zigirep)
