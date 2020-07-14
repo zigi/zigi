@@ -124,6 +124,8 @@ Bug Fixes and Other Updates:
 31. Resolve issue with ZG command failure on TBOpen (removed NoWrite)
 32. Change Clone and Create to test for home/.git instead of home/.zigi
     for a non-git directory.
+33. Change the DSCB reference file directory from home/.zigi to
+    home/.zigirefd
 
 =============================================================================
 

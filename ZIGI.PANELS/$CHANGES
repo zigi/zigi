@@ -35,7 +35,7 @@ this situation. In some cases where only a few of the PDS members are
 being copied then the member progress popup will remain.
 
 Enhance the element copy progress popup on a change detection to include
-the type of copy (text, binary, load module).
+the type of copy (text, binary, lmod).
 
 New ZGBATCH to provide the ability to run ZIGI in batch to add and
 commit/push updates (changes and new) elements. Must be run using a
@@ -124,6 +124,8 @@ Bug Fixes and Other Updates:
 31. Resolve issue with ZG command failure on TBOpen (removed NoWrite)
 32. Change Clone and Create to test for home/.git instead of home/.zigi
     for a non-git directory.
+33. Change the DSCB reference file directory from home/.zigi to
+    home/.zigirefd
 
 =============================================================================
 

@@ -21,12 +21,13 @@
   |            A value of * will indicate to check ALL files.  |
   |                                                            |
   | Notes:     A file will be created in the users home dir    |
-  |            under a .zigi directory with the dataset name   |
-  |            and last access information.                    |
+  |            under a .zigirefd directory with the dataset    |
+  |            name and last access information.               |
   |                                                            |
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            07/14/20 LBD - Change .zigi to .zigirefd        |
   |            06/10/20 LBD - Use SHAREAS=YES                  |
   |            05/08/20 HBK - Fix bug if dir is not in home    |
   |                     LBD - Add D (delete) option            |
@@ -96,11 +97,11 @@
   | Translate the directory / to _ |
   * ------------------------------ */
   refdir = translate(wdir,'_','/')
-  ref_file = homedir'.zigi/'refdir
+  ref_file = homedir'.zigirefd/'refdir
 
-  'lstat' homedir'.zigi/' stem.
+  'lstat' homedir'.zigirefd/' stem.
   if stem.0 = 0 then do
-    'mkdir' homedir'.zigi/ 755'
+    'mkdir' homedir'.zigirefd/ 755'
   end
 
   Address TSO
