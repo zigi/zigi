@@ -127,6 +127,7 @@ Bug Fixes and Other Updates:
 33. Change the DSCB reference file directory from home/.zigi to
     home/.zigirefd
 34. Make sure ZIGI checks for updates on entry
+35. Correct dataset check on branch delta to bypass z/OS copy of OMVS files
 
 =============================================================================
 

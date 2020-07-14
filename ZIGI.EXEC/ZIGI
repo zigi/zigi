@@ -27,6 +27,7 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            07/14/20 LBD - Fix bug detecting entry updates  |
+  |                         - Correct dataset check on branch  |
   |            07/12/20 LBD - Resolve merge deletion issue     |
   |                         - Fix multiple member RM issue     |
   |            07/11/20 LBD - Correct member status after RN   |
@@ -8307,6 +8308,7 @@ Update_repo_metadata:
     end
     if BrType = 'D' then return
     if pos('/',change_file) = 0 then do
+      if dsnvalid(change_file) = 'NO' then return
       brdsns = brdsns change_file
       call add_report "'"ckothlq"."change_file"'"
     end
