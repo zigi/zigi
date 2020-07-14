@@ -1315,16 +1315,15 @@ Work_With_Repo:
         'setmsg msg(isrz003)'
       end
     end
-    if zigi_changed = 1 | check_flag = 1 then
+    if zigi_changed = 1 then
     if ztdsels = 1 then do
       'tbend' rtbl
       rtbl_open = 0
       call work_with_repo
       zigi_changed = 0
-      check_flag = 0
     end
   end
-  if check_flag = 1 then call work_with_repo
+  if zigi_changed = 1 then call work_with_repo
   return
 
   /* ============================================================== */
@@ -2522,7 +2521,6 @@ Work_with_repo_file:
     * ---------------------------------- */
     save_rtll = 0
     zigi_changed = 0
-    check_flag = 0
     save_ztdsels = ztdsels
     extens = zdsn.dsn
     'vput (extens)'
@@ -2598,9 +2596,8 @@ Work_with_repo_file:
         end
         if ztdsels = 1 then
         if zigi_changed = 1 then do
-          check_flag = 1
-          call work_with_repo
           call work_with_repo_file
+          call update_repo_metadata
         end
       end
     end
@@ -2901,7 +2898,6 @@ WWRF_handle_lcmd_s:
 
 Update_Mem_Stats:
   /* r = dsn/mem */
-  check_flag = 1
   parse arg ums_file ums_mem
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git status --porcelain' ums_file
@@ -2914,6 +2910,11 @@ Update_Mem_Stats:
     'tbmod' rtll
     mem = s_mem
   end
+
+  /* fixup dsn status */
+  dsnstat = fixup_dsn_status(memstat dsnstat)
+  'tbmod' rtbl
+
   x = zigistat(fulldsn ,
     localrep'/'zigirep'/.zigi/'dsn 'S')
   cmd = 'cd' localrep'/'zigirep
@@ -2921,6 +2922,21 @@ Update_Mem_Stats:
   cmd = usssafe(cmd)
   x = docmd(cmd)
   return
+
+FixUp_DSN_Status:
+  mstat = memstat
+  parse value mstat with '['mstat']' .
+  parse value dstat with '['dstat']' .
+  if pos(']',memstat) = 0 then return dsnstat
+  if pos(']',dsnstat) = 0 then do
+     dstat = memstat
+     return dstat
+     end
+  if left(dstat,1) = ' ' then
+     dstat = overlay(left(mstat,1),dstat,1,1)
+  if right(dstat,1) = ' ' then
+     dstat = overlay(right(mstat,1),dstat,2,1)
+  return porcelain(dstat)
 
   /* ------------------- *
   | reName a PDS Member |
@@ -3013,7 +3029,6 @@ WWRF_handle_lcmd_rm:
     x = docmd(cmd)
     if x > 0 then call view_std 'B'
     zigi_changed = 1
-    check_flag = 1
   end
   else do
     zerrsm = 'Canceled.'
@@ -3037,7 +3052,6 @@ WWRF_handle_lcmd_ab:
   dsna = sa_dsna
   call git_add_member
   zigi_changed = 1
-  check_flag = 1
   if zdsn.dsn /= null then
   mem = lower(zdsn.dsn'.'mem)
   r = dsn'/'mem
@@ -4868,7 +4882,6 @@ Git_Add_Member:
   x = docmd(cmd ' && git add -v 'd'/'toadd)
   call update_mem_stats d'/'toadd mem
   zigi_changed = 1
-  check_flag = 1
   return
 
   /* ---------------------------------- *
