@@ -19,11 +19,11 @@
 +where%Create+initializes the Git repo.
 +
 %Notes:
-%*+Don't use spaces in name field.
-%*+Repository is named (and stored) in OMVS as /localdirectory/name
-%*+Fails if /localdirectory/name is present
-+  Override with a%Y+
-%*+Thirty-two characters should be enough for a repo-name :)
+  %*+Don't use spaces in name field.
+  %*+Repository is named (and stored) in OMVS as /localdirectory/name
+  %*+Fails if /localdirectory/name is present
+  +  Override with a%Y+
+  %*+Thirty-two characters should be enough for a repo-name :)
 +
          +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
