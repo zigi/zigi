@@ -147,8 +147,8 @@ say copies('-',73)
   | Define our work variables |
   * ------------------------- */
   parse value '' with subs files null
-  mgen = 0
-  hit = 0
+  mgen  = 0
+  hit   = 0
   filec = 0
 
 /* -------------------------------------------------------------- *
