@@ -1315,15 +1315,16 @@ Work_With_Repo:
         'setmsg msg(isrz003)'
       end
     end
-    if zigi_changed = 1 then
+    if zigi_changed = 1 | check_flag = 1 then
     if ztdsels = 1 then do
       'tbend' rtbl
       rtbl_open = 0
       call work_with_repo
       zigi_changed = 0
+      check_flag = 0
     end
   end
-  if zigi_changed = 1 then call update_repo_metadata
+  if check_flag = 1 then call work_with_repo
   return
 
   /* ============================================================== */
@@ -2521,6 +2522,7 @@ Work_with_repo_file:
     * ---------------------------------- */
     save_rtll = 0
     zigi_changed = 0
+    check_flag = 0
     save_ztdsels = ztdsels
     extens = zdsn.dsn
     'vput (extens)'
@@ -2596,8 +2598,9 @@ Work_with_repo_file:
         end
         if ztdsels = 1 then
         if zigi_changed = 1 then do
+          check_flag = 1
+          call work_with_repo
           call work_with_repo_file
-          call update_repo_metadata
         end
       end
     end
@@ -2898,6 +2901,7 @@ WWRF_handle_lcmd_s:
 
 Update_Mem_Stats:
   /* r = dsn/mem */
+  check_flag = 1
   parse arg ums_file ums_mem
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git status --porcelain' ums_file
@@ -3009,6 +3013,7 @@ WWRF_handle_lcmd_rm:
     x = docmd(cmd)
     if x > 0 then call view_std 'B'
     zigi_changed = 1
+    check_flag = 1
   end
   else do
     zerrsm = 'Canceled.'
@@ -3032,6 +3037,7 @@ WWRF_handle_lcmd_ab:
   dsna = sa_dsna
   call git_add_member
   zigi_changed = 1
+  check_flag = 1
   if zdsn.dsn /= null then
   mem = lower(zdsn.dsn'.'mem)
   r = dsn'/'mem
@@ -4862,6 +4868,7 @@ Git_Add_Member:
   x = docmd(cmd ' && git add -v 'd'/'toadd)
   call update_mem_stats d'/'toadd mem
   zigi_changed = 1
+  check_flag = 1
   return
 
   /* ---------------------------------- *
