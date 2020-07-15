@@ -5793,7 +5793,7 @@ do_merge_conflict_rms:
 
     x = docmd('cd 'reporoot' && git add .zigi/dsn')
 
-    commitmsg = ".gitattributed created and added by ZIGI"
+    commitmsg = ".gitattribute created and added by ZIGI"
     x = docmd('cd 'reporoot' && git commit -m "'commitmsg'"')
     return
     return
