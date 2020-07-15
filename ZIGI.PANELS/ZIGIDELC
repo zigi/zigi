@@ -2,12 +2,13 @@
  $ type(output) caps(off)
  @ type(input ) hilite(uscore) intens(low)
  + type(text) skip(on) intens(low)
-)Body Window(54,13)
+)Body Window(54,14)
 +Enter to confirm repository delete:
 +
 +Repository:$zigirep
 +
 +Remove from ZIGI management   @z+(Y or N)
++Remove from Git management    @z+(Y or N)
 +Delete the OMVS files         @z+(Y or N)
 +Delete the z/OS Datasets      @z+(Y or N)
 +
@@ -17,27 +18,31 @@
 +
       +Press%Enter+to continue or%F3+to cancel.
 )Init
- .zvars = '(delcg delco delzd delcf)'
+ .zvars = '(delcz delcg delco delzd delcf)'
  &zwinttl = 'ZIGI Delete Confirmation'
  .help = zigihdel
 )Proc
 *REXX(*)
- if delcg = 'N' then do
+ if delcz = 'N' then do
+    delcg = 'N'
     delco = 'N'
     delzd = 'N'
     delcf = 'N'
     end
  if delcf = 'N' then do
     delco = 'N'
+    delcz = 'N'
     delzd = 'N'
     delcg = 'N'
     end
 *ENDREXX
+ ver (&delcz,nb,list,Y,N)
  ver (&delcg,nb,list,Y,N)
  ver (&delco,nb,list,Y,N)
  ver (&delzd,nb,list,Y,N)
  ver (&delcf,nb,list,Y,N)
- if (&delcg EQ N)
+ if (&delcz EQ N)
+     ver (&delcg,nb,list,N)
      ver (&delco,nb,list,N)
 )end
 /* -------------------------------------------------------- */

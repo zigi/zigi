@@ -28,6 +28,8 @@
   |                                                            |
   |            07/15/20 LBD - Keep .git/.gitattributes on del  |
   |                           from zigi if omvs retained       |
+  |                         - On repo delete option to keep    |
+  |                           git directories/files            |
   |            07/14/20 LBD - Fix bug detecting entry updates  |
   |                         - Correct dataset check on branch  |
   |            07/12/20 LBD - Resolve merge deletion issue     |
@@ -905,25 +907,28 @@ handle_zigiprim_lcmd_i:
   | Handle zigiprim panel linecommand d         |
   * ------------------------------------------ */
 handle_zigiprim_lcmd_d:
-  parse value '' with delcg delco delcf delzd
+  parse value '' with delcz delcg delco delcf delzd
   'Addpop row(3) column(10)'
   'Display panel(zigidelc)'
   drc = rc
   'rempop'
   if drc = 0 & delcf = 'Y' then do
-    if delcg = 'Y' then do
+    if delcz = 'Y' then do
       'tbdelete zigirepo'
-      cmd = 'cd 'localrep'/'zigirep' && rm -rf'
-      cmd = cmd' .zigi'
+      cmd = 'cd 'localrep'/'zigirep' && rm -rf .zigi'
       x = docmd(cmd)
       if x = 0 then do
         zerrsm = 'Deleted.'
-        delcg = 'Repo removed from ZIGI, .zigi files deleted.'
-        del_refd = zigirefd(localrep'/'zigirep pdshlq 1 'D')
+        delcz = 'Repo removed from ZIGI, .zigi files deleted.'
       end
-      else do
-        zerrsm = 'Partially Deleted.'
-        delcg = 'Repo removed from ZIGI, .git files not deleted.'
+    end
+    if delcg = 'Y' then do
+      cmd = 'cd 'localrep'/'zigirep' && rm -rf .git .gitattributes'
+      x = docmd(cmd)
+      if x = 0 then do
+        zerrsm = 'Deleted.'
+        delcg = 'Git files removed.'
+        del_refd = zigirefd(localrep'/'zigirep pdshlq 1 'D')
       end
     end
     if delzd = 'Y' then do
@@ -944,9 +949,14 @@ handle_zigiprim_lcmd_d:
       x = docmd(cmd)
       delco = 'The local repository has been deleted from OMVS.'
     end
+    if delco = 'Y' then do
+      cmd = 'cd' localrep' && rm -rf 'zigirep
+      x = docmd(cmd)
+      delco = 'The local repository has been deleted from OMVS.'
+    end
     else delco = 'The local repository was NOT deleted from OMVS.'
-    zerrlm = left(delcg,76) left(delco,76) left(localrep'/'zigirep,76) ,
-      left(delzd,76)
+    zerrlm = left(delcz,76) left(delcg,76) left(delco,76) ,
+       left(localrep'/'zigirep,76) left(delzd,76)
     'setmsg msg(isrz003)'
   end
   else do

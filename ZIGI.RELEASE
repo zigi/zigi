@@ -25,6 +25,9 @@ Allow MV as an alias of RN (rename).
 When performing a merge, instead of completely replacing all the z/OS
 datasets, only replace (or delete) the changed elements.
 
+When removing a repository from ZIGI added an option to keep the Git files
+if the OMVS files are not deleted.
+
 Improve cursor positioning on the Commit Panel for a more intelligent and
 logical placement.
 
