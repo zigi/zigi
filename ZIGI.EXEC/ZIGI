@@ -26,6 +26,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            07/15/20 LBD - Keep .git/.gitattributes on del  |
+  |                           from zigi if omvs retained       |
   |            07/14/20 LBD - Fix bug detecting entry updates  |
   |                         - Correct dataset check on branch  |
   |            07/12/20 LBD - Resolve merge deletion issue     |
@@ -912,11 +914,11 @@ handle_zigiprim_lcmd_d:
     if delcg = 'Y' then do
       'tbdelete zigirepo'
       cmd = 'cd 'localrep'/'zigirep' && rm -rf'
-      cmd = cmd' .git .gitattributes .zigi'
+      cmd = cmd' .zigi'
       x = docmd(cmd)
       if x = 0 then do
         zerrsm = 'Deleted.'
-        delcg = 'Repo removed from ZIGI, .git files deleted.'
+        delcg = 'Repo removed from ZIGI, .zigi files deleted.'
         del_refd = zigirefd(localrep'/'zigirep pdshlq 1 'D')
       end
       else do

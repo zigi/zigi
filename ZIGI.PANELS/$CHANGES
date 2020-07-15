@@ -128,6 +128,8 @@ Bug Fixes and Other Updates:
     home/.zigirefd
 34. Make sure ZIGI checks for updates on entry
 35. Correct dataset check on branch delta to bypass z/OS copy of OMVS files
+36. If removing a Repository from ZIGI but retaining OMVS do not remove the
+    .git or .gitattributes files
 
 =============================================================================
 
