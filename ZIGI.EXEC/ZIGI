@@ -4355,7 +4355,7 @@ Do_GitLog:
     if logdto   /= null then lopts = lopts '--until="'logdto'"'
     if greplog /= null then lopts = lopts '--grep='greplog '-i'
     lopts = translate(lopts,'-','/')
-    cmd = 'cd' localdir' && git log' lopts '--tags  --decorate=full'
+    cmd = 'cd' localdir' && git log' lopts
     'vput (lcnt logdfrom logdto greplog lbv incldiff) profile'
     x = docmd(cmd)
     htitle = 'GitLog Results'
