@@ -17,6 +17,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            07/16/20 LBD - Correct test for Load Mod msg    |
   |            07/08/20 LBD - Corrections for binary copy      |
   |                           that broke with single cp        |
   |            07/07/20 LBD - Check ENQ's before Alloc/cp      |
@@ -433,7 +434,7 @@ Alloc_Copy_PDS:
       if recfm = 'U' then binopt = '-X -I'
       Select
         when pos('-B',binopt) > 0 then type = 'Binary'
-        when pos('-U',binopt) > 0 then type = 'Load Module'
+        when pos('-X',binopt) > 0 then type = 'Load Module'
         otherwise type = 'Text'
       end
       zs7 = 'Type:                   ' type
