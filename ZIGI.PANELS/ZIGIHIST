@@ -22,12 +22,12 @@
 + \ \%F3  +
 +Dataset/File:@delement
 +
-+Sel Date/Time of Commit               Author
++Sel Date/Time of Commit  Subject
 +
 )Model
-_z+ $z                                $z
+_z+ $z                   $z
 )Init
-  .ZVARS = '(zsel hdate hauthor)'
+  .ZVARS = '(zsel hdate hsubject)'
   &zgsr = CSR
   .help = zigihhst
 )Proc
