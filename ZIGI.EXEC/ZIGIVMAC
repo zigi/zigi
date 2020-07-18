@@ -37,6 +37,10 @@
   'Macro (options)'
   'Reset ALL'
   '(last) = linenum .zlast'
+  if last = 0 then do
+     'end'
+     exit
+     end
   '(lrecl) = lrecl'
   'hilite off'
   Address ISPExec 'vget (vtitle gitcmde localrep zigirep)'

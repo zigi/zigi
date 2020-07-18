@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            07/18/20 LBD - Add Find for History table       |
   |            07/17/20 LBD - Speed up History commit find     |
   |                         - Rewrite History View/Recover     |
   |            07/15/20 LBD - Keep .git/.gitattributes on del  |
@@ -7203,16 +7204,59 @@ do_history:
     save_top = ztdtop
     top = 1
     save_ztdsels = ztdsels
+    last_hfind = 0
+    wrap = 0
     do forever
       zsel = null
       if ztdsels > 1 then 'tbdispl' hist_tbl
       else do
+        zigpass = 'PASSTHRU'
+        'vput (zigpass) shared'
         'tbtop' hist_tbl
         'tbskip' hist_tbl 'number('top')'
         'tbdispl' hist_tbl 'Panel(zigihist)'
+        drc = rc
+        zigpass = null
+        'vput (zigpass) shared'
       end
-      if rc > 4 then leave
+      if drc > 4 then leave
       top = ztdtop
+
+      if zcmd = 'RFIND' then do
+        zcmd = 'FIND' fstring
+        'tbtop' hist_tbl
+        'tbskip' hist_tbl 'number('last_hfind')'
+      end
+      if strip(zcmd) /= null then
+      if abbrev('FIND',translate(word(zcmd,1))) = 1 then do
+        fstring = translate(word(zcmd,2))
+        zcmd = null
+        do forever
+          'tbskip' hist_tbl 'Position(fcrp)'
+          if rc > 0 then if wrap = 1 then do
+            zerrsm = 'Not Found'
+            zerrlm = fstring 'not found.'
+            'setmsg msg(isrz003)'
+            leave
+          end
+          else do
+               wrap = 1
+               'tbtop' hist_tbl
+               end
+          if pos(fstring,translate(hsubject)) > 0 then do
+            top = fcrp + 0
+            zerrsm = 'Found'
+            if wrap = 1
+               then wmsg = 'wrapped.'
+               else wmsg = null
+            zerrlm = fstring 'found in row' fcrp + 0 wmsg
+            last_hfind = fcrp
+            wrap = 0
+            'setmsg msg(isrz003)'
+            leave
+          end
+        end
+      end
 
       if ztdsels = 0 then
       if pnsdef = 'P' then do
@@ -7225,6 +7269,7 @@ do_history:
         'Display Panel(zigirhst)'
         'rempop'
       end
+      if zsel /= null then
       Select
         When zsel = 'C' then call DoHist_ComView
         When zsel = 'R' then call DoHist_Recover

@@ -20,6 +20,9 @@ target z/OS dataset is allocated.
 Add Feedback command and action bar (under Help) to display a popup
 with a link to a feedback website.
 
+Add a Find option to the History table display to make it easier to
+find the commit of interest.
+
 Allow MV as an alias of RN (rename).
 
 When performing a merge, instead of completely replacing all the z/OS
