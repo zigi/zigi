@@ -27,6 +27,7 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            07/17/20 LBD - Speed up History commit find     |
+  |                         - Rewrite History View/Recover     |
   |            07/15/20 LBD - Keep .git/.gitattributes on del  |
   |                           from zigi if omvs retained       |
   |                         - On repo delete option to keep    |
@@ -5018,7 +5019,7 @@ Replace:
   /* Comment Start
   zs2 = "   OMVS -> z/OS      "
   call do_popup
-     Comment End */
+  Comment End */
   replace_state = 0
 
   ckotdir = r_localrep'/'r_zigirep
@@ -5580,10 +5581,10 @@ Merge_it:
   zsel = null
   return
 
-/* -------------------------------------------------------- *
- | During a merge if there are deletions then those need to |
- | be handled via a git rm.                                 |
- * -------------------------------------------------------- */
+  /* -------------------------------------------------------- *
+  | During a merge if there are deletions then those need to |
+  | be handled via a git rm.                                 |
+  * -------------------------------------------------------- */
 do_merge_conflict_rms:
   cmd = 'cd' mrgdir '&& git rm' usssafe(merge_rms)
   x = docmd(cmd)
@@ -5808,7 +5809,6 @@ do_git_attributes:
 
   commitmsg = ".gitattributes created and added by ZIGI"
   x = docmd('cd 'reporoot' && git commit -m "'commitmsg'"')
-  return
   return
 
   /* ---------------------------------------------------------- *
@@ -7969,17 +7969,12 @@ DoHist_ComView:
 
   /* ----------------------------------------------------------- *
   | Recover the specific historical level of the element. This  |
-  | does NOT use git but copies the git level data into the     |
-  | provided (prompted) target dataset or dataset(member).      |
+  | does use the dohist_file_extract routine to get the element |
+  | and then prompts for a target dataset.                      |
   | If the element is a PDS member then it must be recovered to |
   | a PDS member.                                               |
   * ----------------------------------------------------------- */
 DoHist_Recover:
-  cmd = 'cd' localrep'/'zigirep
-  cmd = cmd '&& git show' strip(hcommit)':'element
-  'control display save'
-  x = docmd(cmd)
-  'control display restore'
   if dsnvalid(fulldsn) = 'NO' then do
     zerrsm = 'Error.'
     zerrlm = 'The recovery of a non-z/OS dataset is not supported' ,
@@ -7987,101 +7982,114 @@ DoHist_Recover:
       'data and then copy it into the clipboard to paste' ,
       'into a OMVS file to recover it.'
     'setmsg msg(isrz003)'
+    return
   end
-  else do
-    if left(fulldsn,1) /= "'" then
-    relement = fulldsn
-    if left(fulldsn,1) = "'" then do
-      if pos('/',element) = 0
-      then relement = fulldsn
-      else do
-        parse value element with .'/'rcmem
-        if zdsn.dsn /= null then
-        parse value rcmem with rcmem'.'.
-        relement = left(fulldsn,length(fulldsn)-1) ,
-          || "("rcmem")'"
-      end
-    end
-    rdsn = null
-    ralc = 'N'
-    rans = null
-    rover = null
-    'Addpop row(4) column(8)'
-    'Display Panel(zigiresq)'
-    drc = rc
-    'Rempop'
-    if drc > 0 then return
-    if rans = 'N' then return
-    rcdd = 'RC'random(99999)
-
-    address tso
-    if sysdsn(rdsn) = 'DATASET NOT FOUND' then ralloc = 'Y'
-    else ralloc = 'N'
-    if ralloc = 'N'
-    then 'Alloc f('rcdd') shr reuse da('rdsn')'
-    else 'Alloc f('rcdd') new like('relement') da('rdsn')'
-    save_rdsn = rdsn
-
-    /* fix up the stem convert nulls to blanks lines */
-    do rc = 1 to so.0
-      if so.rc = null then so.rc = ' '
-    end
-
-    'Execio * diskw' rcdd '(finis stem so.'
-    'Free f('rcdd')'
-    address ispexec
-
-    teste = strip(relement,'B',"'")
-    testr = strip(rdsn,'B',"'")
-    parse value teste with teste'('.
-    parse value testr with testr'('.
-
-    if is_binfile(rdsn) = 1 then binopt = '-B'
-    else binopt = null
-    x = check_llib(rdsn)
-    if x = 0 then binopt = binopt '-X -I'
-    if pos('-X',binopt) = 0 then
-    if pos('(',rdsn) > 0 then do
-      parse value rdsn with rdsn"("mem")"
-      if left(rdsn,1) = "'" then rdsn = rdsn"'"
-      "LMINIT DATAID(zstats) DATASET("rdsn")"
-      "LMOPEN DATAID("zstats") OPTION(INPUT)"
-      'LMMSTATS DATAID('zstats') Member('mem') user('zluser')'
-      "LMClose Dataid("zstats")"
-      "LMFree  Dataid("zstats")"
-    end
-    if teste = testr then do
-      m = usssafe(strip(mem))
-      if sysvar('syspref') = null
-      then pref = sysvar('sysuid')
-      else pref = sysvar('syspref')
-      if left(rdsn,1) /= "'"
-      then rdsne = pref'.'rdsn
-      else rdsne = rdsn
-      e = usssafe(strip(rdsne,'B',"'"))
-      r = usssafe(dsn)
-
-      if zdsn.dsn /= null
-      then rm = lower(strip(mem)'.'zdsn.dsn)
-      else rm = m
-      rm = usssafe(rm)
-
-      copycmd = "//'"e"("m")'"
-      copycmd = '"'copycmd'"'
-      copycmd = "cp "binopt" -U -v" copycmd" "localrep"/"zigirep
-      copycmd = copycmd || "/"r"/"rm
-      x = docmd(copycmd)
-      if x > 0 then call view_std 'B'
-      zerrsm = 'Completed.'
-      zerrlm = relement 'successfully recovered into' save_rdsn ,
-        left(' ',76) ,
-        'the recovered element will be in a Modified state and will' ,
-        'need to be added to the staging index and committed if' ,
-        'desired.'
-      'setmsg msg(isrz003)'
-      if fulldsn = rdsn then update_flag = 1
+  if left(fulldsn,1) /= "'" then
+  relement = fulldsn
+  if left(fulldsn,1) = "'" then do
+    if pos('/',element) = 0
+    then relement = fulldsn
+    else do
+      parse value element with .'/'rcmem
+      if zdsn.dsn /= null then
+      parse value rcmem with rcmem'.'.
+      relement = left(fulldsn,length(fulldsn)-1) ,
+        || "("rcmem")'"
     end
   end
+  rdsn = null
+  ralc = 'N'
+  rans = null
+  rover = null
+  'Addpop row(4) column(8)'
+  'Display Panel(zigiresq)'
+  drc = rc
+  'Rempop'
+  if drc > 0 then return
+  if rans = 'N' then return
+  rcdd = 'RC'random(99999)
+
+  address tso
+  if sysdsn(rdsn) = 'DATASET NOT FOUND' then ralloc = 'Y'
+  else ralloc = 'N'
+  if ralloc = 'N'
+  then 'Alloc f('rcdd') shr reuse da('rdsn')'
+  else 'Alloc f('rcdd') new like('relement') da('rdsn')'
+  'Free f('rcdd')'
+  save_rdsn = rdsn
+
+  call dohist_file_extract
+
+  if is_binfile(rdsn) = 1 then binopt = '-B'
+  else binopt = null
+  x = check_llib(rdsn)
+  if x = 0 then binopt = binopt '-X -I'
+
+  cmd = 'cd' localrep'/'zigirep ,
+    '&& cp -UA' binopt usssafe(file) ,
+    '"//'rdsn'"'
+  x = docmd(cmd)
+  if x > 0 then call view_std 'B'
+
+  x = bpxwunix('rm' usssafe(file))
+
+  address ispexec
+
+  teste = strip(relement,'B',"'")
+  testr = strip(rdsn,'B',"'")
+  parse value teste with teste'('.
+  parse value testr with testr'('.
+
+  if is_binfile(rdsn) = 1 then binopt = '-B'
+  else binopt = null
+  x = check_llib(rdsn)
+  if x = 0 then binopt = binopt '-X -I'
+  if pos('-X',binopt) = 0 then
+  if pos('(',rdsn) > 0 then do
+    parse value rdsn with rdsn"("mem")"
+    if left(rdsn,1) = "'" then rdsn = rdsn"'"
+    "LMINIT DATAID(zstats) DATASET("rdsn")"
+    "LMOPEN DATAID("zstats") OPTION(INPUT)"
+    'LMMSTATS DATAID('zstats') Member('mem') user('zluser')'
+    "LMClose Dataid("zstats")"
+    "LMFree  Dataid("zstats")"
+  end
+  if teste = testr then do
+    m = usssafe(strip(mem))
+    if sysvar('syspref') = null
+    then pref = sysvar('sysuid')
+    else pref = sysvar('syspref')
+    if left(rdsn,1) /= "'"
+    then rdsne = pref'.'rdsn
+    else rdsne = rdsn
+    e = usssafe(strip(rdsne,'B',"'"))
+    r = usssafe(dsn)
+
+    if zdsn.dsn /= null
+    then rm = lower(strip(mem)'.'zdsn.dsn)
+    else rm = m
+    rm = usssafe(rm)
+
+    copycmd = "//'"e"("m")'"
+    copycmd = '"'copycmd'"'
+    copycmd = "cp "binopt" -U -v" copycmd" "localrep"/"zigirep
+    copycmd = copycmd || "/"r"/"rm
+    x = docmd(copycmd)
+    if x > 0 then call view_std 'B'
+    zerrsm = 'Completed.'
+    zerrlm = relement 'successfully recovered into' save_rdsn ,
+      left(' ',76) ,
+      'the recovered element will be in a Modified state and will' ,
+      'need to be added to the staging index and committed if' ,
+      'desired.'
+    'setmsg msg(isrz003)'
+    if fulldsn = rdsn then update_flag = 1
+  end
+  zerrsm = 'Success.'
+  zerrlm = element 'successfully recovered.'
+  'setmsg msg(isrz003)'
+  "View Dataset('"strip(rdsn,'B',"'")"("mem")')"
+  if rc > 0 then say zerrlm
   return
 
   /* ---------------------------------------------------------- *
@@ -8089,14 +8097,49 @@ DoHist_Recover:
   | point in time.                                             |
   * ---------------------------------------------------------- */
 DoHist_ViewSource:
-  cmd = 'cd' localrep'/'zigirep
-  cmd = cmd '&& git show' strip(hcommit)':'element
-  'control display save'
-  x = docmd(cmd)
-  'control display restore'
+  call dohist_file_extract
   vtitle = element '\' hdate '\' hsubject '\' fulldsn
-  'vput (vtitle)'
-  call view_std 'X' 'V'
+  gitcmde = null
+  'vput (vtitle gitcmde localrep zigirep)'
+  'View File(file) panel(zigiedit) macro(zigivmac)'
+  x = bpxwunix('rm' usssafe(file))
+  return
+
+  /* ------------------------------------------------------ *
+  | Extract the historic level of the element based on the |
+  | commit hash provided.                                  |
+  |                                                        |
+  | 1. change (checkout) to the commit hash level          |
+  | 2. copy (cp) the requested file to home/tmp/file-name  |
+  | 3. change (checkout) back to the original branch       |
+  * ------------------------------------------------------ */
+DoHist_File_Extract:
+  if pos('/',element) > 0
+  then do
+    parse value element with file'/'work
+    file = translate(file,' ','.')
+    ext = word(file,words(file))
+    file = home'/tmp/'work'.'ext
+  end
+  else file = home'/tmp/'element
+  call check_tmp
+  cmd = 'cd' localrep'/'zigirep ,
+    '&& git checkout' hcommit ,
+    '&& cp' localrep'/'zigirep'/'usssafe(element) usssafe(file)
+  x = docmd(cmd)
+  if x > 0 then call view_std 'B'
+  cmd = 'cd' localrep'/'zigirep ,
+    '&& git checkout' branch
+  x = docmd(cmd)
+  if x > 0 then call view_std 'B'
+  return
+
+  /* ------------------------------------------------------------ *
+  | Checks for the home/tmp directory by attempting to create it |
+  | and if it exists great, if not then it does now.             |
+  * ------------------------------------------------------------ */
+Check_TMP:
+  x = bpxwunix('mkdir' home'/tmp',,so.,se.)
   return
 
   /* ------------------------------- *
