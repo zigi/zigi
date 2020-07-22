@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            07/22/20 LBD - Fix merge issue if no deletes    |
   |            07/18/20 LBD - Add Find for History table       |
   |            07/17/20 LBD - Speed up History commit find     |
   |                         - Rewrite History View/Recover     |
@@ -5587,6 +5588,7 @@ Merge_it:
   | be handled via a git rm.                                 |
   * -------------------------------------------------------- */
 do_merge_conflict_rms:
+  if words(merge_rms) = 0 then return
   cmd = 'cd' mrgdir '&& git rm' usssafe(merge_rms)
   x = docmd(cmd)
   if x > 0 then call view_std 'B'
