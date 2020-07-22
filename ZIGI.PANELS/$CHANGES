@@ -138,6 +138,8 @@ Bug Fixes and Other Updates:
     .git or .gitattributes files
 37. Speed up the History process of finding applicable commits for an
     element significantly and replace author with subject in the display
+38. After Merge Conflicts resolved support selective z/OS replace instead
+    of full replace
 
 =============================================================================
 

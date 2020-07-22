@@ -27,6 +27,8 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            07/22/20 LBD - Fix merge issue if no deletes    |
+  |                           and enable selective replace     |
+  |                           after merge conflicts resolved   |
   |            07/18/20 LBD - Add Find for History table       |
   |            07/17/20 LBD - Speed up History commit find     |
   |                         - Rewrite History View/Recover     |
@@ -5549,7 +5551,15 @@ Merge_it:
             call do_merge_conflict_rms
             cmd = 'cd' mrgdir '&& git commit -m "Resolve merge conflicts"'
             x = docmd(cmd)
-            call Replace localrep zigirep pdshlq qualignr
+            Report_Header = 'Merge Report'
+            delta_from = bname
+            delta_to   = branch
+            drop so.
+            do mi = 1 to save_so.0
+              so.mi = save_so.mi
+            end
+            so.0 = save_so.0
+            call check_delta
             if fix_stats /= null
             then do fs = 1 to words(fix_stats)
               sfile = usssafe(word(fix_stats,fs))
@@ -7242,15 +7252,15 @@ do_history:
             leave
           end
           else do
-               wrap = 1
-               'tbtop' hist_tbl
-               end
+            wrap = 1
+            'tbtop' hist_tbl
+          end
           if pos(fstring,translate(hsubject)) > 0 then do
             top = fcrp + 0
             zerrsm = 'Found'
             if wrap = 1
-               then wmsg = 'wrapped.'
-               else wmsg = null
+            then wmsg = 'wrapped.'
+            else wmsg = null
             zerrlm = fstring 'found in row' fcrp + 0 wmsg
             last_hfind = fcrp
             wrap = 0
