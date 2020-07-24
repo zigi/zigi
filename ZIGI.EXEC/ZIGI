@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            07/24/20 LBD - Set wrap message on zigiprim     |
   |            07/22/20 LBD - Fix merge issue if no deletes    |
   |                           and enable selective replace     |
   |                           after merge conflicts resolved   |
@@ -1114,6 +1115,7 @@ handle_zigiprim_find:
   fstring = translate(word(zcmd,2))
   zcmd = null
   find = null
+  fwrap = 0
   if fstring = null then do
     'Addpop row(4) column(6)'
     'Display Panel(zigifind)'
@@ -1137,6 +1139,7 @@ handle_zigiprim_find:
           'tbtop zigirepo'
           'tbskip zigirepo'
           rowcnt = 0
+          fwrap = 1
         end
         else do
           zerrsm = 'Not Found'
@@ -1149,7 +1152,9 @@ handle_zigiprim_find:
       'tbget zigirepo'
       if pos(fstring,translate(reponame pdshlq zigicat)) > 0 then do
         repo_top = rowcnt
-        zerrsm = 'Found'
+        if fwrap = 1
+        then zerrsm = 'Wrapped.'
+        else zerrsm = 'Found.'
         zerrlm = fstring 'found in row' rowcnt + 0
         'setmsg msg(isrz003)'
         Return
