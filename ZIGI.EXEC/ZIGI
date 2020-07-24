@@ -1227,6 +1227,7 @@ Work_With_Repo:
   /* -------------------------------- *
   | Process the Repository Data Sets |
   * -------------------------------- */
+  zigi_changed = 0
   do forever
     call WWR_display_zigirepo
     if result > 4 then return

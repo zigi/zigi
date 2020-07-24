@@ -41,7 +41,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
-  |            07/24/20 LBD - Prompt to Proceed after display  |
+  |            07/24/20 LBD - Adjust Popup Panel Location      |
+  |                         - Prompt to Proceed after display  |
   |                           of target datasets               |
   |            07/12/20 LBD - Define OMVS env stem             |
   |            07/04/20 LBD - Use Clear to clear screen        |
@@ -92,9 +93,9 @@
   say " ZZZZ               ZZZZZZZZ     ZZZ   ZZZZZZZZZZZ      ZZZZZZZZZZZ "
   say "                  ZZZZZZZZ       ZZZZ    ZZZZZZ      ZZZZZZZZZg "
   say "                 ZZZZZZZZ        ZZZ            ZZZZZZZZZ "
-  say "                ZZZZZZZ              zZZZZZZZZZZZZZZ       Common"
-  say "              ZZZZZZZ           ZZZZZZZZZZZZZZ               Installation"
-  say "            .ZZZZZZZ      ZZZZZZZZZZZZZZ                       Tool"
+  say "                ZZZZZZZ              zZZZZZZZZZZZZZZ      Common"
+  say "              ZZZZZZZ           ZZZZZZZZZZZZZZ              Installation"
+  say "            .ZZZZZZZ      ZZZZZZZZZZZZZZ                      Tool"
   say "           ZZZZZZZZZZZZZZZZZZZZZZ "
   say "           ZZZZZZZZZZZZZZZZZ             zOS ISPF Git Interface "
   say "          ZZZZZZZZZZZZ "
@@ -638,7 +639,8 @@ docmd:
   x = bpxwunix(cmd,,so.,se.,env.)
   return x
 
-  >ZGSTAT     *** Inline ZGSTAT that will be updated and uploaded
+/*
+>ZGSTAT     *** Inline ZGSTAT that will be updated and uploaded */
   /*---------------------  rexx procedure  -------------------- *
   | Name:      ZGSTAT                                          |
   |                                                            |
@@ -712,7 +714,7 @@ docmd:
     msg1 = 'Applying ISPF Statistics to:'
     msg2 = dsname
     'Control Display Lock'
-    'Addpop'
+    'Addpop row(8) column(11)'
     'Display Panel(zgpop)'
     'Rempop'
     x = zigistat(dsname repodir'/.zigi/'file 'U')
