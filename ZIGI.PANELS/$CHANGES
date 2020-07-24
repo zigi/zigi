@@ -12,6 +12,9 @@ When performing a branch change to an existing branch, instead of
 completely replacing all the z/OS datasets, only replace (or delete) the
 changed elements.
 
+Update the zginstall.rex with to check if any z/OS datasets will be replaced
+during the install and provide an option to retry with a different HLQ.
+
 Added Dataset Allocation (ENQ) checking prior to performing a copy from the
 OMVS Git repository to a z/OS dataset with an option to Retry or Abort. This
 is to prevent a catastrophic failure with the OMVS cp (copy) command if the

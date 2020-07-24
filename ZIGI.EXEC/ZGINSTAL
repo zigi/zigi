@@ -41,6 +41,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            07/24/20 LBD - Prompt to Proceed after display  |
+  |                           of target datasets               |
   |            07/12/20 LBD - Define OMVS env stem             |
   |            07/04/20 LBD - Use Clear to clear screen        |
   |            06/29/20 LBD - Add generic installer prose      |
@@ -79,27 +81,27 @@
 
   ckothlq = strip(ckothlq)
 
-x = bpxwunix('clear')
-say copies('-',73)
-say "                                         .zZ.     Zz "
-say "                    ZZZZZZZZ           ZZZZZZZ "
-say "        ZZZZZZZZZZZZZZZZZZZZZZ   ZZ   ZZZ         zZ "
-say " ZZZZZZZZZZZZZZZZZZZZZZZZZZZZ        ZZZ    .zZZ   ZZ "
-say " ZZZZZZZZZZZZZZZZ      ZZZZZZZ   ZZ   ZZZ  ..zZZZ  Zz "
-say " ZZZZZZZZZZ,         ZZZZZZZZZ   ZZZ  ZzZ      ZZ  ZZ         ZZZZZZZ"
-say " ZZZZ               ZZZZZZZZ     ZZZ   ZZZZZZZZZZZ      ZZZZZZZZZZZ "
-say "                  ZZZZZZZZ       ZZZZ    ZZZZZZ      ZZZZZZZZZg "
-say "                 ZZZZZZZZ        ZZZ            ZZZZZZZZZ "
-say "                ZZZZZZZ              zZZZZZZZZZZZZZZ       Common"
-say "              ZZZZZZZ           ZZZZZZZZZZZZZZ               Installation"
-say "            .ZZZZZZZ      ZZZZZZZZZZZZZZ                       Tool"
-say "           ZZZZZZZZZZZZZZZZZZZZZZ "
-say "           ZZZZZZZZZZZZZZZZZ             zOS ISPF Git Interface "
-say "          ZZZZZZZZZZZZ "
-say "         ZZZZZZZZZg               The git interface for the rest of us"
-say "        ZZZZZZig "
-say "       ZZZZZZi                         Henri Kuiper & Lionel Dyck "
-say copies('-',73)
+  x = bpxwunix('clear')
+  say copies('-',73)
+  say "                                         .zZ.     Zz "
+  say "                    ZZZZZZZZ           ZZZZZZZ "
+  say "        ZZZZZZZZZZZZZZZZZZZZZZ   ZZ   ZZZ         zZ "
+  say " ZZZZZZZZZZZZZZZZZZZZZZZZZZZZ        ZZZ    .zZZ   ZZ "
+  say " ZZZZZZZZZZZZZZZZ      ZZZZZZZ   ZZ   ZZZ  ..zZZZ  Zz "
+  say " ZZZZZZZZZZ,         ZZZZZZZZZ   ZZZ  ZzZ      ZZ  ZZ         ZZZZZZZ"
+  say " ZZZZ               ZZZZZZZZ     ZZZ   ZZZZZZZZZZZ      ZZZZZZZZZZZ "
+  say "                  ZZZZZZZZ       ZZZZ    ZZZZZZ      ZZZZZZZZZg "
+  say "                 ZZZZZZZZ        ZZZ            ZZZZZZZZZ "
+  say "                ZZZZZZZ              zZZZZZZZZZZZZZZ       Common"
+  say "              ZZZZZZZ           ZZZZZZZZZZZZZZ               Installation
+  say "            .ZZZZZZZ      ZZZZZZZZZZZZZZ                       Tool"
+  say "           ZZZZZZZZZZZZZZZZZZZZZZ "
+  say "           ZZZZZZZZZZZZZZZZZ             zOS ISPF Git Interface "
+  say "          ZZZZZZZZZZZZ "
+  say "         ZZZZZZZZZg               The git interface for the rest of us"
+  say "        ZZZZZZig "
+  say "       ZZZZZZi                         Henri Kuiper & Lionel Dyck "
+  say copies('-',73)
 
 
   /* --------------------- *
@@ -113,17 +115,18 @@ say copies('-',73)
   x = bpxwunix(cmd,,so.,se.,env.)
   ckotdir = strip(so.1)
 
+Restart:
   /* ------------------- *
   | Prompt for z/OS HLQ |
   * ------------------- */
   if ckothlq = '' then do
-  say 'Enter the z/OS High Level Qualifier to use:'
-  pull ckothlq
-  if ckothlq = '' then do
-    say 'no qualifier entered - exiting for now.'
-    exit 8
-  end
-  ckothlq = translate(ckothlq)
+    say 'Enter the z/OS High Level Qualifier to use:'
+    pull ckothlq
+    if ckothlq = '' then do
+      say 'no qualifier entered - exiting for now.'
+      exit 8
+    end
+    ckothlq = translate(strip(ckothlq))
   end
 
   /* -------------------------------------------------------- *
@@ -147,8 +150,8 @@ say copies('-',73)
   | Define our work variables |
   * ------------------------- */
   parse value '' with subs files null
-  mgen = 0
-  hit = 0
+  mgen  = 0
+  hit   = 0
   filec = 0
 
 /* -------------------------------------------------------------- *
@@ -157,7 +160,7 @@ say copies('-',73)
  | an INPUT state and to just press F10 - meanwhile the copy (cp) |
  | is proceeding.                                                 |
  * -------------------------------------------------------------- */
- if opt = null then do
+  if opt = null then do
     call zmsg ' '
     call zmsg 'If the repository being installed has partitioned datasets'
     call zmsg 'with a large number of members, the copy operation will take'
@@ -169,7 +172,7 @@ say copies('-',73)
     call zmsg 'and will report out when it completes (but only if the shell'
     call zmsg 'is in a RUNNING state.'
     call zmsg ' '
-    end
+  end
 
   /* ------------------------------------ *
   | Read in ../.zigi/dsn to get dcb info |
@@ -247,6 +250,29 @@ say copies('-',73)
       end
       otherwise nop
     end
+  end
+
+  call zmsg 'The following Datasets will be Created or Recreated:'
+  if words(files) > 0 then
+  do fi = 1 to words(files)
+    wdsn = "'"ckothlq"."word(files,fi)"'"
+    call zmsg wdsn
+    if check_file(wdsn) > 0
+    then call zmsg '--- Dataset exists and will be recreated.'
+  end
+  do fi = 1 to words(subs)
+    wdsn = "'"ckothlq"."word(subs,fi)"'"
+    call zmsg wdsn
+    if check_file(wdsn) > 0
+    then call zmsg '--- Dataset exists and will be recreated.'
+  end
+  call zmsg ' '
+  say '  '
+  say 'Enter Y to Proceed or anything to Retry:'
+  pull zgans
+  if translate(zgans) /= 'Y' then  do
+    ckothlq = null
+    signal ReStart
   end
 
   /* -------------------------------------------- *
@@ -374,8 +400,8 @@ say copies('-',73)
 zmsg:
   parse arg message
   if strip(message) = null then
-  message = copies('-',76)
-  say '* 'left(message,76)' *'
+  message = copies('-',63)
+  say '* 'left(message,63)' *'
   return
 
   /* ----------------------------------------------------- */
@@ -522,7 +548,7 @@ Check_File: Procedure
   call outtrap 'x.'
   Address TSO 'Listd' dsn
   call outtrap 'off'
-  if x.0 = 1 then return 8
+  if x.0 > 3 then return 8
   else return 0
 
   /* ---------------------------------------- *
@@ -612,7 +638,7 @@ docmd:
   x = bpxwunix(cmd,,so.,se.,env.)
   return x
 
->ZGSTAT     *** Inline ZGSTAT that will be updated and uploaded
+  >ZGSTAT     *** Inline ZGSTAT that will be updated and uploaded
   /*---------------------  rexx procedure  -------------------- *
   | Name:      ZGSTAT                                          |
   |                                                            |
@@ -664,7 +690,7 @@ docmd:
   load_info = loadispf()
 
   address syscall ,
-  'readdir' repodir 'files.'
+    'readdir' repodir 'files.'
 
   if files.0 = 0 then do
     zedsmsg = 'Error'
@@ -1361,4 +1387,4 @@ DropISPF: Procedure
     address tso "free f("dd")"
   end
   return 0
->ZGSTATE    *** End of the ZGSTAT inline code
+    >ZGSTATE    *** End of the ZGSTAT inline code
