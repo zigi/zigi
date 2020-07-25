@@ -147,6 +147,7 @@ Bug Fixes and Other Updates:
     element significantly and replace author with subject in the display
 38. After Merge Conflicts resolved support selective z/OS replace instead
     of full replace
+39. Correct STASH processing
 
 =============================================================================
 

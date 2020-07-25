@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            07/25/20 LBD - Correct Stash processing         |
   |            07/24/20 LBD - Set wrap message on zigiprim     |
   |                           and for zigirepo                 |
   |            07/22/20 LBD - Fix merge issue if no deletes    |
@@ -3414,8 +3415,8 @@ Stash_IT:
   cmd = cmd '&& git stash show'
   x = docmd(cmd)
   call view_std 'B'
-  parse value '' with deletes. pulldsns pullmems. renames.
   deletes.0 = 0
+  parse value '' with pulldsns pullmems. renames.
   renames.0 = 0
   dc = 0
   do stashi = 1 to so.0
@@ -7972,11 +7973,6 @@ Check_For_More_Deletes:
     if pos('.',m) > 0 then do
       parse value m with m'.'.
       m = translate(m)
-    end
-    if wordpos(m,members) = 0 then do
-      c = deletes.0 + 1
-      deletes.c = ckd_dir'/'m
-      deletes.0 = c
     end
   end
   return
