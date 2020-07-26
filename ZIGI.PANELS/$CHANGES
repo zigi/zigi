@@ -4,6 +4,154 @@
  *-------------------------------------------------------------------*
 
                              ZIGI Release Notes
+                               Version 3.00
+
+                         New Features and Functions
+
+When performing a branch change to an existing branch, instead of
+completely replacing all the z/OS datasets, only replace (or delete) the
+changed elements.
+
+Update the zginstall.rex with to check if any z/OS datasets will be replaced
+during the install and provide an option to retry with a different HLQ.
+
+Added Dataset Allocation (ENQ) checking prior to performing a copy from the
+OMVS Git repository to a z/OS dataset with an option to Retry or Abort. This
+is to prevent a catastrophic failure with the OMVS cp (copy) command if the
+target z/OS dataset is allocated.
+
+Add Feedback command and action bar (under Help) to display a popup
+with a link to a feedback website.
+
+Add a Find option to the History table display to make it easier to
+find the commit of interest.
+
+Allow MV as an alias of RN (rename).
+
+When performing a merge, instead of completely replacing all the z/OS
+datasets, only replace (or delete) the changed elements.
+
+When removing a repository from ZIGI added an option to keep the Git files
+if the OMVS files are not deleted.
+
+Improve cursor positioning on the Commit Panel for a more intelligent and
+logical placement.
+
+In many situation where PDS members are copied, from PDS to OMVS or OMVS
+to PDS, the copy operation will now copy all members in one cp command.
+This means the progress popup with member name will not be available in
+this situation. In some cases where only a few of the PDS members are
+being copied then the member progress popup will remain.
+
+Enhance the element copy progress popup on a change detection to include
+the type of copy (text, binary, lmod).
+
+New ZGBATCH to provide the ability to run ZIGI in batch to add and
+commit/push updates (changes and new) elements. Must be run using a
+SYSEXEC/SYSPROC that uses the ZIGI EXEC library. Sample JCL included in
+the comments of the EXEC.
+
+Add the git command as a message in the View of the GITCMD results.
+
+Add a new value for Repository Name that is different from the Git
+repository name. This will allow the cloning of the same Git repository
+multiple times under different names - providing the PREFIX and OMVS
+directories are different.
+
+Improve checking on Repository Create, Clone, or Extract on the use of
+the provided HLQ's and OMVS directories.
+
+Add GITCMD to the Current Repository options popup menu.
+
+Replaced ROLLBACK dialog with EXTRACT dialog. This is the same as ROLLBACK
+with the addition of an eXtract option to create a set of z/OS datasets
+and OMVS files for the selected (one or more) commits. These are not Git
+managed and are intended to be used to create a delta package (aka PTF)
+with the changed elements only. The Extract and the TAGList Extract use
+the same ZIGIEXTR routine, one uses the Commit hash and the other uses
+the tag.
+
+New installer - a generic ZIGI installer. It is being used for ZIGI and
+there is an option to prime an existing ZIGI managed repository with it.
+The new installer, zginstall.rex, is in the root of the repositories OMVS
+directory. It copies the OMVS files that map to z/OS datasets into new
+z/OS datasets. Then it generates a z/OS REXX Exec, hlq.ZGSTAT.EXEC, which
+will apply the ISPF statistics to each z/OS Partitioned dataset member.
+
+Update to the Current Repository SET dialog with an option to add
+zginstall.rex, and a zginstall.readme, to the current repository.
+
+On the primary repository table display enhance the FIND to report
+when a Repeat Find wraps the table. Also for Find/RFind in the
+repoistory dataset display.
+
+Added a prompt to confirm/prevent deletions when checking for updates.
+Currently when a PDS member is missing but the OMVS version of it still
+exists, the PDS member is just deleted. This occurs during a Pull,
+Merge, or just entering the repository when all datasets are checked for
+updates. An option is provided to Browse/Edit the OMVS file along with
+an option to recover the member from the OMVS file.
+
+             -----------------------------------------------
+
+Bug Fixes and Other Updates:
+
+ 1. Expand URL field for longer URLs (Clone and Remote) and make
+    the field a scrollable field in other panels
+ 2. Expand title field for version (2.x to 2.xx)
+ 3. Correct row selection warning after a branch (residual variable)
+ 4. RM of untracked corrected
+ 5. Add error message if Browse (B) fails
+ 6. Improved file status checking for Partitioned Data Sets
+ 7. Correct bug in ZIGICKOT on cd if file name had $
+ 8. Correct binary file detection in ZIGI (remove usssafe)
+ 9. Correct ADDDSN PDS member copy counter x of y (x was off)
+10. Correct binary detection if a file extension in use
+11. Correct bug in binary test routine - added procedure expose binfiles.
+12. For many of the exec's add to bpxwunix the environment stem so that
+    SHAREAS=YES is honored to speed things up (no spawning)
+13. Correct TagList Extract issues
+    - TBDispl Failure after extract (added control display save/restore)
+    - Correct support for multiple extract tag selection
+14. Bypass Edit/View hilite if lrecl > 255
+15. Several coding bugs found with REXX compiler :(
+16. Correct member list sort to support members created/updated in 19xx
+17. Set the default permissions to 755 in the MKDIR popup
+18. Fix invalid selection in PDS member list after some commands
+19. Fix setting the default userid on commit
+20. Use the Default (commit) userid when opening a repo if a PDS member
+    does not have any ISPF statistics instead of using the users userid
+21. During repository check for updates, if a PDS member is missing the it
+    is deleted from OMVS and Git. Swapped the deletes so git rm is before
+    omvs rm.
+22. In the Network display the _ was being colored and shouldn't have been
+    if it is part of the prose and not the network diagram - fixed
+23. Ignore LMOD aliases as the cp command will handle those.
+24. Converted many bpxwunix calls to call docmd for consistency.
+25. In ZIGIDSNA correct cursor positioning if no prefix ignore.
+26. Improve target directory check for cloning and creation.
+27. Correct bug when pulling where member deletes are included.
+28. Improve process when F3 (cancel) on Rollback prompt popup
+29. Correct default userid reset if member has file extension
+30. Correct member status after a rename
+31. Resolve issue with ZG command failure on TBOpen (removed NoWrite)
+32. Change Clone and Create to test for home/.git instead of home/.zigi
+    for a non-git directory.
+33. Change the DSCB reference file directory from home/.zigi to
+    home/.zigirefd
+34. Make sure ZIGI checks for updates on entry
+35. Correct dataset check on branch delta to bypass z/OS copy of OMVS files
+36. If removing a Repository from ZIGI but retaining OMVS do not remove the
+    .git or .gitattributes files
+37. Speed up the History process of finding applicable commits for an
+    element significantly and replace author with subject in the display
+38. After Merge Conflicts resolved support selective z/OS replace instead
+    of full replace
+39. Correct STASH processing
+
+=============================================================================
+
+                             ZIGI Release Notes
                                 Version 2.9
 
                          New Features and Functions
@@ -25,7 +173,7 @@ Bug Fixes and Other Updates:
                          New Features and Functions
                          --------------------------
 
-New support for z/OS load modules, and associated aliaes, to be managed by
+New support for z/OS load modules, and associated aliases, to be managed by
 ZIGI and Git. This is transparent to the user. If a PDS is RECFM=U then it
 is treated as a load library. Be aware that when copying a load module from
 USS to a z/OS load library that the binder is invoked which may change the

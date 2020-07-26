@@ -6,7 +6,7 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
 )Body  Expand(\\)
-+Add Datasets+--------------------#zigtitle   +---------------------------------
++Add Datasets+--------------------#zigtitle    +--------------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zgsr+
 + \ \%F3  +
 +Fixed Dataset Prefix:             @dsnapfx                               +
@@ -26,11 +26,12 @@
  .zvars = '(qualignr zsel dsna dsnvol dastat)'
  .help = zigih210
  &zgsr = CSR
- .CURSOR = ZCMD
  if (&dsnapfx EQ &Z)
     .CURSOR = DSNAPFX
  if (&qualignr EQ &Z)
     .CURSOR = QUALIGNR
+ if (&qualignr NE &Z)
+    .CURSOR = ZCMD
 )ReInit
  Refresh (qualignr)
 )Proc
@@ -64,7 +65,10 @@
     if (&row = 0)
         &zsel = &z
     ver (&dsnapfx,nb,dsname)
-    ver (&qualignr,nb,range,0,8)
+    if (&zigisor EQ 'N')
+         ver (&qualignr,nb,range,1,8)
+    if (&zigisor EQ 'Y')
+         ver (&qualignr,nb,range,0,8)
     ver (&zsel,list,S,B,A,AB)
 )End
 /* -------------------------------------------------------- */

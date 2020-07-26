@@ -12,6 +12,8 @@
 %ENTER+to continue, or%F3+to Cancel.
 )Init
 &zwinttl = 'ZIGI Make Directory (MKDIR)'
+if (&mp EQ &Z)
+    &mp = 755
 if (&mkdir = &Z)
    .CURSOR = MKDIR
 if (&mkdir NE &Z)

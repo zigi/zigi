@@ -4,7 +4,7 @@
  @ type(input) caps(on ) hilite(uscore) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
 )Body Expand(\\)
-+Grep Command Entry+--------------#zigtitle   +---------------------------------
++Grep Command Entry+--------------#zigtitle    +--------------------------------
 %Command ===>_zcmd                                                            +
 +
 +

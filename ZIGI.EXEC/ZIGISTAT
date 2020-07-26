@@ -39,6 +39,10 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/19/20 LBD - Ignore LMOD aliases as the main  |
+  |                           lmod will have them included     |
+  |            06/16/20 LBD - Use DEFRUID if it exists         |
+  |            06/09/20 LBD - Bypass stat update for lmod      |
   |            05/08/20 LBD - Support Load Libraries           |
   |            01/08/20 LBD - Selecitve stat update if statmems|
   |            01/05/20 LBD - Correct special chars in filepath|
@@ -93,7 +97,7 @@ zigistat:
   else zigidebg = 0
 
   Address ISPExec
-  'vget (debugfil)'
+  'vget (debugfil defruid)'
 
   x = debug('start of zigistat with option:' opt)
 
@@ -110,7 +114,7 @@ zigistat:
     if rc > 0 then return x
     x = debug('Reading the ISPF stats file')
     drop stats.
-    cmd = 'cat' filepath
+    cmd = 'cat' usssafe(filepath)
     x = bpxwunix(cmd,,stats.,se.)
     do i = 1 to stats.0
       stats.i = translate(stats.i,' ','0D'x)
@@ -139,6 +143,9 @@ zigistat:
     zlcnorce zlinorce zlmnorce ,
     zlsize zlamod zlrmode zlattr zlalias zlssi
   mem.0  = 0
+  if defruid = null
+  then newuid = sysvar('sysuid')
+  else newuid = defruid
 
   /* ----------------------- *
   * Now process all members *
@@ -153,8 +160,9 @@ zigistat:
     /* -------------------------------- *
     | Check if no stats then add them. |
     * -------------------------------- */
+    if sysrecfm /= 'U' then
     if zlcdate = null then do
-      'LMMSTATS DATAID('status') Member('member') user('sysvar(sysuid)')'
+      'LMMSTATS DATAID('status') Member('member') user('newuid')'
       "LMMFind DATAID("status") Member("member") STATS(YES)"
     end
     /* ------------------------------ *
@@ -166,9 +174,13 @@ zigistat:
       ZLCDATE  ZLMDATE  ZLVERS ZLMOD ZLMTIME ZLCNORC ,
       ZLINORC ZLMNORC ZLUSER ,
       zlcnorce zlinorce zlmnorce)
-    else mem.c = strip(member ,
-    zlsize zlamod zlrmode zlattr zlalias zlssi)
+    else if strip(zlalias) = null then do
+      mem.c = strip(member ,
+        zlsize zlamod zlrmode zlattr zlalias zlssi)
+    end
+    else c = c - 1
     mem.0 = c
+    if strip(zlalias) = null then
     if opt = 'C' then allmems = allmems member
   end
 
@@ -210,7 +222,7 @@ zigistat:
     |    in the saved stats member                               |
     * ---------------------------------------------------------- */
     When opt = 'U' then
-      if sysrecfm /= 'U' then do
+    if sysrecfm /= 'U' then do
       x = debug('Performing ISPF Stats file update for:' dsn)
       'vget (statmems)'
       if statmems /= null then do

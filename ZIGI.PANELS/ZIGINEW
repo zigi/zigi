@@ -1,25 +1,26 @@
 )Attr
- @ type(input ) caps(off) hilite(uscore)
- $ type(input ) caps(on ) hilite(uscore)
+ @ type(input ) caps(off) hilite(uscore) intens(low)
+ $ type(input ) caps(on ) hilite(uscore) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
 )Body Expand(\\)
-+Create New Repository+-----------#zigtitle   +---------------------------------
++Create New Repository+-----------#zigtitle    +--------------------------------
 %Command ===>_zcmd
 +
-%Name:        @zigirep                         +
+%Name:@zigirep                         +
 +
 %Local Directory:   +? to browse OMVS folder structure
  @localrep                                                                    +
 +
-%Category for Repository:@zigicat      + (optional)
+%PREFIX for datasets:   $pdshlq                  +     no quotes
+%Default Push on Commit:$z+                            Y or N
 +
-%PREFIX for datasets:    $pdshlq                  + (no quotes)
+%Category for Repository:              @zigicat      + optional
+%Default Userid to set prior to Commit:$defruid +      or blank for no change
+%Specify zos-workingtree-encoding:     $encoding+      ibm-1047 if blank
 +
-%Default Push on Commit: $z+(Y or N)
 +
-%Default Userid to set prior to Commit:$defruid + or blank
 +
-%Specify zos-workingtree-encoding:$encoding+ (ibm-1047 if blank)
 +
 +
 +
@@ -34,27 +35,41 @@
  &resp = .resp
 *REXX(* zedsmsg zedlmsg resp csr)
   zedsmsg = ''
-  if localrep /= '?' then do
-  x = bpxwunix('ls -la' localrep)
-  if x > 0 then do
-     zedsmsg = 'Error.'
-     zedlmsg = localrep 'is not a valid OMVS directory. Change to a valid' ,
-              'directory, or create a new directory and try again.'
-     csr = 'LOCALREP'
-     end
-     end
+  if resp = 'END' then exit
+
   if zedsmsg = '' then
-  if length(defruid) = 8 then do
-    CVT      = C2D(Storage(10,4))
-    TVT      = C2D(Storage(D2X(CVT + 156),4))   /* cvt + 9c */
-    TSVTUMXL = C2D(Storage(D2X(tvt  + 6),1))  /* tvt + 6 */
-    if tsvtumxl < 8 then do
-      zedsmsg = 'Error'
-      zedlmsg = defruid 'is 8 characters and this system does not' ,
-        'support 8 character TSO userids at this time.'
-      csr = 'DEFRUID'
+  if localrep /= '' then
+  if localrep /= '?' then do
+    x = bpxwunix('ls -la' localrep,,so.,se.)
+    if so.0 = 0 then do
+      zedsmsg = 'Error.'
+      zedlmsg = localrep 'does not exist. Create it and try again.'
+      csr = 'LOCALREP'
+    end
+    if so.0 > 3 then do
+      x = bpxwunix('ls -la' localrep'/.git',,so.,se.)
+      if so.0 > 0 then do
+        zedsmsg = 'Error.'
+        zedlmsg = localrep 'is currently a Git repository and thus' ,
+           'not valid for cloning.' ,
+          'Change to an empty directory and try again.'
+        csr = 'LOCALREP'
+      end
     end
   end
+
+    if zedsmsg = '' then
+    if length(defruid) = 8 then do
+      CVT      = C2D(Storage(10,4))
+      TVT      = C2D(Storage(D2X(CVT + 156),4))   /* cvt + 9c */
+      TSVTUMXL = C2D(Storage(D2X(tvt  + 6),1))  /* tvt + 6 */
+      if tsvtumxl < 8 then do
+        zedsmsg = 'Error'
+        zedlmsg = defruid 'is 8 characters and this system does not' ,
+          'support 8 character TSO userids at this time.'
+        csr = 'DEFRUID'
+      end
+    end
 *ENDREXX
  if (&zedsmsg NE &Z)
     .MSG = ISRZ001

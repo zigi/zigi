@@ -23,6 +23,7 @@
 )ABC DESC(Help)
  PDC DESC('About') ACTION RUN(Tutor) Parm('zigihabt')
  PDC DESC('Change History') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%zigichg)')
+ PDC DESC('Feedback') ACTION RUN(Tutor) Parm('zigifdbk')
  PDC DESC('GIT Help') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%GITHELP)')
  PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigihint')
 )ABCINIT
@@ -30,19 +31,19 @@
 )Body Expand(\\)
 +| Commands | Help +
 <-----------\-\--------------------------------+
-+Local Repositories+--------------#zigtitle   +---------------------------------
++Local Repositories+--------------#zigtitle    +--------------------------------
 %Command ===>{zcmd       \ \ %Scroll ===>_zgsr+
 + \ \%F3  +
 %    @repo      +           @pref  +               @cat     +      @last       +
 )Model
-_z+  $z                  +  ]z                    +[z             +}z          +
+_z+  $z                    +]z                    +[z             +}z          +
 )Init
  &cat     = 'Category'
  &last    = 'Last Access'
  &pref    = 'Prefix'
  &repo    = 'Repository'
  &zgsr = CSR
- .zvars = '(zsel zigirep pdshlq zigicat zigidate)'
+ .zvars = '(zsel reponame pdshlq zigicat zigidate)'
  .help = zigihint
 )Proc
  &row = &z

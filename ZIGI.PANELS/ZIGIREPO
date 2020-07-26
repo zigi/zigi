@@ -16,7 +16,7 @@
  PDC DESC('View OMVS Filesystem')               ACTION RUN(View    )
  PDC DESC('Git Log Query')                      ACTION RUN(GitLog  )
  PDC DESC('Git Command Interface')              ACTION RUN(gitcmd)
- PDC DESC('Check z/OS Datasets for Updates')    ACTION RUN(Check   )
+ PDC DESC('Refresh Status')                     ACTION RUN(Check   )
  PDC DESC('Replace z/OS Datasets from Repo')    ACTION RUN(Replace )
  PDC DESC('Set Defaults')                       ACTION RUN(Set     )
  PDC DESC('End')                                Action Run(END)
@@ -28,7 +28,7 @@
  PDC DESC('Commit Changes')                     ACTION RUN(Commit  )
  PDC DESC('Stash')                              ACTION RUN(Stash   )
  PDC DESC('Stash List' )                        ACTION RUN(StashL  )
- PDC DESC('Rollback to Prior Commit Level')     ACTION RUN(Rollback)
+ PDC DESC('Extract or Rollback')                ACTION RUN(Extract)
  PDC DESC('Tag')                                ACTION RUN(Tag     )
  PDC DESC('Tag List')                           ACTION RUN(TagList )
  PDC DESC('Create / Checkout Branch')           ACTION RUN(Br      )
@@ -59,6 +59,7 @@
 )ABC DESC(Help) MNEM(1)
  PDC DESC('About') ACTION RUN(Tutor) Parm('zigihabt')
  PDC DESC('Change History') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%zigichg)')
+ PDC DESC('Feedback') ACTION RUN(Tutor) Parm('zigifdbk')
  PDC DESC('Git Help') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%GITHELP)')
  PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigih200')
  PDC DESC('End')                                Action Run(END)
@@ -67,10 +68,10 @@
 )Body  Expand(\\)
 +| General | Local Repo | Remote Repo | Handy Functions | Help +
 <-----------\-\--------------------------------+
-+Current Repository+--------------#zigtitle   +---------------------------------
++Current Repository+--------------#zigtitle    +--------------------------------
 %Command ===>_zcmd            \ \  %Scroll ===>_zgsr+
 +Local dir     :$localdir                                                 %F3  +
-+Remote path   :$remote1
++Remote path   :$remote1                                                    $z
 +Current Branch:$branch                                      +
 %               !bstat                                                     +
 %               $baction                                                   +
@@ -79,7 +80,7 @@
 )Model
 @z +$z                       $z                                            ]z
 )Init
- .zvars = '(zsel dsnstat fulldsn filetype)'
+ .zvars = '(sind zsel dsnstat fulldsn filetype)'
  .cursor = &zcmd
  .help = zigih200
  &zgsr = CSR
@@ -99,7 +100,11 @@
      &osel = &zsel
  if (&row = 0)
      &zsel = &z
+ if (&zsel = 'MV')
+     &zsel = 'RN'
 /*  ver (&zsel,list,S,A,U,B,V,RM,RN,H,D,/) */
+)Field
+ Field(remote1) ind(sind,'<>') len(255)
 )End
 /* -------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                       */

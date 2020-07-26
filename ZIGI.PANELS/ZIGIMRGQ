@@ -2,11 +2,12 @@
  $ type(output) caps(off)
  _ type(input) caps(off) hilite(uscore) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
-)Body Expand(\\) Window(57,10)
+)Body Expand(\\) Window(57,11)
 %Command ===>_zcmd
 +
 +Merge conflicts were encountered.
 +
+    %0+View Merge Report
 +   %1+Continue and attempt to resolve using ISPF Compare
 +   %2+Continue and attempt to resolve using ISPF Edit
     %3+Abort the Merge
@@ -19,7 +20,7 @@
  vput (ztut)
  .help = zigih270
 )Proc
- ver (&zcmd,nb,list,1,2,3)
+ ver (&zcmd,nb,list,0,1,2,3)
 )end
 /* -------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                       */

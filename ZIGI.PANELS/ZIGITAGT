@@ -17,6 +17,7 @@
 )ABC DESC(Help)
  PDC DESC('About') ACTION RUN(Tutor) Parm('zigihabt')
  PDC DESC('Change History') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%zigichg)')
+ PDC DESC('Feedback') ACTION RUN(Tutor) Parm('zigifdbk')
  PDC DESC('GIT Help') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%GITHELP)')
  PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigih210')
 )ABCINIT
@@ -24,7 +25,7 @@
 )Body  Expand(\\)
 +| Commands | Help +
 <-----------\-\--------------------------------+
-+Tag Summary +-----------\-\------#zigtitle   +------\-\------------------------
++Tag Summary +-----------\-\------#zigtitle    +-----\-\------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zgsr+
 + \ \%F3  +
 +Sel Date/Time            Tag

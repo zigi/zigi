@@ -10,23 +10,24 @@
 )ABC DESC(Help)
  PDC DESC('About') ACTION RUN(Tutor) Parm('zigihabt')
  PDC DESC('Change History') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%zigichg)')
+ PDC DESC('Feedback') ACTION RUN(Tutor) Parm('zigifdbk')
  PDC DESC('Help')  ACTION RUN(TUTOR) PARM('zigihhst')
 )ABCINIT
   .ZVARS = HELPX
 )Body  Expand(\\)
 +| Help +
 <-----------\-\--------------------------------+
-+-\-\#zigtitle   +-\-\
++-\-\#zigtitle    +\-\
 %Command ===>_zcmd        \ \ %Scroll ===>_zgsr+
 + \ \%F3  +
 +Dataset/File:@delement
 +
-+Sel Date/Time of Commit               Author
++Sel Date/Time of Commit  Subject
 +
 )Model
-_z+ $z                                $z
+_z+ $z                   $z
 )Init
-  .ZVARS = '(zsel hdate hauthor)'
+  .ZVARS = '(zsel hdate hsubject)'
   &zgsr = CSR
   .help = zigihhst
 )Proc

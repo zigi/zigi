@@ -5,7 +5,7 @@
  + type(text ) intens(low) skip(on)
  @ type(input) caps(on ) hilite(uscore) intens(low)
 )Body Expand(\\)
-+Git Commit+----------------------}zigtitle   +---------------------------------
++Git Commit+----------------------}zigtitle    +--------------------------------
 %Command ===>_zcmd       \ \ %Scroll ===>_ccsr+
 + \ \ %F3  +
 %Commit Title:_msg1                                             +
@@ -19,7 +19,11 @@
 )Init
   .zvars = '(zpush zsel)'
   &ccsr = 'CSR'
-  .cursor = msg1
+  if (&MSG1 EQ &Z)
+     .cursor = msg1
+  if (&MSG1 NE &Z)
+     if (&cmsg EQ &Z)
+        .cursor = cmsg
   if (&zpush EQ &Z)
       &zpush = 'N'
   .help = zigih230

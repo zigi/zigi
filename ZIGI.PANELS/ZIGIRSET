@@ -5,25 +5,23 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
-)Body Window(67,15) Expand(\\)
+)Body Window(65,13) Expand(\\)
 +Command ===>_zcmd   \ \ +
 %
 +Review/Update Repository Settings:
 %
++Name of the Repository: _reponame           +
 +Category for Repository:_zigicat      + (optional)
-%
 +PREFIX for datasets:    @pdshlqn                 + (no quotes)
-%
 +Default Push on Commit: @z+(Y or N)
-+
-+Default Userid to set prior to Commit:@defruid + or blank
-+
-+Disable File Extension Prompt on Dataset Add:@z+(Y or N) %Global
++Default Userid to set prior to Commit:       @defruid + or blank
++Disable File Extension Prompt on Dataset Add:@z+(Y or N)
++Prime Respository with zginstall.rex:        @z+(Y or N)
 +
 %ENTER+to register updates and%F3+to Cancel or Leave the panel.
 )Init
 &zwinttl = 'ZIGI Set Defaults for Repository'
- .zvars = '(defcpush extfans)'
+ .zvars = '(defcpush extans zginst)'
  if (&pdshlqn = &Z)
     .cursor = PDSHLQN
  if (&defcpush = &Z)
@@ -33,12 +31,23 @@
  if (&extans = &Z)
     &extans = 'N'
     .cursor = EXTANS
+ if (&zginst = &Z)
+    &zginst = 'N'
+    .cursor = ZGINST
  .help = zigih2e0
  &zgsr = CSR
 )Proc
  &resp = .resp
 *REXX(* zedsmsg zedlmsg resp csr pdshlq pdshlqn)
   zedsmsg = ''
+  if pos(' ',reponame) > 0 then do
+    zedsmsg = 'Error'
+    zedlmsg = 'The Repository Name may not have blanks. Use a - or _',
+              'in place of a blank.'
+    csr = 'reponame'
+  end
+
+  if zedsmsg = '' then
   if pdshlq /= pdshlqn then do
      hn = translate(pdshlqn,' ','.')
      ho = translate(pdshlq,' ','.')
@@ -69,6 +78,7 @@
  ver (&pdshlqn,dsname)
  ver (&defcpush,nb,list,Y,N)
  ver (&extans,nb,list,Y,N)
+ ver (&zginst,nb,list,Y,N)
 )End
 /* -------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                       */

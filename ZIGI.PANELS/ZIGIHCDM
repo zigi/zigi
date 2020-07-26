@@ -6,29 +6,29 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                                 %SET+
+                         %Delete Member Confirmation
 +
-%SET+configures default values for the current respository:
++A Partitioned Dataset Member is missing, probably deleted, while the OMVS
++copy of the member still exists.
 +
-%*+Configure the default push option on a Commit.
++You have two options:
+     %1+Enter%STOP+to prevent the deletions
+     %2+Press%F3+to proceed with the deletes
 +
-%*+Configure a userid to be set for all PDS Members that have been Added and
-+  are ready to be Committed. The userid is changed prior to the Commit
-+  process and updates the ISPF statistics file that is part of the repository.
++The row selection options:
+    %B+Browse the OMVS version of the member
+    %E+Edit the OMVS version of the member
+    %R+Recover the member by copying from OMVS back to the PDS
 +
-+The repository's z/OS dataset HLQ may be changed with the requirement that
-+the number of qualifiers remain the same as the previous HLQ.
 +
-+Turn off, or on, prompting for file extensions when adding a partitioned
-+datasets.
-+
-+Add the zginstall.rex generic installation script to the repository.
+        +"Overconfidence is the most dangerous form of carelessness."
+            +" -- Clone Wars quote"
 +
          +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
- &zcont = zigihsnp
+ &zcont = zigihcdm
 )END
 /* -------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                       */

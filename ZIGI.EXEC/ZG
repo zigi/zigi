@@ -21,7 +21,7 @@
   |            blank - prompt via popup                        |
   |            Anything else force prompt for repo             |
   |                                                            |
-  | Usage Notes: Requires that ZIGI has been configured        |
+  | Usage Notes: Requires that zigi has been configured        |
   |              with the local repositories                   |
   |                                                            |
   |              Assumes that the member has been updated      |
@@ -36,16 +36,13 @@
   |              loaded for use by the LOADISPF routine.       |
   |           2. Must be installed into a default SYSEXEC or   |
   |              SYSPROC library for use.                      |
-  |           3. For the option to open ZIGI to work the       |
-  |              ZIGI stub should be installed as in (2).      |
+  |           3. For the option to open zigi to work the       |
+  |              zigi stub should be installed as in (2).      |
   |                                                            |
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
-  |            05/10/20 LBD - Check for and prevent RECFM=U    |
-  |            04/16/20 LBD - Correct cp if file suffix        |
-  |            04/10/20 LBD - Validate dataset is fully quoted |
-  |            04/07/20 LBD - Reset Userid if DEFRUID set      |
+  |            07/12/20 LBD - Correct TBOpen remove NOWRITE    |
   |            04/05/20 LBD - Expand Commit message to 7 lines |
   |            04/04/20 LBD - Place all ISPF panels inline     |
   |                           to avoid customization req       |
@@ -55,7 +52,7 @@
   |            03/09/20 LBD - Creation                         |
   |                                                            |
   | ---------------------------------------------------------- |
-  |    ZIGI - the z/OS ISPF Git Interface                      |
+  |    zigi - the z/OS ISPF Git Interface                      |
   |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
   |                                                            |
   |    This program is free software: you can redistribute it  |
@@ -91,7 +88,7 @@
   if adddsn = '?' then adddsn = null
   if adddsn = null then do
     zedsmsg = null
-    zedlmsg = left('ZIGI Git Command - quick add/commit/push',75) ,
+    zedlmsg = left('zigi Git Command - quick add/commit/push',75) ,
       left('-',75) ,
       left(command 'syntax is:',75) ,
       left('zg dataset(member)',75) ,
@@ -99,45 +96,42 @@
       left('Where opt is X to force a prompt for a repository,',75) ,
       'or the selection option of A, AC, or ACP.'
     'setmsg msg(isrz001)'
-    call get_out_of_here
+    exit 8
+  end
+  x = listdsi(adddsn)
+  if x > 0 then do
+    zedsmsg = null
+    zedlmsg = left('zigi Git Command - quick add/commit/push',75) ,
+      left('-',75) ,
+      left('Input dataset name failure:' adddsn,75),
+      sysmsglvl2
+    'setmsg msg(isrz001)'
+    exit 8
+  end
+  if pos('(',adddsn) = 0 then do
+    zedsmsg = null
+    zedlmsg = left('zigi Git Command - quick add/commit/push',75) ,
+      left('-',75) ,
+      left(command 'syntax is:',75) ,
+      left('zg dataset(member)',75) ,
+      left('or zg dataset(member) opt',75) ,
+      left('Where opt is X to force a prompt for a repository,',75) ,
+      'or the selection option of A, AC, or ACP.'
+    'setmsg msg(isrz001)'
+    exit 8
   end
 
   'control errors return'
 
   /* --------------------------------------------- *
-  | Recurse into the ZIGI applid. This makes it   |
+  | Recurse into the zigi applid. This makes it   |
   | easier to work with the ISPF Profile variable |
   | with the dsnames and repository names.        |
   * --------------------------------------------- */
   'vget (zapplid)'
   if zapplid /= 'ZIGI' then do
     'Select cmd(%'command adddsn opt') newappl(zigi) passlib'
-    exit rc
-  end
-
-  /* ------------------------------------------------------ *
-  | If the user entered the dataset(member) without quotes |
-  | then add the user prefix or userid and add quotes.     |
-  * ------------------------------------------------------ */
-  if left(adddsn,1) /= "'" then do
-    if sysvar('syspref') /= null
-    then pref = sysvar('syspref')
-    else pref = sysvar('sysuid')
-    adddsn = "'"pref"."adddsn"'"
-  end
-
-  /* -------------------------- *
-  | Validate the input dataset |
-  | to prevent Load Modules    |
-  * -------------------------- */
-  x = listdsi(adddsn)
-  if sysrecfm = 'U' then do
-    zedsmsg = 'Invalid DCB'
-    zedlmsg = adddsn 'is a Load Library which is NOT supported by the ZG' ,
-      'command. For Binary and/or Load Library support use the full' ,
-      'ZIGI dialog.'
-    'Setmsg msg(isrz001)'
-    exit 4
+    exit
   end
 
   /* ----------------------- *
@@ -181,7 +175,7 @@
     'rempop'
     if drc > 0 then do
       zedsmsg = 'Canceled.'
-      zedlmsg = 'ZIGI Add canceled.'
+      zedlmsg = 'zigi Add canceled.'
       'setmsg msg(isrz001)'
       call get_out_of_here
     end
@@ -189,17 +183,17 @@
   end
 
   /* ------------------- *
-  | Open the ZIGI table |
+  | Open the zigi table |
   * ------------------- */
-  call pop 'Opening ZIGI Repository Table \ Patience.'
+  call pop 'Opening zigi Repository Table \ Patience.'
   isptabl = 'ISPTABL'
   x = listdsi(isptabl 'FILE')
   if x > 0 then isptabl = 'ISPPROF'
-  'TBOpen zigirepo Library('isptabl') NoWrite Share'
+  'TBOpen zigirepo Library('isptabl') Share'
   if rc > 8 then do
     zedsmsg = 'Error.'
-    zedlmsg = 'Unable to open the ZIGI Local Repository table.' ,
-      'Contact your ZIGI support individual.'
+    zedlmsg = 'Unable to open the zigi Local Repository table.' ,
+      'Contact your zigi support individual.'
     'setmsg msg(isrz001)'
     call get_out_of_here
   end
@@ -268,24 +262,15 @@
     'vput (zgdsns) profile'
   end
 
-  /* ---------------------------------------------- *
-  | Check the current Userid and Change if DEFRUID |
-  * ---------------------------------------------- */
-  if defruid /= null then do
-    "LMINIT DATAID(ruid) DATASET('"workdsn"')"
-    "LMOPEN DATAID("ruid") OPTION(INPUT)"
-    "LMMLIST Dataid("ruid") OPTION(LIST) MEMBER(MEMBER)" ,
-      "STATS(YES)"
-    if zluser /= defruid then
-    'LMMSTATS DATAID('ruid') Member('member') user('defruid')'
-    "LMClose Dataid("ruid")"
-    "LMFree  Dataid("ruid")"
-  end
-
   /* --------------------------------------------------- *
+  | Get the list of binary files                        |
   | Get the list of datasets to check for file suffixes |
   * --------------------------------------------------- */
   call get_dsn_info
+
+  /* -------------------------------- *
+  | Process the repository selection |
+  * -------------------------------- */
 
   /* ------------------------------------------------------- *
   | Select/Add dataset or dataset(member) to the repository |
@@ -301,7 +286,7 @@
     omem  = usssafe(member)
     if zdsn.omvsdsn = null
     then rmem = omem
-    else rmem = lower(omem)'.'zdsn.omvsdsn
+    else rmem = lower(omem)'.'zdsn.dsn
     sdsn = usssafe(dsname)
     copycmd = "//'"sdsn"("omem")'"
     copycmd = '"'copycmd'"'
@@ -313,7 +298,7 @@
     call view_std 'B'
     call pop 'Adding to Git Index \ Patience. . .'
     cmd = 'cd' localrep'/'zigirep'/'ofile
-    cmd = cmd '&& git add' rmem
+    cmd = cmd '&& git add' omem
     x = docmd(cmd)
     call add_so 'Command:' cmd
     if x > 0 then
@@ -337,7 +322,6 @@
     end
     else cfile = 0
     hit = 1
-
     if pos('P',zsel) > 0
     then  call pop 'Performing Git Commit/Push \ Patience. . .'
     else  call pop 'Performing Git Commit \ Patience. . .'
@@ -359,8 +343,8 @@
   end
 
   /* ------------------------------------------------------------- *
-  | Call ZIGI to open the repository. Use newappl of ISR to force |
-  | ZIGI to altlib/libdef it's libraries.                         |
+  | Call zigi to open the repository. Use newappl of ISR to force |
+  | zigi to altlib/libdef it's libraries.                         |
   * ------------------------------------------------------------- */
   if zsel = 'O' then do
     open = 0
@@ -448,7 +432,7 @@ pfshow:
 Do_Popup:
   call pfshow 'off'           /* make sure pfshow is off */
   'Control Display Lock'
-  'Addpop row(4) column(8)'
+  'Addpop row(4) column(12)'
   'Display Panel(zigipop)'
   'Rempop'
   call pfshow 'reset'         /* restore pfshow setting */
@@ -486,7 +470,7 @@ do_cmsg:
   | Update stats file after member add |
   * ---------------------------------- */
 Git_Add_Member_Stats:
-  call pop 'Updating member stats in ZIGI \ Patience.'
+  call pop 'Updating member stats in zigi \ Patience.'
   x = zigistat("'"workdsn"'" ,
     localrep'/'zigirep'/.zigi/'omvsfile 'S')
   statfiles = usssafe(omvsfile)
@@ -1076,7 +1060,7 @@ _ type(input) hilite(uscore) caps(on) intens(low) just(left)
 +
 +Press%Enter+to Continue, or%F3+to Cancel.
 )Init
-&zwinttl = 'ZIGI Git Option'
+&zwinttl = 'zigi Git Option'
 )Proc
 ver (&opt,nb,list,A,AC,ACP,S,SC,SCP,O)
 )End
@@ -1091,7 +1075,7 @@ $ type(output) caps(off)
 +
 %Command ===>_zcmd       \ \ %Scroll ===>_zscr+
 +
-+Selection:%A+Add%AC+Add/Commit%ACP+Add/Commit/Push%O+Open ZIGI
++Selection:%A+Add%AC+Add/Commit%ACP+Add/Commit/Push%O+Open zigi
 +
 %    @Repository             Category        Last Date  +
 )Model
@@ -1118,24 +1102,24 @@ _cmsg7                                                            +
 +
 +Press%Enter+to Continue, or%F3+to Cancel.
 )Init
-&zwinttl = 'ZIGI Commit Message'
+&zwinttl = 'zigi Commit Message'
 )Proc
 ver (&cmsg1,nb)
 )End
 >Panel zigipop
 )Attr
  $ type(output) caps(off)
-)Body Window(60,4)
+)Body Window(54,4)
 +
   $zs1
   $zs2
 
 )Init
- &zwinttl = 'ZIGI Status Popup'
+ &zwinttl = 'zigi Status Popup'
 )Proc
 )end
 /* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
+/* zigi - the z/OS ISPF Git Interface                       */
 /* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */
 >Exec zigistat
@@ -1163,7 +1147,7 @@ ver (&cmsg1,nb)
   | Vars:      statmems ispf variable for selective update     |
   |                                                            |
   | Usage                                                      |
-  |   Notes: Subroutine of ZIGI                                |
+  |   Notes: Subroutine of zigi                                |
   |          Returns string of members changed                 |
   |                                                            |
   | Dependencies:                                              |
@@ -1188,7 +1172,7 @@ ver (&cmsg1,nb)
   |            11/15/19 LBD - Creation                         |
   |                                                            |
   | ---------------------------------------------------------- |
-  |    ZIGI - the z/OS ISPF Git Interface                      |
+  |    zigi - the z/OS ISPF Git Interface                      |
   |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
   |                                                            |
   |    This program is free software: you can redistribute it  |
@@ -1224,7 +1208,39 @@ zigistat:
   if opt      = null then return 16
   opt         = translate(opt)   /* make upper case */
 
+  /* ---------------------------------------- *
+  | Check for ZIGIDEBG DD for debug purposes |
+  * ---------------------------------------- */
+  x = listdsi('ZIGIDEBG' 'FILE')
+  if x > 0 then if sysreason = 3
+  then zigidebg = 1
+  else zigidebg = 0
+
   Address ISPExec
+  'vget (debugfil)'
+
+  x = debug('start of zigistat with option:' opt)
+
+  /* --------------------------------------- *
+  | If option C or U then read in the stats |
+  | - check if stats member exists rc=16    |
+  | - read into stem stats.                 |
+  * --------------------------------------- */
+  if pos(opt,'C U') > 0 then do
+    x = debug('Checking stats file' filepath)
+    x = check_stats_file(filepath)
+    rc = x
+    x = debug('Checking stats file complete')
+    if rc > 0 then return x
+    x = debug('Reading the ISPF stats file')
+    drop stats.
+    cmd = 'cat' filepath
+    x = bpxwunix(cmd,,stats.,se.)
+    do i = 1 to stats.0
+      stats.i = translate(stats.i,' ','0D'x)
+    end
+    x = debug('Reading complete')
+  end
 
   /* ------------------ *
   * Define ISPF Dataid *
@@ -1235,6 +1251,7 @@ zigistat:
   /* ------------ *
   * Set defaults *
   * ------------ */
+  x = debug('Collecting stats for all members for:' dsn)
   parse value null with member mem. ,
     ZLCDATE ZLMDATE ZLVERS ZLMOD ZLMTIME ZLCNORC,
     ZLINORC ZLMNORC ZLUSER ,
@@ -1267,6 +1284,7 @@ zigistat:
       ZLINORC ZLMNORC ZLUSER ,
       zlcnorce zlinorce zlmnorce)
     mem.0 = c
+    if opt = 'C' then allmems = allmems member
   end
 
   /* ------------------------- *
@@ -1274,14 +1292,111 @@ zigistat:
   * ------------------------- */
   "LMClose Dataid("status")"
   "LMFree  Dataid("status")"
+  x = debug('Stat collection complete.')
 
+  /* ----------------------------------------------- *
+  | Process the data based on the provided options: |
+  |                                                 |
+  |    C - compare stats                            |
+  |    S - save stats                               |
+  |    U - update stats to those saved              |
+  |        used when creating/refreshing datasets   |
+  * ----------------------------------------------- */
+  Select
     /* ----------------------------------------------------- *
     | Save all stats for all members in the active dataset. |
     | - data will be saved to /.zigi/filename               |
     * ----------------------------------------------------- */
-  x = bpxwunix('rm' usssafe(filepath),,so.,se.)
-  call write_stats
-  return 0
+    When opt = 'S' then do
+      x = debug('Saving stats begins to:' filepath)
+      x = bpxwunix('rm' usssafe(filepath),,so.,se.)
+      call write_stats
+      x = debug('Saving stats completed.')
+      return 0
+    end
+    /* ---------------------------------------------------------- *
+    | Update ISPF Stats:                                         |
+    |  - all members in the zigi stats member will have their    |
+    |    ispf stats updated to reflect the saved stats           |
+    |  - Use statmems ispf var for selective stat updates        |
+    |  - new members will not be updated as we don't know about  |
+    |   them                                                     |
+    |  - members with no stats will have stats added if they are |
+    |    in the saved stats member                               |
+    * ---------------------------------------------------------- */
+    When opt = 'U' then do
+      x = debug('Performing ISPF Stats file update for:' dsn)
+      'vget (statmems)'
+      if statmems /= null then do
+        x = debug('Update Members:' statmems)
+      end
+      "LMINIT DATAID(zstats) DATASET("dsn")"
+      "LMOPEN DATAID("zstats") OPTION(INPUT)"
+      do i = 1 to stats.0
+        parse value stats.i with member ZLCDATE ZLMDATE ZLVERS ZLMOD ,
+          ZLMTIME ZLCNORC ZLINORC ZLMNORC ZLUSER ZLCNORCE ,
+          ZLINORCE ZLMNORCE .
+        if statmems /= null then
+        if wordpos(member,statmems) = 0 then iterate
+        if zlcdate = null then ,
+          'LMMSTATS DATAID('zstats') Member('member') user('sysvar(sysuid)')'
+        else ,
+          'LMMSTATS DATAID('zstats') MEMBER('member') VERSION('zlvers')' ,
+          'MODLEVEL('zlmod') CREATED('zlcdate') MODDATE('zlmdate')' ,
+          'MODTIME('zlmtime') INITSIZE('zlinorc')' ,
+          'MODRECS('zlmnorc') USER('zluser')'
+      end
+      "LMClose Dataid("zstats")"
+      "LMFree  Dataid("zstats")"
+      x = debug('ISPF Stats file update complete.')
+      return 0
+    end
+    /* ----------------------------------------------------------- *
+    | Compare ISPF stats.                                         |
+    |                                                             |
+    | Comparison will be from the active datasets ISPF stats with |
+    | the saved stats found in ISPF stats file in /.zigi          |
+    |                                                             |
+    | If a member is in the active but not in the saved list then |
+    | it will be added to the returned string.                    |
+    |                                                             |
+    | If a members saved stats do not match the active stats then |
+    | it will be added to the returned string.                    |
+    * ----------------------------------------------------------- */
+    When opt = 'C' then do
+      x = debug('ISPF Stats comparison starting.')
+      /* 1st setup the saved stem for easy comparison */
+      do i = 1 to stats.0
+        parse value stats.i with savedmem data
+        m.savedmem = strip(data)
+      end
+      /* now compare active to saved */
+      do i = 1 to mem.0
+        parse value mem.i with actmem data
+        data = strip(data)
+        if m.actmem = null then string = string actmem
+        else if data /= m.actmem then string = string actmem
+      end
+      'vput (allmems)'
+      x = debug('ISPF Stats comparison complete:' string)
+      return string
+    end
+    Otherwise nop  /* should never get here */
+  end
+
+  /* -------------------------------------------- *
+  | Check to see if the provided filepath exists |
+  | rc 0 it does                                 |
+  | rc 20 it does not                            |
+  * -------------------------------------------- */
+Check_Stats_File:
+  save_address = address()
+  address syscall 'lstat' filepath 'file.'
+  if file.0 = 0 then do
+    ADDRESS value(save_address)
+    return 20
+  end
+  else return 0
 
   /* ----------------------------------------------------- *
   | Get the users current OMVS enviornment for use in the |
@@ -1342,6 +1457,8 @@ docmdx:
 Write_Stats:
   call syscalls 'ON'
   address syscall
+  /* Fill dsn file with the comments */
+  /* look like the 'open' command does the escaping for us... */
   fpok = strreplace(filepath,'\$', '$')
   'open' fpok O_rdwr+O_creat+O_trunc 660
   if retval = -1 then do
@@ -1400,6 +1517,15 @@ pfshow:
     'select pgm(ispopf) parm(FKA,OFF)'
   end
   return
+
+debug:
+  if zigidebg  = 1 then do
+    parse arg msg
+    msg = Date() Time()' : 'msg
+    c = 'echo "'msg'" >>' debugfil
+    x = bpxwunix(c,,dso.,dse.)
+  end
+  return 0
 
   /* ---------------------------------- *
   | Make the z/OS dsname safe for OMVS |

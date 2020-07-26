@@ -1,10 +1,11 @@
 )Attr
- @ type(input ) caps(off) hilite(uscore)
- [ type(input ) caps(on ) hilite(uscore)
+ @ type(input ) caps(off) hilite(uscore) intens(low)
+ [ type(input ) caps(on ) hilite(uscore) intens(low)
+ _ type( input) intens(low ) just(left ) hilite(uscore)
  # type(output) hilite(reverse) color(turq) caps(off)
  ! type(output) color(red) caps(off)
 )Body Expand(\\)
-+-\-\#zigtitle   +-\-\
++-\-\#zigtitle    +\-\
 %Command ===>_zcmd
 +
 %     GIT ENVIRONMENT SETTINGS NOT FOUND IN DEFAULT LOCATIONS

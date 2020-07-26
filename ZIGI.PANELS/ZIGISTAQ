@@ -1,5 +1,5 @@
 )Attr
- $ type(input) caps(off) hilite(uscore)
+ $ type(input) caps(off) hilite(uscore) intens(low)
 )Body Window(60,3)
 +Enter a comment for the stash:
 +=>$stashmsg

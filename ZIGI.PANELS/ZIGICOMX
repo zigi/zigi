@@ -6,13 +6,13 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
 )Body  Expand(\\)
-+Repository Rollback+----\-\------#zigtitle   +------\-\------------------------
++Repository Extract+----\-\------#zigtitle     +-----\-\------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zgsr+
 + \ \%F3  +
 +Commits to Review:_z   +(1 to 9999)
 +
 +Commands%Only+limit table%Refresh+table
-+Options:%S+Display%R+RollBack
++Options:%S+Display%X+Extract%R+Rollback
 +
 +Sel Date/Time            Tag
      Title
@@ -41,7 +41,7 @@ _z+ $z                   $z
  if (&row = 0)
      &zsel = &z
  ver (&crcnt,nb,range,1,9999)
- ver (&zsel,list,S,R)
+ ver (&zsel,list,S,R,X)
 )End
 /* -------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                       */

@@ -13,7 +13,7 @@
 +]Replace+ Replace the table
          +Or%F3+to cancel.
 )Init
- &zwinttl = 'ZIGI Rollback Commands'
+ &zwinttl = 'ZIGI Extract Commands'
  .zvars = '(zcmd)'
  .cursor = zcmd
  &zcmd  = &z

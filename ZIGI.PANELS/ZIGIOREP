@@ -6,18 +6,19 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   [ type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(76,13)
+)Body Window(76,14)
 +Enter Selection:_z        +
 +
-[Add   +  Add dataset     [GitCMD + Git Commands    [Remote+  Add remote
-[AddAll+  Add all to Git  [GitLog+  Query git log   [Set+     Set Defaults
-[Br    +  Change Branch   [Grep+    Find Strings    [Snapshot+Create Escrow
-[Check+   Check z/OS DSNs [info+    Info on Repo    [Stash+   Save Workspace
-[Commit+  Record Changes  [Merge+   Merge Branches  [StashL+  List Stashes
-[Convrepo+Convert non-zigi[Network+ Network Report  [Status+  Git Status
-[Find+    Find in table   [Pull+    Pull from origin[Tag+     Git Tag
-[Flow+    Flow Menu       [Push+    Push to origin  [TagList+ List all Tags
-[Githelp+ Git Help        [Replace+ Replace Datasets[View+    OMVS Dir
+[Add   +  Add dataset     [GitCMD + Git Commands    [Set+     Set Defaults
+[AddAll+  Add all to Git  [GitLog+  Query git log   [Snapshot+Create Escrow
+[Br    +  Change Branch   [Grep+    Find Strings    [Stash+   Save Workspace
+[Check+   Check z/OS DSNs [info+    Info on Repo    [StashL+  List Stashes
+[Commit+  Record Changes  [Merge+   Merge Branches  [Status+  Git Status
+[Convrepo+Convert non-zigi[Network+ Network Report  [Tag+     Git Tag
+[Extract+ Packaging       [Pull+    Pull from origin[TagList+ List all Tags
+[Find+    Find in table   [Push+    Push to origin  [View+    OMVS Dir
+[Flow+    Flow Menu       [Replace+ Replace Datasets
+[Githelp+ Git Help        [Remote+  Add remote
 
                            +Or%F3+to cancel
 )Init
@@ -44,7 +45,7 @@
  &Push    = 'Push'
  &Replace = 'Replace'
  &Remote  = 'Remote'
- &Rollback  = 'Rollback'
+ &Extract   = 'Extract'
  &Snapshot  = 'SnapShot'
  &Set     = 'Set'
  &Stash   = 'Stash'
@@ -77,7 +78,7 @@
  FIELD(PUSH  )  VAR(ZCMD) VAL('PUSH')
  FIELD(REPLACE) VAR(ZCMD) VAL('REPLACE')
  FIELD(REMOTE)  VAR(ZCMD) VAL('REMOTE')
- FIELD(ROLLBACK) VAR(ZCMD) VAL('ROLLBACK')
+ FIELD(EXTRACT) VAR(ZCMD) VAL('EXTRACT')
  FIELD(SNAPSHOT) VAR(ZCMD) VAL('SNAPSHOT')
  FIELD(SET   )  VAR(ZCMD) VAL('SET')
  FIELD(STASH )  VAR(ZCMD) VAL('STASH')

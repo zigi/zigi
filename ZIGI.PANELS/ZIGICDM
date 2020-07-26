@@ -5,31 +5,30 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
-)Body Window(75,14)
-
-+Name          : $reponame
-+Repository    : $zigirep
-+Branch        : $branch
-+Remote        : $remotex
-+                $remotex2
-+Home Directory: $home
-+Category      : $zigicat
-+z/OS HLQ      : $pdshlq
-+Ignore Qual   : $qualignr
-+Last Access   : $zigidate
-+Default Userid: $defruid
-+Default Push  : $defcpush
-%
+)Body  Expand(\\)
++-\-\#zigtitle    +\-\
+%Command ===>_zcmd   \ \ %Scroll ===>_zgsr+
++
++The following members were not found in the z/OS PDS but were found in the
++OMVS directory. To prevent them from being deleted confirm retention.
++
++Confirm:@z   +  Enter%STOP+to prevent Delete or press%F3+to Delete.
++
++Dataset:$fulldsn
++
++S  Member                    +Selections:%B+Browse%E+Edit%R+Recover
+)Model
+@z+$dmrow
 )Init
- &zwinttl = 'ZIGI Local Repository Summary Info'
-*REXX(* localrep remotex remote1 remotex2)
- home = localrep'/'zigirep
- remotex = subword(remote1,2)
- remotex2 = ''
- if length(remotex) > 57 then
-    parse value remotex with remotex 57 remotex2
-*ENDREXX
+ &delconf = &z
+  .zvars = '(delconf dsel)'
+  .cursor = &zcmd
+  .help = zigihcdm
+  &zgsr = CSR
 )Proc
+ if (&dsel EQ &Z)
+    ver (&delconf,list,STOP)
+ ver (&dsel,list,E,B,R)
 )End
 /* -------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                       */

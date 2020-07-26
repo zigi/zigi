@@ -17,12 +17,12 @@
 +If the merge is successful, it is committed to the current branch and %ALL
 +z/OS datasets are replaced from the updated OMVS files.
 +
-+If the merge is not successful a popup with three options will be presented:
++If the merge is not successful a popup with four options will be presented:
 +
++   %*+View the Merge Report
 +   %*+Continue and attempt to resolve using ISPF Compare
 +   %*+Continue and attempt to resolve using ISPF Edit
     %*+Abort the Merge
-+
 +
          +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init

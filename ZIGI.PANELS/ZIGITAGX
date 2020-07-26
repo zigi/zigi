@@ -6,7 +6,7 @@
  # type(output) hilite(reverse) color(turq) caps(off)
 )Body Window(69,8)
 +
-+Enter%New HLQ+for the Tag Extract:
++Enter%New HLQ+for the Extract:
 _tagxhlq                         +(no quotes allowed)
 +
 +Enter%New Path+for OMVS Files: (? to be prompted or blank to bypass)
@@ -14,7 +14,7 @@ _tagxhlq                         +(no quotes allowed)
 
       +Press%Enter+to proceed, or%F3+to cancel.
 )Init
- &zwinttl = 'Tag Extract Prompt'
+ &zwinttl = 'ZIGI Extract Prompt'
  .help = zigih2i1
 )Proc
  &zerrhm   = 'zigih2i1'
@@ -30,23 +30,23 @@ _tagxhlq                         +(no quotes allowed)
 
   /* Validate that the provided hlq does NOT exist */
   if zerrsm = null then do
-  if left(tagxhlq,1) = "'"
-     then tagxhlq = strip(tagxhlq,'B',"'")
-  call outtrap 'x.'
-  Address tso "listc level('"tagxhlq"')"
-  call outtrap 'off'
-  if pos('NOT FOUND',x.1) = 0 then do
-    zerrsm = 'Error.'
-    zerrlm = 'The HLQ' tagxhlq 'currently exists which is not' ,
-      'allowed. Select a new HLQ and try again.'
-    cloc = 'tagxhlq'
-  end
+    if left(tagxhlq,1) = "'"
+    then tagxhlq = strip(tagxhlq,'B',"'")
+    call outtrap 'x.'
+    Address tso "listc level('"tagxhlq"')"
+    call outtrap 'off'
+    if pos('NOT FOUND',x.1) = 0 then do
+      zerrsm = 'Error.'
+      zerrlm = 'The HLQ' tagxhlq 'currently exists which is not' ,
+        'allowed. Select a new HLQ and try again.'
+      cloc = 'tagxhlq'
+    end
   end
   /* Validate that the provided tagxpath does NOT exist */
   if zerrsm = null then do
     if tagxpath /= null then do
       if right(tagxpath,1) /= '/'
-         then tagxpath = tagxpath'/'
+      then tagxpath = tagxpath'/'
       address syscall readdir tagxpath d.
       if d.0 > 0 then do
         zerrsm = 'Error.'

@@ -122,6 +122,7 @@ vget (vtype)
     if vtype /= '' then
     if substr(zdata,i+8,8) /= '********' then
     do li = 0 to 50
+      if pos(substr(zdata,i+8+li,1),'|\/_* ') = 0 then leave
       if substr(zdata,i+8+li,2) /= '  ' then
       if pos(substr(zdata,i+8+li,1),alphanum) = 0 then do
         if   substr(zdata,i+8+li,1) = '|' then
