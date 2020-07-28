@@ -4,6 +4,20 @@
  *-------------------------------------------------------------------*
 
                              ZIGI Release Notes
+                               Version 3.01
+
+                         New Features and Functions
+
+No new features or functions.
+
+Bug Fixes and Other Updates:
+
+1. Force cp to perform a Text copy if the file is text by adding -T to
+   the cp command.
+
+=============================================================================
+
+                             ZIGI Release Notes
                                Version 3.00
 
                          New Features and Functions

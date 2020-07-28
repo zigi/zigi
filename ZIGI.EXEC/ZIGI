@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r00'
+  ver = 'v3r01'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            07/28/20 LBD - Add -T for text to cp if text    |
   |            07/25/20 LBD - Correct Stash processing         |
   |            07/24/20 LBD - Set wrap message on zigiprim     |
   |                           and for zigirepo                 |
@@ -2891,13 +2892,13 @@ WWRF_handle_lcmd_s:
       binopt = '-B'
     end
     else do
-      binopt = null
+      binopt = '-T'
     end
     if is_binfile(dsn'/'mem) = 1 then do
       binopt = '-B'
     end
     else do
-      binopt = null
+      binopt = '-T'
     end
     /* Check if a Load Library and update binary option variable */
     if sysrecfm = 'U' then do
@@ -2918,6 +2919,7 @@ WWRF_handle_lcmd_s:
     x = docmd(copycmd)
     if x > 0 then call view_std 'B'
     x = debug('Copy:' copycmd)
+    if binopt = '-T' then binopt = null
     if strip(binopt''cplmod) /= null then do
       tagcmd = 'chtag -b 'localrep'/'zigirep'/'r
       x = docmd(tagcmd)
@@ -6165,19 +6167,19 @@ Update_repo_metadata:
               binopt = '-B'
             end
             else do
-              binopt = null
+              binopt = '-T'
             end
             if is_binfile(file'/'rm) = 1 then do
               binopt = '-B'
             end
             else do
-              binopt = null
+              binopt = '-T'
             end
-            if binopt = null
+            if binopt = '-T'
             then bintext = 'as Text'
             else bintext = 'as Binary'
             if sysrecfm = 'U' then do
-              binopt = null
+              binopt = '-T'
               cplmod = '-X -I'
               bintext = 'as LMod'
             end
@@ -6194,6 +6196,7 @@ Update_repo_metadata:
             x = docmd(copycmd)
             if x > 0 then call view_std 'B'
             x = debug('Copy:' copycmd)
+            if binopt = '-T' then binopt = null
             if strip(binopt''cplmod) /= null then do
               tagcmd = 'chtag -b 'localrep'/'zigirep'/'r'/'rm
               x = docmd(tagcmd)
@@ -6264,10 +6267,10 @@ Update_repo_metadata:
               binopt = '-B'
             end
             else do
-              binopt = null
+              binopt = '-T'
             end
             if sysrecfm = 'U' then do
-              binopt = null
+              binopt = '-T'
               cplmod = '-X -I'
             end
             else cplmod = null
@@ -6278,6 +6281,7 @@ Update_repo_metadata:
             x = docmd(copycmd)
             if x > 0 then call view_std 'B'
             x = debug('Copy:' copycmd)
+            if binopt = '-T' then binopt = null
             if strip(binopt''cplmod) /= null then do
               tagcmd = 'chtag -b 'localrep'/'zigirep'/'r
               x = docmd(tagcmd)
@@ -6836,7 +6840,7 @@ Do_Add_Copy:
   if sysrecfm = 'U'
   then do
     cplmod = '-X -I'
-    binopt = null
+    binopt = '-T'
     option = 'BINARY'
     acopt = 'BINARY'
     zs3 = 'Copy as Load Module'
@@ -6860,7 +6864,7 @@ Do_Add_Copy:
     parse value pdss with pdss'/'.
     mkdir = "mkdir -p "DIR"/"pdss
     x = docmd(mkdir)
-    binopt = null
+    binopt = '-T'
     if translate(option) = 'BINARY' then do
       if cplmod = null then
       binopt = '-B'
@@ -6922,7 +6926,7 @@ Do_Add_Copy:
         ussmem = lower(mem)'.'zdsn.dsnb
         zs2 = 'to' dsnb'/'ussmem
         zs4 = 'Patience . . .' ci-6 'of' cm_count
-        binopt = null
+        binopt = '-T'
         if is_binfile(pdss'/'ussmem) = 1 then
         if cplmod = null then do
           binopt = '-B'
@@ -6955,7 +6959,7 @@ Do_Add_Copy:
   else do
     W = usssafe(WHAT)
     PSS = usssafe(dsnb)
-    binopt = null
+    binopt = '-T'
     if translate(option) = 'BINARY' then
     if is_binfile(dsnb) = 0 then do
       binopt = '-B'
@@ -8085,7 +8089,7 @@ DoHist_Recover:
   call dohist_file_extract
 
   if is_binfile(rdsn) = 1 then binopt = '-B'
-  else binopt = null
+  else binopt = '-T'
   x = check_llib(rdsn)
   if x = 0 then binopt = binopt '-X -I'
 
@@ -8105,7 +8109,7 @@ DoHist_Recover:
   parse value testr with testr'('.
 
   if is_binfile(rdsn) = 1 then binopt = '-B'
-  else binopt = null
+  else binopt = '-T'
   x = check_llib(rdsn)
   if x = 0 then binopt = binopt '-X -I'
   if pos('-X',binopt) = 0 then
