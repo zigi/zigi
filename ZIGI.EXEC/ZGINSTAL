@@ -41,7 +41,6 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
-  |            07/28/20 LBD - Add -T (text) for cp             |
   |            07/24/20 LBD - Adjust Popup Panel Location      |
   |                         - Prompt to Proceed after display  |
   |                           of target datasets               |
@@ -368,7 +367,7 @@ Restart:
   Address TSO
 
   zgstat_dsn = "'"ckothlq".ZGSTAT.EXEC'"
-  cmd = 'cp -v -T lrhg.rex "//'zgstat_dsn '"'
+  cmd = 'cp -v  lrhg.rex "//'zgstat_dsn '"'
   cmd = cmd '&& rm lrhg.rex'
   x = bpxwunix(cmd,,so.,se.,env.)
   if so.0 > 0 then
@@ -470,10 +469,7 @@ Alloc_Copy_PDS:
     if bin = 1 then binopt = '-B'
     else binopt = null
     if recfm = 'U' then binopt = '-X -I'
-    if binopt = null then do
-      type = 'Text'
-      binopt = '-T'
-    end
+    if binopt = null then type = 'Text'
     else if binopt = '-B' then  type = 'Binary'
     else if recfm = 'U' then type = 'Load module'
     zos = usssafe("//'"target"'")
@@ -515,10 +511,7 @@ Alloc_Copy_PDS:
       if left(src,1) = '#' then src = '\'src
       zos = usssafe("//'"target"("m")'")
       mcount = mcount + 1
-      if binopt = null then do
-        type = 'Text'
-        binopt = '-T'
-      end
+      if binopt = null then type = 'Text'
       else if binopt = '-B' then  type = 'Binary'
       else if recfm = 'U' then type = 'Load module'
       say left('Copying' mcount 'of' tcount,24) 'Member:' m 'as' type

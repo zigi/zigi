@@ -17,7 +17,6 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
-  |            07/28/20 LBD - Add -T for text to cp            |
   |            07/16/20 LBD - Correct test for Load Mod msg    |
   |            07/08/20 LBD - Corrections for binary copy      |
   |                           that broke with single cp        |
@@ -402,7 +401,7 @@ Alloc_Copy_PDS:
       type = 'Binary'
     end
     else do
-      binopt = '-T'
+      binopt = null
       type = 'Text'
     end
     if recfm = 'U' then do
@@ -431,7 +430,7 @@ Alloc_Copy_PDS:
       src = rdir'/'mems.ii
       bin = is_binfile(sub'/'mems.ii)
       if bin = 1 then binopt = '-B'
-      else binopt = '-T'
+      else binopt = null
       if recfm = 'U' then binopt = '-X -I'
       Select
         when pos('-B',binopt) > 0 then type = 'Binary'
