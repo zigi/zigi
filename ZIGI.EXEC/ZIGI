@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r00'
+  ver = 'v3r01'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            07/29/20 LBD - Add _EDC_ZERO_RECLEN=Y to env.   |
   |            07/25/20 LBD - Correct Stash processing         |
   |            07/24/20 LBD - Set wrap message on zigiprim     |
   |                           and for zigirepo                 |
@@ -7423,6 +7424,7 @@ GETENV:
   call add_env '_BPX_SHAREAS=YES'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
   call add_env 'EXPORT _EDC_ADD_ERRNO2=1'
+  call add_env '_EDC_ZERO_RECLEN=Y'
   env.0 = envc
   drop so. se.
   x = debug('Finished collection of env variables')

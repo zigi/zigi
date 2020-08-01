@@ -59,6 +59,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            07/29/20 LBD - Add _EDC_ZERO_RECLEN=Y to env.   |
   |            06/10/20 LBD - Use SHAREAS=YES                  |
   |            06/09/20 LBD - Add LMOD support                 |
   |            06/08/20 LBD - Cleanup and Add Binary Support   |
@@ -102,7 +103,8 @@
   parse value '' with null rx
   bpxenv.1 = '_BPX_SHAREAS=YES'
   bpxenv.2 = '_BPX_SPAWN_SCRIPT=YES'
-  bpxenv.0 = 2
+  bpxenv.3 = '_EDC_ZERO_RECLEN=Y'
+  bpxenv.0 = 3
 
   /* ---------------------------- *
   | Validate qualignr is numeric |

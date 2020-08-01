@@ -4,6 +4,23 @@
  *-------------------------------------------------------------------*
 
                              ZIGI Release Notes
+                               Version 3.01
+
+                         New Features and Functions
+                         --------------------------
+
+Add _EDC_ZERO_RECLEN=Y to the OMVS environment variables to address
+datasets/members with variable length records (RECFM=VB) with blank
+records.  This will preserve those records.
+
+                          Bug Fixes and Other Updates:
+                          ----------------------------
+
+1.
+
+=============================================================================
+
+                             ZIGI Release Notes
                                Version 3.00
 
                          New Features and Functions

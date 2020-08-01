@@ -17,6 +17,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            07/29/20 LBD - Add _EDC_ZERO_RECLEN=Y to env.   |
   |            07/16/20 LBD - Correct test for Load Mod msg    |
   |            07/08/20 LBD - Corrections for binary copy      |
   |                           that broke with single cp        |
@@ -103,7 +104,8 @@
   * ------------------------------------- */
   env.1 = '_BPX_SHAREAS=YES'
   env.2 = '_BPX_SPAWN_SCRIPT=YES'
-  env.0 = 2
+  env.3 = '_EDC_ZERO_RECLEN=Y'
+  env.0 = 3
 
   /* -------------------------------------------------------- *
   | Issue the ls command to get file names and sizes for all |
