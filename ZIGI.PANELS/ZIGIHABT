@@ -3,7 +3,7 @@
   ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
   [ type(output) intens(high) caps(off) just(left) pas(on) color(white)
     hilite(uscore)
-)Body Window(60,10) Expand(\\)
+)Body Window(60,11) Expand(\\)
 %About -\-\~The z ISPF Git Interface (zigi)%\-\- About
 +
 %ZIGI+is the z/OS ISPF Git Interface designed to provide the
@@ -13,7 +13,8 @@
 +
 +Principle Authors:%Henri Kuiper+and%Lionel B. Dyck+
 +
-+ \ \+Website:%https://zigi.rocks\ \%F3
++ \ \+Website:%https://zigi.rocks\ \
++ \ \+YouTube:%https://zigi.rocks/video\ \%F3
 )Init
 )PROC
  &zcont = zigihabt
