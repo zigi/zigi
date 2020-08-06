@@ -16,7 +16,9 @@ records.  This will preserve those records.
                           Bug Fixes and Other Updates:
                           ----------------------------
 
-1.
+1. Remove duplicate code for repository delete that resulting in an
+   an incorrect message that the OMVS files had not been deleted when
+   they had.
 
 =============================================================================
 

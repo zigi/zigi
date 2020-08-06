@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            08/06/20 LBD - Remove redundant repo del code   |
   |            07/29/20 LBD - Add _EDC_ZERO_RECLEN=Y to env.   |
   |            07/25/20 LBD - Correct Stash processing         |
   |            07/24/20 LBD - Set wrap message on zigiprim     |
@@ -954,11 +955,6 @@ handle_zigiprim_lcmd_d:
       end
     end
     else delzd = 'The z/OS datasets were NOT deleted.'
-    if delco = 'Y' then do
-      cmd = 'cd' localrep' && rm -rf 'zigirep
-      x = docmd(cmd)
-      delco = 'The local repository has been deleted from OMVS.'
-    end
     if delco = 'Y' then do
       cmd = 'cd' localrep' && rm -rf 'zigirep
       x = docmd(cmd)
