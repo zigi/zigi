@@ -42,6 +42,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            08/07/20 LBD - Add PFSHOW Off/Reset all Pops    |
   |            07/29/20 LBD - Add _EDC_ZERO_RECLEN=Y to env.   |
   |            07/12/20 LBD - Correct TBOpen remove NOWRITE    |
   |            04/05/20 LBD - Expand Commit message to 7 lines |
@@ -170,10 +171,12 @@
   repo = word(zgdsns,wp+1)
   if repo /= null then
   if opt = null then do
+    call pfshow 'off'           /* make sure pfshow is off */
     'Addpop row(4) column(4)'
     'display panel(zgopt)'
     drc = rc
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if drc > 0 then do
       zedsmsg = 'Canceled.'
       zedlmsg = 'zigi Add canceled.'
@@ -217,10 +220,12 @@
   if repo = null then
   do forever
     zsel = null
+    call pfshow 'off'           /* make sure pfshow is off */
     'addpop'
     'tbdispl zigirepo panel(zgtbl)'
     drc = rc
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if zsel /= null then leave
     if drc > 0 then do
       zsel = null
@@ -311,10 +316,12 @@
   | Perform Commit Processing (optional Push) |
   * ----------------------------------------- */
   if pos('C',zsel) > 0 then do
+    call pfshow 'off'           /* make sure pfshow is off */
     'Addpop row(4) column(4)'
     'Display Panel(zgcom)'
     drc = rc
     'Rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if drc > 0 then call done
     if strip(cmsg1 cmsg2 cmsg3 cmsg4 cmsg5 cmsg6 cmsg7) /= null
     then do

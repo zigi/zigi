@@ -17,6 +17,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            08/07/20 LBD - Add pfshow off/reset all pops    |
   |            07/29/20 LBD - Add _EDC_ZERO_RECLEN=Y to env.   |
   |            07/16/20 LBD - Correct test for Load Mod msg    |
   |            07/08/20 LBD - Corrections for binary copy      |
@@ -784,9 +785,11 @@ Check_ENQS: Procedure
         return 0
       end
     end
+    call pfshow 'off'           /* make sure pfshow is off */
     'addpop row(2) column(2)'
     'tbdispl' save 'panel(zigienqk)'
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if enqact = 'R' then enq_clean = 1 /* retry */
     else do
       'TBEnd' save

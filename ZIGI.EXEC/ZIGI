@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            08/07/20 LBD - Add pfshow off/reset all pops    |
   |            08/06/20 LBD - Remove redundant repo del code   |
   |            07/29/20 LBD - Add _EDC_ZERO_RECLEN=Y to env.   |
   |            07/25/20 LBD - Correct Stash processing         |
@@ -444,9 +445,11 @@
 
     /* handle line commands */
     if zsel = '/' then do
+      call pfshow 'off'           /* make sure pfshow is off */
       'Addpop row(4) column(6)'
       'Display Panel(zigirprm)'
       'rempop'
+      call pfshow 'reset'         /* restore pfshow setting */
     end
 
     if zsel /= null then
@@ -517,9 +520,11 @@ init_repo:
   /* Panel for when there are no repos in profile yet */
   'TBStats zigirepo rowcurr('tr')'
   if tr = 0 then do
+    call pfshow 'off'           /* make sure pfshow is off */
     'Addpop row(4) column(6)'
     'Display Panel(zigi1st)'
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
   end
   Return
 
@@ -537,9 +542,11 @@ display_zigioprm:
   parse value '' with findstr selfind
   if pos('.',zcmd) > 0 then
   parse value zcmd with x'.'zcmd
+  call pfshow 'off'           /* make sure pfshow is off */
   'Addpop row(4) column(6)'
   'Display Panel(zigioprm)'
   'rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   if findstr /= null
   then zcmd = 'F' findstr
   if selfind /= null
@@ -908,9 +915,11 @@ Create_zigirepo:
   | Handle zigiprim panel linecommand i         |
   * ------------------------------------------ */
 handle_zigiprim_lcmd_i:
+  call pfshow 'off'           /* make sure pfshow is off */
   'addpop row(3) column(1)'
   'display panel(zigiinfo)'
   'rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   zsel = null
   Return
 
@@ -919,10 +928,12 @@ handle_zigiprim_lcmd_i:
   * ------------------------------------------ */
 handle_zigiprim_lcmd_d:
   parse value '' with delcz delcg delco delcf delzd
+  call pfshow 'off'           /* make sure pfshow is off */
   'Addpop row(3) column(10)'
   'Display panel(zigidelc)'
   drc = rc
   'rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   if drc = 0 & delcf = 'Y' then do
     if delcz = 'Y' then do
       'tbdelete zigirepo'
@@ -1116,10 +1127,12 @@ handle_zigiprim_find:
   find = null
   fwrap = 0
   if fstring = null then do
+    call pfshow 'off'           /* make sure pfshow is off */
     'Addpop row(4) column(6)'
     'Display Panel(zigifind)'
     drc = rc
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if drc > 0 then find = null
     fstring = find
   end
@@ -1171,10 +1184,12 @@ handle_zigiprim_select:
   fstring = word(zcmd,2)
   zcmd = null
   if fstring = null then do
+    call pfshow 'off'           /* make sure pfshow is off */
     'addpop row(3) column(4)'
     'display panel(zigisel)'
     drc = rc
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if fstring = null then drc = 4
     if drc > 0 then  do
       zerrsm = 'Canceled.'
@@ -1300,9 +1315,11 @@ Work_With_Repo:
     end
 
     if zsel = '/' then do
+      call pfshow 'off'           /* make sure pfshow is off */
       'Addpop row(3) column(4)'
       'Display Panel(zigirrep)'
       'rempop'
+      call pfshow 'reset'         /* restore pfshow setting */
     end
 
     /* flag for USS file or ZOS dataset */
@@ -1422,9 +1439,11 @@ WWR_handle_options:
   if pos('.',zcmd) > 0 then
   parse value zcmd with x'.'zcmd
   if zcmd = 'O' then do
+    call pfshow 'off'           /* make sure pfshow is off */
     'Addpop row(4) column(10)'
     'Display Panel(zigiorep)'
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
   end
   Return
 
@@ -1434,10 +1453,12 @@ WWR_handle_find:
   find = null
   rwrap = 0
   if fstring = null then do
+    call pfshow 'off'           /* make sure pfshow is off */
     'Addpop row(4) column(6)'
     'Display Panel(zigifind)'
     drc = rc
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if drc > 0 then find = null
     fstring = find
   end
@@ -1482,10 +1503,12 @@ WWR_handle_find:
   | zigiFlow |
   * -------- */
 WWR_handle_flow:
+  call pfshow 'off'           /* make sure pfshow is off */
   'addpop row(3) column(4)'
   'display panel(zigiflow)'
   drc = rc
   'rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   if drc > 0 then zcmd = null
   Return
 
@@ -1548,9 +1571,11 @@ WWR_handle_convrepo:
   | View summary info of repository  |
   * -------------------------------- */
 WWR_handle_info:
+  call pfshow 'off'           /* make sure pfshow is off */
   'addpop row(3) column(2)'
   'display panel(zigiinfo)'
   'rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   Return
 
   /* -------------------------------- *
@@ -1843,10 +1868,12 @@ WWR_handle_snapshot:
     parse value '' with zcmd path snaphlq gtag sans
     'display panel(zigisnap)'
     if rc > 0 then leave
+    call pfshow 'off'           /* make sure pfshow is off */
     'Addpop row(4) column(10)'
     'Display Panel(zigisnpq)'
     drc = rc
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if drc > 0 then leave
     if sans = 'Y' then do
       cmd = 'cd' localrep'/'zigirep
@@ -1889,10 +1916,12 @@ WWR_handle_snapshot:
 
       /* now view both the omvs directory and snaphlq */
       sans = null
+      call pfshow 'off'           /* make sure pfshow is off */
       'Addpop row(4) column(10)'
       'Display Panel(zigisnpr)'
       drc = rc
       'rempop'
+      call pfshow 'reset'         /* restore pfshow setting */
       if drc > 0 then sans = 'N'
       if sans = 'N' then do
         zerrsm = 'Completed.'
@@ -1916,10 +1945,12 @@ WWR_handle_snapshot:
   * --------------------------------- */
 WWR_handle_tag:
   parse value '' with tagid tagmsg
+  call pfshow 'off'           /* make sure pfshow is off */
   'addpop row(4) column(6)'
   'display panel(zigitag)'
   drc = rc
   'rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   if drc = 0 then do
     if tagmsg = null then
     cmd = 'git tag' tagid
@@ -2056,10 +2087,12 @@ WWR_handle_flowgo:
     'setmsg msg(isrz003)'
   end
   else do
+    call pfshow 'off'           /* make sure pfshow is off */
     'Addpop row(3) column(4)'
     'Display Panel(zigifgo)'
     drc = rc
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if drc > 0 then do
       zerrsm = 'Canceled.'
       zerrlm = 'FlowGo was canceled.'
@@ -2114,10 +2147,12 @@ WWR_handle_flowend:
       cmd = 'cd' localrep'/'zigirep
       cmd = cmd || ' && git checkout 'flowname
       cmd = cmd || ' && git merge --squash zigiflow-'flowname
+      call pfshow 'off'           /* make sure pfshow is off */
       'Addpop row(3) column(4)'
       'Display Panel(zigifend)'
       drc = rc
       'rempop'
+      call pfshow 'reset'         /* restore pfshow setting */
       if drc > 0 then do
         zerrsm = 'Canceled.'
         zerrlm = 'FlowEnd canceled.'
@@ -2258,6 +2293,7 @@ WWR_handle_lcmd_rn:
   if dsnvalid(fulldsn) = 'OK' then zos = 1
   else zos = 2
   do forever
+    call pfshow 'off'           /* make sure pfshow is off */
     'Addpop row(4) column(6)'
     if zos = 1 then
     'display panel(zigirena)'
@@ -2265,6 +2301,7 @@ WWR_handle_lcmd_rn:
     'display panel(zigireno)'
     drc = rc
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if drc > 0 then leave
     if zos = 1 then do
       x = listdsi(newdsn)
@@ -2588,9 +2625,11 @@ Work_with_repo_file:
       end
 
       if zsel = '/' then do
+        call pfshow 'off'           /* make sure pfshow is off */
         'Addpop row(4) column(6)'
         'Display Panel(zigirlst)'
         'rempop'
+        call pfshow 'reset'         /* restore pfshow setting */
       end
 
       /* handle line commands */
@@ -2750,9 +2789,11 @@ WWRF_handle_options:
   lstloc = null
   if zcmd = 'O' then do
     zcmd = null
+    call pfshow 'off'           /* make sure pfshow is off */
     'Addpop row(4) column(6)'
     'Display Panel(zigiolst)'
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
   end
   Return
 
@@ -2788,10 +2829,12 @@ WWRF_handle_commit:
 
 WWRF_handle_locate:
   if words(zcmd) = 1 then do
+    call pfshow 'off'           /* make sure pfshow is off */
     'addpop row(3) column(4)'
     'display panel(zigilocq)'
     drc = rc
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if drc > 0 then return
     zcmd = 'L' filter
   end
@@ -2972,10 +3015,12 @@ FixUp_DSN_Status:
 WWRF_handle_lcmd_rn:
   do forever
     newmem = mem
+    call pfshow 'off'           /* make sure pfshow is off */
     'Addpop row(4) column(6)'
     'display panel(zigirenm)'
     drc = rc
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if drc > 0 then leave
     olddsn = "'"strip(fulldsn,'B',"'")"("mem")'"
     newdsn = "'"strip(fulldsn,'B',"'")"("newmem")'"
@@ -3391,10 +3436,12 @@ git_add:
   * ------------------------------------------------- */
 Stash_IT:
   stashmsg = null
+  call pfshow 'off'           /* make sure pfshow is off */
   'addpop row(3) column(4)'
   'display panel(zigistaq)'
   drc = rc
   'rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   if drc > 0 then do
     zerrsm = 'Canceled.'
     zerrlm = 'Stash canceled.'
@@ -3403,10 +3450,12 @@ Stash_IT:
   end
   zs1 = 'Initiating git stash processing.'
   zs2 = 'Please be patient while git does its thing.'
+  call pfshow 'off'           /* make sure pfshow is off */
   'addpop row(3) column(4)'
   'control display lock'
   'display panel(zigipop)'
   'rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git stash push -a -u -m "'date() time() stashmsg'"'
   cmd = cmd '&& git stash show'
@@ -3604,20 +3653,24 @@ Stash_List:
       return
     end
     if zsel = '/' then do
+      call pfshow 'off'           /* make sure pfshow is off */
       'addpop row(3) column(4)'
       'display panel(zigirsth)'
       drc = rc
       'rempop'
+      call pfshow 'reset'         /* restore pfshow setting */
       if drc > 0 then zsel = null
     end
     if zsel /= null then
     Select
       When zsel = 'B' then do   /* branch */
         bname = null
+        call pfshow 'off'           /* make sure pfshow is off */
         'addpop row(3) column(4)'
         'display panel(zigistbq)'
         drc = rc
         'rempop'
+        call pfshow 'reset'         /* restore pfshow setting */
         if drc > 0 then do
           zerrsm = 'Canceled.'
           zerrlm = 'Stash Branch canceled.'
@@ -3637,9 +3690,11 @@ Stash_List:
         pass = 0
         stash_hit = do_stash_pop()
         if stash_hit = 1 then do
+          call pfshow 'off'           /* make sure pfshow is off */
           'Addpop row(3) column(4)'
           'display panel(zigispbd)'
           'rempop'
+          call pfshow 'reset'         /* restore pfshow setting */
         end
         else do
           'tbdelete' stab
@@ -3688,10 +3743,12 @@ Do_Stash_Pop:
   cmd = cmd '&& git stash pop' stashid
   zs1 = 'Initiating git stash pop processing.'
   zs2 = 'Please be patient while git does its thing.'
+  call pfshow 'off'           /* make sure pfshow is off */
   'addpop row(3) column(4)'
   'control display lock'
   'display panel(zigipop)'
   'rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   xrc = docmd(cmd)
   if xrc > 0 then do
     call view_std 'B'
@@ -3716,10 +3773,12 @@ Do_Rset:
   hlq_change = 0
   extans = extfile
   zginst = 'N'
+  call pfshow 'off'           /* make sure pfshow is off */
   'Addpop row(2) column(4)'
   'Display Panel(zigirset)'
   drc = rc
   'rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   if drc > 0 then return
   if extans /= null then do
     extfile = extans
@@ -3871,15 +3930,19 @@ Do_TAGLIST:
     parse value zcmd with x'.'zcmd
 
     if zcmd = 'O' then do
+      call pfshow 'off'           /* make sure pfshow is off */
       'Addpop row(4) column(10)'
       'Display Panel(zigiotag)'
       'rempop'
+      call pfshow 'reset'         /* restore pfshow setting */
     end
 
     if zsel = '/' then do
+      call pfshow 'off'           /* make sure pfshow is off */
       'Addpop row(3) column(4)'
       'Display Panel(zigirtag)'
       'rempop'
+      call pfshow 'reset'         /* restore pfshow setting */
     end
 
     if row /= null then do
@@ -3894,10 +3957,12 @@ Do_TAGLIST:
       end
       When abbrev('ONLY',word(zcmd,1),1) = 1 then do
         if words(zcmd) = 1 then do
+          call pfshow 'off'           /* make sure pfshow is off */
           'addpop row(3) column(4)'
           'display panel(zigionly)'
           drc = rc
           'rempop'
+          call pfshow 'reset'         /* restore pfshow setting */
           if drc > 0 then leave
           zcmd = 'O' filter
         end
@@ -4038,16 +4103,20 @@ Do_Extract:
     end
 
     if zsel = '/' then do
+      call pfshow 'off'           /* make sure pfshow is off */
       'Addpop row(4) column(10)'
       'Display Panel(zigicomo)'
       'rempop'
+      call pfshow 'reset'         /* restore pfshow setting */
     end
 
     if zcmd = 'O' then do
       zcmd = null
+      call pfshow 'off'           /* make sure pfshow is off */
       'Addpop row(4) column(6)'
       'Display Panel(zigicomc)'
       'rempop'
+      call pfshow 'reset'         /* restore pfshow setting */
     end
 
     if crcnt /= ocrcnt then do
@@ -4070,10 +4139,12 @@ Do_Extract:
       end
       When abbrev('ONLY',word(zcmd,1),1) = 1 then do
         if words(zcmd) = 1 then do
+          call pfshow 'off'           /* make sure pfshow is off */
           'addpop row(3) column(4)'
           'display panel(zigionly)'
           drc = rc
           'rempop'
+          call pfshow 'reset'         /* restore pfshow setting */
           if drc > 0 then leave
           zcmd = 'O' filter
         end
@@ -4292,9 +4363,11 @@ do_grep:
             'tbskip' zgreptbl  'number('row')'
           end
           if zsel = '/' then do
+            call pfshow 'off'           /* make sure pfshow is off */
             'Addpop row(4) column(6)'
             'Display Panel(zigirgrp)'
             'rempop'
+            call pfshow 'reset'         /* restore pfshow setting */
           end
           if zsel = 'S' then zsel = 'E'
           Select
@@ -4670,10 +4743,12 @@ Commit_Import:
     end
   end
   if com_prompt = 1 then do
+    call pfshow 'off'           /* make sure pfshow is off */
     'addpop row(3) column(4)'
     'display panel(zigicimp)'
     drc = rc
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if drc > 0 then return
   end
   cdd = 'CI'time('s')
@@ -4836,9 +4911,11 @@ Clone_Repo:
     x = docmd(cmd)
     if so.0 = 1 & so.1 = 0 then do
       call do_git_attributes
+      call pfshow 'off'           /* make sure pfshow is off */
       'Addpop row(4) column(7)'
       'Display Panel(zigipopn)'
       'Rempop'
+      call pfshow 'reset'         /* restore pfshow setting */
       'Select pgm(isptutor) parm(zigih800)'
       non_zigi = 1
     end
@@ -4973,10 +5050,10 @@ Do_LSort:
     'Display Panel(zigilsrt)'
     drc = rc
     'Rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if drc > 0 then return
     sort_field = sf
     sort_order = sc
-    call pfshow 'reset'         /* restore pfshow setting */
   end
   if sort_order = null then
   if save_lsorto = null then do
@@ -5198,10 +5275,12 @@ Branch_it:
         'setmsg msg(isrz003)'
       end
       else do
+        call pfshow 'off'           /* make sure pfshow is off */
         'Addpop row(4) column(6)'
         'display panel(zigibrdq)'
         drc = rc
         'Rempop'
+        call pfshow 'reset'         /* restore pfshow setting */
         if ans = 'N' then drc = 4
         if drc > 0 then do
           ans = 'N'
@@ -5379,10 +5458,12 @@ Merge_it:
         if mhit = 1 then
         do forever
           zcmd = null
+          call pfshow 'off'           /* make sure pfshow is off */
           'Addpop row(4) column(6)'
           'Display Panel(zigimrgq)'
           drc = rc
           'Rempop'
+          call pfshow 'reset'         /* restore pfshow setting */
           if drc > 0 then leave
           if zcmd > 0 then leave
           if zcmd = 0 then do
@@ -5498,9 +5579,11 @@ Merge_it:
               'tbskip' zmergtbl  'number('row')'
             end
             if zsel = '/' then do
+              call pfshow 'off'           /* make sure pfshow is off */
               'Addpop row(4) column(6)'
               'Display Panel(zigirmrg)'
               'rempop'
+              call pfshow 'reset'         /* restore pfshow setting */
             end
 
             if ztdsels = 0 then
@@ -6809,10 +6892,12 @@ Do_Add_Copy:
   if sysdsorg = 'PO' then
   if zdsn.dsnb = null then do
     extans = 'N'
+    call pfshow 'off'           /* make sure pfshow is off */
     'addpop row(4) column(6)'
     'display panel(zigiadde)'
     drc = rc
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if drc = 0 then zdsn.dsnb = ext
     if extans = 'Y' then
     extfile = 'Y'
@@ -7286,9 +7371,11 @@ do_history:
       end
 
       if zsel = '/' then do
+        call pfshow 'off'           /* make sure pfshow is off */
         'Addpop row(4) column(6)'
         'Display Panel(zigirhst)'
         'rempop'
+        call pfshow 'reset'         /* restore pfshow setting */
       end
       if zsel /= null then
       Select
@@ -7917,10 +8004,12 @@ Do_Tag_Extract:
     return
   end
   do forever
+    call pfshow 'off'           /* make sure pfshow is off */
     'Addpop row(3) column(4)'
     'Display Panel(zigitagx)'
     drc = rc
     'Rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if drc > 0 then do
       zerrsm = 'Canceled.'
       zerrlm = 'Extract canceled.'
@@ -7928,10 +8017,12 @@ Do_Tag_Extract:
       return
     end
     if tagxpath = '?' then tagxpath = zigiosel()
+    call pfshow 'off'           /* make sure pfshow is off */
     'Addpop row(3) column(4)'
     'Display Panel(zigiextq)'
     drc = rc
     'Rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if sans = 'Y' then leave
   end
   if tagxpath /= null then
@@ -8063,10 +8154,12 @@ DoHist_Recover:
   ralc = 'N'
   rans = null
   rover = null
+  call pfshow 'off'           /* make sure pfshow is off */
   'Addpop row(4) column(8)'
   'Display Panel(zigiresq)'
   drc = rc
   'Rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   if drc > 0 then return
   if rans = 'N' then return
   rcdd = 'RC'random(99999)

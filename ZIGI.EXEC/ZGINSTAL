@@ -715,10 +715,12 @@ docmd:
     if sysdsorg /= 'PO' then iterate
     msg1 = 'Applying ISPF Statistics to:'
     msg2 = dsname
+    call pfshow 'off'           /* make sure pfshow is off */
     'Control Display Lock'
     'Addpop row(8) column(11)'
     'Display Panel(zgpop)'
     'Rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     x = zigistat(dsname repodir'/.zigi/'file 'U')
   end
 
@@ -733,6 +735,30 @@ Cancel:
   x = dropispf(load_info)
   Say 'ZGSTAT utility canceled.'
   exit 8
+
+  /* ------------------------------------------------------ *
+  | The pfshow routine will:                               |
+  | 1. check to see the passed option                      |
+  | 2. if Off then it will save the current pfshow setting |
+  |    - save the current setting                          |
+  |    - turn off pfshow                                   |
+  | 3. if the option is Reset then it will                 |
+  |    - test if pfshow was on and turn it back on         |
+  * ------------------------------------------------------ */
+pfshow:
+  if zpfshow = 'OFF' then return
+  arg pfkopt
+  if pfkopt = 'RESET' then do
+    if pfkeys = 'ON' then
+    'select pgm(ispopf) parm(FKA,ON)'
+  end
+  if pfkopt = 'OFF' then do
+    'vget (zpfshow)'
+    pfkeys = zpfshow
+    if pfkeys /= 'OFF' then
+    'select pgm(ispopf) parm(FKA,OFF)'
+  end
+  return
 
   /* Inline ISPF Elements - must remain within a comment
 >Start
