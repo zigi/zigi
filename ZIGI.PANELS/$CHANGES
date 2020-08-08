@@ -13,12 +13,32 @@ Add _EDC_ZERO_RECLEN=Y to the OMVS environment variables to address
 datasets/members with variable length records (RECFM=VB) with blank
 records.  This will preserve those records.
 
+Allow a qualifier ignore value of zero to allow datasets from different
+HLQ's to be in the same repository. Not a great idea but doable. The full
+dataset name (e.g. SYS1.PARMLIB) will now be stored in the repository.
+When doing this care is required to prevent updating the z/OS dataset from
+the OMVS filesystem. When cloning such a repository an HLQ would still be
+required (thus SYS1.PARMLIB would clone into hlq.SYS1.PARMLIB).
+
                           Bug Fixes and Other Updates:
                           ----------------------------
 
 1. Remove duplicate code for repository delete that resulting in an
    an incorrect message that the OMVS files had not been deleted when
    they had.
+2. Issue 378 - add call to pfshow routine to turn off and then turn back
+   on the display of PFKeys around all pop-ups. Was missing from some.
+3. When changing branches, or pulling an update, if a OMVS file was
+   removed then the z/OS dataset that maps to it is not removed. If the
+   z/OS dataset was a PDS then the members were deleted. The member
+   deletes will no longer happen.
+4. Updated the add dataset popup panel to add a command entry field. This
+   allows a file extension (which was the 1st entry field) to have values
+   that may map to a ISPF command table entry.
+5. After a Merge the current repository display needed to be updated to
+   reflect added/removed datasets/files.
+6. Generalize binary file detection in case someone modifies .gitattributes
+   manually and doesn't follow the ZIGI convention.
 
 =============================================================================
 

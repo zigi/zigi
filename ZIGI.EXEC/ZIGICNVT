@@ -23,6 +23,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            08/08/20 LBD - Generalize get_binfiles          |
   |            03/02/20 LBD - Minor cleanup                    |
   |            02/27/20 LBD - Creation                         |
   | ---------------------------------------------------------- |
@@ -292,7 +293,7 @@ get_binfiles:
   |            current repo files that are added as binary.    |
   \---------------------------------------------------------- */
   cmd = 'cd 'localrep'/'zigirep' &&'
-  cmd = cmd 'cat .gitattributes | grep git-encoding=BINARY'
+  cmd = cmd 'cat .gitattributes | grep BINARY'
   cmd = cmd '| cut -d" " -f1'
   x = bpxwunix(cmd,,so.,se.)
   binfiles. = null

@@ -17,6 +17,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            08/08/20 LBD - Allow null ckothlq               |
+  |                         - Generalize get_binfiles          |
   |            08/07/20 LBD - Add pfshow off/reset all pops    |
   |            07/29/20 LBD - Add _EDC_ZERO_RECLEN=Y to env.   |
   |            07/16/20 LBD - Correct test for Load Mod msg    |
@@ -273,7 +275,7 @@
     zs10 = 'Patience while the data is copied from OMVS' ,
       'to the z/OS Dataset.'
     sub = word(files,i)
-    fileg = "'"ckothlq"."sub"'"
+    fileg = "'"ckothlq""sub"'"
     odir = "'"ckotdir"/"sub"'"
     zs1 = 'Processing file:' sub
     zs2 = 'From:           ' odir
@@ -349,7 +351,7 @@ fix_num: procedure
   | - Uppercase and remove defined extension for members              |
   * ----------------------------------------------------------------- */
 Alloc_Copy_PDS:
-  pds = "'"ckothlq"."sub"'"
+  pds = "'"ckothlq""sub"'"
   odir = "'"ckotdir"/"sub"/'"
   zs8 = ''
   deleted = 0
@@ -552,7 +554,7 @@ get_binfiles:
   \---------------------------------------------------------- */
   cmd = 'cd' ckotdir'/ &&'
   cmd = 'cat -W filecodeset=UTF-8,pgmcodeset=IBM-1047' ckotdir'/.gitattributes'
-  cmd = cmd ' | grep git-encoding=BINARY'
+  cmd = cmd ' | grep BINARY'
   cmd = cmd '| cut -d" " -f1'
   x = docmd(cmd)
   if so.0 = 0 then do

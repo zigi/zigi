@@ -26,6 +26,11 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            08/08/20 LBD - Allow qualignr of 0              |
+  |                         - if file not in new branch do     |
+  |                           NOT delete z/OS dataset or mem   |
+  |                         - After Merge call update repo     |
+  |                         - Generalize get_binfiles          |
   |            08/07/20 LBD - Add pfshow off/reset all pops    |
   |            08/06/20 LBD - Remove redundant repo del code   |
   |            07/29/20 LBD - Add _EDC_ZERO_RECLEN=Y to env.   |
@@ -1588,6 +1593,9 @@ WWR_handle_merge:
     'setmsg msg(isrz003)'
   end
   else call Merge_it
+  check_flag = 1
+  call work_with_repo
+  zsel = null
   Return
 
   /* -------------------------------- *
@@ -3572,14 +3580,14 @@ Add_DSN_HLQ:
   if length(qualignr) = 0 then qualignr = 0
   if datatype(qualignr) /= 'NUM' then qualignr = 0
   if qualignr = 0
-  then nhlq = adwhlq
+  then nhlq = null
   else do
     nhlq = translate(adwhlq,' ','.')
     if qualignr /= '*' then
     nhlq = subword(nhlq,1,qualignr)
-    nhlq = translate(nhlq,'.',' ')
+    nhlq = translate(nhlq,'.',' ')'.'
   end
-  addsn = "'"nhlq"."addsn"'"
+  addsn = "'"nhlq""addsn"'"
   return addsn
 
 Remove_DSN_HLQ:
@@ -5116,12 +5124,12 @@ Replace:
   if r_qualignr /= '*' then
   if datatype(r_qualignr) /= 'NUM' then r_qualignr = 0
   if r_qualignr = 0
-  then ckothlq = r_pdshlq
+  then ckothlq = null
   else do
     ckothlq = translate(r_pdshlq,' ','.')
     if r_qualignr /= '*' then
     ckothlq = subword(ckothlq,1,r_qualignr)
-    ckothlq = translate(ckothlq,'.',' ')
+    ckothlq = translate(ckothlq,'.',' ')'.'
   end
   ckotqual = r_qualignr
   pulldsns = r_pulldsns
@@ -6684,7 +6692,7 @@ Add_Dataset:
   do forever
     parse value '' with zsel zcmd row
     'tbquery' rtbl 'rownum(rows)'
-    if rows = 0
+    if rows = 0 | qualignr = 0
     then dsnapnl = 'zigidsna'
     else do
       dsnapnl = 'zigidsnb'
@@ -7790,15 +7798,18 @@ get_binfiles:
   | Function:  Fills the global binfiles. stem with all        |
   |            current repo files that are added as binary.    |
   \---------------------------------------------------------- */
-  cmd = 'cd 'localrep'/'zigirep' &&'
-  cmd = cmd 'cat .gitattributes | grep git-encoding=BINARY'
-  cmd = cmd '| cut -d" " -f1'
+  cmd = 'cd 'localrep'/'zigirep' &&' ,
+        'cat .gitattributes | grep binary' ,
+        '| cut -d" " -f1'
   x = docmd(cmd)
   binfiles. = null
+  bc = 0
   do b = 1 to so.0
-    binfiles.b = so.b
+    if left(strip(so.b),2) = '*.' then iterate
+    bc = bc + 1
+    binfiles.bc = so.b
   end
-  binfiles.0 = so.0
+  binfiles.0 = bc
   return 0
 
 is_binfile:
@@ -8410,12 +8421,12 @@ Check_Delta:
   call add_report ' '
   /* Get the HLQ for use */
   if qualignr = 0
-  then ckothlq = pdshlq
+  then ckothlq = null
   else do
     ckothlq = translate(pdshlq,' ','.')
     if qualignr /= '*' then
     ckothlq = subword(ckothlq,1,qualignr)
-    ckothlq = translate(ckothlq,'.',' ')
+    ckothlq = translate(ckothlq,'.',' ')'.'
   end
   /* ------------------------------- *
   | Process the differences report: |
@@ -8436,7 +8447,7 @@ Check_Delta:
   do zz = 1 to words(brdsns)
     zd = word(brdsns,zz)
     zw = words(brmems.zd)
-    ldsn = "'"ckothlq"."zd"'"
+    ldsn = "'"ckothlq""zd"'"
     x = listdsi(ldsn "dir")
     if sysdsorg /= 'PO' then iterate
     interpret 'zv'zz '= (brmems.zd)'
@@ -8466,7 +8477,7 @@ Check_Delta:
     call add_report ' '
   end
   do brdel = 1 to words(brdeletes)
-    deldsn = "'"ckothlq"."word(brdeletes,brdel)"'"
+    deldsn = "'"ckothlq""word(brdeletes,brdel)"'"
     call add_report translate(deldsn)
     Address TSO
     call outtrap 'brd.'
@@ -8484,6 +8495,16 @@ Check_Delta:
   end
   Return
 
+  /* ----------------------------------------------- *
+  | Check if a OMVS file exists (rc = 1 if it does) |
+  * ----------------------------------------------- */
+File_Exists:
+  parse arg file_check
+  ckotdir = localrep'/'zigirep
+  x = bpxwunix('ls -la' localrep'/'zigirep'/'file_check,,fs.,fe.)
+  if fe.0 = 0 then return 1
+  return 0
+
   /* -------------------------------------------------------------- *
   | Process the branch delta from the git diff command to identify |
   | the files changed.                                             |
@@ -8492,7 +8513,8 @@ BrDelta:
   Select
     When change_flag = 'M' then BrType = 'A'
     When change_flag = 'A' then BrType = 'A'
-    When change_flag = 'D' then do
+    When change_flag = 'D' then
+    if file_exists(change_file) = 1 then do
       if pos('/',change_file) > 0
       then do
         parse value change_file with change_file'/'brdmem
@@ -8521,7 +8543,7 @@ BrDelta:
   if pos('/',change_file) = 0 then do
     if dsnvalid(change_file) = 'NO' then return
     brdsns = brdsns change_file
-    call add_report "'"ckothlq"."change_file"'"
+    call add_report "'"ckothlq""change_file"'"
   end
   else do
     parse value change_file with change_file'/'BrMem
@@ -8530,6 +8552,6 @@ BrDelta:
     if pos('.',brmem) > 0 then
     parse value brmem with brmem'.'.
     brmems.change_file = brmems.change_file BrMem
-    call add_report "'"ckothlq"."change_file'('translate(brmem)')'"'"
+    call add_report "'"ckothlq""change_file'('translate(brmem)')'"'"
   end
   return
