@@ -16,6 +16,12 @@ no updates to the z/OS datasets allowed from within ZIGI. Thus Branch,
 Replace, Merge, Stash, Flow, Edit, History Recover, Rename, and Remove are
 prevented.
 
+Anytime a z/OS dataset will be replaced there will be prompt to inform the
+user of this and allow the user to (a) change the HLQ, (b) the # of
+qualifiers to ignore, or both before proceeding. Or to cancel the operation.
+This is to prevent the replacement of any dataset without overt permission.
+
+
                           Bug Fixes and Other Updates:
                           ----------------------------
 

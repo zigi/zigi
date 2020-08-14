@@ -1,0 +1,36 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                       %Dataset Replacement Confirmation
++
++The datasets displayed in the table have been identified as currently existing
++and will be completely replaced when the%Enter+key is pressed.
++
++Optionally change the High Level Qualifier and/or the number of qualifier
++to be ignored. Then press the%Enter+key to proceed.
++
++
++
++
++
++
+                    "success isn't final, failure isn't fatal"
+                      -- Sir Winston Churchill
++
++
++
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
+)Init
+ .cursor  = &zcmd
+)PROC
+ &zcont = zigihcrd
+)END
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */
