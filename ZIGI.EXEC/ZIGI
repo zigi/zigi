@@ -5877,6 +5877,7 @@ Create_Repo:
     parse value '' with zerrsm zcmd zigirep cc_rc pdshlq ,
       defcpush defruid qualignr zigicat encoding
     'Display Panel(ziginew)'
+    if readonly = 'N' then readonly = null
     if rc > 0 then return 8
     if localrep = '?' then
     localrep = zigiosel()

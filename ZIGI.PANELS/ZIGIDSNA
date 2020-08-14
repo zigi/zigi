@@ -26,6 +26,7 @@
  .zvars = '(qualignr zsel dsna dsnvol dastat)'
  .help = zigih210
  &zgsr = CSR
+ &saveignr = &qualignr
  if (&dsnapfx EQ &Z)
     .CURSOR = DSNAPFX
  if (&qualignr EQ &Z)
@@ -35,14 +36,22 @@
 )ReInit
  Refresh (qualignr)
 )Proc
- *REXX(* zedsmsg zedlmsg)
+ *REXX(* zedsmsg zedlmsg saveignr qualignr)
    zedsmsg = ''
+   if saveignr = 0 then
+      if qualignr > 0 then do
+      zedsmsg = 'Error.'
+      zedlmsg = 'Ignore qualifiers was 0 and may not be changed.'
+      qualignr = 0
+      end
+   if zedsmsg = '' then do
    tpfx = translate(dsnapfx,' ','.')
    if qualignr > words(tpfx) then do
       zedsmsg = 'Error.'
       zedlmsg = 'Ignore qualifiers may not be larger than the number of' ,
                'qualifiers in the Dataset Prefix - current value is' ,
                qualignr 'and may not be greater than' words(tpfx)
+      end
       end
  *ENDREXX
  if (&zedsmsg NE &Z)

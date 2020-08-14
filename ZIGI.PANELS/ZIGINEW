@@ -78,7 +78,7 @@
   ver (&zigirep,nb)
   ver (&localrep,nb)
   ver (&pdshlq,nb,dsname)
-  ver (&readonly,list,Y)
+  ver (&readonly,list,Y,N)
   ver (&defcpush,nb,list,Y,N)
   ver (&defruid,dsname)
 )end
