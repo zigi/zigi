@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r01'
+  ver = 'v3r02'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            08/14/20 LBD - Support for ReadOnly Repositories|
   |            08/08/20 LBD - Allow qualignr of 0              |
   |                         - if file not in new branch do     |
   |                           NOT delete z/OS dataset or mem   |
@@ -562,7 +563,7 @@ display_zigioprm:
   | Display zigiprim panel                       |
   * ------------------------------------------- */
 display_zigiprim:
-  parse value '' with zsel row
+  parse value '' with zsel row readonly
   fetch_flag = 0
   zigpass = 'PASSTHRU'
   'vput (zigpass) shared'
@@ -932,6 +933,7 @@ handle_zigiprim_lcmd_i:
   | Handle zigiprim panel linecommand d         |
   * ------------------------------------------ */
 handle_zigiprim_lcmd_d:
+  readonly = check_read_only()
   parse value '' with delcz delcg delco delcf delzd
   call pfshow 'off'           /* make sure pfshow is off */
   'Addpop row(3) column(10)'
@@ -958,6 +960,7 @@ handle_zigiprim_lcmd_d:
         del_refd = zigirefd(localrep'/'zigirep pdshlq 1 'D')
       end
     end
+    if readonly = 1 then delzd = 'N'
     if delzd = 'Y' then do
       delzd = 'The z/OS datasets have been deleted.'
       address syscall 'readdir' localrep'/'zigirep d.
@@ -1382,6 +1385,8 @@ WWR_init:
   crflag = 0
   remc = 'NO'
   x = debug('Working with Repo:' zigirep)
+  readonly = check_read_only()
+  'vput (readonly) shared'
   call update_repo_metadata
   if cltime /= null then do
     zerrsm  = 'Clone:' cltime
@@ -1508,6 +1513,12 @@ WWR_handle_find:
   | zigiFlow |
   * -------- */
 WWR_handle_flow:
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'Flow is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
   call pfshow 'off'           /* make sure pfshow is off */
   'addpop row(3) column(4)'
   'display panel(zigiflow)'
@@ -1527,6 +1538,12 @@ WWR_handle_check:
   | Branch dialog - create or change |
   * -------------------------------- */
 WWR_handle_branch:
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'Branching is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
   x = check_clean()
   if x = 'NO' then do
     zs1 = 'Cannot checkout branch as it is not clean.'
@@ -1587,12 +1604,19 @@ WWR_handle_info:
   | Merge a branch into current branch|
   * -------------------------------- */
 WWR_handle_merge:
+  zerrsm = null
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'Merge is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
   if words(save_zigirep) > 0 then do
     zerrsm = 'Invalid.'
     zerrlm = 'Merge is not supported in subdirectories.'
     'setmsg msg(isrz003)'
   end
-  else call Merge_it
+  if zerrsm = null then call Merge_it
   check_flag = 1
   call work_with_repo
   zsel = null
@@ -1832,8 +1856,15 @@ WWR_handle_replace:
     zerrsm = 'Invalid.'
     zerrlm = 'Replace is not supported in subdirectories.'
     'setmsg msg(isrz003)'
+    return
   end
-  else do
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'Replace is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
+  do
     zcmd = null
     refa = 'NO'
     call pfshow 'off'           /* make sure pfshow is off */
@@ -2296,6 +2327,12 @@ WWR_handle_lcmd_v:
   | and OMVS and z/OS        |
   * ------------------------ */
 WWR_handle_lcmd_rn:
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'Rename (RN) is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
   newdsn = fulldsn
   fulldsnq = fulldsn
   if dsnvalid(fulldsn) = 'OK' then zos = 1
@@ -2389,6 +2426,12 @@ WWR_handle_lcmd_rn:
   |    - git rm -f .zigi/file        |
   * -------------------------------- */
 WWR_handle_lcmd_rm:
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'Remove (RM) is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
   rc = confirm_remove(fulldsn)
   rm_msg = null
   if rc > 0 then do
@@ -2483,6 +2526,12 @@ WWR_handle_lcmd_rm:
   | Work with a omvs file from repo   |
   * -------------------------------- */
 WWR_handle_lcmd_s_omvs:
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'Edit is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
   zosflg = 0
   ofile = localrep'/'zigirep'/'fulldsn
   cur_date = get_fd_date(ofile)
@@ -2906,6 +2955,12 @@ WWRF_handle_lcmd_v:
   | Edit PDS member or PS dataset    |
   * -------------------------------- */
 WWRF_handle_lcmd_s:
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'Edit is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
   x = listdsi(fulldsn)
   edsn = strip(fulldsn,'B',"'")
   r = usssafe(dsn)
@@ -3021,6 +3076,12 @@ FixUp_DSN_Status:
   | reName a PDS Member |
   * ------------------- */
 WWRF_handle_lcmd_rn:
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'Rename (RN) is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
   do forever
     newmem = mem
     call pfshow 'off'           /* make sure pfshow is off */
@@ -3072,6 +3133,12 @@ WWRF_handle_lcmd_rn:
   | Remove a PDS member from the Repo |
   * --------------------------------- */
 WWRF_handle_lcmd_rm:
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'Remove (RM) is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
   localdir =  localrep'/'zigirep'/'dsn
   call outtrap 'x.'
   rdsn = strip(fulldsn,'B',"'")
@@ -3443,6 +3510,12 @@ git_add:
   | generate a replace based on the affected datasets |
   * ------------------------------------------------- */
 Stash_IT:
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'STASH is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
   stashmsg = null
   call pfshow 'off'           /* make sure pfshow is off */
   'addpop row(3) column(4)'
@@ -3613,6 +3686,12 @@ Remove_DSN_HLQ:
   |   CLEAR - git stash clear  (removed ALL stashes) |
   * ------------------------------------------------ */
 Stash_List:
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'STASHList is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git stash list'
   x = docmd(cmd)
@@ -4919,6 +4998,7 @@ Clone_Repo:
     x = docmd(cmd)
     if so.0 = 1 & so.1 = 0 then do
       call do_git_attributes
+      if readonly = 'Y' then call set_read_only
       call pfshow 'off'           /* make sure pfshow is off */
       'Addpop row(4) column(7)'
       'Display Panel(zigipopn)'
@@ -5114,10 +5194,6 @@ Do_LSort:
   * ----------------------------- */
 Replace:
   parse arg r_localrep r_zigirep r_pdshlq r_qualignr r_pulldsns
-  /* Comment Start
-  zs2 = "   OMVS -> z/OS      "
-  call do_popup
-  Comment End */
   replace_state = 0
 
   ckotdir = r_localrep'/'r_zigirep
@@ -5795,6 +5871,7 @@ Create_Repo:
     call do_popup
     x = docmd('cd 'localrep' && git init 'zigirep)
     call do_git_attributes
+    if readonly = 'Y' then call set_read_only
 
     Address ISPExec
     zigikey = localrep'/'zigirep
@@ -7154,6 +7231,12 @@ Write_FD:
   | to a commit.                                                |
   * ----------------------------------------------------------- */
 Do_Undo:
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'UNDO is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
   arg uopt
   if uopt = 'D' then mem = null
   zerrsm = null
@@ -7799,8 +7882,8 @@ get_binfiles:
   |            current repo files that are added as binary.    |
   \---------------------------------------------------------- */
   cmd = 'cd 'localrep'/'zigirep' &&' ,
-        'cat .gitattributes | grep binary' ,
-        '| cut -d" " -f1'
+    'cat .gitattributes | grep binary' ,
+    '| cut -d" " -f1'
   x = docmd(cmd)
   binfiles. = null
   bc = 0
@@ -8139,6 +8222,12 @@ DoHist_ComView:
   | a PDS member.                                               |
   * ----------------------------------------------------------- */
 DoHist_Recover:
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'History Recover is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
   if dsnvalid(fulldsn) = 'NO' then do
     zerrsm = 'Error.'
     zerrlm = 'The recovery of a non-z/OS dataset is not supported' ,
@@ -8494,6 +8583,22 @@ Check_Delta:
     call view_std
   end
   Return
+
+/* ---------------------------------------------- *
+ | Set Repository as Read Only by creating a file |
+ | .zigi/readonly                                 |
+ * ---------------------------------------------- */
+Set_Read_Only:
+  x = bpxwunix('touch' localrep'/'zigirep'/.zigi/readonly')
+  cmd = 'cd' localrep'/'zigirep ,
+        "&& echo '.zigi/readonly' > .gitignore"
+  x = docmd(cmd)
+  return 0
+
+Check_Read_Only:
+  x = bpxwunix('ls -la' localrep'/'zigirep'/.zigi/readonly',,cs.,ce.)
+  if cs.0 > 0 then return 1
+  else return 0
 
   /* ----------------------------------------------- *
   | Check if a OMVS file exists (rc = 1 if it does) |

@@ -74,7 +74,7 @@
 +Remote path   :$remote1                                                    $z
 +Current Branch:$branch                                      +
 %               !bstat                                                     +
-%               $baction                                                   +
+!ro             $baction                                                   +
 +
 %S  Status                    Dataset/File Name
 )Model
@@ -84,6 +84,11 @@
  .cursor = &zcmd
  .help = zigih200
  &zgsr = CSR
+ vget (readonly) shared
+ *REXX(readonly ro)
+  if readonly = 0 then ro = ''
+  else ro = 'ReadOnly'
+ *EndRexx
 )Proc
  &row = &z
  if (&ZCMD = &Z)

@@ -18,7 +18,7 @@
 %Local Repository+is the location where the%Clone+creates a directory or
 +where%Create+initializes the Git repo.
 +
-%Store Only Repository+is a repository where the z/OS datasets are never
+%Read Only Repository+is a repository where the z/OS datasets are never
 +updated. All updates to the z/OS datasets are copied and managed by ZIGI.
 +
 %Notes:%*+Don't use spaces in the name field.

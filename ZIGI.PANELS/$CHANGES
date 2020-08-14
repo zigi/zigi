@@ -3,6 +3,25 @@
  |  https://github.com/wizardofzos/zigi/wiki/6.-Documentation        |
  *-------------------------------------------------------------------*
 
+=============================================================================
+                             ZIGI Release Notes
+                               Version 3.02
+
+                         New Features and Functions
+                         --------------------------
+
+Support a Read Only Repository. These must be Created and Cloning is not
+recommended. Only operations that copy from z/OS to OMVS are supported with
+no updates to the z/OS datasets allowed from within ZIGI. Thus Branch,
+Replace, Merge, Stash, Flow, Edit, History Recover, Rename, and Remove are
+prevented.
+
+                          Bug Fixes and Other Updates:
+                          ----------------------------
+
+1.
+
+=============================================================================
                              ZIGI Release Notes
                                Version 3.01
 

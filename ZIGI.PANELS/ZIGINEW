@@ -14,6 +14,7 @@
 +
 %PREFIX for datasets:   $pdshlq                  +     no quotes
 %Default Push on Commit:$z+                            Y or N
+%Read Only:             $z+                            Y or blank
 +
 %Category for Repository:              @zigicat      + optional
 %Default Userid to set prior to Commit:$defruid +      or blank for no change
@@ -24,11 +25,10 @@
 +
 +
 +
-+
                   +Press%Enter+to continue, or%F3+to cancel
 )Init
  .help = zigih120
- .zvars = '(defcpush)'
+ .zvars = '(defcpush readonly)'
 )Reinit
   REFRESH(LOCALREP)
 )Proc
@@ -78,6 +78,7 @@
   ver (&zigirep,nb)
   ver (&localrep,nb)
   ver (&pdshlq,nb,dsname)
+  ver (&readonly,list,Y)
   ver (&defcpush,nb,list,Y,N)
   ver (&defruid,dsname)
 )end
