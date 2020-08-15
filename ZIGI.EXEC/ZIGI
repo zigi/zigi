@@ -26,6 +26,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            08/15/20 LBD - Refine z/OS replace prompt       |
+  |                         - On stash pop leave stash table   |
   |            08/14/20 LBD - Support for ReadOnly Repositories|
   |                         - Prompt before full z/OS replace  |
   |            08/08/20 LBD - Allow qualignr of 0              |
@@ -3790,6 +3792,8 @@ Stash_List:
           zerrsm = 'Completed.'
           zerrlm = 'Stash pop processing completed for' stashid
           'setmsg msg(isrz003)'
+          zsel = null
+          leave
         end
       end
       When zsel = 'R' then do   /* remove/drop */
