@@ -1878,7 +1878,7 @@ WWR_handle_replace:
     call pfshow 'reset'         /* restore pfshow setting */
     if prc > 0 then refa = 'NO'
     if refa = 'YES' then do
-      call Replace localrep zigirep pdshlq qualignr '\ Replace'
+      call Replace localrep zigirep pdshlq qualignr
       if replace_state = 1 then return
       call update_repo_metadata
     end
@@ -5214,7 +5214,7 @@ Replace:
   ckotqual = r_qualignr
   pulldsns = r_pulldsns
   newhlq = null
-  if wordpos(r_type,'Clone Replace') > 0 then do
+  if wordpos(r_type,'Clone') > 0 then do
     x = check_replace()
     if x > 0 then do
       zerrsm = 'Cancelled.'
