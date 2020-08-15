@@ -20,6 +20,7 @@ Anytime a z/OS dataset will be replaced there will be prompt to inform the
 user of this and allow the user to (a) change the HLQ, (b) the # of
 qualifiers to ignore, or both before proceeding. Or to cancel the operation.
 This is to prevent the replacement of any dataset without overt permission.
+This will only occur during a Clone or Replace operation.
 
 
                           Bug Fixes and Other Updates:
@@ -27,7 +28,7 @@ This is to prevent the replacement of any dataset without overt permission.
 
 1. On the Add Dataset Panel do NOT allow the ignore qualifiers to be
    changed from 0.
-2. After Stash POP leave the Stash List routine.
+2. After Stash Pop leave the Stash List display.
 
 =============================================================================
 
