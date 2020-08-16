@@ -29,6 +29,8 @@ This will only occur during a Clone or Replace operation.
 1. On the Add Dataset Panel do NOT allow the ignore qualifiers to be
    changed from 0.
 2. After Stash Pop leave the Stash List display.
+3. On a Clone of a non-ZIGI repository do not create .gitattributes or
+   .zigi/dsn
 
 =============================================================================
 

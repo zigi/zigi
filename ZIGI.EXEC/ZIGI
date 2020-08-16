@@ -26,6 +26,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            08/16/20 LBD - On Clone if non-zigi bypass      |
+  |                           gitattributes and .zigi create   |
   |            08/15/20 LBD - Refine z/OS replace prompt       |
   |                         - On stash pop leave stash table   |
   |            08/14/20 LBD - Support for ReadOnly Repositories|
@@ -5002,8 +5004,10 @@ Clone_Repo:
     cmd = '[[ ! -d 'localrep'/'zigirep'/.zigi ]] && echo 0'
     x = docmd(cmd)
     if so.0 = 1 & so.1 = 0 then do
+      /* Comment Start
       call do_git_attributes
       if readonly = 'Y' then call set_read_only
+         Comment End */
       call pfshow 'off'           /* make sure pfshow is off */
       'Addpop row(4) column(7)'
       'Display Panel(zigipopn)'
