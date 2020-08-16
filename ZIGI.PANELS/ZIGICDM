@@ -10,7 +10,7 @@
 %Command ===>_zcmd   \ \ %Scroll ===>_zgsr+
 +
 +The following members were not found in the z/OS PDS but were found in the
-+OMVS directory. To prevent them from being deleted confirm retention.
++OMVS directory. To prevent them from being deleted from OMVS confirm retention.
 +
 +Confirm:@z   +  Enter%STOP+to prevent Delete or press%F3+to Delete.
 +
