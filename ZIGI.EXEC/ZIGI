@@ -5004,10 +5004,6 @@ Clone_Repo:
     cmd = '[[ ! -d 'localrep'/'zigirep'/.zigi ]] && echo 0'
     x = docmd(cmd)
     if so.0 = 1 & so.1 = 0 then do
-      /* Comment Start
-      call do_git_attributes
-      if readonly = 'Y' then call set_read_only
-         Comment End */
       call pfshow 'off'           /* make sure pfshow is off */
       'Addpop row(4) column(7)'
       'Display Panel(zigipopn)'
@@ -5218,7 +5214,7 @@ Replace:
   ckotqual = r_qualignr
   pulldsns = r_pulldsns
   newhlq = null
-  if wordpos(r_type,'Clone') > 0 then do
+  if wordpos(r_type,'CLONE') > 0 then do
     x = check_replace()
     if x > 0 then do
       zerrsm = 'Cancelled.'
@@ -5231,13 +5227,14 @@ Replace:
       pdshlqw = words(translate(pdshlq,' ','.'))
       newhlqw = words(translate(newhlq,' ','.'))
       if newhlqw > pdshlqw then do
-         iqn = newhlqw - pdshlqw + r_qualignr
-      pdshlq = newhlq
-      qualignr = r_qualignr
-      if iqn /= null then qualignr = iqn
-      'tbmod zigirepo'
-      call replace r_localrep r_zigirep pdshlq qualignr r_pulldsns '\' r_type
-      return
+        iqn = newhlqw - pdshlqw + r_qualignr
+        pdshlq = newhlq
+        qualignr = r_qualignr
+        if iqn /= null then qualignr = iqn
+        'tbmod zigirepo'
+        call replace r_localrep r_zigirep pdshlq qualignr r_pulldsns '\' r_type
+        return
+      end
     end
   end
   'vput (ckotdir ckothlq pulldsns ckotqual)'
@@ -6672,7 +6669,7 @@ Update_Status:
   * ----------------------------------------------------- */
 Confirm_Mem_Deletes:
   tbcd = 'zcd'time('s')
-  'tbcreate' tbcd 'names(dmrow dmorig) nowrite'
+  'tbcreate' tbcd 'names(dmrow dmorig dmstate) nowrite'
   do cmdi = 1 to words(mem_omvs)
     dmrow = word(mem_omvs,cmdi)
     dmorig = dmrow
@@ -6687,7 +6684,7 @@ Confirm_Mem_Deletes:
   cmtsels = 0
   do forever
     dsel = null
-    if cmtsels < 2 then do
+    if ztdsels < 1 then do
       if cmtop > 0 then do
         'tbtop' tbcd
         'tbskip' tbcd 'number('cmtop')'
@@ -6696,8 +6693,7 @@ Confirm_Mem_Deletes:
     end
     else 'tbdispl' tbcd
     drc = rc
-    if delconf = 'STOP' then return 4
-    if drc > 0 then return 0
+    if drc > 4 then return 0
     cmtop = ztdtop
     if dsel /= null then
     Select
@@ -6716,7 +6712,8 @@ Confirm_Mem_Deletes:
         cmd = cmd '&& cp -v -U' cbinopt dmorig '"//'tdsn'"'
         x = docmd(cmd)
         if x > 0 then call view_std 'B'
-        'tbdelete' tbcd
+        dmstate = 'Recovered'
+        'tbput' tbcd
       end
       When dsel = 'E' then
       Address TSO ,

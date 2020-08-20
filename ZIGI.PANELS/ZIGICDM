@@ -2,6 +2,7 @@
   _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
   @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
   $ type(output) intens(low ) caps(off) just(left )
+  [ type(output) intens(high) caps(off) just(left )
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
@@ -10,24 +11,25 @@
 %Command ===>_zcmd   \ \ %Scroll ===>_zgsr+
 +
 +The following members were not found in the z/OS PDS but were found in the
-+OMVS directory. To prevent them from being deleted from OMVS confirm retention.
++Git Repository (OMVS Directory). This happens when the members are deleted
++from the z/OS PDS outside of ZIGI. The Git Repository will now be updated
++to reflect the deletions.
 +
-+Confirm:@z   +  Enter%STOP+to prevent Delete or press%F3+to Delete.
++Use%R+to recovery any members that should not be deleted. Then press%F3+
++to continue. Any members%not+recovered will be deleted.
 +
-+Dataset:$fulldsn
++Dataset:[fulldsn
 +
 +S  Member                    +Selections:%B+Browse%E+Edit%R+Recover
 )Model
-@z+$dmrow
+@z+[dmrow      $dmstate
 )Init
  &delconf = &z
-  .zvars = '(delconf dsel)'
+  .zvars = '(dsel)'
   .cursor = &zcmd
   .help = zigihcdm
   &zgsr = CSR
 )Proc
- if (&dsel EQ &Z)
-    ver (&delconf,list,STOP)
  ver (&dsel,list,E,B,R)
 )End
 /* -------------------------------------------------------- */
