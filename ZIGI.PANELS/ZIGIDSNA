@@ -36,7 +36,7 @@
 )ReInit
  Refresh (qualignr)
 )Proc
- *REXX(* zedsmsg zedlmsg saveignr qualignr)
+ *REXX(* zedsmsg zedlmsg saveignr qualignr pfxw)
    zedsmsg = ''
    if saveignr = 0 then
       if qualignr > 0 then do
@@ -45,6 +45,7 @@
       qualignr = 0
       end
    if zedsmsg = '' then do
+   pfx = words(dsnapfx)
    tpfx = translate(dsnapfx,' ','.')
    if qualignr > words(tpfx) then do
       zedsmsg = 'Error.'
@@ -73,7 +74,8 @@
         &osel = &zsel
     if (&row = 0)
         &zsel = &z
-    ver (&dsnapfx,nb,dsname)
+    if (&pfx = 1)
+       ver (&dsnapfx,nb,dsname)
     if (&zigisor EQ 'N')
          ver (&qualignr,nb,range,1,8)
     if (&zigisor EQ 'Y')

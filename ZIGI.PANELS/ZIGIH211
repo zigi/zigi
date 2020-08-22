@@ -8,10 +8,9 @@
 +
                                  %AddDsn+
 +
-%Ignore 1st n qualifiers in prefix:+1
-+
-+The ignore qualifiers are used to generate the file names, or directory names,
-+of the z/OS datasets in the repository.
+%Ignore 1st n qualifiers in prefix+defines how many qualifiers are ignored
++when generating the OMVS file names, or directory names, of the z/OS datasets
++in the repository.
 +
 +For example, a prefix of GITUSER.DEV with an ignore value of 2, will defines a
 +dataset with a name of GITUSER.DEV.BOGUS.COBOL in the repository as
@@ -20,10 +19,11 @@
 +
 +Command:%FIND+to find a string in any dataset name and position the table.
 +
-+Line selection options:
-+%S+Add+%A+Add+%AB+Add binary+%B+Browse
++Line selection options:%S+Add+%A+Add+%AB+Add binary+%B+Browse
 +
 +
++      The most effective way of doing it, is to do it.
++                   -- Amelia Earhart
 +
           +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init

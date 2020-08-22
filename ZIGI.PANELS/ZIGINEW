@@ -33,9 +33,11 @@
   REFRESH(LOCALREP)
 )Proc
  &resp = .resp
-*REXX(* zedsmsg zedlmsg resp csr)
+*REXX(* zedsmsg zedlmsg resp csr pfxw)
   zedsmsg = ''
   if resp = 'END' then exit
+
+  pfxw = words(pdshlq)
 
   if zedsmsg = '' then
   if localrep /= '' then
@@ -77,7 +79,8 @@
  if (&zedsmsg EQ &Z)
   ver (&zigirep,nb)
   ver (&localrep,nb)
-  ver (&pdshlq,nb,dsname)
+  if (&pfxw = 1)
+      ver (&pdshlq,nb,dsname)
   ver (&readonly,list,Y,N)
   ver (&defcpush,nb,list,Y,N)
   ver (&defruid,dsname)

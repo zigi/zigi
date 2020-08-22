@@ -7004,7 +7004,10 @@ Get_List:
   x = docmd(cmd)
   Address TSO
   call outtrap 'x.'
-  '%zigircsi 'dsnapfx'.**'
+  do ip = 1 to words(dsnapfx)
+    csipfx = word(dsnapfx,ip)
+    '%zigircsi 'csipfx'.**'
+  end
   call outtrap 'off'
   Address ISPExec
   do dsni = 1 to x.0
