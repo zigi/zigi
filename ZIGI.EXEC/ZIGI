@@ -26,6 +26,10 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            08/23/20 LBD - On ADDDSN if ignore is 0 allow   |
+  |                           changing HLQ while in table      |
+  |                         - Correctly detected Added if 0    |
+  |                         - Make remove from repo clearer    |
   |            08/16/20 LBD - On Clone if non-zigi bypass      |
   |                           gitattributes and .zigi create   |
   |            08/15/20 LBD - Refine z/OS replace prompt       |
@@ -947,23 +951,19 @@ handle_zigiprim_lcmd_d:
   'rempop'
   call pfshow 'reset'         /* restore pfshow setting */
   if drc = 0 & delcf = 'Y' then do
-    if delcz = 'Y' then do
-      'tbdelete zigirepo'
-      cmd = 'cd 'localrep'/'zigirep' && rm -rf .zigi'
-      x = docmd(cmd)
-      if x = 0 then do
-        zerrsm = 'Deleted.'
-        delcz = 'Repo removed from ZIGI, .zigi files deleted.'
-      end
+    'tbdelete zigirepo'
+    cmd = 'cd 'localrep'/'zigirep' && rm -rf .zigi'
+    x = docmd(cmd)
+    if x = 0 then do
+      zerrsm = 'Deleted.'
+      delcz = 'Repo removed from ZIGI, .zigi files deleted.'
     end
-    if delcg = 'Y' then do
-      cmd = 'cd 'localrep'/'zigirep' && rm -rf .git .gitattributes'
-      x = docmd(cmd)
-      if x = 0 then do
-        zerrsm = 'Deleted.'
-        delcg = 'Git files removed.'
-        del_refd = zigirefd(localrep'/'zigirep pdshlq 1 'D')
-      end
+    cmd = 'cd 'localrep'/'zigirep' && rm -rf .git .gitattributes'
+    x = docmd(cmd)
+    if x = 0 then do
+      zerrsm = 'Deleted.'
+      delcg = 'Git files removed.'
+      del_refd = zigirefd(localrep'/'zigirep pdshlq 1 'D')
     end
     if readonly = 1 then delzd = 'N'
     if delzd = 'Y' then do
@@ -6817,6 +6817,7 @@ Add_Dataset:
   call get_dsn_info
   save_extfile = extfile
   dsnapfx = pdshlq
+  s_dsnapfx = dsnapfx
   lc_count = 0
   add_count = 0
   last_find = 0
@@ -6824,11 +6825,12 @@ Add_Dataset:
   save_top = 0
   dsnatbl = 'ZIGID'random(999)
   call tbcreate_dsnatbl
+  if qualignr > 0 then
   if dsnapfx = null then qualignr = null
   do forever
     parse value '' with zsel zcmd row
     'tbquery' rtbl 'rownum(rows)'
-    if rows = 0 | qualignr = 0
+    if rows = 0 | qualignr = 0 | qualignr = null
     then dsnapnl = 'zigidsna'
     else do
       dsnapnl = 'zigidsnb'
@@ -6857,17 +6859,25 @@ Add_Dataset:
     top = ztdtop
     if add_count > 0 then
     pdshlq  = dsnapfx
-    if rc > 4 then do
+    if trc > 4 then do
       zsel = null
       'tbput' rtbl
       'tbend' dsnatbl
       'tbsort' rtbl 'fields(dsn,c,a)'
       'tbtop' rtbl
+      if qualignr = 0 then pdshlq = null
       if add_count > 0 then
       'tbmod zigirepo order'
       'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
       extfile = save_extfile
       return
+    end
+    if dsnapfx /= s_dsnapfx then do
+      s_dsnapfx = dsnapfx
+      zcmd = null
+      zsel = null
+      row = 0
+      call get_list
     end
     if row = 0 then zsel = null
     if row <> null then
@@ -7003,8 +7013,13 @@ Get_List:
     dsnvol = word(x.dsni,3)
     dastat = null
     do gl = 1 to so.0
-      if substr(dsna,length(prefix)+2) = word(so.gl,1)
-      then dastat = 'Added'
+      if qualignr > 0 then do
+        if substr(dsna,length(prefix)+2) = word(so.gl,1)
+        then dastat = 'Added'
+      end
+      else do
+        if dsna = word(so.gl,1) then dastat = 'Added'
+      end
     end
     'tbadd' dsnatbl
     lc_count = lc_count + 1

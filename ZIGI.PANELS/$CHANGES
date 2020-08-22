@@ -22,6 +22,9 @@ qualifiers to ignore, or both before proceeding. Or to cancel the operation.
 This is to prevent the replacement of any dataset without overt permission.
 This will only occur during a Clone or Replace operation.
 
+Update the Delete/Remove Repository from ZIGI more user friendly and thus
+easier to use and understand.
+
 
                           Bug Fixes and Other Updates:
                           ----------------------------
@@ -31,6 +34,8 @@ This will only occur during a Clone or Replace operation.
 2. After Stash Pop leave the Stash List display.
 3. On a Clone of a non-ZIGI repository do not create .gitattributes or
    .zigi/dsn
+4. Allow changing Prefix (HLQ) in AddDSN table if ignore is 0
+5. If ignore is 0 correctly detect added datasets
 
 =============================================================================
 
