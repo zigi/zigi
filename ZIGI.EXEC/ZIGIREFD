@@ -27,6 +27,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            08/25/20 LBD - Fix temp dsn if no tso prefix    |
   |            07/14/20 LBD - Change .zigi to .zigirefd        |
   |            06/10/20 LBD - Use SHAREAS=YES                  |
   |            05/08/20 HBK - Fix bug if dir is not in home    |
@@ -136,13 +137,17 @@ update:
   outfiles.0 = outc
   if outc = 0 then return check
   fdd = 'ZG'time('s')
-  'alloc f('fdd') ds('fdd') new spa(1,1) tr recfm(f b)' ,
+  if sysvar('syspref') = null
+     then pref = userid()'.'
+     else pref = sysvar('syspref')'.'
+  fdsn = "'"pref""fdd"'"
+  'alloc f('fdd') ds('fdsn') new spa(1,1) tr recfm(f b)' ,
     'lrecl(80) blksize(32720)'
   'execio * diskw' fdd '(finis stem outfiles.'
   'free f('fdd')'
   call outtrap 'x.'
-  'oput' fdd "'"ref_file"'" 'text'
-  'delete' fdd
+  'oput' fdsn "'"ref_file"'" 'text'
+  'delete' fdsn
   call outtrap 'off'
   return outfiles.0
 
