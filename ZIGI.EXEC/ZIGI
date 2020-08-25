@@ -966,7 +966,7 @@ handle_zigiprim_lcmd_d:
       delcg = 'Git files removed.'
       del_refd = zigirefd(localrep'/'zigirep pdshlq 1 'D')
     end
-    if readonly = 1 then delzd = 'N'
+    if readonly = 1 then delzd = 'Y'
     if delzd = 'N' then do
       delzd = 'The z/OS datasets have been deleted.'
       address syscall 'readdir' localrep'/'zigirep d.
@@ -8669,7 +8669,8 @@ Check_Delta:
 Set_Read_Only:
   x = bpxwunix('touch' localrep'/'zigirep'/.zigi/readonly')
   cmd = 'cd' localrep'/'zigirep ,
-    "&& echo '.zigi/readonly' > .gitignore"
+    "&& echo '.zigi/readonly' > .gitignore" ,
+    '&& git add .gitignore'
   x = docmd(cmd)
   return 0
 

@@ -22,10 +22,10 @@
     delco = 'N'
     delzd = 'N'
   end
-  if delzd = 'Y' then
+  if delzd = 'N' then
     if readonly = 1 then do
     zerrlm = 'Repository is Read Only thus the z/OS' ,
-      'datasets may NOT be deleted. Change to N to proceed.'
+      'datasets may NOT be deleted. Change to Y to proceed.'
     zerrhm   = 'zigih00'
     zerralrm = 'NO'
     zerrtp   = 'NOTIFY'
