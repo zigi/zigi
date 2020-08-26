@@ -19,7 +19,7 @@
   [z+Current Repository Panel        [z+ZIGI Repository Layout
   [z+PDS Member List Panel           [z+Registering SSH Keys
   [z+ZG stand-alone Command          [z+ZIGI Authors and Contributing *
-  [z+Getting Started   (tbd)         [z+GPL License
+  [z+Read Only Repositories          [z+GPL License
 +
 + [z+Feedback and Issues
 +
@@ -51,7 +51,7 @@
            2,zigih200   /* Repository Panel               */
            3,zigih300   /* Member List Panel              */
            4,zigihs00   /* ZG stand-alone command         */
-           5,zigih400   /* Getting Started   (tbd)        */
+           5,zigih400   /* Read Only Repos   (tbd)        */
            6,zigih800   /* non-ZIGI conversion            */
            7,zigih500   /* Common Scenarios  (tbd)        */
            8,zigih600   /* Repository Layout              */
