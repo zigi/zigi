@@ -278,12 +278,19 @@ zigistat:
         parse value mem.i with actmem data
         if m.actmem = null then string = string actmem
         else do
-          parse value data with cdate mdate ver mod mtime nc ic mc usr ,
-            nce ice mce
-          data = strip(cdate mdate mtime nc ic mc usr nce ice mce)
-          parse value m.actmem with cdate mdate ver mod mtime nc ic mc usr ,
-            nce ice mce
-          mdata = strip(cdate mdate mtime nc ic mc usr nce ice mce)
+          if strip(data) /= null then do
+            parse value data with cdate mdate ver mod mtime nc ic mc usr ,
+              nce ice mce
+            data = strip(cdate mdate ver+0 mod+0 mtime ,
+              nc ic mc usr nce ice mce)
+          end
+          if strip(m.actmem) /= null then do
+            parse value m.actmem with cdate mdate ver mod mtime nc ic mc usr ,
+              nce ice mce
+            mdata = strip(cdate mdate ver+0 mod+0 mtime ,
+              nc ic mc usr nce ice mce)
+          end
+          else mdata = null
           if data /= mdata then string = string actmem
         end
       end
