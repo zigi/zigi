@@ -26,6 +26,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            09/06/20 LBD - Remove calls to work/update after|
+  |                           PDS member update                |
   |            08/24/20 LBD - Correct Del Repo processing      |
   |            08/23/20 LBD - On ADDDSN if ignore is 0 allow   |
   |                           changing HLQ while in table      |
@@ -2724,11 +2726,13 @@ Work_with_repo_file:
             'setmsg msg(isrz003)'
           end
         end
+          /* Comment Start
         if ztdsels = 1 then
         if zigi_changed = 1 then do
           call work_with_repo_file
           call update_repo_metadata
         end
+             Comment End */
       end
     end
   end

@@ -37,6 +37,9 @@ Support multiple prefixes (HLQs) on the dataset add panel.
    .zigi/dsn
 4. Allow changing Prefix (HLQ) in AddDSN table if ignore is 0
 5. If ignore is 0 correctly detect added datasets
+6. Remove calls to call work_with_repo_file and call update_repo_metadata
+   after updating a PDS member within ZIGI as not needed and speeds things
+   up a tad.
 
 =============================================================================
 
