@@ -39,6 +39,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            08/27/20 LBD - Enhance stat compare for future  |
+  |            08/14/20 LBD - Don't update if readonly repo    |
   |            06/19/20 LBD - Ignore LMOD aliases as the main  |
   |                           lmod will have them included     |
   |            06/16/20 LBD - Use DEFRUID if it exists         |
@@ -97,7 +99,7 @@ zigistat:
   else zigidebg = 0
 
   Address ISPExec
-  'vget (debugfil defruid)'
+  'vget (debugfil defruid readonly)'
 
   x = debug('start of zigistat with option:' opt)
 
@@ -161,7 +163,8 @@ zigistat:
     | Check if no stats then add them. |
     * -------------------------------- */
     if sysrecfm /= 'U' then
-    if zlcdate = null then do
+    if zlcdate = null then
+    if readonly = 0 then do
       'LMMSTATS DATAID('status') Member('member') user('newuid')'
       "LMMFind DATAID("status") Member("member") STATS(YES)"
     end
@@ -221,33 +224,35 @@ zigistat:
     |  - members with no stats will have stats added if they are |
     |    in the saved stats member                               |
     * ---------------------------------------------------------- */
-    When opt = 'U' then
-    if sysrecfm /= 'U' then do
-      x = debug('Performing ISPF Stats file update for:' dsn)
-      'vget (statmems)'
-      if statmems /= null then do
-        x = debug('Update Members:' statmems)
+    When opt = 'U' then do
+      if readonly = 1 then return 0
+      if sysrecfm /= 'U' then do
+        x = debug('Performing ISPF Stats file update for:' dsn)
+        'vget (statmems)'
+        if statmems /= null then do
+          x = debug('Update Members:' statmems)
+        end
+        "LMINIT DATAID(zstats) DATASET("dsn")"
+        "LMOPEN DATAID("zstats") OPTION(INPUT)"
+        do i = 1 to stats.0
+          parse value stats.i with member ZLCDATE ZLMDATE ZLVERS ZLMOD ,
+            ZLMTIME ZLCNORC ZLINORC ZLMNORC ZLUSER ZLCNORCE ,
+            ZLINORCE ZLMNORCE .
+          if statmems /= null then
+          if wordpos(member,statmems) = 0 then iterate
+          if zlcdate = null then ,
+            'LMMSTATS DATAID('zstats') Member('member') user('sysvar(sysuid)')'
+          else ,
+            'LMMSTATS DATAID('zstats') MEMBER('member') VERSION('zlvers')' ,
+            'MODLEVEL('zlmod') CREATED('zlcdate') MODDATE('zlmdate')' ,
+            'MODTIME('zlmtime') INITSIZE('zlinorc')' ,
+            'MODRECS('zlmnorc') USER('zluser')'
+        end
+        "LMClose Dataid("zstats")"
+        "LMFree  Dataid("zstats")"
+        x = debug('ISPF Stats file update complete.')
+        return 0
       end
-      "LMINIT DATAID(zstats) DATASET("dsn")"
-      "LMOPEN DATAID("zstats") OPTION(INPUT)"
-      do i = 1 to stats.0
-        parse value stats.i with member ZLCDATE ZLMDATE ZLVERS ZLMOD ,
-          ZLMTIME ZLCNORC ZLINORC ZLMNORC ZLUSER ZLCNORCE ,
-          ZLINORCE ZLMNORCE .
-        if statmems /= null then
-        if wordpos(member,statmems) = 0 then iterate
-        if zlcdate = null then ,
-          'LMMSTATS DATAID('zstats') Member('member') user('sysvar(sysuid)')'
-        else ,
-          'LMMSTATS DATAID('zstats') MEMBER('member') VERSION('zlvers')' ,
-          'MODLEVEL('zlmod') CREATED('zlcdate') MODDATE('zlmdate')' ,
-          'MODTIME('zlmtime') INITSIZE('zlinorc')' ,
-          'MODRECS('zlmnorc') USER('zluser')'
-      end
-      "LMClose Dataid("zstats")"
-      "LMFree  Dataid("zstats")"
-      x = debug('ISPF Stats file update complete.')
-      return 0
     end
     /* ----------------------------------------------------------- *
     | Compare ISPF stats.                                         |
@@ -271,9 +276,23 @@ zigistat:
       /* now compare active to saved */
       do i = 1 to mem.0
         parse value mem.i with actmem data
-        data = strip(data)
         if m.actmem = null then string = string actmem
-        else if data /= m.actmem then string = string actmem
+        else do
+          if strip(data) /= null then do
+            parse value data with cdate mdate ver mod mtime nc ic mc usr ,
+              nce ice mce
+            data = strip(cdate mdate ver+0 mod+0 mtime ,
+              nc ic mc usr nce ice mce)
+          end
+          if strip(m.actmem) /= null then do
+            parse value m.actmem with cdate mdate ver mod mtime nc ic mc usr ,
+              nce ice mce
+            mdata = strip(cdate mdate ver+0 mod+0 mtime ,
+              nc ic mc usr nce ice mce)
+          end
+          else mdata = null
+          if data /= mdata then string = string actmem
+        end
       end
       'vput (allmems)'
       x = debug('ISPF Stats comparison complete:' string)

@@ -1,0 +1,59 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+  @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  $ type(output) intens(low ) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+)Body  Expand(\\)
++-\-\#zigtitle    +\-\
+%Command ===>_zcmd   \ \ %Scroll ===>_zgsr+
++
++The following Datasets are about to be replaced. Use%F3+to cancel the
++replacement. Press the%Enter+key with, or without changes, to proceed.
++
++HLQ:    $ckothlqx                +Ignore Qualifiers:    $z+
++New HLQ:@newhlq                  +New Qualifiers Ignore:@z+
++
+)Model
+$cfile
+)Init
+  .zvars = '(ckotqual iqn)'
+  &saveiqnr = &ckotqual
+  .cursor = &zcmd
+  .help = zigihcrd
+  &zgsr = 'CSR'
+  *REXX(* ckothlqx ckothlq)
+    if length(ckothlq) > 2 then
+    ckothlqx = left(ckothlq,length(ckothlq)-1) /* drop . */
+  *Endrexx
+)ReInit
+  Refresh(ckotqual iqn)
+)Proc
+&resp = .resp
+*Rexx(* resp saveiqnr ckotqual zedsmsg zedlmsg)
+zedlmsg = ''
+if resp = 'END' then exit
+if iqn = 0 then
+   if saveiqnr > 0 then do
+      iqn = saveiqnr
+      zedsmsg = ''
+      zedlmsg = 'The Iqnore Qualifier may not be changed to 0.'
+      end
+if saveiqnr = 0 then
+   if iqn > 0 then do
+      iqn = 0
+      zedsmsg = ''
+      zedlmsg = 'The Iqnore Qualifier was 0 and may NOT be changed.'
+      end
+*Endrexx
+ if (&zedlmsg EQ &Z)
+   ver (&newhlq,dsname)
+   ver (&iqn,range,0,4)
+ if (&zedlmsg NE &Z)
+    .msg = isrz001
+)End
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

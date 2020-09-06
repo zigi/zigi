@@ -41,6 +41,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            08/08/20 LBD - Generalize get_binfiles          |
+  |            07/29/20 LBD - Add _EDC_ZERO_RECLEN=Y to env.   |
   |            07/24/20 LBD - Adjust Popup Panel Location      |
   |                         - Prompt to Proceed after display  |
   |                           of target datasets               |
@@ -111,7 +113,8 @@
   * --------------------- */
   env.1 = '_BPX_SHAREAS=YES'
   env.2 = '_BPX_SPAWN_SCRIPT=YES'
-  env.0 = 2
+  env.3 = '_EDC_ZERO_RECLEN=Y'
+  env.0 = 3
   cmd = 'pwd'
   x = bpxwunix(cmd,,so.,se.,env.)
   ckotdir = strip(so.1)
@@ -601,7 +604,7 @@ get_binfiles:
   \---------------------------------------------------------- */
   cmd = 'cd' ckotdir'/ &&'
   cmd = 'cat -W filecodeset=UTF-8,pgmcodeset=IBM-1047' ckotdir'/.gitattributes'
-  cmd = cmd ' | grep git-encoding=BINARY'
+  cmd = cmd ' | grep BINARY'
   cmd = cmd '| cut -d" " -f1'
   x = docmd(cmd)
   if so.0 = 0 then do
@@ -713,10 +716,12 @@ docmd:
     if sysdsorg /= 'PO' then iterate
     msg1 = 'Applying ISPF Statistics to:'
     msg2 = dsname
+    call pfshow 'off'           /* make sure pfshow is off */
     'Control Display Lock'
     'Addpop row(8) column(11)'
     'Display Panel(zgpop)'
     'Rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     x = zigistat(dsname repodir'/.zigi/'file 'U')
   end
 
@@ -731,6 +736,30 @@ Cancel:
   x = dropispf(load_info)
   Say 'ZGSTAT utility canceled.'
   exit 8
+
+  /* ------------------------------------------------------ *
+  | The pfshow routine will:                               |
+  | 1. check to see the passed option                      |
+  | 2. if Off then it will save the current pfshow setting |
+  |    - save the current setting                          |
+  |    - turn off pfshow                                   |
+  | 3. if the option is Reset then it will                 |
+  |    - test if pfshow was on and turn it back on         |
+  * ------------------------------------------------------ */
+pfshow:
+  if zpfshow = 'OFF' then return
+  arg pfkopt
+  if pfkopt = 'RESET' then do
+    if pfkeys = 'ON' then
+    'select pgm(ispopf) parm(FKA,ON)'
+  end
+  if pfkopt = 'OFF' then do
+    'vget (zpfshow)'
+    pfkeys = zpfshow
+    if pfkeys /= 'OFF' then
+    'select pgm(ispopf) parm(FKA,OFF)'
+  end
+  return
 
   /* Inline ISPF Elements - must remain within a comment
 >Start

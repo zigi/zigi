@@ -12,7 +12,7 @@
                                                                          +
 +
 +Branch Name:       +Specific branch to clone (default is master)
-@remotebr                                   +
+@remotebr                                   +Read Only:$z+(Y or blank)
 +
 %PREFIX for datasets:    $pdshlq                  + (no quotes)
 %Default Push on Commit: $z+                        (Y or N)
@@ -28,7 +28,7 @@
                   +Press%Enter+to continue, or%F3+to cancel
 )Init
  .help = zigih110
- .zvars = '(defcpush)'
+ .zvars = '(readonly defcpush)'
 )Reinit
  REFRESH(REMOTE LOCALREP)
 )Proc
@@ -109,6 +109,7 @@
  if (&zedsmsg EQ &Z)
   ver (&remote,nb)
   ver (&localrep,nb)
+  ver (&readonly,list,Y)
   ver (&pdshlq,nb,dsname)
   ver (&defcpush,nb,list,Y,N)
   ver (&defruid,dsname)

@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r00'
+  ver = 'v3r02'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -26,6 +26,27 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            09/06/20 LBD - Remove calls to work/update after|
+  |                           PDS member update                |
+  |            08/24/20 LBD - Correct Del Repo processing      |
+  |            08/23/20 LBD - On ADDDSN if ignore is 0 allow   |
+  |                           changing HLQ while in table      |
+  |                         - Correctly detected Added if 0    |
+  |                         - Make remove from repo clearer    |
+  |            08/16/20 LBD - On Clone if non-zigi bypass      |
+  |                           gitattributes and .zigi create   |
+  |            08/15/20 LBD - Refine z/OS replace prompt       |
+  |                         - On stash pop leave stash table   |
+  |            08/14/20 LBD - Support for ReadOnly Repositories|
+  |                         - Prompt before full z/OS replace  |
+  |            08/08/20 LBD - Allow qualignr of 0              |
+  |                         - if file not in new branch do     |
+  |                           NOT delete z/OS dataset or mem   |
+  |                         - After Merge call update repo     |
+  |                         - Generalize get_binfiles          |
+  |            08/07/20 LBD - Add pfshow off/reset all pops    |
+  |            08/06/20 LBD - Remove redundant repo del code   |
+  |            07/29/20 LBD - Add _EDC_ZERO_RECLEN=Y to env.   |
   |            07/25/20 LBD - Correct Stash processing         |
   |            07/24/20 LBD - Set wrap message on zigiprim     |
   |                           and for zigirepo                 |
@@ -442,9 +463,11 @@
 
     /* handle line commands */
     if zsel = '/' then do
+      call pfshow 'off'           /* make sure pfshow is off */
       'Addpop row(4) column(6)'
       'Display Panel(zigirprm)'
       'rempop'
+      call pfshow 'reset'         /* restore pfshow setting */
     end
 
     if zsel /= null then
@@ -515,9 +538,11 @@ init_repo:
   /* Panel for when there are no repos in profile yet */
   'TBStats zigirepo rowcurr('tr')'
   if tr = 0 then do
+    call pfshow 'off'           /* make sure pfshow is off */
     'Addpop row(4) column(6)'
     'Display Panel(zigi1st)'
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
   end
   Return
 
@@ -535,9 +560,11 @@ display_zigioprm:
   parse value '' with findstr selfind
   if pos('.',zcmd) > 0 then
   parse value zcmd with x'.'zcmd
+  call pfshow 'off'           /* make sure pfshow is off */
   'Addpop row(4) column(6)'
   'Display Panel(zigioprm)'
   'rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   if findstr /= null
   then zcmd = 'F' findstr
   if selfind /= null
@@ -548,7 +575,7 @@ display_zigioprm:
   | Display zigiprim panel                       |
   * ------------------------------------------- */
 display_zigiprim:
-  parse value '' with zsel row
+  parse value '' with zsel row readonly
   fetch_flag = 0
   zigpass = 'PASSTHRU'
   'vput (zigpass) shared'
@@ -906,9 +933,11 @@ Create_zigirepo:
   | Handle zigiprim panel linecommand i         |
   * ------------------------------------------ */
 handle_zigiprim_lcmd_i:
+  call pfshow 'off'           /* make sure pfshow is off */
   'addpop row(3) column(1)'
   'display panel(zigiinfo)'
   'rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   zsel = null
   Return
 
@@ -916,31 +945,31 @@ handle_zigiprim_lcmd_i:
   | Handle zigiprim panel linecommand d         |
   * ------------------------------------------ */
 handle_zigiprim_lcmd_d:
+  readonly = check_read_only()
   parse value '' with delcz delcg delco delcf delzd
+  call pfshow 'off'           /* make sure pfshow is off */
   'Addpop row(3) column(10)'
   'Display panel(zigidelc)'
   drc = rc
   'rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   if drc = 0 & delcf = 'Y' then do
-    if delcz = 'Y' then do
-      'tbdelete zigirepo'
-      cmd = 'cd 'localrep'/'zigirep' && rm -rf .zigi'
-      x = docmd(cmd)
-      if x = 0 then do
-        zerrsm = 'Deleted.'
-        delcz = 'Repo removed from ZIGI, .zigi files deleted.'
-      end
+    'tbdelete zigirepo'
+    cmd = 'cd 'localrep'/'zigirep' && rm -rf .zigi'
+    x = docmd(cmd)
+    if x = 0 then do
+      zerrsm = 'Deleted.'
+      delcz = 'Repo removed from ZIGI, .zigi files deleted.'
     end
-    if delcg = 'Y' then do
-      cmd = 'cd 'localrep'/'zigirep' && rm -rf .git .gitattributes'
-      x = docmd(cmd)
-      if x = 0 then do
-        zerrsm = 'Deleted.'
-        delcg = 'Git files removed.'
-        del_refd = zigirefd(localrep'/'zigirep pdshlq 1 'D')
-      end
+    cmd = 'cd 'localrep'/'zigirep' && rm -rf .git .gitattributes'
+    x = docmd(cmd)
+    if x = 0 then do
+      zerrsm = 'Deleted.'
+      delcg = 'Git files removed.'
+      del_refd = zigirefd(localrep'/'zigirep pdshlq 1 'D')
     end
-    if delzd = 'Y' then do
+    if readonly = 1 then delzd = 'Y'
+    if delzd = 'N' then do
       delzd = 'The z/OS datasets have been deleted.'
       address syscall 'readdir' localrep'/'zigirep d.
       do id = 1 to d.0
@@ -953,12 +982,7 @@ handle_zigiprim_lcmd_d:
       end
     end
     else delzd = 'The z/OS datasets were NOT deleted.'
-    if delco = 'Y' then do
-      cmd = 'cd' localrep' && rm -rf 'zigirep
-      x = docmd(cmd)
-      delco = 'The local repository has been deleted from OMVS.'
-    end
-    if delco = 'Y' then do
+    if delco = 'N' then do
       cmd = 'cd' localrep' && rm -rf 'zigirep
       x = docmd(cmd)
       delco = 'The local repository has been deleted from OMVS.'
@@ -1119,10 +1143,12 @@ handle_zigiprim_find:
   find = null
   fwrap = 0
   if fstring = null then do
+    call pfshow 'off'           /* make sure pfshow is off */
     'Addpop row(4) column(6)'
     'Display Panel(zigifind)'
     drc = rc
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if drc > 0 then find = null
     fstring = find
   end
@@ -1174,10 +1200,12 @@ handle_zigiprim_select:
   fstring = word(zcmd,2)
   zcmd = null
   if fstring = null then do
+    call pfshow 'off'           /* make sure pfshow is off */
     'addpop row(3) column(4)'
     'display panel(zigisel)'
     drc = rc
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if fstring = null then drc = 4
     if drc > 0 then  do
       zerrsm = 'Canceled.'
@@ -1303,9 +1331,11 @@ Work_With_Repo:
     end
 
     if zsel = '/' then do
+      call pfshow 'off'           /* make sure pfshow is off */
       'Addpop row(3) column(4)'
       'Display Panel(zigirrep)'
       'rempop'
+      call pfshow 'reset'         /* restore pfshow setting */
     end
 
     /* flag for USS file or ZOS dataset */
@@ -1363,6 +1393,8 @@ WWR_init:
   crflag = 0
   remc = 'NO'
   x = debug('Working with Repo:' zigirep)
+  readonly = check_read_only()
+  'vput (readonly) shared'
   call update_repo_metadata
   if cltime /= null then do
     zerrsm  = 'Clone:' cltime
@@ -1425,9 +1457,11 @@ WWR_handle_options:
   if pos('.',zcmd) > 0 then
   parse value zcmd with x'.'zcmd
   if zcmd = 'O' then do
+    call pfshow 'off'           /* make sure pfshow is off */
     'Addpop row(4) column(10)'
     'Display Panel(zigiorep)'
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
   end
   Return
 
@@ -1437,10 +1471,12 @@ WWR_handle_find:
   find = null
   rwrap = 0
   if fstring = null then do
+    call pfshow 'off'           /* make sure pfshow is off */
     'Addpop row(4) column(6)'
     'Display Panel(zigifind)'
     drc = rc
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if drc > 0 then find = null
     fstring = find
   end
@@ -1485,10 +1521,18 @@ WWR_handle_find:
   | zigiFlow |
   * -------- */
 WWR_handle_flow:
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'Flow is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
+  call pfshow 'off'           /* make sure pfshow is off */
   'addpop row(3) column(4)'
   'display panel(zigiflow)'
   drc = rc
   'rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   if drc > 0 then zcmd = null
   Return
 
@@ -1502,6 +1546,12 @@ WWR_handle_check:
   | Branch dialog - create or change |
   * -------------------------------- */
 WWR_handle_branch:
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'Branching is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
   x = check_clean()
   if x = 'NO' then do
     zs1 = 'Cannot checkout branch as it is not clean.'
@@ -1551,21 +1601,33 @@ WWR_handle_convrepo:
   | View summary info of repository  |
   * -------------------------------- */
 WWR_handle_info:
+  call pfshow 'off'           /* make sure pfshow is off */
   'addpop row(3) column(2)'
   'display panel(zigiinfo)'
   'rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   Return
 
   /* -------------------------------- *
   | Merge a branch into current branch|
   * -------------------------------- */
 WWR_handle_merge:
+  zerrsm = null
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'Merge is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
   if words(save_zigirep) > 0 then do
     zerrsm = 'Invalid.'
     zerrlm = 'Merge is not supported in subdirectories.'
     'setmsg msg(isrz003)'
   end
-  else call Merge_it
+  if zerrsm = null then call Merge_it
+  check_flag = 1
+  call work_with_repo
+  zsel = null
   Return
 
   /* -------------------------------- *
@@ -1802,8 +1864,15 @@ WWR_handle_replace:
     zerrsm = 'Invalid.'
     zerrlm = 'Replace is not supported in subdirectories.'
     'setmsg msg(isrz003)'
+    return
   end
-  else do
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'Replace is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
+  do
     zcmd = null
     refa = 'NO'
     call pfshow 'off'           /* make sure pfshow is off */
@@ -1846,10 +1915,12 @@ WWR_handle_snapshot:
     parse value '' with zcmd path snaphlq gtag sans
     'display panel(zigisnap)'
     if rc > 0 then leave
+    call pfshow 'off'           /* make sure pfshow is off */
     'Addpop row(4) column(10)'
     'Display Panel(zigisnpq)'
     drc = rc
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if drc > 0 then leave
     if sans = 'Y' then do
       cmd = 'cd' localrep'/'zigirep
@@ -1892,10 +1963,12 @@ WWR_handle_snapshot:
 
       /* now view both the omvs directory and snaphlq */
       sans = null
+      call pfshow 'off'           /* make sure pfshow is off */
       'Addpop row(4) column(10)'
       'Display Panel(zigisnpr)'
       drc = rc
       'rempop'
+      call pfshow 'reset'         /* restore pfshow setting */
       if drc > 0 then sans = 'N'
       if sans = 'N' then do
         zerrsm = 'Completed.'
@@ -1919,10 +1992,12 @@ WWR_handle_snapshot:
   * --------------------------------- */
 WWR_handle_tag:
   parse value '' with tagid tagmsg
+  call pfshow 'off'           /* make sure pfshow is off */
   'addpop row(4) column(6)'
   'display panel(zigitag)'
   drc = rc
   'rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   if drc = 0 then do
     if tagmsg = null then
     cmd = 'git tag' tagid
@@ -2059,10 +2134,12 @@ WWR_handle_flowgo:
     'setmsg msg(isrz003)'
   end
   else do
+    call pfshow 'off'           /* make sure pfshow is off */
     'Addpop row(3) column(4)'
     'Display Panel(zigifgo)'
     drc = rc
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if drc > 0 then do
       zerrsm = 'Canceled.'
       zerrlm = 'FlowGo was canceled.'
@@ -2117,10 +2194,12 @@ WWR_handle_flowend:
       cmd = 'cd' localrep'/'zigirep
       cmd = cmd || ' && git checkout 'flowname
       cmd = cmd || ' && git merge --squash zigiflow-'flowname
+      call pfshow 'off'           /* make sure pfshow is off */
       'Addpop row(3) column(4)'
       'Display Panel(zigifend)'
       drc = rc
       'rempop'
+      call pfshow 'reset'         /* restore pfshow setting */
       if drc > 0 then do
         zerrsm = 'Canceled.'
         zerrlm = 'FlowEnd canceled.'
@@ -2256,11 +2335,18 @@ WWR_handle_lcmd_v:
   | and OMVS and z/OS        |
   * ------------------------ */
 WWR_handle_lcmd_rn:
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'Rename (RN) is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
   newdsn = fulldsn
   fulldsnq = fulldsn
   if dsnvalid(fulldsn) = 'OK' then zos = 1
   else zos = 2
   do forever
+    call pfshow 'off'           /* make sure pfshow is off */
     'Addpop row(4) column(6)'
     if zos = 1 then
     'display panel(zigirena)'
@@ -2268,6 +2354,7 @@ WWR_handle_lcmd_rn:
     'display panel(zigireno)'
     drc = rc
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if drc > 0 then leave
     if zos = 1 then do
       x = listdsi(newdsn)
@@ -2347,6 +2434,12 @@ WWR_handle_lcmd_rn:
   |    - git rm -f .zigi/file        |
   * -------------------------------- */
 WWR_handle_lcmd_rm:
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'Remove (RM) is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
   rc = confirm_remove(fulldsn)
   rm_msg = null
   if rc > 0 then do
@@ -2441,6 +2534,12 @@ WWR_handle_lcmd_rm:
   | Work with a omvs file from repo   |
   * -------------------------------- */
 WWR_handle_lcmd_s_omvs:
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'Edit is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
   zosflg = 0
   ofile = localrep'/'zigirep'/'fulldsn
   cur_date = get_fd_date(ofile)
@@ -2591,9 +2690,11 @@ Work_with_repo_file:
       end
 
       if zsel = '/' then do
+        call pfshow 'off'           /* make sure pfshow is off */
         'Addpop row(4) column(6)'
         'Display Panel(zigirlst)'
         'rempop'
+        call pfshow 'reset'         /* restore pfshow setting */
       end
 
       /* handle line commands */
@@ -2625,11 +2726,13 @@ Work_with_repo_file:
             'setmsg msg(isrz003)'
           end
         end
+          /* Comment Start
         if ztdsels = 1 then
         if zigi_changed = 1 then do
           call work_with_repo_file
           call update_repo_metadata
         end
+             Comment End */
       end
     end
   end
@@ -2753,9 +2856,11 @@ WWRF_handle_options:
   lstloc = null
   if zcmd = 'O' then do
     zcmd = null
+    call pfshow 'off'           /* make sure pfshow is off */
     'Addpop row(4) column(6)'
     'Display Panel(zigiolst)'
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
   end
   Return
 
@@ -2791,10 +2896,12 @@ WWRF_handle_commit:
 
 WWRF_handle_locate:
   if words(zcmd) = 1 then do
+    call pfshow 'off'           /* make sure pfshow is off */
     'addpop row(3) column(4)'
     'display panel(zigilocq)'
     drc = rc
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if drc > 0 then return
     zcmd = 'L' filter
   end
@@ -2858,6 +2965,12 @@ WWRF_handle_lcmd_v:
   | Edit PDS member or PS dataset    |
   * -------------------------------- */
 WWRF_handle_lcmd_s:
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'Edit is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
   x = listdsi(fulldsn)
   edsn = strip(fulldsn,'B',"'")
   r = usssafe(dsn)
@@ -2973,12 +3086,20 @@ FixUp_DSN_Status:
   | reName a PDS Member |
   * ------------------- */
 WWRF_handle_lcmd_rn:
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'Rename (RN) is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
   do forever
     newmem = mem
+    call pfshow 'off'           /* make sure pfshow is off */
     'Addpop row(4) column(6)'
     'display panel(zigirenm)'
     drc = rc
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if drc > 0 then leave
     olddsn = "'"strip(fulldsn,'B',"'")"("mem")'"
     newdsn = "'"strip(fulldsn,'B',"'")"("newmem")'"
@@ -3022,6 +3143,12 @@ WWRF_handle_lcmd_rn:
   | Remove a PDS member from the Repo |
   * --------------------------------- */
 WWRF_handle_lcmd_rm:
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'Remove (RM) is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
   localdir =  localrep'/'zigirep'/'dsn
   call outtrap 'x.'
   rdsn = strip(fulldsn,'B',"'")
@@ -3393,11 +3520,19 @@ git_add:
   | generate a replace based on the affected datasets |
   * ------------------------------------------------- */
 Stash_IT:
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'STASH is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
   stashmsg = null
+  call pfshow 'off'           /* make sure pfshow is off */
   'addpop row(3) column(4)'
   'display panel(zigistaq)'
   drc = rc
   'rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   if drc > 0 then do
     zerrsm = 'Canceled.'
     zerrlm = 'Stash canceled.'
@@ -3406,10 +3541,12 @@ Stash_IT:
   end
   zs1 = 'Initiating git stash processing.'
   zs2 = 'Please be patient while git does its thing.'
+  call pfshow 'off'           /* make sure pfshow is off */
   'addpop row(3) column(4)'
   'control display lock'
   'display panel(zigipop)'
   'rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git stash push -a -u -m "'date() time() stashmsg'"'
   cmd = cmd '&& git stash show'
@@ -3526,14 +3663,14 @@ Add_DSN_HLQ:
   if length(qualignr) = 0 then qualignr = 0
   if datatype(qualignr) /= 'NUM' then qualignr = 0
   if qualignr = 0
-  then nhlq = adwhlq
+  then nhlq = null
   else do
     nhlq = translate(adwhlq,' ','.')
     if qualignr /= '*' then
     nhlq = subword(nhlq,1,qualignr)
-    nhlq = translate(nhlq,'.',' ')
+    nhlq = translate(nhlq,'.',' ')'.'
   end
-  addsn = "'"nhlq"."addsn"'"
+  addsn = "'"nhlq""addsn"'"
   return addsn
 
 Remove_DSN_HLQ:
@@ -3559,6 +3696,12 @@ Remove_DSN_HLQ:
   |   CLEAR - git stash clear  (removed ALL stashes) |
   * ------------------------------------------------ */
 Stash_List:
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'STASHList is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git stash list'
   x = docmd(cmd)
@@ -3607,20 +3750,24 @@ Stash_List:
       return
     end
     if zsel = '/' then do
+      call pfshow 'off'           /* make sure pfshow is off */
       'addpop row(3) column(4)'
       'display panel(zigirsth)'
       drc = rc
       'rempop'
+      call pfshow 'reset'         /* restore pfshow setting */
       if drc > 0 then zsel = null
     end
     if zsel /= null then
     Select
       When zsel = 'B' then do   /* branch */
         bname = null
+        call pfshow 'off'           /* make sure pfshow is off */
         'addpop row(3) column(4)'
         'display panel(zigistbq)'
         drc = rc
         'rempop'
+        call pfshow 'reset'         /* restore pfshow setting */
         if drc > 0 then do
           zerrsm = 'Canceled.'
           zerrlm = 'Stash Branch canceled.'
@@ -3640,9 +3787,11 @@ Stash_List:
         pass = 0
         stash_hit = do_stash_pop()
         if stash_hit = 1 then do
+          call pfshow 'off'           /* make sure pfshow is off */
           'Addpop row(3) column(4)'
           'display panel(zigispbd)'
           'rempop'
+          call pfshow 'reset'         /* restore pfshow setting */
         end
         else do
           'tbdelete' stab
@@ -3650,6 +3799,8 @@ Stash_List:
           zerrsm = 'Completed.'
           zerrlm = 'Stash pop processing completed for' stashid
           'setmsg msg(isrz003)'
+          zsel = null
+          leave
         end
       end
       When zsel = 'R' then do   /* remove/drop */
@@ -3691,10 +3842,12 @@ Do_Stash_Pop:
   cmd = cmd '&& git stash pop' stashid
   zs1 = 'Initiating git stash pop processing.'
   zs2 = 'Please be patient while git does its thing.'
+  call pfshow 'off'           /* make sure pfshow is off */
   'addpop row(3) column(4)'
   'control display lock'
   'display panel(zigipop)'
   'rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   xrc = docmd(cmd)
   if xrc > 0 then do
     call view_std 'B'
@@ -3719,10 +3872,12 @@ Do_Rset:
   hlq_change = 0
   extans = extfile
   zginst = 'N'
+  call pfshow 'off'           /* make sure pfshow is off */
   'Addpop row(2) column(4)'
   'Display Panel(zigirset)'
   drc = rc
   'rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   if drc > 0 then return
   if extans /= null then do
     extfile = extans
@@ -3874,15 +4029,19 @@ Do_TAGLIST:
     parse value zcmd with x'.'zcmd
 
     if zcmd = 'O' then do
+      call pfshow 'off'           /* make sure pfshow is off */
       'Addpop row(4) column(10)'
       'Display Panel(zigiotag)'
       'rempop'
+      call pfshow 'reset'         /* restore pfshow setting */
     end
 
     if zsel = '/' then do
+      call pfshow 'off'           /* make sure pfshow is off */
       'Addpop row(3) column(4)'
       'Display Panel(zigirtag)'
       'rempop'
+      call pfshow 'reset'         /* restore pfshow setting */
     end
 
     if row /= null then do
@@ -3897,10 +4056,12 @@ Do_TAGLIST:
       end
       When abbrev('ONLY',word(zcmd,1),1) = 1 then do
         if words(zcmd) = 1 then do
+          call pfshow 'off'           /* make sure pfshow is off */
           'addpop row(3) column(4)'
           'display panel(zigionly)'
           drc = rc
           'rempop'
+          call pfshow 'reset'         /* restore pfshow setting */
           if drc > 0 then leave
           zcmd = 'O' filter
         end
@@ -4041,16 +4202,20 @@ Do_Extract:
     end
 
     if zsel = '/' then do
+      call pfshow 'off'           /* make sure pfshow is off */
       'Addpop row(4) column(10)'
       'Display Panel(zigicomo)'
       'rempop'
+      call pfshow 'reset'         /* restore pfshow setting */
     end
 
     if zcmd = 'O' then do
       zcmd = null
+      call pfshow 'off'           /* make sure pfshow is off */
       'Addpop row(4) column(6)'
       'Display Panel(zigicomc)'
       'rempop'
+      call pfshow 'reset'         /* restore pfshow setting */
     end
 
     if crcnt /= ocrcnt then do
@@ -4073,10 +4238,12 @@ Do_Extract:
       end
       When abbrev('ONLY',word(zcmd,1),1) = 1 then do
         if words(zcmd) = 1 then do
+          call pfshow 'off'           /* make sure pfshow is off */
           'addpop row(3) column(4)'
           'display panel(zigionly)'
           drc = rc
           'rempop'
+          call pfshow 'reset'         /* restore pfshow setting */
           if drc > 0 then leave
           zcmd = 'O' filter
         end
@@ -4295,9 +4462,11 @@ do_grep:
             'tbskip' zgreptbl  'number('row')'
           end
           if zsel = '/' then do
+            call pfshow 'off'           /* make sure pfshow is off */
             'Addpop row(4) column(6)'
             'Display Panel(zigirgrp)'
             'rempop'
+            call pfshow 'reset'         /* restore pfshow setting */
           end
           if zsel = 'S' then zsel = 'E'
           Select
@@ -4673,10 +4842,12 @@ Commit_Import:
     end
   end
   if com_prompt = 1 then do
+    call pfshow 'off'           /* make sure pfshow is off */
     'addpop row(3) column(4)'
     'display panel(zigicimp)'
     drc = rc
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if drc > 0 then return
   end
   cdd = 'CI'time('s')
@@ -4838,10 +5009,11 @@ Clone_Repo:
     cmd = '[[ ! -d 'localrep'/'zigirep'/.zigi ]] && echo 0'
     x = docmd(cmd)
     if so.0 = 1 & so.1 = 0 then do
-      call do_git_attributes
+      call pfshow 'off'           /* make sure pfshow is off */
       'Addpop row(4) column(7)'
       'Display Panel(zigipopn)'
       'Rempop'
+      call pfshow 'reset'         /* restore pfshow setting */
       'Select pgm(isptutor) parm(zigih800)'
       non_zigi = 1
     end
@@ -4850,7 +5022,7 @@ Clone_Repo:
     if c_stat = 1 then return
     qualignr = words(translate(pdshlq,' ','.'))
     if non_zigi = 0 then
-    call Replace localrep zigirep pdshlq qualignr
+    call Replace localrep zigirep pdshlq qualignr '\ Clone'
     zigikey = localrep'/'zigirep
     zigidate = date('n')
     call set_sortdate
@@ -4976,10 +5148,10 @@ Do_LSort:
     'Display Panel(zigilsrt)'
     drc = rc
     'Rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if drc > 0 then return
     sort_field = sf
     sort_order = sc
-    call pfshow 'reset'         /* restore pfshow setting */
   end
   if sort_order = null then
   if save_lsorto = null then do
@@ -5031,26 +5203,45 @@ Do_LSort:
   | Replace z/OS side of repo     |
   * ----------------------------- */
 Replace:
-  parse arg r_localrep r_zigirep r_pdshlq r_qualignr r_pulldsns
-  /* Comment Start
-  zs2 = "   OMVS -> z/OS      "
-  call do_popup
-  Comment End */
+  parse arg r_localrep r_zigirep r_pdshlq r_qualignr r_pulldsns '\' r_type
   replace_state = 0
-
   ckotdir = r_localrep'/'r_zigirep
   if r_qualignr /= '*' then
   if datatype(r_qualignr) /= 'NUM' then r_qualignr = 0
   if r_qualignr = 0
-  then ckothlq = r_pdshlq
+  then ckothlq = null
   else do
     ckothlq = translate(r_pdshlq,' ','.')
     if r_qualignr /= '*' then
     ckothlq = subword(ckothlq,1,r_qualignr)
-    ckothlq = translate(ckothlq,'.',' ')
+    ckothlq = translate(ckothlq,'.',' ')'.'
   end
   ckotqual = r_qualignr
   pulldsns = r_pulldsns
+  newhlq = null
+  if wordpos(r_type,'CLONE') > 0 then do
+    x = check_replace()
+    if x > 0 then do
+      zerrsm = 'Cancelled.'
+      zerrlm = 'z/OS Dataset Update cancelled.'
+      'Setmsg Msg(isrz003)'
+      return
+    end
+    if x = 0 then
+    if newhlq /= null then do
+      pdshlqw = words(translate(pdshlq,' ','.'))
+      newhlqw = words(translate(newhlq,' ','.'))
+      if newhlqw > pdshlqw then do
+        iqn = newhlqw - pdshlqw + r_qualignr
+        pdshlq = newhlq
+        qualignr = r_qualignr
+        if iqn /= null then qualignr = iqn
+        'tbmod zigirepo'
+        call replace r_localrep r_zigirep pdshlq qualignr r_pulldsns '\' r_type
+        return
+      end
+    end
+  end
   'vput (ckotdir ckothlq pulldsns ckotqual)'
   'Select cmd(%zigickot)'
   'vget (badckot) shared'
@@ -5064,6 +5255,36 @@ Replace:
     replace_state = 1
   end
   return
+
+/* -------------------------------------------------------- *
+ | Check the datasets to be replaced and prompt the user to |
+ | confirm they really REALLY want to replace them.         |
+ * -------------------------------------------------------- */
+Check_Replace:
+  cmd = 'cd' ckotdir '&& ls -l'
+  x = docmd(cmd)
+  cr_files  = null
+  iqn = null
+  do i = 2 to so.0
+    cfile = word(so.i,9)
+    cfile = "'"ckothlq""cfile"'"
+    if dsnvalid(cfile) /= 'OK' then iterate
+    if sysdsn(cfile) = 'OK' then
+    cr_files = cr_files cfile
+  end
+  if strip(cr_files) = null then return 0
+  crtbl = 'CRT'random(9999)
+  'tbcreate' crtbl 'names(cfile) nowrite'
+  do i = 1 to words(cr_files)
+    cfile = word(cr_files,i)
+    'tbadd' crtbl
+  end
+  'tbtop' crtbl
+  'tbdispl' crtbl 'panel(zigicrds)'
+  drc = rc
+  'tbend' crtbl
+  if drc > 0 then return 3
+  return 0
 
   /* ----------------------------- *
   | Branch management             |
@@ -5201,10 +5422,12 @@ Branch_it:
         'setmsg msg(isrz003)'
       end
       else do
+        call pfshow 'off'           /* make sure pfshow is off */
         'Addpop row(4) column(6)'
         'display panel(zigibrdq)'
         drc = rc
         'Rempop'
+        call pfshow 'reset'         /* restore pfshow setting */
         if ans = 'N' then drc = 4
         if drc > 0 then do
           ans = 'N'
@@ -5382,10 +5605,12 @@ Merge_it:
         if mhit = 1 then
         do forever
           zcmd = null
+          call pfshow 'off'           /* make sure pfshow is off */
           'Addpop row(4) column(6)'
           'Display Panel(zigimrgq)'
           drc = rc
           'Rempop'
+          call pfshow 'reset'         /* restore pfshow setting */
           if drc > 0 then leave
           if zcmd > 0 then leave
           if zcmd = 0 then do
@@ -5501,9 +5726,11 @@ Merge_it:
               'tbskip' zmergtbl  'number('row')'
             end
             if zsel = '/' then do
+              call pfshow 'off'           /* make sure pfshow is off */
               'Addpop row(4) column(6)'
               'Display Panel(zigirmrg)'
               'rempop'
+              call pfshow 'reset'         /* restore pfshow setting */
             end
 
             if ztdsels = 0 then
@@ -5668,6 +5895,7 @@ Create_Repo:
     parse value '' with zerrsm zcmd zigirep cc_rc pdshlq ,
       defcpush defruid qualignr zigicat encoding
     'Display Panel(ziginew)'
+    if readonly = 'N' then readonly = null
     if rc > 0 then return 8
     if localrep = '?' then
     localrep = zigiosel()
@@ -5707,6 +5935,7 @@ Create_Repo:
     call do_popup
     x = docmd('cd 'localrep' && git init 'zigirep)
     call do_git_attributes
+    if readonly = 'Y' then call set_read_only
 
     Address ISPExec
     zigikey = localrep'/'zigirep
@@ -5753,7 +5982,7 @@ do_git_attributes:
   ga3  = ga3a || ga3b
   call write_fd ga3
   ga4a = ".gitignore        "
-  ga4b = "git-encoding=iso8859-1 zos-working-tree-encoding=iso8859-1"
+  ga4b = "git-encoding=IBM-1047 zos-working-tree-encoding=IBM-1047"
   ga4  = ga4a || ga4b
   call write_fd  ga4
   binaries = '*.docm *.docx *.doc *.dotx *.pdf *.epub *.mobi *.azw3' ,
@@ -6445,7 +6674,7 @@ Update_Status:
   * ----------------------------------------------------- */
 Confirm_Mem_Deletes:
   tbcd = 'zcd'time('s')
-  'tbcreate' tbcd 'names(dmrow dmorig) nowrite'
+  'tbcreate' tbcd 'names(dmrow dmorig dmstate) nowrite'
   do cmdi = 1 to words(mem_omvs)
     dmrow = word(mem_omvs,cmdi)
     dmorig = dmrow
@@ -6460,7 +6689,7 @@ Confirm_Mem_Deletes:
   cmtsels = 0
   do forever
     dsel = null
-    if cmtsels < 2 then do
+    if ztdsels < 1 then do
       if cmtop > 0 then do
         'tbtop' tbcd
         'tbskip' tbcd 'number('cmtop')'
@@ -6469,8 +6698,7 @@ Confirm_Mem_Deletes:
     end
     else 'tbdispl' tbcd
     drc = rc
-    if delconf = 'STOP' then return 4
-    if drc > 0 then return 0
+    if drc > 4 then return 0
     cmtop = ztdtop
     if dsel /= null then
     Select
@@ -6489,7 +6717,8 @@ Confirm_Mem_Deletes:
         cmd = cmd '&& cp -v -U' cbinopt dmorig '"//'tdsn'"'
         x = docmd(cmd)
         if x > 0 then call view_std 'B'
-        'tbdelete' tbcd
+        dmstate = 'Recovered'
+        'tbput' tbcd
       end
       When dsel = 'E' then
       Address TSO ,
@@ -6593,6 +6822,7 @@ Add_Dataset:
   call get_dsn_info
   save_extfile = extfile
   dsnapfx = pdshlq
+  s_dsnapfx = dsnapfx
   lc_count = 0
   add_count = 0
   last_find = 0
@@ -6600,11 +6830,12 @@ Add_Dataset:
   save_top = 0
   dsnatbl = 'ZIGID'random(999)
   call tbcreate_dsnatbl
+  if qualignr > 0 then
   if dsnapfx = null then qualignr = null
   do forever
     parse value '' with zsel zcmd row
     'tbquery' rtbl 'rownum(rows)'
-    if rows = 0
+    if rows = 0 | qualignr = 0 | qualignr = null
     then dsnapnl = 'zigidsna'
     else do
       dsnapnl = 'zigidsnb'
@@ -6633,17 +6864,25 @@ Add_Dataset:
     top = ztdtop
     if add_count > 0 then
     pdshlq  = dsnapfx
-    if rc > 4 then do
+    if trc > 4 then do
       zsel = null
       'tbput' rtbl
       'tbend' dsnatbl
       'tbsort' rtbl 'fields(dsn,c,a)'
       'tbtop' rtbl
+      if qualignr = 0 then pdshlq = null
       if add_count > 0 then
       'tbmod zigirepo order'
       'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
       extfile = save_extfile
       return
+    end
+    if dsnapfx /= s_dsnapfx then do
+      s_dsnapfx = dsnapfx
+      zcmd = null
+      zsel = null
+      row = 0
+      call get_list
     end
     if row = 0 then zsel = null
     if row <> null then
@@ -6770,7 +7009,10 @@ Get_List:
   x = docmd(cmd)
   Address TSO
   call outtrap 'x.'
-  '%zigircsi 'dsnapfx'.**'
+  do ip = 1 to words(dsnapfx)
+    csipfx = word(dsnapfx,ip)
+    '%zigircsi 'csipfx'.**'
+  end
   call outtrap 'off'
   Address ISPExec
   do dsni = 1 to x.0
@@ -6779,8 +7021,13 @@ Get_List:
     dsnvol = word(x.dsni,3)
     dastat = null
     do gl = 1 to so.0
-      if substr(dsna,length(prefix)+2) = word(so.gl,1)
-      then dastat = 'Added'
+      if qualignr > 0 then do
+        if substr(dsna,length(prefix)+2) = word(so.gl,1)
+        then dastat = 'Added'
+      end
+      else do
+        if dsna = word(so.gl,1) then dastat = 'Added'
+      end
     end
     'tbadd' dsnatbl
     lc_count = lc_count + 1
@@ -6812,10 +7059,12 @@ Do_Add_Copy:
   if sysdsorg = 'PO' then
   if zdsn.dsnb = null then do
     extans = 'N'
+    call pfshow 'off'           /* make sure pfshow is off */
     'addpop row(4) column(6)'
     'display panel(zigiadde)'
     drc = rc
     'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if drc = 0 then zdsn.dsnb = ext
     if extans = 'Y' then
     extfile = 'Y'
@@ -7064,6 +7313,12 @@ Write_FD:
   | to a commit.                                                |
   * ----------------------------------------------------------- */
 Do_Undo:
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'UNDO is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
   arg uopt
   if uopt = 'D' then mem = null
   zerrsm = null
@@ -7289,9 +7544,11 @@ do_history:
       end
 
       if zsel = '/' then do
+        call pfshow 'off'           /* make sure pfshow is off */
         'Addpop row(4) column(6)'
         'Display Panel(zigirhst)'
         'rempop'
+        call pfshow 'reset'         /* restore pfshow setting */
       end
       if zsel /= null then
       Select
@@ -7423,6 +7680,7 @@ GETENV:
   call add_env '_BPX_SHAREAS=YES'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
   call add_env 'EXPORT _EDC_ADD_ERRNO2=1'
+  call add_env '_EDC_ZERO_RECLEN=Y'
   env.0 = envc
   drop so. se.
   x = debug('Finished collection of env variables')
@@ -7705,15 +7963,18 @@ get_binfiles:
   | Function:  Fills the global binfiles. stem with all        |
   |            current repo files that are added as binary.    |
   \---------------------------------------------------------- */
-  cmd = 'cd 'localrep'/'zigirep' &&'
-  cmd = cmd 'cat .gitattributes | grep git-encoding=BINARY'
-  cmd = cmd '| cut -d" " -f1'
+  cmd = 'cd 'localrep'/'zigirep' &&' ,
+    'cat .gitattributes | grep binary' ,
+    '| cut -d" " -f1'
   x = docmd(cmd)
   binfiles. = null
+  bc = 0
   do b = 1 to so.0
-    binfiles.b = so.b
+    if left(strip(so.b),2) = '*.' then iterate
+    bc = bc + 1
+    binfiles.bc = so.b
   end
-  binfiles.0 = so.0
+  binfiles.0 = bc
   return 0
 
 is_binfile:
@@ -7919,10 +8180,12 @@ Do_Tag_Extract:
     return
   end
   do forever
+    call pfshow 'off'           /* make sure pfshow is off */
     'Addpop row(3) column(4)'
     'Display Panel(zigitagx)'
     drc = rc
     'Rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if drc > 0 then do
       zerrsm = 'Canceled.'
       zerrlm = 'Extract canceled.'
@@ -7930,10 +8193,12 @@ Do_Tag_Extract:
       return
     end
     if tagxpath = '?' then tagxpath = zigiosel()
+    call pfshow 'off'           /* make sure pfshow is off */
     'Addpop row(3) column(4)'
     'Display Panel(zigiextq)'
     drc = rc
     'Rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
     if sans = 'Y' then leave
   end
   if tagxpath /= null then
@@ -8039,6 +8304,12 @@ DoHist_ComView:
   | a PDS member.                                               |
   * ----------------------------------------------------------- */
 DoHist_Recover:
+  if readonly = 1 then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'History Recover is not supported for ReadOnly Repositories.'
+    'setmsg msg(isrz003)'
+    return
+  end
   if dsnvalid(fulldsn) = 'NO' then do
     zerrsm = 'Error.'
     zerrlm = 'The recovery of a non-z/OS dataset is not supported' ,
@@ -8065,10 +8336,12 @@ DoHist_Recover:
   ralc = 'N'
   rans = null
   rover = null
+  call pfshow 'off'           /* make sure pfshow is off */
   'Addpop row(4) column(8)'
   'Display Panel(zigiresq)'
   drc = rc
   'Rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   if drc > 0 then return
   if rans = 'N' then return
   rcdd = 'RC'random(99999)
@@ -8319,12 +8592,12 @@ Check_Delta:
   call add_report ' '
   /* Get the HLQ for use */
   if qualignr = 0
-  then ckothlq = pdshlq
+  then ckothlq = null
   else do
     ckothlq = translate(pdshlq,' ','.')
     if qualignr /= '*' then
     ckothlq = subword(ckothlq,1,qualignr)
-    ckothlq = translate(ckothlq,'.',' ')
+    ckothlq = translate(ckothlq,'.',' ')'.'
   end
   /* ------------------------------- *
   | Process the differences report: |
@@ -8345,7 +8618,7 @@ Check_Delta:
   do zz = 1 to words(brdsns)
     zd = word(brdsns,zz)
     zw = words(brmems.zd)
-    ldsn = "'"ckothlq"."zd"'"
+    ldsn = "'"ckothlq""zd"'"
     x = listdsi(ldsn "dir")
     if sysdsorg /= 'PO' then iterate
     interpret 'zv'zz '= (brmems.zd)'
@@ -8375,7 +8648,7 @@ Check_Delta:
     call add_report ' '
   end
   do brdel = 1 to words(brdeletes)
-    deldsn = "'"ckothlq"."word(brdeletes,brdel)"'"
+    deldsn = "'"ckothlq""word(brdeletes,brdel)"'"
     call add_report translate(deldsn)
     Address TSO
     call outtrap 'brd.'
@@ -8393,6 +8666,33 @@ Check_Delta:
   end
   Return
 
+/* ---------------------------------------------- *
+ | Set Repository as Read Only by creating a file |
+ | .zigi/readonly                                 |
+ * ---------------------------------------------- */
+Set_Read_Only:
+  x = bpxwunix('touch' localrep'/'zigirep'/.zigi/readonly')
+  cmd = 'cd' localrep'/'zigirep ,
+    "&& echo '.zigi/readonly' > .gitignore" ,
+    '&& git add .gitignore'
+  x = docmd(cmd)
+  return 0
+
+Check_Read_Only:
+  x = bpxwunix('ls -la' localrep'/'zigirep'/.zigi/readonly',,cs.,ce.)
+  if cs.0 > 0 then return 1
+  else return 0
+
+  /* ----------------------------------------------- *
+  | Check if a OMVS file exists (rc = 1 if it does) |
+  * ----------------------------------------------- */
+File_Exists:
+  parse arg file_check
+  ckotdir = localrep'/'zigirep
+  x = bpxwunix('ls -la' localrep'/'zigirep'/'file_check,,fs.,fe.)
+  if fe.0 = 0 then return 1
+  return 0
+
   /* -------------------------------------------------------------- *
   | Process the branch delta from the git diff command to identify |
   | the files changed.                                             |
@@ -8401,7 +8701,8 @@ BrDelta:
   Select
     When change_flag = 'M' then BrType = 'A'
     When change_flag = 'A' then BrType = 'A'
-    When change_flag = 'D' then do
+    When change_flag = 'D' then
+    if file_exists(change_file) = 1 then do
       if pos('/',change_file) > 0
       then do
         parse value change_file with change_file'/'brdmem
@@ -8430,7 +8731,7 @@ BrDelta:
   if pos('/',change_file) = 0 then do
     if dsnvalid(change_file) = 'NO' then return
     brdsns = brdsns change_file
-    call add_report "'"ckothlq"."change_file"'"
+    call add_report "'"ckothlq""change_file"'"
   end
   else do
     parse value change_file with change_file'/'BrMem
@@ -8439,6 +8740,6 @@ BrDelta:
     if pos('.',brmem) > 0 then
     parse value brmem with brmem'.'.
     brmems.change_file = brmems.change_file BrMem
-    call add_report "'"ckothlq"."change_file'('translate(brmem)')'"'"
+    call add_report "'"ckothlq""change_file'('translate(brmem)')'"'"
   end
   return
