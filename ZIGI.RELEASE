@@ -17,6 +17,8 @@ tbd
 
 1. Remove check of remote after commit as unnecessary.
 2. Clean up the history table. Key on commit and remove %b (body)
+3. In the table state test which checks the level of the repo table,
+   if there are no rows then just return to avoid meaningless messages.
 
 =============================================================================
                              ZIGI Release Notes
