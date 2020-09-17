@@ -1,0 +1,64 @@
+ /* --------------------  rexx procedure  -------------------- *
+  | Name:      ZIGIEXIT                                        |
+  |                                                            |
+  | Function:  Generalized exit driver for ZIGI                |
+  |                                                            |
+  | Syntax:    rc = zigiexit(exit# exit-parms)                 |
+  |                                                            |
+  |            Exit# - a supported exit number                 |
+  |                                                            |
+  |            1  -  Repository Command Exit                   |
+  |            2  -  Current Repository Command Exit           |
+  |                                                            |
+  | Return Code:  provided by the exit                         |
+  |               or 12 if the exit is not valid               |
+  |               or 16 if the exit module does not exist      |
+  |                                                            |
+  | Each Exit Module must exist to be used. It will be passed  |
+  | the provided parameters and may also access additional     |
+  | information from the ISPF variable pool.                   |
+  |                                                            |
+  | To use the ISPF variable pool prior to calling ZIGIEXIT    |
+  | define and vput the desired variables. Then vget them      |
+  | in the specific user exit.                                 |
+  |                                                            |
+  | Author:    Lionel B. Dyck                                  |
+  |                                                            |
+  | History:  (most recent on top)                             |
+  |            09/17/20 LBD - Creation                         |
+  |                                                            |
+  | ---------------------------------------------------------- |
+  |    ZIGI - the z/OS ISPF Git Interface                      |
+  |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
+  |                                                            |
+  |    This program is free software: you can redistribute it  |
+  |    and/or modify it under the terms of the GNU General     |
+  |    Public License as published by the Free Software        |
+  |    Foundation, either version 3 of the License, or (at     |
+  |    your option) any later version.                         |
+  |                                                            |
+  |    This program is distributed in the hope that it will be |
+  |    useful, but WITHOUT ANY WARRANTY; without even the      |
+  |    implied warranty of MERCHANTABILITY or FITNESS FOR A    |
+  |    PARTICULAR PURPOSE.  See the GNU General Public License |
+  |    for more details.                                       |
+  |                                                            |
+  |    You should have received a copy of the GNU General      |
+  |    Public License along with this program.  If not, see    |
+  |    <https://www.gnu.org/licenses/>.                        |
+  * ---------------------------------------------------------- */
+
+  Signal On Syntax
+
+  Parse Arg exitid exitparms
+
+  Select
+    When exitid = 1 then rc = zigixit1(exitparms)
+    When exitid = 2 then rc = zigixit2(exitparms)
+    Otherwise return 12
+    end
+
+  return rc
+
+Syntax:
+ return 16

@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r02'
+  ver = 'v3r03'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -26,6 +26,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            09/16/20 LBD - Remove %b from history log       |
+  |            09/08/20 LBD - After commit bypass remote chk   |
+  |            09/07/20 LBD - Experimental exits               |
   |            09/06/20 LBD - Remove calls to work/update after|
   |                           PDS member update                |
   |            08/24/20 LBD - Correct Del Repo processing      |
@@ -454,10 +457,14 @@
       When abbrev('SORT',word(zcmd,1),2) = 1 then call handle_zigiprim_sort
       When abbrev('SSH',zcmd,2) = 1 then call handle_zigiprim_ssh
       When zcmd = 'VIEWD' then call view_debug
-      Otherwise if zcmd /= null then do
+      Otherwise do
+      rc = zigiexit(1 zcmd)
+      if rc >= 12 then
+      if zcmd /= null then do
         zerrsm = 'Unknown'
         zerrlm = zcmd 'is not a recognized command.'
         'setmsg msg(isrz003)'
+      end
       end
     end
 
@@ -1324,9 +1331,13 @@ Work_With_Repo:
       When abbrev('FLOWEND',zcmd,5) = 1 then call WWR_handle_flowend
       when zcmd = 'VIEWD' then call view_debug
       Otherwise do
+      rc = zigiexit(2 zcmd)
+      if rc >= 12 then
+      do
         zerrsm = 'Unknown'
         zerrlm = zcmd 'is not a recognized command.'
         'setmsg msg(isrz003)'
+      end
       end
     end
 
@@ -4818,6 +4829,7 @@ Do_Commit:
   end
   x = debug('Commit completed:' zigirep)
   drop m. cmsg.
+  nocrpop = 1
   call update_repo_metadata
   return
 
@@ -6293,7 +6305,9 @@ Update_repo_metadata:
     x = debug('fetching remote')
     zs1 = 'Fetching Remote info'
     zs2 = 'Patience . . .'
+    if nocrpop /= 1 then
     call do_popup
+    nocrpop = 0
     /* get the remote info.....but */
     /* we have to get rid of the tab in git output */
     x = debug('getting the remotes')
@@ -7445,16 +7459,16 @@ do_history:
   end
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git log --cc -m -n 9999 --unified=1'
-  cmd = cmd "--pretty=format:'commit:%h %b Date:%cD Subject:%f' --name-only" ,
+  cmd = cmd "--pretty=format:'commit:%h Date:%cD Subject:%f' --name-only" ,
     '| grep -e commit -e' usssafe(element)
   x = docmd(cmd)
   hhit = 0
   hist_tbl = 'ZHIST'random(999)
-  'tbcreate' hist_tbl 'Names(hdate hcommit hsubject) nowrite'
+  'tbcreate' hist_tbl 'Keys(hcommit) Names(hdate hsubject) nowrite'
   do ih = 1 to so.0
     if left(so.ih,7) = 'commit:' then do
       if pos('Date:',so.ih) = 0 then iterate
-      parse value so.ih with 'commit:'hcommit 'Date:'.',' d m year ,
+      parse value so.ih with 'commit:'hcommit . 'Date:'.',' d m year ,
         time zone 'Subject:'hsubject
       m = wordpos(translate(m), ,
         'JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEV')
@@ -7479,6 +7493,7 @@ do_history:
     if pos('/',delement) > 0 then do
       parse value delement with le'/'re
     end
+    'tbsort' hist_tbl 'Fields(hdate,ch,d)'
     'tbtop' hist_tbl
     save_top = ztdtop
     top = 1
