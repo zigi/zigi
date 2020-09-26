@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r03'
+  ver = 'v3r10'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -6859,6 +6859,15 @@ usssafe:
   safedsn = strreplace(safedsn, '$', '\$')
   return safedsn
 
+Remove_Safe:
+  parse arg safedsn
+  if pos('\$',safedsn) = 0 then return safedsn
+  do until pos('\',safedsn) = 0
+     parse value safedsn with sl'\'sr
+     safedsn = sl''sr
+     end
+  return safedsn
+
   /* ------------------------------------------------------ *
   | The pfshow routine will:                               |
   | 1. check to see the passed option                      |
@@ -8901,6 +8910,8 @@ Fixup_cp: Procedure expose null putpds getpds
   cmd = subword(cmd,2,w-3)
   target = strip(target,'B','"')
   source = strip(source,'B','"')
+  if left(target,3) = "//'" then target = remove_safe(target)
+  if left(source,3) = "//'" then source = remove_safe(source)
   if left(target,2) = '//' then do   /* use putpds */
     cp = putpds
     if pos('(',target) > 0 then do
@@ -8920,7 +8931,7 @@ Fixup_cp: Procedure expose null putpds getpds
     end
     else do
       p = lastpos('/',target)
-      ls = substr(target,p)
+      ls = substr(target,p+1)
       if pos('.',ls) = 0
       then do
         target = left(target,p)
@@ -8929,6 +8940,7 @@ Fixup_cp: Procedure expose null putpds getpds
       else do
         parse value ls with .'.'suf
         target = left(target,p)
+        cp = cp '-M su='suf
       end
     end
   end
