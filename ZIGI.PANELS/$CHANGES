@@ -16,7 +16,7 @@ is an improvement of minutes to seconds.
 
 New User exit driver created (zigiexit) as a generalized exit facility.
 Initial Exit 0 has been defined to provide a path to DoveTails getpds/putpds
-if it isn't found in the default path (zigixit0)
+if it isn't found in the default path using zigixit0 (provided as sampxit0).
 
 New PDS member selection commands
   - AF to git add with -f (force) to be used to add a PDS member that was
