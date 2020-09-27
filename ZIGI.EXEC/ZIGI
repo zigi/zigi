@@ -27,6 +27,7 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            09/27/20 LBD - Add SHAREAS=YES to all bpxwunix  |
+  |                         - Correct .gitignore for memstat   |
   |            09/26/20 LBD - Add debug for all commands       |
   |                         - Support for Dovetail enhanced    |
   |                           getpds and putpds to replace cp  |
@@ -2813,7 +2814,10 @@ WWRF_build_member_table:
           parse value member with member'.' .
           member = translate(member)
         end
-        if folder /= dsn then iterate
+        if folder /= dsn then do
+          stat = null
+          iterate
+          end
 
         statc = check_ignore(folder'/'gi_mem)
         if statc /= 0 then stat = statc
@@ -3285,7 +3289,7 @@ WWRF_handle_lcmd_i:
   m = lower(m)'.'zdsn.dsn
   fdsn = d'/'m
   cmd = "echo '"fdsn"' >> "localrep"/"zigirep"/.gitignore"
-  x = bpxwunix(cmd,,so.,se.,env.
+  x = bpxwunix(cmd,,so.,se.,env.)
   call view_std 'B'
   memstat = '[  ] Git Ignored'
   'tbmod' rtll
