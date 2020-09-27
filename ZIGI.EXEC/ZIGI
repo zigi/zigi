@@ -8910,7 +8910,7 @@ do_copy:
       end
     end
     x = docmd(do_cpcmd)
-    if se.0 > 1 then
+    if se.0 > 2 then
     call stemedit 'view',se.
     return x
   end
@@ -8968,6 +8968,20 @@ Fixup_cp: Procedure expose null putpds getpds
       dvstat = targetl'/.zigi/'substr(targetw,p+1)
     end
     cp = cp '-M st='dvstat''cpm''cpu
+
+  /* --------------------------------------------------------- *
+   | Remove this block of code if/when GETPDS is updated to    |
+   | either (a) update only the individual stat record or      |
+   | (b) update the entire stat file when an individual member |
+   | is copied.                                                |
+   * --------------------------------------------------------- */
+    if pos('(',source) > 0 then do
+       parse value source with ls'('.')'rs
+       if rcmd = null
+          then rcmd = getpds '-M st='dvstat  ls''rs
+          else rcmd = getpds '-M st='dvstat  ls''rs '&&' rcmd
+       end
+
   end
   if pos('-B',cmd) > 0 then cp = cp '-b'
   cmd = cp source target
