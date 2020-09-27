@@ -8968,7 +8968,6 @@ Fixup_cp: Procedure expose null putpds getpds
   end
   if pos('-B',cmd) > 0 then cp = cp '-b'
   cmd = cp source target
-  say 'cmd:' cmd
   if rcmd = null then return cmd
   else return cmd '&&' rcmd
 

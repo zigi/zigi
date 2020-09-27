@@ -457,7 +457,6 @@ Alloc_Copy_PDS:
       suf = '-M st='dvstat
       cmd = dovetail_dir'putpds' suf rdir''rsuf '//'pds
     end
-    say 'cmd:' cmd
     x = docmd(cmd)
 
     if x > 0 then call view_std 'B'
