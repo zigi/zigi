@@ -17,6 +17,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            09/27/20 LBD - Addd debug support               |
   |            09/26/20 LBD - Support Dovetail PUTPDS          |
   |                           - zigixit0 to get path           |
   |                         - Use putpds when not selective or |
@@ -101,7 +102,7 @@
   | Get the ISPF Variables with our instructions |
   * -------------------------------------------- */
   Address ISPExec
-  'vget (ckothlq ckotdir pulldsns mgenl)'
+  'vget (ckothlq ckotdir pulldsns mgenl debugfil)'
   if datatype(mgen) /= 'NUM' then mgen = 0
 
   Address TSO
@@ -453,8 +454,16 @@ Alloc_Copy_PDS:
       suf = '-M su='suf
       end
       else rsuf = '/*'
+      lp = lastpos('/',rdir)
+      dvstat = left(rdir,lp)'.zigi/'substr(rdir,lp+1)
+      /* Comment Start
+      if suf = null
+         then suf = '-M st='dvstat
+         else suf = suf',st='dvstat
+         Comment End */
       cmd = dovetail_dir'putpds' suf rdir''rsuf '//'pds
     end
+    say 'cmd:' cmd
     x = docmd(cmd)
 
     if x > 0 then call view_std 'B'
@@ -630,6 +639,7 @@ is_binfile: procedure expose binfiles.
 docmd:
   parse arg cmd
   drop so. se.
+  x = debug('ZIGICKOT:' cmd)
   x = bpxwunix(cmd,,so.,se.,env.)
   return x
 
@@ -841,3 +851,12 @@ Check_ENQS: Procedure
     'TBEnd' save
   end
   return 1
+
+debug:
+  if debugfil /= null then do
+    parse arg msg
+    msg = Date() Time()' : 'msg
+    c = 'echo "'msg'" >>' debugfil
+    x = bpxwunix(c,,dso.,dse.,env.)
+  end
+  return 0

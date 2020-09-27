@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            09/27/20 LBD - Add SHAREAS=YES to all bpxwunix  |
   |            09/26/20 LBD - Add debug for all commands       |
   |                         - Support for Dovetail enhanced    |
   |                           getpds and putpds to replace cp  |
@@ -892,12 +893,6 @@ init_ispf:
   parse value '' with null rx zigidebg_flag save_zigirep fulldsn cltime
   cscnt = 0
   cdrcnt = 0
-
-  cmd = 'pwd'
-  env.1 = '_BPX_SHAREAS=YES'
-  env.0 = 1
-  x = bpxwunix(cmd,,so.,se.,env.)
-  home    = strip(so.1)
 
   /* ---------------------------------------- *
   | Check for ZIGIDEBG DD for debug purposes |
@@ -3100,8 +3095,9 @@ Update_Mem_Stats:
   dsnstat = fixup_dsn_status(memstat dsnstat)
   'tbmod' rtbl
 
-  x = zigistat(fulldsn ,
-    localrep'/'zigirep'/.zigi/'dsn 'S')
+  if enhanced_cp = 0 then
+     x = zigistat(fulldsn ,
+       localrep'/'zigirep'/.zigi/'dsn 'S')
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&&git add .zigi/'dsn
   cmd = usssafe(cmd)
@@ -3222,6 +3218,7 @@ WWRF_handle_lcmd_rm:
     statfile = translate(statfile,'.',' ')
     cmd = 'cd' localrep'/'zigirep'/.zigi/'
     stats = usssafe(statfile)
+    if enhanced_cp = 0 then
     x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'stats 'S')
     cmd = 'cd' localrep'/'zigirep
     cmd = cmd || '&& git add -v .zigi/'stats
@@ -3288,7 +3285,7 @@ WWRF_handle_lcmd_i:
   m = lower(m)'.'zdsn.dsn
   fdsn = d'/'m
   cmd = "echo '"fdsn"' >> "localrep"/"zigirep"/.gitignore"
-  x = bpxwunix(cmd,,so.,se.)
+  x = bpxwunix(cmd,,so.,se.,env.
   call view_std 'B'
   memstat = '[  ] Git Ignored'
   'tbmod' rtll
@@ -3560,6 +3557,7 @@ git_add:
         statfile = remove_dsn_hlq(fulldsn)
         cmd = 'cd' localrep'/'zigirep'/.zigi/'
         stats = usssafe(statfile)
+        if enhanced_cp = 0 then
         x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'stats 'S')
         x = docmd(cmd '&& git add -v 'stats)
         if x > 0 then call view_std 'B'
@@ -4662,6 +4660,7 @@ Do_Resetid:
     if qualignr > 0 then
     statfile = subword(statfile,qualignr+1)
     statfile = translate(statfile,'.',' ')
+    if enhance_cp = 0 then
     x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'statfile 'S')
     statfiles = usssafe(statfile)
     x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfiles)
@@ -4981,6 +4980,7 @@ fixup_userids:
     if qualignr > 0 then
     statfile = subword(statfile,qualignr+1)
     statfile = translate(statfile,'.',' ')
+    if enhanced_cp = 0 then
     x = zigistat(workdsn localrep'/'zigirep'/.zigi/'statfile 'S')
     dir = localrep'/'zigirep
     statfiles = usssafe(statfile)
@@ -5164,6 +5164,7 @@ Git_Add_Member_Stats:
   statfiles = usssafe(statfile)
   x = cmd '&& git add -v 'statfiles
   x = docmd(cmd)
+  if enhanced_cp = 0 then
   x = zigistat(fulldsn ,
     localrep'/'zigirep'/.zigi/'statfiles 'S')
   statfiles = usssafe(statfile)
@@ -5869,6 +5870,7 @@ Merge_it:
               wfile = translate(word(fix_stats,fs),' ','/')
               wfile = subword(wfile,words(wfile))
               pds = usssafe(pdshlqt'.'wfile)
+              if enhanced_cp = 0 then
               Address TSO '%zigistat' "'"pds"'" sfile 'S'
               x = docmd('cd' localrep'/'zigirep '&& git add' sfile)
               if x > 0 then call view_std 'B'
@@ -6545,9 +6547,10 @@ Update_repo_metadata:
           | If members were updated then need to update the stat file |
           * --------------------------------------------------------- */
           if mem_hit = 1 then do
+            if enhanced_cp = 0 then
+            x = zigistat("'"edsn"'" statpath 'S')
             cmd = 'cd' localrep'/'zigirep'/.zigi'
             cmd = cmd '&& git add .'
-            x = zigistat("'"edsn"'" statpath 'S')
           end
         end
         else if nonzigi = 0 then do
@@ -7279,6 +7282,7 @@ Do_Add_Copy:
       tagcmd = 'chtag -bR 'DIR'/'pdss'/'ac_mem
       x = docmd(tagcmd)
     end
+    if enhanced_cp = 0 then
     Address TSO '%zigistat' "'"pds"'" dir"/.zigi/"pdss 'S'
     x = docmd('cd' dir '&& git add .zigi/'pdss)
   end
@@ -7479,6 +7483,7 @@ Do_Undo:
       sfile = localrep'/'zigirep'/.zigi/'d
       statmems = mem
       'vput (statmems)'
+      if enhanced_cp = 0 then
       Address TSO '%zigistat' fulldsn sfile 'U'
       memstat = null
       'tbmod' rtbl
@@ -7755,9 +7760,15 @@ Do_Popup4p:
   | bpxwunix commands.                                    |
   * ----------------------------------------------------- */
 GETENV:
+  cmd = 'pwd'
+  omvsenv.1 = '_BPX_SHAREAS=YES'
+  omvsenv.0 = 1
+  x = bpxwunix(cmd,,so.,se.,omvsenv.)
+  home    = strip(so.1)
+
   x = debug('Starting collection of env variables')
   cmd  = docmdx('env')
-  rc = bpxwunix(cmd,,env.,se.)
+  rc = bpxwunix(cmd,,env.,se.,omvsenv.)
   envc = env.0
   call add_env '_BPX_SHAREAS=YES'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
@@ -7812,7 +7823,7 @@ docmdx:
   if rx = null then do
     rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && '
     c = "[[ -f "home"/.profile ]] && echo f"
-    x = bpxwunix(c,,o.,se.)
+    x = bpxwunix(c,,o.,se.,omvsenv.)
     if o.0 = 1 & o.1 = "f" then do
       rx = rx '. 'home'/.profile > /dev/null 2>&1 && '
     end
@@ -7839,7 +7850,7 @@ debug:
     parse arg msg
     msg = Date() Time()' : 'msg
     c = 'echo "'msg'" >>' debugfil
-    x = bpxwunix(c,,dso.,dse.,env.)
+    x = bpxwunix(c,,dso.,dse.,omvsenv.)
     zigidebg_use = 1
   end
   return 0
@@ -8469,7 +8480,7 @@ DoHist_Recover:
   x = do_copy(cmd)
   if x > 0 then call view_std 'B'
 
-  x = bpxwunix('rm' usssafe(file))
+  x = bpxwunix('rm' usssafe(file),,s.,e.,env.)
 
   address ispexec
 
@@ -8540,7 +8551,7 @@ DoHist_ViewSource:
   gitcmde = null
   'vput (vtitle gitcmde localrep zigirep)'
   'View File(file) panel(zigiedit) macro(zigivmac)'
-  x = bpxwunix('rm' usssafe(file))
+  x = bpxwunix('rm' usssafe(file),,s.,e.,env.)
   return
 
   /* ------------------------------------------------------ *
@@ -8577,7 +8588,7 @@ DoHist_File_Extract:
   | and if it exists great, if not then it does now.             |
   * ------------------------------------------------------------ */
 Check_TMP:
-  x = bpxwunix('mkdir' home'/tmp',,so.,se.)
+  x = bpxwunix('mkdir' home'/tmp',,so.,se.,env.)
   return
 
   /* ------------------------------- *
@@ -8772,7 +8783,7 @@ Check_Delta:
   | .zigi/readonly                                 |
   * ---------------------------------------------- */
 Set_Read_Only:
-  x = bpxwunix('touch' localrep'/'zigirep'/.zigi/readonly')
+  x = bpxwunix('touch' localrep'/'zigirep'/.zigi/readonly',s.,e.,env.)
   cmd = 'cd' localrep'/'zigirep ,
     "&& echo '.zigi/readonly' > .gitignore" ,
     '&& git add .gitignore'
@@ -8780,7 +8791,7 @@ Set_Read_Only:
   return 0
 
 Check_Read_Only:
-  x = bpxwunix('ls -la' localrep'/'zigirep'/.zigi/readonly',,cs.,ce.)
+  x = bpxwunix('ls -la' localrep'/'zigirep'/.zigi/readonly',,cs.,ce.,env.)
   if cs.0 > 0 then return 1
   else return 0
 
@@ -8790,7 +8801,7 @@ Check_Read_Only:
 File_Exists:
   parse arg file_check
   ckotdir = localrep'/'zigirep
-  x = bpxwunix('ls -la' localrep'/'zigirep'/'file_check,,fs.,fe.)
+  x = bpxwunix('ls -la' localrep'/'zigirep'/'file_check,,fs.,fe.,env.)
   if fe.0 = 0 then return 1
   return 0
 
@@ -8921,13 +8932,17 @@ Fixup_cp: Procedure expose null putpds getpds
     source = lower(source)
   end
   if left(source,2) = '//' then do   /* use getpds */
+  trace '?i'
     cp = getpds '-R'
     if pos('-S',cmd) > 0 then do
       parse value cmd with . 'a='suf .
       if left(suf,1) = '.' then suf = substr(suf,2)
-      p = lastpos('/',target)
-      target = left(target,p)
       cp = cp '-M su='suf
+      p = lastpos('/',target)
+      targetw = left(target,p-1)
+      p = lastpos('/',targetw)
+      targetl = left(targetw,p-1)
+      dvstat = targetl'/.zigi/'substr(targetw,p+1)
     end
     else do
       p = lastpos('/',target)
@@ -8942,7 +8957,15 @@ Fixup_cp: Procedure expose null putpds getpds
         target = left(target,p)
         cp = cp '-M su='suf
       end
+      p = lastpos('/',target)
+      targetw = left(target,p-1)
+      p = lastpos('/',targetw)
+      targetl = left(targetw,p-1)
+      dvstat = targetl'/.zigi/'substr(targetw,p+1)
     end
+    /* Comment Start
+    cp = cp',st='dvstat
+       Comment End */
   end
   if pos('-B',cmd) > 0 then cp = cp '-b'
   cmd = cp source target
@@ -8952,7 +8975,7 @@ Fixup_cp: Procedure expose null putpds getpds
 
 Get_Ignored:
   cmd = 'cat' localrep'/'zigirep'/.gitignore'
-  x = bpxwunix(cmd,,gi.,ge.)
+  x = bpxwunix(cmd,,gi.,ge.,env.)
   return
 
 Check_ignore:
