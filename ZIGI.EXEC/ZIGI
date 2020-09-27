@@ -2819,9 +2819,6 @@ WWRF_build_member_table:
           iterate
           end
 
-        statc = check_ignore(folder'/'gi_mem)
-        if statc /= 0 then stat = statc
-
         if mem = MEMBER then do
           memstat = porcelain(stat)
           if FOLDER = "./" & stat = "??" then
@@ -2830,6 +2827,9 @@ WWRF_build_member_table:
         end
       end
     end
+
+    statc = check_ignore(dsn'/'gi_mem)
+    if statc /= 0 then memstat = '[  ] Git Ignored'
 
     if stat = '??' then
     memstat = '[??] Untracked'
@@ -6823,7 +6823,6 @@ porcelain:
   https://www.git-scm.com/docs/git-status#_short_format */
 
   Select
-    When stat == "GI" then res = "Git Ignored"   /* ZIGI Custom  */
     When stat == " M" then res = "Modified"
     When stat == " D" then res = "Deleted"
     When stat == " R" then res = "Renamed"
