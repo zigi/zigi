@@ -446,21 +446,15 @@ Alloc_Copy_PDS:
     if pos('-X',binopt) = 0
     then do
       do xi = 1 to mems.0
-         if left(mems.xi,1) /= '.' then leave
-         end
-      parse value mems.xi with m'.'suf
-      if suf /= null then do
-      rsuf = '/*.'suf
-      suf = '-M su='suf
+        if left(mems.xi,1) /= '.' then leave
       end
+      parse value mems.xi with m'.'suf
+      if suf /= null
+      then rsuf = '/*.'suf
       else rsuf = '/*'
       lp = lastpos('/',rdir)
       dvstat = left(rdir,lp)'.zigi/'substr(rdir,lp+1)
-      /* Comment Start
-      if suf = null
-         then suf = '-M st='dvstat
-         else suf = suf',st='dvstat
-         Comment End */
+      suf = '-M st='dvstat
       cmd = dovetail_dir'putpds' suf rdir''rsuf '//'pds
     end
     say 'cmd:' cmd

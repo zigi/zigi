@@ -8921,6 +8921,8 @@ Fixup_cp: Procedure expose null putpds getpds
   cmd = subword(cmd,2,w-3)
   target = strip(target,'B','"')
   source = strip(source,'B','"')
+  cpm = null
+  cpu = null
   if left(target,3) = "//'" then target = remove_safe(target)
   if left(source,3) = "//'" then source = remove_safe(source)
   if left(target,2) = '//' then do   /* use putpds */
@@ -8932,12 +8934,11 @@ Fixup_cp: Procedure expose null putpds getpds
     source = lower(source)
   end
   if left(source,2) = '//' then do   /* use getpds */
-  trace '?i'
     cp = getpds '-R'
     if pos('-S',cmd) > 0 then do
       parse value cmd with . 'a='suf .
       if left(suf,1) = '.' then suf = substr(suf,2)
-      cp = cp '-M su='suf
+      cpm = ',su='suf
       p = lastpos('/',target)
       targetw = left(target,p-1)
       p = lastpos('/',targetw)
@@ -8950,12 +8951,12 @@ Fixup_cp: Procedure expose null putpds getpds
       if pos('.',ls) = 0
       then do
         target = left(target,p)
-        cp = cp '-M up=y'
+        cpu = ',up=y'
       end
       else do
         parse value ls with .'.'suf
         target = left(target,p)
-        cp = cp '-M su='suf
+        cpm = ',su='suf
       end
       p = lastpos('/',target)
       targetw = left(target,p-1)
@@ -8963,9 +8964,7 @@ Fixup_cp: Procedure expose null putpds getpds
       targetl = left(targetw,p-1)
       dvstat = targetl'/.zigi/'substr(targetw,p+1)
     end
-    /* Comment Start
-    cp = cp',st='dvstat
-       Comment End */
+    cp = cp '-M st='dvstat''cpm''cpu
   end
   if pos('-B',cmd) > 0 then cp = cp '-b'
   cmd = cp source target
