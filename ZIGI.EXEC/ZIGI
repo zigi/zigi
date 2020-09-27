@@ -6788,8 +6788,8 @@ Confirm_Mem_Deletes:
         dw = wordpos(dmorig,mem_omvs)
         mem_omvs = delword(mem_omvs,dw,1)
         tdsn = "'"strip(fulldsn,'B',"'")"("dmrow")'"
-        cmd = 'cd' localrep'/'zigirep'/'r
-        cmd = cmd '&& cp -v -U' cbinopt dmorig '"//'tdsn'"'
+        rd = translate(r)
+        cmd = 'cp -v -U' cbinopt localrep'/'zigirep'/'rd'/'dmorig '"//'tdsn'"'
         x = do_copy(usssafe(cmd))
         if x > 0 then call view_std 'B'
         dmstate = 'Recovered'
@@ -8887,7 +8887,7 @@ do_copy:
   end
   else do
     getpds = dovetail_dir'getpds'
-    putpds  = dovetail_dir'putpds'
+    putpds = dovetail_dir'putpds'
       /* -------------------------------------------- *
       | otherwise use the Dovetail enhanced cp tools |
       * -------------------------------------------- */
@@ -8910,7 +8910,7 @@ do_copy:
       end
     end
     x = docmd(do_cpcmd)
-    if se.0 > 2 then
+    if se.0 > 1 then
     call stemedit 'view',se.
     return x
   end
@@ -8934,7 +8934,6 @@ Fixup_cp: Procedure expose null putpds getpds
       parse value target with lt'('tm')'rt
       target = lt''rt
     end
-    source = lower(source)
   end
   if left(source,2) = '//' then do   /* use getpds */
     cp = getpds '-R'
@@ -8954,12 +8953,12 @@ Fixup_cp: Procedure expose null putpds getpds
       if pos('.',ls) = 0
       then do
         target = left(target,p)
-        cpu = ',up=y'
+        cpu = 'up=y'
       end
       else do
         parse value ls with .'.'suf
         target = left(target,p)
-        cpm = ',su='suf
+        cpm = 'su='suf
       end
       p = lastpos('/',target)
       targetw = left(target,p-1)
@@ -8967,20 +8966,9 @@ Fixup_cp: Procedure expose null putpds getpds
       targetl = left(targetw,p-1)
       dvstat = targetl'/.zigi/'substr(targetw,p+1)
     end
-    cp = cp '-M st='dvstat''cpm''cpu
-
-  /* --------------------------------------------------------- *
-   | Remove this block of code if/when GETPDS is updated to    |
-   | either (a) update only the individual stat record or      |
-   | (b) update the entire stat file when an individual member |
-   | is copied.                                                |
-   * --------------------------------------------------------- */
-    if pos('(',source) > 0 then do
-       parse value source with ls'('.')'rs
-       if rcmd = null
-          then rcmd = getpds '-M st='dvstat  ls''rs
-          else rcmd = getpds '-M st='dvstat  ls''rs '&&' rcmd
-       end
+    if cpu /= null then
+      if cpm /= null then cpu = cpu','cpm
+    cp = cp '-M' cpu
 
   end
   if pos('-B',cmd) > 0 then cp = cp '-b'
