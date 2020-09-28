@@ -1,12 +1,12 @@
- /* --------------------  rexx procedure  -------------------- *
+  /* --------------------  rexx procedure  -------------------- *
   | Name:      ZIGIXIT0                                        |
   |                                                            |
-  | Function:  Return the location of the DoveTail frompds     |
-  |            and topds commands                              |
+  | Function:  Return the location of the DoveTail getpds      |
+  |            and putpds commands                             |
   |                                                            |
   | Syntax:    rc = zigixit0()                                 |
   |                                                            |
-  | Return:    location of the frompds and topds modules       |
+  | Return:    location of the getpds and putpds modules       |
   |                                                            |
   | User Changes see *CHANGE* below                            |
   |                                                            |
@@ -15,7 +15,12 @@
   | History:  (most recent on top)                             |
   |            09/20/20 LBD - Creation                         |
   |                                                            |
-  | ---------------------------------------------------------- |
+  $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ $
+  $ This is a sample user exit 0 that should be renamed to     $
+  $ ZIGIXIT0 and located in the same library as the ZIGI       $
+  $ REXX Exec is located *AFTER* changing the path to the      $
+  $ Dovetail cp replacement commands.                          $
+  $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ $
   |    ZIGI - the z/OS ISPF Git Interface                      |
   |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
   |                                                            |
@@ -36,10 +41,10 @@
   |    <https://www.gnu.org/licenses/>.                        |
   * ---------------------------------------------------------- */
 
-/* -------------------------------------------------- *
- | *CHANGE*  *CHANGE*  *CHANGE*  *CHANGE*  *CHANGE*   |
- | Change the return directory to the location of the |
- | Dovetail Co:Z toolkit where getpds and putpds may  |
- | be found.                                          |
- * -------------------------------------------------- */
+  /* -------------------------------------------------- *
+  | *CHANGE*  *CHANGE*  *CHANGE*  *CHANGE*  *CHANGE*   |
+  | Change the return directory to the location of the |
+  | Dovetail Co:Z toolkit where getpds and putpds may  |
+  | be found.                                          |
+  * -------------------------------------------------- */
   return '/u/mine/cozbeta/bin/'

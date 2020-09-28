@@ -3103,9 +3103,8 @@ Update_Mem_Stats:
   x = zigistat(fulldsn ,
     localrep'/'zigirep'/.zigi/'dsn 'S')
   else do
-    scmd = dovetail_dir'getpds -M st='localrep'/'zigirep'/.zigi/'dsn ,
-      '//'fulldsn
-    x = docmd(scmd)
+    uscmd = localrep'/'zigirep'/.zigi/'dsn fulldsn
+    call update_stats uscmd
   end
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&&git add .zigi/'dsn
@@ -3230,9 +3229,8 @@ WWRF_handle_lcmd_rm:
     if enhanced_cp = 0 then
     x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'stats 'S')
     else do
-      scmd = dovetail_dir'getpds -M st='localrep'/'zigirep'/.zigi/'stats ,
-        '//'fulldsn
-      x = docmd(scmd)
+      uscmd = localrep'/'zigirep'/.zigi/'stats fulldsn
+      call update_stats uscmd
     end
     cmd = 'cd' localrep'/'zigirep
     cmd = cmd || '&& git add -v .zigi/'stats
@@ -3289,9 +3287,9 @@ WWRF_handle_lcmd_d:
   end
   Return
 
-/* --------------------- *
- | Git Ignore the member |
- * --------------------- */
+  /* --------------------- *
+  | Git Ignore the member |
+  * --------------------- */
 WWRF_handle_lcmd_i:
   d = usssafe(dsn)
   m = usssafe(mem)
@@ -3569,15 +3567,14 @@ git_add:
     if x = 0 then do
       if sysdsorg /= 'PS' then do
         statfile = remove_dsn_hlq(fulldsn)
-        cmd = 'cd' localrep'/'zigirep'/.zigi/'
         stats = usssafe(statfile)
         if enhanced_cp = 0 then
         x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'stats 'S')
         else do
-          scmd = dovetail_dir'getpds -M st='localrep'/'zigirep'/.zigi/'stats ,
-            '//'fulldsn
-          x = docmd(scmd)
+          uscmd = localrep'/'zigirep'/.zigi/'stats fulldsn
+          call update_stats uscmd
         end
+        cmd = 'cd' localrep'/'zigirep'/.zigi/'
         x = docmd(cmd '&& git add -v 'stats)
         if x > 0 then call view_std 'B'
       end
@@ -4682,9 +4679,8 @@ Do_Resetid:
     if enhanced_cp = 0 then
     x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'statfile 'S')
     else do
-      scmd = dovetail_dir'getpds -M st='localrep'/'zigirep'/.zigi/'statfile ,
-        '//'fulldsn
-      x = docmd(scmd)
+      uscmd = localrep'/'zigirep'/.zigi/'statfile fulldsn
+      call update_stats uscmd
     end
     statfiles = usssafe(statfile)
     x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfiles)
@@ -5007,9 +5003,8 @@ fixup_userids:
     if enhanced_cp = 0 then
     x = zigistat(workdsn localrep'/'zigirep'/.zigi/'statfile 'S')
     else do
-      scmd = dovetail_dir'getpds -M st='localrep'/'zigirep'/.zigi/'statfile ,
-        '//'workdsn
-      x = docmd(scmd)
+      uscmd = localrep'/'zigirep'/.zigi/'statfile workdsn
+      call update_stats uscmd
     end
     dir = localrep'/'zigirep
     statfiles = usssafe(statfile)
@@ -5197,9 +5192,8 @@ Git_Add_Member_Stats:
   x = zigistat(fulldsn ,
     localrep'/'zigirep'/.zigi/'statfiles 'S')
   else do
-    scmd = dovetail_dir'getpds -M st='localrep'/'zigirep'/.zigi/'statfiles ,
-      '//'workdsn
-    x = docmd(scmd)
+    uscmd = localrep'/'zigirep'/.zigi/'statfiles workdsn
+    call update_stats uscmd
   end
   statfiles = usssafe(statfile)
   x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfiles)
@@ -5907,8 +5901,8 @@ Merge_it:
               if enhanced_cp = 0 then
               Address TSO '%zigistat' "'"pds"'" sfile 'S'
               else do
-                scmd = dovetail_dir'getpds -M st='sfile "//'"pds"'"
-                x = docmd(scmd)
+                uscmd = sfile "'"pds"'"
+                call update_stats uscmd
               end
               x = docmd('cd' localrep'/'zigirep '&& git add' sfile)
               if x > 0 then call view_std 'B'
@@ -6588,8 +6582,8 @@ Update_repo_metadata:
             if enhanced_cp = 0 then
             x = zigistat("'"edsn"'" statpath 'S')
             else do
-              scmd = dovetail_dir'getpds -M st='statpath "//'"edsn"'"
-              x = docmd(scmd)
+              uscmd = statpath "'"edsn"'"
+              call update_stats uscmd
             end
             cmd = 'cd' localrep'/'zigirep'/.zigi'
             cmd = cmd '&& git add .'
@@ -7310,7 +7304,7 @@ Do_Add_Copy:
         ussmem = usssafe(ussmem)
         copycmd = "//'"pdsc"'"
         copycmd = '"'copycmd'"'
-        cmd = "cp -U -v "binopt cplmod copycmd" "DIR"/"pdss"/"ussmem
+        cmd = "cp -U -v "binopt cplmod copycmd" "dir"/"pdss"/"ussmem
         x = debug('Copying:' cmd)
         x =do_copy(cmd)
       end
@@ -7320,14 +7314,14 @@ Do_Add_Copy:
       /* for some reason the git autotagging due to .gitattributes
       does not work all the time (?? weird) so we tag it if binary
       */
-      tagcmd = 'chtag -bR 'DIR'/'pdss'/'ac_mem
+      tagcmd = 'chtag -bR 'dir'/'pdss'/'ac_mem
       x = docmd(tagcmd)
     end
     if enhanced_cp = 0 then
     Address TSO '%zigistat' "'"pds"'" dir"/.zigi/"pdss 'S'
     else do
-      scmd = dovetail_dir'getpds -M st='pdss "//'"pds"'"
-      x = docmd(scmd)
+      uscmd = dir'/.zigi/'pdss "'"pds"'"
+      call update_stats uscmd
     end
     x = docmd('cd' dir '&& git add .zigi/'pdss)
   end
@@ -7531,8 +7525,8 @@ Do_Undo:
       if enhanced_cp = 0 then
       Address TSO '%zigistat' fulldsn sfile 'U'
       else do
-        scmd = dovetail_dir'getpds -M st='sfile '//'fulldsn
-        x = docmd(scmd)
+        uscmd = sfile fulldsn
+        call update_stats uscmd
       end
       memstat = null
       'tbmod' rtbl
@@ -8919,10 +8913,10 @@ do_copy:
   /* Comment Start
   enhanced_cp = 0   /* force normal cp for now $$$$$$$$$$$$$$$$$$$$$$ */
   Comment Stop */
-    /* ------------------------------------------------------- *
-    | If enhance cp is not enabled or if the cp is for a load |
-    | module then do normal cp                                |
-    * ------------------------------------------------------- */
+  /* ------------------------------------------------------- *
+  | If enhance cp is not enabled or if the cp is for a load |
+  | module then do normal cp                                |
+  * ------------------------------------------------------- */
   do_enhanced = 1
   if enhanced_cp = 0 then do_enhanced = 0
   if pos('-X',cp_cmd) > 0 then do_enhanced = 0
@@ -8934,9 +8928,9 @@ do_copy:
   else do
     getpds = dovetail_dir'getpds'
     putpds = dovetail_dir'putpds'
-      /* -------------------------------------------- *
-      | otherwise use the Dovetail enhanced cp tools |
-      * -------------------------------------------- */
+    /* -------------------------------------------- *
+    | otherwise use the Dovetail enhanced cp tools |
+    * -------------------------------------------- */
     do_cpcmd = null
     do_1st = 0
     do until length(cp_cmd) = 0
@@ -8983,15 +8977,11 @@ Fixup_cp: Procedure expose null putpds getpds
   end
   if left(source,2) = '//' then do   /* use getpds */
     cp = getpds '-R'
+    if pos('(',source) > 0 then cpu = 'up=y'
     if pos('-S',cmd) > 0 then do
       parse value cmd with . 'a='suf .
       if left(suf,1) = '.' then suf = substr(suf,2)
-      cpm = ',su='suf
-      p = lastpos('/',target)
-      targetw = left(target,p-1)
-      p = lastpos('/',targetw)
-      targetl = left(targetw,p-1)
-      dvstat = targetl'/.zigi/'substr(targetw,p+1)
+      cpm = 'su='suf
     end
     else do
       p = lastpos('/',target)
@@ -8999,18 +8989,12 @@ Fixup_cp: Procedure expose null putpds getpds
       if pos('.',ls) = 0
       then do
         target = left(target,p)
-        cpu = 'up=y'
       end
       else do
         parse value ls with .'.'suf
         target = left(target,p)
         cpm = 'su='suf
       end
-      p = lastpos('/',target)
-      targetw = left(target,p-1)
-      p = lastpos('/',targetw)
-      targetl = left(targetw,p-1)
-      dvstat = targetl'/.zigi/'substr(targetw,p+1)
     end
     if cpu /= null then
     if cpm /= null then cpu = cpu','cpm
@@ -9033,3 +9017,14 @@ Check_ignore:
     if check_git_ignore = strip(gi.gic) then return 'GI'
   end
   return 0
+
+Update_stats:
+  parse arg us_stats us_dsn
+  if pos('(',us_dsn) > 0 then do
+    parse value us_dsn with us_dsn'('.')'r_dsn
+    us_dsn = us_dsn''r_dsn
+  end
+  if left(us_dsn,1) /= "'" then us_dsn = "'"us_dsn"'"
+  uscmd = dovetail_dir'getpds -M st='us_stats '//'us_dsn
+  x = docmd(uscmd)
+  return
