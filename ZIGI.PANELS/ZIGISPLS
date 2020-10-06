@@ -3,7 +3,7 @@
  $ type(input ) caps(on ) hilite(uscore)
  _ type(text)   color(green)
  { type(output) color(green)
- ! type(text)  color(yellow)
+ ! type(text)   color(yellow)
  [ type(text) hilite(blink) color(red) intens(high)
  ] type(text) hilite(blink) color(green) intens(high)
  } type(text) hilite(blink) color(blue) intens(high)
@@ -19,13 +19,13 @@
 +                      ZZZZZZZZ        ZZZ            ZZZZZZZZZ
 +                     ZZZZZZZ              ZZZZZZZZZZZZZZZ      @ver
 +                   ZZZZZZZ           ZZZZZZZZZZZZZZ
-+                 .ZZZZZZZ      ZZZZZZZZZZZZZZ     _ z/OS ISPF Git Interface+
++                 .ZZZZZZZ      ZZZZZZZZZZZZZZ
 +                ZZZZZZZZZZZZZZZZZZZZZZ
-+                ZZZZZZZZZZZZZZZZZ     [The git interface for the rest of us+
-+               ZZZZZZZZZZZZ
-+              ZZZZZZZZZZ                 !Henri Kuiper+&!Lionel B. Dyck     +
-+             ZZZZZZZZ
-+            ZZZZZZZ
++                ZZZZZZZZZZZZZZZZZ     _        z/OS ISPF Git Interface    +
++               ZZZZZZZZZZZZ           _                                    +
++              ZZZZZZZZZZ              [The git interface for the rest of us+
++             ZZZZZZZZ                 _                                    +
++            ZZZZZZZ                   _    !Henri Kuiper+&!Lionel B. Dyck  +
 +
 +               _ Copyright 2019 -{year_under GPL Version 3
 +
@@ -33,7 +33,6 @@
 )Init
  .zvars = '(bypass)'
  .help = zigihrln
- &year = &zstdyear
  if (&bypass = &Z)
      &bypass = 'N'
 )Proc

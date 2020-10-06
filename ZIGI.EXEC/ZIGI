@@ -8978,6 +8978,7 @@ Fixup_cp: Procedure expose null putpds getpds
   if left(source,2) = '//' then do   /* use getpds */
     cp = getpds '-R'
     if pos('(',source) > 0 then cpu = 'up=y'
+    if pos('-U',cmd) > 0 then cpu = 'up=y'
     if pos('-S',cmd) > 0 then do
       parse value cmd with . 'a='suf .
       if left(suf,1) = '.' then suf = substr(suf,2)
@@ -8998,7 +8999,8 @@ Fixup_cp: Procedure expose null putpds getpds
     end
     if cpu /= null then
     if cpm /= null then cpu = cpu','cpm
-    cp = cp '-M' cpu
+    if cpu /= null
+       then cp = cp '-M' cpu
 
   end
   if pos('-B',cmd) > 0 then cp = cp '-b'
