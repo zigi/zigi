@@ -8810,7 +8810,6 @@ Check_Delta:
     call add_report '(They may not exist, have been deleted, or renamed)'
     call add_report ' '
   end
-  trace '?i'
   do brdel = 1 to words(brdeletes)
     deldsn = "'"ckothlq""word(brdeletes,brdel)"'"
     call add_report translate(deldsn)
