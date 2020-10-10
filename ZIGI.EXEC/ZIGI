@@ -27,6 +27,7 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            10/10/20 LBD - Correct incorrect member untrack |
+  |                         - Correct undo with putpds cmd     |
   |            09/27/20 LBD - Add SHAREAS=YES to all bpxwunix  |
   |                         - Correct .gitignore for memstat   |
   |            09/26/20 LBD - Add debug for all commands       |
@@ -7508,13 +7509,13 @@ Do_Undo:
       cmd = 'cd' localrep'/'zigirep'/'d
       fdsn = strip(fulldsn,'B',"'")
       cmd = cmd '&& echo "Copy results:" && echo " "'
-      cmd = cmd '&& cp -Uv' cpbin rm ,
+      cmd = cmd '&& cp -U' cpbin rm ,
         '"//' || "'"usssafe(fdsn)"("m")'" || '"'
     end
     else do
       cmd = 'cd' localrep'/'zigirep
       cmd = cmd '&& echo "Copy results:" && echo " "'
-      cmd = cmd '&& cp -Uv' cpbin d ,
+      cmd = cmd '&& cp -U' cpbin d ,
         '"//' || "'"usssafe(strip(fulldsn,'B',"'"))"'" || '"'
     end
     cmd = cmd '&& echo " " && echo "after copy status:" && git status'
