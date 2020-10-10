@@ -28,6 +28,8 @@
   |                                                            |
   |            10/10/20 LBD - Correct incorrect member untrack |
   |                         - Correct undo with putpds cmd     |
+  |                         - Correct branch change detect of  |
+  |                           added/removed elements           |
   |            09/27/20 LBD - Add SHAREAS=YES to all bpxwunix  |
   |                         - Correct .gitignore for memstat   |
   |            09/26/20 LBD - Add debug for all commands       |
@@ -8808,6 +8810,7 @@ Check_Delta:
     call add_report '(They may not exist, have been deleted, or renamed)'
     call add_report ' '
   end
+  trace '?i'
   do brdel = 1 to words(brdeletes)
     deldsn = "'"ckothlq""word(brdeletes,brdel)"'"
     call add_report translate(deldsn)
@@ -8862,8 +8865,10 @@ BrDelta:
   Select
     When change_flag = 'M' then BrType = 'A'
     When change_flag = 'A' then BrType = 'A'
-    When change_flag = 'D' then
+    When change_flag = 'D' then do
+    /* Comment Start
     if file_exists(change_file) = 1 then do
+       Comment End */
       if pos('/',change_file) > 0
       then do
         parse value change_file with change_file'/'brdmem

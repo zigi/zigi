@@ -35,6 +35,7 @@ New PDS member selection commands
    members of a PDS are deleted outside ZIGI but not removed from the
    OMVS file system.
 6. Correct detection of untracked members
+7. On a branch change correct handling of added/deleted elements
 
 =============================================================================
                              ZIGI Release Notes
