@@ -5,7 +5,7 @@
 
 =============================================================================
                              ZIGI Release Notes
-                               Version 3.03
+                               Version 3.10
 
                          New Features and Functions
                          --------------------------
@@ -34,6 +34,7 @@ New PDS member selection commands
 5. Fix STOP as a valid command on the delete confirmation panel if
    members of a PDS are deleted outside ZIGI but not removed from the
    OMVS file system.
+6. Correct detection of untracked members
 
 =============================================================================
                              ZIGI Release Notes

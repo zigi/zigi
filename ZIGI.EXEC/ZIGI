@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            10/10/20 LBD - Correct incorrect member untrack |
   |            09/27/20 LBD - Add SHAREAS=YES to all bpxwunix  |
   |                         - Correct .gitignore for memstat   |
   |            09/26/20 LBD - Add debug for all commands       |
@@ -1299,7 +1300,7 @@ Work_With_Repo:
     /* handle other zcmds */
     if zcmd /= null then
     Select
-      When abbrev("CHECK",zcmd,3) = 1 then call WWR_handle_check
+      When abbrev('CHECK',zcmd,3) = 1 then call WWR_handle_check
       When abbrev('BRANCH',zcmd,2) = 1 then call WWR_handle_branch
       When abbrev('CONVREPO',zcmd,4) = 1 then call WWR_handle_convrepo
       /* ----------------- *
@@ -2815,6 +2816,10 @@ WWRF_build_member_table:
           member = translate(member)
         end
         if folder /= dsn then do
+          stat = null
+          iterate
+        end
+        if mem /= MEMBER then do
           stat = null
           iterate
         end
