@@ -41,6 +41,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            10/11/20 LBD - Correct test for existing dsns   |
+  |            08/08/20 LBD - Generalize get_binfiles          |
   |            07/29/20 LBD - Add _EDC_ZERO_RECLEN=Y to env.   |
   |            07/24/20 LBD - Adjust Popup Panel Location      |
   |                         - Prompt to Proceed after display  |
@@ -294,7 +296,7 @@ Restart:
     filec = filec + 1
     zfile.filec = fileg
     x = check_file(fileg)
-    if x = 0 then do
+    if x > 0 then do
       call outtrap 'x.'
       'delete' fileg
       call outtrap 'off'
@@ -433,7 +435,7 @@ Alloc_Copy_PDS:
   filec = filec + 1
   zfile.filec = pds
   x = check_file(pds)
-  if x = 0 then do
+  if x > 0 then do
     call outtrap 'x.'
     Address TSO ,
       'delete' pds
@@ -603,7 +605,7 @@ get_binfiles:
   \---------------------------------------------------------- */
   cmd = 'cd' ckotdir'/ &&'
   cmd = 'cat -W filecodeset=UTF-8,pgmcodeset=IBM-1047' ckotdir'/.gitattributes'
-  cmd = cmd ' | grep git-encoding=BINARY'
+  cmd = cmd ' | grep BINARY'
   cmd = cmd '| cut -d" " -f1'
   x = docmd(cmd)
   if so.0 = 0 then do

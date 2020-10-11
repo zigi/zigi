@@ -36,6 +36,7 @@ New PDS member selection commands
    OMVS file system.
 6. Correct detection of untracked members
 7. On a branch change correct handling of added/deleted elements
+8. Correct test for existing datasets in zginstall.rex
 
 =============================================================================
                              ZIGI Release Notes
