@@ -78,9 +78,9 @@
     .CURSOR = &CSR
  if (&zedsmsg EQ &Z)
   ver (&zigirep,nb)
-  ver (&localrep,nb)
   if (&pfxw = 1)
       ver (&pdshlq,nb,dsname)
+  ver (&localrep,nb)
   ver (&readonly,list,Y,N)
   ver (&defcpush,nb,list,Y,N)
   ver (&defruid,dsname)

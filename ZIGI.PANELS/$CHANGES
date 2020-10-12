@@ -5,12 +5,23 @@
 
 =============================================================================
                              ZIGI Release Notes
-                               Version 3.03
+                               Version 3.10
 
                          New Features and Functions
                          --------------------------
 
-tbd
+Dual path cp use from and to a PDS to use the DoveTail getpds and putpds
+commands if available, otherwise continue to use cp. The speed improvement
+is an improvement of minutes to seconds.
+
+New User exit driver created (zigiexit) as a generalized exit facility.
+Initial Exit 0 has been defined to provide a path to DoveTails getpds/putpds
+if it isn't found in the default path using zigixit0 (provided as sampxit0).
+
+New PDS member selection commands
+  - AF to git add with -f (force) to be used to add a PDS member that was
+    previously git ignored
+ -  I to git ignore a PDS member and a new member status of [  ] Git Ignore
 
                           Bug Fixes and Other Updates:
                           ----------------------------
@@ -19,6 +30,13 @@ tbd
 2. Clean up the history table. Key on commit and remove %b (body)
 3. In the table state test which checks the level of the repo table,
    if there are no rows then just return to avoid meaningless messages.
+4. Fixed RM of a PDS bug, needed to add -r (recurse) for some edge cases
+5. Fix STOP as a valid command on the delete confirmation panel if
+   members of a PDS are deleted outside ZIGI but not removed from the
+   OMVS file system.
+6. Correct detection of untracked members
+7. On a branch change correct handling of added/deleted elements
+8. Correct test for existing datasets in zginstall.rex
 
 =============================================================================
                              ZIGI Release Notes

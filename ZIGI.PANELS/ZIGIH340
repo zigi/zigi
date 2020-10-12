@@ -11,18 +11,18 @@
 +The following row selection options are available:
 +
   %A+ Add the member to the%Git index+so that it can be Committed
-  %D+ Compares the current uncommited version of the element to the committed
-      version (uses git diff)
+  %AB+Add the member in binary to the%Git index+so that it can be Committed
+  %AF+For Add to override a previous Git Ignore
+  %D+ Compares the uncommited version to the current version using git diff
   %H+ History - view previous version of the PDS member
+  %I+ Git Ignore the member
   %RM+Remove the member from the PDS and the repository
   %RN+reName the member
   %S+ Select the member and Edit it
   %U+ Undo a non-Committed change
 +
-+
      "The best competition I have is against myself to become better."
       -- John Wooden
-+
 +
            +Press the%Enter+key to begin your ZIGI tutorial journey.
 )Init
