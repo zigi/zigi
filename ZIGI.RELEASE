@@ -19,9 +19,10 @@ Initial Exit 0 has been defined to provide a path to DoveTails getpds/putpds
 if it isn't found in the default path using zigixit0 (provided as sampxit0).
 
 New PDS member selection commands
-  - AF to git add with -f (force) to be used to add a PDS member that was
-    previously git ignored
- -  I to git ignore a PDS member and a new member status of [  ] Git Ignore
+ - AF to git add with -f (force) to be used to add a PDS member that was
+   previously git ignored
+ - I to git ignore a PDS member and a new member status of [  ] Git Ignore
+ - Make the Grep panel a popup with a tutorial panel behind it
 
                           Bug Fixes and Other Updates:
                           ----------------------------

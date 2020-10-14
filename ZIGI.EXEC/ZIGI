@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            10/14/20 LBD - Make GREP panel a popup w/help   |
   |            10/10/20 LBD - Correct incorrect member untrack |
   |                         - Correct undo with putpds cmd     |
   |                         - Correct branch change detect of  |
@@ -4464,8 +4465,13 @@ do_grep:
   parse arg grepdir
   zcmd = null
   do forever
+    call pfshow 'off'           /* make sure pfshow is off */
+    'Addpop row(4) column(6)'
     'display panel(zigigrep)'
-    if rc > 0 then leave
+    drc = rc
+    'Rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
+    if drc > 0 then leave
     cmd = 'cd' grepdir
     x = docmd(cmd '&& git grep -i "'grepstr'"')
     select
