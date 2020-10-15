@@ -417,8 +417,7 @@ Alloc_Copy_PDS:
     zs9 = 'Copying' tcount 'members.'
     call pop_status
 
-    if pos('-X',binopt) > 0
-    then cmd = 'cp -A -v' binopt rdir'/*' '"//'pds'"'
+    cmd = 'cp -A -v' binopt rdir'/*' '"//'pds'"'
     x = docmd(cmd)
 
     if x > 0 then call view_std 'B'
