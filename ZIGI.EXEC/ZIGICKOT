@@ -17,7 +17,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
-  |            09/27/20 LBD - Addd debug support               |
+  |            10/15/20 LBD - Correct test for enhanced        |
+  |            09/27/20 LBD - Add debug support                |
   |            09/26/20 LBD - Support Dovetail PUTPDS          |
   |                           - zigixit0 to get path           |
   |                         - Use putpds when not selective or |
@@ -440,9 +441,8 @@ Alloc_Copy_PDS:
     zs9 = 'Copying' tcount 'members.'
     call pop_status
 
-    if pos('-X',binopt) > 0
-    then cmd = 'cp -A -v' binopt rdir'/*' '"//'pds'"'
-    else if enhanced_cp = 1 then
+    cmd = 'cp -A -v' binopt rdir'/*' '"//'pds'"'
+    if enhanced_cp = 1 then
     if pos('-X',binopt) = 0
     then do
       do xi = 1 to mems.0
