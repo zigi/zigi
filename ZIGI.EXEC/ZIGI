@@ -9013,8 +9013,11 @@ Fixup_cp: Procedure expose null putpds getpds
         cpm = 'su='suf
       end
     end
-    if cpu /= null then
+    if cpu /= null then do
     if cpm /= null then cpu = cpu','cpm
+    end
+    else
+    if cpm /= null then cpu = cpm
     if cpu /= null
        then cp = cp '-M' cpu
 
