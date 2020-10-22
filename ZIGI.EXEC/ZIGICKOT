@@ -17,6 +17,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            10/21/20 LBD - Check for ispf stats before put  |
   |            10/15/20 LBD - Correct test for enhanced        |
   |            09/27/20 LBD - Add debug support                |
   |            09/26/20 LBD - Support Dovetail PUTPDS          |
@@ -440,7 +441,6 @@ Alloc_Copy_PDS:
     end
     zs9 = 'Copying' tcount 'members.'
     call pop_status
-
     cmd = 'cp -A -v' binopt rdir'/*' '"//'pds'"'
     if enhanced_cp = 1 then
     if pos('-X',binopt) = 0
@@ -454,8 +454,11 @@ Alloc_Copy_PDS:
       else rsuf = '/*'
       lp = lastpos('/',rdir)
       dvstat = left(rdir,lp)'.zigi/'substr(rdir,lp+1)
-      suf = '-M st='dvstat
-      cmd = dovetail_dir'putpds' suf rdir''rsuf '//'pds
+      address syscall 'lstat' dvstat 'dvs.'
+      if dvs.0 > 0
+      then dvstat_file = '-M st='dvstat
+      else dvstat_file = null
+      cmd = dovetail_dir'putpds' dvstat_file rdir''rsuf '//'pds
     end
     x = docmd(cmd)
 

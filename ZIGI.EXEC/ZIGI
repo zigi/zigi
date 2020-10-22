@@ -8333,7 +8333,7 @@ flowselect:
   * ------------------------------------------------------------- */
 Convert_Repo:
   convdir = localrep'/'zigirep
-  'vput (convdir)'
+  'vput (convdir pdshlq)'
   'Select cmd(%zigicnvt)'
   qualignr = words(translate(pdshlq,' ','.'))
   call Replace localrep zigirep pdshlq qualignr
