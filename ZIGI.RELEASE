@@ -29,6 +29,9 @@ New PDS member selection commands
 6. Correct detection of untracked members
 7. On a branch change correct handling of added/deleted elements
 8. Correct test for existing datasets in zginstall.rex
+9. Update bugs in ZIGICNVT (CONVREPO command). It is still not prefect but
+   it is better. Now creates a .gitattributes if one does not exist and
+   supports files with $ in the name.
 
 =============================================================================
                              ZIGI Release Notes
