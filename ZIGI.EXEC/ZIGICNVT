@@ -23,6 +23,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            10/25/20 LBD - Improved usssafe routine         |
   |            10/20/20 LBD - Add .gitattributes if not there  |
   |            08/08/20 LBD - Generalize get_binfiles          |
   |            03/02/20 LBD - Minor cleanup                    |
@@ -49,7 +50,7 @@
   * ---------------------------------------------------------- */
 
   address ispexec,
-    'vget (convdir pdshlq)'
+    'vget (convdir)'
 
   parse value '' with null fail binfiles.
 
@@ -335,6 +336,20 @@ dsnvalid: Procedure Expose null
   return retval
 
 usssafe:
+ parse arg safedsn
+ if pos('$',safedsn) = 0 then return safedsn
+ safe$pos = 1
+ do forever
+    pos$safe = pos('$',safedsn,safe$pos)
+    if pos$safe < 1 then return safedsn
+    left$safe = left(safedsn,pos$safe-1)
+    right$save = substr(safedsn,pos$safe)
+    safedsn = left$safe'\'right$save
+    safe$pos = pos$safe + 2
+    end
+ return safedsn
+
+oldsafe:
   parse arg safedsn
   if pos('$',safedsn) = 0 then return safedsn
   /* Let's not usssafe it twice :) */

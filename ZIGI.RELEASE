@@ -24,21 +24,12 @@ New PDS member selection commands
  - I to git ignore a PDS member and a new member status of [  ] Git Ignore
  - Make the Grep panel a popup with a tutorial panel behind it
 
+Improved usssafe routine that is faster with less overhead.
+
                           Bug Fixes and Other Updates:
                           ----------------------------
 
-1. Remove check of remote after commit as unnecessary.
-2. Clean up the history table. Key on commit and remove %b (body)
-3. In the table state test which checks the level of the repo table,
-   if there are no rows then just return to avoid meaningless messages.
-4. Fixed RM of a PDS bug, needed to add -r (recurse) for some edge cases
-5. Fix STOP as a valid command on the delete confirmation panel if
-   members of a PDS are deleted outside ZIGI but not removed from the
-   OMVS file system.
-6. Correct detection of untracked members
-7. On a branch change correct handling of added/deleted elements
-8. Correct test for existing datasets in zginstall.rex
-9. Improve ZIGICNVT processing - still not 100% foolproof but a good start
+1.
 
 =============================================================================
                              ZIGI Release Notes

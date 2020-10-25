@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            10/25/20 LBD - Improved usssafe routine         |
   |            10/14/20 LBD - Make GREP panel a popup w/help   |
   |            10/10/20 LBD - Correct incorrect member untrack |
   |                         - Correct undo with putpds cmd     |
@@ -6359,27 +6360,6 @@ dsnvalid:
   end
   return retval
 
-  /* ------------------------------------------------- *
-  |                                                  |
-  | String replace routine                           |
-  | input string                                     |
-  | from string                                      |
-  | to string                                        |
-  | translate is input to from                       |
-  * ------------------------------------------------- */
-strreplace:
-  string  = arg(1)
-  strfrom = arg(2)
-  strto   = arg(3)
-  if pos(strfrom,string) = 0 then return string
-  newString = ''
-  do repi = 1 to length(string)
-    if substr(string,repi,1) /= strfrom
-    then newstring = newstring''substr(string,repi,1)
-    else  newstring = newstring''strto
-  end
-  return newstring
-
 Update_repo_metadata:
   save_fulldsn = fulldsn
   x = debug('update_repo_metadata: zcmd:'zcmd ,
@@ -6904,6 +6884,23 @@ clean:
   return strip(string)
 
 usssafe:
+ parse arg safedsn
+ if pos('$',safedsn) = 0 then return safedsn
+ safe$pos = 1
+ do forever
+    pos$safe = pos('$',safedsn,safe$pos)
+    if pos$safe < 1 then return safedsn
+    left$safe = left(safedsn,pos$safe-1)
+    right$save = substr(safedsn,pos$safe)
+    safedsn = left$safe'\'right$save
+    safe$pos = pos$safe + 2
+    end
+ return safedsn
+
+/* ------------------------------ *
+ | Old safe routine - was usssafe |
+ * ------------------------------ */
+oldsafe:
   parse arg safedsn
   if pos('$',safedsn) = 0 then return safedsn
   /* Let's not usssafe it twice :) */
@@ -6919,6 +6916,27 @@ Remove_Safe:
     safedsn = sl''sr
   end
   return safedsn
+
+  /* ------------------------------------------------- *
+  |                                                  |
+  | String replace routine                           |
+  | input string                                     |
+  | from string                                      |
+  | to string                                        |
+  | translate is input to from                       |
+  * ------------------------------------------------- */
+strreplace:
+  string  = arg(1)
+  strfrom = arg(2)
+  strto   = arg(3)
+  if pos(strfrom,string) = 0 then return string
+  newString = ''
+  do repi = 1 to length(string)
+    if substr(string,repi,1) /= strfrom
+    then newstring = newstring''substr(string,repi,1)
+    else  newstring = newstring''strto
+  end
+  return newstring
 
   /* ------------------------------------------------------ *
   | The pfshow routine will:                               |

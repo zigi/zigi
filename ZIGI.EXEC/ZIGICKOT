@@ -17,6 +17,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            10/25/20 LBD - Improved usssafe routine         |
   |            10/21/20 LBD - Check for ispf stats before put  |
   |            10/15/20 LBD - Correct test for enhanced        |
   |            09/27/20 LBD - Add debug support                |
@@ -519,13 +520,41 @@ get_dcb:
   end
   return
 
-usssafe: procedure
+usssafe:
+ parse arg safedsn
+ if pos('$',safedsn) = 0 then return safedsn
+ safe$pos = 1
+ do forever
+    pos$safe = pos('$',safedsn,safe$pos)
+    if pos$safe < 1 then return safedsn
+    left$safe = left(safedsn,pos$safe-1)
+    right$save = substr(safedsn,pos$safe)
+    safedsn = left$safe'\'right$save
+    safe$pos = pos$safe + 2
+    end
+ return safedsn
+
+oldsafe: procedure
   parse arg dsn
   if pos('$',dsn) = 0 then return dsn
   /* Let's not usssafe it twice :) */
   if pos('\$',dsn) > 0 then return dsn
   dsn = strreplace(dsn, '$', '\$')
   return dsn
+
+strreplace: Procedure
+  string  = arg(1)
+  strfrom = arg(2)
+  strto   = arg(3)
+  null = ''
+  if pos(strfrom,string) = 0 then return string
+  newString = null
+  do i = 1 to length(string)
+    if substr(string,i,1) /= strfrom
+    then newstring = newstring''substr(string,i,1)
+    else  newstring = newstring''strto
+  end
+  return newstring
 
   /* ------------ *
   | PopUp Status |
@@ -576,20 +605,6 @@ pfshow:
     'select pgm(ispopf) parm(FKA,OFF)'
   end
   return
-
-strreplace: Procedure
-  string  = arg(1)
-  strfrom = arg(2)
-  strto   = arg(3)
-  null = ''
-  if pos(strfrom,string) = 0 then return string
-  newString = null
-  do i = 1 to length(string)
-    if substr(string,i,1) /= strfrom
-    then newstring = newstring''substr(string,i,1)
-    else  newstring = newstring''strto
-  end
-  return newstring
 
 get_binfiles:
   /* ---------------------------------------------------------\
