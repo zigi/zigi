@@ -26,6 +26,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            10/27/20 LBD - Clean up confirm mem delete      |
   |            10/25/20 LBD - Improved usssafe routine         |
   |            10/14/20 LBD - Make GREP panel a popup w/help   |
   |            10/10/20 LBD - Correct incorrect member untrack |
@@ -6773,6 +6774,7 @@ Update_Status:
   * ----------------------------------------------------- */
 Confirm_Mem_Deletes:
   tbcd = 'zcd'time('s')
+  cmdhit = 0
   'tbcreate' tbcd 'names(dmrow dmorig dmstate) nowrite'
   do cmdi = 1 to words(mem_omvs)
     dmrow = word(mem_omvs,cmdi)
@@ -6782,9 +6784,14 @@ Confirm_Mem_Deletes:
       parse value dmrow with dmrow'.'.
       dmrow = translate(dmrow)
     end
+    cmdhit = 1
     'tbadd' tbcd
   end
   'tbtop' tbcd
+  if cmdhit = 0 then do
+    'tbdelete' tbcd
+    return 4
+  end
   cmtop = 0
   cmtsels = 0
   do forever
@@ -6798,8 +6805,14 @@ Confirm_Mem_Deletes:
     end
     else 'tbdispl' tbcd
     drc = rc
-    if zcmd = 'STOP' then return 4
-    if drc > 4 then return 0
+    if zcmd = 'STOP' then do
+      'tbdelete' tbcd
+      return 4
+    end
+    if drc > 4 then do
+      'tbdelete' tbcd
+      return 0
+    end
     cmtop = ztdtop
     if dsel /= null then
     Select
@@ -6828,6 +6841,7 @@ Confirm_Mem_Deletes:
         'obrowse' localrep'/'zigirep'/'r'/'dmorig
     end
   end
+  'tbdelete' tbcd
   return 0
 
 Fix_mem_stats:
