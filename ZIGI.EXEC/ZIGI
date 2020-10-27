@@ -9067,3 +9067,45 @@ Update_stats:
   uscmd = dovetail_dir'getpds -M st='us_stats '//'us_dsn
   x = docmd(uscmd)
   return
+
+/* ----------------------------------------------------------- *
+ | Routine to find all, or specific, untracked file and update |
+ | the code page for it.                                       |
+ * ----------------------------------------------------------- */
+Git_Add_Untrack_Update:
+  parse arg gauu_dir gauu_file
+  if gauu_file = '.' then do
+    gauu_cmd = 'cd' gauu_dir '&& git status'
+    x = docmd(usssafe(gauu_cmd))
+    do gi = 1 to so.0
+      if word(so.gi,1) = 'Untracked' then leave
+    end
+    do giun = gi to so.0
+      if left(so.giun,1) = ' ' then iterate
+      gauu_file = substr(so.giun,2)
+      call git_update_codepage gauu_dir gauu_file
+    end
+  end
+  else call git_update_codepage gauu_dir gauu_file
+  return
+
+/* --------------------------------------------------- *
+ | Routine to update the codepage of an untracked file |
+ * --------------------------------------------------- */
+Git_Update_Codepage:
+  parse arg guc_dir guc_file
+  guc_cmd = 'cd' guc_dir '&& git check-attr -a' guc_file ,
+    '| grep "binary:"'
+  x = docmd(guc_cmd)
+  if so.0 = 0 then do
+     guc_cmd = 'cd' guc_dir '&& chtag -b' usssafe(guc_file)
+     x = docmd(guc_cmd)
+     return
+     end
+  guc_cmd = 'cd' guc_dir '&& git check-attr -a' guc_file ,
+    '| grep "zos-working-tree-encoding" '
+  x = docmd(guc_cmd)
+  parse value so.1 with . 'encoding:' xx'-'codepage
+  guc_cmd = 'cd' guc_dir '&& chtag -tc' codepage guc_file
+  x = docmd(guc_cmd)
+  return

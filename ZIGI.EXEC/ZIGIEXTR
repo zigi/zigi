@@ -723,7 +723,7 @@ pfshow:
   end
   return
 
-usesafe:
+usssafe:
  parse arg safedsn
  if pos('$',safedsn) = 0 then return safedsn
  safe$pos = 1
