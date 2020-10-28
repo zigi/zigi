@@ -2060,8 +2060,7 @@ WWR_handle_addall:
     if hit = 0 then iterate
     call git_add
   end
-  cmd = 'cd' localrep'/'zigirep
-  cmd = cmd '&& git add .'
+  call git_safe_add localrep'/'zigirep, '.'
   x = docmd(cmd)
   call update_repo_metadata
   zcmd = null
@@ -2917,8 +2916,7 @@ WWRF_handle_addall:
     call git_add_member
   end
   call git_add_member_stats
-  cmd = 'cd' localrep'/'zigirep
-  cmd = cmd '&& git add .'
+  call git_safe_add localrep'/'zigirep, '.'
   x = docmd(cmd)
   zcmd = null
   x = debug('ADDALL completed:' zigirep)
@@ -3544,9 +3542,7 @@ git_add:
   if left(dsn,1) = "'"
   then d = usssafe(dsn)
   else d = '"'usssafe(dsn)'"'
-  cmd = 'cd' localrep'/'zigirep
-  drop so. se.
-  x = docmd(cmd ' && git add -v 'd)
+  call git_safe_add localrep'/'zigirep, d
   if dsnvalid(fulldsn) = "OK" then do
     /* Only get the stats if it's a z/OS dataset
     Don't do it for the USS files
@@ -5128,7 +5124,6 @@ Git_Add_Member:
   end
 
   d = usssafe(dsn)
-  cmd = 'cd' repodir
 
   if extension \= null then do
     /* so we have an extension, better add correctly */
@@ -5141,7 +5136,7 @@ Git_Add_Member:
   if force_it = null
   then add_force = null
   else add_force = '-f'
-  x = docmd(cmd ' && git add -v' add_force d'/'toadd)
+  call git_safe_add repodir, d'/'toadd, add_force
   if se.0 > 0 then
   call view_std 'B'
   call update_mem_stats d'/'toadd mem
@@ -8860,3 +8855,49 @@ Check_ignore:
     if check_git_ignore = strip(gi.gic) then return 'GI'
   end
   return 0
+
+/* Ensure files are correctly tagged before adding to index */
+Git_Safe_Add:
+  parse arg gsa_dir, gsa_files, gsa_options
+  call auto_tag_files gsa_dir, gsa_files
+  gsa_cmd = 'cd' gsa_dir
+  gsa_cmd = gsa_cmd '&& git add' gsa_options gsa_files
+  x = docmd(gsa_cmd)
+  return
+
+/* Automatically tag modified and untracked files */
+Auto_Tag_Files:
+  parse arg atf_dir, atf_files
+  ls_cmd = 'cd' atf_dir '&& git ls-files -mo' atf_files
+  x = docmd(ls_cmd)
+  /* save output which otherwise is overridden */
+  do i=0 to so.0
+    ls_cmd_so.i = so.i
+  end
+  do i=1 to ls_cmd_so.0
+    call auto_tag_file atf_dir, ls_cmd_so.i
+  end
+  return
+
+/* Automatically tag specified file */
+Auto_Tag_File:
+  parse arg atf_dir, atf_file
+  attr_cmd = 'cd' atf_dir
+  attr_cmd = attr_cmd '&& git check-attr -a' atf_file
+  attr_cmd = attr_cmd '| grep -q "binary: set"'
+  x = docmd(attr_cmd)
+  if so.0 /= 0 then do
+     cht_cmd = 'cd' atf_dir
+     cht_cmd = cht_cmd '&& chtag -b' atf_file
+     x = docmd(cht_cmd)
+     return
+     end
+  attr_cmd = 'cd' atf_dir
+  attr_cmd = attr_cmd '&& git check-attr -a' atf_file
+  attr_cmd = attr_cmd '| grep "zos-working-tree-encoding"'
+  x = docmd(attr_cmd)
+  parse value so.1 with . 'encoding:' xx'-'codepage
+  cht_cmd = 'cd' atf_dir
+  cht_cmd = cht_cmd '&& chtag -tc' codepage atf_file
+  x = docmd(cht_cmd)
+  return
