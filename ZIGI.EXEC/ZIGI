@@ -6046,6 +6046,10 @@ do_git_attributes:
   ga4b = "git-encoding=IBM-1047 zos-working-tree-encoding=IBM-1047"
   ga4  = ga4a || ga4b
   call write_fd  ga4
+  ga5a = ".zigi/*           "
+  ga5b = "git-encoding=iso8859-1 zos-working-tree-encoding=IBM-1047"
+  ga5  = ga5a || ga5b
+  call write_fd  ga5
   binaries = '*.docm *.docx *.doc *.dotx *.pdf *.epub *.mobi *.azw3' ,
     '*.jpg *.jpeg *.png *.gif *.zip *.gzip *.tz *.z *.Z *.pax' ,
     '*.ppt *.pptx *.xls *.xlsx *.xlsm *.obj *.bin'
