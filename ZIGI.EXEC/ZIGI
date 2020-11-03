@@ -30,6 +30,7 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            11/03/20 FM  - Correct file tag on git add      |
+  |                     LBD - Update for new dovetail syntax   |
   |            10/27/20 LBD - Clean up confirm mem delete      |
   |            10/25/20 LBD - Improved usssafe routine         |
   |            10/14/20 LBD - Make GREP panel a popup w/help   |
@@ -9016,8 +9017,7 @@ Fixup_cp: Procedure expose null putpds getpds
   cmd = subword(cmd,2,w-3)
   target = strip(target,'B','"')
   source = strip(source,'B','"')
-  cpm = null
-  cpu = null
+  parse value '' with cpm cpu
   if left(target,3) = "//'" then target = remove_safe(target)
   if left(source,3) = "//'" then source = remove_safe(source)
   if left(target,2) = '//' then do   /* use putpds */
@@ -9055,7 +9055,7 @@ Fixup_cp: Procedure expose null putpds getpds
     else
     if cpm /= null then cpu = cpm
     if cpu /= null
-       then cp = cp '-M' cpu
+       then cp = cp '-M' cpu',r=y'
 
   end
   if pos('-B',cmd) > 0 then cp = cp '-b'

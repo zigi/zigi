@@ -458,8 +458,8 @@ Alloc_Copy_PDS:
       dvstat = left(rdir,lp)'.zigi/'substr(rdir,lp+1)
       address syscall 'lstat' dvstat 'dvs.'
       if dvs.0 > 0
-      then dvstat_file = '-M st='dvstat
-      else dvstat_file = null
+      then dvstat_file = '-M st='dvstat',r=y'
+      else dvstat_file = '-M r=y'
       if pos('-B',binopt) > 0 then
          dvstat_file = '-b' dvstat_file
       cmd = dovetail_dir'putpds' dvstat_file rdir''rsuf '//'pds

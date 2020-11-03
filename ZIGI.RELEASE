@@ -29,7 +29,7 @@ Improved usssafe routine that is faster with less overhead.
                           Bug Fixes and Other Updates:
                           ----------------------------
 
-1.
+1. Fixed incorrect tagging for untagged files with updates from Filipe Meireles
 
 =============================================================================
                              ZIGI Release Notes
