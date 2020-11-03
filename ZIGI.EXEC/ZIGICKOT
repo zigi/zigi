@@ -17,6 +17,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            11/03/20 LBD - Update for latest putpds syntax  |
   |            10/25/20 LBD - Improved usssafe routine         |
   |            10/21/20 LBD - Check for ispf stats before put  |
   |            10/15/20 LBD - Correct test for enhanced        |
@@ -459,6 +460,8 @@ Alloc_Copy_PDS:
       if dvs.0 > 0
       then dvstat_file = '-M st='dvstat
       else dvstat_file = null
+      if pos('-B',binopt) > 0 then
+         dvstat_file = '-b' dvstat_file
       cmd = dovetail_dir'putpds' dvstat_file rdir''rsuf '//'pds
     end
     x = docmd(cmd)

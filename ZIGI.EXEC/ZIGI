@@ -24,8 +24,12 @@
   | Authors:   Henri Kuiper                                    |
   |            Lionel B. Dyck                                  |
   |                                                            |
+  | Contributors:                                              |
+  |           FM  - Filipe Meireles                            |
+  |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            11/03/20 FM  - Correct file tag on git add      |
   |            10/27/20 LBD - Clean up confirm mem delete      |
   |            10/25/20 LBD - Improved usssafe routine         |
   |            10/14/20 LBD - Make GREP panel a popup w/help   |
@@ -2073,8 +2077,7 @@ WWR_handle_addall:
     if hit = 0 then iterate
     call git_add
   end
-  cmd = 'cd' localrep'/'zigirep
-  cmd = cmd '&& git add .'
+  call git_safe_add localrep'/'zigirep, '.'
   x = docmd(cmd)
   call update_repo_metadata
   zcmd = null
@@ -2930,8 +2933,7 @@ WWRF_handle_addall:
     call git_add_member
   end
   call git_add_member_stats
-  cmd = 'cd' localrep'/'zigirep
-  cmd = cmd '&& git add .'
+  call git_safe_add localrep'/'zigirep, '.'
   x = docmd(cmd)
   zcmd = null
   x = debug('ADDALL completed:' zigirep)
@@ -3567,9 +3569,7 @@ git_add:
   if left(dsn,1) = "'"
   then d = usssafe(dsn)
   else d = '"'usssafe(dsn)'"'
-  cmd = 'cd' localrep'/'zigirep
-  drop so. se.
-  x = docmd(cmd ' && git add -v 'd)
+  call git_safe_add localrep'/'zigirep, d
   if dsnvalid(fulldsn) = "OK" then do
     /* Only get the stats if it's a z/OS dataset
     Don't do it for the USS files
@@ -5184,7 +5184,7 @@ Git_Add_Member:
   if force_it = null
   then add_force = null
   else add_force = '-f'
-  x = docmd(cmd ' && git add -v' add_force d'/'toadd)
+  call git_safe_add repodir, d'/'toadd, add_force
   if se.0 > 0 then
   call view_std 'B'
   call update_mem_stats d'/'toadd mem
@@ -6096,9 +6096,13 @@ do_git_attributes:
   ga3  = ga3a || ga3b
   call write_fd ga3
   ga4a = ".gitignore        "
-  ga4b = "git-encoding=IBM-1047 zos-working-tree-encoding=IBM-1047"
+  ga4b = "git-encoding=iso8859-1 zos-working-tree-encoding=IBM-1047"
   ga4  = ga4a || ga4b
   call write_fd  ga4
+  ga5a = ".zigi/*           "
+  ga5b = "git-encoding=iso8859-1 zos-working-tree-encoding=IBM-1047"
+  ga5  = ga5a || ga5b
+  call write_fd  ga5
   binaries = '*.docm *.docx *.doc *.dotx *.pdf *.epub *.mobi *.azw3' ,
     '*.jpg *.jpeg *.png *.gif *.zip *.gzip *.tz *.z *.Z *.pax' ,
     '*.ppt *.pptx *.xls *.xlsx *.xlsm *.obj *.bin'
@@ -8365,7 +8369,7 @@ flowselect:
   * ------------------------------------------------------------- */
 Convert_Repo:
   convdir = localrep'/'zigirep
-  'vput (convdir pdshlq)'
+  'vput (convdir)'
   'Select cmd(%zigicnvt)'
   qualignr = words(translate(pdshlq,' ','.'))
   call Replace localrep zigirep pdshlq qualignr
@@ -9024,7 +9028,7 @@ Fixup_cp: Procedure expose null putpds getpds
     end
   end
   if left(source,2) = '//' then do   /* use getpds */
-    cp = getpds '-R'
+    cp = getpds
     if pos('(',source) > 0 then cpu = 'up=y'
     if pos('-U',cmd) > 0 then cpu = 'up=y'
     if pos('-S',cmd) > 0 then do
@@ -9082,44 +9086,50 @@ Update_stats:
   x = docmd(uscmd)
   return
 
-/* ----------------------------------------------------------- *
- | Routine to find all, or specific, untracked file and update |
- | the code page for it.                                       |
- * ----------------------------------------------------------- */
-Git_Add_Untrack_Update:
-  parse arg gauu_dir gauu_file
-  if gauu_file = '.' then do
-    gauu_cmd = 'cd' gauu_dir '&& git status'
-    x = docmd(usssafe(gauu_cmd))
-    do gi = 1 to so.0
-      if word(so.gi,1) = 'Untracked' then leave
-    end
-    do giun = gi to so.0
-      if left(so.giun,1) = ' ' then iterate
-      gauu_file = substr(so.giun,2)
-      call git_update_codepage gauu_dir gauu_file
-    end
-  end
-  else call git_update_codepage gauu_dir gauu_file
+/* Ensure files are correctly tagged before adding to index */
+Git_Safe_Add:   /* FM */
+  parse arg gsa_dir, gsa_files, gsa_options
+  call auto_tag_files gsa_dir, gsa_files
+  gsa_cmd = 'cd' gsa_dir
+  gsa_cmd = gsa_cmd '&& git add' gsa_options gsa_files
+  x = docmd(gsa_cmd)
   return
 
-/* --------------------------------------------------- *
- | Routine to update the codepage of an untracked file |
- * --------------------------------------------------- */
-Git_Update_Codepage:
-  parse arg guc_dir guc_file
-  guc_cmd = 'cd' guc_dir '&& git check-attr -a' guc_file ,
-    '| grep "binary:"'
-  x = docmd(guc_cmd)
-  if so.0 = 0 then do
-     guc_cmd = 'cd' guc_dir '&& chtag -b' usssafe(guc_file)
-     x = docmd(guc_cmd)
+/* Automatically tag modified and untracked files */
+Auto_Tag_Files:  /* FM */
+  parse arg atf_dir, atf_files
+  ls_cmd = 'cd' atf_dir '&& git ls-files -mo' atf_files
+  x = docmd(ls_cmd)
+  /* save output which otherwise is overridden */
+  do i=0 to so.0
+    ls_cmd_so.i = so.i
+  end
+  do i=1 to ls_cmd_so.0
+    call auto_tag_file atf_dir, ls_cmd_so.i
+  end
+  return
+
+/* Automatically tag specified file */
+Auto_Tag_File:   /* FM */
+  parse arg atf_dir, atf_file
+  attr_cmd = 'cd' atf_dir
+  attr_cmd = attr_cmd '&& git check-attr -a' atf_file ,
+             '| grep -e "binary: set"' ,
+             ' -e "zos-working-tree-encoding:"'
+  x = docmd(attr_cmd)
+  codepage = null
+  do atfi = 1 to so.0
+     if pos('binary:',so.atfi) > 0 then do
+     cht_cmd = 'cd' atf_dir
+     cht_cmd = cht_cmd '&& chtag -b' atf_file
+     x = docmd(cht_cmd)
      return
      end
-  guc_cmd = 'cd' guc_dir '&& git check-attr -a' guc_file ,
-    '| grep "zos-working-tree-encoding" '
-  x = docmd(guc_cmd)
-  parse value so.1 with . 'encoding:' xx'-'codepage
-  guc_cmd = 'cd' guc_dir '&& chtag -tc' codepage guc_file
-  x = docmd(guc_cmd)
+     if pos('zos-working',so.atfi) > 0 then
+        parse value so.1 with . 'encoding:' xx'-'codepage
+     end
+  if codepage = null then return
+  cht_cmd = 'cd' atf_dir
+  cht_cmd = cht_cmd '&& chtag -tc' codepage atf_file
+  x = docmd(cht_cmd)
   return

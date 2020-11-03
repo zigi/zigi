@@ -41,6 +41,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            10/25/20 LBD - Improve usssafe routine          |
   |            10/11/20 LBD - Correct test for existing dsns   |
   |            08/08/20 LBD - Generalize get_binfiles          |
   |            07/29/20 LBD - Add _EDC_ZERO_RECLEN=Y to env.   |
@@ -574,7 +575,21 @@ Check_Mixed_BinText:
   end
   return cmbtRC
 
-usssafe: procedure
+usssafe:
+ parse arg safedsn
+ if pos('$',safedsn) = 0 then return safedsn
+ safe$pos = 1
+ do forever
+    pos$safe = pos('$',safedsn,safe$pos)
+    if pos$safe < 1 then return safedsn
+    left$safe = left(safedsn,pos$safe-1)
+    right$save = substr(safedsn,pos$safe)
+    safedsn = left$safe'\'right$save
+    safe$pos = pos$safe + 2
+    end
+ return safedsn
+
+oldsafe: procedure
   parse arg dsn
   if pos('$',dsn) = 0 then return dsn
   /* Let's not usssafe it twice :) */
