@@ -20,6 +20,12 @@ Clone this repository and run the installer via:
 
 ### Make sure you are authorizes to allocate the target datasets
 
+## Dovetail Support
+Dovetail has released their Co:Z Toolkit which includes two new commands that ZIGI takes advantage of to greatly speed up copying PDS members from, and to, OMVS files. 
+
+To use the Dovetail enhancements point your browser to https://dovetail.com and download the Co:Z Co-Processing Toolkit.  The use of this toolkit is subject to the Dovetail's Community Licensze which can be found at https://dovetail.com/docs/cozinstall/licenses.html 
+
+When installing refer to https://dovetail.com/docs/cozinstall/install.html#inst_coz And note that the UID=0 (superuser) or other special permissions are not required for use with ZIGI. Also, you do not need to address other requirements or customizations such as z/OS OpenSSH.                 
 
 ## Contributing to zigi?
 
