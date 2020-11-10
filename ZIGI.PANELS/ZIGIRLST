@@ -13,7 +13,7 @@
 +
 +]Add+     (A)+ Add the member as Text to the Git Index
 +]AddBin+  (AB)+Add the member as Binary to the Git Index
-+]AddForce+(AB)+Add the member as Binary to the Git Index
++]AddForce+(AF)+Add an ignored member to the Git Index
 +]Browse+  (B)+ Browse the dataset/file
 +]Edit+    (E)+ Edit the dataset/file
 +]Diff+    (D)+ Show the Diff's
