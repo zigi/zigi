@@ -35,7 +35,7 @@
    &til  = '~'
    &tilx = '~/'
 )Proc
-   &zcont = zigih130
+   &zcont = zigih125
 )End
 /* -------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                       */

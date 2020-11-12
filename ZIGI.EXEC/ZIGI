@@ -29,6 +29,11 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            11/12/20 LBD - Option to keep .git files on repo|
+  |                           delete (only remove from zigi)   |
+  |                         - New CONNECT command to add an    |
+  |                           existing ZIGI formatted git      |
+  |                           repository.                      |
   |            11/03/20 FM  - Correct file tag on git add      |
   |                     LBD - Update for new dovetail syntax   |
   |            10/27/20 LBD - Clean up confirm mem delete      |
@@ -474,6 +479,7 @@
     /* handle remaining primairy commands */
     if zcmd /= null then
     Select
+      When abbrev('CONNECT',zcmd,2) = 1 then call handle_zigiprim_connect
       When abbrev('CREATE',zcmd,2) = 1 then call handle_zigiprim_create
       When abbrev('CLONE',zcmd,2) = 1 then call handle_zigiprim_clone
       When abbrev('CONFIG',zcmd,2) = 1 then call handle_zigiprim_config
@@ -974,7 +980,7 @@ handle_zigiprim_lcmd_i:
   * ------------------------------------------ */
 handle_zigiprim_lcmd_d:
   readonly = check_read_only()
-  parse value '' with delcz delcg delco delcf delzd
+  parse value '' with delcz delcg delco delcf delzd delgit
   call pfshow 'off'           /* make sure pfshow is off */
   'Addpop row(3) column(10)'
   'Display panel(zigidelc)'
@@ -983,18 +989,15 @@ handle_zigiprim_lcmd_d:
   call pfshow 'reset'         /* restore pfshow setting */
   if drc = 0 & delcf = 'Y' then do
     'tbdelete zigirepo'
-    cmd = 'cd 'localrep'/'zigirep' && rm -rf .zigi'
-    x = docmd(cmd)
-    if x = 0 then do
-      zerrsm = 'Deleted.'
-      delcz = 'Repo removed from ZIGI, .zigi files deleted.'
-    end
-    cmd = 'cd 'localrep'/'zigirep' && rm -rf .git .gitattributes'
-    x = docmd(cmd)
-    if x = 0 then do
-      zerrsm = 'Deleted.'
-      delcg = 'Git files removed.'
-      del_refd = zigirefd(localrep'/'zigirep pdshlq 1 'D')
+    if delgit = 'N' then do
+      cmd = 'cd 'localrep'/'zigirep' && rm -rf .git .gitattributes .zigi'
+      x = docmd(cmd)
+      if x = 0 then do
+        zerrsm = 'Deleted.'
+        delcz = 'Repo removed from ZIGI, .zigi files deleted.'
+        delcg = 'Git files removed.'
+        del_refd = zigirefd(localrep'/'zigirep pdshlq 1 'D')
+      end
     end
     if readonly = 1 then delzd = 'Y'
     if delzd = 'N' then do
@@ -1148,6 +1151,19 @@ handle_zigiprim_config:
   end
   Return
 
+
+  /* -------------------------------------------- *
+  | Handle zigiprim panel primary command connect |
+  * -------------------------------------------- */
+handle_zigiprim_connect:
+  x = Connect_Repo()
+  crflag = 1
+  if x = 0 then do
+    zcmd = null
+    call work_with_repo
+    zsel = null
+  end
+  Return
 
   /* ------------------------------------------- *
   | Handle zigiprim panel primary command create |
@@ -5999,6 +6015,45 @@ get_branches:
   end
   bl.0 = bc
   return
+
+  /* ----------------------- *
+  | Connect a new Repository |
+  * ----------------------- */
+Connect_Repo:
+  'vget (saverep) profile'
+  if saverep /= null then localrep = saverep
+  do forever
+    parse value '' with zerrsm zcmd zigirep cc_rc pdshlq ,
+      defcpush defruid qualignr zigicat encoding
+    'Display Panel(zigiconr'
+    'vget (qualignr)'
+    if readonly = 'N' then readonly = null
+    if rc > 0 then return 8
+    if localrep = '?' then
+    localrep = zigiosel()
+    if localrep = null then do
+      zerrsm = 'Canceled.'
+      zerrlm = 'Create canceled as OMVS directory selection canceled.'
+      'setmsg msg(isrz003)'
+      return 1
+    end
+    localrep = strip(localrep,'T','/')
+    saverep = localrep
+    'vput (saverep) profile'
+
+    Address ISPExec
+    zigikey = localrep'/'zigirep
+    zigidate = date('n')
+    reponame = zigirep
+    call set_sortdate
+    'tbadd zigirepo order'
+    zpush = defcpush
+    'vget (defrsort srr src srp srl) profile'
+    'TBSort zigirepo Fields('defrsort')'
+    'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
+    leave
+  end
+  return 0
 
   /* ----------------------- *
   | Create a new Repository |

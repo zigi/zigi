@@ -1,0 +1,123 @@
+)Attr
+ @ type(input ) caps(off) hilite(uscore) intens(low)
+ $ type(input ) caps(on ) hilite(uscore) intens(low)
+ # type(output) hilite(reverse) color(turq) caps(off)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+)Body Expand(\\)
++Connect Repository+--------------#zigtitle    +--------------------------------
+%Command ===>_zcmd
++
+%Local Directory:   +? to browse OMVS folder structure
+ @localrep                                                                    +
++
+%PREFIX for datasets:   $pdshlq                  +     no quotes
+%Default Push on Commit:$z+                            Y or N
+%Read Only:             $z+                            Y or blank
++
+%Category for Repository:              @zigicat      + optional
+%Default Userid to set prior to Commit:$defruid +      or blank for no change
+%Specify zos-workingtree-encoding:     $encoding+      ibm-1047 if blank
++
++
++
++
++
++
++
++
+                  +Press%Enter+to continue, or%F3+to cancel
+)Init
+ .help = zigih125
+ .zvars = '(defcpush readonly)'
+)Reinit
+  REFRESH(LOCALREP)
+)Proc
+ &resp = .resp
+*REXX(* zedsmsg zedlmsg resp csr pfxw zigirep qualignr)
+  zedsmsg = ''
+  if resp = 'END' then exit
+
+  pfxw = words(pdshlq)
+
+  if zedsmsg = '' then
+  if localrep /= '' then
+  if localrep /= '?' then do
+    x = bpxwunix('ls -la' localrep,,so.,se.)
+    if so.0 = 0 then do
+      zedsmsg = 'Error.'
+      zedlmsg = localrep 'does not exist. Tray again.'
+      csr = 'LOCALREP'
+    end
+    else do i = 1 to so.0
+         if left(so.i,1) /= 'd' then iterate
+         if left(word(so.i,9),1) = '.' then iterate
+         x = check_qual()
+         if x > -1 then do
+            qualignr = x
+            leave
+            end
+         if qualignr = '' then do
+             zedsmsg = 'Error.'
+             zedlmsg = pdshlq 'does is not part of the requested repository' ,
+               'because there are no datasets that conform to the naming' ,
+               'convention. Is the correct directory?'
+             csr = 'LOCALREP'
+            end
+         end
+    if so.0 > 3 then do
+      x = bpxwunix('ls -la' localrep'/.git',,so.,se.)
+      if so.0 = 0 then do
+        zedsmsg = 'Error.'
+        zedlmsg = localrep 'is NOT a a Git repository and thus' ,
+          'not valid to connect to.' ,
+          'Are you sure this is the correct directory?'
+        csr = 'LOCALREP'
+      end
+    end
+  end
+
+  if zedsmsg = '' then
+  if length(defruid) = 8 then do
+    CVT      = C2D(Storage(10,4))
+    TVT      = C2D(Storage(D2X(CVT + 156),4))   /* cvt + 9c */
+    TSVTUMXL = C2D(Storage(D2X(tvt  + 6),1))  /* tvt + 6 */
+    if tsvtumxl < 8 then do
+      zedsmsg = 'Error'
+      zedlmsg = defruid 'is 8 characters and this system does not' ,
+        'support 8 character TSO userids at this time.'
+      csr = 'DEFRUID'
+    end
+  end
+
+ if zedsmsg = '' then do
+    zp = lastpos('/',localrep)
+    zigirep = substr(localrep,zp+1)
+    localrep = left(localrep,zp-1)
+    end
+
+if 1 = 0 then do
+check_qual:
+   dsn = word(translate(word(so.i,9),' ','.'),1)
+   hlq = translate(pdshlq,' ','.')
+   wp = wordpos(dsn,hlq)
+   if wp = 0 then return -1
+   return wp -1
+   end
+*ENDREXX
+ if (&zedsmsg NE &Z)
+    .MSG = ISRZ001
+    .CURSOR = &CSR
+ if (&zedsmsg EQ &Z)
+  ver (&zigirep,nb)
+  if (&pfxw = 1)
+      ver (&pdshlq,nb,dsname)
+  ver (&localrep,nb)
+  ver (&readonly,list,Y,N)
+  ver (&defcpush,nb,list,Y,N)
+  ver (&defruid,dsname)
+  vput (qualignr)
+)end
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */
