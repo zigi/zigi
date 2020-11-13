@@ -49,6 +49,8 @@ Add Read Only flag to the ZIGIINFO display panel.
 
 Improved usssafe routine that is faster with less overhead.
 
+Add git log to ZGBATCH reporting.
+
                           Bug Fixes and Other Updates:
                           ----------------------------
 

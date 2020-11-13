@@ -59,6 +59,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            11/13/20 LBD - Add git log after commit         |
   |            10/25/20 LBD - Improve usssafe routine          |
   |            08/08/20 LBD - Generalize get_binfiles          |
   |            07/29/20 LBD - Add _EDC_ZERO_RECLEN=Y to env.   |
@@ -114,6 +115,7 @@
   * ---------------------------------------------------------- */
   parse arg hlq qualignr omvsfs compush
 
+  say ' '
   Say 'Batch ZIGI Processing   Date:' date() 'Time:' time()
   say ' '
 
@@ -358,9 +360,10 @@ Do_Git:
   call getenv
   say ' '
   say 'Performing Git Processing . . .'
-  cmd = 'cd' omvsfs '&& git add .'
-  cmd = cmd '&& git status'
-  cmd = cmd "&& git commit -vm 'Automated Commit" date() time() "'"
+  cmd = 'cd' omvsfs '&& git add .' ,
+        '&& git status' ,
+        "&& git commit -vm 'Automated Commit" date() time() "'" ,
+        '&& git log --cc -m -n 1'
   x = docmd(cmd)
   call show_cmd 'S'
   say ' '
