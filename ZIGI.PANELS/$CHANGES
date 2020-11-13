@@ -36,11 +36,16 @@ if it isn't found in the default path using zigixit0 (provided as sampxit0).
 New CONNECT command to add an existing ZIGI formatted Git repository to
 the ZIGI ISPF table of repositories.
 
+Expand the ZIGI repository delete dialog to allow retaining the Git files
+and directories.
+
 New PDS member selection commands
  - AF to git add with -f (force) to be used to add a PDS member that was
    previously git ignored
  - I to git ignore a PDS member and a new member status of [  ] Git Ignore
  - Make the Grep panel a popup with a tutorial panel behind it
+
+Add Read Only flag to the ZIGIINFO display panel.
 
 Improved usssafe routine that is faster with less overhead.
 

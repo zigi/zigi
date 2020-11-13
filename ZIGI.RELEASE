@@ -45,6 +45,8 @@ New PDS member selection commands
  - I to git ignore a PDS member and a new member status of [  ] Git Ignore
  - Make the Grep panel a popup with a tutorial panel behind it
 
+Add Read Only flag to the ZIGIINFO display panel.
+
 Improved usssafe routine that is faster with less overhead.
 
                           Bug Fixes and Other Updates:

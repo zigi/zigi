@@ -5,8 +5,7 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
-)Body Window(75,14)
-
+)Body Window(75,13)
 +Name          : $reponame
 +Repository    : $zigirep
 +Branch        : $branch
@@ -19,7 +18,7 @@
 +Last Access   : $zigidate
 +Default Userid: $defruid
 +Default Push  : $defcpush
-%
++Read Only     : $zro
 )Init
  &zwinttl = 'ZIGI Local Repository Summary Info'
 *REXX(* localrep remotex remote1 remotex2)

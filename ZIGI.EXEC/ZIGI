@@ -29,6 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            11/13/20 LBD - Add Read Only flag to ZIGIINFO   |
   |            11/12/20 LBD - Option to keep .git files on repo|
   |                           delete (only remove from zigi)   |
   |                         - New CONNECT command to add an    |
@@ -968,6 +969,10 @@ Create_zigirepo:
   * ------------------------------------------ */
 handle_zigiprim_lcmd_i:
   call pfshow 'off'           /* make sure pfshow is off */
+  readonly = check_read_only()
+  if readonly = 1
+     then zro = 'Yes'
+     else zro = 'No'
   'addpop row(3) column(1)'
   'display panel(zigiinfo)'
   'rempop'
@@ -1649,6 +1654,9 @@ WWR_handle_convrepo:
   | View summary info of repository  |
   * -------------------------------- */
 WWR_handle_info:
+  if readonly = 1
+     then zro = 'Yes'
+     else zro = 'No'
   call pfshow 'off'           /* make sure pfshow is off */
   'addpop row(3) column(2)'
   'display panel(zigiinfo)'
@@ -8932,7 +8940,7 @@ Check_Delta:
   | .zigi/readonly                                 |
   * ---------------------------------------------- */
 Set_Read_Only:
-  x = bpxwunix('touch' localrep'/'zigirep'/.zigi/readonly',s.,e.,env.)
+  x = bpxwunix('touch' localrep'/'zigirep'/.zigi/readonly',,s.,e.,env.)
   cmd = 'cd' localrep'/'zigirep ,
     "&& echo '.zigi/readonly' > .gitignore" ,
     '&& git add .gitignore'
