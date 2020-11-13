@@ -51,6 +51,10 @@ Improved usssafe routine that is faster with less overhead.
 
 Add git log to ZGBATCH reporting.
 
+ZGBATCH now supports a COMMIT DD to provide the commit prose for the
+batch process. The DD may be a DD * or a DD referencing a sequential
+dataset or PDS member.
+
                           Bug Fixes and Other Updates:
                           ----------------------------
 

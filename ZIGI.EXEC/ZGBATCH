@@ -49,6 +49,15 @@
   |           capture and commit, or commit/push, changes      |
   |           to the datasets within a Git repository.         |
   |                                                            |
+  | Optional COMMIT DD                                         |
+  |                                                            |
+  |           If a COMMIT DD is provided then it must be       |
+  |           a sequential dataset or PDS member with the      |
+  |           git commit message text, or a DD *.              |
+  |                                                            |
+  |           The 1st record may be no more than 50 characters |
+  |           with the other records being no more than 72.    |
+  |                                                            |
   | Dependencies:                                              |
   |                                                            |
   |           The Git repository must be ZIGI managed.         |
@@ -60,6 +69,7 @@
   |                                                            |
   | History:  (most recent on top)                             |
   |            11/13/20 LBD - Add git log after commit         |
+  |                         - Add COMMIT DD support            |
   |            10/25/20 LBD - Improve usssafe routine          |
   |            08/08/20 LBD - Generalize get_binfiles          |
   |            07/29/20 LBD - Add _EDC_ZERO_RECLEN=Y to env.   |
@@ -87,6 +97,10 @@
   |  //SYSTSIN  DD   *                                         |
   |  PROFILE PREFIX(userid or user-prefix)   <=== change       |
   |  ISPF CMD(%ZGBATCH hlq qualignr /u/home/xxx p) <=== change |
+  |  //COMMIT DD *     (optional)                              |
+  |  Sample Commit Message for Product xyz                     |
+  |  Updates include the following updates . . .               |
+  |  Change module abc to add ...                              |
   |  //                                                        |
   |___________________________________________________________ |
   |  Examples: the omvs directory is case sensitive            |
@@ -215,6 +229,7 @@
   call get_binfiles
   call get_dsn_info
   call get_omvs
+  call check_commit
 
   /* ------------------------------------------- *
   | If any datasets were copied then invoke git |
@@ -238,6 +253,32 @@ Get_omvs:
   do i = 2 to so.0
     if left(so.i,1) = 'd' then call check_pds
     else call check_ps
+  end
+  return
+
+  /* ------------------------------------------------------ *
+  | Check for COMMIT DD and if found then use              |
+  | ocopy to copy the contents to an omvs file in /tmp     |
+  | and if it is a DD * then read in and write out to /tmp |
+  * ------------------------------------------------------ */
+Check_COMMIT:
+  parse value '' with commit_file
+  x = listdsi('COMMIT' 'FILE')
+  commit_file = "'/tmp/cm"random(99999)"'"
+  Select
+    When x = 0 & sysreason = 0 then do
+      address tso
+      'execio * diskr commit (finis stem ctext.'
+      address syscall ,
+        'writefile' commit_file '600 ctext.'
+    end
+    When x > 0 & sysreason = 3 then do
+      address tso
+      'execio * diskr commit (finis stem ctext.'
+      address syscall ,
+        'writefile' commit_file '600 ctext.'
+    end
+    Otherwise commit_file = null
   end
   return
 
@@ -282,9 +323,9 @@ check_pds:
       binopt = '-B'
       bintxt = 'Binary'
       if sysrecfm = 'U' then do
-         binopt = '-X -I'
-         bintxt = 'Load Module'
-         end
+        binopt = '-X -I'
+        bintxt = 'Load Module'
+      end
     end
     else do
       binopt = null
@@ -306,9 +347,9 @@ check_pds:
   call check_pds_memstats 'S'
   return
 
-/* ------------------ *
- | No changes routine |
- * ------------------ */
+  /* ------------------ *
+  | No changes routine |
+  * ------------------ */
 No_Changes:
   say 'No changes detected'
   return
@@ -360,11 +401,21 @@ Do_Git:
   call getenv
   say ' '
   say 'Performing Git Processing . . .'
+  if commit_file = null
+  then do
+    commit_msg = "m 'Automated Commit" date() time() "'"
+    del_commsg = null
+  end
+  else do
+    commit_msg = " -F" commit_file
+    del_commsg = '&& rm' commit_file
+  end
   cmd = 'cd' omvsfs '&& git add .' ,
-        '&& git status' ,
-        "&& git commit -vm 'Automated Commit" date() time() "'" ,
-        '&& git log --cc -m -n 1'
+    '&& git status' ,
+    "&& git commit -v"commit_msg ,
+    '&& git log --cc -m -n 1' del_commsg
   x = docmd(cmd)
+  say ' '
   call show_cmd 'S'
   say ' '
   say 'Git Processing completed.'
@@ -430,18 +481,18 @@ docmdx:
   | before each.                                                  |
   * ------------------------------------------------------------- */
 usssafe:
- parse arg safedsn
- if pos('$',safedsn) = 0 then return safedsn
- safe$pos = 1
- do forever
+  parse arg safedsn
+  if pos('$',safedsn) = 0 then return safedsn
+  safe$pos = 1
+  do forever
     pos$safe = pos('$',safedsn,safe$pos)
     if pos$safe < 1 then return safedsn
     left$safe = left(safedsn,pos$safe-1)
     right$save = substr(safedsn,pos$safe)
     safedsn = left$safe'\'right$save
     safe$pos = pos$safe + 2
-    end
- return safedsn
+  end
+  return safedsn
 oldsafe: procedure
   parse arg dsn
   if pos('$',dsn) = 0 then return dsn
@@ -470,9 +521,9 @@ strreplace: Procedure
   end
   return newstring
 
-/* ----------------------------- *
- | Lowercase the provided string |
- * ----------------------------- */
+  /* ----------------------------- *
+  | Lowercase the provided string |
+  * ----------------------------- */
 Lower: Procedure
   parse arg input
   out = translate(input,"abcdefghijklmnopqrstuvwxyz",,
