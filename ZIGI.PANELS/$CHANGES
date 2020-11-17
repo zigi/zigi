@@ -55,6 +55,8 @@ ZGBATCH now supports a COMMIT DD to provide the commit prose for the
 batch process. The DD may be a DD * or a DD referencing a sequential
 dataset or PDS member.
 
+Update ZGINSTALL to use Dovetails PUTPDS if it is in the path.
+
                           Bug Fixes and Other Updates:
                           ----------------------------
 

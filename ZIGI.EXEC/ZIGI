@@ -5176,12 +5176,16 @@ Git_Add_Member:
   and check if it has an extension (and if so which one).
   */
   repodir = localrep'/'zigirep
+  /* Comment Start
   x = docmd("cat '"repodir"/.zigi/dsn'")
+     Comment End */
+  readfile = " '"repodir"/.zigi/dsn'"
+  address syscall 'readfile' readfile 'so.'
   extension = null
   do cki = 1 to so.0
     if left(so.cki,1) = '#' then iterate
     if word(so.cki,1) = '*' then do
-      parse value so.cki with . def_dsorg def_recfm def_lrecl def_blksiz e .
+      parse value so.cki with . def_dsorg def_recfm def_lrecl def_blksize .
     end
     else do
       idsn = word(so.cki,1)        /* dataset name less hlq */
@@ -8528,8 +8532,12 @@ Get_PDS_Members:
   * -------------------------------------------------------- */
 get_dsn_info:
   zdsn. = null
+  /* Comment Start
   cmd = 'cat' localrep'/'zigirep'/.zigi/dsn'
   x = bpxwunix(cmd,,s.,e.,env.)
+     Comment End */
+  readfile = "'"localrep"/"zigirep"/.zigi/dsn'"
+  address syscall 'readfile' readfile 's.'
   if x > 0 then return
   do di = 1 to s.0
     zd = word(s.di,1)
