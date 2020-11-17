@@ -41,6 +41,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            11/17/20 LBD - Use Dovetail PUTPDS if available |
+  |                           as it is faster than cp          |
   |            10/25/20 LBD - Improve usssafe routine          |
   |            10/11/20 LBD - Correct test for existing dsns   |
   |            08/08/20 LBD - Generalize get_binfiles          |
@@ -121,6 +123,13 @@
   x = bpxwunix(cmd,,so.,se.,env.)
   ckotdir = strip(so.1)
 
+  x = bpxwunix('command -v putpds',,so.,se.)
+  if so.0 = 0 then enhanced = 0
+  else do
+    enhanced = 1
+    putpds = so.1
+  end
+
 Restart:
   /* ------------------- *
   | Prompt for z/OS HLQ |
@@ -160,12 +169,12 @@ Restart:
   hit   = 0
   filec = 0
 
-/* -------------------------------------------------------------- *
- | Inform the user that if there are directories with a lot of    |
- | members to be copied into a PDS tht the OMVS shell may enter   |
- | an INPUT state and to just press F10 - meanwhile the copy (cp) |
- | is proceeding.                                                 |
- * -------------------------------------------------------------- */
+  /* -------------------------------------------------------------- *
+  | Inform the user that if there are directories with a lot of    |
+  | members to be copied into a PDS tht the OMVS shell may enter   |
+  | an INPUT state and to just press F10 - meanwhile the copy (cp) |
+  | is proceeding.                                                 |
+  * -------------------------------------------------------------- */
   if opt = null then do
     call zmsg ' '
     call zmsg 'If the repository being installed has partitioned datasets'
@@ -331,54 +340,56 @@ Restart:
   /* ------------------------------------------ *
   | Now update and create the zgstat.exec file |
   * ------------------------------------------ */
-  c = 0
-  hit = 0
-  last = sourceline()
-  do i = 1 to last
-    card = sourceline(i)
-    if  left(card,8) = '>ZGSTATE' then leave
-    if hit = 0 then
-    if  left(card,8) = '>ZGSTAT ' then do
-      hit = 1
-      iterate
+  if enhanced = 0 then do
+    c = 0
+    hit = 0
+    last = sourceline()
+    do i = 1 to last
+      card = sourceline(i)
+      if  left(card,8) = '>ZGSTATE' then leave
+      if hit = 0 then
+      if  left(card,8) = '>ZGSTAT ' then do
+        hit = 1
+        iterate
+      end
+      else iterate
+      if pos('$$$$$$',card) > 0 then do
+        parse value card with var '=' .
+        if translate(var) = 'REPODIR' then
+        card = "   repodir ='"ckotdir"'"
+        if translate(var) = 'HLQ' then
+        card = "   hlq ='"ckothlq"'"
+      end
+      c = c + 1
+      zg.c = card
     end
-    else iterate
-    if pos('$$$$$$',card) > 0 then do
-      parse value card with var '=' .
-      if translate(var) = 'REPODIR' then
-      card = "   repodir ='"ckotdir"'"
-      if translate(var) = 'HLQ' then
-      card = "   hlq ='"ckothlq"'"
+    zg.0 = c
+
+    Address syscall
+    path = ckotdir'/lrhg.rex'
+    'open' path O_rdwr+O_creat+O_trunc 660
+    if retval = -1 then do
+      say 'Unable to open the output file for ZGSTAT.EXEC'
+      say 'so ISPF statistics will not be able to be recreated.'
+      exit 8
     end
-    c = c + 1
-    zg.c = card
-  end
-  zg.0 = c
+    fd = retval
+    do i = 1 to zg.0
+      rec = zg.i ESC_N
+      'write' fd 'rec' length(rec)
+    end
+    'close' fd
+    Address TSO
 
-  Address syscall
-  path = ckotdir'/lrhg.rex'
-  'open' path O_rdwr+O_creat+O_trunc 660
-  if retval = -1 then do
-    say 'Unable to open the output file for ZGSTAT.EXEC'
-    say 'so ISPF statistics will not be able to be recreated.'
-    exit 8
+    zgstat_dsn = "'"ckothlq".ZGSTAT.EXEC'"
+    cmd = 'cp -v  lrhg.rex "//'zgstat_dsn '"'
+    cmd = cmd '&& rm lrhg.rex'
+    x = bpxwunix(cmd,,so.,se.,env.)
+    if so.0 > 0 then
+    do i = 1 to so.0;say so.i;end
+    if se.0 > 0 then
+    do i = 1 to se.0;say se.i;end
   end
-  fd = retval
-  do i = 1 to zg.0
-    rec = zg.i ESC_N
-    'write' fd 'rec' length(rec)
-  end
-  'close' fd
-  Address TSO
-
-  zgstat_dsn = "'"ckothlq".ZGSTAT.EXEC'"
-  cmd = 'cp -v  lrhg.rex "//'zgstat_dsn '"'
-  cmd = cmd '&& rm lrhg.rex'
-  x = bpxwunix(cmd,,so.,se.,env.)
-  if so.0 > 0 then
-  do i = 1 to so.0;say so.i;end
-  if se.0 > 0 then
-  do i = 1 to se.0;say se.i;end
 
   /* -------------------- *
   | Done with everything |
@@ -389,17 +400,19 @@ Restart:
   do i = 1 to filec
     say zfile.i
   end
-  say ' '
-  say 'Note that using this installation path does not allow the ISPF'
-  say 'statistics to be recreated. Other than the missing ISPF statistics'
-  say 'everything has been successfully installed on z/OS.'
-  say ' '
-  say 'To recreate the ISPF statistics execute the following command'
-  say 'after returning to TSO/ISPF:'
-  say ' '
-  say 'TSO EX' zgstat_dsn 'EX'
-  say ' '
-  say 'After it completes successfully it can be deleted.'
+  if enhanced = 0 then do
+    say ' '
+    say 'Note that using this installation path does not allow the ISPF'
+    say 'statistics to be recreated. Other than the missing ISPF statistics'
+    say 'everything has been successfully installed on z/OS.'
+    say ' '
+    say 'To recreate the ISPF statistics execute the following command'
+    say 'after returning to TSO/ISPF:'
+    say ' '
+    say 'TSO EX' zgstat_dsn 'EX'
+    say ' '
+    say 'After it completes successfully it can be deleted.'
+  end
 
   Exit
 
@@ -477,9 +490,20 @@ Alloc_Copy_PDS:
     if binopt = null then type = 'Text'
     else if binopt = '-B' then  type = 'Binary'
     else if recfm = 'U' then type = 'Load module'
-    zos = usssafe("//'"target"'")
     say 'Copying' tcount 'members as' type
-    cmd = 'cp -A -U -v' binopt usssafe(rdir'/*') '"'zos'"'
+    if enhanced = 0 | recfm = 'U' then do
+      zos = usssafe("//'"target"'")
+      cmd = 'cp -A -U -v' binopt usssafe(rdir'/*') '"'zos'"'
+    end
+    else do
+      putpds_opts = null
+      if pos('-B',binopt) > 0 then putpds_opts = '-b'
+      sp = lastpos('/',rdir,length(rdir)-1)
+      sfile = substr(rdir,sp+1)
+      putpds_opts = putpds_opts '-M st='ckotdir'/.zigi/'sfile
+      zos = usssafe("//"target)
+      cmd = putpds putpds_opts usssafe(rdir)'/*' zos
+    end
     x = docmd(cmd)
     if x > 0 then do
       say ' '
@@ -576,18 +600,18 @@ Check_Mixed_BinText:
   return cmbtRC
 
 usssafe:
- parse arg safedsn
- if pos('$',safedsn) = 0 then return safedsn
- safe$pos = 1
- do forever
+  parse arg safedsn
+  if pos('$',safedsn) = 0 then return safedsn
+  safe$pos = 1
+  do forever
     pos$safe = pos('$',safedsn,safe$pos)
     if pos$safe < 1 then return safedsn
     left$safe = left(safedsn,pos$safe-1)
     right$save = substr(safedsn,pos$safe)
     safedsn = left$safe'\'right$save
     safe$pos = pos$safe + 2
-    end
- return safedsn
+  end
+  return safedsn
 
 oldsafe: procedure
   parse arg dsn
