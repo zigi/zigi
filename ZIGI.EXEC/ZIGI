@@ -1466,6 +1466,7 @@ WWR_init:
 
 WWR_display_zigirepo:
   parse value '' with zsel row
+  check_flag = 0
   ztdsels = repo_ztdsels
   if zcmd /= 'ADDDSN' then do
     parse value '' with zsel zcmd row zcmd
@@ -6696,7 +6697,6 @@ Update_repo_metadata:
     x = debug('Calling zigirefd to update last access info.')
     x = zigirefd(localrep'/'zigirep pdshlq qualignr 'U')
     x = debug('Completed the last access update.')
-    check_flag = 0
   end
   zs1 = 'Building List of repository Data Sets'
   zs2 = fetchmsg
