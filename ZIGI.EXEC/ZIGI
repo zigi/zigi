@@ -9075,7 +9075,7 @@ do_copy:
     end
     x = docmd(do_cpcmd)
     if se.0 > 1 then
-    call stemedit 'view',se.
+    call view_std 'B'
     return x
   end
 
