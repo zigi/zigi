@@ -2107,7 +2107,7 @@ WWR_handle_addall:
     if hit = 0 then iterate
     call git_add
   end
-  call git_safe_add localrep'/'zigirep, '.'
+  call git_safe_add localrep'/'zigirep  '.'
   x = docmd(cmd)
   call update_repo_metadata
   zcmd = null
@@ -2963,7 +2963,7 @@ WWRF_handle_addall:
     call git_add_member
   end
   call git_add_member_stats
-  call git_safe_add localrep'/'zigirep, '.'
+  call git_safe_add localrep'/'zigirep  '.'
   x = docmd(cmd)
   zcmd = null
   x = debug('ADDALL completed:' zigirep)
@@ -3115,7 +3115,7 @@ WWRF_handle_lcmd_s:
     x = do_copy(copycmd)
     if x > 0 then call view_std 'B'
     x = debug('Copy:' copycmd)
-    if strip(binopt''cplmod) /= null then do
+    if strip(binopt''cplmod) /= '-T' then do
       tagcmd = 'chtag -b 'localrep'/'zigirep'/'r
       x = docmd(tagcmd)
     end
@@ -3600,7 +3600,7 @@ git_add:
   if left(dsn,1) = "'"
   then d = usssafe(dsn)
   else d = '"'usssafe(dsn)'"'
-  call git_safe_add localrep'/'zigirep, d
+  call git_safe_add localrep'/'zigirep  d
   if dsnvalid(fulldsn) = "OK" then do
     /* Only get the stats if it's a z/OS dataset
     Don't do it for the USS files
@@ -5219,7 +5219,7 @@ Git_Add_Member:
   if force_it = null
   then add_force = null
   else add_force = '-f'
-  call git_safe_add repodir, d'/'toadd, add_force
+  call git_safe_add repodir  d'/'toadd  add_force
   if se.0 > 0 then
   call view_std 'B'
   call update_mem_stats d'/'toadd mem
@@ -9175,8 +9175,8 @@ Update_stats:
 
 /* Ensure files are correctly tagged before adding to index */
 Git_Safe_Add:   /* FM */
-  parse arg gsa_dir, gsa_files, gsa_options
-  call auto_tag_files gsa_dir, gsa_files
+  parse arg gsa_dir gsa_files gsa_options
+  call auto_tag_files gsa_dir gsa_files
   gsa_cmd = 'cd' gsa_dir
   gsa_cmd = gsa_cmd '&& git add' gsa_options gsa_files
   x = docmd(gsa_cmd)
@@ -9184,7 +9184,7 @@ Git_Safe_Add:   /* FM */
 
 /* Automatically tag modified and untracked files */
 Auto_Tag_Files:  /* FM */
-  parse arg atf_dir, atf_files
+  parse arg atf_dir atf_files
   ls_cmd = 'cd' atf_dir '&& git ls-files -mo' atf_files
   x = docmd(ls_cmd)
   /* save output which otherwise is overridden */
@@ -9192,13 +9192,13 @@ Auto_Tag_Files:  /* FM */
     ls_cmd_so.i = so.i
   end
   do i=1 to ls_cmd_so.0
-    call auto_tag_file atf_dir, ls_cmd_so.i
+    call auto_tag_file atf_dir ls_cmd_so.i
   end
   return
 
 /* Automatically tag specified file */
 Auto_Tag_File:   /* FM */
-  parse arg atf_dir, atf_file
+  parse arg atf_dir atf_file
   attr_cmd = 'cd' atf_dir
   attr_cmd = attr_cmd '&& git check-attr -a' atf_file ,
              '| grep -e "binary: set"' ,
