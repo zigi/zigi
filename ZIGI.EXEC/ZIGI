@@ -1309,7 +1309,6 @@ Work_With_Repo:
   /* -------------------------------- *
   | Process the Repository Data Sets |
   * -------------------------------- */
-  zigi_changed = 0
   do forever
     call WWR_display_zigirepo
     if result > 4 then return
@@ -3120,7 +3119,7 @@ WWRF_handle_lcmd_s:
       x = docmd(tagcmd)
     end
     call update_mem_stats r mem
-    zigi_changed = 0
+    zigi_changed = 1
   end
   Return
 
