@@ -68,6 +68,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            11/19/20 LBD - Update cp to use -T as default   |
   |            11/13/20 LBD - Add git log after commit         |
   |                         - Add COMMIT DD support            |
   |            10/25/20 LBD - Improve usssafe routine          |
@@ -328,7 +329,7 @@ check_pds:
       end
     end
     else do
-      binopt = null
+      binopt = '-T'
       bintxt = 'Text'
     end
     pds = "'"zosdsnw"("mem")'"
@@ -363,7 +364,7 @@ check_ps:
   zosdsn = "'"hlq"."word(so.i,9)"'"
   if sysdsn(zosdsn) /= 'OK' then return
   cmd = 'cd' omvsfs
-  cmd = cmd '&& cp -U -v "//'zosdsn'"' word(so.i,9)
+  cmd = cmd '&& cp -T -U -v "//'zosdsn'"' word(so.i,9)
   cmd = usssafe(cmd)
   say 'Copying PS:' zosdsn
   x = bpxwunix(cmd,,co.,ce.,bpxenv.)

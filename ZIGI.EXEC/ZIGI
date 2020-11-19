@@ -29,6 +29,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            11/19/20 LBD - Use -T for cp default            |
+  |                         - Add check for NOCOZ DD to bypass |
+  |                           Dovetail getpds/putpds           |
   |            11/13/20 LBD - Add Read Only flag to ZIGIINFO   |
   |            11/12/20 LBD - Option to keep .git files on repo|
   |                           delete (only remove from zigi)   |
@@ -3104,6 +3107,7 @@ WWRF_handle_lcmd_s:
       r = r'/'rm
     end
     r = usssafe(r)
+    if strip(binopt cplmod) = null then binopt = '-T'
     copycmd = '"'copycmd'"'
     copycmd = "cp "binopt cplmod" -U -v" copycmd" "localrep"/"zigirep
     copycmd = copycmd || "/"r
@@ -6568,9 +6572,9 @@ Update_repo_metadata:
               binopt = '-B'
             end
             else do
-              binopt = null
+              binopt = '-T'
             end
-            if binopt = null
+            if binopt = '-T'
             then bintext = 'as Text'
             else bintext = 'as Binary'
             if sysrecfm = 'U' then do
@@ -6591,7 +6595,7 @@ Update_repo_metadata:
             x = do_copy(copycmd)
             if x > 0 then call view_std 'B'
             x = debug('Copy:' copycmd)
-            if strip(binopt''cplmod) /= null then do
+            if strip(binopt''cplmod) /= '-T' then do
               tagcmd = 'chtag -b 'localrep'/'zigirep'/'r'/'rm
               x = docmd(tagcmd)
             end
@@ -6666,7 +6670,7 @@ Update_repo_metadata:
               binopt = '-B'
             end
             else do
-              binopt = null
+              binopt = '-T'
             end
             if sysrecfm = 'U' then do
               binopt = null
@@ -6680,7 +6684,7 @@ Update_repo_metadata:
             x = do_copy(copycmd)
             if x > 0 then call view_std 'B'
             x = debug('Copy:' copycmd)
-            if strip(binopt''cplmod) /= null then do
+            if strip(binopt''cplmod) /= '-T' then do
               tagcmd = 'chtag -b 'localrep'/'zigirep'/'r
               x = docmd(tagcmd)
             end
@@ -7346,7 +7350,7 @@ Do_Add_Copy:
     parse value pdss with pdss'/'.
     mkdir = "mkdir -p "DIR"/"pdss
     x = docmd(mkdir)
-    binopt = null
+    binopt = '-T'
     if translate(option) = 'BINARY' then do
       if cplmod = null then
       binopt = '-B'
@@ -7408,7 +7412,7 @@ Do_Add_Copy:
         ussmem = lower(mem)'.'zdsn.dsnb
         zs2 = 'to' dsnb'/'ussmem
         zs4 = 'Patience . . .' ci-6 'of' cm_count
-        binopt = null
+        binopt = '-T'
         if is_binfile(pdss'/'ussmem) = 1 then
         if cplmod = null then do
           binopt = '-B'
@@ -7937,9 +7941,15 @@ GETENV:
   call add_env '_EDC_ZERO_RECLEN=Y'
   env.0 = envc
   drop so. se.
+
   /* ----------------------- *
   | Check for getpds/putpds |
   * ----------------------- */
+  x = listdsi('NOCOZ' 'FILE')
+  if sysreason = 3 then do
+     enhanced_cp = 0
+     return
+     end
   x = docmd('command -v getpds')
   if x = 0
   then do

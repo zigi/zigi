@@ -57,6 +57,9 @@ dataset or PDS member.
 
 Update ZGINSTALL to use Dovetails PUTPDS if it is in the path.
 
+For testing purposes added a check for a NOCOZ DD to bypass the Dovetail
+utilities and use native cp.
+
                           Bug Fixes and Other Updates:
                           ----------------------------
 
@@ -75,6 +78,8 @@ Update ZGINSTALL to use Dovetails PUTPDS if it is in the path.
    it is better. Now creates a .gitattributes if one does not exist and
    supports files with $ in the name.
 10. Fixed incorrect tagging for untagged files with updates from Filipe Meireles
+11. Use -T for default cp copies to address issue with x'00' (perhaps other)
+    characters in a text member (thx to Filipe)
 
 =============================================================================
                              ZIGI Release Notes
