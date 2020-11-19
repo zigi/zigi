@@ -32,6 +32,7 @@
   |            11/19/20 LBD - Use -T for cp default            |
   |                         - Add check for NOCOZ DD to bypass |
   |                           Dovetail getpds/putpds           |
+  |                         - Pass dovetail state in ispf var  |
   |            11/13/20 LBD - Add Read Only flag to ZIGIINFO   |
   |            11/12/20 LBD - Option to keep .git files on repo|
   |                           delete (only remove from zigi)   |
@@ -7954,6 +7955,9 @@ GETENV:
   if x = 0
   then do
     enhanced_cp = 1
+    dovetail_dir = so.1
+    lp = lastpos('/',dovetail_dir,length(dovetail_dir)-1)
+    dovetail_dir = left(dovetail_dir,lp)
   end
   else do
     x = zigiexit(0)
@@ -7964,6 +7968,8 @@ GETENV:
     end
     else enhanced_cp = 0
   end
+  dovedir = enhanced_cp dovetail_dir
+  'vput (dovedir) shared'
   x = debug('Finished collection of env variables')
   return
 

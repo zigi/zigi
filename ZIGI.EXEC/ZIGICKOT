@@ -18,6 +18,8 @@
   |                                                            |
   | History:  (most recent on top)                             |
   |            11/19/20 LBD - Use -T for default cp copies     |
+  |                         - Get dovetail directory from ispf |
+  |                           variable dovetail                |
   |            11/03/20 LBD - Update for latest putpds syntax  |
   |            10/25/20 LBD - Improved usssafe routine         |
   |            10/21/20 LBD - Check for ispf stats before put  |
@@ -123,21 +125,10 @@
   /* ----------------------- *
   | Check for getpds/putpds |
   * ----------------------- */
-  x = docmd('command -v putpds')
-  if x = 0
-  then do
-    enhanced_cp = 1
-    dovetail_dir = null
-  end
-  else do
-    x = zigiexit(0)
-    if left(x,1) = '/' then do
-      if right(x,1) /= '/' then x = x'/'
-      dovetail_dir = x
-      enhanced_cp = 1
-    end
-    else enhanced_cp = 0
-  end
+  Address ISPExec ,
+  'vget (dovedir) shared'
+  enhanced_cp  = word(dovedir,1)
+  dovetail_dir = word(dovedir,2)
 
   /* -------------------------------------------------------- *
   | Issue the ls command to get file names and sizes for all |
@@ -465,6 +456,7 @@ Alloc_Copy_PDS:
          dvstat_file = '-b' dvstat_file
       cmd = dovetail_dir'putpds' dvstat_file rdir''rsuf '//'pds
     end
+say '1 cmd:' cmd
     x = docmd(cmd)
 
     if x > 0 then call view_std 'B'
@@ -502,6 +494,7 @@ Alloc_Copy_PDS:
       call pop_status
       cmd = 'cd' usssafe(rdir)
       cmd = cmd '&& cp -v' aopt binopt src '"'zos'"'
+say '2 cmd:' cmd
       x = docmd(cmd)
       if x > 0 then call view_std 'B'
       Address ISPexec
@@ -579,6 +572,7 @@ Pop_Status:
   | - set the initial userid to ZIGI   |
   * ---------------------------------- */
 Add_Stats:
+  if enhanced_cp = 1 then return
   zs8 = 'Adding/Updating ISPF Statistics'
   call pop_status
   filepath = ckotdir'/.zigi/'sub
