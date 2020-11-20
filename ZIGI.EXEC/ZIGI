@@ -29,6 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            11/20/20 LBD - Small fixes in many areas        |
   |            11/19/20 LBD - Use -T for cp default            |
   |                         - Add check for NOCOZ DD to bypass |
   |                           Dovetail getpds/putpds           |
@@ -3128,7 +3129,6 @@ Update_Mem_Stats:
   parse arg ums_file ums_mem
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git status --porcelain' ums_file
-  cmd = usssafe(cmd)
   x = docmd(cmd)
   if so.0 = 1 then do
     memstat = porcelain(left(so.1,2))
@@ -9049,9 +9049,6 @@ BrDelta:
   * ------------------------------------------------------- */
 do_copy:
   parse arg cp_cmd
-  /* Comment Start
-  enhanced_cp = 0   /* force normal cp for now $$$$$$$$$$$$$$$$$$$$$$ */
-  Comment Stop */
   /* ------------------------------------------------------- *
   | If enhance cp is not enabled or if the cp is for a load |
   | module then do normal cp                                |
@@ -9094,7 +9091,7 @@ do_copy:
     return x
   end
 
-Fixup_cp: Procedure expose null putpds getpds
+Fixup_cp: Procedure expose null putpds getpds qualignr localrep zigirep env.
   parse arg cmd
   parse value cmd with cmd '&&' rcmd
   w = words(cmd)
@@ -9104,19 +9101,27 @@ Fixup_cp: Procedure expose null putpds getpds
   target = strip(target,'B','"')
   source = strip(source,'B','"')
   parse value '' with cpm cpu
-  if left(target,3) = "//'" then target = remove_safe(target)
-  if left(source,3) = "//'" then source = remove_safe(source)
+  if left(target,3) = "//'" then do
+     target = remove_safe(target)
+     statfile = fixup_cpstat(target)
+     end
+  if left(source,3) = "//'" then do
+     source = remove_safe(source)
+     statfile = fixup_cpstat(source)
+     end
   if left(target,2) = '//' then do   /* use putpds */
     cp = putpds
+    /* Comment Start
     if pos('(',target) > 0 then do
       parse value target with lt'('tm')'rt
       target = lt''rt
     end
+       Comment End */
   end
   if left(source,2) = '//' then do   /* use getpds */
     cp = getpds
-    if pos('(',source) > 0 then cpu = 'up=y'
-    if pos('-U',cmd) > 0 then cpu = 'up=y'
+    if pos('(',source) > 0 then cpu = 'upp=y'
+    if pos('-U',cmd) > 0 then cpu = 'upp=y'
     if pos('-S',cmd) > 0 then do
       parse value cmd with . 'a='suf .
       if left(suf,1) = '.' then suf = substr(suf,2)
@@ -9142,12 +9147,27 @@ Fixup_cp: Procedure expose null putpds getpds
     if cpm /= null then cpu = cpm
     if cpu /= null
        then cp = cp '-M' cpu',r=y'
-
   end
+  if cp = null & pos('-X',cp) = 0
+     then cp = '-M st='localrep'/'zigirep'/.zigi/'statfile
+     else do
+     cp = word(cp,1) ,
+       '-M st='localrep'/'zigirep'/.zigi/'statfile','strip(subword(cp,3))
+     end
   if pos('-B',cmd) > 0 then cp = cp '-b'
   cmd = cp source target
   if rcmd = null then return cmd
   else return cmd '&&' rcmd
+
+Fixup_cpstat:
+arg cpstat
+cpstat = substr(cpstat,3)   /* remove // */
+lq = pos('(',cpstat)
+if lq > 0 then parse value cpstat with cpstat'(' .
+cpstat = translate(cpstat,' ','.')
+cpstat = subword(cpstat,qualignr+1)
+cpstat = translate(cpstat,'.',' ')
+return cpstat
 
 Get_Ignored:
   cmd = 'cat' localrep'/'zigirep'/.gitignore'
@@ -9168,7 +9188,7 @@ Update_stats:
     us_dsn = us_dsn''r_dsn
   end
   if left(us_dsn,1) /= "'" then us_dsn = "'"us_dsn"'"
-  uscmd = dovetail_dir'getpds -M st='us_stats '//'us_dsn
+  uscmd = dovetail_dir'getpds -M st='us_stats',upd=n' '//'us_dsn
   x = docmd(uscmd)
   return
 
