@@ -29,6 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            12/07/20 LBD - Correct setting -T               |
   |            11/20/20 LBD - Small fixes in many areas        |
   |            11/19/20 LBD - Use -T for cp default            |
   |                         - Add check for NOCOZ DD to bypass |
@@ -7350,7 +7351,6 @@ Do_Add_Copy:
     parse value pdss with pdss'/'.
     mkdir = "mkdir -p "DIR"/"pdss
     x = docmd(mkdir)
-    binopt = '-T'
     if translate(option) = 'BINARY' then do
       if cplmod = null then
       binopt = '-B'
@@ -7412,7 +7412,6 @@ Do_Add_Copy:
         ussmem = lower(mem)'.'zdsn.dsnb
         zs2 = 'to' dsnb'/'ussmem
         zs4 = 'Patience . . .' ci-6 'of' cm_count
-        binopt = '-T'
         if is_binfile(pdss'/'ussmem) = 1 then
         if cplmod = null then do
           binopt = '-B'
@@ -7424,6 +7423,7 @@ Do_Add_Copy:
         pdss = usssafe(pdss)
         pdsc = usssafe(pdsc)
         ussmem = usssafe(ussmem)
+        if binopt = null then binopt = '-T'
         copycmd = "//'"pdsc"'"
         copycmd = '"'copycmd'"'
         cmd = "cp -U -v "binopt cplmod copycmd" "dir"/"pdss"/"ussmem
@@ -9164,7 +9164,7 @@ arg cpstat
 cpstat = substr(cpstat,3)   /* remove // */
 lq = pos('(',cpstat)
 if lq > 0 then parse value cpstat with cpstat'(' .
-cpstat = translate(cpstat,' ','.')
+cpstat = translate(cpstat,' ',".'")
 cpstat = subword(cpstat,qualignr+1)
 cpstat = translate(cpstat,'.',' ')
 return cpstat
