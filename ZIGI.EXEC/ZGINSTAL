@@ -41,6 +41,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            01/06/21 LBD - use .zigi/dsn for z/OS dataset   |
+  |                           determination                    |
   |            11/17/20 LBD - Use Dovetail PUTPDS if available |
   |                           as it is faster than cp          |
   |            10/25/20 LBD - Improve usssafe routine          |
@@ -191,6 +193,7 @@ Restart:
 
   /* ------------------------------------ *
   | Read in ../.zigi/dsn to get dcb info |
+  | and for z/OS dsn info                |
   * ------------------------------------ */
   cmd = 'cd' ckotdir '&& ls -la .zigi'
   x = bpxwunix(cmd,,co.,ce.,env.)
@@ -256,6 +259,7 @@ Restart:
       end
       when hit = 1 & left(stdout.i,1) = '-' then do
         file = word(stdout.i,9)
+        if def.file = null then iterate
         if left(file,1) = '.' then iterate
         fx = translate(file,'??????????????????????????', ,
           'abcdefghijklmnopqrstuvwxyz')

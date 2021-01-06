@@ -17,6 +17,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            01/06/21 LBD - Ignore files not in .zigi/dsn    |
   |            11/19/20 LBD - Use -T for default cp copies     |
   |                         - Get dovetail directory from ispf |
   |                           variable dovetail                |
@@ -153,35 +154,6 @@
   parse value '' with subs files null pullmems.
   hit = 0
 
-  /* ------------------------------------------------------- *
-  | Get a list of all z/OS datasets and then check to       |
-  | determine if any are allocated.  If so then return bad. |
-  * ------------------------------------------------------- */
-  all_dsns = null
-  pulldsns = strip(pulldsns)
-  do i = 3 to stdout.0
-    if strip(stdout.i) = null then leave
-    if words(stdout.i) < 9 then iterate
-    if left(word(stdout.i,9),1) = '.' then iterate
-    file = word(stdout.i,9)
-    fx = translate(file,'??????????????????????????', ,
-      'abcdefghijklmnopqrstuvwxyz')
-    if pos('?',fx) > 0 then iterate
-    if pulldsns = null then
-    all_dsns = all_dsns file
-    if wordpos(file,pulldsns) > 0 then
-    all_dsns = all_dsns file
-  end
-  Address ISPexec
-  x = check_enqs(ckothlq all_dsns)
-  if x > 0 then do
-    badckot = 1
-    Address ISPExec ,
-      'vput (badckot) shared'
-    return 1
-  end
-  Address TSO
-
   /* ------------------------------------ *
   | Read in ../.zigi/dsn to get dcb info |
   * ------------------------------------ */
@@ -214,6 +186,36 @@
       end
     end
   end
+
+  /* ------------------------------------------------------- *
+  | Get a list of all z/OS datasets and then check to       |
+  | determine if any are allocated.  If so then return bad. |
+  * ------------------------------------------------------- */
+  all_dsns = null
+  pulldsns = strip(pulldsns)
+  do i = 3 to stdout.0
+    if strip(stdout.i) = null then leave
+    if words(stdout.i) < 9 then iterate
+    if left(word(stdout.i,9),1) = '.' then iterate
+    file = word(stdout.i,9)
+    if def.file = null then iterate
+    fx = translate(file,'??????????????????????????', ,
+      'abcdefghijklmnopqrstuvwxyz')
+    if pos('?',fx) > 0 then iterate
+    if pulldsns = null then
+    all_dsns = all_dsns file
+    if wordpos(file,pulldsns) > 0 then
+    all_dsns = all_dsns file
+  end
+  Address ISPexec
+  x = check_enqs(ckothlq all_dsns)
+  if x > 0 then do
+    badckot = 1
+    Address ISPExec ,
+      'vput (badckot) shared'
+    return 1
+  end
+  Address TSO
 
   /* ------------------------------- *
   | Get the list of Binary Datasets |

@@ -68,6 +68,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            01/06/21 LBD - Small update to get_dsn_info     |
+  |                           routine                          |
   |            11/19/20 LBD - Update cp to use -T as default   |
   |            11/13/20 LBD - Add git log after commit         |
   |                         - Add COMMIT DD support            |
@@ -536,13 +538,15 @@ Lower: Procedure
   * ----------------------------------------- */
 get_dsn_info:
   zdsn. = null
+  dsninfo. = null
   cmd = 'cat' omvsfs'/.zigi/dsn'
   x = bpxwunix(cmd,,s.,e.,bpxenv.)
   if x > 0 then return
   do di = 1 to s.0
+    if left(s.di,1) = '#' then iterate
     zd = word(s.di,1)
     zdsn.zd = word(s.di,6)
-    zdsn.0 = zd
+    dsninfo.zd = zd
   end
   drop s. e.
   return
