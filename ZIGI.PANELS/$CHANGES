@@ -60,10 +60,6 @@ Update ZGINSTALL to use Dovetails PUTPDS if it is in the path.
 For testing purposes added a check for a NOCOZ DD to bypass the Dovetail
 utilities and use native cp.
 
-Check all OMVS files in the root directory and if they are not found in
-the .zigi/dsn file then they will not be considered to have a z/OS
-dataset associated with it.
-
                           Bug Fixes and Other Updates:
                           ----------------------------
 
