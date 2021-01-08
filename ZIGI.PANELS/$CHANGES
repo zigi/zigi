@@ -1,8 +1,10 @@
- *-------------------------------------------------------------------*
- |  The User Guide and Cheat Sheet can be found at:                  |
- |  https://github.com/wizardofzos/zigi/wiki/6.-Documentation        |
- *-------------------------------------------------------------------*
+   *-------------------------------------------------------------------*
+   |  The User Guide and Cheat Sheet can be found at:                  |
+   |  https://github.com/wizardofzos/zigi/wiki/6.-Documentation        |
+   *-------------------------------------------------------------------*
 
+=============================================================================
+This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
                              ZIGI Release Notes
                                Version 3.10
@@ -69,6 +71,10 @@ for Rocket Git 2.26.x, which ignores git-encoding attribute and encodes
 the content from the specified encoding to UTF-8.
 
 Use LF instead or CRLF as newline character, to be consistent with UNIX.
+
+New DIFF command for the local repository to display the differences for
+either the unstaged or staged changes.
+
 
                           Bug Fixes and Other Updates:
                           ----------------------------

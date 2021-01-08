@@ -30,6 +30,7 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            01/08/21 LBD - Verify usssafe is used for copy  |
+  |                         - Add DIFF command                 |
   |            01/07/21 LBD - Correct bug with file extnsions  |
   |                         - Prevent updating .zigi/dsn with  |
   |                           member info (ab)                 |
@@ -1356,6 +1357,7 @@ Work_With_Repo:
       When abbrev('GITHELP',word(zcmd,1),4) = 1 then
       Address TSO '%githelp' subword(zcmd,2)
       When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
+      When abbrev('DIFF',word(zcmd,1),1) = 1 then call WWR_handle_diff
       When abbrev('INFO',zcmd,2) = 1 then call WWR_handle_info
       When abbrev('SET',zcmd,1) = 1 then call do_rset
       /* ---------------------------- *
@@ -1663,6 +1665,30 @@ WWR_handle_convrepo:
     call work_with_repo
   end
   Return
+
+/* ------------------------------------ *
+ | Process the git diff command request |
+ * ------------------------------------ */
+WWR_handle_diff:
+  diff = word(zcmd,2)
+  if pos(diff,'12') = 0 then do
+    call pfshow 'off'           /* make sure pfshow is off */
+    'addpop row(3) column(2)'
+    'display panel(zigidiff)'
+    'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
+  end
+  if diff = 1 then gcmd = 'git diff'
+  else gcmd = 'git diff --cached'
+  cmd = 'cd' localrep'/'zigirep '&&' gcmd
+  x = docmd(cmd)
+  if so.0 = 0 then do
+    zerrsm = null
+    zerrlm = 'No differences to display for:' gcmd
+    'setmsg msg(isrz002)'
+  end
+  else call view_std 'B' 'V'
+  return
 
   /* -------------------------------- *
   | View summary info of repository  |

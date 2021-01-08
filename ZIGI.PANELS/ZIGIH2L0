@@ -6,29 +6,29 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                                %eXtract
+                                  %DIFF+
 +
-%eXtract+will prompt for a high-level-qualifier (HLQ) and a new OMVS directory
-+to copy all of the z/OS and OMVS elements that were updated by the selected
-+Tag or Commit.
++The%diff+command will display the 'git diff' for either:
 +
-+The OMVS directory may be blank to bypass extracting the OMVS files.
-+
-+This can be useful for creating an APAR or PTF with just the updated elements.
-+
-+Note: The copy is%not+Git managed.
-+
-+Multiple commits/tags may be selected at one time.
+ %1+the unstaged changes
+ %2+the staged changes
 +
 +
-               "The most effective way of doing it, is to do it."
-                  -- Amelia Earhart
++Command syntax:%diff+
++            or:%diff #+
++
++
++  "There are nearly endless opportunities to improve each day and finding
++   largely boils down to being curious.
++   People who are better in the end are usually curious in the beginning."
++  --- James Clear
++
 +
          +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
- &zcont = zigih2l0
+ &zcont = zigih300
 )END
 /* -------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                       */
