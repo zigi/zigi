@@ -391,7 +391,7 @@ Write_Stats:
   * ----------------------------------- */
 Write_FD:
   parse arg string
-  string = string || ESC_R || ESC_N
+  string = string || ESC_N
   'write' fd 'string' length(string)
   return
 
