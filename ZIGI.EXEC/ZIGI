@@ -2321,6 +2321,7 @@ WWR_handle_lcmd_d:
     dtest = 1
   end
   if dtest = 0 then do
+    call auto_tag_file localrep'/'zigirep, dsn
     cmd = 'cd' localrep'/'zigirep
     x = docmd(cmd ' && git diff 'dsn)
     if so.0 + se.0 > 0
@@ -3328,6 +3329,7 @@ WWRF_handle_lcmd_d:
   m = usssafe(mem)
   if zdsn.dsn /= null then
   m = lower(m)'.'zdsn.dsn
+  call auto_tag_file localrep'/'zigirep'/'d, m
   x = docmd(cmd ' && git diff 'm)
   if so.0 + se.0 > 0
   then call View_std 'X' 'V'
@@ -3669,6 +3671,7 @@ Stash_IT:
   'display panel(zigipop)'
   'rempop'
   call pfshow 'reset'         /* restore pfshow setting */
+  call auto_tag_files localrep'/'zigirep, '.'
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git stash push -a -u -m "'date() time() stashmsg'"'
   cmd = cmd '&& git stash show'
