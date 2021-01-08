@@ -80,6 +80,8 @@ utilities and use native cp.
 10. Fixed incorrect tagging for untagged files with updates from Filipe Meireles
 11. Use -T for default cp copies to address issue with x'00' (perhaps other)
     characters in a text member (thx to Filipe)
+12. Correct but when using member file extensions with the AB (add binary)
+    member selection option.
 
 =============================================================================
                              ZIGI Release Notes
