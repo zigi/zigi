@@ -29,6 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            01/08/21 LBD - Verify usssafe is used for copy  |
   |            01/07/21 LBD - Correct bug with file extnsions  |
   |                         - Prevent updating .zigi/dsn with  |
   |                           member info (ab)                 |
@@ -6919,7 +6920,7 @@ Confirm_Mem_Deletes:
         tdsn = "'"strip(fulldsn,'B',"'")"("dmrow")'"
         rd = translate(r)
         cmd = 'cp -v -U' cbinopt localrep'/'zigirep'/'rd'/'dmorig '"//'tdsn'"'
-        x = do_copy(usssafe(cmd))
+        x = do_copy(cmd)
         if x > 0 then call view_std 'B'
         dmstate = 'Recovered'
         'tbput' tbcd
@@ -9064,6 +9065,7 @@ BrDelta:
   * ------------------------------------------------------- */
 do_copy:
   parse arg cp_cmd
+  cp_cmd = usssafe(cp_cmd)
   /* ------------------------------------------------------- *
   | If enhance cp is not enabled or if the cp is for a load |
   | module then do normal cp                                |
