@@ -98,6 +98,7 @@ either the unstaged or staged changes.
     characters in a text member (thx to Filipe)
 12. Correct bug when using member file extensions with the AB (add binary)
     member selection option.
+13. Correct bug not detecting changed sequential z/OS datasets
 
 =============================================================================
                              ZIGI Release Notes

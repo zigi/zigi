@@ -1,8 +1,10 @@
- *-------------------------------------------------------------------*
- |  The User Guide and Cheat Sheet can be found at:                  |
- |  https://github.com/wizardofzos/zigi/wiki/6.-Documentation        |
- *-------------------------------------------------------------------*
+   *-------------------------------------------------------------------*
+   |  The User Guide and Cheat Sheet can be found at:                  |
+   |  https://github.com/wizardofzos/zigi/wiki/6.-Documentation        |
+   *-------------------------------------------------------------------*
 
+=============================================================================
+This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
                              ZIGI Release Notes
                                Version 3.10
@@ -60,6 +62,20 @@ Update ZGINSTALL to use Dovetails PUTPDS if it is in the path.
 For testing purposes added a check for a NOCOZ DD to bypass the Dovetail
 utilities and use native cp.
 
+Only work with z/OS datasets that are in the .zigi/dsn file. All other
+OMVS files will still be processed by Git but will not be copied to/from
+z/OS.
+
+Change git-encoding default value for new repositories, in preparation
+for Rocket Git 2.26.x, which ignores git-encoding attribute and encodes
+the content from the specified encoding to UTF-8.
+
+Use LF instead or CRLF as newline character, to be consistent with UNIX.
+
+New DIFF command for the local repository to display the differences for
+either the unstaged or staged changes.
+
+
                           Bug Fixes and Other Updates:
                           ----------------------------
 
@@ -80,6 +96,9 @@ utilities and use native cp.
 10. Fixed incorrect tagging for untagged files with updates from Filipe Meireles
 11. Use -T for default cp copies to address issue with x'00' (perhaps other)
     characters in a text member (thx to Filipe)
+12. Correct bug when using member file extensions with the AB (add binary)
+    member selection option.
+13. Correct bug not detecting changed sequential z/OS datasets
 
 =============================================================================
                              ZIGI Release Notes

@@ -31,6 +31,7 @@
   |                                                            |
   |            01/08/21 LBD - Verify usssafe is used for copy  |
   |                         - Add DIFF command                 |
+  |                         - Fix detection of changed PS d/s  |
   |            01/07/21 LBD - Correct bug with file extnsions  |
   |                         - Prevent updating .zigi/dsn with  |
   |                           member info (ab)                 |
@@ -6571,6 +6572,8 @@ Update_repo_metadata:
         if check_files /= null then
         if wordpos(edsn,check_files) = 0 then iterate
         x = listdsi(fulldsn)
+        if sysdsorg = 'PO' then so.1 = 'DIR'
+                           else so.1 = null
         zs1 = 'Checking' fulldsn
         zs2 = 'Patience . . .'
         call do_popup
