@@ -60,6 +60,12 @@ Update ZGINSTALL to use Dovetails PUTPDS if it is in the path.
 For testing purposes added a check for a NOCOZ DD to bypass the Dovetail
 utilities and use native cp.
 
+Change git-encoding default value for new repositories, in preparation for
+Rocket Git 2.26.x, which ignores git-encoding attribute and encodes the
+content from the specified encoding to UTF-8
+
+Use LF instead or CRLF as newline character, to be consistent with UNIX 
+
                           Bug Fixes and Other Updates:
                           ----------------------------
 
