@@ -33,6 +33,7 @@
   |                         - Clean up History if none         |
   |                         - Correct History Recovery after   |
   |                           dsnvalid changes                 |
+  |                         - Correct History Recover of PS    |
   |            01/09/21 LBD - small corrections identified by  |
   |                           Filipe: save_dsninfo ignore all  |
   |                           files with / and git_add_member  |
@@ -8767,7 +8768,9 @@ DoHist_Recover:
   zerrsm = 'Success.'
   zerrlm = element 'successfully recovered.'
   'setmsg msg(isrz003)'
-  "View Dataset('"strip(rdsn,'B',"'")"("mem")')"
+  if sysdsorg /= 'PS'
+    then "View Dataset('"strip(rdsn,'B',"'")"("mem")')"
+    else "View Dataset('"strip(rdsn,'B',"'")"')"
   if rc > 0 then say zerrlm
   return
 

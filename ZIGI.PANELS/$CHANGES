@@ -105,7 +105,8 @@ either the unstaged or staged changes.
     - Improve check for git clean (FM)
 15. Return ISPF message if history not found for the selected element at
     the requested commit level
-16. Correct bug in History Recovery
+16. Correct bug in History Recovery of PDS member
+17. Correct bug in History Recovery of PS dataset
 
 =============================================================================
                              ZIGI Release Notes
