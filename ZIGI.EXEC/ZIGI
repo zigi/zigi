@@ -31,6 +31,8 @@
   |                                                            |
   |            01/11/21 LBD - Correct git clean check (FM)     |
   |                         - Clean up History if none         |
+  |                         - Correct History Recovery after   |
+  |                           dsnvalid changes                 |
   |            01/09/21 LBD - small corrections identified by  |
   |                           Filipe: save_dsninfo ignore all  |
   |                           files with / and git_add_member  |
@@ -1470,6 +1472,7 @@ WWR_init:
   x = debug('Working with Repo:' zigirep)
   readonly = check_read_only()
   'vput (readonly) shared'
+  call get_dsn_info
   call update_repo_metadata
   if cltime /= null then do
     zerrsm  = 'Clone:' cltime
@@ -8649,7 +8652,7 @@ DoHist_Recover:
     'setmsg msg(isrz003)'
     return
   end
-  if dsnvalid(fulldsn) = 'NO' then do
+  if dsnvalid(remove_dsn_hlq(fulldsn)) = 'NO' then do
     zerrsm = 'Error.'
     zerrlm = 'The recovery of a non-z/OS dataset is not supported' ,
       'at this time. You can use S to view the historical' ,
