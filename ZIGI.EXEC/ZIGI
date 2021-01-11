@@ -29,6 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            01/11/21 LBD - Correct git clean check (FM)     |
+  |                         - Clean up History if none         |
   |            01/09/21 LBD - small corrections identified by  |
   |                           Filipe: save_dsninfo ignore all  |
   |                           files with / and git_add_member  |
@@ -4014,9 +4016,9 @@ Do_Stash_Pop:
 
 Git_Clean_Check:
   lcmd = 'cd' localrep'/'zigirep
-  cmd = lcmd '&& git status'
+  cmd = lcmd '&& git status -s'
   x = docmd(cmd)
-  if so.0 = 2 then return 0
+  if so.0 = 0 then return 0
   return 1
 
   /* -------------------------------------- *
@@ -8771,7 +8773,13 @@ DoHist_Recover:
   | point in time.                                             |
   * ---------------------------------------------------------- */
 DoHist_ViewSource:
-  call dohist_file_extract
+  hrc = dohist_file_extract()
+  if hrc > 0 then do
+     zerrsm = 'No History.'
+     zerrlm = 'No History found for this commit level.'
+     'setmsg msg(isrz003)'
+     return
+     end
   vtitle = element '\' hdate '\' hsubject '\' fulldsn
   gitcmde = null
   'vput (vtitle gitcmde localrep zigirep)'
@@ -8800,13 +8808,15 @@ DoHist_File_Extract:
   cmd = 'cd' localrep'/'zigirep ,
     '&& git checkout' hcommit ,
     '&& cp' localrep'/'zigirep'/'usssafe(element) usssafe(file)
-  x = docmd(cmd)
-  if x > 0 then call view_std 'B'
+  dhrc = docmd(cmd)
+  /* Comment Start
+  if dhrc > 0 then call view_std 'B'
+     Comment End */
   cmd = 'cd' localrep'/'zigirep ,
     '&& git checkout' branch
   x = docmd(cmd)
   if x > 0 then call view_std 'B'
-  return
+  return dhrc
 
   /* ------------------------------------------------------------ *
   | Checks for the home/tmp directory by attempting to create it |

@@ -99,9 +99,12 @@ either the unstaged or staged changes.
 12. Correct bug when using member file extensions with the AB (add binary)
     member selection option.
 13. Correct bug not detecting changed sequential z/OS datasets
-14. Correct 2 issues within 3.10 found by Filipe:
+14. Correct 3 issues within 3.10 found by Filipe:
     - update save_dsninfo routine to ignore all dsn's with members
     - correctly handle extensions in git_add_member routine
+    - Improve check for git clean (FM)
+15. Return ISPF message if history not found for the selected element at
+    the requested commit level
 
 =============================================================================
                              ZIGI Release Notes
