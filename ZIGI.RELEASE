@@ -107,6 +107,7 @@ either the unstaged or staged changes.
     the requested commit level
 16. Correct bug in History Recovery of PDS member
 17. Correct bug in History Recovery of PS dataset
+18. Correct stats handling and thus change detection for recfm=u (lmods)
 
 =============================================================================
                              ZIGI Release Notes

@@ -29,6 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            01/12/21 LBD - Correct stat handling for LMODs  |
   |            01/11/21 LBD - Correct git clean check (FM)     |
   |                         - Clean up History if none         |
   |                         - Correct History Recovery after   |
@@ -7490,7 +7491,7 @@ Do_Add_Copy:
       tagcmd = 'chtag -bR 'dir'/'pdss'/'ac_mem
       x = docmd(tagcmd)
     end
-    if enhanced_cp = 0 then
+    if enhanced_cp = 0 | sysrecfm = 'U' then
     Address TSO '%zigistat' "'"pds"'" dir"/.zigi/"pdss 'S'
     else do
       uscmd = dir'/.zigi/'pdss "'"pds"'"

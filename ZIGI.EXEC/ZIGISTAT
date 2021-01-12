@@ -128,6 +128,7 @@ zigistat:
   /* ------------------ *
   * Define ISPF Dataid *
   * ------------------ */
+  Address ISPExec
   "LMINIT DATAID(STATUS) DATASET("dsn")"
   "LMOPEN DATAID("STATUS") OPTION(INPUT)"
 
@@ -295,10 +296,9 @@ zigistat:
   | rc 20 it does not                            |
   * -------------------------------------------- */
 Check_Stats_File:
-  save_address = address()
   address syscall 'lstat' filepath 'file.'
   if file.0 = 0 then do
-    ADDRESS value(save_address)
+    ADDRESS ISPExec
     return 20
   end
   else return 0
