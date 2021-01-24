@@ -29,6 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            01/24/21 LBD - Correct bug 391 commiting updates|
+  |                           of .gitattributes on add         |
   |            01/12/21 LBD - Correct stat handling for LMODs  |
   |            01/11/21 LBD - Correct git clean check (FM)     |
   |                         - Clean up History if none         |
@@ -7420,7 +7422,6 @@ Do_Add_Copy:
         cmd = cmd '> .gitattributes '
         /* add (and commit) .gitattributes to the index */
         cmd = cmd '&& git add .gitattributes '
-        cmd = cmd '&& git commit -m "zigi changed .gitattributes"'
         cmd = cmd ".gitattributes"
         x = docmd(cmd)
         /* finally remove the .gae file */
@@ -7517,7 +7518,6 @@ Do_Add_Copy:
       cmd = cmd '> .gitattributes '
       /* add (and commit) .gitattributes to the index */
       cmd = cmd '&& git add .gitattributes '
-      cmd = cmd '&& git commit -m "ZIGI changed .gitattributes"'
       /* finally remove the .gae file */
       cmd = cmd '&& rm .gae'
       x = docmd(cmd)

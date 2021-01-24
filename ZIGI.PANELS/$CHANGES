@@ -108,6 +108,8 @@ either the unstaged or staged changes.
 16. Correct bug in History Recovery of PDS member
 17. Correct bug in History Recovery of PS dataset
 18. Correct stats handling and thus change detection for recfm=u (lmods)
+19. Correct but 391 - doing a commit of .gitattributes when adding a
+    dataset
 
 =============================================================================
                              ZIGI Release Notes
