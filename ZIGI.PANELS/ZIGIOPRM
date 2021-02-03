@@ -7,11 +7,12 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body  window(44,11)
+)Body Window(47,12)
 +Enter Selection:_z        +
 +
  ]Clone+   Remote repository
  ]Config+  View Git configuration
+ ]Connect+ Connect to Existing Local Repository
  ]Create+  Local repo from scratch
  ]Find+    String in table fields:_findstr +
  ]Githelp+ Display menu of Git Help pages
@@ -26,6 +27,7 @@
  &zcmd  = &z
  &clone   = 'Clone'
  &create  = 'Create'
+ &connect = 'Connect'
  &ssh     = 'SSH'
  &find    = 'FIND'
  &select  = 'Select'
@@ -42,6 +44,7 @@
 )PNTS
  FIELD(CLONE   ) VAR(ZCMD) VAL('CLONE')
  FIELD(CREATE  ) VAR(ZCMD) VAL('CREATE')
+ FIELD(CONNECT ) VAR(ZCMD) VAL('CONNECT')
  FIELD(SELECT  ) VAR(ZCMD) VAL('SELECT')
  FIELD(SORT    ) VAR(ZCMD) VAL('SORT')
  FIELD(SSH     ) VAR(ZCMD) VAL('SSH')

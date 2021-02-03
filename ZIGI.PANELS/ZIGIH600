@@ -12,7 +12,7 @@
 +
    %*+A%.ZIGI+directory in the repository root directory
    %*+A file with the name of%dsn+in the .ZIGI directory with
-      information on the z/OS datasets managed by zigi:
+      information on ALL the z/OS datasets managed by zigi:
 +     # Default DSORG and DCB info
 +     * PO FB 80 32720
 +     SAMPLE.REXX PO VB 255 32760 rexx

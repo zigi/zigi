@@ -9,16 +9,16 @@
 )Body Window(76,14)
 +Enter Selection:_z        +
 +
-[Add   +  Add dataset     [GitCMD + Git Commands    [Set+     Set Defaults
-[AddAll+  Add all to Git  [GitLog+  Query git log   [Snapshot+Create Escrow
-[Br    +  Change Branch   [Grep+    Find Strings    [Stash+   Save Workspace
-[Check+   Check z/OS DSNs [info+    Info on Repo    [StashL+  List Stashes
-[Commit+  Record Changes  [Merge+   Merge Branches  [Status+  Git Status
-[Convrepo+Convert non-zigi[Network+ Network Report  [Tag+     Git Tag
+[Add   +  Add dataset     [Githelp+ Git Help        [Remote+  Add remote
+[AddAll+  Add all to Git  [GitCMD + Git Commands    [Set+     Set Defaults
+[Br    +  Change Branch   [GitLog+  Query git log   [Snapshot+Create Escrow
+[Check+   Check z/OS DSNs [Grep+    Find Strings    [Stash+   Save Workspace
+[Commit+  Record Changes  [info+    Info on Repo    [StashL+  List Stashes
+[Convrepo+Convert non-zigi[Merge+   Merge Branches  [Status+  Git Status
+[Diff+    Diff            [Network+ Network Report  [Tag+     Git Tag
 [Extract+ Packaging       [Pull+    Pull from origin[TagList+ List all Tags
 [Find+    Find in table   [Push+    Push to origin  [View+    OMVS Dir
 [Flow+    Flow Menu       [Replace+ Replace Datasets
-[Githelp+ Git Help        [Remote+  Add remote
 
                            +Or%F3+to cancel
 )Init
@@ -32,6 +32,7 @@
  &Check   = 'Check'
  &Commit  = 'Commit'
  &Convrepo = 'COnvrepo'
+ &Diff    = 'Diff'
  &Find    = 'Find'
  &Flow    = 'Flow'
  &Gitcmd  = 'GitCmd'
@@ -65,6 +66,7 @@
  FIELD(CHECK )  VAR(ZCMD) VAL('CHECK')
  FIELD(COMMIT)  VAR(ZCMD) VAL('COMMIT')
  FIELD(CONVREPO)  VAR(ZCMD) VAL('CONVREPO')
+ FIELD(DIFF  )  VAR(ZCMD) VAL('DIFF')
  FIELD(GITCMD)  VAR(ZCMD) VAL('GITCMD')
  FIELD(FIND  )  VAR(ZCMD) VAL('FIND')
  FIELD(FLOW  )  VAR(ZCMD) VAL('FLOW')

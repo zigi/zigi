@@ -1,7 +1,115 @@
- *-------------------------------------------------------------------*
- |  The User Guide and Cheat Sheet can be found at:                  |
- |  https://github.com/wizardofzos/zigi/wiki/6.-Documentation        |
- *-------------------------------------------------------------------*
+   *-------------------------------------------------------------------*
+   |  The User Guide and Cheat Sheet can be found at:                  |
+   |  https://github.com/wizardofzos/zigi/wiki/6.-Documentation        |
+   *-------------------------------------------------------------------*
+
+=============================================================================
+This file is created as the RELEASE file and copied into the $CHANGES Panel
+=============================================================================
+                             ZIGI Release Notes
+                               Version 3.10
+
+                         New Features and Functions
+                         --------------------------
+
+Dual path cp use from and to a PDS to use the DoveTail getpds and putpds
+commands if available, otherwise continue to use cp. The speed improvement
+is an improvement of minutes to seconds.
+
+   To use the Dovetail enhancements (highly recommended) point your
+   browser to https://dovetail.com and download the Co:Z Co-Processing
+   Toolkit.  Along with the getpds and putpds, that will greatly enhance
+   ZIGI, you will also have Co:Z SFTP, Co:Z Launcher, Co:Z Dataset Pipes
+   and Co:Z Batch.
+
+   The use of the Co:Z Toolkit is subject to Dovetail's Community
+   License https://dovetail.com/docs/cozinstall/licenses.html
+
+   When installing refer to:
+   https://dovetail.com/docs/cozinstall/install.html#inst_coz And note
+   that the UID=0 (superuser) or other special permissions are not
+   required for use with ZIGI. Also, you do not need to address other
+   requirements or customizations such as z/OS OpenSSH.
+
+New User exit driver created (zigiexit) as a generalized exit facility.
+Initial Exit 0 has been defined to provide a path to DoveTails getpds/putpds
+if it isn't found in the default path using zigixit0 (provided as sampxit0).
+
+New CONNECT command to add an existing ZIGI formatted Git repository to
+the ZIGI ISPF table of repositories.
+
+Expand the ZIGI repository delete dialog to allow retaining the Git files
+and directories.
+
+New PDS member selection commands
+ - AF to git add with -f (force) to be used to add a PDS member that was
+   previously git ignored
+ - I to git ignore a PDS member and a new member status of [  ] Git Ignore
+ - Make the Grep panel a popup with a tutorial panel behind it
+
+Add Read Only flag to the ZIGIINFO display panel.
+
+Improved usssafe routine that is faster with less overhead.
+
+Add git log to ZGBATCH reporting.
+
+ZGBATCH now supports a COMMIT DD to provide the commit prose for the
+batch process. The DD may be a DD * or a DD referencing a sequential
+dataset or PDS member.
+
+Update ZGINSTALL to use Dovetails PUTPDS if it is in the path.
+
+For testing purposes added a check for a NOCOZ DD to bypass the Dovetail
+utilities and use native cp.
+
+Only work with z/OS datasets that are in the .zigi/dsn file. All other
+OMVS files will still be processed by Git but will not be copied to/from
+z/OS.
+
+Change git-encoding default value for new repositories, in preparation
+for Rocket Git 2.26.x, which ignores git-encoding attribute and encodes
+the content from the specified encoding to UTF-8.
+
+Use LF instead or CRLF as newline character, to be consistent with UNIX.
+
+New DIFF command for the local repository to display the differences for
+either the unstaged or staged changes.
+
+
+                          Bug Fixes and Other Updates:
+                          ----------------------------
+
+1. Remove check of remote after commit as unnecessary.
+2. Clean up the history table. Key on commit and remove %b (body)
+3. In the table state test which checks the level of the repo table,
+   if there are no rows then just return to avoid meaningless messages.
+4. Fixed RM of a PDS bug, needed to add -r (recurse) for some edge cases
+5. Fix STOP as a valid command on the delete confirmation panel if
+   members of a PDS are deleted outside ZIGI but not removed from the
+   OMVS file system.
+6. Correct detection of untracked members
+7. On a branch change correct handling of added/deleted elements
+8. Correct test for existing datasets in zginstall.rex
+9. Update bugs in ZIGICNVT (CONVREPO command). It is still not prefect but
+   it is better. Now creates a .gitattributes if one does not exist and
+   supports files with $ in the name.
+10. Fixed incorrect tagging for untagged files with updates from Filipe Meireles
+11. Use -T for default cp copies to address issue with x'00' (perhaps other)
+    characters in a text member (thx to Filipe)
+12. Correct bug when using member file extensions with the AB (add binary)
+    member selection option.
+13. Correct bug not detecting changed sequential z/OS datasets
+14. Correct 3 issues within 3.10 found by Filipe:
+    - update save_dsninfo routine to ignore all dsn's with members
+    - correctly handle extensions in git_add_member routine
+    - Improve check for git clean (FM)
+15. Return ISPF message if history not found for the selected element at
+    the requested commit level
+16. Correct bug in History Recovery of PDS member
+17. Correct bug in History Recovery of PS dataset
+18. Correct stats handling and thus change detection for recfm=u (lmods)
+19. Correct but 391 - doing a commit of .gitattributes when adding a
+    dataset
 
 =============================================================================
                              ZIGI Release Notes

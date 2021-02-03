@@ -6,33 +6,29 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                                 %Commit+
+                                  %DIFF+
 +
-+During Commit processing, two additional options are available:
++The%diff+command will display the 'git diff' for either:
 +
-+The Optional Tag field may contain a lightweight git tag. The tag may not
-+have any blanks within it. After the commit, a%git tag+is performed.
+ %1+the unstaged changes
+ %2+the staged changes
 +
-+The other option is after the commit, a%git push+can be automatically
-+initiated by entering a%Y+in the Push after field.
 +
-+On the table, the following commands are available:
++Command syntax:%diff+
++            or:%diff #+
 +
-    +Command:%Insert+or%Insert #+
-    +Line:   %I+insert %I#+insert #%D+delete%D#+delete #
 +
-+        "Code is like humor. When you have to explain it, it's bad."
-+               -- Cory House
++  "There are nearly endless opportunities to improve each day and finding
++   largely boils down to being curious.
++   People who are better in the end are usually curious in the beginning."
++  --- James Clear
++
 +
          +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
- vget (ztut)
 )PROC
- if (&ztut = 200)
-     &zcont = zigih2l0
- if (&ztut = 300)
-     &zcont = zigih250
+ &zcont = zigih2d0
 )END
 /* -------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                       */

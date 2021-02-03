@@ -9,7 +9,7 @@
 +
 +On the Stash List display, the%Clear+command removes%all+stashes.
 +
-%Shash Pop+restores the saved stash and removes it from the stash stack.
+%Stash Pop+restores the saved stash and removes it from the stash stack.
 +
 +Pop may%ONLY+be used on a clean git workspace. That means that when you do
 +a Status, the report should be clean. If there are any datasets/files

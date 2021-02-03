@@ -12,6 +12,7 @@
 )ABC DESC('Commands')
  PDC DESC('Clone Remote repository')             ACTION RUN(CLONE)
  PDC DESC('Config View/Update Configuration')    ACTION RUN(CONFIG)
+ PDC DESC('Connect existing repository')         ACTION RUN(CONNECT)
  PDC DESC('Create Local repository')             ACTION RUN(CREATE)
  PDC DESC('Find text in table')                  ACTION RUN(FIND)
  PDC DESC('Select a Repo to work with')          ACTION RUN(SELECT)

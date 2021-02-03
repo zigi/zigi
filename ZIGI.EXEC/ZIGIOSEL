@@ -193,7 +193,6 @@ Restart:
     if zcmd /= null then
     Select
       When translate(word(zcmd,1)) = 'MKDIR' then do
-        trace 'off'
         mkdir = word(zcmd,2)
         call pfshow 'off'           /* make sure pfshow is off */
         zcmd = null
