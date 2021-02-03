@@ -190,6 +190,85 @@ required (thus SYS1.PARMLIB would clone into hlq.SYS1.PARMLIB).
 
 =============================================================================
 
+=============================================================================
+                             ZIGI Release Notes
+                               Version 3.02
+
+                         New Features and Functions
+                         --------------------------
+
+Support a Read Only Repository. These must be Created and Cloning is not
+recommended. Only operations that copy from z/OS to OMVS are supported with
+no updates to the z/OS datasets allowed from within ZIGI. Thus Branch,
+Replace, Merge, Stash, Flow, Edit, History Recover, Rename, and Remove are
+prevented.
+
+Anytime a z/OS dataset will be replaced there will be prompt to inform the
+user of this and allow the user to (a) change the HLQ, (b) the # of
+qualifiers to ignore, or both before proceeding. Or to cancel the operation.
+This is to prevent the replacement of any dataset without overt permission.
+This will only occur during a Clone or Replace operation.
+
+Update the Delete/Remove Repository from ZIGI more user friendly and thus
+easier to use and understand.
+
+Support multiple prefixes (HLQs) on the dataset add panel.
+
+                          Bug Fixes and Other Updates:
+                          ----------------------------
+
+1. On the Add Dataset Panel do NOT allow the ignore qualifiers to be
+   changed from 0.
+2. After Stash Pop leave the Stash List display.
+3. On a Clone of a non-ZIGI repository do not create .gitattributes or
+   .zigi/dsn
+4. Allow changing Prefix (HLQ) in AddDSN table if ignore is 0
+5. If ignore is 0 correctly detect added datasets
+6. Remove calls to call work_with_repo_file and call update_repo_metadata
+   after updating a PDS member within ZIGI as not needed and speeds things
+   up a tad.
+
+=============================================================================
+
+                             ZIGI Release Notes
+                               Version 3.01
+
+                         New Features and Functions
+                         --------------------------
+
+Add _EDC_ZERO_RECLEN=Y to the OMVS environment variables to address
+datasets/members with variable length records (RECFM=VB) with blank
+records.  This will preserve those records.
+
+Allow a qualifier ignore value of zero to allow datasets from different
+HLQ's to be in the same repository. Not a great idea but doable. The full
+dataset name (e.g. SYS1.PARMLIB) will now be stored in the repository.
+When doing this care is required to prevent updating the z/OS dataset from
+the OMVS filesystem. When cloning such a repository an HLQ would still be
+required (thus SYS1.PARMLIB would clone into hlq.SYS1.PARMLIB).
+
+                          Bug Fixes and Other Updates:
+                          ----------------------------
+
+1. Remove duplicate code for repository delete that resulting in an
+   an incorrect message that the OMVS files had not been deleted when
+   they had.
+2. Issue 378 - add call to pfshow routine to turn off and then turn back
+   on the display of PFKeys around all pop-ups. Was missing from some.
+3. When changing branches, or pulling an update, if a OMVS file was
+   removed then the z/OS dataset that maps to it is not removed. If the
+   z/OS dataset was a PDS then the members were deleted. The member
+   deletes will no longer happen.
+4. Updated the add dataset popup panel to add a command entry field. This
+   allows a file extension (which was the 1st entry field) to have values
+   that may map to a ISPF command table entry.
+5. After a Merge the current repository display needed to be updated to
+   reflect added/removed datasets/files.
+6. Generalize binary file detection in case someone modifies .gitattributes
+   manually and doesn't follow the ZIGI convention.
+
+=============================================================================
+
                              ZIGI Release Notes
                                Version 3.00
 

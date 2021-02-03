@@ -3712,7 +3712,9 @@ Stash_IT:
   'display panel(zigipop)'
   'rempop'
   call pfshow 'reset'         /* restore pfshow setting */
+
   call auto_tag_files localrep'/'zigirep '.'
+
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git stash push -a -u -m "'date() time() stashmsg'"'
   cmd = cmd '&& git stash show'
