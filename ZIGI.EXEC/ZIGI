@@ -29,6 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            02/05/21 LBD - Improve dsnvalid routine to fix  |
+  |                           repo delete processing of z/os   |
   |            01/24/21 LBD - Correct bug 391 commiting updates|
   |                           of .gitattributes on add         |
   |            01/12/21 LBD - Correct stat handling for LMODs  |
@@ -6462,7 +6464,7 @@ catsshk:
 dsnvalid:
   /* Tests for a 'potentially valid' z/OS datasetname */
   parse arg val_dsn
-  if dsninfo.val_dsn = null then return 'NO'
+  if dsninfo.val_dsn /= null then return 'OK'
   if left(val_dsn,1) = '.' then return 'NO'
   if strip(val_dsn) = null then return 'NO'
   val_dsn = strip(val_dsn,'B',"'")

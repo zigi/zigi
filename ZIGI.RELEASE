@@ -110,6 +110,7 @@ either the unstaged or staged changes.
 18. Correct stats handling and thus change detection for recfm=u (lmods)
 19. Correct but 391 - doing a commit of .gitattributes when adding a
     dataset
+20. Correct repository delete processing that missed some z/OS datasets
 
 =============================================================================
                              ZIGI Release Notes
