@@ -7268,7 +7268,8 @@ Add_Dataset:
         rc = Check_Load_Library(dsna)
         if left(sysrecfm,1) = 'V' then do
            zerrsm = null
-           zerrlm = 'A dataset (PS or PDS) that is RECFM=V is not supported' ,
+           zerrlm = left('DSN:' dsna,74) ,
+                    'Is RECFM=V and is not supported' ,
                     'by the OMVS cp command. Therefore ZIGI is not able to' ,
                     'manage this dataset. Convert it to a more portable' ,
                     'format (e.g. TSO Transmit or IEBCopy Unload) if you' ,
