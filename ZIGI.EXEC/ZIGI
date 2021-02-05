@@ -31,6 +31,9 @@
   |                                                            |
   |            02/05/21 LBD - Improve dsnvalid routine to fix  |
   |                           repo delete processing of z/os   |
+  |                         - Test for and prevent Adding      |
+  |                           a RECFM=V Binary dataset as      |
+  |                           they are unsupported by cp       |
   |            01/24/21 LBD - Correct bug 391 commiting updates|
   |                           of .gitattributes on add         |
   |            01/12/21 LBD - Correct stat handling for LMODs  |
@@ -7263,9 +7266,20 @@ Add_Dataset:
       end
       when zsel = 'AB' then do
         rc = Check_Load_Library(dsna)
-        if rc = 0 then
-        call do_add_copy 'binary'
-        gaupdate = 1
+        if left(sysrecfm,1) = 'V' then do
+           zerrsm = null
+           zerrlm = 'A dataset (PS or PDS) that is RECFM=V is not supported' ,
+                    'by the OMVS cp command. Therefore ZIGI is not able to' ,
+                    'manage this dataset. Convert it to a more portable' ,
+                    'format (e.g. TSO Transmit or IEBCopy Unload) if you' ,
+                    'need to have it included in the git repository.'
+           'setmsg msg(isrz003)'
+           rc = 4
+           end
+        if rc = 0 then do
+           call do_add_copy 'binary'
+           gaupdate = 1
+           end
       end
       Otherwise nop
     end
