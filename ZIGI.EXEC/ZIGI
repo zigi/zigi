@@ -29,6 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            02/06/21 LBD - Add Copy popup for changed PS    |
   |            02/05/21 LBD - Improve dsnvalid routine to fix  |
   |                           repo delete processing of z/os   |
   |                         - Test for and prevent Adding      |
@@ -6736,6 +6737,9 @@ Update_repo_metadata:
               cplmod = '-X -I'
             end
             else cplmod = null
+            zs1 = 'Copying:' fulldsn
+            zs2 = 'To:     ' localrep'/'zigirep
+            call do_popup
             copycmd = "//"s
             copycmd = '"'copycmd'"'
             copycmd = "cp "binopt cplmod" -U -v" copycmd" "localrep"/"zigirep
