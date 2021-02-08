@@ -117,6 +117,7 @@ either the unstaged or staged changes.
 23. Fix broken debug initialization
 24. Correct panel display if missing PDS member but entry in OMVS filesystem
     and correct rm's
+25. Clean up tables after CHECK processing.
 
 =============================================================================
                              ZIGI Release Notes

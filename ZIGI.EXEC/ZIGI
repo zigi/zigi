@@ -31,6 +31,7 @@
   |                                                            |
   |            02/08/21 LBD - Fix broken Debug initialization  |
   |                         - Fix rm of missing pds member     |
+  |                         - Clean up tables after CHECK      |
   |            02/06/21 LBD - Add Copy popup for changed PS    |
   |            02/05/21 LBD - Improve dsnvalid routine to fix  |
   |                           repo delete processing of z/os   |
@@ -1369,7 +1370,10 @@ Work_With_Repo:
     /* handle other zcmds */
     if zcmd /= null then
     Select
-      When abbrev('CHECK',zcmd,3) = 1 then call WWR_handle_check
+      When abbrev('CHECK',zcmd,3) = 1 then do
+         call WWR_handle_check
+         return
+         end
       When abbrev('BRANCH',zcmd,2) = 1 then call WWR_handle_branch
       When abbrev('CONVREPO',zcmd,4) = 1 then call WWR_handle_convrepo
       /* ----------------- *
@@ -1522,12 +1526,8 @@ WWR_display_zigirepo:
     trc = rc
     zigpass = null
     'vput (zigpass) shared'
-    if trc > 4 then do
-      'tbend' rtbl
-      rtbl_open = 0
-      Return trc
+    if trc > 4 then return trc
     end
-  end
   Return 0
 
 WWR_handle_options:
