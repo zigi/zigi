@@ -114,6 +114,7 @@ either the unstaged or staged changes.
 21. Prevent RECFM=V datasets from being added to a repository in Binary
     as the OMVS cp command does not support them.
 22. Add Copy popup message to improve awareness when copying PS datasets
+23. Fix broken debug initialization
 
 =============================================================================
                              ZIGI Release Notes

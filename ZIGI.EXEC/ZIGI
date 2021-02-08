@@ -29,6 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            02/08/21 LBD - Fix broken Debug initialization  |
   |            02/06/21 LBD - Add Copy popup for changed PS    |
   |            02/05/21 LBD - Improve dsnvalid routine to fix  |
   |                           repo delete processing of z/os   |
@@ -451,6 +452,7 @@
   call display_splash
   call enable_rfind
   call init_git
+  call init_debug
   call init_repo
 
   /* ------------------------------------------ *
@@ -943,10 +945,12 @@ init_ispf:
   zigpass = null
   'vput (zigpass) shared'
 
-  parse value '' with null rx zigidebg_flag save_zigirep fulldsn cltime
+  parse value '' with null rx save_zigirep fulldsn cltime
   cscnt = 0
   cdrcnt = 0
+  return
 
+Init_Debug:
   /* ---------------------------------------- *
   | Check for ZIGIDEBG DD for debug purposes |
   * ---------------------------------------- */
@@ -959,7 +963,6 @@ init_ispf:
     'vput (debugfil)'
   end
   else zigidebg = 0
-  "Control Errors Return"
   Return
 
   /* ------------------------------------- *
