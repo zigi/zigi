@@ -6397,6 +6397,8 @@ view_std:
     stdopt = null
     sc = so.0
     sc = sc + 1
+    so.sc = left('-',70,'-')
+    sc = sc + 1
     so.sc = 'Command:' cmd
     so.0 = sc
     do xi = 1 to se.0
