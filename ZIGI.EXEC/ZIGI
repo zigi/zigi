@@ -30,6 +30,8 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            02/09/21 LBD - Change ADDALL to 'git add .'     |
+  |                         - Use standard Edit Panel for      |
+  |                           History view                     |
   |            02/08/21 LBD - Fix broken Debug initialization  |
   |                         - Fix rm of missing pds member     |
   |                         - Clean up tables after CHECK      |
@@ -8832,7 +8834,7 @@ DoHist_ViewSource:
   vtitle = element '\' hdate '\' hsubject '\' fulldsn
   gitcmde = null
   'vput (vtitle gitcmde localrep zigirep)'
-  'View File(file) panel(zigiedit) macro(zigivmac)'
+  'View File(file) macro(zigivmac)'
   x = bpxwunix('rm' usssafe(file),,s.,e.,env.)
   return
 
