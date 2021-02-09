@@ -29,6 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            02/09/21 LBD - Change ADDALL to 'git add .'     |
   |            02/08/21 LBD - Fix broken Debug initialization  |
   |                         - Fix rm of missing pds member     |
   |                         - Clean up tables after CHECK      |
@@ -2154,8 +2155,9 @@ WWR_handle_adddsn:
   | Git add all modified or untracked |
   * --------------------------------- */
 WWR_handle_addall:
-  'tbtop' rtbl
   x = debug('ADDALL started:' zigirep)
+  /* Comment Start
+  'tbtop' rtbl
   do forever
     'tbskip' rtbl
     if rc > 0 then leave
@@ -2166,6 +2168,12 @@ WWR_handle_addall:
     if hit = 0 then iterate
     call git_add
   end
+     Comment End */
+  zs1 = 'Performing Git Add all'
+  zs2 = 'Should be quick.'
+  call do_popup
+  cmd = 'cd' localrep'/'zigirep '&& git add .'
+  x = docmd(cmd)
   call git_safe_add localrep'/'zigirep  '.'
   x = docmd(cmd)
   call update_repo_metadata
@@ -6390,7 +6398,7 @@ view_std:
     sc = so.0
     sc = sc + 1
     so.sc = 'Command:' cmd
-    so.sc = sc
+    so.0 = sc
     do xi = 1 to se.0
       sc = sc + 1
       so.sc = se.xi

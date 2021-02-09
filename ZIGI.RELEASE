@@ -75,6 +75,9 @@ Use LF instead or CRLF as newline character, to be consistent with UNIX.
 New DIFF command for the local repository to display the differences for
 either the unstaged or staged changes.
 
+Change the ADDALL processing to a 'git add .' instead of adding only
+individual files.
+
 
                           Bug Fixes and Other Updates:
                           ----------------------------
