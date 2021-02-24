@@ -17,6 +17,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            02/24/21 LBD - Correct use of putpds for members|
   |            01/06/21 LBD - Ignore files not in .zigi/dsn    |
   |            11/19/20 LBD - Use -T for default cp copies     |
   |                         - Get dovetail directory from ispf |
@@ -495,6 +496,26 @@ Alloc_Copy_PDS:
       call pop_status
       cmd = 'cd' usssafe(rdir)
       cmd = cmd '&& cp -v' aopt binopt src '"'zos'"'
+    if enhanced_cp = 1 then
+    if pos('-X',binopt) = 0
+    then do
+      do xi = 1 to mems.0
+        if left(mems.xi,1) /= '.' then leave
+      end
+      parse value mems.xi with m'.'suf
+      if suf /= null
+      then rsuf = '/*.'suf
+      else rsuf = '/*'
+      lp = lastpos('/',rdir)
+      dvstat = left(rdir,lp)'.zigi/'substr(rdir,lp+1)
+      address syscall 'lstat' dvstat 'dvs.'
+      if dvs.0 > 0
+      then dvstat_file = '-M st='dvstat',r=y'
+      else dvstat_file = '-M r=y'
+      if pos('-B',binopt) > 0 then
+         dvstat_file = '-b' dvstat_file
+      cmd = dovetail_dir'putpds' dvstat_file rdir''rsuf '//'pds
+    end
       x = docmd(cmd)
       if x > 0 then call view_std 'B'
       Address ISPexec

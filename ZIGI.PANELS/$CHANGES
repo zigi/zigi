@@ -122,6 +122,7 @@ individual files.
     and correct rm's
 25. Clean up tables after CHECK processing.
 26. Fix scroll max error in ZIGIEDIT panel when viewing data
+27. Fix use of Dovetail on Pull for selected members in ZIGICKOT
 
 =============================================================================
                              ZIGI Release Notes
