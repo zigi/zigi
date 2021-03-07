@@ -123,6 +123,7 @@ individual files.
 25. Clean up tables after CHECK processing.
 26. Fix scroll max error in ZIGIEDIT panel when viewing data
 27. Fix use of Dovetail on Pull for selected members in ZIGICKOT
+28. Correction for tbsort on the repo table if sort variable corrupt
 
 =============================================================================
                              ZIGI Release Notes

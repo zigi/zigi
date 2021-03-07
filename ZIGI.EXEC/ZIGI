@@ -29,6 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            03/07/21 LBD - Correct tbsort for repo table    |
   |            02/09/21 LBD - Change ADDALL to 'git add .'     |
   |            02/08/21 LBD - Fix broken Debug initialization  |
   |                         - Fix rm of missing pds member     |
@@ -607,6 +608,8 @@ init_repo:
   'tbtop zigirepo'
   'vget (defrsort srr src srp srl) profile'
   if words(defrsort) = 2 then defrsort = 'zigirep,c,a'
+  if defrsort = null then defrsort = 'zigirep,c,a'
+  'vput (defrsort) profile'
   'TBSort zigirepo Fields('defrsort')'
   parse value '' with zsel szcmd
   if start_option /= null
@@ -995,6 +998,7 @@ Create_zigirepo:
     " sortdate defruid zigicat branch remote1 reponame)",
     'Library('isptabl') Write Share Replace'
   'vget (defrsort srr src srp srl) profile'
+  if defrsort /= null then
   'TBSort zigirepo Fields('defrsort')'
   'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
   return
@@ -5228,6 +5232,7 @@ Clone_Repo:
     call set_sortdate
     'tbadd zigirepo order'
     'vget (defrsort srr src srp srl) profile'
+    if defrsort /= null then
     'TBSort zigirepo Fields('defrsort')'
     'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
     leave
@@ -6136,6 +6141,7 @@ Connect_Repo:
     'tbadd zigirepo order'
     zpush = defcpush
     'vget (defrsort srr src srp srl) profile'
+    if defrsort /= null then
     'TBSort zigirepo Fields('defrsort')'
     'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
     leave
@@ -6202,6 +6208,7 @@ Create_Repo:
     'tbadd zigirepo order'
     zpush = defcpush
     'vget (defrsort srr src srp srl) profile'
+    if defrsort /= null then
     'TBSort zigirepo Fields('defrsort')'
     'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
     leave
