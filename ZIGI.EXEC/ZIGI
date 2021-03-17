@@ -29,6 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            03/17/21 LBD - Correct omvs directory returns   |
   |            03/07/21 LBD - Correct tbsort for repo table    |
   |            02/09/21 LBD - Change ADDALL to 'git add .'     |
   |            02/08/21 LBD - Fix broken Debug initialization  |
@@ -440,7 +441,6 @@
   * ---------------------------------------------------------- */
   parse arg start_option
 
-  null = ''
   parse value '' with null repo_ztdsels fetch_flag dovetail_dir
 
   /* ------------------------------------------ *
@@ -1014,8 +1014,8 @@ handle_zigiprim_lcmd_i:
   call pfshow 'off'           /* make sure pfshow is off */
   readonly = check_read_only()
   if readonly = 1
-     then zro = 'Yes'
-     else zro = 'No'
+  then zro = 'Yes'
+  else zro = 'No'
   'addpop row(3) column(1)'
   'display panel(zigiinfo)'
   'rempop'
@@ -1199,7 +1199,6 @@ handle_zigiprim_config:
   end
   Return
 
-
   /* -------------------------------------------- *
   | Handle zigiprim panel primary command connect |
   * -------------------------------------------- */
@@ -1351,7 +1350,7 @@ Work_With_Repo:
   * -------------------------------- */
   do forever
     call WWR_display_zigirepo
-    if result > 4 then return
+    if result > 3 then return
     repo_ztdsels = ztdsels
     drop so. se.
 
@@ -1376,9 +1375,9 @@ Work_With_Repo:
     if zcmd /= null then
     Select
       When abbrev('CHECK',zcmd,3) = 1 then do
-         call WWR_handle_check
-         return
-         end
+        call WWR_handle_check
+        return
+      end
       When abbrev('BRANCH',zcmd,2) = 1 then call WWR_handle_branch
       When abbrev('CONVREPO',zcmd,4) = 1 then call WWR_handle_convrepo
       /* ----------------- *
@@ -1529,10 +1528,11 @@ WWR_display_zigirepo:
       rtop = ztdtop
     end
     trc = rc
+    result = trc
     zigpass = null
     'vput (zigpass) shared'
     if trc > 4 then return trc
-    end
+  end
   Return 0
 
 WWR_handle_options:
@@ -1724,8 +1724,8 @@ WWR_handle_diff:
   * -------------------------------- */
 WWR_handle_info:
   if readonly = 1
-     then zro = 'Yes'
-     else zro = 'No'
+  then zro = 'Yes'
+  else zro = 'No'
   call pfshow 'off'           /* make sure pfshow is off */
   'addpop row(3) column(2)'
   'display panel(zigiinfo)'
@@ -2691,9 +2691,11 @@ WWR_handle_lcmd_s_omvs:
     rtbl_open = 0
     call work_with_repo
     zigirep = word(save_zigirep,words(save_zigirep))
-    save_zigirep = subword(save_zigirep,1,words(save_zigirep)-1)
+    save_zigirep = delword(save_zigirep,words(save_zigirep))
     x = debug('Return from subdirectory - save_zigirep:' save_zigirep)
-    call work_with_repo
+    'tbend' rtbl
+    rtbl_open = 0
+    call work_with_repo 'x'
   end
   Return
 
@@ -5283,7 +5285,7 @@ Git_Add_Member:
 
   if pos('.',mem) = 0 & extension /= null then
       /* so we have an extension, better add correctly */
-      toadd = usssafe(lower(usssafe(mem))'.'extension)
+  toadd = usssafe(lower(usssafe(mem))'.'extension)
   else do
     /* regular add */
     toadd = usssafe(mem)
@@ -5357,7 +5359,7 @@ Edit_PS:
   * ------------------------------- */
 Do_LSort:
   parse value zcmd with x sort_field sort_order sf sc ,
-     save_lsorto
+    save_lsorto
   zcmd = null
   if sort_field = null then do
     call pfshow 'off'           /* make sure pfshow is off */
@@ -6614,7 +6616,7 @@ Update_repo_metadata:
         if wordpos(edsn,check_files) = 0 then iterate
         x = listdsi(fulldsn)
         if sysdsorg = 'PO' then so.1 = 'DIR'
-                           else so.1 = null
+        else so.1 = null
         zs1 = 'Checking' fulldsn
         zs2 = 'Patience . . .'
         call do_popup
@@ -7065,18 +7067,18 @@ clean:
   return strip(string)
 
 usssafe:
- parse arg safedsn
- if pos('$',safedsn) = 0 then return safedsn
- safe$pos = 1
- do forever
+  parse arg safedsn
+  if pos('$',safedsn) = 0 then return safedsn
+  safe$pos = 1
+  do forever
     pos$safe = pos('$',safedsn,safe$pos)
     if pos$safe < 1 then return safedsn
     left$safe = left(safedsn,pos$safe-1)
     right$save = substr(safedsn,pos$safe)
     safedsn = left$safe'\'right$save
     safe$pos = pos$safe + 2
-    end
- return safedsn
+  end
+  return safedsn
 
 /* ------------------------------ *
  | Old safe routine - was usssafe |
@@ -7299,20 +7301,20 @@ Add_Dataset:
       when zsel = 'AB' then do
         rc = Check_Load_Library(dsna)
         if left(sysrecfm,1) = 'V' then do
-           zerrsm = null
-           zerrlm = left('DSN:' dsna,74) ,
-                    'Is RECFM=V and is not supported' ,
-                    'by the OMVS cp command. Therefore ZIGI is not able to' ,
-                    'manage this dataset. Convert it to a more portable' ,
-                    'format (e.g. TSO Transmit or IEBCopy Unload) if you' ,
-                    'need to have it included in the git repository.'
-           'setmsg msg(isrz003)'
-           rc = 4
-           end
+          zerrsm = null
+          zerrlm = left('DSN:' dsna,74) ,
+            'Is RECFM=V and is not supported' ,
+            'by the OMVS cp command. Therefore ZIGI is not able to' ,
+            'manage this dataset. Convert it to a more portable' ,
+            'format (e.g. TSO Transmit or IEBCopy Unload) if you' ,
+            'need to have it included in the git repository.'
+          'setmsg msg(isrz003)'
+          rc = 4
+        end
         if rc = 0 then do
-           call do_add_copy 'binary'
-           gaupdate = 1
-           end
+          call do_add_copy 'binary'
+          gaupdate = 1
+        end
       end
       Otherwise nop
     end
@@ -8050,9 +8052,9 @@ GETENV:
   * ----------------------- */
   x = listdsi('NOCOZ' 'FILE')
   if sysreason = 3 then do
-     enhanced_cp = 0
-     return
-     end
+    enhanced_cp = 0
+    return
+  end
   x = docmd('command -v getpds')
   if x = 0
   then do
@@ -8819,8 +8821,8 @@ DoHist_Recover:
   zerrlm = element 'successfully recovered.'
   'setmsg msg(isrz003)'
   if sysdsorg /= 'PS'
-    then "View Dataset('"strip(rdsn,'B',"'")"("mem")')"
-    else "View Dataset('"strip(rdsn,'B',"'")"')"
+  then "View Dataset('"strip(rdsn,'B',"'")"("mem")')"
+  else "View Dataset('"strip(rdsn,'B',"'")"')"
   if rc > 0 then say zerrlm
   return
 
@@ -8831,11 +8833,11 @@ DoHist_Recover:
 DoHist_ViewSource:
   hrc = dohist_file_extract()
   if hrc > 0 then do
-     zerrsm = 'No History.'
-     zerrlm = 'No History found for this commit level.'
-     'setmsg msg(isrz003)'
-     return
-     end
+    zerrsm = 'No History.'
+    zerrlm = 'No History found for this commit level.'
+    'setmsg msg(isrz003)'
+    return
+  end
   vtitle = element '\' hdate '\' hsubject '\' fulldsn
   gitcmde = null
   'vput (vtitle gitcmde localrep zigirep)'
@@ -9214,13 +9216,13 @@ Fixup_cp: Procedure expose null putpds getpds qualignr localrep zigirep env.
   source = strip(source,'B','"')
   parse value '' with cpm cpu
   if left(target,3) = "//'" then do
-     target = remove_safe(target)
-     statfile = fixup_cpstat(target)
-     end
+    target = remove_safe(target)
+    statfile = fixup_cpstat(target)
+  end
   if left(source,3) = "//'" then do
-     source = remove_safe(source)
-     statfile = fixup_cpstat(source)
-     end
+    source = remove_safe(source)
+    statfile = fixup_cpstat(source)
+  end
   if left(target,2) = '//' then do   /* use putpds */
     cp = putpds
     /* Comment Start
@@ -9253,33 +9255,33 @@ Fixup_cp: Procedure expose null putpds getpds qualignr localrep zigirep env.
       end
     end
     if cpu /= null then do
-    if cpm /= null then cpu = cpu','cpm
+      if cpm /= null then cpu = cpu','cpm
     end
     else
     if cpm /= null then cpu = cpm
     if cpu /= null
-       then cp = cp '-M' cpu',r=y'
+    then cp = cp '-M' cpu',r=y'
   end
   if cp = null & pos('-X',cp) = 0
-     then cp = '-M st='localrep'/'zigirep'/.zigi/'statfile
-     else do
-     cp = word(cp,1) ,
-       '-M st='localrep'/'zigirep'/.zigi/'statfile','strip(subword(cp,3))
-     end
+  then cp = '-M st='localrep'/'zigirep'/.zigi/'statfile
+  else do
+    cp = word(cp,1) ,
+      '-M st='localrep'/'zigirep'/.zigi/'statfile','strip(subword(cp,3))
+  end
   if pos('-B',cmd) > 0 then cp = cp '-b'
   cmd = cp source target
   if rcmd = null then return cmd
   else return cmd '&&' rcmd
 
 Fixup_cpstat:
-arg cpstat
-cpstat = substr(cpstat,3)   /* remove // */
-lq = pos('(',cpstat)
-if lq > 0 then parse value cpstat with cpstat'(' .
-cpstat = translate(cpstat,' ',".'")
-cpstat = subword(cpstat,qualignr+1)
-cpstat = translate(cpstat,'.',' ')
-return cpstat
+  arg cpstat
+  cpstat = substr(cpstat,3)   /* remove // */
+  lq = pos('(',cpstat)
+  if lq > 0 then parse value cpstat with cpstat'(' .
+  cpstat = translate(cpstat,' ',".'")
+  cpstat = subword(cpstat,qualignr+1)
+  cpstat = translate(cpstat,'.',' ')
+  return cpstat
 
 Get_Ignored:
   cmd = 'cat' localrep'/'zigirep'/.gitignore'
@@ -9332,20 +9334,20 @@ Auto_Tag_File:   /* FM */
   parse arg atf_dir atf_file
   attr_cmd = 'cd' atf_dir
   attr_cmd = attr_cmd '&& git check-attr -a' atf_file ,
-             '| grep -e "binary: set"' ,
-             ' -e "zos-working-tree-encoding:"'
+    '| grep -e "binary: set"' ,
+    ' -e "zos-working-tree-encoding:"'
   x = docmd(attr_cmd)
   codepage = null
   do atfi = 1 to so.0
-     if pos('binary:',so.atfi) > 0 then do
-     cht_cmd = 'cd' atf_dir
-     cht_cmd = cht_cmd '&& chtag -b' atf_file
-     x = docmd(cht_cmd)
-     return
-     end
-     if pos('zos-working',so.atfi) > 0 then
-        parse value so.1 with . 'encoding:' xx'-'codepage
-     end
+    if pos('binary:',so.atfi) > 0 then do
+      cht_cmd = 'cd' atf_dir
+      cht_cmd = cht_cmd '&& chtag -b' atf_file
+      x = docmd(cht_cmd)
+      return
+    end
+    if pos('zos-working',so.atfi) > 0 then
+    parse value so.1 with . 'encoding:' xx'-'codepage
+  end
   if codepage = null then return
   cht_cmd = 'cd' atf_dir
   cht_cmd = cht_cmd '&& chtag -tc' codepage atf_file
