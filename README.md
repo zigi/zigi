@@ -1,6 +1,6 @@
 ![zigi](https://user-images.githubusercontent.com/117615/69496216-051d1580-0ed0-11ea-9ea5-cf0d9153482c.png)
-![anaconda downloads](https://anaconda.org/zdevops/zigi/badges/downloads.svg)
-[![anaconda/dl](https://anaconda.org/zdevops/zigi/badges/installer/conda.svg)](https://anaconda.org/zdevops/zigi)
+[![anaconda downloads](https://anaconda.org/zdevops/zigi/badges/downloads.svg)](https://anaconda.org/zdevops/zigi)
+
 ## Installing zigi
 
 Make sure you have git installed on your Mainframe.
@@ -19,6 +19,11 @@ Clone this repository and run the installer via:
     git clone git@github.com:wizardofzos/zigi.git
     cd zigi
     ./zginstall.rex
+
+or
+
+[![anaconda/dl](https://anaconda.org/zdevops/zigi/badges/installer/conda.svg)](https://anaconda.org/zdevops/zigi)
+
 
 ### Make sure you are authorizes to allocate the target datasets
 
