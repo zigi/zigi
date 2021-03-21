@@ -29,6 +29,8 @@
  .cursor  = &zcmd
  vget (ztut)
 )PROC
+ if (&ztut = 'G')
+     &zcont = ZIGIH260
  if (&ztut = 200)
      &zcont = ZIGIH270
  if (&ztut = 300)

@@ -39,7 +39,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
-  |            08/27/20 LBD - Enhance stat compare for future  |
+  |            10/25/20 LBD - Improve usssafe routine          |
+  |            09/27/20 LBD - Compare stats improved           |
   |            08/14/20 LBD - Don't update if readonly repo    |
   |            06/19/20 LBD - Ignore LMOD aliases as the main  |
   |                           lmod will have them included     |
@@ -127,6 +128,7 @@ zigistat:
   /* ------------------ *
   * Define ISPF Dataid *
   * ------------------ */
+  Address ISPExec
   "LMINIT DATAID(STATUS) DATASET("dsn")"
   "LMOPEN DATAID("STATUS") OPTION(INPUT)"
 
@@ -270,29 +272,16 @@ zigistat:
       x = debug('ISPF Stats comparison starting.')
       /* 1st setup the saved stem for easy comparison */
       do i = 1 to stats.0
-        parse value stats.i with savedmem data
-        m.savedmem = strip(data)
+        parse value stats.i with savedmem cd md . . mt . . . uid .
+        m.savedmem = strip(cd md left(mt,5) uid)
       end
       /* now compare active to saved */
       do i = 1 to mem.0
-        parse value mem.i with actmem data
-        if m.actmem = null then string = string actmem
-        else do
-          if strip(data) /= null then do
-            parse value data with cdate mdate ver mod mtime nc ic mc usr ,
-              nce ice mce
-            data = strip(cdate mdate ver+0 mod+0 mtime ,
-              nc ic mc usr nce ice mce)
-          end
-          if strip(m.actmem) /= null then do
-            parse value m.actmem with cdate mdate ver mod mtime nc ic mc usr ,
-              nce ice mce
-            mdata = strip(cdate mdate ver+0 mod+0 mtime ,
-              nc ic mc usr nce ice mce)
-          end
-          else mdata = null
-          if data /= mdata then string = string actmem
-        end
+        parse value mem.i with actmem cd md . . mt . . . uid .
+        data = strip(cd md left(mt,5) uid)
+        if m.actmem = null
+        then string = string actmem
+        else if data /= m.actmem then string = string actmem
       end
       'vput (allmems)'
       x = debug('ISPF Stats comparison complete:' string)
@@ -307,10 +296,9 @@ zigistat:
   | rc 20 it does not                            |
   * -------------------------------------------- */
 Check_Stats_File:
-  save_address = address()
   address syscall 'lstat' filepath 'file.'
   if file.0 = 0 then do
-    ADDRESS value(save_address)
+    ADDRESS ISPExec
     return 20
   end
   else return 0
@@ -403,7 +391,7 @@ Write_Stats:
   * ----------------------------------- */
 Write_FD:
   parse arg string
-  string = string || ESC_R || ESC_N
+  string = string || ESC_N
   'write' fd 'string' length(string)
   return
 
@@ -445,10 +433,24 @@ debug:
   end
   return 0
 
+usssafe:
+ parse arg safedsn
+ if pos('$',safedsn) = 0 then return safedsn
+ safe$pos = 1
+ do forever
+    pos$safe = pos('$',safedsn,safe$pos)
+    if pos$safe < 1 then return safedsn
+    left$safe = left(safedsn,pos$safe-1)
+    right$save = substr(safedsn,pos$safe)
+    safedsn = left$safe'\'right$save
+    safe$pos = pos$safe + 2
+    end
+ return safedsn
+
   /* ---------------------------------- *
   | Make the z/OS dsname safe for OMVS |
   * ---------------------------------- */
-usssafe: procedure
+oldsafe: procedure
   parse arg dsn
   if pos('$',dsn) = 0 then return dsn
   /* Let's not usssafe it twice :) */

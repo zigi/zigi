@@ -1,8 +1,9 @@
 )Attr
  @ type(output) caps(off) hilite(blink) color(red) intens(high)
  $ type(input ) caps(on ) hilite(uscore)
- _ type(text)  color(green)
- ! type(text)  color(yellow)
+ _ type(text)   color(green)
+ { type(output) color(green)
+ ! type(text)   color(yellow)
  [ type(text) hilite(blink) color(red) intens(high)
  ] type(text) hilite(blink) color(green) intens(high)
  } type(text) hilite(blink) color(blue) intens(high)
@@ -26,7 +27,7 @@
 +             ZZZZZZZZ                 _                                    +
 +            ZZZZZZZ                   _    !Henri Kuiper+&!Lionel B. Dyck  +
 +
-+                    _ Copyright 2020 under GPL Version 3
++               _ Copyright 2019 -{year_under GPL Version 3
 +
 +    !ENTER+to continue!F1+for Release Information          +Bypass:$z+
 )Init

@@ -1,5 +1,5 @@
 )Attr Default(%+_)
-  _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+  _ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
   @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
   $ type(output) intens(low ) caps(off) just(left )
   [ type(output) intens(high) caps(off) just(left )
@@ -11,12 +11,12 @@
 %Command ===>_zcmd   \ \ %Scroll ===>_zgsr+
 +
 +The following members were not found in the z/OS PDS but were found in the
-+Git Repository (OMVS Directory). This happens when the members are deleted
-+from the z/OS PDS outside of ZIGI. The Git Repository will now be updated
-+to reflect the deletions.
++Git Repository. This happens when the members are deleted from the z/OS PDS
++outside of ZIGI.
 +
 +Use%R+to recovery any members that should not be deleted. Then press%F3+
-+to continue. Any members%not+recovered will be deleted.
++to continue. Any members%not+recovered will be deleted.%Or+enter%STOP+
++to continue without recovery or deletions at this time.
 +
 +Dataset:[fulldsn
 +

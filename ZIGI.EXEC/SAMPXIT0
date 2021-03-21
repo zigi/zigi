@@ -1,0 +1,50 @@
+  /* --------------------  rexx procedure  -------------------- *
+  | Name:      ZIGIXIT0                                        |
+  |                                                            |
+  | Function:  Return the location of the DoveTail getpds      |
+  |            and putpds commands                             |
+  |                                                            |
+  | Syntax:    rc = zigixit0()                                 |
+  |                                                            |
+  | Return:    location of the getpds and putpds modules       |
+  |                                                            |
+  | User Changes see *CHANGE* below                            |
+  |                                                            |
+  | Author:    Lionel B. Dyck                                  |
+  |                                                            |
+  | History:  (most recent on top)                             |
+  |            09/20/20 LBD - Creation                         |
+  |                                                            |
+  $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ $
+  $ This is a sample user exit 0 that should be renamed to     $
+  $ ZIGIXIT0 and located in the same library as the ZIGI       $
+  $ REXX Exec is located *AFTER* changing the path to the      $
+  $ Dovetail cp replacement commands.                          $
+  $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ $
+  |    ZIGI - the z/OS ISPF Git Interface                      |
+  |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
+  |                                                            |
+  |    This program is free software: you can redistribute it  |
+  |    and/or modify it under the terms of the GNU General     |
+  |    Public License as published by the Free Software        |
+  |    Foundation, either version 3 of the License, or (at     |
+  |    your option) any later version.                         |
+  |                                                            |
+  |    This program is distributed in the hope that it will be |
+  |    useful, but WITHOUT ANY WARRANTY; without even the      |
+  |    implied warranty of MERCHANTABILITY or FITNESS FOR A    |
+  |    PARTICULAR PURPOSE.  See the GNU General Public License |
+  |    for more details.                                       |
+  |                                                            |
+  |    You should have received a copy of the GNU General      |
+  |    Public License along with this program.  If not, see    |
+  |    <https://www.gnu.org/licenses/>.                        |
+  * ---------------------------------------------------------- */
+
+  /* -------------------------------------------------- *
+  | *CHANGE*  *CHANGE*  *CHANGE*  *CHANGE*  *CHANGE*   |
+  | Change the return directory to the location of the |
+  | Dovetail Co:Z toolkit where getpds and putpds may  |
+  | be found.                                          |
+  * -------------------------------------------------- */
+  return '/u/mine/cozbeta/bin/'
