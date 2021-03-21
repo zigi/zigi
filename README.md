@@ -1,4 +1,6 @@
 ![zigi](https://user-images.githubusercontent.com/117615/69496216-051d1580-0ed0-11ea-9ea5-cf0d9153482c.png)
+![anaconda downloads](https://anaconda.org/zdevops/zigi/badges/downloads.svg)
+[![anaconda/dl](https://anaconda.org/zdevops/zigi/badges/installer/conda.svg)](https://anaconda.org/zdevops/zigi)
 ## Installing zigi
 
 Make sure you have git installed on your Mainframe.
