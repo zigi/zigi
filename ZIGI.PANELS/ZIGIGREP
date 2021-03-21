@@ -3,30 +3,20 @@
  _ type(input) caps(off) hilite(uscore) intens(low)
  @ type(input) caps(on ) hilite(uscore) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
-)Body Expand(\\)
-+Grep Command Entry+--------------#zigtitle    +--------------------------------
-%Command ===>_zcmd                                                            +
+)Body Window(47,8) Expand(\\)
 +
-+
-+Git grep: _grepstr                                                   +
++Git grep: _grepstr                           +
 +
 +Dataset/File or Report View:@z+(D or R)
 +
 +Note: The grep is NOT case sensitive.
 +
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
 +\ \Press%F3+to exit grep prompt \ \
 )Init
+ &zwinttl = 'ZIGI Grep'
+ .help = zigih260
+ &ztut = 'G'
+ vput (ztut)
  .zvars = '(grepopt)'
 )Proc
  ver (&grepstr,nb)

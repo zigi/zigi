@@ -1,0 +1,37 @@
+)attr default(%+_)
+  @ type(input ) caps(off) hilite(uscore)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
+                               %Connect+
++
+%Connect+will connect ZIGI to an existing ZIGI format git repository.
++
+%Name+is the name for the new local repository to be created. It is
++created as a directory within the%Local Repository+defined next.
++
+%Local Repository+is the location where the%Clone+creates a directory or
++where%Create+initializes the Git repo.
++
+%Read Only Repository+is a repository where the z/OS datasets are never
++updated. All updates to the z/OS datasets are copied and managed by ZIGI.
++
+%Notes:%*+Don't use spaces in the name field.
+       %*+Repository is named (and stored) in OMVS as /localdirectory/name
+       %*+Fails if /localdirectory/name is present - Override with%Y+
+
++
+         +Press the%Enter+key to continue your ZIGI tutorial journey.
+)Init
+ .cursor  = &zcmd
+)PROC
+ &ZCONT = ZIGIH130
+)END
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

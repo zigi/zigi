@@ -138,6 +138,8 @@ vget (vtype)
       end
     end
   end
+  if length(zshadow) > length(zdata) then
+     zshadow = left(zshadow,length(zdata))
 *ENDREXX
 )REINIT
 REFRESH(*)
