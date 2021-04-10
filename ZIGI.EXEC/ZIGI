@@ -29,6 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            04/10/21 LBD - Add year variable for splash     |
+  |            03/29/21 LBD - Add Control Errors Return        |
   |            03/17/21 LBD - Correct omvs directory returns   |
   |            03/07/21 LBD - Correct tbsort for repo table    |
   |            02/09/21 LBD - Change ADDALL to 'git add .'     |
@@ -447,6 +449,7 @@
   | ISPExec is our default host environment    |
   * ------------------------------------------ */
   Address ISPExec
+  'Control Errors Return'
 
   /* ============================================================== */
   /* ======== main flow          ================================== */
@@ -871,6 +874,7 @@ display_splash:
   | Running under the ZIGI ISPF Application ID so let's do some work |
   * ---------------------------------------------------------------- */
   parse value '' with zcmd zsel
+  year = word(date('n'),3)
   zigtitle = '(ZIGI' ver')'
   'vput (zigtitle ver) shared'
   'vget (bypass pnsdef) profile'
