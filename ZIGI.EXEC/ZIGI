@@ -29,6 +29,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            04/16/21 SP  - Update USSSAFE routine to prevent|
+  |                           duplication of escapes '\'       |
+  |                           thx to Spiridopoulos             |
   |            04/13/21 LBD - Change from ISPTABL to ISPPROF   |
   |                         - add ussafe on change tag         |
   |            04/10/21 LBD - Add year variable for splash     |
@@ -7072,7 +7075,7 @@ clean:
 
 usssafe:
   parse arg safedsn
-  if pos('$',safedsn) = 0 then return safedsn
+  if pos('\$',safedsn) = 0 then return safedsn
   safe$pos = 1
   do forever
     pos$safe = pos('$',safedsn,safe$pos)
