@@ -29,6 +29,11 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            04/16/21 SP  - Update USSSAFE routine to prevent|
+  |                           duplication of escapes '\'       |
+  |                           thx to Spiridopoulos             |
+  |            04/13/21 LBD - Change from ISPTABL to ISPPROF   |
+  |                         - add ussafe on change tag         |
   |            04/10/21 LBD - Add year variable for splash     |
   |            03/29/21 LBD - Add Control Errors Return        |
   |            03/17/21 LBD - Correct omvs directory returns   |
@@ -590,9 +595,7 @@ init_repo:
   /* ---------------------------------------- *
   | Open (or create and open) the Repo Table |
   * ---------------------------------------- */
-  isptabl = 'ISPTABL'
-  x = listdsi(isptabl 'FILE')
-  if x > 0 then isptabl = 'ISPPROF'
+  isptabl = 'ISPPROF'
   'TBOpen zigirepo Library('isptabl') Write Share'
   if rc > 0 then do
     if rc = 8 then call create_zigirepo
@@ -7072,7 +7075,7 @@ clean:
 
 usssafe:
   parse arg safedsn
-  if pos('$',safedsn) = 0 then return safedsn
+  if pos('\$',safedsn) > 0 | pos('$',safedsn) = 0 then return safedsn
   safe$pos = 1
   do forever
     pos$safe = pos('$',safedsn,safe$pos)
@@ -9346,7 +9349,7 @@ Auto_Tag_File:   /* FM */
     if pos('binary:',so.atfi) > 0 then do
       cht_cmd = 'cd' atf_dir
       cht_cmd = cht_cmd '&& chtag -b' atf_file
-      x = docmd(cht_cmd)
+      x = docmd(usssafe(cht_cmd))
       return
     end
     if pos('zos-working',so.atfi) > 0 then
@@ -9355,5 +9358,5 @@ Auto_Tag_File:   /* FM */
   if codepage = null then return
   cht_cmd = 'cd' atf_dir
   cht_cmd = cht_cmd '&& chtag -tc' codepage atf_file
-  x = docmd(cht_cmd)
+  x = docmd(usssafe(cht_cmd))
   return
