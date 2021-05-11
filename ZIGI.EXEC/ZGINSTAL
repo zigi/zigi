@@ -41,6 +41,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            05/11/21 LBD - Correction for mixed text/binary |
   |            05/06/21 LBD - support allmems > 32k            |
   |            01/06/21 LBD - use .zigi/dsn for z/OS dataset   |
   |                           determination                    |
@@ -87,7 +88,7 @@
 
   arg options
 
-  parse value options with ckothlq'/'opt
+  parse value options with ckothlq'\'opt
 
   ckothlq = strip(ckothlq)
 
@@ -483,9 +484,7 @@ Alloc_Copy_PDS:
   'readdir' rdir 'mems.'
   tcount = mems.0 - 2
 
-  if opt /= null then
   mixed = check_mixed_bintext(sub)
-  else mixed = 0
 
   if mixed = 0 then do
     bin = is_binfile(sub)
