@@ -10,7 +10,7 @@
 +
 +A ZIGI managed repository consists of the following characteristics:
 +
-   %*+A%.ZIGI+directory in the repository root directory
+   %*+A%.zigi+directory in the repository root directory
    %*+A file with the name of%dsn+in the .ZIGI directory with
       information on ALL the z/OS datasets managed by zigi:
 +     # Default DSORG and DCB info
@@ -20,7 +20,7 @@
 +     SAMPLE.TEXT PS FB 121 27951
 +  %*+Each z/OS sequential datasets requires a copy in the repository root.
 +  %*+Each z/OS partitioned dataset requires a directory in the repository root.
-+  %*+Each PDS member requires  a copy in the directory associated with the
++  %*+Each PDS member requires a copy in the directory associated with the
 +     full PDS. An optional file extension (after the DCB) may be defined.
 +
 +

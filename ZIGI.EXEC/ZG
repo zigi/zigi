@@ -10,7 +10,7 @@
   |            Works best when used on an enhanced ISPF        |
   |            member list row.                                |
   |                                                            |
-  | Syntax:    %zd dsname(member) opt                          |
+  | Syntax:    %zg dsname(member) opt                          |
   |                                                            |
   |            Only PDS members allowed                        |
   |                                                            |
@@ -42,6 +42,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            05/06/21 LBD - Support allmems > 32k            |
   |            10/25/20 LBD - Improve usssafe routine          |
   |            08/07/20 LBD - Add PFSHOW Off/Reset all Pops    |
   |            07/29/20 LBD - Add _EDC_ZERO_RECLEN=Y to env.   |
@@ -727,7 +728,7 @@ view_std:
   call outtrap 'off'
   return
 
-  Lower: Procedure
+Lower: Procedure
   parse arg input
   out = translate(input,"abcdefghijklmnopqrstuvwxyz",,
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -1401,7 +1402,22 @@ zigistat:
         if m.actmem = null then string = string actmem
         else if data /= m.actmem then string = string actmem
       end
-      'vput (allmems)'
+      allmemsc = 0
+      if length(allmems) < 32000
+         then do
+           allmemsc = allmemsc + 1
+           interpret 'allmems'allmemsc '= allmems'
+           'vput (allmems'allmemsc')'
+           end
+      else do forever
+           allmemsc = allmemsc + 1
+           lp = lastpos(' ',allmems,32000)
+           interpret 'allmems'allmemsc '= left(allmems,lp)'
+           'vput (allmems'allmemsc')'
+           allmems = substr(allmems,lp+1)
+           if strip(allmems) = null then leave
+           end
+      'vput (allmemsc)'
       x = debug('ISPF Stats comparison complete:' string)
       return string
     end
