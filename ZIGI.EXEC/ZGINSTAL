@@ -41,6 +41,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            05/11/21 LBD - Correction for mixed text/binary |
+  |            05/06/21 LBD - support allmems > 32k            |
   |            01/06/21 LBD - use .zigi/dsn for z/OS dataset   |
   |                           determination                    |
   |            11/17/20 LBD - Use Dovetail PUTPDS if available |
@@ -86,7 +88,7 @@
 
   arg options
 
-  parse value options with ckothlq'/'opt
+  parse value options with ckothlq'\'opt
 
   ckothlq = strip(ckothlq)
 
@@ -394,7 +396,6 @@ Restart:
     if se.0 > 0 then
     do i = 1 to se.0;say se.i;end
   end
-  
 
   /* -------------------- *
   | Done with everything |
@@ -483,9 +484,7 @@ Alloc_Copy_PDS:
   'readdir' rdir 'mems.'
   tcount = mems.0 - 2
 
-  if opt /= null then
   mixed = check_mixed_bintext(sub)
-  else mixed = 0
 
   if mixed = 0 then do
     bin = is_binfile(sub)
@@ -1084,7 +1083,22 @@ zigistat: Procedure
         if m.actmem = null then string = string actmem
         else if data /= m.actmem then string = string actmem
       end
-      'vput (allmems)'
+      allmemsc = 0
+      if length(allmems) < 32000
+         then do
+           allmemsc = allmemsc + 1
+           interpret 'allmems'allmemsc '= allmems'
+           'vput (allmems'allmemsc')'
+           end
+      else do forever
+           allmemsc = allmemsc + 1
+           lp = lastpos(' ',allmems,32000)
+           interpret 'allmems'allmemsc '= left(allmems,lp)'
+           'vput (allmems'allmemsc')'
+           allmems = substr(allmems,lp+1)
+           if strip(allmems) = null then leave
+           end
+      'vput (allmemsc)'
       return string
     end
     Otherwise nop  /* should never get here */

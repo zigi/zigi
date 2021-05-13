@@ -29,6 +29,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            05/11/21 LBD - Fix for checking for updates     |
+  |            05/06/21 SP  - Fix allmems 32k limit            |
+  |                         - add -A to git add .              |
   |            04/16/21 SP  - Update USSSAFE routine to prevent|
   |                           duplication of escapes '\'       |
   |                           thx to Spiridopoulos             |
@@ -664,6 +667,7 @@ display_zigioprm:
 display_zigiprim:
   parse value '' with zsel row readonly
   fetch_flag = 0
+  check_flag = 1
   zigpass = 'PASSTHRU'
   'vput (zigpass) shared'
   'TBTop zigirepo'
@@ -2183,7 +2187,7 @@ WWR_handle_addall:
   zs1 = 'Performing Git Add all'
   zs2 = 'Should be quick.'
   call do_popup
-  cmd = 'cd' localrep'/'zigirep '&& git add .'
+  cmd = 'cd' localrep'/'zigirep '&& git add -A .'
   x = docmd(cmd)
   call git_safe_add localrep'/'zigirep  '.'
   x = docmd(cmd)
@@ -6703,7 +6707,13 @@ Update_repo_metadata:
           * ------------------------------------------------------- */
           address syscall 'readdir' localrep'/'zigirep'/'r rd.
           mem_omvs = null
-          'vget (allmems)'
+          allmems = null
+          'vget (allmemsc)'
+          do im = 1 to allmemsc
+             'vget (allmems'im')'
+             interpret 'allmems = allmems allmems'im
+             'verase (allmems'im')'
+             end
           do im = 1 to rd.0
             if left(rd.im,1) = '.' then iterate
             m = strip(rd.im)
@@ -6717,7 +6727,6 @@ Update_repo_metadata:
               mem_omvs = mem_omvs mfile
             end
           end
-          'verase (allmems)'
           if strip(mem_omvs) /= null then do
             x = debug('PDS members deleted - removing from OMVS:' ,
               mem_omvs)
@@ -6754,7 +6763,7 @@ Update_repo_metadata:
               call update_stats uscmd
             end
             cmd = 'cd' localrep'/'zigirep'/.zigi'
-            cmd = cmd '&& git add .'
+            cmd = cmd '&& git add -A .'
           end
         end
         else if nonzigi = 0 then do

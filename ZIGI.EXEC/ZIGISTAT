@@ -39,6 +39,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            05/06/21 LBD - Multiple allmems variables       |
   |            10/25/20 LBD - Improve usssafe routine          |
   |            09/27/20 LBD - Compare stats improved           |
   |            08/14/20 LBD - Don't update if readonly repo    |
@@ -283,7 +284,22 @@ zigistat:
         then string = string actmem
         else if data /= m.actmem then string = string actmem
       end
-      'vput (allmems)'
+      allmemsc = 0
+      if length(allmems) < 32000
+         then do
+           allmemsc = allmemsc + 1
+           interpret 'allmems'allmemsc '= allmems'
+           'vput (allmems'allmemsc')'
+           end
+      else do forever
+           allmemsc = allmemsc + 1
+           lp = lastpos(' ',allmems,32000)
+           interpret 'allmems'allmemsc '= left(allmems,lp)'
+           'vput (allmems'allmemsc')'
+           allmems = substr(allmems,lp+1)
+           if strip(allmems) = null then leave
+           end
+      'vput (allmemsc)'
       x = debug('ISPF Stats comparison complete:' string)
       return string
     end

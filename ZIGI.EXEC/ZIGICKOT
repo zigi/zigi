@@ -17,8 +17,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
-  |            04/19/21 JAL - Translate (); in the .zigi/dsn   |
-  |                         - Prevents parameter injection     |
+  |            05/11/21 LBD - Fix for mixed text/binary        |
   |            02/24/21 LBD - Correct use of putpds for members|
   |            01/06/21 LBD - Ignore files not in .zigi/dsn    |
   |            11/19/20 LBD - Use -T for default cp copies     |
@@ -178,7 +177,6 @@
     zdsn. = null
     call outtrap 'off'
     do i = 1 to ck.0
-      ck.i = translate(ck.i,'???','();')
       if left(ck.i,1) = '#' then iterate
       if word(ck.i,1) = '*' then do
         parse value ck.i with . def_dsorg def_recfm def_lrecl def_blksize .
@@ -507,8 +505,8 @@ Alloc_Copy_PDS:
       end
       parse value mems.xi with m'.'suf
       if suf /= null
-      then rsuf = '/*.'suf
-      else rsuf = '/*'
+      then rsuf = '/'src'.'suf
+      else rsuf = '/'src
       lp = lastpos('/',rdir)
       dvstat = left(rdir,lp)'.zigi/'substr(rdir,lp+1)
       address syscall 'lstat' dvstat 'dvs.'
