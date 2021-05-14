@@ -41,6 +41,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            05/14/21 HBK - Don't parse lowercase folders    |
   |            05/11/21 LBD - Correction for mixed text/binary |
   |            05/06/21 LBD - support allmems > 32k            |
   |            01/06/21 LBD - use .zigi/dsn for z/OS dataset   |
@@ -247,6 +248,9 @@ Restart:
           dir.sub = 0
           si = 0
           if left(sub,1) /= '.' then do
+            xx = translate(sub,'??????????????????????????',,
+                               'abcdefghijklmnopqrstuvwxyz')
+            if pos('?',xx) > 0 then iterate /* No lowercase things */
             subs = subs sub
           end
         end
