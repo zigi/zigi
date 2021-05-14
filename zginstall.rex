@@ -251,7 +251,7 @@ Restart:
             /* make sure we only get the 'MVSish' folders */
             xx = translate(sub,'??????????????????????????',,
                                'abcdefghijklmnopqrstuvwxyz')
-            if pos('?',xx) > = then iterate /* So only UPPERCASE ones */
+            if pos('?',xx) > 0 then iterate /* So only UPPERCASE ones */
             subs = subs sub
           end
         end
