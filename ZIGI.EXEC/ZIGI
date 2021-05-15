@@ -29,6 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            05/15/21 LBD - Pass environment to ZIGIGCMD     |
   |            05/11/21 LBD - Fix for checking for updates     |
   |            05/06/21 SP  - Fix allmems 32k limit            |
   |                         - add -A to git add .              |
@@ -431,7 +432,7 @@
   |                                                            |
   | ---------------------------------------------------------- |
   |    ZIGI - the z/OS ISPF Git Interface                      |
-  |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
+  |    Copyright (C) 2020-2021 - Henri Kuiper and Lionel Dyck  |
   |                                                            |
   |    This program is free software: you can redistribute it  |
   |    and/or modify it under the terms of the GNU General     |
@@ -1394,8 +1395,7 @@ Work_With_Repo:
       /* ----------------- *
       | Git command prompt |
       * ------------------ */
-      When abbrev('GITCMD',zcmd,4) = 1 then
-      'Select cmd(%zigigcmd)'
+      When abbrev('GITCMD',zcmd,4) = 1 then call do_gcmd
       When abbrev('GITHELP',word(zcmd,1),4) = 1 then
       Address TSO '%githelp' subword(zcmd,2)
       When abbrev('GITLOG',zcmd,2) = 1 then call do_gitlog
@@ -8101,6 +8101,16 @@ add_env:
   envc = envc + 1
   env.envc = env_val
   return
+
+do_gcmd:
+   envs = null
+   do i = 1 to env.0
+      interpret 'env'i '=  env.'i
+      envs = envs 'env'i
+      end
+   'vput ('envs' envs)'
+   'Select cmd(%zigigcmd)'
+   return
 
 docmd:
   parse arg cmd
