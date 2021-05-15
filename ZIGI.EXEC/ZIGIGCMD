@@ -11,6 +11,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            05/15/21 LBD - Get Environment variables from   |
+  |                           ZIGI as ISPF vars                |
   |            06/22/20 LBD - Save command in ISPF var         |
   |            06/17/20 LBD - Message on command completion    |
   |            05/02/20 LBD - If git log set vtype variable    |
@@ -20,7 +22,7 @@
   |                                                            |
   | ---------------------------------------------------------- |
   |    ZIGI - the z/OS ISPF Git Interface                      |
-  |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
+  |    Copyright (C) 2020-2021 - Henri Kuiper and Lionel Dyck  |
   |                                                            |
   |    This program is free software: you can redistribute it  |
   |    and/or modify it under the terms of the GNU General     |
@@ -41,8 +43,10 @@
   parse arg cmd
 
   /* ----------------------------- *
+  | Set ISPExec                                          |
   | Get env vars and set defaults |
   * ----------------------------- */
+  Address ISPExec
   call getenv
   dd = 'ZC'time('s')
   parse value '' with null gsel
@@ -51,11 +55,9 @@
   zerrtp   = 'NOTIFY'
 
   /* ---------------------------------------------------- *
-  | Set ISPExec                                          |
   | Get the ISPF vars from ZIGI for localrep and zigirep |
   | Define localdir as a composite variable              |
   * ---------------------------------------------------- */
-  Address ISPExec
   'Control Errors Return'
   'vget (gopt) profile'
   if gopt = null then gopt = 'B'
@@ -197,31 +199,16 @@ Lower: Procedure
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
   return out
 
-  /* ----------------------------------------------------- *
-  | Get the users current OMVS enviornment for use in the |
-  | bpxwunix commands.                                    |
-  * ----------------------------------------------------- */
-GETENV: procedure expose env.
-  cmd = 'pwd'
-  e.1 = '_BPX_SHAREAS=YES'
-  e.0 = 1
-  x = bpxwunix(cmd,,so.,se.,e.)
-  home    = strip(so.1)
-  cmd  = docmd('env')
-  rc = bpxwunix(cmd,,env.,se.)
-  envc = env.0
-  call add_env '_BPX_SHAREAS=YES'
-  call add_env '_BPX_SPAWN_SCRIPT=YES'
-  env.0 = envc
-  return
-
-  /* -------------------- *
-  | Add info to env stem |
-  * -------------------- */
-add_env:
-  parse arg env_val
-  envc = envc + 1
-  env.envc = env_val
+  /* -------------------------------------------- *
+   | Get the environment variables passed by zigi |
+   * -------------------------------------------- */
+GetEnv:
+  Address ISPExec
+  'vget (envs)'
+  'vget ('envs')'
+  do i = 1 to words(envs)
+     interpret 'env.'i '= env'i
+     end
   return
 
   /* ------------------------- *
