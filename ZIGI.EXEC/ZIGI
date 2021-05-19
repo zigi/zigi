@@ -29,6 +29,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            05/18/21 LBD - Improve environment variable     |
+  |                           setup with improved env file     |
+  |                           support.                         |
   |            05/15/21 LBD - Pass environment to ZIGIGCMD     |
   |            05/11/21 LBD - Fix for checking for updates     |
   |            05/06/21 SP  - Fix allmems 32k limit            |
@@ -1706,9 +1709,9 @@ WWR_handle_convrepo:
   end
   Return
 
-/* ------------------------------------ *
- | Process the git diff command request |
- * ------------------------------------ */
+  /* ------------------------------------ *
+  | Process the git diff command request |
+  * ------------------------------------ */
 WWR_handle_diff:
   diff = word(zcmd,2)
   if pos(diff,'12') = 0 then do
@@ -2174,16 +2177,16 @@ WWR_handle_addall:
   /* Comment Start
   'tbtop' rtbl
   do forever
-    'tbskip' rtbl
-    if rc > 0 then leave
-    hit = 0
-    if pos('[M',dsnstat) > 0 then hit = 1
-    if pos('M]',dsnstat) > 0 then hit = 1
-    if pos('Untracked',dsnstat) > 0 then hit = 1
-    if hit = 0 then iterate
-    call git_add
+  'tbskip' rtbl
+  if rc > 0 then leave
+  hit = 0
+  if pos('[M',dsnstat) > 0 then hit = 1
+  if pos('M]',dsnstat) > 0 then hit = 1
+  if pos('Untracked',dsnstat) > 0 then hit = 1
+  if hit = 0 then iterate
+  call git_add
   end
-     Comment End */
+  Comment End */
   zs1 = 'Performing Git Add all'
   zs2 = 'Should be quick.'
   call do_popup
@@ -5295,7 +5298,7 @@ Git_Add_Member:
   cmd = 'cd' repodir
 
   if pos('.',mem) = 0 & extension /= null then
-      /* so we have an extension, better add correctly */
+  /* so we have an extension, better add correctly */
   toadd = usssafe(lower(usssafe(mem))'.'extension)
   else do
     /* regular add */
@@ -6710,10 +6713,10 @@ Update_repo_metadata:
           allmems = null
           'vget (allmemsc)'
           do im = 1 to allmemsc
-             'vget (allmems'im')'
-             interpret 'allmems = allmems allmems'im
-             'verase (allmems'im')'
-             end
+            'vget (allmems'im')'
+            interpret 'allmems = allmems allmems'im
+            'verase (allmems'im')'
+          end
           do im = 1 to rd.0
             if left(rd.im,1) = '.' then iterate
             m = strip(rd.im)
@@ -7096,9 +7099,9 @@ usssafe:
   end
   return safedsn
 
-/* ------------------------------ *
- | Old safe routine - was usssafe |
- * ------------------------------ */
+  /* ------------------------------ *
+  | Old safe routine - was usssafe |
+  * ------------------------------ */
 oldsafe:
   parse arg safedsn
   if pos('$',safedsn) = 0 then return safedsn
@@ -8054,6 +8057,7 @@ GETENV:
 
   x = debug('Starting collection of env variables')
   cmd  = docmdx('env')
+
   rc = bpxwunix(cmd,,env.,se.,omvsenv.)
   envc = env.0
   call add_env '_BPX_SHAREAS=YES'
@@ -8062,6 +8066,16 @@ GETENV:
   call add_env '_EDC_ZERO_RECLEN=Y'
   env.0 = envc
   drop so. se.
+
+  /* -------------------------------------------- *
+  | Fill out the env ispf variables for zigigcmd |
+  * -------------------------------------------- */
+  envs = null
+  do i = 1 to env.0
+    interpret 'env'i '=  env.'i
+    envs = envs 'env'i
+  end
+  'vput ('envs' envs)'
 
   /* ----------------------- *
   | Check for getpds/putpds |
@@ -8103,21 +8117,12 @@ add_env:
   return
 
 do_gcmd:
-   envs = null
-   do i = 1 to env.0
-      interpret 'env'i '=  env.'i
-      envs = envs 'env'i
-      end
-   'vput ('envs' envs)'
-   'Select cmd(%zigigcmd)'
-   return
+  'Select cmd(%zigigcmd)'
+  return
 
 docmd:
   parse arg cmd
   drop so. se.
-  if gitenv /= null then do
-    cmd = ". "gitenv" > /dev/null 2>&1 && "cmd
-  end
   x = debug('Command:' cmd)
   x = bpxwunix(cmd,,so.,se.,env.)
   return x
@@ -8127,14 +8132,17 @@ docmdx:
   not running a login shell via bpxwunix */
   parse arg cmd
   drop o. se.
-  if rx = null then do
-    rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && '
-    c = "[[ -f "home"/.profile ]] && echo f"
-    x = bpxwunix(c,,o.,se.,omvsenv.)
-    if o.0 = 1 & o.1 = "f" then do
-      rx = rx '. 'home'/.profile > /dev/null 2>&1 && '
-    end
+  if gitenv /= null
+  then envfile = '.' gitenv ' >/dev/null 2>&1 &&'
+  else envfile = null
+  rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && ' ,
+    "[[ -f "home"/.profile ]] && "envfile
+  /* Comment Start
+  x = bpxwunix(c,,o.,se.,omvsenv.)
+  if o.0 = 1 & o.1 = "f" then do
+  rx = rx '. 'home'/.profile > /dev/null 2>&1 && '
   end
+  Comment End */
   r = rx ' ' cmd
   return r
 
@@ -8895,7 +8903,7 @@ DoHist_File_Extract:
   dhrc = docmd(cmd)
   /* Comment Start
   if dhrc > 0 then call view_std 'B'
-     Comment End */
+  Comment End */
   cmd = 'cd' localrep'/'zigirep ,
     '&& git checkout' branch
   x = docmd(cmd)
@@ -9133,9 +9141,9 @@ BrDelta:
     When change_flag = 'M' then BrType = 'A'
     When change_flag = 'A' then BrType = 'A'
     When change_flag = 'D' then do
-    /* Comment Start
-    if file_exists(change_file) = 1 then do
-       Comment End */
+      /* Comment Start
+      if file_exists(change_file) = 1 then do
+      Comment End */
       if pos('/',change_file) > 0
       then do
         parse value change_file with change_file'/'brdmem
@@ -9253,10 +9261,10 @@ Fixup_cp: Procedure expose null putpds getpds qualignr localrep zigirep env.
     cp = putpds
     /* Comment Start
     if pos('(',target) > 0 then do
-      parse value target with lt'('tm')'rt
-      target = lt''rt
+    parse value target with lt'('tm')'rt
+    target = lt''rt
     end
-       Comment End */
+    Comment End */
   end
   if left(source,2) = '//' then do   /* use getpds */
     cp = getpds
@@ -9332,7 +9340,7 @@ Update_stats:
   x = docmd(uscmd)
   return
 
-/* Ensure files are correctly tagged before adding to index */
+  /* Ensure files are correctly tagged before adding to index */
 Git_Safe_Add:   /* FM */
   parse arg gsa_dir gsa_files gsa_options
   call auto_tag_files gsa_dir gsa_files
@@ -9341,7 +9349,7 @@ Git_Safe_Add:   /* FM */
   x = docmd(gsa_cmd)
   return
 
-/* Automatically tag modified and untracked files */
+  /* Automatically tag modified and untracked files */
 Auto_Tag_Files:  /* FM */
   parse arg atf_dir atf_files
   ls_cmd = 'cd' atf_dir '&& git ls-files -mo' atf_files
@@ -9355,7 +9363,7 @@ Auto_Tag_Files:  /* FM */
   end
   return
 
-/* Automatically tag specified file */
+  /* Automatically tag specified file */
 Auto_Tag_File:   /* FM */
   parse arg atf_dir atf_file
   attr_cmd = 'cd' atf_dir
