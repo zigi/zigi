@@ -39,6 +39,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            05/26/21 LBD - Use dovetail getpds for stats    |
   |            05/18/21 LBD - More popups with info and fix    |
   |                           allmems variables setup          |
   |            05/06/21 LBD - Multiple allmems variables       |
@@ -103,7 +104,7 @@ zigistat:
   else zigidebg = 0
 
   Address ISPExec
-  'vget (debugfil defruid readonly)'
+  'vget (debugfil defruid readonly dovedir)'
 
   x = debug('start of zigistat with option:' opt)
 
@@ -132,8 +133,6 @@ zigistat:
   * Define ISPF Dataid *
   * ------------------ */
   Address ISPExec
-  "LMINIT DATAID(STATUS) DATASET("dsn")"
-  "LMOPEN DATAID("STATUS") OPTION(INPUT)"
 
  /* ---------------------------------- *
   | Get dataset recfm (check for lmod) |
@@ -163,6 +162,9 @@ zigistat:
   /* ----------------------- *
   * Now process all members *
   * ----------------------- */
+  if words(dovedir) = 1 then do
+  "LMINIT DATAID(STATUS) DATASET("dsn")"
+  "LMOPEN DATAID("STATUS") OPTION(INPUT)"
   do forever
     "LMMLIST Dataid("status") OPTION(LIST) MEMBER(MEMBER)" ,
       "STATS(YES)"
@@ -207,6 +209,16 @@ zigistat:
   * ------------------------- */
   "LMClose Dataid("status")"
   "LMFree  Dataid("status")"
+  end
+  else do
+       dovedir = subword(dovedir,2)
+       cmd = usssafe(dovedir"getpds -M st=- //"strip(dsn,'B',"'"))
+       drop mem. se.
+       x = bpxwunix(cmd,,mem.,se.)
+       do mi = 1 to mem.0
+          allmems = allmems word(mem.mi,1)
+          end
+       end
   x = debug('Stat collection complete.')
 
   zs1 = 'Collection complete.'
