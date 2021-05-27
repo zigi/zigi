@@ -29,6 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            05/27/21 LBD - Ignore missing home/.profile for |
+  |                           environment variables            |
   |            05/26/21 LBD - Exploit getpds during check      |
   |                         - other small cleanup              |
   |            05/18/21 LBD - Improve environment variable     |
@@ -8100,6 +8102,7 @@ GETENV:
   home    = strip(so.1)
 
   x = debug('Starting collection of env variables')
+
   cmd  = docmdx('env')
 
   rc = bpxwunix(cmd,,env.,se.,omvsenv.)
@@ -8179,14 +8182,14 @@ docmdx:
   if gitenv /= null
   then envfile = '.' gitenv ' >/dev/null 2>&1 &&'
   else envfile = null
+
+  /* check for users .profile */
+  address syscall 'lstat' "'"home"/.profile'" 'x.'
+  if x > 0 then home_profile =  "[[ -f "home_profile "]]  &&"
+     else home_profile = null
+
   rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && ' ,
-    "[[ -f "home"/.profile ]] && "envfile
-  /* Comment Start
-  x = bpxwunix(c,,o.,se.,omvsenv.)
-  if o.0 = 1 & o.1 = "f" then do
-  rx = rx '. 'home'/.profile > /dev/null 2>&1 && '
-  end
-  Comment End */
+       home_profile envfile
   r = rx ' ' cmd
   return r
 
