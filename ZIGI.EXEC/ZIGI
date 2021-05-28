@@ -29,6 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            05/28/21 LBD - Correct filename with suffix     |
+  |                           after Edit                       |
   |            05/27/21 LBD - Ignore missing home/.profile for |
   |                           environment variables            |
   |            05/26/21 LBD - Exploit getpds during check      |
@@ -3195,7 +3197,10 @@ WWRF_handle_lcmd_s:
       r = r'/'
     end
     if sysdsorg = 'PO' then do
-      copycmd = "//'"e"("m")'"
+      if pos('.',m) > 0
+         then parse value m with mc'.' .
+         else mc = m
+      copycmd = "//'"e"("mc")'"
       r = r'/'m
     end
     r = usssafe(r)
@@ -9321,6 +9326,7 @@ Fixup_cp: Procedure expose null putpds getpds qualignr localrep zigirep env.
       parse value cmd with . 'a='suf .
       if left(suf,1) = '.' then suf = substr(suf,2)
       cpm = 'su='suf
+      cpu = null
     end
     else do
       p = lastpos('/',target)
@@ -9333,6 +9339,7 @@ Fixup_cp: Procedure expose null putpds getpds qualignr localrep zigirep env.
         parse value ls with .'.'suf
         target = left(target,p)
         cpm = 'su='suf
+        cpu = null
       end
     end
     if cpu /= null then do
