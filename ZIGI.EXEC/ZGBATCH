@@ -68,6 +68,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            05/29/21 LBD - Correct env setup (.profile)     |
   |            01/06/21 LBD - Small update to get_dsn_info     |
   |                           routine                          |
   |            11/19/20 LBD - Update cp to use -T as default   |
@@ -140,7 +141,7 @@
   | Define our defaults |
   * ------------------- */
   hit = 0
-  parse value '' with null rx
+  parse value '' with null
   bpxenv.1 = '_BPX_SHAREAS=YES'
   bpxenv.2 = '_BPX_SPAWN_SCRIPT=YES'
   bpxenv.3 = '_EDC_ZERO_RECLEN=Y'
@@ -468,14 +469,24 @@ docmdx:
   x = bpxwunix(cmd,,so.,se.,bpxenv.)
   home    = strip(so.1)
   drop so. se.
-  if rx = null then do
-    rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && '
-    c = "[[ -f "home"/.profile ]] && echo f"
-    x = bpxwunix(c,,o.,e.,bpxenv.)
-    if o.0 = 1 & o.1 = "f" then do
-      rx = rx '. 'home'/.profile > /dev/null 2>&1 && '
-    end
-  end
+
+  Address ISPExec 'vget (gitenv)'
+  if gitenv /= null
+  then envfile = '.' gitenv ' >/dev/null 2>&1 &&'
+  else envfile = null
+
+  /* check for users .profile */
+  address syscall 'lstat' "'"home"/.profile'" 'x.'
+  if x.0 > 0 then home_profile =  ". "home"/.profile &&"
+     else home_profile = null
+
+  rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && ' ,
+       home_profile envfile
+
+  x = bpxwunix(c,,o.,e.,bpxenv.)
+  if o.0 = 1 & o.1 = "f" then do
+     rx = rx '. 'home'/.profile > /dev/null 2>&1 && '
+     end
   r = rx ' ' cmdx
   return r
 

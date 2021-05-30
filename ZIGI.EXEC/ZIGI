@@ -8190,7 +8190,7 @@ docmdx:
 
   /* check for users .profile */
   address syscall 'lstat' "'"home"/.profile'" 'x.'
-  if x > 0 then home_profile =  "[[ -f "home_profile "]]  &&"
+  if x.0 > 0 then home_profile =  ". "home"/.profile &&"
      else home_profile = null
 
   rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && ' ,

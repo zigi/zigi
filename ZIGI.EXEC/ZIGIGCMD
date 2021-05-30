@@ -222,15 +222,19 @@ docmd:
   /* quircky thing, we need to export HOME as we are
   not running a login shell via bpxwunix */
   parse arg cmd
-  if rx = null then do
-     rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && '
-     c = "[[ -f "home"/.profile ]] && echo f"
-     x = bpxwunix(c,,o.,e.)
-     if o.0 = 1 & o.1 = "f" then do
-        rx = rx '. 'home'/.profile > /dev/null 2>&1 && '
-     end
-  end
-  r = rx cmd
+  Address ISPExec 'vget (gitenv)'
+  if gitenv /= null
+  then envfile = '.' gitenv ' >/dev/null 2>&1 &&'
+  else envfile = null
+
+  /* check for users .profile */
+  address syscall 'lstat' "'"home"/.profile'" 'x.'
+  if x.0 > 0 then home_profile =  ". "home"/.profile &&"
+     else home_profile = null
+
+  rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && ' ,
+       home_profile envfile
+  r = rx ' ' cmd
   return r
 
   /* ---------------------------------------------------------- *

@@ -42,6 +42,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            05/29/21 LBD - Improve env setup                |
   |            05/06/21 LBD - Support allmems > 32k            |
   |            10/25/20 LBD - Improve usssafe routine          |
   |            08/07/20 LBD - Add PFSHOW Off/Reset all Pops    |
@@ -585,8 +586,20 @@ docmdx:
   x = bpxwunix(cmd,,ho.,he.)
   home    = strip(ho.1)
   drop so. se.
-  rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && '
-  c = "[[ -f "home"/.profile ]] && echo f"
+
+  Address ISPExec 'vget (gitenv)'
+  if gitenv /= null
+  then envfile = '.' gitenv ' >/dev/null 2>&1 &&'
+  else envfile = null
+
+  /* check for users .profile */
+  address syscall 'lstat' "'"home"/.profile'" 'x.'
+  if x.0 > 0 then home_profile =  ". "home"/.profile &&"
+     else home_profile = null
+
+  rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && ' ,
+       home_profile envfile
+
   x = bpxwunix(c,,o.,e.)
   if o.0 = 1 & o.1 = "f" then do
     rx = rx '. 'home'/.profile > /dev/null 2>&1 && '
