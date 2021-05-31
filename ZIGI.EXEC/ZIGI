@@ -31,6 +31,8 @@
   |                                                            |
   |            05/31/21 LBD - On clone make hlq default to     |
   |                           users prefix or userid           |
+  |                         - New READme command to add/edit   |
+  |                           a README.md file in a repo       |
   |            05/28/21 LBD - Correct filename with suffix     |
   |                           after Edit                       |
   |            05/27/21 LBD - Ignore missing home/.profile for |
@@ -1423,6 +1425,11 @@ Work_With_Repo:
       When abbrev('PUSH',zcmd,2) = 1 then call WWR_handle_push
       When abbrev('PULL',zcmd,3) = 1 then call WWR_handle_pull
       When abbrev('FETCH',zcmd,2) = 1 then call WWR_handle_fetch
+      When abbrev('README',zcmd,4) = 1 then do
+        call WWR_handle_readme
+        call WWR_handle_check
+        return
+        end
       When abbrev('REPLACE',zcmd,3) = 1 then call WWR_handle_replace
       When abbrev('EXTRACT',zcmd,2) = 1 then call WWR_handle_extract
       When abbrev('STASH',zcmd,4) = 1 then call stash_it
@@ -1578,7 +1585,7 @@ WWR_handle_options:
   parse value zcmd with x'.'zcmd
   if zcmd = 'O' then do
     call pfshow 'off'           /* make sure pfshow is off */
-    'Addpop row(4) column(10)'
+    'Addpop row(2)'
     'Display Panel(zigiorep)'
     'rempop'
     call pfshow 'reset'         /* restore pfshow setting */
@@ -2002,6 +2009,14 @@ WWR_handle_fetch:
     parse value '' with bstat baction
   end
   Return
+
+  /* ------------------------- *
+   | Add/Update README.md file |
+   * ------------------------- */
+WWR_Handle_Readme:
+  readme = localdir'/README.md'
+  Address TSO 'oedit -r 80' "'"readme"'"
+  return
 
   /* -------------------------------- *
   | Replace z/OS datasets            |
