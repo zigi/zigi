@@ -29,6 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            05/31/21 LBD - On clone make hlq default to     |
+  |                           users prefix or userid           |
   |            05/28/21 LBD - Correct filename with suffix     |
   |                           after Edit                       |
   |            05/27/21 LBD - Ignore missing home/.profile for |
@@ -5184,9 +5186,12 @@ Clone_Repo:
     'Setmsg msg(isrz003)'
     return
   end
-  parse value '' with pdshlq remotebr defcpush defruid zigicat reponame
+  parse value '' with remotebr defcpush defruid zigicat reponame
   'vget (saverep) profile'
   if saverep /= null then localrep = saverep
+  if sysvar('syspref') = null
+     then pdshlq = sysvar('sysuid')
+     else pdshlq = sysvar('syspref')
   do forever
     zcmd = null
     remote = null
