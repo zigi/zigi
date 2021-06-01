@@ -451,13 +451,6 @@ Alloc_Copy_PDS:
     if enhanced_cp = 1 then
     if pos('-X',binopt) = 0
     then do
-      do xi = 1 to mems.0
-        if left(mems.xi,1) /= '.' then leave
-      end
-      parse value mems.xi with m'.'suf
-      if suf /= null
-      then rsuf = '/*.'suf
-      else rsuf = '/*'
       lp = lastpos('/',rdir)
       dvstat = left(rdir,lp)'.zigi/'substr(rdir,lp+1)
       address syscall 'lstat' dvstat 'dvs.'
@@ -466,7 +459,7 @@ Alloc_Copy_PDS:
       else dvstat_file = '-M r=y'
       if pos('-B',binopt) > 0 then
       dvstat_file = '-b' dvstat_file
-      cmd = dovetail_dir'putpds' dvstat_file rdir''rsuf '//'pds
+      cmd = dovetail_dir'putpds' dvstat_file rdir'/* //'pds
     end
     x = docmd(cmd)
 
