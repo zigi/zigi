@@ -104,8 +104,10 @@ zigistat:
   then zigidebg = 1
   else zigidebg = 0
 
+  call getenv
+
   Address ISPExec
-  'vget (debugfil defruid readonly dovedir)'
+  'vget (debugfil defruid readonly)'
 
   x = debug('start of zigistat with option:' opt)
 
@@ -215,7 +217,7 @@ zigistat:
        dovedir = subword(dovedir,2)
        cmd = usssafe(dovedir"getpds -M st=- //"strip(dsn,'B',"'"))
        drop mem. se.
-       x = bpxwunix(cmd,,mem.,se.)
+       x = bpxwunix(cmd,,mem.,se.,env.)
        do mi = 1 to mem.0
           allmems = allmems word(mem.mi,1)
           end
@@ -358,27 +360,48 @@ Check_Stats_File:
   end
   else return 0
 
+
   /* ----------------------------------------------------- *
   | Get the users current OMVS enviornment for use in the |
-  | bpxwunix commands. Being selective.                   |
+  | bpxwunix commands.                                    |
   * ----------------------------------------------------- */
 GETENV:
+  cmd = 'pwd'
+  omvsenv.1 = '_BPX_SHAREAS=YES'
+  omvsenv.0 = 1
+  x = bpxwunix(cmd,,so.,se.,omvsenv.)
+  home    = strip(so.1)
+
+  x = debug('Starting collection of env variables')
+
   cmd  = docmdx('env')
-  rc = bpxwunix(cmd,,so.,se.)
-  envc = 0
-  do ci = 1 to so.0
-    if left(so.ci,3) = 'GIT' then call add_env so.ci
-    if left(so.ci,4) = 'HOME' then call add_env so.ci
-    if left(so.ci,4) = 'PATH' then call add_env so.ci
-    if left(so.ci,4) = 'MANP' then call add_env so.ci
-    if left(so.ci,4) = 'LIBP' then call add_env so.ci
-    if left(so.ci,3) = 'PWD' then call add_env so.ci
-  end
+
+  rc = bpxwunix(cmd,,env.,se.,omvsenv.)
+  envc = env.0
   call add_env '_BPX_SHAREAS=YES'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
+  call add_env 'EXPORT _EDC_ADD_ERRNO2=1'
+  call add_env '_EDC_ZERO_RECLEN=Y'
   env.0 = envc
-  drop so. se.
-  return
+
+docmdx:
+  /* quircky thing, we need to export HOME as we are
+  not running a login shell via bpxwunix */
+  parse arg cmd
+  drop o. se.
+  if gitenv /= null
+  then envfile = '.' gitenv ' >/dev/null 2>&1 &&'
+  else envfile = null
+
+  /* check for users .profile */
+  address syscall 'lstat' "'"home"/.profile'" 'x.'
+  if x.0 > 0 then home_profile =  ". "home"/.profile &&"
+     else home_profile = null
+
+  rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && ' ,
+       home_profile envfile
+  r = rx ' ' cmd
+  return r
 
   /* -------------------- *
   | Add info to env stem |
@@ -394,28 +417,6 @@ docmd:
   drop so. se.
   x = bpxwunix(cmd,,so.,se.,env.)
   return x
-
-docmdx:
-  /* quircky thing, we need to export HOME as we are
-  not running a login shell via bpxwunix */
-  parse arg cmd
-  x = bpxwunix('pwd',,so., se.)
-  home = word(so.1,1)
-  drop so. se.
-  Address ISPExec 'vget (gitenv)'
-  if gitenv /= null
-  then envfile = '.' gitenv ' >/dev/null 2>&1 &&'
-  else envfile = null
-
-  /* check for users .profile */
-  address syscall 'lstat' "'"home"/.profile'" 'x.'
-  if x.0 > 0 then home_profile =  ". "home"/.profile &&"
-     else home_profile = null
-
-  rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && ' ,
-       home_profile envfile
-  r = rx ' ' cmd
-  return r
 
   /* ----------------------------- *
   | Write out the ISPF Stats file |
