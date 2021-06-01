@@ -6670,6 +6670,8 @@ Update_repo_metadata:
           statpath = localrep'/'zigirep'/.zigi/'root.umdi
           statfile = root.umdi
 
+          Address ISPExec ,
+             'vput (debugfil defruid readonly dovedir)'
           mem_delta = zigistat("'"edsn"'" statpath 'C')
           if mem_delta = 0 then mem_delta = null
           Address ISPExec
