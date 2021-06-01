@@ -29,6 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            06/01/21 LBD - Add edit macro for readme.md     |
+  |                           edit with md syntax tips         |
   |            05/31/21 LBD - On clone make hlq default to     |
   |                           users prefix or userid           |
   |                         - New READme command to add/edit   |
@@ -2014,8 +2016,9 @@ WWR_handle_fetch:
    | Add/Update README.md file |
    * ------------------------- */
 WWR_Handle_Readme:
-  readme = localdir'/README.md'
-  Address TSO 'oedit -r 80' "'"readme"'"
+  readme = localdir"/README.md"
+  Address ISPExec ,
+  'Edit File(readme) macro(zigiemmd)'
   return
 
   /* -------------------------------- *
