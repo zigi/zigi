@@ -31,6 +31,7 @@
   |                                                            |
   |            06/03/21 LBD - Add tbsave after tbdelete (SP)   |
   |                         - Change SHAREAS to REQUIRED       |
+  |                         - Change COMMIT processing         |
   |            06/01/21 LBD - Add edit macro for readme.md     |
   |                           edit with md syntax tips         |
   |            05/31/21 LBD - On clone make hlq default to     |
@@ -4889,8 +4890,15 @@ Do_Commit:
       'tbskip' cmtab 'number('ctop')'
       'tbdispl' cmtab 'panel(zigicom)'
     end
-    if rc > 4 then leave
+    if rc > 4 then do
+       zs1  = 'Confirm you really want to cancel the Commit'
+       zs2  = 'by entering Y:'
+       call do_popupq
+       if abbrev('YES',translate(answer),1) = 1
+          then zcmd = 'CANCEL'
+       end
     if translate(zcmd) = 'CANCEL' then leave
+    if abbrev('COMMIT',translate(zcmd),2) = 1 then leave
     ctop = ztdtop
     if datatype(right(zcmd,1)) = 'NUM' then
     zcmd = left(zcmd,1) substr(zcmd,2)
@@ -4950,7 +4958,7 @@ Do_Commit:
   if strip(msg1) = null then do
     x = debug('Commit canceled:' zigirep)
     zerrsm = 'Canceled.'
-    zerrlm = 'Commit canceled due to an empty title message.'
+    zerrlm = 'Commit canceled per your request.'
     'setmsg msg(isrz003)'
     'tbend' cmtab
     drop m.
@@ -8084,6 +8092,18 @@ Do_PopupP:
   call pfshow 'off'           /* make sure pfshow is off */
   'Addpop row(4) column(8)'
   'Display Panel(zigipop)'
+  'Rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
+  return
+
+  /* ---------------------------------------- *
+  | Common routine for normal (2 line) popup |
+  * ---------------------------------------- */
+Do_PopupQ:
+  call pfshow 'off'           /* make sure pfshow is off */
+  answer = null
+  'Addpop row(4) column(8)'
+  'Display Panel(zigipopq)'
   'Rempop'
   call pfshow 'reset'         /* restore pfshow setting */
   return

@@ -11,7 +11,8 @@
 %Commit Title:_msg1                                             +
 +Optional Tag:_tagid                                       +%Push+after:@z+(Y/N)
 +
-+Command:%Insert+or%Insert #+   +Line:%I+insert%I#+insert #%D+delete%D#+delete
++Command:%Commit%Insert+or%Insert #+
++Line   :%I+insert%I#+insert #%D+delete%D#+delete
 +
 %S  %Commit Message Text
 )Model
@@ -49,5 +50,5 @@
 )end
 /* -------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* Copyright (C) 2021 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */
