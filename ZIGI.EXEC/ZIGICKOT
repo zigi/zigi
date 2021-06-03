@@ -17,6 +17,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/03/21 LBD - Change SHAREAS to REQUIRED       |
   |            05/31/21 LBD - fix for mixed text/binary with   |
   |                           putpds (enhanced)                |
   |            05/11/21 LBD - Fix for mixed text/binary        |
@@ -122,7 +123,7 @@
   /* ------------------------------------- *
   | Define bpxwunix Environment Variables |
   * ------------------------------------- */
-  env.1 = '_BPX_SHAREAS=YES'
+  env.1 = '_BPX_SHAREAS=REQUIRED'
   env.2 = '_BPX_SPAWN_SCRIPT=YES'
   env.3 = '_EDC_ZERO_RECLEN=Y'
   env.0 = 3

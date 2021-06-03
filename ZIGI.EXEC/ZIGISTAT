@@ -39,6 +39,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/03/21 LBD - Change SHAREAS to REQUIRED       |
   |            05/29/21 LBD - Clean up environment setup       |
   |            05/26/21 LBD - Use dovetail getpds for stats    |
   |            05/18/21 LBD - More popups with info and fix    |
@@ -367,7 +368,7 @@ Check_Stats_File:
   * ----------------------------------------------------- */
 GETENV:
   cmd = 'pwd'
-  omvsenv.1 = '_BPX_SHAREAS=YES'
+  omvsenv.1 = '_BPX_SHAREAS=REQUIRED'
   omvsenv.0 = 1
   x = bpxwunix(cmd,,so.,se.,omvsenv.)
   home    = strip(so.1)
@@ -378,7 +379,7 @@ GETENV:
 
   rc = bpxwunix(cmd,,env.,se.,omvsenv.)
   envc = env.0
-  call add_env '_BPX_SHAREAS=YES'
+  call add_env '_BPX_SHAREAS=REQUIRED'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
   call add_env 'EXPORT _EDC_ADD_ERRNO2=1'
   call add_env '_EDC_ZERO_RECLEN=Y'

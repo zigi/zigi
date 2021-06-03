@@ -41,6 +41,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/03/21 LBD - Change SHAREAS to REQUIRED       |
   |            05/14/21 HBK - Don't parse lowercase folders    |
   |            05/11/21 LBD - Correction for mixed text/binary |
   |            05/06/21 LBD - support allmems > 32k            |
@@ -120,7 +121,7 @@
   | Set Default Env and   |
   | Get current directory |
   * --------------------- */
-  env.1 = '_BPX_SHAREAS=YES'
+  env.1 = '_BPX_SHAREAS=REQUIRED'
   env.2 = '_BPX_SPAWN_SCRIPT=YES'
   env.3 = '_EDC_ZERO_RECLEN=Y'
   env.0 = 3
@@ -921,7 +922,7 @@ zigistat: Procedure
   /* --------------------------------- *
    | Define OMVS Environment Variables |
    * --------------------------------- */
-  env.1 = '_BPX_SHAREAS=YES'
+  env.1 = '_BPX_SHAREAS=REQUIRED'
   env.2 = '_BPX_SPAWN_SCRIPT=YES'
   env.0 = 2
 

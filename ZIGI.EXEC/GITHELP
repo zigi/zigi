@@ -16,7 +16,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
-  |            06/29/21 LBD - Improve the docmd env setup      |
+  |            06/03/21 LBD - Change SHAREAS to REQUIRED       |
+  |            05/29/21 LBD - Improve the docmd env setup      |
   |            06/10/20 LBD - Speed up using shareas=yes       |
   |            05/17/20 LBD - Enabled to open in split screen  |
   |            01/25/20 LBD - Support Find command             |
@@ -437,7 +438,7 @@ pfshow:
   * ----------------------------------------------------- */
 GETENV:
   cmd = 'pwd'
-  e.1 = '_BPX_SHAREAS=YES'
+  e.1 = '_BPX_SHAREAS=REQUIRED'
   e.0 = 1
   x = bpxwunix(cmd,,so.,se.,e.)
   home    = strip(so.1)

@@ -42,6 +42,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/03/21 LBD - Change SHAREAS to REQUIRED       |
   |            05/29/21 LBD - Improve env setup                |
   |            05/06/21 LBD - Support allmems > 32k            |
   |            10/25/20 LBD - Improve usssafe routine          |
@@ -555,7 +556,7 @@ GETENV:
   home    = strip(ho.1)
   x = bpxwunix('. /etc/profile && env',,env.,se.)
   envc = env.0
-  call add_env '_BPX_SHAREAS=YES'
+  call add_env '_BPX_SHAREAS=REQUIRED'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
   call add_env 'EXPORT _EDC_ADD_ERRORNO2=1'
   call add_env 'HOME='home
@@ -1173,7 +1174,7 @@ ver (&cmsg1,nb)
   |                                                            |
   |            filepath is the OMVS file where the stats are   |
   |            stored and consists of:                         |
-  |                localdir/repodir/.zigi/filename             |
+  |                localdir/repodir/.ZIGI/filename             |
   |                filename is the OMVS file that represents   |
   |                the z/OS PDS dataset name                   |
   |                                                            |
@@ -1185,7 +1186,7 @@ ver (&cmsg1,nb)
   | Vars:      statmems ispf variable for selective update     |
   |                                                            |
   | Usage                                                      |
-  |   Notes: Subroutine of zigi                                |
+  |   Notes: Subroutine of ZIGI                                |
   |          Returns string of members changed                 |
   |                                                            |
   | Dependencies:                                              |
@@ -1202,6 +1203,20 @@ ver (&cmsg1,nb)
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/03/21 LBD - Change SHAREAS to REQUIRED       |
+  |            05/29/21 LBD - Clean up environment setup       |
+  |            05/26/21 LBD - Use dovetail getpds for stats    |
+  |            05/18/21 LBD - More popups with info and fix    |
+  |                           allmems variables setup          |
+  |            05/06/21 LBD - Multiple allmems variables       |
+  |            10/25/20 LBD - Improve usssafe routine          |
+  |            09/27/20 LBD - Compare stats improved           |
+  |            08/14/20 LBD - Don't update if readonly repo    |
+  |            06/19/20 LBD - Ignore LMOD aliases as the main  |
+  |                           lmod will have them included     |
+  |            06/16/20 LBD - Use DEFRUID if it exists         |
+  |            06/09/20 LBD - Bypass stat update for lmod      |
+  |            05/08/20 LBD - Support Load Libraries           |
   |            01/08/20 LBD - Selecitve stat update if statmems|
   |            01/05/20 LBD - Correct special chars in filepath|
   |                           using usssafe routine            |
@@ -1210,7 +1225,7 @@ ver (&cmsg1,nb)
   |            11/15/19 LBD - Creation                         |
   |                                                            |
   | ---------------------------------------------------------- |
-  |    zigi - the z/OS ISPF Git Interface                      |
+  |    ZIGI - the z/OS ISPF Git Interface                      |
   |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
   |                                                            |
   |    This program is free software: you can redistribute it  |
@@ -1254,8 +1269,10 @@ zigistat:
   then zigidebg = 1
   else zigidebg = 0
 
+  call getenv
+
   Address ISPExec
-  'vget (debugfil)'
+  'vget (debugfil defruid readonly)'
 
   x = debug('start of zigistat with option:' opt)
 
@@ -1272,7 +1289,7 @@ zigistat:
     if rc > 0 then return x
     x = debug('Reading the ISPF stats file')
     drop stats.
-    cmd = 'cat' filepath
+    cmd = 'cat' usssafe(filepath)
     x = bpxwunix(cmd,,stats.,se.)
     do i = 1 to stats.0
       stats.i = translate(stats.i,' ','0D'x)
@@ -1283,8 +1300,12 @@ zigistat:
   /* ------------------ *
   * Define ISPF Dataid *
   * ------------------ */
-  "LMINIT DATAID(STATUS) DATASET("dsn")"
-  "LMOPEN DATAID("STATUS") OPTION(INPUT)"
+  Address ISPExec
+
+ /* ---------------------------------- *
+  | Get dataset recfm (check for lmod) |
+  * ---------------------------------- */
+  x = listdsi(dsn)
 
   /* ------------ *
   * Set defaults *
@@ -1293,12 +1314,25 @@ zigistat:
   parse value null with member mem. ,
     ZLCDATE ZLMDATE ZLVERS ZLMOD ZLMTIME ZLCNORC,
     ZLINORC ZLMNORC ZLUSER ,
-    zlcnorce zlinorce zlmnorce
+    zlcnorce zlinorce zlmnorce ,
+    zlsize zlamod zlrmode zlattr zlalias zlssi
   mem.0  = 0
+  if defruid = null
+  then newuid = sysvar('sysuid')
+  else newuid = defruid
+
+  zs1 = 'Collecting statistics for:'
+  zs2 = dsn
+  zs3 = null
+  zs4 = null
+  call do_popup4
 
   /* ----------------------- *
   * Now process all members *
   * ----------------------- */
+  if words(dovedir) = 1 then do
+  "LMINIT DATAID(STATUS) DATASET("dsn")"
+  "LMOPEN DATAID("STATUS") OPTION(INPUT)"
   do forever
     "LMMLIST Dataid("status") OPTION(LIST) MEMBER(MEMBER)" ,
       "STATS(YES)"
@@ -1309,20 +1343,33 @@ zigistat:
     /* -------------------------------- *
     | Check if no stats then add them. |
     * -------------------------------- */
-    if zlcdate = null then do
-      'LMMSTATS DATAID('status') Member('member') user('sysvar(sysuid)')'
+    if sysrecfm /= 'U' then
+    if zlcdate = null then
+    if readonly = 0 then do
+      'LMMSTATS DATAID('status') Member('member') user('newuid')'
       "LMMFind DATAID("status") Member("member") STATS(YES)"
     end
     /* ------------------------------ *
     * Add each member info to a stem *
     * ------------------------------ */
     c = mem.0 + 1
-    mem.c = strip(member ,
+    if sysrecfm /= 'U'
+    then mem.c = strip(member ,
       ZLCDATE  ZLMDATE  ZLVERS ZLMOD ZLMTIME ZLCNORC ,
       ZLINORC ZLMNORC ZLUSER ,
       zlcnorce zlinorce zlmnorce)
+    else if strip(zlalias) = null then do
+      mem.c = strip(member ,
+        zlsize zlamod zlrmode zlattr zlalias zlssi)
+    end
+    else c = c - 1
     mem.0 = c
+    if strip(zlalias) = null then
     if opt = 'C' then allmems = allmems member
+    if c//100 = 0 then do
+       zs3 = 'Processing count:' c
+       call do_popup4
+       end
   end
 
   /* ------------------------- *
@@ -1330,7 +1377,20 @@ zigistat:
   * ------------------------- */
   "LMClose Dataid("status")"
   "LMFree  Dataid("status")"
+  end
+  else do
+       dovedir = subword(dovedir,2)
+       cmd = usssafe(dovedir"getpds -M st=- //"strip(dsn,'B',"'"))
+       drop mem. se.
+       x = bpxwunix(cmd,,mem.,se.,env.)
+       do mi = 1 to mem.0
+          allmems = allmems word(mem.mi,1)
+          end
+       end
   x = debug('Stat collection complete.')
+
+  zs1 = 'Collection complete.'
+  call do_popup4
 
   /* ----------------------------------------------- *
   | Process the data based on the provided options: |
@@ -1354,7 +1414,7 @@ zigistat:
     end
     /* ---------------------------------------------------------- *
     | Update ISPF Stats:                                         |
-    |  - all members in the zigi stats member will have their    |
+    |  - all members in the ZIGI stats member will have their    |
     |    ispf stats updated to reflect the saved stats           |
     |  - Use statmems ispf var for selective stat updates        |
     |  - new members will not be updated as we don't know about  |
@@ -1363,31 +1423,34 @@ zigistat:
     |    in the saved stats member                               |
     * ---------------------------------------------------------- */
     When opt = 'U' then do
-      x = debug('Performing ISPF Stats file update for:' dsn)
-      'vget (statmems)'
-      if statmems /= null then do
-        x = debug('Update Members:' statmems)
+      if readonly = 1 then return 0
+      if sysrecfm /= 'U' then do
+        x = debug('Performing ISPF Stats file update for:' dsn)
+        'vget (statmems)'
+        if statmems /= null then do
+          x = debug('Update Members:' statmems)
+        end
+        "LMINIT DATAID(zstats) DATASET("dsn")"
+        "LMOPEN DATAID("zstats") OPTION(INPUT)"
+        do i = 1 to stats.0
+          parse value stats.i with member ZLCDATE ZLMDATE ZLVERS ZLMOD ,
+            ZLMTIME ZLCNORC ZLINORC ZLMNORC ZLUSER ZLCNORCE ,
+            ZLINORCE ZLMNORCE .
+          if statmems /= null then
+          if wordpos(member,statmems) = 0 then iterate
+          if zlcdate = null then ,
+            'LMMSTATS DATAID('zstats') Member('member') user('sysvar(sysuid)')'
+          else ,
+            'LMMSTATS DATAID('zstats') MEMBER('member') VERSION('zlvers')' ,
+            'MODLEVEL('zlmod') CREATED('zlcdate') MODDATE('zlmdate')' ,
+            'MODTIME('zlmtime') INITSIZE('zlinorc')' ,
+            'MODRECS('zlmnorc') USER('zluser')'
+        end
+        "LMClose Dataid("zstats")"
+        "LMFree  Dataid("zstats")"
+        x = debug('ISPF Stats file update complete.')
+        return 0
       end
-      "LMINIT DATAID(zstats) DATASET("dsn")"
-      "LMOPEN DATAID("zstats") OPTION(INPUT)"
-      do i = 1 to stats.0
-        parse value stats.i with member ZLCDATE ZLMDATE ZLVERS ZLMOD ,
-          ZLMTIME ZLCNORC ZLINORC ZLMNORC ZLUSER ZLCNORCE ,
-          ZLINORCE ZLMNORCE .
-        if statmems /= null then
-        if wordpos(member,statmems) = 0 then iterate
-        if zlcdate = null then ,
-          'LMMSTATS DATAID('zstats') Member('member') user('sysvar(sysuid)')'
-        else ,
-          'LMMSTATS DATAID('zstats') MEMBER('member') VERSION('zlvers')' ,
-          'MODLEVEL('zlmod') CREATED('zlcdate') MODDATE('zlmdate')' ,
-          'MODTIME('zlmtime') INITSIZE('zlinorc')' ,
-          'MODRECS('zlmnorc') USER('zluser')'
-      end
-      "LMClose Dataid("zstats")"
-      "LMFree  Dataid("zstats")"
-      x = debug('ISPF Stats file update complete.')
-      return 0
     end
     /* ----------------------------------------------------------- *
     | Compare ISPF stats.                                         |
@@ -1403,19 +1466,29 @@ zigistat:
     * ----------------------------------------------------------- */
     When opt = 'C' then do
       x = debug('ISPF Stats comparison starting.')
+      zs1 = 'Begin comparing stats'
+      call do_popup4
       /* 1st setup the saved stem for easy comparison */
       do i = 1 to stats.0
-        parse value stats.i with savedmem data
-        m.savedmem = strip(data)
+        parse value stats.i with savedmem cd md . . mt . . . uid .
+        m.savedmem = strip(cd md left(mt,5) uid)
       end
       /* now compare active to saved */
       do i = 1 to mem.0
-        parse value mem.i with actmem data
-        data = strip(data)
-        if m.actmem = null then string = string actmem
+        if i//100 = 0 then do
+           zs3 = 'Checked' i 'members of' mem.0
+           call do_popup4
+           end
+        parse value mem.i with actmem cd md . . mt . . . uid .
+        data = strip(cd md left(mt,5) uid)
+        if m.actmem = null
+        then string = string actmem
         else if data /= m.actmem then string = string actmem
       end
+      zs3 = 'Completed - building member list.'
+      call do_popup4
       allmemsc = 0
+      allmems = strip(allmems)
       if length(allmems) < 32000
          then do
            allmemsc = allmemsc + 1
@@ -1424,10 +1497,12 @@ zigistat:
            end
       else do forever
            allmemsc = allmemsc + 1
-           lp = lastpos(' ',allmems,32000)
-           interpret 'allmems'allmemsc '= left(allmems,lp)'
+           if length(allmems) > 32000
+           then lp = lastpos(' ',allmems,length(allmems)-32000)
+           else lp = 1
+           interpret 'allmems'allmemsc '=' substr(allmems,lp)
            'vput (allmems'allmemsc')'
-           allmems = substr(allmems,lp+1)
+           allmems = left(allmems,lp-1)
            if strip(allmems) = null then leave
            end
       'vput (allmemsc)'
@@ -1443,36 +1518,55 @@ zigistat:
   | rc 20 it does not                            |
   * -------------------------------------------- */
 Check_Stats_File:
-  save_address = address()
   address syscall 'lstat' filepath 'file.'
   if file.0 = 0 then do
-    ADDRESS value(save_address)
+    ADDRESS ISPExec
     return 20
   end
   else return 0
 
+
   /* ----------------------------------------------------- *
   | Get the users current OMVS enviornment for use in the |
-  | bpxwunix commands. Being selective.                   |
+  | bpxwunix commands.                                    |
   * ----------------------------------------------------- */
 GETENV:
+  cmd = 'pwd'
+  omvsenv.1 = '_BPX_SHAREAS=REQUIRED'
+  omvsenv.0 = 1
+  x = bpxwunix(cmd,,so.,se.,omvsenv.)
+  home    = strip(so.1)
+
+  x = debug('Starting collection of env variables')
+
   cmd  = docmdx('env')
-  rc = bpxwunix(cmd,,so.,se.)
-  envc = 0
-  do ci = 1 to so.0
-    if left(so.ci,3) = 'GIT' then call add_env so.ci
-    if left(so.ci,4) = 'HOME' then call add_env so.ci
-    if left(so.ci,4) = 'PATH' then call add_env so.ci
-    if left(so.ci,4) = 'MANP' then call add_env so.ci
-    if left(so.ci,4) = 'LIBP' then call add_env so.ci
-    if left(so.ci,3) = 'PWD' then call add_env so.ci
-  end
-  call add_env '_BPX_SHAREAS=YES'
+
+  rc = bpxwunix(cmd,,env.,se.,omvsenv.)
+  envc = env.0
+  call add_env '_BPX_SHAREAS=REQUIRED'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
+  call add_env 'EXPORT _EDC_ADD_ERRNO2=1'
   call add_env '_EDC_ZERO_RECLEN=Y'
   env.0 = envc
-  drop so. se.
-  return
+
+docmdx:
+  /* quircky thing, we need to export HOME as we are
+  not running a login shell via bpxwunix */
+  parse arg cmd
+  drop o. se.
+  if gitenv /= null
+  then envfile = '.' gitenv ' >/dev/null 2>&1 &&'
+  else envfile = null
+
+  /* check for users .profile */
+  address syscall 'lstat' "'"home"/.profile'" 'x.'
+  if x.0 > 0 then home_profile =  ". "home"/.profile &&"
+     else home_profile = null
+
+  rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && ' ,
+       home_profile envfile
+  r = rx ' ' cmd
+  return r
 
   /* -------------------- *
   | Add info to env stem |
@@ -1488,22 +1582,6 @@ docmd:
   drop so. se.
   x = bpxwunix(cmd,,so.,se.,env.)
   return x
-
-docmdx:
-  /* quircky thing, we need to export HOME as we are
-  not running a login shell via bpxwunix */
-  parse arg cmd
-  drop so. se.
-  if rx = null then do
-    rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && '
-    c = "[[ -f "home"/.profile ]] && echo f"
-    x = bpxwunix(c,,o.,e.)
-    if o.0 = 1 & o.1 = "f" then do
-      rx = rx '. 'home'/.profile > /dev/null 2>&1 && '
-    end
-  end
-  r = rx cmd
-  return r
 
   /* ----------------------------- *
   | Write out the ISPF Stats file |
@@ -1522,6 +1600,7 @@ Write_Stats:
     zs4 = 'Press F3 to close this popup and exit.'
     parse value '' with zs3
     call do_popup4
+    'close' fd
     call syscalls 'OFF'
     return
   end
@@ -1548,6 +1627,7 @@ Write_FD:
   * ----------------------------------- */
 Do_Popup4:
   call pfshow 'off'           /* make sure pfshow is off */
+  'Control Display Lock'
   'Addpop row(4) column(6)'
   'Display Panel(zigipop4)'
   'Rempop'
@@ -1581,10 +1661,24 @@ debug:
   end
   return 0
 
+usssafe:
+ parse arg safedsn
+ if pos('$',safedsn) = 0 then return safedsn
+ safe$pos = 1
+ do forever
+    pos$safe = pos('$',safedsn,safe$pos)
+    if pos$safe < 1 then return safedsn
+    left$safe = left(safedsn,pos$safe-1)
+    right$save = substr(safedsn,pos$safe)
+    safedsn = left$safe'\'right$save
+    safe$pos = pos$safe + 2
+    end
+ return safedsn
+
   /* ---------------------------------- *
   | Make the z/OS dsname safe for OMVS |
   * ---------------------------------- */
-usssafe: procedure
+oldsafe: procedure
   parse arg dsn
   if pos('$',dsn) = 0 then return dsn
   /* Let's not usssafe it twice :) */

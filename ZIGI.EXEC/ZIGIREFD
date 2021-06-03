@@ -27,6 +27,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/03/21 LBD - Change SHAREAS to REQUIRED       |
   |            08/25/20 LBD - Fix temp dsn if no tso prefix    |
   |            07/14/20 LBD - Change .zigi to .zigirefd        |
   |            06/10/20 LBD - Use SHAREAS=YES                  |
@@ -72,7 +73,7 @@
     hlq = translate(hlq,'.'," ")
   end
 
-  bpxenv.1 = '_BPX_SHAREAS=YES'
+  bpxenv.1 = '_BPX_SHAREAS=REQUIRED'
   bpxenv.0 = 1
 
   /* ---------------------------- *

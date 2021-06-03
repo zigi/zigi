@@ -29,6 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            06/03/21 LBD - Add tbsave after tbdelete (SP)   |
+  |                         - Change SHAREAS to REQUIRED       |
   |            06/01/21 LBD - Add edit macro for readme.md     |
   |                           edit with md syntax tips         |
   |            05/31/21 LBD - On clone make hlq default to     |
@@ -1064,6 +1066,7 @@ handle_zigiprim_lcmd_d:
   call pfshow 'reset'         /* restore pfshow setting */
   if drc = 0 & delcf = 'Y' then do
     'tbdelete zigirepo'
+    'TBSave zigirepo replcopy library('isptabl')'
     if delgit = 'N' then do
       cmd = 'cd 'localrep'/'zigirep' && rm -rf .git .gitattributes .zigi'
       x = docmd(cmd)
@@ -8126,7 +8129,7 @@ Do_Popup4p:
   * ----------------------------------------------------- */
 GETENV:
   cmd = 'pwd'
-  omvsenv.1 = '_BPX_SHAREAS=YES'
+  omvsenv.1 = '_BPX_SHAREAS=REQUIRED'
   omvsenv.0 = 1
   x = bpxwunix(cmd,,so.,se.,omvsenv.)
   home    = strip(so.1)
@@ -8137,7 +8140,7 @@ GETENV:
 
   rc = bpxwunix(cmd,,env.,se.,omvsenv.)
   envc = env.0
-  call add_env '_BPX_SHAREAS=YES'
+  call add_env '_BPX_SHAREAS=REQUIRED'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
   call add_env 'EXPORT _EDC_ADD_ERRNO2=1'
   call add_env '_EDC_ZERO_RECLEN=Y'

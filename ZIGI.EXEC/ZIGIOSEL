@@ -43,6 +43,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/03/21 LBD - Change SHAREAS to REQUIRED       |
   |            06/10/20 - Use SHAREAS=YES                      |
   |            05/09/20 - Get zigtitle for panel title         |
   |            02/27/20 - Convert S to L on . and ..           |
@@ -108,7 +109,7 @@
   zerrhm   = 'zigih00'
   zerralrm = 'NO'
   zerrtp   = 'NOTIFY'
-  bpxenv.1 = '_BPX_SHAREAS=YES'
+  bpxenv.1 = '_BPX_SHAREAS=REQUIRED'
   bpxenv.0 = 1
   Address ISPExec
   'Control Errors return'
