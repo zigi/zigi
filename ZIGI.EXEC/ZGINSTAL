@@ -121,7 +121,7 @@
   | Set Default Env and   |
   | Get current directory |
   * --------------------- */
-  env.1 = '_BPX_SHAREAS=REQUIRED'
+  env.1 = '_BPX_SHAREAS=MUST'
   env.2 = '_BPX_SPAWN_SCRIPT=YES'
   env.3 = '_EDC_ZERO_RECLEN=Y'
   env.0 = 3
@@ -922,7 +922,7 @@ zigistat: Procedure
   /* --------------------------------- *
    | Define OMVS Environment Variables |
    * --------------------------------- */
-  env.1 = '_BPX_SHAREAS=REQUIRED'
+  env.1 = '_BPX_SHAREAS=MUST'
   env.2 = '_BPX_SPAWN_SCRIPT=YES'
   env.0 = 2
 

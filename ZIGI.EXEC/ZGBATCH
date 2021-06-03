@@ -143,7 +143,7 @@
   * ------------------- */
   hit = 0
   parse value '' with null
-  bpxenv.1 = '_BPX_SHAREAS=REQUIRED'
+  bpxenv.1 = '_BPX_SHAREAS=MUST'
   bpxenv.2 = '_BPX_SPAWN_SCRIPT=YES'
   bpxenv.3 = '_EDC_ZERO_RECLEN=Y'
   bpxenv.0 = 3
@@ -434,7 +434,7 @@ GETENV:
   cmd  = docmdx('env')
   rc = bpxwunix(cmd,,env.,se.,bpxenv.)
   envc = env.0
-  call add_env '_BPX_SHAREAS=REQUIRED'
+  call add_env '_BPX_SHAREAS=MUST'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
   call add_env 'EXPORT _EDC_ADD_ERRORNO2=1'
   env.0 = envc

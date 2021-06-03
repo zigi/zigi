@@ -438,7 +438,7 @@ pfshow:
   * ----------------------------------------------------- */
 GETENV:
   cmd = 'pwd'
-  e.1 = '_BPX_SHAREAS=REQUIRED'
+  e.1 = '_BPX_SHAREAS=MUST'
   e.0 = 1
   x = bpxwunix(cmd,,so.,se.,e.)
   home    = strip(so.1)

@@ -109,7 +109,7 @@
   zerrhm   = 'zigih00'
   zerralrm = 'NO'
   zerrtp   = 'NOTIFY'
-  bpxenv.1 = '_BPX_SHAREAS=REQUIRED'
+  bpxenv.1 = '_BPX_SHAREAS=MUST'
   bpxenv.0 = 1
   Address ISPExec
   'Control Errors return'

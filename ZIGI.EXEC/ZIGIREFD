@@ -73,7 +73,7 @@
     hlq = translate(hlq,'.'," ")
   end
 
-  bpxenv.1 = '_BPX_SHAREAS=REQUIRED'
+  bpxenv.1 = '_BPX_SHAREAS=MUST'
   bpxenv.0 = 1
 
   /* ---------------------------- *
