@@ -4892,7 +4892,7 @@ Do_Commit:
     end
     if rc > 4 then do
        zs1  = 'Confirm you really want to cancel the Commit'
-       zs2  = 'by entering Y:'
+       zs2  = 'by entering Yes (or just Y):'
        call do_popupq
        if abbrev('YES',translate(answer),1) = 1
           then zcmd = 'CANCEL'
