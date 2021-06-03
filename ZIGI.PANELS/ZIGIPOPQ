@@ -1,16 +1,17 @@
 )Attr
  $ type(output) caps(off)
  _ type(input)  caps(off) hilite(uscore) intens(low)
-)Body Window(41,4)
+)Body Window(45,5)
 +
   $zs1
   $zs2
++
   +Answer:_answer                     +
 )Init
- &zwinttl = 'ZIGI Prompt Popup'
+ &zwinttl = 'ZIGI Question Popup'
 )Proc
 )end
 /* -------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* Copyright (C) 2021 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */

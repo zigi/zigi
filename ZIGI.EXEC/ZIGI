@@ -4891,11 +4891,14 @@ Do_Commit:
       'tbdispl' cmtab 'panel(zigicom)'
     end
     if rc > 4 then do
-       zs1  = 'Confirm you really want to cancel the Commit'
-       zs2  = 'by entering Yes (or just Y):'
-       call do_popupq
-       if abbrev('YES',translate(answer),1) = 1
+       zs1  = 'Enter Cancel (or C) to cancel the Commit'
+       zs2  = 'or Commit (or CO) to process the Commit:'
+       x = do_popupq()
+       if x > 0 then answer = 'CANCEL'
+       if abbrev('CANCEL',translate(answer),1) = 1
           then zcmd = 'CANCEL'
+       if abbrev('COMMIT',translate(answer),2) = 1
+          then zcmd = 'COMMIT'
        end
     if translate(zcmd) = 'CANCEL' then leave
     if abbrev('COMMIT',translate(zcmd),2) = 1 then leave
@@ -8104,9 +8107,10 @@ Do_PopupQ:
   answer = null
   'Addpop row(4) column(8)'
   'Display Panel(zigipopq)'
+  prc = rc
   'Rempop'
   call pfshow 'reset'         /* restore pfshow setting */
-  return
+  return prc
 
   /* ---------------------------------------- *
   | Common routine for normal (3 line) popup |
