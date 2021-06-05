@@ -1,0 +1,14 @@
+)Attr
+ $ type(output) caps(off)
+ _ type(input)  caps(off) hilite(uscore) intens(low)
+)Body Window(50,2)
+  %Confirm+commit processing to proceed or cancel.
+  +Enter%to proceed or%F3+to cancel.
+)Init
+ &zwinttl = 'ZIGI Commit Proceed Prompt'
+)Proc
+)end
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2021 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

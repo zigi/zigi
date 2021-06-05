@@ -29,6 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            06/05/21 LBD - Refine Commit Prompt             |
   |            06/03/21 LBD - Add tbsave after tbdelete (SP)   |
   |                         - Change SHAREAS to REQUIRED       |
   |                         - Change COMMIT processing         |
@@ -4891,14 +4892,11 @@ Do_Commit:
       'tbdispl' cmtab 'panel(zigicom)'
     end
     if rc > 4 then do
-       zs1  = 'Enter Cancel (or C) to cancel the Commit'
-       zs2  = 'or Commit (or CO) to process the Commit:'
-       x = do_popupq()
+       x = do_commitq()
        if x > 0 then answer = 'CANCEL'
        if abbrev('CANCEL',translate(answer),1) = 1
           then zcmd = 'CANCEL'
-       if abbrev('COMMIT',translate(answer),2) = 1
-          then zcmd = 'COMMIT'
+       else zcmd = 'COMMIT'
        end
     if translate(zcmd) = 'CANCEL' then leave
     if abbrev('COMMIT',translate(zcmd),2) = 1 then leave
@@ -8100,13 +8098,13 @@ Do_PopupP:
   return
 
   /* ---------------------------------------- *
-  | Common routine for normal (2 line) popup |
+  | Confirm Commit Cancel or Proceed........ |
   * ---------------------------------------- */
-Do_PopupQ:
+Do_CommitQ:
   call pfshow 'off'           /* make sure pfshow is off */
   answer = null
-  'Addpop row(4) column(8)'
-  'Display Panel(zigipopq)'
+  'Addpop row(4) column(16)'
+  'Display Panel(zigicomq)'
   prc = rc
   'Rempop'
   call pfshow 'reset'         /* restore pfshow setting */
