@@ -17,6 +17,9 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/03/21 LBD - Change SHAREAS to REQUIRED       |
+  |            05/31/21 LBD - fix for mixed text/binary with   |
+  |                           putpds (enhanced)                |
   |            05/11/21 LBD - Fix for mixed text/binary        |
   |            02/24/21 LBD - Correct use of putpds for members|
   |            01/06/21 LBD - Ignore files not in .zigi/dsn    |
@@ -120,7 +123,7 @@
   /* ------------------------------------- *
   | Define bpxwunix Environment Variables |
   * ------------------------------------- */
-  env.1 = '_BPX_SHAREAS=YES'
+  env.1 = '_BPX_SHAREAS=MUST'
   env.2 = '_BPX_SPAWN_SCRIPT=YES'
   env.3 = '_EDC_ZERO_RECLEN=Y'
   env.0 = 3
@@ -129,9 +132,15 @@
   | Check for getpds/putpds |
   * ----------------------- */
   Address ISPExec ,
-  'vget (dovedir) shared'
-  enhanced_cp  = word(dovedir,1)
-  dovetail_dir = word(dovedir,2)
+    'vget (dovedir) shared'
+  if word(dovedir,1) = 1 then do
+    enhanced_cp  = word(dovedir,1)
+    dovetail_dir = word(dovedir,2)
+  end
+  else do
+    enhanced_cp  = 0
+    dovetail_dir = null
+  end
 
   /* -------------------------------------------------------- *
   | Issue the ls command to get file names and sizes for all |
@@ -443,13 +452,6 @@ Alloc_Copy_PDS:
     if enhanced_cp = 1 then
     if pos('-X',binopt) = 0
     then do
-      do xi = 1 to mems.0
-        if left(mems.xi,1) /= '.' then leave
-      end
-      parse value mems.xi with m'.'suf
-      if suf /= null
-      then rsuf = '/*.'suf
-      else rsuf = '/*'
       lp = lastpos('/',rdir)
       dvstat = left(rdir,lp)'.zigi/'substr(rdir,lp+1)
       address syscall 'lstat' dvstat 'dvs.'
@@ -457,15 +459,15 @@ Alloc_Copy_PDS:
       then dvstat_file = '-M st='dvstat',r=y'
       else dvstat_file = '-M r=y'
       if pos('-B',binopt) > 0 then
-         dvstat_file = '-b' dvstat_file
-      cmd = dovetail_dir'putpds' dvstat_file rdir''rsuf '//'pds
+      dvstat_file = '-b' dvstat_file
+      cmd = dovetail_dir'putpds' dvstat_file rdir'/* //'pds
     end
     x = docmd(cmd)
 
     if x > 0 then call view_std 'B'
     drop so. se.
   end
-  else do
+  else
     do ii = 1 to mems.0
       if left(mems.ii,1) = "." then iterate
       m = mems.ii    /* ignore the translation */
@@ -497,111 +499,101 @@ Alloc_Copy_PDS:
       call pop_status
       cmd = 'cd' usssafe(rdir)
       cmd = cmd '&& cp -v' aopt binopt src '"'zos'"'
-    if enhanced_cp = 1 then
-    if pos('-X',binopt) = 0
-    then do
-      do xi = 1 to mems.0
-        if left(mems.xi,1) /= '.' then leave
+      if enhanced_cp = 1 then do
+        lp = lastpos('/',rdir)
+        dvstat = left(rdir,lp)'.zigi/'substr(rdir,lp+1)
+        address syscall 'lstat' dvstat 'dvs.'
+        if dvs.0 > 0
+        then dvstat_file = '-M st='dvstat',r=y'
+        else dvstat_file = '-M r=y'
+        if pos('-B',binopt) > 0 then
+        dvstat_file = '-b' dvstat_file
+        cmd = dovetail_dir'putpds' dvstat_file rdir'/'src '//'pds
       end
-      parse value mems.xi with m'.'suf
-      if suf /= null
-      then rsuf = '/'src'.'suf
-      else rsuf = '/'src
-      lp = lastpos('/',rdir)
-      dvstat = left(rdir,lp)'.zigi/'substr(rdir,lp+1)
-      address syscall 'lstat' dvstat 'dvs.'
-      if dvs.0 > 0
-      then dvstat_file = '-M st='dvstat',r=y'
-      else dvstat_file = '-M r=y'
-      if pos('-B',binopt) > 0 then
-         dvstat_file = '-b' dvstat_file
-      cmd = dovetail_dir'putpds' dvstat_file rdir''rsuf '//'pds
-    end
       x = docmd(cmd)
       if x > 0 then call view_std 'B'
       Address ISPexec
       zs9 = null
     end
-  end
-  call syscalls 'OFF'
-  call outtrap 'off'
-  return
+    call syscalls 'OFF'
+    call outtrap 'off'
+    return
 
-get_dcb:
-  if def.sub /= null then do
-    parse value def.sub with dsorg recfm lrecl blksize .
-    recfm = left(recfm,1) substr(recfm,2,1) substr(recfm,3,1)
-  end
-  else do
-    recfm = left(def_recfm,1) substr(def_recfm,2,1) substr(def_recfm,3,1)
-    lrecl = def_lrecl
-    blksize = def_blksize
-  end
-  return
-
-usssafe:
- parse arg safedsn
- if pos('$',safedsn) = 0 then return safedsn
- safe$pos = 1
- do forever
-    pos$safe = pos('$',safedsn,safe$pos)
-    if pos$safe < 1 then return safedsn
-    left$safe = left(safedsn,pos$safe-1)
-    right$save = substr(safedsn,pos$safe)
-    safedsn = left$safe'\'right$save
-    safe$pos = pos$safe + 2
+  get_dcb:
+    if def.sub /= null then do
+      parse value def.sub with dsorg recfm lrecl blksize .
+      recfm = left(recfm,1) substr(recfm,2,1) substr(recfm,3,1)
     end
- return safedsn
+    else do
+      recfm = left(def_recfm,1) substr(def_recfm,2,1) substr(def_recfm,3,1)
+      lrecl = def_lrecl
+      blksize = def_blksize
+    end
+    return
 
-oldsafe: procedure
-  parse arg dsn
-  if pos('$',dsn) = 0 then return dsn
+  usssafe:
+    parse arg safedsn
+    if pos('$',safedsn) = 0 then return safedsn
+    safe$pos = 1
+    do forever
+      pos$safe = pos('$',safedsn,safe$pos)
+      if pos$safe < 1 then return safedsn
+      left$safe = left(safedsn,pos$safe-1)
+      right$save = substr(safedsn,pos$safe)
+      safedsn = left$safe'\'right$save
+      safe$pos = pos$safe + 2
+    end
+    return safedsn
+
+  oldsafe: procedure
+    parse arg dsn
+    if pos('$',dsn) = 0 then return dsn
   /* Let's not usssafe it twice :) */
-  if pos('\$',dsn) > 0 then return dsn
-  dsn = strreplace(dsn, '$', '\$')
-  return dsn
+    if pos('\$',dsn) > 0 then return dsn
+    dsn = strreplace(dsn, '$', '\$')
+    return dsn
 
-strreplace: Procedure
-  string  = arg(1)
-  strfrom = arg(2)
-  strto   = arg(3)
-  null = ''
-  if pos(strfrom,string) = 0 then return string
-  newString = null
-  do i = 1 to length(string)
-    if substr(string,i,1) /= strfrom
-    then newstring = newstring''substr(string,i,1)
-    else  newstring = newstring''strto
-  end
-  return newstring
+  strreplace: Procedure
+    string  = arg(1)
+    strfrom = arg(2)
+    strto   = arg(3)
+    null = ''
+    if pos(strfrom,string) = 0 then return string
+    newString = null
+    do i = 1 to length(string)
+      if substr(string,i,1) /= strfrom
+      then newstring = newstring''substr(string,i,1)
+      else  newstring = newstring''strto
+    end
+    return newstring
 
   /* ------------ *
   | PopUp Status |
   * ------------ */
-Pop_Status:
-  Address ISPExec
-  call pfshow 'off'
-  'Control Display Lock'
-  'Addpop row(3) column(2)'
-  'Display Panel(zigipopc)'
-  'Rempop'
-  call pfshow 'reset'
-  Address TSO
-  return
+  Pop_Status:
+    Address ISPExec
+    call pfshow 'off'
+    'Control Display Lock'
+    'Addpop row(3) column(2)'
+    'Display Panel(zigipopc)'
+    'Rempop'
+    call pfshow 'reset'
+    Address TSO
+    return
 
   /* ---------------------------------- *
   | Add ISPF Statistics to all Members |
   | - set the initial userid to ZIGI   |
   * ---------------------------------- */
-Add_Stats:
-  if enhanced_cp = 1 then return
-  zs8 = 'Adding/Updating ISPF Statistics'
-  call pop_status
-  filepath = ckotdir'/.zigi/'sub
-  statmems = pullmems.sub
-  Address ISPExec 'vput (statmems)'
-  '%zigistat' pds filepath 'U'
-  return
+  Add_Stats:
+    if enhanced_cp = 1 then return
+    zs8 = 'Adding/Updating ISPF Statistics'
+    call pop_status
+    filepath = ckotdir'/.zigi/'sub
+    statmems = pullmems.sub
+    Address ISPExec 'vput (statmems)'
+    '%zigistat' pds filepath 'U'
+    return
 
   /* ------------------------------------------------------ *
   | The pfshow routine will:                               |
@@ -612,206 +604,206 @@ Add_Stats:
   | 3. if the option is Reset then it will                 |
   |    - test if pfshow was on and turn it back on         |
   * ------------------------------------------------------ */
-pfshow:
-  arg pfkopt
-  if pfkopt = 'RESET' then do
-    if pfkeys = 'ON' then
-    'select pgm(ispopf) parm(FKA,ON)'
-  end
-  if pfkopt = 'OFF' then do
-    'vget (zpfshow)'
-    pfkeys = zpfshow
-    if pfkeys /= 'OFF' then
-    'select pgm(ispopf) parm(FKA,OFF)'
-  end
-  return
+  pfshow:
+    arg pfkopt
+    if pfkopt = 'RESET' then do
+      if pfkeys = 'ON' then
+      'select pgm(ispopf) parm(FKA,ON)'
+    end
+    if pfkopt = 'OFF' then do
+      'vget (zpfshow)'
+      pfkeys = zpfshow
+      if pfkeys /= 'OFF' then
+      'select pgm(ispopf) parm(FKA,OFF)'
+    end
+    return
 
-get_binfiles:
+  get_binfiles:
   /* ---------------------------------------------------------\
   | Name:      binfiles                                        |
   |                                                            |
   | Function:  Fills the global binfiles. stem with all        |
   |            current repo files that are added as binary.    |
   \---------------------------------------------------------- */
-  cmd = 'cd' ckotdir'/ &&'
+    cmd = 'cd' ckotdir'/ &&'
   cmd = 'cat -W filecodeset=UTF-8,pgmcodeset=IBM-1047' ckotdir'/.gitattributes'
-  cmd = cmd ' | grep BINARY'
-  cmd = cmd '| cut -d" " -f1'
-  x = docmd(cmd)
-  if so.0 = 0 then do
-    binfiles.0 = 0
+    cmd = cmd ' | grep BINARY'
+    cmd = cmd '| cut -d" " -f1'
+    x = docmd(cmd)
+    if so.0 = 0 then do
+      binfiles.0 = 0
+      return 0
+    end
+    do b = 1 to so.0
+      binfiles.b = so.b
+    end
+    binfiles.0 = so.0
     return 0
-  end
-  do b = 1 to so.0
-    binfiles.b = so.b
-  end
-  binfiles.0 = so.0
-  return 0
 
-is_binfile: procedure expose binfiles.
+  is_binfile: procedure expose binfiles.
   /* ---------------------------------------------------------\
   | Name:      is_binfile                                      |
   |                                                            |
   | Function:  Checks the global binfiles. stem for the        |
   |            provided dataset or dataset/member              |
   \---------------------------------------------------------- */
-  parse arg file
-  if datatype(binfiles.0) /= 'NUM' then return 0
-  do bi = 1 to binfiles.0
-    if right(binfiles.bi,1) = '*' then do
-      parse value file with test'/'.
-      if left(binfiles.bi,length(binfiles.bi)-2) = test
-      then return 1
+    parse arg file
+    if datatype(binfiles.0) /= 'NUM' then return 0
+    do bi = 1 to binfiles.0
+      if right(binfiles.bi,1) = '*' then do
+        parse value file with test'/'.
+        if left(binfiles.bi,length(binfiles.bi)-2) = test
+        then return 1
+      end
+      if binfiles.bi = file then return 1
     end
-    if binfiles.bi = file then return 1
-  end
-  return 0
+    return 0
 
-docmd:
-  parse arg cmd
-  drop so. se.
-  x = debug('ZIGICKOT:' cmd)
-  x = bpxwunix(cmd,,so.,se.,env.)
-  return x
+  docmd:
+    parse arg cmd
+    drop so. se.
+    x = debug('ZIGICKOT:' cmd)
+    x = bpxwunix(cmd,,so.,se.,env.)
+    return x
 
   /* ---------------------------------------------------------- *
   | Generalized routine to view stdout. (so.) or stderr. (se.) |
   | based on the parm passed                                   |
   * ---------------------------------------------------------- */
-view_std:
-  arg stdopt viewopt
-  if stdopt = null then viewopt = 'B'
-  if viewopt = null then viewopt = 'B'
-  if stdopt = 'X' then stdopt = null
-  if datatype(so.0) /= 'NUM' then so.0 = 0
-  if datatype(se.0) /= 'NUM' then se.0 = 0
-  if viewopt = 'B' then if so.0 + se.0 = 0 then return
+  view_std:
+    arg stdopt viewopt
+    if stdopt = null then viewopt = 'B'
+    if viewopt = null then viewopt = 'B'
+    if stdopt = 'X' then stdopt = null
+    if datatype(so.0) /= 'NUM' then so.0 = 0
+    if datatype(se.0) /= 'NUM' then se.0 = 0
+    if viewopt = 'B' then if so.0 + se.0 = 0 then return
   /* ------------------------------- *
   | Randomly define a DDName to use |
   * ------------------------------- */
-  dd = 'zd'random(9999)
+    dd = 'zd'random(9999)
   /* --------------------------------------- *
   | Get lrecl to determine dcb for temp d/s |
   * --------------------------------------- */
-  if stdopt /= 'C' then do
-    vlrecl = 0
-    do li  = 1 to so.0
-      so.li = strip(so.li,'T')
-      if length(so.li) > vlrecl then vlrecl = length(so.li)
-      if so.li = null then so.li = ' '
+    if stdopt /= 'C' then do
+      vlrecl = 0
+      do li  = 1 to so.0
+        so.li = strip(so.li,'T')
+        if length(so.li) > vlrecl then vlrecl = length(so.li)
+        if so.li = null then so.li = ' '
+      end
+      do li  = 1 to se.0
+        se.li = strip(se.li,'T')
+        if length(se.li) > vlrecl then vlrecl = length(se.li)
+        if se.li = null then se.li = ' '
+      end
+      sec = so.0 + se.0
     end
-    do li  = 1 to se.0
-      se.li = strip(se.li,'T')
-      if length(se.li) > vlrecl then vlrecl = length(se.li)
-      if se.li = null then se.li = ' '
+    else do
+      do li = 1 to combine.0
+        if length(combine.li) > vlrecl then vlrecl = length(combine.li)
+      end
+      sec = combine.0
     end
-    sec = so.0 + se.0
-  end
-  else do
-    do li = 1 to combine.0
-      if length(combine.li) > vlrecl then vlrecl = length(combine.li)
-    end
-    sec = combine.0
-  end
-  if vlrecl < 81 then vlrecl = 80
+    if vlrecl < 81 then vlrecl = 80
   /* ------------------------------------------ *
   | Allocate a temporary data set for our data |
   * ------------------------------------------ */
-  Address TSO
+    Address TSO
   /* calculate space needed with avg 50 bytes per record */
-  prim = (((so.0 + se.0) * 50) % 56000) + 1
-  if prim < 2 then prim = 5
-  if viewopt = 'V' then do
-    if sysvar('syspref') = null then pref = userid()'.'
-    else pref = null
-    vdsn = pref'work.zigi.gitdata'
-  end
-  else vdsn = null
-  x = listdsi(vdsn)
-  if x = 0 then do
-    call outtrap 'x.'
-    'delete' vdsn
-    call outtrap 'off'
-  end
-  if vdsn /= null then vdsnp = 'da('vdsn') unit(3390)'
-  else vdsnp = null
-  if vlrecl > 255 then vlrecl = 251
-  'Alloc f('dd') new spa('prim','prim') tr' ,
-    'recfm(v b) lrecl('vlrecl+4') blksize(0)' vdsnp
+    prim = (((so.0 + se.0) * 50) % 56000) + 1
+    if prim < 2 then prim = 5
+    if viewopt = 'V' then do
+      if sysvar('syspref') = null then pref = userid()'.'
+      else pref = null
+      vdsn = pref'work.zigi.gitdata'
+    end
+    else vdsn = null
+    x = listdsi(vdsn)
+    if x = 0 then do
+      call outtrap 'x.'
+      'delete' vdsn
+      call outtrap 'off'
+    end
+    if vdsn /= null then vdsnp = 'da('vdsn') unit(3390)'
+    else vdsnp = null
+    if vlrecl > 255 then vlrecl = 251
+    'Alloc f('dd') new spa('prim','prim') tr' ,
+      'recfm(v b) lrecl('vlrecl+4') blksize(0)' vdsnp
   /* ----------------------------- *
   | If stdopt is 'B' then do both |
   * ----------------------------- */
-  if stdopt /= 'C' then do
-    stdopt = null
-    sc = so.0
-    do xi = 1 to se.0
-      sc = sc + 1
-      so.sc = se.xi
+    if stdopt /= 'C' then do
+      stdopt = null
+      sc = so.0
+      do xi = 1 to se.0
+        sc = sc + 1
+        so.sc = se.xi
+      end
+      so.0 = sc
     end
-    so.0 = sc
-  end
   /* ----------------------- *
   | Write out the stem data |
   * ----------------------- */
-  if stdopt = 'C' then do
-    'Execio * diskw' dd '(finis stem combine.'
-    drop combine.
-    combine.0 = 0
-  end
-  if stdopt /= 'C' then do
-    if stdopt = null
-    then do
-      'Execio * diskw' dd '(finis stem so.'
+    if stdopt = 'C' then do
+      'Execio * diskw' dd '(finis stem combine.'
+      drop combine.
+      combine.0 = 0
     end
-    else do
-      'Execio * diskw' dd '(finis stem se.'
+    if stdopt /= 'C' then do
+      if stdopt = null
+      then do
+        'Execio * diskw' dd '(finis stem so.'
+      end
+      else do
+        'Execio * diskw' dd '(finis stem se.'
+      end
     end
-  end
   /* -------------------------------------------------- *
   | Access the Temporary Data Set using ISPF           |
   | Library Services.                                  |
   | Then using ISPF Browse service to browse the data. |
   | And use Library Services to Free the Data Set.     |
   * -------------------------------------------------- */
-  Address ISPExec
-  if sec > 0 then if viewopt = 'B' then do
-    'lminit dataid(ddb) ddname('dd')'
-    'browse dataid('ddb') panel(zigibrow)'
-    'lmfree dataid('ddb')'
-  end
-  else do
-    vmac = 'Panel(zigiedit) macro(zigivmac)'
-    'view dataset('vdsn')' vmac
-    vtitle = null
-    'verase vtitle'
-  end
+    Address ISPExec
+    if sec > 0 then if viewopt = 'B' then do
+      'lminit dataid(ddb) ddname('dd')'
+      'browse dataid('ddb') panel(zigibrow)'
+      'lmfree dataid('ddb')'
+    end
+    else do
+      vmac = 'Panel(zigiedit) macro(zigivmac)'
+      'view dataset('vdsn')' vmac
+      vtitle = null
+      'verase vtitle'
+    end
   /* ----------------------------- *
   | Last Free the z/OS Allocation |
   * ----------------------------- */
-  call outtrap 'x.'
-  Address TSO ,
-    'Free f('dd')'
-  if vdsn /= null then
-  Address TSO 'Delete' vdsn
-  call outtrap 'off'
-  return
+    call outtrap 'x.'
+    Address TSO ,
+      'Free f('dd')'
+    if vdsn /= null then
+    Address TSO 'Delete' vdsn
+    call outtrap 'off'
+    return
 
   /* ---------------------------------------- *
   | Check if a PDS has mixed binary and text |
   * ---------------------------------------- */
-Check_Mixed_BinText:
-  parse arg checkForBinFile
-  cmbtRC = 0
-  if datatype(binfiles.0) /= 'NUM' then return 0
-  do bi = 1 to binfiles.0
-    parse value binfiles.bi with cmbtfile'/'cmbtmbr
-    parse value checkForBinFile with checkFile'/'checkmbr
-    if cmbtfile = checkFile then
-    if cmbtmbr = '*' then cmbtRC = 0
-    else return 1
-    if binfiles.bi = checkForBinFile then return 1
-  end
-  return cmbtRC
+  Check_Mixed_BinText:
+    parse arg checkForBinFile
+    cmbtRC = 0
+    if datatype(binfiles.0) /= 'NUM' then return 0
+    do bi = 1 to binfiles.0
+      parse value binfiles.bi with cmbtfile'/'cmbtmbr
+      parse value checkForBinFile with checkFile'/'checkmbr
+      if cmbtfile = checkFile then
+      if cmbtmbr = '*' then cmbtRC = 0
+      else return 1
+      if binfiles.bi = checkForBinFile then return 1
+    end
+    return cmbtRC
 
   /* --------------------------------------------------------- *
   | Determine is any of the datasets to be updated by pull    |
@@ -822,72 +814,72 @@ Check_Mixed_BinText:
   |                                                           |
   | Or abort the pull (not sure how to do that yet)           |
   * --------------------------------------------------------- */
-Check_ENQS: Procedure
-  arg pdshlq pulldsns
-  enq_clean = 1
+  Check_ENQS: Procedure
+    arg pdshlq pulldsns
+    enq_clean = 1
   /* do until no more enq's or an abort request */
-  do until enq_clean = 0
-    major = '*'
-    minor = pdshlq
-    save = 'Z'random(99999)
-    if right(minor,1) /= '*' then minor = minor'*'
-    "QueryENQ Qname(major) Rname(minor) XSYS Table("save")"
-    qrc = rc
-    if qrc > 7 then return 0
-    if qrc < 8 then do
-      'tbquery' save 'rownum(cer)'
-      if cer = 0 then do
-        'tbend' save
-        return 0
-      end
-      else enq_clean = 1
-      if qualignr > 0 then do
-        prefix = translate(pdshlq,' ','.')
-        prefix = subword(prefix,1,qualignr)
-        prefix = translate(prefix,'.',' ')
-      end
-      else prefix = pdshlq
+    do until enq_clean = 0
+      major = '*'
+      minor = pdshlq
+      save = 'Z'random(99999)
+      if right(minor,1) /= '*' then minor = minor'*'
+      "QueryENQ Qname(major) Rname(minor) XSYS Table("save")"
+      qrc = rc
+      if qrc > 7 then return 0
+      if qrc < 8 then do
+        'tbquery' save 'rownum(cer)'
+        if cer = 0 then do
+          'tbend' save
+          return 0
+        end
+        else enq_clean = 1
+        if qualignr > 0 then do
+          prefix = translate(pdshlq,' ','.')
+          prefix = subword(prefix,1,qualignr)
+          prefix = translate(prefix,'.',' ')
+        end
+        else prefix = pdshlq
      /* --------------------------------------- *
       | Remove any datasets not being processed |
       * --------------------------------------- */
-      'tbtop' save
-      do forever
-        'tbskip' save
-        if rc > 0 then leave
-        hit = 1
-        do ice = 1 to words(pulldsns)
-          cw = word(pulldsns,ice)
-          ckdsn = prefix"."cw
-          if ckdsn = zenrname then hit = 0
+        'tbtop' save
+        do forever
+          'tbskip' save
           if rc > 0 then leave
+          hit = 1
+          do ice = 1 to words(pulldsns)
+            cw = word(pulldsns,ice)
+            ckdsn = prefix"."cw
+            if ckdsn = zenrname then hit = 0
+            if rc > 0 then leave
+          end
+          if hit = 1 then 'tbdelete' save
         end
-        if hit = 1 then 'tbdelete' save
+        'tbquery' save 'rownum(cer)'
+        if cer = 0 then do
+          'tbend' save
+          return 0
+        end
       end
-      'tbquery' save 'rownum(cer)'
-      if cer = 0 then do
-        'tbend' save
-        return 0
+      call pfshow 'off'           /* make sure pfshow is off */
+      'addpop row(2) column(2)'
+      'tbdispl' save 'panel(zigienqk)'
+      'rempop'
+      call pfshow 'reset'         /* restore pfshow setting */
+      if enqact = 'R' then enq_clean = 1 /* retry */
+      else do
+        'TBEnd' save
+        return 1
       end
-    end
-    call pfshow 'off'           /* make sure pfshow is off */
-    'addpop row(2) column(2)'
-    'tbdispl' save 'panel(zigienqk)'
-    'rempop'
-    call pfshow 'reset'         /* restore pfshow setting */
-    if enqact = 'R' then enq_clean = 1 /* retry */
-    else do
       'TBEnd' save
-      return 1
     end
-    'TBEnd' save
-  end
-  return 1
+    return 1
 
-debug:
-  if debugfil /= null then do
-    parse arg msg
-    msg = Date() Time()' : 'msg
-    c = 'echo "'msg'" >>' debugfil
-    x = bpxwunix(c,,dso.,dse.,env.)
-  end
-  return 0
+  debug:
+    if debugfil /= null then do
+      parse arg msg
+      msg = Date() Time()' : 'msg
+      c = 'echo "'msg'" >>' debugfil
+      x = bpxwunix(c,,dso.,dse.,env.)
+    end
+    return 0

@@ -19,9 +19,9 @@
 [Commit+ Record Changes  [Network+Network Report    [StashL+  Stash List
 [Diff+  +Diff            [Pull+   Pull from origin  [Status+  Git Status
 [Extract+Package{*       [Push+   Push to origin    [Tag+     Git Tag
-[Find+   Find in table   [Replace+Replace Datasets{*[TagList+ List Tags
-[Flow+   ZIGI Flow       [Remote+ Add remote        [View+    OMVS Dir
-[GitCMD +Git Commands
+[Find+   Find in table   [READme+ Edit README.md    [TagList+ List Tags
+[Flow+   ZIGI Flow       [Replace+Replace Datasets{*[View+    OMVS Dir
+[GitCMD +Git Commands    [Remote+ Add remote
 +
 {*+Not supported within subdirectories.
 {*+Use%O+to display a popup for commands if the menu has been hidden.
@@ -45,6 +45,7 @@
  &Network = 'Network'
  &Pull    = 'Pull'
  &Push    = 'Push'
+ &Readme  = 'READme'
  &Replace = 'Replace'
  &Remote  = 'Remote'
  &Extract  = 'Extract'
@@ -90,6 +91,7 @@
     When abbrev('TAG',zcmd,1)    = 1  then zcmd = 24
     When abbrev('TAGLIST',zcmd,4)  = 1 then zcmd = 25
     When abbrev('DIFF',zcmd,1)    = 1 then zcmd = 26
+    When abbrev('README',zcmd,1)  = 1 then zcmd = 27
     Otherwise nop
   end
 *Endrexx
@@ -121,6 +123,7 @@
           24,zigih2H0  /* Tag            */
           25,zigih2I0  /* TagList        */
           26,zigih2l0  /* Diff           */
+          27,zigih2m0  /* README         */
            *,'?'
            )
 )PNTS
@@ -153,8 +156,7 @@
  FIELD(VIEW  )  VAR(ZCMD)  VAL('25')
  FIELD(DIFF  )  VAR(ZCMD)  VAL('26')
 )END
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
-
+/* --------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                              */
+/* Copyright (C) 2020 - 2021 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* --------------------------------------------------------------- */

@@ -1,14 +1,11 @@
 )Attr
  $ type(output) caps(off)
  _ type(input)  caps(off) hilite(uscore) intens(low)
-)Body Window(45,5)
-+
-  $zs1
-  $zs2
-+
-  +Answer:_answer                     +
+)Body Window(50,2)
+  %Confirm+commit processing to proceed or cancel.
+  +Enter%to proceed or%F3+to cancel.
 )Init
- &zwinttl = 'ZIGI Question Popup'
+ &zwinttl = 'ZIGI Commit Proceed Prompt'
 )Proc
 )end
 /* -------------------------------------------------------- */

@@ -16,6 +16,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/03/21 LBD - Change SHAREAS to REQUIRED       |
   |            06/26/20 LBD - Add git add and if clean do      |
   |                           a git commit                     |
   |            06/14/20 LBD - Update long message remove add.  |
@@ -163,7 +164,7 @@ GETENV:
   cmd  = docmdx('env')
   rc = bpxwunix(cmd,,env.,se.)
   envc = env.0
-  call add_env '_BPX_SHAREAS=YES'
+  call add_env '_BPX_SHAREAS=MUST'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
   call add_env 'EXPORT _EDC_ADD_ERRNO2=1'
   env.0 = envc
@@ -190,12 +191,18 @@ docmdx:
   not running a login shell via bpxwunix */
   parse arg cmd
   drop o. se.
-    rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && '
-    c = "[[ -f "home"/.profile ]] && echo f"
-    x = bpxwunix(c,,o.,se.)
-    if o.0 = 1 & o.1 = "f" then do
-      rx = rx '. 'home'/.profile > /dev/null 2>&1 && '
-    end
+  Address 'Vget (gitenv)'
+  if gitenv /= null
+  then envfile = '.' gitenv ' >/dev/null 2>&1 &&'
+  else envfile = null
+
+  /* check for users .profile */
+  address syscall 'lstat' "'"home"/.profile'" 'x.'
+  if x.0 > 0 then home_profile =  ". "home"/.profile &&"
+     else home_profile = null
+
+  rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && ' ,
+       home_profile envfile
   r = rx ' ' cmd
   return r
 

@@ -27,6 +27,7 @@
  PDC DESC('Add All Modified/Untracked')         ACTION RUN(AddAll  )
  PDC DESC('Commit Changes')                     ACTION RUN(Commit  )
  PDC DESC('Diff')                               ACTION RUN(Diff    )
+ PDC DESC('READme')                             ACTION RUN(Readme  )
  PDC DESC('Stash')                              ACTION RUN(Stash   )
  PDC DESC('Stash List' )                        ACTION RUN(StashL  )
  PDC DESC('Extract or Rollback')                ACTION RUN(Extract)
@@ -112,7 +113,7 @@
 )Field
  Field(remote1) ind(sind,'<>') len(255)
 )End
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* --------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                              */
+/* Copyright (C) 2020 - 2021 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* --------------------------------------------------------------- */

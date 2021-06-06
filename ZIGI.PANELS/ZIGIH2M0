@@ -6,29 +6,29 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                                 %Push+
+                                %README+
 +
-%Push+updates the remote repository with all the locally committed updates.
-+
-+That means that only updates processed by the Commit command are pushed
-+to the remote repository.
-+
-%Git+only pushes the discrete updates, which saves time and bandwidth.
-+
-%
++The%READme+command will Edit (create or update) a README.md file within
++the local repository.
 +
 +
-           +"Don't measure yourself by what you have accomplished,
-            +but by what you should have accomplished with your
-            +ability." -- John Wooden
 +
 +
++Command syntax:%readme+
++            or:%read+
++
++
++
++
++  "What's the one thing I can do such that by doing it everything else
++   will be easier or unnecessary."
++     -- Gary Keller
 +
          +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
- &zcont = zigih2m0
+ &zcont = zigih2b0
 )END
 /* --------------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                              */

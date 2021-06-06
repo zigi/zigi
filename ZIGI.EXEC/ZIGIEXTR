@@ -49,6 +49,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/03/21 LBD - Change SHAREAS to REQUIRED       |
+  |            05/29/21 LBD - Correct env settings             |
   |            10/25/20 LBD - Improve usssafe routine          |
   |            07/29/20 LBD - Add _EDC_ZERO_RECLEN=Y to env.   |
   |            06/21/20 LBD - View the extract log if omvsdir  |
@@ -59,7 +61,7 @@
   |            06/12/20 LBD - Creation                         |
   | ---------------------------------------------------------- |
   |    zigi - the z/OS ISPF Git Interface                      |
-  |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
+  |    Copyright (C) 2020 - 2021 - Henri Kuiper and Lionel Dyck|
   |                                                            |
   |    This program is free software: you can redistribute it  |
   |    and/or modify it under the terms of the GNU General     |
@@ -79,7 +81,6 @@
   * ---------------------------------------------------------- */
 
   Parse Arg omvsdir zoshlq extdir tags
-
 
   if sysvar('sysispf') /= 'ACTIVE' then do
     say 'ZIGIEXTR requires ISPF services which are currently unavailable.'
@@ -212,6 +213,7 @@ Do_Extract:
     call do_popupP
     return
   end
+  trace '?i'
   zs1 = 'Creating the z/OS Datasets'
   zs2 = ckotdir ckothlq
   call do_popup
@@ -512,15 +514,15 @@ docmd:
   * ----------------------------------------------------- */
 SetEnv:
   cmd = 'pwd'
-  env.1 = '_BPX_SHAREAS=YES'
+  env.1 = '_BPX_SHAREAS=MUST'
   env.0 = 1
   x = bpxwunix(cmd,,so.,se.,env.)
   home    = strip(so.1)
   sol = so.0
   cmd  = docmdx('env')
-  rc = bpxwunix(cmd,,env.,se.)
+  rc = bpxwunix(cmd,,env.,se.,env.)
   envc = env.0
-  call add_env '_BPX_SHAREAS=YES'
+  call add_env '_BPX_SHAREAS=MUST'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
   call add_env 'EXPORT _EDC_ADD_ERRNO2=1'
   call add_env '_EDC_ZERO_RECLEN=Y'
@@ -545,9 +547,20 @@ docmdx:
   not running a login shell via bpxwunix */
   parse arg cmd
   drop o. se.
-  rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && '
-  c = "[[ -f "home"/.profile ]] && echo f"
-  x = bpxwunix(c,,o.,se.)
+  Address ISPExec 'vget (gitenv)'
+  if gitenv /= null
+  then envfile = '.' gitenv ' >/dev/null 2>&1 &&'
+  else envfile = null
+
+  /* check for users .profile */
+  address syscall 'lstat' "'"home"/.profile'" 'x.'
+  if x.0 > 0 then home_profile =  ". "home"/.profile &&"
+     else home_profile = null
+
+  rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && ' ,
+       home_profile envfile
+
+  x = bpxwunix(rx,,o.,se.)
   if o.0 = 1 & o.1 = "f" then do
     rx = rx '. 'home'/.profile > /dev/null 2>&1 && '
   end

@@ -16,13 +16,13 @@
 +typically consists of up to a 50-character title, followed by up to 72
 +character lines of explanation. This dialog allows up to 16 lines of text.
 +
-+If there is an issue or ticket number, it is suggested that it be included in
-+the title (e.g. Ticket: title text).
++If there is an issue or ticket number, add that to the title.
 +
-+Cancel the%Commit+process by entering%F3+with an empty Commit Title.
+%Commit+by entering%Commit+,or just%CO+, in the Command field.
 +
-+The%Import+command may be used to import text from a dataset into the
-+commit prose. If entered without a dataset then the dataset is prompted.
++Cancel the%Commit+process by entering%F3+
++
++The%Import+command to import text from a dataset into the commit prose.
 +
          +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
@@ -33,5 +33,5 @@
 )END
 /* -------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* Copyright (C) 2021 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* -------------------------------------------------------- */
