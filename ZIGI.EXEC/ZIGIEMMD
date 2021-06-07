@@ -1,12 +1,13 @@
  /*---------------------  rexx procedure  -------------------- *
   | Name:      zigiemmd                                        |
   |                                                            |
-  | Function:  ISPF Edit Macro to insert notelines with        |
+  | Function:  ISPF Edit Macro to insert msglines with         |
   |            help on markdown syntax                         |
   |                                                            |
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            2021/06/07 LBD - Change noteline to msgline     |
   |            2021/06/01 LBD - Creation                       |
   |                                                            |
   | ---------------------------------------------------------- |
@@ -52,6 +53,6 @@
   nl:
   parse arg line
   line = prefix line
-  'line_before 1 = noteline (line)'
+  'line_before 1 = msgline (line)'
   prefix = left(' ',4)
   return
