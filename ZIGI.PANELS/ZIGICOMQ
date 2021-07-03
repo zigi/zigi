@@ -3,7 +3,7 @@
  _ type(input)  caps(off) hilite(uscore) intens(low)
 )Body Window(50,2)
   %Confirm+commit processing to proceed or cancel.
-  +Enter%to proceed or%F3+to cancel.
+  +Press%Enter+to proceed or%F3+to cancel.
 )Init
  &zwinttl = 'ZIGI Commit Proceed Prompt'
 )Proc
