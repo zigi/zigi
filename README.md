@@ -16,7 +16,7 @@ You should now have git installed on you Mainframe.
 
 Clone this repository and run the installer via:
 
-    git clone git@github.com:wizardofzos/zigi.git
+    git clone git@github.com:zigi/zigi.git
     cd zigi
     ./zginstall.rex
 
@@ -25,7 +25,7 @@ or
 [![anaconda/dl](https://anaconda.org/zdevops/zigi/badges/installer/conda.svg)](https://anaconda.org/zdevops/zigi)
 
 
-### Make sure you are authorizes to allocate the target datasets
+### Make sure you are authorized to allocate the target datasets
 
 
 ## Contributing to zigi?
