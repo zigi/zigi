@@ -7,6 +7,30 @@
 This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
                              ZIGI Release Notes
+                               Version 3.11
+
+                         New Features and Functions
+                         --------------------------
+
+More exploitation of Dovetail's getpds/putpds.
+  - During checkout processing
+  - For ISPFSTATS
+
+Added MarkDown cheatsheet in ISPF edit on .md files (zigiemmd macro)
+
+                          Bug Fixes and Other Updates:
+                          ----------------------------
+
+Fix issues with binary characters messing up in git 2.26
+Muplitple fixes on ' usssafe'  conversion of ($,# chars in uss-files)
+Removal of 32k member limit
+Env variables updated when .profile missing in action
+Uppercase 'files' with extensions now handled properly
+_BPX_SHAREAS now set to required
+Default prefix for zOS datasets is now <USERID>
+Various fixes related to 'exotic' codepages :)
+
+                             ZIGI Release Notes
                                Version 3.10
 
                          New Features and Functions

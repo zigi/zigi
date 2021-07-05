@@ -213,7 +213,6 @@ Do_Extract:
     call do_popupP
     return
   end
-  trace '?i'
   zs1 = 'Creating the z/OS Datasets'
   zs2 = ckotdir ckothlq
   call do_popup

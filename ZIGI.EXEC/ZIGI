@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r10'
+  ver = 'v3r11'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -29,6 +29,11 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            06/15/21 LBD - Enable Add-Binary (AB) of        |
+  |                           RECFM=V with warning.            |
+  |            06/07/21 LBD - Use zigiemmd (edit macro) for    |
+  |                           all .md files and PDS members    |
+  |                           with a md suffix.                |
   |            06/05/21 LBD - Refine Commit Prompt             |
   |            06/03/21 LBD - Add tbsave after tbdelete (SP)   |
   |                         - Change SHAREAS to REQUIRED       |
@@ -2721,7 +2726,10 @@ WWR_handle_lcmd_s_omvs:
   cur_date = get_fd_date(ofile)
   if filetype /= '(D)' then do
     'control display save'
-    'Edit file(ofile)'
+    if pos('.MD',translate(ofile)) > 0
+       then emac = 'macro(zigiemmd)'
+       else emac = null
+    'Edit file(ofile)' emac
     'control display restore'
     new_date = get_fd_date(ofile)
     if cur_date /= new_date then
@@ -3184,9 +3192,12 @@ WWRF_handle_lcmd_s:
   end
   if eok = 1 then do
     'control display save'
+    if translate(zdsn.dsn) = 'MD'
+       then emac = 'macro(zigiemmd)'
+       else emac = null
     if sysdsorg = 'PS'
-    then "Edit Dataset('"edsn"')"
-    else "Edit Dataset('"edsn"("mem")'"
+    then "Edit Dataset('"edsn"')" emac
+    else "Edit Dataset('"edsn"("mem")')" emac
     erc = rc
     'control display restore'
   end
@@ -7410,13 +7421,16 @@ Add_Dataset:
         if left(sysrecfm,1) = 'V' then do
           zerrsm = null
           zerrlm = left('DSN:' dsna,74) ,
-            'Is RECFM=V and is not supported' ,
-            'by the OMVS cp command. Therefore ZIGI is not able to' ,
-            'manage this dataset. Convert it to a more portable' ,
+            'Is RECFM=V and binary may be a problem due to the way' ,
+            'the OMVS cp command handles binary data. You should' ,
+            'verify that the data is usable after adding it. If not' ,
+            'Then convert it to a more portable' ,
             'format (e.g. TSO Transmit or IEBCopy Unload) if you' ,
             'need to have it included in the git repository.'
           'setmsg msg(isrz003)'
+          /* Comment Start
           rc = 4
+             Comment End */
         end
         if rc = 0 then do
           call do_add_copy 'binary'
