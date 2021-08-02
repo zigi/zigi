@@ -39,6 +39,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            08/02/21 LBD - Correct use of dovedir variable  |
+  |                         - use AMBLIST for load libraries   |
   |            07/26/21 LBD - Fix allmems missing one member   |
   |            06/03/21 LBD - Change SHAREAS to REQUIRED       |
   |            05/29/21 LBD - Clean up environment setup       |
@@ -109,7 +111,7 @@ zigistat:
   call getenv
 
   Address ISPExec
-  'vget (debugfil defruid readonly)'
+  'vget (debugfil defruid readonly dovedir)'
 
   x = debug('start of zigistat with option:' opt)
 
@@ -167,61 +169,71 @@ zigistat:
   /* ----------------------- *
   * Now process all members *
   * ----------------------- */
-  if words(dovedir) = 1 then do
-    "LMINIT DATAID(STATUS) DATASET("dsn")"
-    "LMOPEN DATAID("STATUS") OPTION(INPUT)"
-    do forever
-      "LMMLIST Dataid("status") OPTION(LIST) MEMBER(MEMBER)" ,
-        "STATS(YES)"
-      /* --------------------------------- *
-      * If RC 4 or more leave the do loop *
-      * --------------------------------- */
-      if rc > 3 then leave
-      /* -------------------------------- *
-      | Check if no stats then add them. |
-      * -------------------------------- */
-      if sysrecfm /= 'U' then
-      if zlcdate = null then
-      if readonly = 0 then do
-        'LMMSTATS DATAID('status') Member('member') user('newuid')'
-        "LMMFind DATAID("status") Member("member") STATS(YES)"
-      end
-      /* ------------------------------ *
-      * Add each member info to a stem *
-      * ------------------------------ */
-      c = mem.0 + 1
-      if sysrecfm /= 'U'
-      then mem.c = strip(member ,
-        ZLCDATE  ZLMDATE  ZLVERS ZLMOD ZLMTIME ZLCNORC ,
-        ZLINORC ZLMNORC ZLUSER ,
-        zlcnorce zlinorce zlmnorce)
-      else if strip(zlalias) = null then do
-        mem.c = strip(member ,
-          zlsize zlamod zlrmode zlattr zlalias zlssi)
-      end
-      else c = c - 1
-      mem.0 = c
-      if strip(zlalias) = null then
-      if opt = 'C' then allmems = allmems member
-      if c//100 = 0 then do
-        zs3 = 'Processing count:' c
-        call do_popup4
-      end
-    end
-
-    /* ------------------------- *
-    * Close and Free the Dataid *
-    * ------------------------- */
-    "LMClose Dataid("status")"
-    "LMFree  Dataid("status")"
-  end
+  if sysdsorg = 'PO' & sysrecfm = 'U'
+  then do
+       zs3 = 'Collecting Load Module Information'
+       call do_popup4
+       Address TSO
+       x = get_loadlib(dsn)
+       Address ISPExec
+       end
   else do
-    dovedir = subword(dovedir,2)
-    cmd = usssafe(dovedir"getpds -M st=- //"strip(dsn,'B',"'"))
-    drop mem. se.
-    x = bpxwunix(cmd,,mem.,se.,env.)
-    do mi = 1 to mem.0
-      allmems = allmems word(mem.mi,1)
+    if words(dovedir) = 1 then do
+      "LMINIT DATAID(STATUS) DATASET("dsn")"
+      "LMOPEN DATAID("STATUS") OPTION(INPUT)"
+      do forever
+        "LMMLIST Dataid("status") OPTION(LIST) MEMBER(MEMBER)" ,
+          "STATS(YES)"
+        /* --------------------------------- *
+        * If RC 4 or more leave the do loop *
+        * --------------------------------- */
+        if rc > 3 then leave
+        /* -------------------------------- *
+        | Check if no stats then add them. |
+        * -------------------------------- */
+        if sysrecfm /= 'U' then
+        if zlcdate = null then
+        if readonly = 0 then do
+          'LMMSTATS DATAID('status') Member('member') user('newuid')'
+          "LMMFind DATAID("status") Member("member") STATS(YES)"
+        end
+        /* ------------------------------ *
+        * Add each member info to a stem *
+        * ------------------------------ */
+        c = mem.0 + 1
+        if sysrecfm /= 'U'
+        then mem.c = strip(member ,
+          ZLCDATE  ZLMDATE  ZLVERS ZLMOD ZLMTIME ZLCNORC ,
+          ZLINORC ZLMNORC ZLUSER ,
+          zlcnorce zlinorce zlmnorce)
+        else if strip(zlalias) = null then do
+          mem.c = strip(member ,
+            zlsize zlamod zlrmode zlattr zlalias zlssi)
+        end
+        else c = c - 1
+        mem.0 = c
+        if strip(zlalias) = null then
+        if opt = 'C' then allmems = allmems member
+        if c//100 = 0 then do
+          zs3 = 'Processing count:' c
+          call do_popup4
+        end
+      end
+
+      /* ------------------------- *
+      * Close and Free the Dataid *
+      * ------------------------- */
+      "LMClose Dataid("status")"
+      "LMFree  Dataid("status")"
+    end
+    else do
+      dovedir = subword(dovedir,2)
+      cmd = usssafe(dovedir"getpds -M st=- //"strip(dsn,'B',"'"))
+      drop mem. se.
+      x = bpxwunix(cmd,,mem.,se.,env.)
+      do mi = 1 to mem.0
+        allmems = allmems word(mem.mi,1)
+      end
     end
   end
   x = debug('Stat collection complete.')
@@ -368,7 +380,6 @@ Check_Stats_File:
     return 20
   end
   else return 0
-
 
   /* ----------------------------------------------------- *
   | Get the users current OMVS enviornment for use in the |
@@ -519,17 +530,6 @@ usssafe:
   end
   return safedsn
 
-  /* ---------------------------------- *
-  | Make the z/OS dsname safe for OMVS |
-  * ---------------------------------- */
-oldsafe: procedure
-  parse arg dsn
-  if pos('$',dsn) = 0 then return dsn
-  /* Let's not usssafe it twice :) */
-  if pos('\$',dsn) > 0 then return dsn
-  dsn = strreplace(dsn, '$', '\$')
-  return dsn
-
 STRREPLACE:
   ORIGINAL = ARG(1)
   OLDTXT = ARG(2)
@@ -547,3 +547,107 @@ STRREPLACE:
       NEWTXT || SUBSTR(NEWSTR, POS(TMPTXT,NEWSTR) + LENGTH(TMPTXT))
   END
   RETURN NEWSTR
+
+Get_LoadLib:
+  arg lm_dsname
+
+  drop mem.
+  oc = 0
+
+  if sysvar('syspref') /= ''
+  then syspds = sysvar("syspref")".z"date("J")
+  else syspds = sysvar("sysuid")".z"date("J")
+
+  call outtrap 'x.'
+  'free f(sysin sysprint syslib)'
+  call outtrap 'off'
+
+  cc.1 = ' LISTIDR OUTPUT=ALL'
+  cc.0 = 1
+  cal = null
+
+  call outtrap 'x.'
+  "delete '"syspds"'"
+  call outtrap 'off'
+
+  'Alloc f(syslib) ds('lm_dsname') shr reuse'
+  'Alloc f(sysprint) unit(sysallda) spa(900,1500) tr new reuse' ,
+    "ds('"syspds"')"
+  'Alloc f(sysin) unit(sysallda) spa(1,1) tr recfm(f b) lrecl(80)' ,
+    'blksize(80) new reuse'
+  'Execio * diskw sysin (finis stem cc.'
+  drop cc.
+
+  address Link 'amblist'
+
+  'free f(sysprint)'
+
+  /* -------------------------------------- *
+  | Escape any $ found in the dataset name |
+  * -------------------------------------- */
+  if pos('$',syspds) > 0 then
+  do forever
+    if pos('\$',syspds) > 0 | pos('$',syspds) = 0 then leave
+    p = pos('$',syspds)
+    ld = left(syspds,p-1)
+    rd = substr(syspds,p+1)
+    syspds = ld'\$'rd
+  end
+
+  grep_string = 'MEMBER|PRODUCED'
+
+  /* --------------------------------------------- *
+  | Create OMVS supported format for dataset name |
+  * --------------------------------------------- */
+  dsn = '"//'||"'"syspds"'"||'"'
+
+  /* ----------------- *
+  | Drop results stem |
+  * ----------------- */
+  drop results.
+
+  /* ---------------------------------------------------- *
+  | Invoke BPXWUNIX                                      |
+  | 1st to cat (copy) the z/OS dataset into the pipe (|) |
+  | and 2nd to grep (search) the results for the string  |
+  | with the results going into the results. stem        |
+  | and errors into the e. stem.                         |
+  * ---------------------------------------------------- */
+  x = bpxwunix('cat' dsn "| grep -E -i '"grep_string"'",,results.,e.)
+
+  'Free  f(syslib)'
+  'Alloc f(sysin) ds(*) reuse'
+  'Alloc f(sysprint) ds(*) reuse'
+
+  do lmi = 1 to results.0
+    if word(results.lmi,1) = 'MEMBER' then do
+      member = word(results.lmi,3)
+    end
+    if word(results.lmi,8) = 'BINDER' & word(results.lmi,19) = 'AT' then do
+      day = word(results.lmi,15)
+      year = substr(word(results.lmi,18),2,2)
+      time = left(word(results.lmi,20),8)
+      cal  = year''day
+    end
+    if word(results.lmi,7) = 'LINKAGE' & word(results.lmi,19) = 'AT' then do
+      day = word(results.lmi,15)
+      year = substr(word(results.lmi,18),2,2)
+      time = left(word(results.lmi,20),8)
+      cal  = year''day
+    end
+    if cal <> '' then do
+      oc = oc + 1
+      mem.oc = member cal time
+      mem.0 = oc
+        if opt = 'C' then allmems = allmems member
+        if oc//100 = 0 then do
+          zs3 = 'Processing count:' c
+          Address ISPExec
+          call do_popup4
+          Address TSO
+        end
+      cal = ''
+    end
+  end
+
+  return 0

@@ -29,6 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            08/02/21 LBD - Corrections for load module      |
+  |                           stats handling                   |
   |            06/15/21 LBD - Enable Add-Binary (AB) of        |
   |                           RECFM=V with warning.            |
   |            06/07/21 LBD - Use zigiemmd (edit macro) for    |
@@ -3275,8 +3277,7 @@ Update_Mem_Stats:
   'tbmod' rtbl
 
   if enhanced_cp = 0 then
-  x = zigistat(fulldsn ,
-    localrep'/'zigirep'/.zigi/'dsn 'S')
+  x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'dsn 'S')
   else do
     uscmd = localrep'/'zigirep'/.zigi/'dsn fulldsn
     call update_stats uscmd
@@ -6707,7 +6708,7 @@ Update_repo_metadata:
           | updated members. If the file is mixed then copy the binary |
           | members again.                                             |
           * ---------------------------------------------------------- */
-          if enhanced_cp = 1 then do
+          if enhanced_cp = 1 & sysrecfm /= 'U' then do
             file = root.umdi
             file_len = length(file)
             is_bin = is_binfile(root.umdi)
@@ -6858,7 +6859,7 @@ Update_repo_metadata:
           | If members were updated then need to update the stat file |
           * --------------------------------------------------------- */
           if mem_hit = 1 then do
-            if enhanced_cp = 0 then
+            if enhanced_cp = 0 | sysrecfm = 'U' then
             x = zigistat("'"edsn"'" statpath 'S')
             else do
               uscmd = statpath "'"edsn"'"
