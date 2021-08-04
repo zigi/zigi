@@ -39,6 +39,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            08/04/21 LBD - Use encoding to tag stats file   |
   |            08/02/21 LBD - Correct use of dovedir variable  |
   |                         - use AMBLIST for load libraries   |
   |            07/26/21 LBD - Fix allmems missing one member   |
@@ -111,7 +112,7 @@ zigistat:
   call getenv
 
   Address ISPExec
-  'vget (debugfil defruid readonly dovedir)'
+  'vget (debugfil defruid readonly dovedir encoding)'
 
   x = debug('start of zigistat with option:' opt)
 
@@ -466,6 +467,10 @@ Write_Stats:
   'close' fd
   call syscalls 'OFF'
   Address ISPExec
+  lp = lastpos('/',filepath)
+  chpath = left(filepath,lp)
+  chfile = substr(filepath,lp+1)
+  x = docmd('cd' chpath '&& chtag -tc' encoding chfile)
   return
 
   /* ----------------------------------- *

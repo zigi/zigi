@@ -29,8 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            08/02/21 LBD - Corrections for load module      |
-  |                           stats handling                   |
+  |            08/04/21 LBD - Corrections for add tagging      |
+  |                           to use usssafe                   |
   |            06/15/21 LBD - Enable Add-Binary (AB) of        |
   |                           RECFM=V with warning.            |
   |            06/07/21 LBD - Use zigiemmd (edit macro) for    |
@@ -6229,6 +6229,7 @@ Create_Repo:
     parse value '' with zerrsm zcmd zigirep cc_rc pdshlq ,
       defcpush defruid qualignr zigicat encoding
     'Display Panel(ziginew)'
+    'vput (encoding) profile'
     if readonly = 'N' then readonly = null
     if rc > 0 then return 8
     if localrep = '?' then
@@ -9471,6 +9472,8 @@ Git_Safe_Add:   /* FM */
   /* Automatically tag modified and untracked files */
 Auto_Tag_Files:  /* FM */
   parse arg atf_dir atf_files
+  atf_dir  = usssafe(atf_dir)
+  atf_files = usssafe(atf_files)
   ls_cmd = 'cd' atf_dir '&& git ls-files -mo' atf_files
   x = docmd(ls_cmd)
   /* save output which otherwise is overridden */
@@ -9478,7 +9481,8 @@ Auto_Tag_Files:  /* FM */
     ls_cmd_so.i = so.i
   end
   do i=1 to ls_cmd_so.0
-    call auto_tag_file atf_dir ls_cmd_so.i
+    atf_data = usssafe(ls_cmd_so.i)
+    call auto_tag_file atf_dir atf_data
   end
   return
 
