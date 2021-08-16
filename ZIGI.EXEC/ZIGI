@@ -29,6 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            08/16/21 LBD - Corrections for detected deleted |
+  |                           PDS members                      |
   |            08/04/21 LBD - Corrections for add tagging      |
   |                           to use usssafe                   |
   |            06/15/21 LBD - Enable Add-Binary (AB) of        |
@@ -6844,7 +6846,8 @@ Update_repo_metadata:
               zs2 = 'Should not take long.'
               call do_popup
               mem_omvs = strip(mem_omvs)
-              cmd = 'rm' localrep'/'zigirep'/'r'/'mem_omvs
+              cmd = 'cd' localrep'/'zigirep'/'r'/'
+              cmd = cmd '&& rm' mem_omvs
               cmd = usssafe(cmd)
               x = docmd(cmd)
               if x > 0 then call view_std 'B'
