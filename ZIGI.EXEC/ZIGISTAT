@@ -40,6 +40,7 @@
   |                                                            |
   | History:  (most recent on top)                             |
   |            08/16/21 LBD - Align amblist (lmod) file        |
+  |                         - Support PDSE lmod libraries      |
   |            08/04/21 LBD - Use encoding to tag stats file   |
   |            08/02/21 LBD - Correct use of dovedir variable  |
   |                         - use AMBLIST for load libraries   |
@@ -629,6 +630,13 @@ Get_LoadLib:
     if word(results.lmi,1) = 'MEMBER' then do
       member = left(word(results.lmi,3),8)
     end
+    if subword(results.lmi,2,2) = 'PROGRAM OBJECT' then do
+       time = word(results.lmi,15)
+       parse value word(results.lmi,13) with dmon'/'day'/'year
+       day   = date('d',year''dmon''day,'s')
+       year = right(year,2)
+       cal  = year''right(day+100,3)
+       end
     if word(results.lmi,8) = 'BINDER' & word(results.lmi,19) = 'AT' then do
       day = word(results.lmi,15)
       year = substr(word(results.lmi,18),3,2)
