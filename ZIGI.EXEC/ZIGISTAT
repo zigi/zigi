@@ -39,6 +39,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            08/16/21 LBD - Align amblist (lmod) file        |
   |            08/04/21 LBD - Use encoding to tag stats file   |
   |            08/02/21 LBD - Correct use of dovedir variable  |
   |                         - use AMBLIST for load libraries   |
@@ -642,7 +643,7 @@ Get_LoadLib:
     end
     if cal <> '' then do
       oc = oc + 1
-      mem.oc = member cal time
+      mem.oc = left(member,8) cal time
       mem.0 = oc
         if opt = 'C' then allmems = allmems member
         if oc//100 = 0 then do
