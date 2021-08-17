@@ -635,7 +635,7 @@ Get_LoadLib:
        parse value word(results.lmi,13) with dmon'/'day'/'year
        day   = date('d',year''dmon''day,'s')
        year = right(year,2)
-       cal  = year''right(day+100,3)
+       cal  = year''right(day+1000,3)
        end
     if word(results.lmi,8) = 'BINDER' & word(results.lmi,19) = 'AT' then do
       day = word(results.lmi,15)
