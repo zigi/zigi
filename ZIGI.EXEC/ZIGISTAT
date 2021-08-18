@@ -39,6 +39,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            08/18/21 LBD - Correct AMBLIST for Link and     |
+  |                           Add AMBLIST analysis popups      |
   |            08/16/21 LBD - Align amblist (lmod) file        |
   |                         - Support PDSE lmod libraries      |
   |            08/04/21 LBD - Use encoding to tag stats file   |
@@ -488,12 +490,18 @@ Write_FD:
   | Issue popup - turn off pfshow if on |
   * ----------------------------------- */
 Do_Popup4:
+  if address() /= 'ISPEXEC' then do
+     poptso = 1
+     Address ISPExec
+     end
+  else poptso = 0
   call pfshow 'off'           /* make sure pfshow is off */
   'Control Display Lock'
   'Addpop row(4) column(6)'
   'Display Panel(zigipop4)'
   'Rempop'
   call pfshow 'reset'         /* restore pfshow setting */
+  if poptso = 1 then Address TSO
   return
 
   /* -------------------------------- *
@@ -589,6 +597,9 @@ Get_LoadLib:
 
   'free f(sysprint)'
 
+  zs3 = 'AMBList completed - Filtering now.'
+  call do_popup4
+
   /* -------------------------------------- *
   | Escape any $ found in the dataset name |
   * -------------------------------------- */
@@ -626,6 +637,10 @@ Get_LoadLib:
   'Alloc f(sysin) ds(*) reuse'
   'Alloc f(sysprint) ds(*) reuse'
 
+  zs3 = 'Analyzing the filtered AMBLIST data.'
+  zs4 = results.0 'records to process.'
+  call do_popup4
+
   do lmi = 1 to results.0
     if word(results.lmi,1) = 'MEMBER' then do
       member = left(word(results.lmi,3),8)
@@ -643,7 +658,7 @@ Get_LoadLib:
       time = left(word(results.lmi,20),8)
       cal  = year''day
     end
-    if word(results.lmi,7) = 'LINKAGE' & word(results.lmi,19) = 'AT' then do
+    if word(results.lmi,7) = 'LINKAGE' & word(results.lmi,10) = 'AT' then do
       day = word(results.lmi,15)
       year = substr(word(results.lmi,18),3,2)
       time = left(word(results.lmi,20),8)
