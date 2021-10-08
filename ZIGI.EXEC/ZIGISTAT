@@ -39,6 +39,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            10/08/21 LBD - Check for background             |
   |            08/18/21 LBD - Correct AMBLIST for Link and     |
   |                           Add AMBLIST analysis popups      |
   |            08/16/21 LBD - Align amblist (lmod) file        |
@@ -70,7 +71,7 @@
   |                                                            |
   | ---------------------------------------------------------- |
   |    ZIGI - the z/OS ISPF Git Interface                      |
-  |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
+  |    Copyright (C) 2020-2021 - Henri Kuiper and Lionel Dyck  |
   |                                                            |
   |    This program is free software: you can redistribute it  |
   |    and/or modify it under the terms of the GNU General     |
@@ -95,6 +96,13 @@ zigistat:
   * --------------- */
   parse value '' with null string m. rx allmems
   zdd = 'ZS'time('s')
+
+  /* ---------------------------------- *
+   | Check for Background of Foreground |
+   * ---------------------------------- */
+   if sysvar('sysenv') = 'FORE'
+      then background = 0
+      else background = 1
 
   /* --------------------------------- *
   | Check for parms and return if not |
@@ -490,6 +498,13 @@ Write_FD:
   | Issue popup - turn off pfshow if on |
   * ----------------------------------- */
 Do_Popup4:
+  if background = 1 then do
+     if strip(zs1) /= null then say zs1
+     if strip(zs2) /= null then say zs2
+     if strip(zs3) /= null then say zs3
+     if strip(zs4) /= null then say zs4
+     return
+     end
   if address() /= 'ISPEXEC' then do
      poptso = 1
      Address ISPExec
