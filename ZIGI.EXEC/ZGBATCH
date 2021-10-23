@@ -68,6 +68,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            10/23/21 LBD - Updates to cp to add CHTAG for   |
+  |                           codepage                         |
   |            06/03/21 LBD - Change SHAREAS to REQUIRED       |
   |            05/29/21 LBD - Correct env setup (.profile)     |
   |            01/06/21 LBD - Small update to get_dsn_info     |
@@ -114,7 +116,7 @@
   |  ISPF CMD(%ZGBATCH ibmuser.prod 2 /u/ibmuser/Prod p)       |
   | ---------------------------------------------------------- |
   |    ZIGI - the z/OS ISPF Git Interface                      |
-  |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
+  |    Copyright (C) 2020-2021 - Henri Kuiper and Lionel Dyck  |
   |                                                            |
   |    This program is free software: you can redistribute it  |
   |    and/or modify it under the terms of the GNU General     |
@@ -189,6 +191,7 @@
   end
   say 'Repository is in ZIGI format and thus allowed.'
 
+
   /* ---------------- *
   | Clean up ComPush |
   * ---------------- */
@@ -231,6 +234,7 @@
   /* ---------------- *
   | Begin Processing |
   * ---------------- */
+  call get_default_codepage
   call get_binfiles
   call get_dsn_info
   call get_omvs
@@ -339,15 +343,13 @@ check_pds:
     pds = "'"zosdsnw"("mem")'"
     cmd = 'cd' omvsfs'/'omvsdsn
     cmd = cmd '&& cp -U -v' binopt '"//'pds'"' omem
-    cmd = usssafe(cmd)
+    if binopt /= null
+       then chtag = '&& chtag -b' omem
+       else chtag = '&& chtag -tc' encoding omem
+    cmd = usssafe(cmd chtag)
     say '   Copying PDS member:' pds 'to' omem 'as' bintxt
     x = bpxwunix(cmd,,co.,ce.,bpxenv.)
     if x > 0 then call show_cmd 'C'
-    if binopt /= null then do
-      cmd = 'cd' omvsdir '&& chtag -b' omem
-      cmd = usssafe(cmd)
-      x = bpxwunix(cmd,,so.,se.,bpxenv.)
-    end
   end
   call check_pds_memstats 'S'
   return
@@ -596,3 +598,22 @@ is_binfile:
     if binfiles.bi = file then return 1
   end
   return res
+
+  /* ----------------------------------------------------- *
+   | If the encoding ISPF variable is not set then get the |
+   | repository default encoding from the .gitattributes   |
+   * ----------------------------------------------------- */
+Get_Default_Codepage:
+  cmd = 'cd' omvsfs '&&' ,
+    'cat -W filecodeset=UTF-8,pgmcodeset=IBM-1047 .gitattributes' ,
+    "| grep 'zos-working-tree-encoding'"
+  x = bpxwunix(cmd,,s.,e.)
+  encoding = null
+  do i = 1 to s.0
+    if pos('zos-working-tree-encoding',s.i) = 0 then iterate
+    parse value s.i with .'zos-working-tree-encoding='encoding .
+    return
+  end
+  if encoding = null then
+  encoding = 'IBM-1047'
+  return

@@ -39,6 +39,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            10/18/21 LBD - Correctly tag stats file         |
   |            10/08/21 LBD - Check for background             |
   |            08/18/21 LBD - Correct AMBLIST for Link and     |
   |                           Add AMBLIST analysis popups      |
@@ -94,7 +95,7 @@ zigistat:
   /* --------------- *
   | Define defaults |
   * --------------- */
-  parse value '' with null string m. rx allmems
+  parse value '' with null string m. rx allmems codep
   zdd = 'ZS'time('s')
 
   /* ---------------------------------- *
@@ -125,6 +126,8 @@ zigistat:
 
   Address ISPExec
   'vget (debugfil defruid readonly dovedir encoding)'
+  parse value encoding with .'-'codep .
+  if codep = null then codep = 1047
 
   x = debug('start of zigistat with option:' opt)
 
@@ -271,6 +274,8 @@ zigistat:
       x = debug('Saving stats begins to:' filepath)
       x = bpxwunix('rm' usssafe(filepath),,so.,se.)
       call write_stats
+      cmd = 'chtag -c' codep filepath
+      x = bpxwunix(cmd,,so.,se.)
       x = debug('Saving stats completed.')
       return 0
     end

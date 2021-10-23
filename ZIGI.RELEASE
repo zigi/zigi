@@ -6,6 +6,29 @@
 =============================================================================
 This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
+
+                             ZIGI Release Notes
+                               Version 3.12
+
+                         New Features and Functions
+                         --------------------------
+
+More exploitation of Dovetail's getpds/putpds.
+  - Correctly tag z/OS datasets and members as they are copied to OMVS
+
+                          Bug Fixes and Other Updates:
+                          ----------------------------
+
+Correctly tag all dataset/members copied using CP or GETPDS to OMVS
+Changed ADDDSN abbreviation to ADDD and an alias of ADS
+Changed ADDALL abbreviation to ADD
+Some more work to correctly detect when z/OS PDS members have changed
+  * still not 100% but closer (have not found a repeatable use case)
+Update ZIGISTAT to handle load library statistics better (using AMBLIST)
+Update ZIGISTAT to correctly tag the statistics files
+
+-----------------------------------------------------------------------------
+
                              ZIGI Release Notes
                                Version 3.11
 
@@ -29,6 +52,8 @@ Uppercase 'files' with extensions now handled properly
 _BPX_SHAREAS now set to required
 Default prefix for zOS datasets is now <USERID>
 Various fixes related to 'exotic' codepages :)
+
+-----------------------------------------------------------------------------
 
                              ZIGI Release Notes
                                Version 3.10
