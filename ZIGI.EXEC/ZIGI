@@ -29,6 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            10/25/21 LBD - Correct tag on new members       |
   |            10/23/21 LBD - Improved File Tagging            |
   |                           using default encoding charset   |
   |            08/16/21 LBD - Corrections for detected deleted |
@@ -6750,6 +6751,8 @@ Update_repo_metadata:
             if zdsn.file = null
             then filesuf = ',upp=Y'
             else filesuf = ',su='zdsn.file
+            if binopt /= '-b' then
+               filesuf = filesuf',tag=y -t' codep
             cmd = 'cd' localrep'/'zigirep'/'file '&&' ,
               'getpds' binopt '-LI -M' ,
               'st='statpath',upd=n'filesuf '//'edsn '.'
@@ -6825,6 +6828,10 @@ Update_repo_metadata:
                 tagcmd = 'chtag -b 'localrep'/'zigirep'/'r'/'rm
                 x = docmd(tagcmd)
               end
+              else do /* text file tag */
+                tagcmd = 'chtag -c' codep localrep'/'zigirep'/'r'/'rm
+                x = docmd(tagcmd)
+                end
               mem_hit = 1
             end
           end
