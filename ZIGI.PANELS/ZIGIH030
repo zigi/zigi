@@ -16,10 +16,10 @@
 +
 +          File names
 +          OMVS    z/OS   and    within the Data
-+         %  _+<->%@             x'00' +null
-+         %  .+<->%#             x'0D' +Carriage Return (CR)
-+         %  -+<->%$             x'15' +New Line (NL)
-%                                x'25' +Line Feed (LF)
++         %  _+<->%@             x'0D' +Carriage Return (CR)
++         %  .+<->%#             x'15' +New Line (NL)
++         %  -+<->%$             x'25' +Line Feed (LF)
++
 +
 +    "The best competition I have is against myself to become better."
 +       -- John Wooden
