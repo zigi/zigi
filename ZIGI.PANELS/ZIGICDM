@@ -14,9 +14,13 @@
 +Git Repository. This happens when the members are deleted from the z/OS PDS
 +outside of ZIGI.
 +
-+Use%R+to recovery any members that should not be deleted. Then press%F3+
-+to continue. Any members%not+recovered will be deleted.%Or+enter%STOP+
-+to continue without recovery or deletions at this time.
++Use%R+to recovery any members that should not be deleted.
++
++To continue enter%Y+and press%F3+to remove the OMVS copies of the PDS members.
++Or leave the confirmation as%N+to continue without removing the OMVS copies
++of the PDS Members but%without+replacing the PDS Members.
++
++Continue:_z+   %Y+to delete and continue %N+to keep and continue.
 +
 +Dataset:[fulldsn
 +
@@ -24,12 +28,15 @@
 )Model
 @z+[dmrow      $dmstate
 )Init
- &delconf = &z
-  .zvars = '(dsel)'
+  &delconf = &z
+  .zvars = '(zdconf dsel)'
   .cursor = &zcmd
   .help = zigihcdm
   &zgsr = CSR
+if (&zdconf = &Z)
+   &zdconf = N
 )Proc
+ ver (&zdconf,list,Y,N)
  ver (&dsel,list,E,B,R)
 )End
 /* -------------------------------------------------------- */

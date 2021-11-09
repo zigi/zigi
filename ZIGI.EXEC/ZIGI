@@ -29,6 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            11/09/21 LBD - Correct member delete process    |
+  |                           on repo open                     |
   |            10/25/21 LBD - Correct tag on new members       |
   |            10/23/21 LBD - Improved File Tagging            |
   |                           using default encoding charset   |
@@ -7096,6 +7098,7 @@ Update_Status:
 Confirm_Mem_Deletes:
   tbcd = 'zcd'time('s')
   cmdhit = 0
+  zdconf = 'N'
   'tbcreate' tbcd 'names(dmrow dmorig dmstate) nowrite'
   do cmdi = 1 to words(mem_omvs)
     dmrow = word(mem_omvs,cmdi)
@@ -7108,6 +7111,7 @@ Confirm_Mem_Deletes:
     cmdhit = 1
     'tbadd' tbcd
   end
+  'tbsort' tbcd 'fields(dmrow,ch,a)'
   'tbtop' tbcd
   if cmdhit = 0 then do
     'tbdelete' tbcd
@@ -7127,13 +7131,9 @@ Confirm_Mem_Deletes:
     else 'tbdispl' tbcd
     drc = rc
     cmtsels = ztdsels
-    if zcmd = 'STOP' then do
-      'tbdelete' tbcd
-      return 4
-    end
     if drc > 4 then do
-      'tbdelete' tbcd
-      return 0
+    if zdconf = 'Y' then return 0
+    else return 4
     end
     cmtop = ztdtop
     if dsel /= null then
@@ -9440,12 +9440,6 @@ Fixup_cp: Procedure expose null putpds getpds qualignr localrep zigirep ,
   end
   if left(target,2) = '//' then do   /* use putpds */
     cp = putpds
-    /* Comment Start
-    if pos('(',target) > 0 then do
-    parse value target with lt'('tm')'rt
-    target = lt''rt
-    end
-    Comment End */
   end
   if left(source,2) = '//' then do   /* use getpds */
     cp = getpds
@@ -9486,9 +9480,12 @@ Fixup_cp: Procedure expose null putpds getpds qualignr localrep zigirep ,
       '-M st='localrep'/'zigirep'/.zigi/'statfile','strip(subword(cp,3))
   end
   if pos('-B',cmd) > 0 then cp = cp '-b'
-  else cp = cp',tag=y -t' codep
+  else if word(cp,1) = 'getpds' then
+       cp = cp',tag=y -t' codep
   cmd = cp source target
+  if word(cp,1) = 'getpds' then
   tagit = '&& chtag -c' codep localrep'/'zigirep'/.zigi/'statfile
+  else tagit = null
   if rcmd = null then return cmd tagit
   else return cmd '&&' rcmd tagit
 
