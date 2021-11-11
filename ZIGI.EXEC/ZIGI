@@ -29,6 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            11/11/21 LBD - Fix History list of Commits      |
   |            11/09/21 LBD - Correct member delete process    |
   |                           on repo open                     |
   |            10/25/21 LBD - Correct tag on new members       |
@@ -7958,7 +7959,10 @@ do_history:
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git log --cc -m -n 9999 --unified=1'
   cmd = cmd "--pretty=format:'commit:%h Date:%cD Subject:%f' --name-only" ,
+    ' --' usssafe(element) '| grep -e commit'
+    /* Comment Start
     '| grep -e commit -e' usssafe(element)
+       Comment End */
   x = docmd(cmd)
   hhit = 0
   hist_tbl = 'ZHIST'random(999)
