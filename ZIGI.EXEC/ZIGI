@@ -29,6 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            11/14/21 LBD - Fixup Recovery filename          |
   |            11/11/21 LBD - Fix History list of Commits      |
   |            11/09/21 LBD - Correct member delete process    |
   |                           on repo open                     |
@@ -9070,7 +9071,10 @@ DoHist_File_Extract:
     parse value element with file'/'work
     file = translate(file,' ','.')
     ext = word(file,words(file))
+    /* Comment Start
     file = home'/tmp/'work'.'ext
+       Comment End */
+    file = home'/tmp/'work
   end
   else file = home'/tmp/'element
   call check_tmp
@@ -9082,6 +9086,7 @@ DoHist_File_Extract:
   if dhrc > 0 then call view_std 'B'
   Comment End */
   cmd = 'cd' localrep'/'zigirep ,
+    '&& git reset HEAD && git checkout .' ,  /* make sure we are clean */
     '&& git checkout' branch
   x = docmd(cmd)
   if x > 0 then call view_std 'B'
