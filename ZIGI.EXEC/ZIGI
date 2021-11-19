@@ -29,8 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            11/14/21 LBD - Fixup Recovery filename          |
-  |            11/11/21 LBD - Fix History list of Commits      |
+  |            11/19/21 LBD - Correct getpds tag check         |
   |            11/09/21 LBD - Correct member delete process    |
   |                           on repo open                     |
   |            10/25/21 LBD - Correct tag on new members       |
@@ -7465,9 +7464,6 @@ Add_Dataset:
             'format (e.g. TSO Transmit or IEBCopy Unload) if you' ,
             'need to have it included in the git repository.'
           'setmsg msg(isrz003)'
-          /* Comment Start
-          rc = 4
-             Comment End */
         end
         if rc = 0 then do
           call do_add_copy 'binary'
@@ -7611,7 +7607,9 @@ Do_Add_Copy:
     pdsc = usssafe(pds)
     if pos('/',pdss) > 0 then
     parse value pdss with pdss'/'.
-    mkdir = "mkdir -p "DIR"/"pdss
+    mkdir = "mkdir -p "DIR"/"pdss ,
+            '&& touch' dir'/.zigi/'pdss ,
+             '&& chtag -c' codep localrep'/'zigirep'/.zigi/'pdss
     x = docmd(mkdir)
     binopt = null
     if translate(option) = 'BINARY' then do
@@ -7960,10 +7958,7 @@ do_history:
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git log --cc -m -n 9999 --unified=1'
   cmd = cmd "--pretty=format:'commit:%h Date:%cD Subject:%f' --name-only" ,
-    ' --' usssafe(element) '| grep -e commit'
-    /* Comment Start
     '| grep -e commit -e' usssafe(element)
-       Comment End */
   x = docmd(cmd)
   hhit = 0
   hist_tbl = 'ZHIST'random(999)
@@ -9071,10 +9066,7 @@ DoHist_File_Extract:
     parse value element with file'/'work
     file = translate(file,' ','.')
     ext = word(file,words(file))
-    /* Comment Start
     file = home'/tmp/'work'.'ext
-       Comment End */
-    file = home'/tmp/'work
   end
   else file = home'/tmp/'element
   call check_tmp
@@ -9086,7 +9078,6 @@ DoHist_File_Extract:
   if dhrc > 0 then call view_std 'B'
   Comment End */
   cmd = 'cd' localrep'/'zigirep ,
-    '&& git reset HEAD && git checkout .' ,  /* make sure we are clean */
     '&& git checkout' branch
   x = docmd(cmd)
   if x > 0 then call view_std 'B'
@@ -9424,7 +9415,7 @@ do_copy:
     end
     x = docmd(do_cpcmd)
     if se.0 > 1 then
-    call view_std 'B'
+      call view_std 'B'
     return x
   end
 
@@ -9489,10 +9480,10 @@ Fixup_cp: Procedure expose null putpds getpds qualignr localrep zigirep ,
       '-M st='localrep'/'zigirep'/.zigi/'statfile','strip(subword(cp,3))
   end
   if pos('-B',cmd) > 0 then cp = cp '-b'
-  else if word(cp,1) = 'getpds' then
+  else if right(word(cp,1),6) = 'getpds' then
        cp = cp',tag=y -t' codep
   cmd = cp source target
-  if word(cp,1) = 'getpds' then
+  if right(word(cp,1),6) = 'getpds' then
   tagit = '&& chtag -c' codep localrep'/'zigirep'/.zigi/'statfile
   else tagit = null
   if rcmd = null then return cmd tagit
