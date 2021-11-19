@@ -30,6 +30,7 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            11/19/21 LBD - Correct getpds tag check         |
+  |                         - Require git version 2.26 or newer|
   |            11/09/21 LBD - Correct member delete process    |
   |                           on repo open                     |
   |            10/25/21 LBD - Correct tag on new members       |
@@ -796,7 +797,7 @@ init_git:
   end
 
   x = docmd('git --version')
-  required_version = '2.14.4'
+  required_version = '2.26'
   x = so.0
   parse var so.x 'git' 'version' version'_'subversion
   version = strip(version,'B')
