@@ -20,6 +20,8 @@ More exploitation of Dovetail's getpds/putpds.
                           Bug Fixes and Other Updates:
                           ----------------------------
 
+Correct situation where the ignore qualifiers is set to 0 so the full
+  dataset name is used for the OMVS and Git repositories.
 Correctly tag all dataset/members copied using CP or GETPDS to OMVS
 Changed ADDDSN abbreviation to ADDD and an alias of ADS
 Changed ADDALL abbreviation to ADD
