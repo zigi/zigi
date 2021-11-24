@@ -29,6 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            11/24/21 LBD - Clean up codep (codepage) from   |
+  |                           .gitattributes                   |
   |            11/19/21 LBD - Correct getpds tag check         |
   |                         - Require git version 2.26 or newer|
   |            11/09/21 LBD - Correct member delete process    |
@@ -6272,7 +6274,7 @@ Create_Repo:
     * ---------------------------------------------------- */
     /* encoding given? */
     if encoding = null then encoding = 'IBM-1047'
-    parse value encoding with .'-'codep
+    parse value encoding with .'-'codep .
     /* test if localrep is present */
     cmd = '[[ -d 'localrep' ]] && echo 1'
     x = docmd(cmd)
@@ -8586,7 +8588,8 @@ Get_Default_Codepage:
   do i = 1 to s.0
     if pos('zos-working-tree-encoding',s.i) = 0 then iterate
     parse value s.i with .'zos-working-tree-encoding='encoding .
-    parse value encoding with .'-'codep
+    parse value encoding with .'-'codep .
+    codep = translate(codep,' ','0D'x)
     return
   end
   if encoding = null then
