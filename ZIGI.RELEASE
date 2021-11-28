@@ -15,7 +15,8 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
 Now REQUIRES a GIT version 2.26 or newer.
 More exploitation of Dovetail's getpds/putpds.
-  - Correctly tag z/OS datasets and members as they are copied to OMVS
+Correctly tag z/OS datasets and members as they are copied to OMVS
+  Based upon the default codepage as found in the .gitattributes file
 
                           Bug Fixes and Other Updates:
                           ----------------------------
