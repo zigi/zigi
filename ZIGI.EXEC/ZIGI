@@ -29,6 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            12/06/21 LBD - Prevent adding empty PDS datasets|
+  |                         - Correct zerrhm panel name        |
   |            11/24/21 LBD - Clean up codep (codepage) from   |
   |                           .gitattributes                   |
   |            11/19/21 LBD - Correct getpds tag check         |
@@ -740,7 +742,7 @@ init_git:
   | define our working default variables |
   * ------------------------------------ */
   zhtop = 'ZIGIHINT'
-  zerrhm   = 'zigih00'
+  zerrhm   = 'zigih000'
   zerralrm = 'NO'
   zerrtp   = 'NOTIFY'
   zs1 = 'Preparing the ZIGI environment for use'
@@ -7444,30 +7446,36 @@ Add_Dataset:
         else "Browse Dataset('"dsna"')"
       end
       when zsel = 'S' | zsel = 'A' then do
-        rc = Check_Load_Library(dsna)
-        if rc = 0 then
-        call do_add_copy
-        else do
-          call do_add_copy 'binary'
-          gaupdate = 1
+        rc = check_if_empty(dsna)
+        if rc = 0 then do
+          rc = Check_Load_Library(dsna)
+          if rc = 0 then
+          call do_add_copy
+          else do
+            call do_add_copy 'binary'
+            gaupdate = 1
+          end
         end
       end
       when zsel = 'AB' then do
-        rc = Check_Load_Library(dsna)
-        if left(sysrecfm,1) = 'V' then do
-          zerrsm = null
-          zerrlm = left('DSN:' dsna,74) ,
-            'Is RECFM=V and binary may be a problem due to the way' ,
-            'the OMVS cp command handles binary data. You should' ,
-            'verify that the data is usable after adding it. If not' ,
-            'Then convert it to a more portable' ,
-            'format (e.g. TSO Transmit or IEBCopy Unload) if you' ,
-            'need to have it included in the git repository.'
-          'setmsg msg(isrz003)'
-        end
+        rc = check_if_empty(dsna)
         if rc = 0 then do
-          call do_add_copy 'binary'
-          gaupdate = 1
+          rc = Check_Load_Library(dsna)
+          if left(sysrecfm,1) = 'V' then do
+            zerrsm = null
+            zerrlm = left('DSN:' dsna,74) ,
+              'Is RECFM=V and binary may be a problem due to the way' ,
+              'the OMVS cp command handles binary data. You should' ,
+              'verify that the data is usable after adding it. If not' ,
+              'Then convert it to a more portable' ,
+              'format (e.g. TSO Transmit or IEBCopy Unload) if you' ,
+              'need to have it included in the git repository.'
+            'setmsg msg(isrz003)'
+          end
+          if rc = 0 then do
+            call do_add_copy 'binary'
+            gaupdate = 1
+          end
         end
       end
       Otherwise nop
@@ -7494,6 +7502,17 @@ Add_Dataset:
 tbcreate_dsnatbl:
   'tbcreate' dsnatbl 'keys(dsna) names(dastat dsnvol) nowrite'
   return
+
+Check_If_Empty:
+ arg dsna
+ x = listdsi("'"dsna"'" "dir")
+ if sysmembers = 0 then do
+    zerrsm = 'Empty.'
+    zerrlm = "The selected dataset '"dsna"' is empty so may not be added."
+    'setmsg msg(isrz003)'
+    return 4
+    end
+ return 0
 
 Get_List:
   'tbend' dsnatbl
