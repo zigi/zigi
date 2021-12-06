@@ -30,6 +30,11 @@ Some more work to correctly detect when z/OS PDS members have changed
   * still not 100% but closer (have not found a repeatable use case)
 Update ZIGISTAT to handle load library statistics better (using AMBLIST)
 Update ZIGISTAT to correctly tag the statistics files
+Correct bug when attempting to add a PDS that is empty.
+Correct bug where a popup panel input data field is treated as an ISPF
+  command field.
+Correct a View where the LRECL > 255 and the Edit macro tries to turn
+  off Edit hiliting.
 
 -----------------------------------------------------------------------------
 
