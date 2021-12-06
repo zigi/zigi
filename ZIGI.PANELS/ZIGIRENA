@@ -1,7 +1,7 @@
 )Attr
  $ type(output) caps(on )
  _ type(input)  caps(on ) hilite(uscore) intens(low)
-)Body Window(58,4)
+)Body Window(58,4) cmd()
 +Rename:  $fulldsnq
 +New Name:_newdsn                                        +
 +

@@ -1,7 +1,7 @@
 )Attr
  $ type(output) caps(off)
  _ type(input)  caps(off) hilite(uscore) intens(low)
-)Body Window(45,5)
+)Body Window(45,5) cmd()
 +
   $zs1
   $zs2

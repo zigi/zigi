@@ -2,7 +2,7 @@
  $ type(output) caps(off)
  _ type(input)  caps(on ) hilite(uscore) intens(low)
  # type(input)  caps(on) hilite(uscore) intens(low)
-)Body Window(61,12)
+)Body Window(61,12) cmd()
 +
 +Recover a historical level of:
 $relement

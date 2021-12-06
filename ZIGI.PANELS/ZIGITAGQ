@@ -1,7 +1,7 @@
 )Attr
  $ type(output) caps(off)
  _ type(input)  caps(off) hilite(uscore) intens(low)
-)Body Window(47,7)
+)Body Window(47,7) cmd()
 +Confirm you really want to create a new branch
 +from the selected Tag level?
 +
