@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            12/07/21 LBD - Clean up History                 |
+  |            12/07/21 LBD - Clean up do_history list         |
   |            12/06/21 LBD - Prevent adding empty PDS datasets|
   |                         - Correct zerrhm panel name        |
   |            11/24/21 LBD - Clean up codep (codepage) from   |
@@ -2225,28 +2225,11 @@ WWR_handle_adddsn:
   * --------------------------------- */
 WWR_handle_addall:
   x = debug('ADDALL started:' zigirep)
-  /* Comment Start
-  'tbtop' rtbl
-  do forever
-  'tbskip' rtbl
-  if rc > 0 then leave
-  hit = 0
-  if pos('[M',dsnstat) > 0 then hit = 1
-  if pos('M]',dsnstat) > 0 then hit = 1
-  if pos('Untracked',dsnstat) > 0 then hit = 1
-  if hit = 0 then iterate
-  call git_add
-  end
-  Comment End */
   zs1 = 'Performing Git Add all'
   zs2 = 'Should be quick.'
   call do_popup
   cmd = 'cd' localrep'/'zigirep '&& git add -A .'
   x = docmd(cmd)
-  /* Comment Start
-  call git_safe_add localrep'/'zigirep  '.'
-  x = docmd(cmd)
-     Comment End */
   call update_repo_metadata
   zcmd = null
   x = debug('ADDALL completed' zigirep)
@@ -2451,9 +2434,6 @@ WWR_handle_lcmd_d:
     dtest = 1
   end
   if dtest = 0 then do
-    /* Comment Start
-    call auto_tag_file localrep'/'zigirep dsn
-       Comment End */
     cmd = 'cd' localrep'/'zigirep
     x = docmd(cmd ' && git diff 'dsn)
     if so.0 + se.0 > 0
@@ -2936,13 +2916,6 @@ Work_with_repo_file:
             'setmsg msg(isrz003)'
           end
         end
-        /* Comment Start
-        if ztdsels = 1 then
-        if zigi_changed = 1 then do
-        call work_with_repo_file
-        call update_repo_metadata
-        end
-        Comment End */
       end
     end
   end
@@ -3109,10 +3082,6 @@ WWRF_handle_addall:
     call git_add_member
   end
   call git_add_member_stats
-  /* Comment Start
-  call git_safe_add localrep'/'zigirep  '.'
-  x = docmd(cmd)
-     Comment End */
   zcmd = null
   x = debug('ADDALL completed:' zigirep)
   Return
@@ -3474,9 +3443,6 @@ WWRF_handle_lcmd_d:
   m = usssafe(mem)
   if zdsn.dsn /= null then
   m = lower(m)'.'zdsn.dsn
-  /* Comment Start
-  call auto_tag_file localrep'/'zigirep'/'d m
-     Comment End */
   x = docmd(cmd ' && git diff 'm)
   if so.0 + se.0 > 0
   then call View_std 'X' 'V'
@@ -3756,9 +3722,6 @@ git_add:
   if left(dsn,1) = "'"
   then d = usssafe(dsn)
   else d = '"'usssafe(dsn)'"'
-  /* Comment Start
-  call git_safe_add localrep'/'zigirep  d
-     Comment End */
   if dsnvalid(fulldsn) = "OK" then do
     /* Only get the stats if it's a z/OS dataset
     Don't do it for the USS files
@@ -3820,9 +3783,6 @@ Stash_IT:
   'display panel(zigipop)'
   'rempop'
   call pfshow 'reset'         /* restore pfshow setting */
-  /* Comment Start
-  call auto_tag_files localrep'/'zigirep '.'
-     Comment End */
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git stash push -a -u -m "'date() time() stashmsg'"'
   cmd = cmd '&& git stash show'
@@ -5390,11 +5350,6 @@ Git_Add_Member:
   if force_it = null
   then add_force = null
   else add_force = '-f'
-  /* Comment Start
-  call git_safe_add repodir  d'/'toadd  add_force
-  if se.0 > 0 then
-  call view_std 'B'
-     Comment End */
   parse value mem with mem'.'.
   call update_mem_stats d'/'toadd mem
   zigi_changed = 1
@@ -9095,9 +9050,6 @@ DoHist_File_Extract:
     '&& git checkout' hcommit ,
     '&& cp' localrep'/'zigirep'/'usssafe(element) usssafe(file)
   dhrc = docmd(cmd)
-  /* Comment Start
-  if dhrc > 0 then call view_std 'B'
-  Comment End */
   cmd = 'cd' localrep'/'zigirep ,
     '&& git checkout' branch
   x = docmd(cmd)
@@ -9335,9 +9287,6 @@ BrDelta:
     When change_flag = 'M' then BrType = 'A'
     When change_flag = 'A' then BrType = 'A'
     When change_flag = 'D' then do
-      /* Comment Start
-      if file_exists(change_file) = 1 then do
-      Comment End */
       if pos('/',change_file) > 0
       then do
         parse value change_file with change_file'/'brdmem
@@ -9546,9 +9495,6 @@ Update_stats:
   /* Ensure files are correctly tagged before adding to index */
 Git_Safe_Add:   /* FM */
   parse arg gsa_dir gsa_files gsa_options
-  /* Comment Start
-  call auto_tag_files gsa_dir gsa_files
-     Comment End */
   gsa_cmd = 'cd' gsa_dir
   gsa_cmd = gsa_cmd '&& git add' gsa_options gsa_files
   x = docmd(gsa_cmd)
