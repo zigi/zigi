@@ -29,6 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            12/07/21 LBD - Clean up History                 |
   |            12/06/21 LBD - Prevent adding empty PDS datasets|
   |                         - Correct zerrhm panel name        |
   |            11/24/21 LBD - Clean up codep (codepage) from   |
@@ -7994,9 +7995,9 @@ do_history:
     else do
       so.ih =strip(shelement)
       if element /= shelement then iterate
+      'tbadd' hist_tbl
+      hhit = 1
     end
-    hhit = 1
-    'tbadd' hist_tbl
   end
   if hhit = 0 then do
     zerrsm = 'Warning'
