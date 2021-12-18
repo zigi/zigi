@@ -26,7 +26,6 @@ Correctly tag all dataset/members copied using CP or GETPDS to OMVS
 Changed ADDDSN abbreviation to ADDD and an alias of ADS
 Changed ADDALL abbreviation to ADD
 Some more work to correctly detect when z/OS PDS members have changed
-  * still not 100% but closer (have not found a repeatable use case)
 Update ZIGISTAT to handle load library statistics better (using AMBLIST)
 Update ZIGISTAT to correctly tag the statistics files
 Refine the PDS member history display to only show commits affecting the

@@ -39,6 +39,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            12/18/21 LBD - Correct dsorg/recfm test         |
   |            10/18/21 LBD - Correctly tag stats file         |
   |            10/08/21 LBD - Check for background             |
   |            08/18/21 LBD - Correct AMBLIST for Link and     |
@@ -193,8 +194,8 @@ zigistat:
        x = get_loadlib(dsn)
        Address ISPExec
        end
-  else do
-    if words(dovedir) = 1 then do
+  else if sysdsorg = 'PO' then do
+    if words(dovedir) = 0 then do
       "LMINIT DATAID(STATUS) DATASET("dsn")"
       "LMOPEN DATAID("STATUS") OPTION(INPUT)"
       do forever
