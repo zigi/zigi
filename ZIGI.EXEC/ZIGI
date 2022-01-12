@@ -30,6 +30,11 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            01/12/22 LBD - If history fails report it       |
+  |                         - Change history extract to use    |
+  |                           stash push/pop with checkout     |
+  |                           or no stash if nothing changed   |
+  |                         - Check status on Stash request    |
+  |                           and bypass if nothing changed    |
   |            12/07/21 LBD - Clean up do_history list         |
   |            12/06/21 LBD - Prevent adding empty PDS datasets|
   |                         - Correct zerrhm panel name        |
@@ -3763,6 +3768,15 @@ Stash_IT:
     'setmsg msg(isrz003)'
     return
   end
+  cmd = 'cd' localrep'/'zigirep '&& git status'
+  x = docmd(cmd)
+  sol = so.0
+  if wordpos('nothing',so.sol) > 0 then do
+     zerrsm = 'No Stash.'
+     zerrlm = 'Stash will not work with a clean git environment.'
+     'setmsg msg(isrz003)'
+     return
+     end
   stashmsg = null
   call pfshow 'off'           /* make sure pfshow is off */
   'addpop row(3) column(4)'
@@ -9047,15 +9061,35 @@ DoHist_File_Extract:
   end
   else file = home'/tmp/'element
   call check_tmp
+  /* Comment Start
   cmd = 'cd' localrep'/'zigirep ,
     '&& git checkout' hcommit ,
     '&& cp' localrep'/'zigirep'/'usssafe(element) usssafe(file)
+     Comment End */
+  cmd = 'cd' localrep'/'zigirep '&& git status'
+  x = docmd(cmd)
+  sol = so.0
+  if wordpos('nothing',so.sol) > 0
+     then
+       cmd = 'cd' localrep'/'zigirep ,
+         '&& git checkout' hcommit ,
+         '&& cp' localrep'/'zigirep'/'usssafe(element) usssafe(file) ,
+         '&& git checkout' branch
+     else
+       cmd = 'cd' localrep'/'zigirep ,
+         '&& git stash push -a -u' ,
+         '&& git checkout' hcommit ,
+         '&& cp' localrep'/'zigirep'/'usssafe(element) usssafe(file) ,
+         '&& git checkout' branch ,
+         '&& git stash pop'
   dhrc = docmd(cmd)
   if dhrc > 0 then call view_std 'B'
+  /* Comment Start
   cmd = 'cd' localrep'/'zigirep ,
     '&& git checkout' branch
   x = docmd(cmd)
   if x > 0 then call view_std 'B'
+     Comment End */
   return dhrc
 
   /* ------------------------------------------------------------ *

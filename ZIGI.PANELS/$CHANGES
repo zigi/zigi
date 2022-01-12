@@ -34,6 +34,11 @@ Correct bug where a popup panel input data field is treated as an ISPF
   command field.
 Correct a View where the LRECL > 255 and the Edit macro tries to turn
   off Edit hiliting.
+Change the History extract to use Stash, if there are changes, along
+  with the previous checkout to eliminate issues if the archive is not
+  clean.
+Check the repository status on a Stash request and inform the user if
+  the repository is clean and Stash is not useful.
 
 -----------------------------------------------------------------------------
 

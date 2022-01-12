@@ -15,7 +15,8 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
 Now REQUIRES a GIT version 2.26 or newer.
 More exploitation of Dovetail's getpds/putpds.
-  - Correctly tag z/OS datasets and members as they are copied to OMVS
+Correctly tag z/OS datasets and members as they are copied to OMVS
+  Based upon the default codepage as found in the .gitattributes file
 
                           Bug Fixes and Other Updates:
                           ----------------------------
@@ -28,8 +29,16 @@ Changed ADDALL abbreviation to ADD
 Some more work to correctly detect when z/OS PDS members have changed
 Update ZIGISTAT to handle load library statistics better (using AMBLIST)
 Update ZIGISTAT to correctly tag the statistics files
-Refine the PDS member history display to only show commits affecting the
-  specific PDS member
+Correct bug when attempting to add a PDS that is empty.
+Correct bug where a popup panel input data field is treated as an ISPF
+  command field.
+Correct a View where the LRECL > 255 and the Edit macro tries to turn
+  off Edit hiliting.
+Change the History extract to use Stash, if there are changes, along
+  with the previous checkout to eliminate issues if the archive is not
+  clean.
+Check the repository status on a Stash request and inform the user if
+  the repository is clean and Stash is not useful.
 
 -----------------------------------------------------------------------------
 
