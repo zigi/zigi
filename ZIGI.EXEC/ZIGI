@@ -29,6 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            01/12/22 LBD - If history fails report it       |
   |            12/07/21 LBD - Clean up do_history list         |
   |            12/06/21 LBD - Prevent adding empty PDS datasets|
   |                         - Correct zerrhm panel name        |
@@ -9050,6 +9051,7 @@ DoHist_File_Extract:
     '&& git checkout' hcommit ,
     '&& cp' localrep'/'zigirep'/'usssafe(element) usssafe(file)
   dhrc = docmd(cmd)
+  if dhrc > 0 then call view_std 'B'
   cmd = 'cd' localrep'/'zigirep ,
     '&& git checkout' branch
   x = docmd(cmd)
