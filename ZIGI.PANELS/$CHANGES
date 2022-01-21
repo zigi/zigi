@@ -6,6 +6,68 @@
 =============================================================================
 This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
+
+                             ZIGI Release Notes
+                               Version 3.12
+
+                         New Features and Functions
+                         --------------------------
+
+Now REQUIRES a GIT version 2.26 or newer.
+More exploitation of Dovetail's getpds/putpds.
+Correctly tag z/OS datasets and members as they are copied to OMVS
+  Based upon the default codepage as found in the .gitattributes file
+
+                          Bug Fixes and Other Updates:
+                          ----------------------------
+
+Correct situation where the ignore qualifiers is set to 0 so the full
+  dataset name is used for the OMVS and Git repositories.
+Correctly tag all dataset/members copied using CP or GETPDS to OMVS
+Changed ADDDSN abbreviation to ADDD and an alias of ADS
+Changed ADDALL abbreviation to ADD
+Some more work to correctly detect when z/OS PDS members have changed
+Update ZIGISTAT to handle load library statistics better (using AMBLIST)
+Update ZIGISTAT to correctly tag the statistics files
+Correct bug when attempting to add a PDS that is empty.
+Correct bug where a popup panel input data field is treated as an ISPF
+  command field.
+Correct a View where the LRECL > 255 and the Edit macro tries to turn
+  off Edit hiliting.
+Change the History extract to use Stash, if there are changes, along
+  with the previous checkout to eliminate issues if the archive is not
+  clean.
+Check the repository status on a Stash request and inform the user if
+  the repository is clean and Stash is not useful.
+
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
+                               Version 3.11
+
+                         New Features and Functions
+                         --------------------------
+
+More exploitation of Dovetail's getpds/putpds.
+  - During checkout processing
+  - For ISPFSTATS
+
+Added MarkDown cheatsheet in ISPF edit on .md files (zigiemmd macro)
+
+                          Bug Fixes and Other Updates:
+                          ----------------------------
+
+Fix issues with binary characters messing up in git 2.26
+Muplitple fixes on ' usssafe'  conversion of ($,# chars in uss-files)
+Removal of 32k member limit
+Env variables updated when .profile missing in action
+Uppercase 'files' with extensions now handled properly
+_BPX_SHAREAS now set to required
+Default prefix for zOS datasets is now <USERID>
+Various fixes related to 'exotic' codepages :)
+
+-----------------------------------------------------------------------------
+
                              ZIGI Release Notes
                                Version 3.10
 

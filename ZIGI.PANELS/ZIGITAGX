@@ -4,7 +4,7 @@
  $ type(output) hilite(uscore) caps(off)
  { type(output) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
-)Body Window(69,8)
+)Body Window(69,8) cmd()
 +
 +Enter%New HLQ+for the Extract:
 _tagxhlq                         +(no quotes allowed)

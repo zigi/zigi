@@ -8,21 +8,21 @@
 +
                              %Special Characters+
 +
-+Special characters in z/OS datasets and member names are escaped for
-+OMVS processes using the \ escape character.
++Special characters in z/OS datasets and member names are escaped for OMVS
++processes using the \ escape character. Some characters within the data
++can also cause problems and cannot be escaped.
+
++The characters that are challenges for OMVS and/or Git:
 +
-+The characters that are challenges are the%@#$+charactes:
-+
-                  OMVS   z/OS
-                 %  _+<->%@
-                 %  .+<->%#
-                 %  -+<->%$
-+
++          File names
++          OMVS    z/OS   and    within the Data
++         %  _+<->%@             x'0D' +Carriage Return (CR)
++         %  .+<->%#             x'15' +New Line (NL)
++         %  -+<->%$             x'25' +Line Feed (LF)
 +
 +
-+
-     "The best competition I have is against myself to become better."
-        -- John Wooden
++    "The best competition I have is against myself to become better."
++       -- John Wooden
 +
           +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init

@@ -10,6 +10,8 @@
 +
 %AddDsn+is used to add z/OS datasets to the repository.
 +
++Or abbreviated to%ADS+or%ADDD+
++
 +When a dataset is added, a copy of it is made to the OMVS filesystem
 +where the local repository is located. If the dataset is a PDS, then the ISPF
 +statistics are collected and stored in the .ZIGI location. A%git add+is
@@ -21,8 +23,6 @@
 %Fixed Dataset Prefix+is used to generate a list of z/OS datasets under
 +the provided prefix, or prefixes, from which to select datasets to add
 +to the repository.
-+
-+
 +
 +        +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init

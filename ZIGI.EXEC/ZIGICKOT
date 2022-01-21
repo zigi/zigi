@@ -17,6 +17,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            11/19/21 LBD - Correct HLQ if null              |
   |            06/09/21 LBD - Correct HLQ if no end .          |
   |            06/03/21 LBD - Change SHAREAS to REQUIRED       |
   |            05/31/21 LBD - fix for mixed text/binary with   |
@@ -229,7 +230,9 @@
   end
   Address TSO
 
-  if right(ckothlq,1) /= '.' then ckothlq = ckothlq'.'
+  if right(ckothlq,1) /= '.' then
+    if ckothlq /= null then
+      ckothlq = ckothlq'.'
 
   /* ------------------------------- *
   | Get the list of Binary Datasets |

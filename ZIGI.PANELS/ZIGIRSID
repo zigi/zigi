@@ -1,6 +1,6 @@
 )Attr
  $ type(input)  caps(on ) hilite(uscore) intens(low)
-)Body Window(45,4)
+)Body Window(45,4) cmd()
 +
 +Enter the userid to be set for all members:
 +Userid:$resetid +
