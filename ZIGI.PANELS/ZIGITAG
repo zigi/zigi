@@ -1,7 +1,7 @@
 )Attr
  $ type(output) caps(off)
  _ type(input)  caps(off) hilite(uscore) intens(low)
-)Body Window(41,5)
+)Body Window(41,5) cmd()
 +
 +Enter Tag ID:_tagid                   +
 +Optional Text:_tagmsg

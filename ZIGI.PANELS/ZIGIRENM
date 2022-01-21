@@ -1,7 +1,7 @@
 )Attr
  $ type(output) caps(on )
  _ type(input)  caps(on ) hilite(uscore) intens(low)
-)Body Window(32,4)
+)Body Window(32,4) cmd()
 +Current Member:$mem
 +New Member:    _newmem  +
 +

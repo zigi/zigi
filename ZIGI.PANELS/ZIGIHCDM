@@ -11,15 +11,15 @@
 +A Partitioned Dataset Member is missing, probably deleted, while the OMVS
 +copy of the member still exists.
 +
-+You have two options:
-     %1+Enter%STOP+to prevent the deletions
-     %2+Press%F3+to proceed with the deletes
++You have three options:
+     %1+Enter%Y+and then%F3+to delete the OMVS copies of the PDS members
+     %2+Enter%N+and then%F3+to NOT delete the OMVS copies of the PDS members
+     %3+Recover using selection%R+individual PDS members from the OMVS copy
 +
 +The row selection options:
     %B+Browse the OMVS version of the member
     %E+Edit the OMVS version of the member
     %R+Recover the member by copying from OMVS back to the PDS
-+
 +
         +"Overconfidence is the most dangerous form of carelessness."
             +" -- Clone Wars quote"

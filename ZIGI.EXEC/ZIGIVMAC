@@ -7,6 +7,8 @@
  | Author:    Lionel B. Dyck                                  |
  |                                                            |
  | History:  (most recent on top)                             |
+ |            12/06/21 LBD - Check LRECL < 256 before turning |
+ |                           hilite off                       |
  |            07/17/20 LBD - Turn off Hilite                  |
  |            06/22/20 LBD - Add Git Command msg if present   |
  |            06/11/20 LBD - If lrecl > 255 no hilite         |
@@ -15,7 +17,7 @@
  |                                                            |
  | ---------------------------------------------------------- |
  |    ZIGI - the z/OS ISPF Git Interface                      |
- |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
+ |    Copyright (C) 2020-2021 - Henri Kuiper and Lionel Dyck  |
  |                                                            |
  |    This program is free software: you can redistribute it  |
  |    and/or modify it under the terms of the GNU General     |
@@ -42,6 +44,7 @@
      exit
      end
   '(lrecl) = lrecl'
+  if lrecl < 256 then
   'hilite off'
   Address ISPExec 'vget (vtitle gitcmde localrep zigirep)'
   if gitcmde /= '' then do

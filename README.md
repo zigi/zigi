@@ -36,7 +36,7 @@ Yes please!
 # Known Issues (maybe solutions...)
 
 ### Git not found (even though you installed it)
-Zigi needs to find the git executable in the 'PATH'. To determine the 'PATH' zigi sources /etc/proifile and .profile.
+Zigi needs to find the git executable in the 'PATH'. To determine the 'PATH' zigi sources /etc/proiile and ~.profile.
 Make sure one of these files contains the correct EXPORT statements.
 
 ### Weird Certificate Errors
@@ -45,3 +45,14 @@ disable encryption for all uses of git and this is strongly discouraged in non-s
 
     git config --global http.sslVerify false
 
+### Text File Corruption
+
+If a text file contains the following special characters they will be corrupted when copied from z/OS to OMVS:
+                                    
+       x'0D'  Carriage Return (CR)  
+       x'15'  New Line (NL)         
+       x'25'  Line Feed (LF)        
+
+This typically occurs in ISPF Panels where there special characters are used as attribute characters.
+
+The solution is to add these datasets, or PDS members, to the Git repository as binary elements.
