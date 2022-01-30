@@ -29,6 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            01/30/22 HK  - Fix ZIGISTAT not found when      |
+  |                           creating a new repo              |
   |            01/12/22 LBD - If history fails report it       |
   |                         - Change history extract to use    |
   |                           stash push/pop with checkout     |
@@ -7690,7 +7692,7 @@ Do_Add_Copy:
       x = docmd(tagcmd)
     end
     if enhanced_cp = 0 | sysrecfm = 'U' then
-    Address TSO '%zigistat' "'"pds"'" dir"/.zigi/"pdss 'S'
+    x = zigistat(pds dir'/.zigi/'pdss 'S')
     else do
       uscmd = dir'/.zigi/'pdss "'"pds"'"
       call update_stats uscmd
