@@ -195,7 +195,7 @@ zigistat:
        Address ISPExec
        end
   else if sysdsorg = 'PO' then do
-    if words(dovedir) = 0 then do
+    if dovedir = 0 then do
       "LMINIT DATAID(STATUS) DATASET("dsn")"
       "LMOPEN DATAID("STATUS") OPTION(INPUT)"
       do forever
