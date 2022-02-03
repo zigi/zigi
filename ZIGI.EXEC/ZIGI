@@ -29,6 +29,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            02/03/22 LBD - Correct dsnvalid test for blank  |
+  |            02/01/22 LBD - Correct Dataset add stats        |
+  |                           if no Dovetail                   |
   |            01/30/22 HK  - Fix ZIGISTAT not found when      |
   |                           creating a new repo              |
   |            01/12/22 LBD - If history fails report it       |
@@ -3730,7 +3733,6 @@ git_add:
   if left(dsn,1) = "'"
   then d = usssafe(dsn)
   else d = '"'usssafe(dsn)'"'
-  call git_safe_add localrep'/'zigirep d
   if dsnvalid(fulldsn) = "OK" then do
     /* Only get the stats if it's a z/OS dataset
     Don't do it for the USS files
@@ -6573,6 +6575,7 @@ dsnvalid:
   if dsninfo.val_dsn /= null then return 'OK'
   if left(val_dsn,1) = '.' then return 'NO'
   if strip(val_dsn) = null then return 'NO'
+  if pos(' ',val_dsn) > 0 then return 'NO'
   val_dsn = strip(val_dsn,'B',"'")
   upp = TRANSLATE(val_dsn,".ABCDEFGHIJKLMNOPQRSTUVWXYZ",,
     ".abcdefghijklmnopqrstuvwxyz")
@@ -7693,7 +7696,7 @@ Do_Add_Copy:
       x = docmd(tagcmd)
     end
     if enhanced_cp = 0 | sysrecfm = 'U' then
-    x = zigistat(pds dir'/.zigi/'pdss 'S')
+    x = zigistat("'"pds"'" dir'/.zigi/'pdss 'S')
     else do
       uscmd = dir'/.zigi/'pdss "'"pds"'"
       call update_stats uscmd
