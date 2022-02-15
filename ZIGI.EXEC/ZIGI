@@ -29,6 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            02/15/22 LBD - Correct if no Dovetail           |
   |            02/03/22 LBD - Correct dsnvalid test for blank  |
   |            02/01/22 LBD - Correct Dataset add stats        |
   |                           if no Dovetail                   |
@@ -8230,6 +8231,8 @@ GETENV:
   x = listdsi('NOCOZ' 'FILE')
   if sysreason = 3 then do
     enhanced_cp = 0
+    dovedir = 0
+    'vput (dovedir) shared'
     return
   end
   x = docmd('command -v getpds')
@@ -8249,6 +8252,7 @@ GETENV:
     end
     else enhanced_cp = 0
   end
+  if enhanced_cp = null then enhanced_cp = 0
   dovedir = enhanced_cp dovetail_dir
   'vput (dovedir) shared'
   x = debug('Finished collection of env variables')
