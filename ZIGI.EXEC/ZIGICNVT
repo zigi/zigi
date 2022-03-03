@@ -23,6 +23,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            02/03/22 LBD - Replace dsnvalid routine         |
   |            10/25/20 LBD - Improved usssafe routine         |
   |            10/20/20 LBD - Add .gitattributes if not there  |
   |            08/08/20 LBD - Generalize get_binfiles          |
@@ -306,20 +307,23 @@ Make_dsn:
   'delete' "'"pref"."dd"'"
   return
 
-dsnvalid: Procedure Expose null
+dsnvalid:
   /* Tests for a 'potentially valid' z/OS datasetname */
   parse arg val_dsn
+  if dsninfo.val_dsn /= null then return 'OK'
+  if left(val_dsn,1) = '.' then return 'NO'
   if strip(val_dsn) = null then return 'NO'
+  if pos(' ',val_dsn) > 0 then return 'NO'
   val_dsn = strip(val_dsn,'B',"'")
   upp = TRANSLATE(val_dsn,".ABCDEFGHIJKLMNOPQRSTUVWXYZ",,
     ".abcdefghijklmnopqrstuvwxyz")
   tdsn = translate(val_dsn,' ','.')
   retval = 'OK'   /* asssume good */
-  do i = 1 to words(tdsn)
-    w = word(tdsn,i)
+  do dsnvi = 1 to words(tdsn)
+    w = word(tdsn,dsnvi)
     if length(w) > 8 then retval = 'NO'
     if pos(left(w,1),'ABCDEFGHIJKLMNOPQRSTUVWXYZ$#@') = 0 then retval = 'NO'
-    w = translate(w,left(' ',39,' '), ,
+    w = translate(w,copies(' ',40), ,
       'ABCDEFGHIJKLMNOPQRSTUVWXYZ-$#@0123456789')
     w = strip(w)
     if w /= null then retval = 'NO'

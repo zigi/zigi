@@ -23,7 +23,7 @@
 )ABCINIT
   .ZVARS = 'MENUG'
 )ABC DESC('Local Repo') MNEM(1)
- PDC DESC('Add dataset(s)')                     ACTION RUN(Add     )
+ PDC DESC('Add dataset(s)')                     ACTION RUN(AddData )
  PDC DESC('Add All Modified/Untracked')         ACTION RUN(AddAll  )
  PDC DESC('Commit Changes')                     ACTION RUN(Commit  )
  PDC DESC('Diff')                               ACTION RUN(Diff    )
