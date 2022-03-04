@@ -13,7 +13,7 @@
 +
 +Commit allows for, and it is encouraged to provide, a short summary of the
 +changes to be captured in the git log for historical tracking. The summary
-+typically consists of up to a 50-character title, followed by up to 72
++typically consists of up to a 44-character title, followed by up to 72
 +character lines of explanation. This dialog allows up to 16 lines of text.
 +
 +If there is an issue or ticket number, add that to the title.

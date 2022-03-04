@@ -8,21 +8,21 @@
 +
                                  %Commit+
 +
-+During Commit processing, two additional options are available:
++During Commit processing, three additional options are available:
++
++The Add option is to perform a%git add+prior to the commit for all
++changed elements.
 +
 +The Optional Tag field may contain a lightweight git tag. The tag may not
 +have any blanks within it. After the commit, a%git tag+is performed.
 +
-+The other option is after the commit, a%git push+can be automatically
++The Push option is after the commit, a%git push+can be automatically
 +initiated by entering a%Y+in the Push after field.
 +
 +On the table, the following commands are available:
 +
     +Command:%Insert+or%Insert #+
     +Line:   %I+insert %I#+insert #%D+delete%D#+delete #
-+
-+        "Code is like humor. When you have to explain it, it's bad."
-+               -- Cory House
 +
          +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
