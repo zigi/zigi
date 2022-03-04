@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r12'
+  ver = 'v3r13'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -29,6 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            03/04/22 LBD - Add optional Add to Commit       |
   |            03/03/22 LBD - Correct ISPF Stats on Edit       |
   |                         - Correct undo if member is #...   |
   |                         - Correct debugfil name            |
@@ -5033,6 +5034,14 @@ Do_Commit:
   if defruid /= null then call fixup_userids
   drop combine.
   combine.0 = 0
+
+  /* --------------------- *
+   | Check the zadd option |
+   * --------------------- */
+  if zadd = 'Y'
+     then addopt = '-a'
+     else addopt = null
+
   /* ------------------------------- *
   | If > 1 msg line then use a file |
   * ------------------------------- */
@@ -5055,7 +5064,7 @@ Do_Commit:
     call outtrap 'off'
     address ispexec
     cmd = 'cd' localrep'/'zigirep
-    cmd = cmd '&& git commit -F' file
+    cmd = cmd '&& git commit' addopt '-F' file
     if zigi_offline = 0 then
     if zpush = 'Y' then
     cmd = cmd '&& git push -v'
@@ -5071,7 +5080,7 @@ Do_Commit:
   else do
     cmsg.1 = translate(cmsg.1,' ',"'" '"')
     cmd = 'cd' localrep'/'zigirep
-    cmd = cmd "&& git commit -vm '"cmsg.1"'"
+    cmd = cmd "&& git commit" addopt "-vm '"cmsg.1"'"
     if zigi_offline = 0 then
     if zpush = 'Y' then
     cmd = cmd '&& git push -v'
