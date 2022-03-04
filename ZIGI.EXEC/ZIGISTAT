@@ -354,6 +354,7 @@ zigistat:
         end
         parse value mem.i with actmem cd md . . mt . . . uid .
         data = strip(cd md left(mt,5) uid)
+        if datatype(uid) /= 'CHAR' then data = null
         if strip(data) = null then call update_member_ispf_stats
         if m.actmem = null
         then string = string actmem
@@ -396,9 +397,12 @@ zigistat:
 Update_Member_ISPF_Stats:
     "LMINIT DATAID(zstats) DATASET('"sysdsname"')"
     "LMOPEN DATAID("zstats") OPTION(INPUT)"
-    parse value m.actmem with zcdt zmdt zmtm .
-    'LMMSTATS DATAID('zstats') Member('actmem') Created('zcdt')',
-     'Moddate('zmdt') Modtime('zmtm') User('sysvar('sysuid')')'
+    parse value mem.actmem with cdt mdt mtm uid
+    if uid /= null then
+    'LMMSTATS DATAID('zstats') Member('actmem') Created('cdt')',
+           'Moddate('mdt') Modtime('mtm') User('uid')'
+    else
+    'LMMSTATS DATAID('zstats') Member('actmem') User('userid()')'
     "LMClose Dataid("zstats")"
     "LMFree  Dataid("zstats")"
    return
