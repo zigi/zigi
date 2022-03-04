@@ -39,6 +39,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            03/04/22 LBD - Add ISPF Stats if PDS member     |
+  |                           does not have them               |
   |            03/03/22 LBD - Correct debugfil variable        |
   |            02/15/22 LBD - Correct if no Dovetail           |
   |            02/07/22 LBD - Fix stats if NOCOZ               |
@@ -352,6 +354,7 @@ zigistat:
         end
         parse value mem.i with actmem cd md . . mt . . . uid .
         data = strip(cd md left(mt,5) uid)
+        if strip(data) = null then call update_member_ispf_stats
         if m.actmem = null
         then string = string actmem
         else if data /= m.actmem then string = string actmem
@@ -389,6 +392,16 @@ zigistat:
     end
     Otherwise nop  /* should never get here */
   end
+
+Update_Member_ISPF_Stats:
+    "LMINIT DATAID(zstats) DATASET('"sysdsname"')"
+    "LMOPEN DATAID("zstats") OPTION(INPUT)"
+    parse value m.actmem with zcdt zmdt zmtm .
+    'LMMSTATS DATAID('zstats') Member('actmem') Created('zcdt')',
+     'Moddate('zmdt') Modtime('zmtm') User('sysvar('sysuid')')'
+    "LMClose Dataid("zstats")"
+    "LMFree  Dataid("zstats")"
+   return
 
   /* -------------------------------------------- *
   | Check to see if the provided filepath exists |

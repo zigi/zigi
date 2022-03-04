@@ -13,17 +13,20 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
                          New Features and Functions
                          --------------------------
 
-The Commit panel now prompts for a Git ADD before the Commit.
+*  The Commit panel now prompts for a Git ADD before the Commit.
+*  When a Repository is opened and checked for changes, any PDS members
+   without ISPF statistics will have them created.
 
                           Bug Fixes and Other Updates:
                           ----------------------------
-Correct ISPF Stats on Edit
-Correct undo if member is #...
-Correct debugfil name
-Correct if no Dovetail
-Correct dsnvalid test for blank
-Correct Dataset add stats if no Dovetail
-Fix ZIGISTAT not found when creating a new repo
+
+*  Correct ISPF Stats on Edit
+*  Correct undo if member is #...
+*  Correct debugfil name
+*  Correct if no Dovetail
+*  Correct dsnvalid test for blank
+*  Correct Dataset add stats if no Dovetail
+*  Fix ZIGISTAT not found when creating a new repo
 
 -----------------------------------------------------------------------------
 
