@@ -39,6 +39,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            03/05/22 LBD - Update usssafe routine for #     |
   |            03/04/22 LBD - Add ISPF Stats if PDS member     |
   |                           does not have them               |
   |            03/03/22 LBD - Correct debugfil variable        |
@@ -354,11 +355,11 @@ zigistat:
         end
         parse value mem.i with actmem cd md . . mt . . . uid .
         data = strip(cd md left(mt,5) uid)
-        if datatype(uid) /= 'CHAR' then data = null
-        if strip(data) = null then call update_member_ispf_stats
         if m.actmem = null
         then string = string actmem
         else if data /= m.actmem then string = string actmem
+        if datatype(uid) /= 'CHAR' then data = null
+        if strip(data) = null then call update_member_ispf_stats
       end
       zs3 = 'Completed - building member list.'
       call do_popup4
@@ -574,10 +575,20 @@ debug:
 
 usssafe:
   parse arg safedsn
-  if pos('$',safedsn) = 0 then return safedsn
+  if pos('\$',safedsn) > 0 | pos('$',safedsn) = 0 then
+  if pos('\#',safedsn) > 0 | pos('#',safedsn) = 0 then return safedsn
   safe$pos = 1
   do forever
     pos$safe = pos('$',safedsn,safe$pos)
+    if pos$safe < 1 then leave
+    left$safe = left(safedsn,pos$safe-1)
+    right$save = substr(safedsn,pos$safe)
+    safedsn = left$safe'\'right$save
+    safe$pos = pos$safe + 2
+  end
+  safe$pos = 1
+  do forever
+    pos$safe = pos('#',safedsn,safe$pos)
     if pos$safe < 1 then return safedsn
     left$safe = left(safedsn,pos$safe-1)
     right$save = substr(safedsn,pos$safe)

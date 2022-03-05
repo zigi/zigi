@@ -27,7 +27,7 @@
  &zcmd  = &z
  .cursor = zcmd
  &Add     = 'AddDsn'
- &Addall  = 'AddAll'
+ &Addall  = 'Addall'
  &Br      = 'Branch'
  &Check   = 'Check'
  &Commit  = 'Commit'

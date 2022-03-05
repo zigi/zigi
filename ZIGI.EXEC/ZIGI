@@ -30,6 +30,7 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            03/04/22 LBD - Add optional Add to Commit       |
+  |                         - Add # to usssafe                 |
   |            03/03/22 LBD - Correct ISPF Stats on Edit       |
   |                         - Correct undo if member is #...   |
   |                         - Correct debugfil name            |
@@ -1997,7 +1998,7 @@ WWR_handle_pull:
           dm.dc = delds
           Address TSO 'Delete' delds
           cmd = 'cd' localrep'/'zigirep
-          cmd = cmd '&& rm' deletes.dc
+          cmd = cmd '&& rm -f' deletes.dc
         end
         else do
           parse value deletes.dc with delds'/'mem
@@ -6882,12 +6883,12 @@ Update_repo_metadata:
               call do_popup
               mem_omvs = strip(mem_omvs)
               cmd = 'cd' localrep'/'zigirep'/'r'/'
-              cmd = cmd '&& rm' mem_omvs
+              cmd = cmd '&& rm -f' mem_omvs
               cmd = usssafe(cmd)
               x = docmd(cmd)
               if x > 0 then call view_std 'B'
               cmd = 'cd' localrep'/'zigirep'/'r ,
-                '&& git rm' mem_omvs
+                '&& git rm -f' mem_omvs
               cmd = usssafe(cmd)
               x = docmd(cmd)
               if x > 0 then call view_std 'B'
@@ -7224,10 +7225,20 @@ clean:
 
 usssafe:
   parse arg safedsn
-  if pos('\$',safedsn) > 0 | pos('$',safedsn) = 0 then return safedsn
+  if pos('\$',safedsn) > 0 | pos('$',safedsn) = 0 then
+  if pos('\#',safedsn) > 0 | pos('#',safedsn) = 0 then return safedsn
   safe$pos = 1
   do forever
     pos$safe = pos('$',safedsn,safe$pos)
+    if pos$safe < 1 then leave
+    left$safe = left(safedsn,pos$safe-1)
+    right$save = substr(safedsn,pos$safe)
+    safedsn = left$safe'\'right$save
+    safe$pos = pos$safe + 2
+  end
+  safe$pos = 1
+  do forever
+    pos$safe = pos('#',safedsn,safe$pos)
     if pos$safe < 1 then return safedsn
     left$safe = left(safedsn,pos$safe-1)
     right$save = substr(safedsn,pos$safe)
@@ -9564,6 +9575,7 @@ Update_stats:
   if left(us_dsn,1) /= "'" then us_dsn = "'"us_dsn"'"
   uscmd = dovetail_dir'getpds -M st='us_stats',upd=n' '//'us_dsn
   x = docmd(uscmd)
+  if rc > 0 then call view_std 'B'
   return
 
   /* Ensure files are correctly tagged before adding to index */
