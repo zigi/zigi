@@ -27,6 +27,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            02/03/22 LBD - Fix DSNVALID for blank check     |
   |            06/03/21 LBD - Change SHAREAS to REQUIRED       |
   |            08/25/20 LBD - Fix temp dsn if no tso prefix    |
   |            07/14/20 LBD - Change .zigi to .zigirefd        |
@@ -182,6 +183,7 @@ dsnvalid: Procedure Expose null
   parse arg val_dsn
   if left(val_dsn,1) = '.' then return 'NO'
   if strip(val_dsn) = null then return 'NO'
+  if pos(' ',val_dsn) > 0 then return 'NO'
   val_dsn = strip(val_dsn,'B',"'")
   upp = TRANSLATE(val_dsn,".ABCDEFGHIJKLMNOPQRSTUVWXYZ",,
     ".abcdefghijklmnopqrstuvwxyz")

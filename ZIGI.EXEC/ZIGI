@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r12'
+  ver = 'v3r13'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -29,6 +29,15 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            03/04/22 LBD - Add optional Add to Commit       |
+  |                         - Add # to usssafe                 |
+  |            03/03/22 LBD - Correct ISPF Stats on Edit       |
+  |                         - Correct undo if member is #...   |
+  |                         - Correct debugfil name            |
+  |            02/15/22 LBD - Correct if no Dovetail           |
+  |            02/03/22 LBD - Correct dsnvalid test for blank  |
+  |            02/01/22 LBD - Correct Dataset add stats        |
+  |                           if no Dovetail                   |
   |            01/30/22 HK  - Fix ZIGISTAT not found when      |
   |                           creating a new repo              |
   |            01/12/22 LBD - If history fails report it       |
@@ -516,7 +525,6 @@
   call display_splash
   call enable_rfind
   call init_git
-  call init_debug
   call init_repo
 
   /* ------------------------------------------ *
@@ -1024,6 +1032,7 @@ Init_Debug:
     ztime = time()
     ztime = left(ztime,2)''substr(ztime,4,2)''substr(ztime,7,2)
     debugfil = home'/zigidebug.d'date('j')'.t'ztime
+    Address ISPExec ,
     'vput (debugfil)'
   end
   else zigidebg = 0
@@ -1989,7 +1998,7 @@ WWR_handle_pull:
           dm.dc = delds
           Address TSO 'Delete' delds
           cmd = 'cd' localrep'/'zigirep
-          cmd = cmd '&& rm' deletes.dc
+          cmd = cmd '&& rm -f' deletes.dc
         end
         else do
           parse value deletes.dc with delds'/'mem
@@ -3250,12 +3259,22 @@ WWRF_handle_lcmd_s:
       tagcmd = 'chtag -b 'localrep'/'zigirep'/'r
       x = docmd(tagcmd)
     end
-    call update_mem_stats r mem
+    call update_mem_ispf_stats r mem
+    call update_mem_status r mem
     zigi_changed = 1
   end
   Return
 
-Update_Mem_Stats:
+Update_Mem_ISPF_Stats:
+    "LMINIT DATAID(zstats) DATASET("fulldsn")"
+    "LMOPEN DATAID("zstats") OPTION(INPUT)"
+    'LMMSTATS DATAID('zstats') Member('mem')'
+    'LMMFIND  DATAID('zstats') Member('mem') Stats(yes)'
+    "LMClose Dataid("zstats")"
+    "LMFree  Dataid("zstats")"
+   return
+
+Update_mem_status:
   /* r = dsn/mem */
   parse arg ums_file ums_mem
   cmd = 'cd' localrep'/'zigirep
@@ -3352,7 +3371,7 @@ WWRF_handle_lcmd_rn:
       zerrsm = 'Renamed.'
       zerrlm = mem 'has been renamed in ZIGI, git, z/OS, and OMVS.'
       'setmsg msg(isrz003)'
-      call update_mem_stats dsn'/'rnnewmem mem
+      call update_mem_status dsn'/'rnnewmem mem
       leave
     end
   end
@@ -3730,7 +3749,6 @@ git_add:
   if left(dsn,1) = "'"
   then d = usssafe(dsn)
   else d = '"'usssafe(dsn)'"'
-  call git_safe_add localrep'/'zigirep d
   if dsnvalid(fulldsn) = "OK" then do
     /* Only get the stats if it's a z/OS dataset
     Don't do it for the USS files
@@ -5017,6 +5035,14 @@ Do_Commit:
   if defruid /= null then call fixup_userids
   drop combine.
   combine.0 = 0
+
+  /* --------------------- *
+   | Check the zadd option |
+   * --------------------- */
+  if zadd = 'Y'
+     then addopt = '-a'
+     else addopt = null
+
   /* ------------------------------- *
   | If > 1 msg line then use a file |
   * ------------------------------- */
@@ -5039,7 +5065,7 @@ Do_Commit:
     call outtrap 'off'
     address ispexec
     cmd = 'cd' localrep'/'zigirep
-    cmd = cmd '&& git commit -F' file
+    cmd = cmd '&& git commit' addopt '-F' file
     if zigi_offline = 0 then
     if zpush = 'Y' then
     cmd = cmd '&& git push -v'
@@ -5055,7 +5081,7 @@ Do_Commit:
   else do
     cmsg.1 = translate(cmsg.1,' ',"'" '"')
     cmd = 'cd' localrep'/'zigirep
-    cmd = cmd "&& git commit -vm '"cmsg.1"'"
+    cmd = cmd "&& git commit" addopt "-vm '"cmsg.1"'"
     if zigi_offline = 0 then
     if zpush = 'Y' then
     cmd = cmd '&& git push -v'
@@ -5369,7 +5395,7 @@ Git_Add_Member:
   then add_force = null
   else add_force = '-f'
   parse value mem with mem'.'.
-  call update_mem_stats d'/'toadd mem
+  call update_mem_status d'/'toadd mem
   zigi_changed = 1
   return
 
@@ -6573,6 +6599,7 @@ dsnvalid:
   if dsninfo.val_dsn /= null then return 'OK'
   if left(val_dsn,1) = '.' then return 'NO'
   if strip(val_dsn) = null then return 'NO'
+  if pos(' ',val_dsn) > 0 then return 'NO'
   val_dsn = strip(val_dsn,'B',"'")
   upp = TRANSLATE(val_dsn,".ABCDEFGHIJKLMNOPQRSTUVWXYZ",,
     ".abcdefghijklmnopqrstuvwxyz")
@@ -6856,12 +6883,12 @@ Update_repo_metadata:
               call do_popup
               mem_omvs = strip(mem_omvs)
               cmd = 'cd' localrep'/'zigirep'/'r'/'
-              cmd = cmd '&& rm' mem_omvs
+              cmd = cmd '&& rm -f' mem_omvs
               cmd = usssafe(cmd)
               x = docmd(cmd)
               if x > 0 then call view_std 'B'
               cmd = 'cd' localrep'/'zigirep'/'r ,
-                '&& git rm' mem_omvs
+                '&& git rm -f' mem_omvs
               cmd = usssafe(cmd)
               x = docmd(cmd)
               if x > 0 then call view_std 'B'
@@ -7198,10 +7225,20 @@ clean:
 
 usssafe:
   parse arg safedsn
-  if pos('\$',safedsn) > 0 | pos('$',safedsn) = 0 then return safedsn
+  if pos('\$',safedsn) > 0 | pos('$',safedsn) = 0 then
+  if pos('\#',safedsn) > 0 | pos('#',safedsn) = 0 then return safedsn
   safe$pos = 1
   do forever
     pos$safe = pos('$',safedsn,safe$pos)
+    if pos$safe < 1 then leave
+    left$safe = left(safedsn,pos$safe-1)
+    right$save = substr(safedsn,pos$safe)
+    safedsn = left$safe'\'right$save
+    safe$pos = pos$safe + 2
+  end
+  safe$pos = 1
+  do forever
+    pos$safe = pos('#',safedsn,safe$pos)
     if pos$safe < 1 then return safedsn
     left$safe = left(safedsn,pos$safe-1)
     right$save = substr(safedsn,pos$safe)
@@ -7693,7 +7730,7 @@ Do_Add_Copy:
       x = docmd(tagcmd)
     end
     if enhanced_cp = 0 | sysrecfm = 'U' then
-    x = zigistat(pds dir'/.zigi/'pdss 'S')
+    x = zigistat("'"pds"'" dir'/.zigi/'pdss 'S')
     else do
       uscmd = dir'/.zigi/'pdss "'"pds"'"
       call update_stats uscmd
@@ -8198,6 +8235,8 @@ GETENV:
   x = bpxwunix(cmd,,so.,se.,omvsenv.)
   home    = strip(so.1)
 
+  call init_debug
+
   x = debug('Starting collection of env variables')
 
   cmd  = docmdx('env')
@@ -8227,6 +8266,8 @@ GETENV:
   x = listdsi('NOCOZ' 'FILE')
   if sysreason = 3 then do
     enhanced_cp = 0
+    dovedir = 0
+    'vput (dovedir) shared'
     return
   end
   x = docmd('command -v getpds')
@@ -8246,6 +8287,7 @@ GETENV:
     end
     else enhanced_cp = 0
   end
+  if enhanced_cp = null then enhanced_cp = 0
   dovedir = enhanced_cp dovetail_dir
   'vput (dovedir) shared'
   x = debug('Finished collection of env variables')
@@ -9429,12 +9471,16 @@ do_copy:
   end
 
 Fixup_cp: Procedure expose null putpds getpds qualignr localrep zigirep ,
-  env. codep
+  env. codep debugfil
   parse arg cmd
   parse value cmd with cmd '&&' rcmd
   w = words(cmd)
   target = word(cmd,w)
   source = word(cmd,w-1)
+
+  if left(source,1) = '#'
+     then source = '\'source
+
   cmd = subword(cmd,2,w-3)
   target = strip(target,'B','"')
   source = strip(source,'B','"')
@@ -9529,6 +9575,7 @@ Update_stats:
   if left(us_dsn,1) /= "'" then us_dsn = "'"us_dsn"'"
   uscmd = dovetail_dir'getpds -M st='us_stats',upd=n' '//'us_dsn
   x = docmd(uscmd)
+  if rc > 0 then call view_std 'B'
   return
 
   /* Ensure files are correctly tagged before adding to index */
