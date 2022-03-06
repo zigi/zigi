@@ -1,11 +1,35 @@
    *-------------------------------------------------------------------*
    |  The User Guide and Cheat Sheet can be found at:                  |
-   |  https://github.com/wizardofzos/zigi/wiki/6.-Documentation        |
+   |  https://github.com/zigi/zigi/wiki/6.-Documentation               |
    *-------------------------------------------------------------------*
 
 =============================================================================
 This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
+
+                             ZIGI Release Notes
+                               Version 3.13
+
+                         New Features and Functions
+                         --------------------------
+
+*  The Commit panel now prompts for a Git ADD before the Commit.
+*  When a Repository is opened and checked for changes, any PDS members
+   without ISPF statistics will have them created.
+
+                          Bug Fixes and Other Updates:
+                          ----------------------------
+
+*  Correct ISPF Stats on Edit
+*  Correct undo if member is #...
+*  Correct debugfil name
+*  Correct if no Dovetail
+*  Correct dsnvalid test for blank
+*  Correct Dataset add stats if no Dovetail
+*  Fix ZIGISTAT not found when creating a new repo
+*  Single member add to staging area now works again
+
+-----------------------------------------------------------------------------
 
                              ZIGI Release Notes
                                Version 3.12

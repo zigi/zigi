@@ -27,7 +27,7 @@
  &zcmd  = &z
  .cursor = zcmd
  &Add     = 'AddDsn'
- &Addall  = 'AddAll'
+ &Addall  = 'Addall'
  &Br      = 'Branch'
  &Check   = 'Check'
  &Commit  = 'Commit'
@@ -61,7 +61,7 @@
  if (&zcmd EQ 'LOCATE')
     ver (&lstloc,nb)
 )PNTS
- FIELD(ADD   )  VAR(ZCMD) VAL('ADD')
+ FIELD(ADD   )  VAR(ZCMD) VAL('ADDD')
  FIELD(ADDALL)  VAR(ZCMD) VAL('ADDALL')
  FIELD(BR    )  VAR(ZCMD) VAL('BRANCH')
  FIELD(CHECK )  VAR(ZCMD) VAL('CHECK')

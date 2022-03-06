@@ -8,7 +8,7 @@
 +Git Commit+----------------------}zigtitle    +--------------------------------
 %Command ===>_zcmd       \ \ %Scroll ===>_ccsr+
 + \ \ %F3  +
-%Commit Title:_msg1                                             +
+%Commit Title:_msg1                                        +%Add+before:@z+(Y/N)
 +Optional Tag:_tagid                                       +%Push+after:@z+(Y/N)
 +
 +Command:%Commit%Insert+or%Insert #+
@@ -18,13 +18,15 @@
 )Model
 @z +_cmsg                                                                      +
 )Init
-  .zvars = '(zpush zsel)'
+  .zvars = '(zadd zpush zsel)'
   &ccsr = 'CSR'
   if (&MSG1 EQ &Z)
      .cursor = msg1
   if (&MSG1 NE &Z)
      if (&cmsg EQ &Z)
         .cursor = cmsg
+  if (&zadd EQ &Z)
+      &zadd = 'N'
   if (&zpush EQ &Z)
       &zpush = 'N'
   .help = zigih230
@@ -34,6 +36,7 @@
  if (&zcmd EQ &Z)
     if (&zsel EQ &Z)
       ver (&msg1,nb)
+      ver (&zadd,list,Y,N,&Z)
       ver (&zpush,list,Y,N,&Z)
  &resp = .resp
 *REXX(* zedsmsg zedlmsg resp)
