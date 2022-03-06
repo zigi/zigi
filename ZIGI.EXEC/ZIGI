@@ -2998,7 +2998,6 @@ WWRF_build_member_table:
           stat = null
           iterate
         end
-
         if mem = MEMBER then do
           memstat = porcelain(stat)
           if FOLDER = "./" & stat = "??" then
@@ -5394,6 +5393,11 @@ Git_Add_Member:
   if force_it = null
   then add_force = null
   else add_force = '-f'
+  /* Brought back in */
+  call git_safe_add repodir  d'/'toadd  add_force
+  if se.0 > 0 then
+  call view_std 'B'
+  /* End of brought back in */
   parse value mem with mem'.'.
   call update_mem_status d'/'toadd mem
   zigi_changed = 1
