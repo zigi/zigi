@@ -8,6 +8,23 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
 
                              ZIGI Release Notes
+                               Version 3.14
+
+                         New Features and Functions
+                         --------------------------
+
+*  Improved messages if dataset or PDS member removed.
+
+                          Bug Fixes and Other Updates:
+                          ----------------------------
+
+* zigirepo panel change for adddsn pulldown menu
+* usssafe routine updated in zigi and zigistat
+* usssafe usage improved
+
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
                                Version 3.13
 
                          New Features and Functions
