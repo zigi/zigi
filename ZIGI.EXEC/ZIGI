@@ -3259,7 +3259,6 @@ WWRF_handle_lcmd_s:
     copycmd = copycmd || "/"r
     x = do_copy(copycmd)
     if x > 0 then call view_std 'B'
-    x = debug('Copy:' copycmd)
     if strip(binopt''cplmod) /= '-T' then do
       tagcmd = 'chtag -b 'localrep'/'zigirep'/'r
       x = docmd(tagcmd)
@@ -7677,7 +7676,6 @@ Do_Add_Copy:
       copycmd = "//'"pdsc"'"
       copycmd = '"'copycmd'"'
       cmd = "cp -v "binopt extopt cplmod copycmd" "DIR"/"pdss"/"ac_mem
-      x = debug('Copying:' cmd)
       x =do_copy(cmd)
       call bpxwdyn "free  fi("|| ddname ||")"
     end
@@ -7711,7 +7709,6 @@ Do_Add_Copy:
         copycmd = "//'"pdsc"'"
         copycmd = '"'copycmd'"'
         cmd = "cp -U -v "binopt cplmod copycmd" "dir"/"pdss"/"ussmem
-        x = debug('Copying:' cmd)
         x =do_copy(cmd)
       end
       call bpxwdyn "free  fi("|| ddname ||")"
@@ -7759,7 +7756,6 @@ Do_Add_Copy:
     copycmd = "//'"W"'"
     copycmd = '"'copycmd'"'
     copycmd = "cp -U -v "binopt copycmd" "DIR"/"pss
-    x = debug('Copying:' copycmd)
     x =do_copy(copycmd)
     if translate(option) = 'BINARY' then do
       /* for some reason the git autotagging due to .gitattributes
@@ -8306,8 +8302,9 @@ do_gcmd:
 docmd:
   parse arg cmd
   cmd = usssafe(cmd)
-  if pos('getpds',cmd) > 0 | pos('putpds',cmd) > 0
-     then cmd = fixup_coz(cmd)
+  if pos('getpds',cmd) > 0 | pos('putpds',cmd) > 0 ,
+     | pos('"//',cmd) > 0
+     then cmd = fixup_escape(cmd)
   drop so. se.
   x = debug('Command:' cmd)
   x = bpxwunix(cmd,,so.,se.,env.)
@@ -8319,8 +8316,9 @@ docmd:
 docmds:
   parse arg cmd
   cmd = usssafe(cmd)
-  if pos('getpds',cmd) > 0 | pos('putpds',cmd) > 0
-     then cmd = fixup_coz(cmd)
+  if pos('getpds',cmd) > 0 | pos('putpds',cmd) > 0 ,
+     | pos('"//',cmd) > 0
+     then cmd = fixup_escape(cmd)
   drop so. se.
   x = debug('Command:' cmd)
   x = bpxwunix(cmd,,sso.,sse.,env.)
@@ -8347,21 +8345,29 @@ docmdx:
 
   /* ----------------------------------------- *
    | Remove any escape chars for getpds/putpds |
+   | and for any "//'xxx'" used by cp          |
    * ----------------------------------------- */
-fixup_coz:
-  parse arg fcoz
-  fixdt = 0
-  if pos('getpds',fcoz) > 0 then fixdt = 1
-  if pos('putpds',fcoz) > 0 then fixdt = 1
-  if fixdt = 0 then return
-  parse value fcoz with lc '//'fixdsn rc
+fixup_escape:
+  parse arg fxescape
+  fxrtn = 0
+  if pos('getpds',fxescape) > 0 then fxrtn = 1
+  if pos('putpds',fxescape) > 0 then fxrtn = 2
+  if pos('"//',fxescape)    > 0 then fxrtn = 3
+  if fxrtn = 0 then return fxescape
+  parse value fxescape with lc'//'fixdsn rc
+  if fxrtn < 3 then
   do forever
-     if pos('\',fixdsn) = 0 then leave
-     parse value fixdsn with lfc'\'rfc
-     fixdsn = lfc''rfc
+     if pos('\$',fixdsn) = 0 then leave
+     parse value fixdsn with lfc'\$'rfc
+     fixdsn = lfc'$'rfc
      end
-  fcoz = lc '//'fixdsn rc
-  return fcoz
+  do forever
+     if pos('\#',fixdsn) = 0 then leave
+     parse value fixdsn with lfc'\#'rfc
+     fixdsn = lfc'#'rfc
+     end
+  fxescape = lc'//'fixdsn rc
+  return fxescape
 
 view_debug:
   if zigidebg = 1 then do
@@ -9455,15 +9461,16 @@ do_copy:
   if pos('-X',cp_cmd) > 0 then do_enhanced = 0
   if sysdsorg = 'PS' then do_enhanced = 0
   if do_enhanced = 0 then do
-  codepage = null
-  cp_target = word(cp_cmd,words(cp_cmd))
-  if right(cp_target,1) = '/'
-     then cp_target = cp_target'*'
-  codepage = '&& chtag -tc 'encoding cp_target
-  if pos('-B ',cp_cmd) > 0 then codepage = null
-  if pos('-X ',cp_cmd) > 0 then codepage = null
-  x = docmd(cp_cmd codepage)
-  return x
+    codepage = null
+    cp_target = word(cp_cmd,words(cp_cmd))
+    if right(cp_target,1) = '/'
+       then cp_target = cp_target'*'
+    codepage = '&& chtag -tc 'encoding cp_target
+    if pos('-B ',cp_cmd) > 0 then codepage = null
+    if pos('-X ',cp_cmd) > 0 then codepage = null
+    x = docmd(cp_cmd codepage)
+    if x > 0 then call view_std 'B'
+    return x
   end
   else do
     getpds = dovetail_dir'getpds'

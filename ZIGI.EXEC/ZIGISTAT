@@ -254,6 +254,7 @@ zigistat:
       dovedir = subword(dovedir,2)
       cmd = usssafe(dovedir"getpds -M st=- //"strip(dsn,'B',"'"))
       drop mem. se.
+      x = debug('Get ISPF Stats using getpds:' cmd)
       x = bpxwunix(cmd,,mem.,se.,env.)
       do mi = 1 to mem.0
         allmems = allmems word(mem.mi,1)
@@ -282,7 +283,7 @@ zigistat:
       x = debug('Saving stats begins to:' filepath)
       x = bpxwunix('rm' usssafe(filepath),,so.,se.)
       call write_stats
-      cmd = 'chtag -c' codep filepath
+      cmd = 'chtag -c' codep usssafe(filepath)
       x = bpxwunix(cmd,,so.,se.)
       x = debug('Saving stats completed.')
       return 0
