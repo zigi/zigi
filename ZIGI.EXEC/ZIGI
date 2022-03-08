@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r13'
+  ver = 'v3r14'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -29,6 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            03/08/22 LBD - Version 3.14                     |
+  |                         - Fix usssafe for cp and fix tags  |
   |            03/07/22 LBD - Fix localdir after member rm     |
   |                         - Clean up usssafe                 |
   |                         - After member remove update repo  |
@@ -5446,7 +5448,7 @@ Edit_PS:
   "Edit Dataset('"edsn"')"
   /* so after the edit, we should update it to working directory */
   if rc = 0 then do
-    copcm = "//'"dsn"'"
+    copcm = "//'"edsn"'"
     /* -M was replaced with -v in all CP commands */
     copcm = 'cp -U -v "'copcm'" 'localrep'/'zigirep'/'dsn
     x = do_copy(copcm)
