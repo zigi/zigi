@@ -2970,6 +2970,7 @@ WWRF_build_member_table:
   file_ext = zdsn.dsn
   file_extl = length(file_ext)
   dstat = dsnstat
+
   call get_ignored
 
   do bmi = 1 to root.0
@@ -7899,30 +7900,23 @@ Do_Undo:
     else cmd = cmd cmd2 ' && git checkout -- 'd
     cmd = cmd '&& echo "----------------------"'
     x = docmd(cmd)
-    drop combine.
-    combine.0 = 0
-    call combine_msgs
     if is_binfile(dsn) = 1 then cpbin = '-B'
     else cpbin = null
     if uopt = 'M' then do
-      cmd = 'cd' localrep'/'zigirep'/'d
       fdsn = strip(fulldsn,'B',"'")
-      cmd = cmd '&& echo "Copy results:" && echo " "'
+      cmd = 'cd' localrep'/'zigirep'/'d
       cmd = cmd '&& cp -U' cpbin rm ,
         '"//' || "'"fdsn"("m")'" || '"'
     end
     else do
-      cmd = 'cd' localrep'/'zigirep
-      cmd = cmd '&& echo "Copy results:" && echo " "'
-      cmd = cmd '&& cp -U' cpbin d ,
-        '"//' || "'"strip(fulldsn,'B',"'")"'" || '"'
+      cmd = 'cd' localrep'/'zigirep ,
+             '&& cp -U' cpbin d ,
+             '"//' || "'"strip(fulldsn,'B',"'")"'" || '"'
     end
-    cmd = cmd '&& echo " " && echo "after copy status:" && git status'
     x = do_copy(cmd)
-    call combine_msgs
-    call view_std 'C'
-    drop combine.
-    combine.0 = 0
+    cmd = 'cd' localrep'/'zigirep '&& git status'
+    x = docmd(cmd)
+    call view_std 'B'
     if uopt = 'M' then do
       sfile = localrep'/'zigirep'/.zigi/'d
       statmems = mem
@@ -8321,7 +8315,7 @@ docmds:
   if pos('getpds',cmd) > 0 | pos('putpds',cmd) > 0 ,
      | pos('"//',cmd) > 0
      then cmd = fixup_escape(cmd)
-  drop so. se.
+  drop sso. sse.
   x = debug('Command:' cmd)
   x = bpxwunix(cmd,,sso.,sse.,env.)
   return x
@@ -8351,25 +8345,42 @@ docmdx:
    * ----------------------------------------- */
 fixup_escape:
   parse arg fxescape
-  fxrtn = 0
-  if pos('getpds',fxescape) > 0 then fxrtn = 1
-  if pos('putpds',fxescape) > 0 then fxrtn = 2
-  if pos('"//',fxescape)    > 0 then fxrtn = 3
-  if fxrtn = 0 then return fxescape
-  parse value fxescape with lc'//'fixdsn rc
-  if fxrtn < 3 then
+  rtn_data = null
   do forever
-     if pos('\$',fixdsn) = 0 then leave
-     parse value fixdsn with lfc'\$'rfc
-     fixdsn = lfc'$'rfc
-     end
-  do forever
-     if pos('\#',fixdsn) = 0 then leave
-     parse value fixdsn with lfc'\#'rfc
-     fixdsn = lfc'#'rfc
-     end
-  fxescape = lc'//'fixdsn rc
-  return fxescape
+    parse value fxescape with fxescape'&&' more
+    if strip(fxescape) = null then return rtn_data
+    fxrtn = 0
+    if pos('getpds',fxescape) > 0 then fxrtn = 1
+    if pos('putpds',fxescape) > 0 then fxrtn = 2
+    if pos("//'",fxescape)    > 0 then fxrtn = 3
+    if fxrtn = 0 then do
+      if rtn_data = null
+        then rtn_data = fxescape
+        else rtn_data = rtn_data '&&' fxescape
+      if strip(more) = null then return rtn_data
+      fxescape = more
+         iterate
+       end
+    parse value fxescape with lc'//'fixdsn rc
+    if fxrtn < 3 then
+    do forever
+      if pos('\$',fixdsn) = 0 then leave
+      parse value fixdsn with lfc'\$'rfc
+      fixdsn = lfc'$'rfc
+    end
+    do forever
+      if pos('\#',fixdsn) = 0 then leave
+      parse value fixdsn with lfc'\#'rfc
+      fixdsn = lfc'#'rfc
+    end
+    fxescape = lc'//'fixdsn rc
+    if rtn_data = null
+      then rtn_data = fxescape
+      else rtn_data = rtn_data '&&' fxescape
+    if strip(more) = null then return rtn_data
+    fxescape = more
+  end
+  return rtn_data
 
 view_debug:
   if zigidebg = 1 then do
@@ -9465,6 +9476,8 @@ do_copy:
   if do_enhanced = 0 then do
     codepage = null
     cp_target = word(cp_cmd,words(cp_cmd))
+    if left(cp_target,3) = '"//' then
+       cp_target = word(cp_cmd,words(cp_cmd)-1)
     if right(cp_target,1) = '/'
        then cp_target = cp_target'*'
     codepage = '&& chtag -tc 'encoding cp_target
@@ -9590,13 +9603,13 @@ Fixup_cpstat:
 
 Get_Ignored:
   cmd = 'cat' localrep'/'zigirep'/.gitignore'
-  x = docmd(cmd)
+  x = docmds(cmd)
   return
 
 Check_ignore:
   parse arg check_git_ignore
-  do gic = 1 to so.0
-    if check_git_ignore = strip(so.gic) then return 'GI'
+  do gic = 1 to sso.0
+    if check_git_ignore = strip(sso.gic) then return 'GI'
   end
   return 0
 
