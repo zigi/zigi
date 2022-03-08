@@ -31,6 +31,8 @@
   |                                                            |
   |            03/08/22 LBD - Version 3.14                     |
   |                         - Fix usssafe for cp and fix tags  |
+  |                         - If PDS member changed to Binary  |
+  |                           update the PDS member type to B  |
   |            03/07/22 LBD - Fix localdir after member rm     |
   |                         - Clean up usssafe                 |
   |                         - After member remove update repo  |
@@ -3461,6 +3463,8 @@ WWRF_handle_lcmd_ab:
   zigi_changed = 1
   if zdsn.dsn /= null then
   mem = lower(zdsn.dsn'.'mem)
+  mtype = 'B'
+  'tbmod' rtll
   r = dsn'/'mem
   if ztdsels < 2 then do
     call get_binfiles
@@ -7638,7 +7642,7 @@ Do_Add_Copy:
     parse value pdss with pdss'/'.
     mkdir = "mkdir -p "DIR"/"pdss ,
             '&& touch' dir'/.zigi/'pdss ,
-             '&& chtag -c' codep localrep'/'zigirep'/.zigi/'pdss
+            '&& chtag -c' codep localrep'/'zigirep'/.zigi/'pdss
     x = docmd(mkdir)
     binopt = null
     if translate(option) = 'BINARY' then do
@@ -7672,7 +7676,7 @@ Do_Add_Copy:
     else extopt = '-U'
     if check_mixed_bintext(dsnb) = 0 | ac_mem /= null then do
       if pos('.',ac_mem) = 0
-      then cmem = ac_mem
+      then cmem = translate(ac_mem)
       else parse value ac_mem with cmem'.'.
       if ac_mem /= null then pdsc = pdsc"("cmem")"
       call bpxwdyn "alloc da('"pdsc"') shr rtddn(ddname)"
@@ -7697,7 +7701,9 @@ Do_Add_Copy:
         if hit = 1 then iterate
         mem = word(cm.ci,1)
         if pos('ALIAS(',cm.ci) > 0 then hit = 1
-        ussmem = lower(mem)'.'zdsn.dsnb
+        if zdsn.dsnb /= null
+        then ussmem = lower(mem)'.'zdsn.dsnb
+        else ussmem = mem
         zs2 = 'to' dsnb'/'ussmem
         zs4 = 'Patience . . .' ci-6 'of' cm_count
         if is_binfile(pdss'/'ussmem) = 1 then
