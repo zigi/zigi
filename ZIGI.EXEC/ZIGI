@@ -29,7 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            03/08/22 LBD - Version 3.14                     |
+  |            03/19/22 LBD - Version 3.14                     |
+  |                         - Correct Grep error on non-zOS    |
   |                         - Fix usssafe for cp and fix tags  |
   |                         - If PDS member changed to Binary  |
   |                           update the PDS member type to B  |
@@ -4707,6 +4708,7 @@ do_grep:
             else gdsn = gdsn'/'mem
           end
           gdsnt = "'"pdshlqt"."strip(gdsn)"'"
+          if lower_check(gdsnt) = 0 then
           if pos('/',gdsnt) = 0 then do
             call outtrap 'x.'
             if sysdsn(gdsnt) = 'OK' then gdsn = gdsnt
@@ -9678,3 +9680,11 @@ Auto_Tag_File:   /* FM */
   cht_cmd = cht_cmd '&& chtag -tc' codepage atf_file
   x = docmd(cht_cmd)
   return
+
+  /* -------------------------------------------------- *
+   | Check for any lowercase characters in the provided |
+   | string and return the match count.                 |
+   * -------------------------------------------------- */
+Lower_Check: Procedure
+  parse arg check_dsn
+  return verify(check_dsn,'abcdefghijklmnopqrstuvwxyz','M')
