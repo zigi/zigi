@@ -22,7 +22,7 @@
 )Body  Expand(\\)
 +| Commands | Help +
 <-----------\-\--------------------------------+
-+Stash Summary +-----------\-\------#zigtitle +------\-\------------------------
++Stash Summary +-----------\-\-----#zigtitle    +-----\-\-----------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zgsr+
 + \ \%F3  +
 +Sel Stash-ID    Comments
