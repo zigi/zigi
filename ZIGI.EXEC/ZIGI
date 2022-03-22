@@ -29,7 +29,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            03/20/22 LBD - Version 3.14                     |
+  |            03/21/22 LBD - Version 3.14                     |
+  |                         - Correct NOCOZ check              |
+  |                         - getpds/putpds cleanup            |
   |                         - Correct Commit add process       |
   |                         - Correct Grep error on non-zOS    |
   |                         - Fix usssafe for cp and fix tags  |
@@ -6862,6 +6864,7 @@ Update_repo_metadata:
           mem_omvs = null
           allmems = null
           'vget (allmemsc)'
+          if strip(allmemsc) = null then allmemsc = 0
           do im = 1 to allmemsc
             'vget (allmems'im')'
             interpret 'allmems = allmems allmems'im
@@ -8256,7 +8259,7 @@ GETENV:
   | Check for getpds/putpds |
   * ----------------------- */
   x = listdsi('NOCOZ' 'FILE')
-  if sysreason = 3 then do
+  if sysreason = 2 then do
     enhanced_cp = 0
     dovedir = 0
     'vput (dovedir) shared'
@@ -8304,9 +8307,12 @@ do_gcmd:
 docmd:
   parse arg cmd
   cmd = usssafe(cmd)
-  if pos('getpds',cmd) > 0 | pos('putpds',cmd) > 0 ,
-     | pos('"//',cmd) > 0
+  if right(cmd,6) /= 'getpds' then do
+  if pos('getpds',cmd) > 0 | pos('putpds',cmd) > 0
      then cmd = fixup_escape(cmd)
+  if pos('"//',cmd) > 0
+     then cmd = fixup_escape(cmd)
+  end
   drop so. se.
   x = debug('Command:' cmd)
   x = bpxwunix(cmd,,so.,se.,env.)
