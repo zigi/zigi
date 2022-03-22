@@ -29,8 +29,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            03/21/22 LBD - Version 3.14                     |
+  |            03/22/22 LBD - Version 3.14                     |
   |                         - Correct NOCOZ check              |
+  |                         - Update encoding var to remove 0D |
   |                         - getpds/putpds cleanup            |
   |                         - Correct Commit add process       |
   |                         - Correct Grep error on non-zOS    |
@@ -8686,7 +8687,8 @@ Get_Default_Codepage:
     if pos('zos-working-tree-encoding',s.i) = 0 then iterate
     parse value s.i with .'zos-working-tree-encoding='encoding .
     parse value encoding with .'-'codep .
-    codep = translate(codep,' ','0D'x)
+    codep = strip(translate(codep,' ','0D'x))
+    encoding = strip(translate(encoding,' ','0D'x))
     return
   end
   if encoding = null then
