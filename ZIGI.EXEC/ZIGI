@@ -8260,7 +8260,7 @@ GETENV:
   | Check for getpds/putpds |
   * ----------------------- */
   x = listdsi('NOCOZ' 'FILE')
-  if sysreason = 2 then do
+  if sysreason /= 2 then do
     enhanced_cp = 0
     dovedir = 0
     'vput (dovedir) shared'

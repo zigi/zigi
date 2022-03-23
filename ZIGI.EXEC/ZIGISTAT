@@ -729,7 +729,7 @@ Get_LoadLib:
       mem.0 = oc
         if opt = 'C' then allmems = allmems member
         if oc//100 = 0 then do
-          zs3 = 'Processing count:' c
+          zs3 = 'Processing count:' oc
           Address ISPExec
           call do_popup4
           Address TSO
