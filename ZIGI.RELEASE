@@ -22,6 +22,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 * usssafe routine updated in zigi and zigistat
 * usssafe usage improved
 * correct error using grep on OMVS files
+* correct history date/time sort
 
 -----------------------------------------------------------------------------
 
