@@ -1,4 +1,4 @@
-  /*---------------------  rexx procedure  -------------------- *
+   /*---------------------  rexx procedure  -------------------- *
   | Name:      zgbatch                                         |
   |                                                            |
   | Function:  ZIGI Batch is a batch interface to zigi and     |
@@ -68,6 +68,12 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            03/23/22 TPM&MWB fixes are listed below         |
+  |                         - support for deleted PDS Members  |
+  |                         - fix tagging issue on add member  |
+  |                         - pass values to zigistat (dovedir)|
+  |                         - add support for option "P" (Push)|
+  |                         - fix to support 0 prefix ignore   |
   |            10/23/21 LBD - Updates to cp to add CHTAG for   |
   |                           codepage                         |
   |            06/03/21 LBD - Change SHAREAS to REQUIRED       |
@@ -217,6 +223,8 @@
   hlq = subword(hlq,1,qualignr)
   hlq = translate(hlq,'.',' ')
 
+  if hlq <> '' then hlq = hlq'.'
+
   /* --------------------- *
   | Report Options in Use |
   * --------------------- */
@@ -303,7 +311,9 @@ check_pds:
   omvsdsn = word(so.i,9)
   omvsstat = omvsfs'/.zigi/'omvsdsn
   omvsdir  = omvsfs'/'omvsdsn
-  zosdsn = "'"hlq"."omvsdsn"'"
+
+  zosdsn = "'"hlq || omvsdsn"'"
+  say
   say 'Checking for changes in PDS:' zosdsn
   x = listdsi(zosdsn)
   if x > 0 then do
@@ -312,21 +322,28 @@ check_pds:
     call no_changes
     return
   end
-  zosdsnw = hlq'.'word(so.i,9)
+
+  zosdsnw = hlq || word(so.i,9)
+
+  repo_not_found = ''
   call check_pds_memstats 'C'
-  if delta = 0 then do
+
+  if delta = 0 & repo_not_found = '' then do
     call no_changes
     return
   end
-  if words(delta) = 0 then do
+
+  if words(delta) = 0 & repo_not_found = '' then do
     call no_changes
     return
   end
-  do ci = 1 to words(delta)
+
+  if words(delta) > 0 then do ci = 1 to words(delta)
     mem = word(delta,ci)
     omem = mem
     if zdsn.omvsdsn /= null
     then omem = lower(omem)'.'zdsn.omvsdsn
+
     if is_binfile(omvsdsn'/'omem) = 1
     then do
       binopt = '-B'
@@ -336,22 +353,46 @@ check_pds:
         bintxt = 'Load Module'
       end
     end
+
     else do
       binopt = '-T'
       bintxt = 'Text'
     end
+
     pds = "'"zosdsnw"("mem")'"
     cmd = 'cd' omvsfs'/'omvsdsn
     cmd = cmd '&& cp -U -v' binopt '"//'pds'"' omem
-    if binopt /= null
+    if binopt = '-B'
        then chtag = '&& chtag -b' omem
        else chtag = '&& chtag -tc' encoding omem
+
     cmd = usssafe(cmd chtag)
     say '   Copying PDS member:' pds 'to' omem 'as' bintxt
     x = bpxwunix(cmd,,co.,ce.,bpxenv.)
     if x > 0 then call show_cmd 'C'
   end
+
   call check_pds_memstats 'S'
+
+  /* -------------------------------------------------------------- *
+  | If any repo directory files were reported not found in the PDS  |
+  | by ZIGISTAT, delete them from the repo directory.               |
+  * -------------------------------------------------------------- */
+
+  if repo_not_found = '' then return
+
+  say 'Deleting repo files not found in PDS' "'"zosdsnw"'"
+
+  do r = 1 to words(repo_not_found)
+    repo_mem = word(repo_not_found,r)
+    cmd = 'cd' omvsdir
+    cmd = cmd '&& rm -f' repo_mem
+    cmd = usssafe(cmd)
+    say '   Deleting' omvsdir'/'repo_mem
+    x = bpxwunix(cmd,,co.,ce.,bpxenv.)
+    if x > 0 then call show_cmd 'C'
+    end
+
   return
 
   /* ------------------ *
@@ -383,7 +424,22 @@ check_ps:
 check_pds_memstats:
   arg stat_opt
   Address ispexec
+  dovedir = 0
+   'vput (debugfil dovedir)'
   delta = zigistat(zosdsn omvsstat stat_opt)
+
+  if stat_opt <> 'C' then return
+
+  'VGET (REPO@NFC)'
+  if repo@nfc = 0 then return
+
+  do r = 1 to repo@nfc
+    'VGET (REPO@NF'r')'
+    interpret 'repo_not_found = repo_not_found repo@nf'r
+    end
+
+  repo_not_found = strip(repo_not_found)
+
   return
 
   /* ------------------------------------------- *
@@ -421,6 +477,8 @@ Do_Git:
     '&& git status' ,
     "&& git commit -v"commit_msg ,
     '&& git log --cc -m -n 1' del_commsg
+  if compush = 'P' then cmd = cmd '&& git push'
+
   x = docmd(cmd)
   say ' '
   call show_cmd 'S'
@@ -617,3 +675,4 @@ Get_Default_Codepage:
   if encoding = null then
   encoding = 'IBM-1047'
   return
+ 
