@@ -42,6 +42,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            03/23/22 MWB - correct tagging on new members   |
+  |            03/23/22 MWB - fix to include ~/.profile setup  |
   |            06/03/21 LBD - Change SHAREAS to REQUIRED       |
   |            05/29/21 LBD - Improve env setup                |
   |            05/06/21 LBD - Support allmems > 32k            |
@@ -290,6 +292,8 @@
   * ------------------------------------------------------- */
   call pop 'Copying the member to OMVS \ Patience. . .'
   if pos(left(zsel,1),'SAO') > 0 then do
+    omvsfs = localrep"/"zigirep
+    call Get_Default_Codepage
     hit = 1
     omvsfile = omvsdsn
     ofile = usssafe(omvsfile)
@@ -302,6 +306,8 @@
     copycmd = '"'copycmd'"'
     copycmd = "cp -U -v" copycmd" "localrep"/"zigirep'/'ofile
     copycmd = copycmd || "/"rmem
+    copycmd = copycmd '&& chtag -tc' encoding ' '
+    copycmd = copycmd localrep'/'zigirep'/'ofile'/'rmem
     x = bpxwunix(copycmd,,so.,se.)
     call add_so 'Command:' copycmd
     if x > 0 then
@@ -551,10 +557,11 @@ strreplace: Procedure
   | bpxwunix commands.                                    |
   * ----------------------------------------------------- */
 GETENV:
-  cmd = 'pwd'
-  x = bpxwunix(cmd,,ho.,he.)
-  home    = strip(ho.1)
-  x = bpxwunix('. /etc/profile && env',,env.,se.)
+
+  cmd  = docmdx('env')
+
+  x = bpxwunix(cmd,,env.,se.)
+
   envc = env.0
   call add_env '_BPX_SHAREAS=MUST'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
@@ -582,7 +589,7 @@ docmd:
 docmdx:
   /* quircky thing, we need to export HOME as we are
   not running a login shell via bpxwunix */
-  parse arg cmd
+  parse arg cmdx
   cmd = 'pwd'
   x = bpxwunix(cmd,,ho.,he.)
   home    = strip(ho.1)
@@ -605,7 +612,7 @@ docmdx:
   if o.0 = 1 & o.1 = "f" then do
     rx = rx '. 'home'/.profile > /dev/null 2>&1 && '
   end
-  r = rx cmd
+  r = rx cmdx
   return r
 
   /* ----------------------------- *
@@ -1089,6 +1096,25 @@ DropISPF: Procedure
   end
   return 0
 
+  /* ----------------------------------------------------- *
+   | If the encoding ISPF variable is not set then get the |
+   | repository default encoding from the .gitattributes   |
+   * ----------------------------------------------------- */
+Get_Default_Codepage:
+  cmd = 'cd' omvsfs '&&' ,
+    'cat -W filecodeset=UTF-8,pgmcodeset=IBM-1047 .gitattributes' ,
+    "| grep 'zos-working-tree-encoding'"
+  x = bpxwunix(cmd,,s.,e.)
+  encoding = null
+  do i = 1 to s.0
+    if pos('zos-working-tree-encoding',s.i) = 0 then iterate
+    parse value s.i with .'zos-working-tree-encoding='encoding .
+    return
+  end
+  if encoding = null then
+  encoding = 'IBM-1047'
+  return
+
 /*   Start of inline ISPF Panels - do NOT use REXXFORM option CI
 >Start
 >Panel zgopt
@@ -1549,11 +1575,28 @@ GETENV:
   call add_env '_EDC_ZERO_RECLEN=Y'
   env.0 = envc
 
+  /* ------------------------------------------------ *
+  | Invoke the Git command with the Environment info |
+  * ------------------------------------------------ */
+docmd:
+  parse arg cmd
+  drop so. se.
+  x = bpxwunix(cmd,,so.,se.,env.)
+  return x
+
+  /* ------------------------------------- *
+  | Command to get things setup for docmd |
+  * ------------------------------------- */
 docmdx:
   /* quircky thing, we need to export HOME as we are
   not running a login shell via bpxwunix */
-  parse arg cmd
-  drop o. se.
+  parse arg cmdx
+  cmd = 'pwd'
+  x = bpxwunix(cmd,,so.,se.,bpxenv.)
+  home    = strip(so.1)
+  drop so. se.
+
+  Address ISPExec 'vget (gitenv)'
   if gitenv /= null
   then envfile = '.' gitenv ' >/dev/null 2>&1 &&'
   else envfile = null
@@ -1565,7 +1608,12 @@ docmdx:
 
   rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && ' ,
        home_profile envfile
-  r = rx ' ' cmd
+
+  x = bpxwunix(c,,o.,e.,bpxenv.)
+  if o.0 = 1 & o.1 = "f" then do
+     rx = rx '. 'home'/.profile > /dev/null 2>&1 && '
+     end
+  r = rx ' ' cmdx
   return r
 
   /* -------------------- *
@@ -1576,12 +1624,6 @@ add_env:
   envc = envc + 1
   env.envc = env_val
   return
-
-docmd:
-  parse arg cmd
-  drop so. se.
-  x = bpxwunix(cmd,,so.,se.,env.)
-  return x
 
   /* ----------------------------- *
   | Write out the ISPF Stats file |
