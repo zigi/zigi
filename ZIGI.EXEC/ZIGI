@@ -526,7 +526,8 @@
   * ---------------------------------------------------------- */
   parse arg start_option
 
-  parse value '' with null repo_ztdsels fetch_flag dovetail_dir codep
+  parse value '' with null repo_ztdsels fetch_flag dovetail_dir codep ,
+                      dovestat
 
   /* ------------------------------------------ *
   | ISPExec is our default host environment    |
@@ -8266,8 +8267,9 @@ GETENV:
   x = listdsi('NOCOZ' 'FILE')
   if sysreason /= 2 then do
     enhanced_cp = 0
-    dovedir = 0
-    'vput (dovedir) shared'
+    dovedir     = 0
+    dovestat    = null
+    'vput (dovedir dovestat) shared'
     return
   end
   x = docmd('command -v getpds')
@@ -8289,7 +8291,8 @@ GETENV:
   end
   if enhanced_cp = null then enhanced_cp = 0
   dovedir = enhanced_cp dovetail_dir
-  'vput (dovedir) shared'
+  dovestat    = 'Co:Z active'
+  'vput (dovedir dovestat) shared'
   x = debug('Finished collection of env variables')
   return
 
@@ -8369,6 +8372,7 @@ fixup_escape:
     fxrtn = 0
     if pos('getpds',fxescape) > 0 then fxrtn = 1
     if pos('putpds',fxescape) > 0 then fxrtn = 2
+    if fxrtn = 0 then
     if pos("//'",fxescape)    > 0 then fxrtn = 3
     if fxrtn = 0 then do
       if rtn_data = null
