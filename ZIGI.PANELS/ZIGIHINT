@@ -21,13 +21,13 @@
   [z+ZG stand-alone Command          [z+ZIGI Authors and Contributing *
   [z+Read Only Repositories          [z+GPL License
 +
-+ [z+Feedback and Issues
++ [z+Feedback and Issues             [z+Co:Z Information
 +
 %Note:+the panels with command menus have an option of%O+for a pop-up menu
 +
            +Press the%Enter+key to begin your ZIGI tutorial journey.
 )Init
-  .ZVARS = '(L0 L6 L1 L7 L2 L8 L3 L9 L4 LA L5 LG LFI)'
+  .ZVARS = '(L0 L6 L1 L7 L2 L8 L3 L9 L4 LA L5 LG LFI LCOZ)'
    &L0 = '0'
    &L1 = '1'
    &L2 = '2'
@@ -41,6 +41,7 @@
    &LA = 'A'
    &LG = 'L'
    &LFI = 'F'
+   &LCOZ = 'C'
  .cursor = &zcmd
  &ztut = 'HINT'
  vput (ztut)
@@ -59,6 +60,7 @@
            A,*zigihau   /* ZIGI Authors and Contributing  */
            L,*zigigpl   /* GPL License                    */
            F,zigifdbk   /* Feedback and Issues            */
+           C,zigihcoz   /* Co:Z information               */
            *,'?'
            )
 )PNTS
@@ -75,6 +77,7 @@
  Field(lA) var(zcmd) val(A)
  Field(lL) var(zcmd) val(L)
  Field(lFI) var(zcmd) val(F)
+ Field(lCOZ) var(zcmd) val(C)
 )END
 /* -------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                       */

@@ -8373,14 +8373,16 @@ fixup_escape:
     if pos('getpds',fxescape) > 0 then fxrtn = 1
     if pos('putpds',fxescape) > 0 then fxrtn = 2
     if fxrtn = 0 then
-    if pos("//'",fxescape)    > 0 then fxrtn = 3
+    if pos("//'",fxescape) > 0
+       then fxrtn = 3
+       else fxrtn = 0
     if fxrtn = 0 then do
       if rtn_data = null
         then rtn_data = fxescape
         else rtn_data = rtn_data '&&' fxescape
       if strip(more) = null then return rtn_data
       fxescape = more
-         iterate
+      iterate
        end
     parse value fxescape with lc'//'fixdsn rc
     if fxrtn < 3 then

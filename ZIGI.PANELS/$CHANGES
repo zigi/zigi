@@ -18,11 +18,14 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
                           Bug Fixes and Other Updates:
                           ----------------------------
 
-* zigirepo panel change for adddsn pulldown menu
+* ZIGIREPO panel change for adddsn pulldown menu
 * usssafe routine updated in zigi and zigistat
 * usssafe usage improved
-* correct error using grep on OMVS files
-* correct history date/time sort
+* Correct error using grep on OMVS files
+* Correct history date/time sort
+* Add visual indicator to ZIGIPRIM and ZIGIREPO if the Dovetail
+  utilities are in use.
+* Add Tutorial Panel for Co:Z
 
 -----------------------------------------------------------------------------
 
