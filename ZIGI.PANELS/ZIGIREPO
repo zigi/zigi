@@ -73,7 +73,7 @@
 <-----------\-\--------------------------------+
 +Current Repository+--------------#zigtitle    +--------------------------------
 %Command ===>_zcmd            \ \  %Scroll ===>_zgsr+
-+Local dir     :$localdir                                                 %F3  +
++Local dir     :$localdir                                                  %F3 +
 +Remote path   :$remote1                                                    $z
 +Current Branch:$branch                                      +`dovestat
 %               !bstat                                                     +
