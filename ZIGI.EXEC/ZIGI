@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r13'
+  ver = 'v3r14'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -29,6 +29,22 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            03/24/22 LBD - Version 3.14                     |
+  |                         - Improve History date/time sort   |
+  |                         - Correct NOCOZ check              |
+  |                         - Update encoding var to remove 0D |
+  |                         - getpds/putpds cleanup            |
+  |                         - Correct Commit add process       |
+  |                         - Correct Grep error on non-zOS    |
+  |                         - Fix usssafe for cp and fix tags  |
+  |                         - If PDS member changed to Binary  |
+  |                           update the PDS member type to B  |
+  |            03/07/22 LBD - Fix localdir after member rm     |
+  |                         - Clean up usssafe                 |
+  |                         - After member remove update repo  |
+  |                           status message                   |
+  |                         - After dataset remove update repo |
+  |                           status message                   |
   |            03/06/22 HK  - Fix some nasty bugs :)           |
   |            03/04/22 LBD - Add optional Add to Commit       |
   |                         - Add # to usssafe                 |
@@ -510,7 +526,8 @@
   * ---------------------------------------------------------- */
   parse arg start_option
 
-  parse value '' with null repo_ztdsels fetch_flag dovetail_dir codep
+  parse value '' with null repo_ztdsels fetch_flag dovetail_dir codep ,
+                      dovestat
 
   /* ------------------------------------------ *
   | ISPExec is our default host environment    |
@@ -2577,29 +2594,25 @@ WWR_handle_lcmd_rn:
         x = docmd(cmd)
       end
       cmd = 'cd' localrep'/'zigirep
-      newdsns = usssafe(newdsn)
-      fulldsns = usssafe(fulldsn)
-      zs1 = 'Renaming:' fulldsns
-      zs2 = 'To:      ' newdsns
+      zs1 = 'Renaming:' fulldsn
+      zs2 = 'To:      ' newdsn
       call do_popup
       if left(fulldsn,1) /= "'"
-      then cmd = cmd '&& git mv' '"'fulldsns'" "'newdsns'"'
+      then cmd = cmd '&& git mv' '"'fulldsn'" "'newdsn'"'
       else do
         x = listdsi(newdsn)
         oldfile = remove_dsn_hlq(fulldsn)
         newfile = remove_dsn_hlq(newdsn)
-        oldfiles = usssafe(oldfile)
-        newfiles = usssafe(newfile)
-        cmd = cmd '&& git mv' oldfiles newfiles
+        cmd = cmd '&& git mv' oldfile newfile
       end
       x = docmd(cmd)
       if sysdsorg = 'PO' then do
-        zs1 = 'Renaming:' '.zigi/'oldfiles
-        zs2 = 'To:      ' '.zigi/'newfiles
+        zs1 = 'Renaming:' '.zigi/'oldfile
+        zs2 = 'To:      ' '.zigi/'newfile
         call do_popup
         /* still weird with rename of statsfile? */
         cmd = 'cd' localrep'/'zigirep'/.zigi'
-        cmd = cmd '&& git mv' oldfiles newfiles
+        cmd = cmd '&& git mv' oldfile  newfile
         x = docmd(cmd)
       end
       if x > 0 then
@@ -2665,12 +2678,12 @@ WWR_handle_lcmd_rm:
     end
     else Select
       when remq = 'N' then do
-        cmd = 'cd' localdir '&& git rm --cached' '"'usssafe(fulldsn)'"'
+        cmd = 'cd' localdir '&& git rm --cached' '"'fulldsn'"'
         x = docmd(cmd,,so.,se.)
         rm_msg = 'the git index.'
       end
       when pos(remq,'OB') > 0 & rtype = 'OMVS' then do
-        cmd = 'cd' localdir '&& git rm -rf' '"'usssafe(fulldsn)'"'
+        cmd = 'cd' localdir '&& git rm -rf' '"'fulldsn'"'
         cmd = cmd '&& git add -u'
         x = docmd(cmd,,so.,se.)
         rm_msg = 'OMVS.'
@@ -2684,9 +2697,9 @@ WWR_handle_lcmd_rm:
           rm_msg = 'z/OS'
         end
         if pos(remq,'OB') > 0 then do
-          cmd = 'cd' localdir '&& git rm -rf' usssafe(dsn)
+          cmd = 'cd' localdir '&& git rm -rf' dsn
           x = docmd(cmd,,so.,se.)
-          cmd = 'cd' localdir '&& rm -rf' usssafe(dsn)
+          cmd = 'cd' localdir '&& rm -rf' dsn
           x = docmd(cmd,,so.,se.)
           if rm_msg /= null
           then rm_msg = rm_msg 'and OMVS.'
@@ -2703,12 +2716,12 @@ WWR_handle_lcmd_rm:
         end
         if pos(remq,'OB') > 0 then do
           cmd = 'cd' localdir '&& git rm -rf' dsn
-          cmd = usssafe(cmd)
+          cmd = cmd
           x = docmd(cmd,,so.,se.)
           cmd = 'cd' localdir
           cmd = cmd '&& rm -rf' localdir'/.zigi/'dsn
           cmd = cmd '&& rm -rf' localdir'/'dsn
-          cmd = usssafe(cmd)
+          cmd = cmd
           x = docmd(cmd,,so.,se.)
           if rm_msg /= null
           then rm_msg = rm_msg 'and OMVS.'
@@ -2718,6 +2731,7 @@ WWR_handle_lcmd_rm:
       Otherwise nop
     end
     dsnstat = '*Removed'
+    baction = 'Changes to be committed:'
     'tbmod' rtbl
     if rm_msg /= null then do
       zerrsm = 'Removed.'
@@ -2952,6 +2966,9 @@ WWRF_build_member_table:
     'zlmdate zlmtime zluser mtype zlm4date)',
     'replace NoWrite'
   rtll_open = 1
+  /* --------------------- *
+   | usssafe required here |
+   * --------------------- */
   cmd = 'ls -laT' localrep'/'zigirep'/'usssafe(dsn)
   x = bpxwunix(cmd,,root.,re.,env.)
   address ispexec
@@ -2962,6 +2979,7 @@ WWRF_build_member_table:
   file_ext = zdsn.dsn
   file_extl = length(file_ext)
   dstat = dsnstat
+
   call get_ignored
 
   do bmi = 1 to root.0
@@ -3147,7 +3165,7 @@ WWRF_handle_lcmd_b:
   'control display save'
   x = listdsi(fulldsn)
   edsn = strip(fulldsn,'B',"'")
-  r = usssafe(dsn)
+  r = dsn
   if sysdsorg = 'PS'
   then "Browse Dataset('"edsn"')"
   else "Browse Dataset('"edsn"("mem")'"
@@ -3162,7 +3180,7 @@ WWRF_handle_lcmd_b:
 WWRF_handle_lcmd_v:
   x = listdsi(fulldsn)
   edsn = strip(fulldsn,'B',"'")
-  r = usssafe(dsn)
+  r = dsn
   if is_binfile(dsn'/'mem) = 1 then do
     zerrsm = 'Invalid'
     zerrlm = 'Unable to View a binary dataset.'
@@ -3188,7 +3206,7 @@ WWRF_handle_lcmd_s:
   end
   x = listdsi(fulldsn)
   edsn = strip(fulldsn,'B',"'")
-  r = usssafe(dsn)
+  r = dsn
   eok = 1
   if is_binfile(dsn'/'mem) = 1 then do
     zerrsm = 'Invalid'
@@ -3213,9 +3231,9 @@ WWRF_handle_lcmd_s:
     m = strip(mem)
     if zdsn.dsn /= null
     then m = lower(m)'.'zdsn.dsn
-    m = usssafe(m)
-    e = usssafe(edsn)
-    r = usssafe(dsn)
+    m = m
+    e = edsn
+    r = dsn
     /* Binary v1, check if PDS is a bin, then copy binary */
     if is_binfile(dsn'/*') = 1 then do
       binopt = '-B'
@@ -3246,7 +3264,6 @@ WWRF_handle_lcmd_s:
       copycmd = "//'"e"("mc")'"
       r = r'/'m
     end
-    r = usssafe(r)
     if strip(binopt cplmod) = null
     then binopt = '-T'
     copycmd = '"'copycmd'"'
@@ -3254,7 +3271,6 @@ WWRF_handle_lcmd_s:
     copycmd = copycmd || "/"r
     x = do_copy(copycmd)
     if x > 0 then call view_std 'B'
-    x = debug('Copy:' copycmd)
     if strip(binopt''cplmod) /= '-T' then do
       tagcmd = 'chtag -b 'localrep'/'zigirep'/'r
       x = docmd(tagcmd)
@@ -3301,7 +3317,6 @@ Update_mem_status:
   end
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git add .zigi/'dsn
-  cmd = usssafe(cmd)
   x = docmd(cmd)
   return
 
@@ -3362,7 +3377,6 @@ WWRF_handle_lcmd_rn:
       end
       cmd = 'cd' localrep'/'zigirep'/'dsn
       cmd = cmd '&& git mv' rnmem rnnewmem
-      cmd = usssafe(cmd)
       x = docmd(cmd)
       call view_std 'B'
       'tbdelete' rtll
@@ -3387,7 +3401,7 @@ WWRF_handle_lcmd_rm:
     'setmsg msg(isrz003)'
     return
   end
-  localdir =  localrep'/'zigirep'/'dsn
+  rmdir = localrep'/'zigirep'/'dsn
   call outtrap 'x.'
   rdsn = strip(fulldsn,'B',"'")
   rdsn = "'"rdsn"("mem")'"
@@ -3400,8 +3414,8 @@ WWRF_handle_lcmd_rm:
       rmem = lower(mem)'.'zdsn.dsn
     end
     else rmem = mem
-    m = usssafe(rmem)
-    xldir = usssafe(localdir)
+    m = rmem
+    xldir = rmdir
     cmd = 'cd' xldir
     if pos('??',memstat) = 0
     then cmd = cmd '&& git rm -f "'m'"'
@@ -3413,12 +3427,13 @@ WWRF_handle_lcmd_rm:
     zerrlm = m 'has been removed from ZIGI, from git, and has' ,
       'been deleted from z/OS and OMVS.'
     'setmsg msg(isrz003)'
+    baction = 'Changes to be committed:'
     statfile = translate(strip(fulldsn,'B',"'"),' ','.')
     if qualignr > 0 then
     statfile = subword(statfile,qualignr+1)
     statfile = translate(statfile,'.',' ')
     cmd = 'cd' localrep'/'zigirep'/.zigi/'
-    stats = usssafe(statfile)
+    stats = statfile
     if enhanced_cp = 0 then
     x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'stats 'S')
     else do
@@ -3455,6 +3470,8 @@ WWRF_handle_lcmd_ab:
   zigi_changed = 1
   if zdsn.dsn /= null then
   mem = lower(zdsn.dsn'.'mem)
+  mtype = 'B'
+  'tbmod' rtll
   r = dsn'/'mem
   if ztdsels < 2 then do
     call get_binfiles
@@ -3465,9 +3482,9 @@ WWRF_handle_lcmd_ab:
   | Show the diff for the member     |
   * -------------------------------- */
 WWRF_handle_lcmd_d:
-  d = usssafe(dsn)
+  d = dsn
   cmd = 'cd' localrep'/'zigirep'/'d
-  m = usssafe(mem)
+  m = mem
   if zdsn.dsn /= null then
   m = lower(m)'.'zdsn.dsn
   x = docmd(cmd ' && git diff 'm)
@@ -3484,13 +3501,13 @@ WWRF_handle_lcmd_d:
   | Git Ignore the member |
   * --------------------- */
 WWRF_handle_lcmd_i:
-  d = usssafe(dsn)
-  m = usssafe(mem)
+  d = dsn
+  m = mem
   if zdsn.dsn /= null then
   m = lower(m)'.'zdsn.dsn
   fdsn = d'/'m
   cmd = "echo '"fdsn"' >> "localrep"/"zigirep"/.gitignore"
-  x = bpxwunix(cmd,,so.,se.,env.)
+  x = docmd(cmd)
   call view_std 'B'
   memstat = '[  ] Git Ignored'
   'tbmod' rtll
@@ -3747,8 +3764,8 @@ git_add:
   zs2 = 'Making it ready to Commit'
   call do_popup
   if left(dsn,1) = "'"
-  then d = usssafe(dsn)
-  else d = '"'usssafe(dsn)'"'
+  then d = dsn
+  else d = '"'dsn'"'
   call git_safe_add localrep'/'zigirep  d
   if dsnvalid(fulldsn) = "OK" then do
     /* Only get the stats if it's a z/OS dataset
@@ -3760,7 +3777,7 @@ git_add:
     if x = 0 then do
       if sysdsorg /= 'PS' then do
         statfile = remove_dsn_hlq(fulldsn)
-        stats = usssafe(statfile)
+        stats = statfile
         if use_enhanced_cp = 0 then
         x = zigistat(fulldsn localrep'/'zigirep'/.zigi/'stats 'S')
         else do
@@ -3839,14 +3856,14 @@ Stash_IT:
         if pos('0 bytes',c) > 0 then do
           if pos('/',w) = 0 then do
             cmd = 'cd' localrep'/'zigirep
-            cmd = cmd '&& rm' usssafe(w)
-            x = bpxwunix(cmd,,stdo.,stde.,env.)
+            cmd = cmd '&& rm' w
+            x = docmds(cmd)
           end
           else do
             parse value w with w'/'m
-            cmd = 'cd' localrep'/'zigirep'/'usssafe(w)
-            cmd = cmd '&& rm' usssafe(w)
-            x = bpxwunix(cmd,,stdo.,stde.,env.)
+            cmd = 'cd' localrep'/'zigirep'/'w
+            cmd = cmd '&& rm' w
+            x = docmds(cmd)
             if wordpos(w,pulldsns) = 0 then
             pulldsns = pulldsns w
           end
@@ -4697,6 +4714,7 @@ do_grep:
             else gdsn = gdsn'/'mem
           end
           gdsnt = "'"pdshlqt"."strip(gdsn)"'"
+          if lower_check(gdsnt) = 0 then
           if pos('/',gdsnt) = 0 then do
             call outtrap 'x.'
             if sysdsn(gdsnt) = 'OK' then gdsn = gdsnt
@@ -4889,8 +4907,7 @@ Do_Resetid:
       uscmd = localrep'/'zigirep'/.zigi/'statfile fulldsn
       call update_stats uscmd
     end
-    statfiles = usssafe(statfile)
-    x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfiles)
+    x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfile)
   end
   return
 
@@ -5037,13 +5054,6 @@ Do_Commit:
   drop combine.
   combine.0 = 0
 
-  /* --------------------- *
-   | Check the zadd option |
-   * --------------------- */
-  if zadd = 'Y'
-     then addopt = '-a'
-     else addopt = null
-
   /* ------------------------------- *
   | If > 1 msg line then use a file |
   * ------------------------------- */
@@ -5066,7 +5076,9 @@ Do_Commit:
     call outtrap 'off'
     address ispexec
     cmd = 'cd' localrep'/'zigirep
-    cmd = cmd '&& git commit' addopt '-F' file
+    if zadd = 'Y' then
+    cmd = cmd  '&& git add -A .'
+    cmd = cmd '&& git commit -F' file
     if zigi_offline = 0 then
     if zpush = 'Y' then
     cmd = cmd '&& git push -v'
@@ -5082,7 +5094,9 @@ Do_Commit:
   else do
     cmsg.1 = translate(cmsg.1,' ',"'" '"')
     cmd = 'cd' localrep'/'zigirep
-    cmd = cmd "&& git commit" addopt "-vm '"cmsg.1"'"
+    if zadd = 'Y' then
+    cmd = cmd  '&& git add -A .'
+    cmd = cmd "&& git commit -vm '"cmsg.1"'"
     if zigi_offline = 0 then
     if zpush = 'Y' then
     cmd = cmd '&& git push -v'
@@ -5229,8 +5243,7 @@ fixup_userids:
       call update_stats uscmd
     end
     dir = localrep'/'zigirep
-    statfiles = usssafe(statfile)
-    x = docmd('cd' dir '&& git add .zigi/'statfiles)
+    x = docmd('cd' dir '&& git add .zigi/'statfile)
     if x > 0 then
     call view_std 'B'
   end
@@ -5382,15 +5395,15 @@ Git_Add_Member:
     end
   end
 
-  d = usssafe(dsn)
+  d = dsn
   cmd = 'cd' repodir
 
   if pos('.',mem) = 0 & extension /= null then
   /* so we have an extension, better add correctly */
-  toadd = usssafe(lower(usssafe(mem))'.'extension)
+  toadd = lower(mem)'.'extension
   else do
     /* regular add */
-    toadd = usssafe(mem)
+    toadd = mem
   end
   if force_it = null
   then add_force = null
@@ -5415,18 +5428,16 @@ Git_Add_Member_Stats:
   statfile = subword(statfile,qualignr+1)
   statfile = translate(statfile,'.',' ')
   cmd = 'cd' localrep'/'zigirep'/.zigi/'
-  statfiles = usssafe(statfile)
-  x = cmd '&& git add -v 'statfiles
+  x = cmd '&& git add -v 'statfile
   x = docmd(cmd)
   if enhanced_cp = 0 then
   x = zigistat(fulldsn ,
-    localrep'/'zigirep'/.zigi/'statfiles 'S')
+    localrep'/'zigirep'/.zigi/'statfile 'S')
   else do
-    uscmd = localrep'/'zigirep'/.zigi/'statfiles workdsn
+    uscmd = localrep'/'zigirep'/.zigi/'statfile workdsn
     call update_stats uscmd
   end
-  statfiles = usssafe(statfile)
-  x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfiles)
+  x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfile)
   call work_with_repo_file
   x = debug('Add member stats completed.')
   return
@@ -5447,10 +5458,9 @@ Edit_PS:
   "Edit Dataset('"edsn"')"
   /* so after the edit, we should update it to working directory */
   if rc = 0 then do
-    edsn = usssafe(edsn)
     copcm = "//'"edsn"'"
     /* -M was replaced with -v in all CP commands */
-    copcm = 'cp -U -v "'copcm'" 'localrep'/'zigirep'/'usssafe(dsn)
+    copcm = 'cp -U -v "'copcm'" 'localrep'/'zigirep'/'dsn
     x = do_copy(copcm)
     if x > 0 then call view_std 'B'
     if ztdsels < 2 then
@@ -6074,8 +6084,8 @@ Merge_it:
                 ofile = mrgdir'/'mdsn
                 if mrgtype = 1 then do
                   mrgfile = '/tmp/'userid()'.merge'
-                  md = usssafe(mrgdir)
-                  mdsns = usssafe(mdsn)
+                  md    = mrgdir
+                  mdsns = mdsn
                   cmd = 'cd' md '&& cp' mdsns mrgfile
                   x = docmd(cmd)
                   parm = 'M'
@@ -6125,10 +6135,10 @@ Merge_it:
             call check_delta
             if fix_stats /= null
             then do fs = 1 to words(fix_stats)
-              sfile = usssafe(word(fix_stats,fs))
+              sfile = word(fix_stats,fs)
               wfile = translate(word(fix_stats,fs),' ','/')
               wfile = subword(wfile,words(wfile))
-              pds = usssafe(pdshlqt'.'wfile)
+              pds = pdshlqt'.'wfile
               if enhanced_cp = 0 then
               Address TSO '%zigistat' "'"pds"'" sfile 'S'
               else do
@@ -6167,7 +6177,7 @@ Merge_it:
   * -------------------------------------------------------- */
 do_merge_conflict_rms:
   if words(merge_rms) = 0 then return
-  cmd = 'cd' mrgdir '&& git rm' usssafe(merge_rms)
+  cmd = 'cd' mrgdir '&& git rm' merge_rms
   x = docmd(cmd)
   if x > 0 then call view_std 'B'
   return
@@ -6712,7 +6722,7 @@ Update_repo_metadata:
       /* not the . and .. things */
       if dsnvalid(root.umdi) = "OK" then do
         /* and only for valid z/OS-datasets (skip README.md et al) */
-        r = usssafe(root.umdi)
+        r = root.umdi
         x = debug('   check file or dir')
         cmd = '[ -d 'localrep'/'zigirep'/'r' ] && echo "DIR"'
         so.1 = null
@@ -6732,7 +6742,7 @@ Update_repo_metadata:
           x = debug('its a dir...lmmstat all the things' edsn)
           Address TSO
           /* Oh yeah we need this */
-          root.umdi = usssafe(root.umdi)
+          root.umdi = root.umdi
           statpath = localrep'/'zigirep'/.zigi/'root.umdi
           statfile = root.umdi
 
@@ -6789,9 +6799,9 @@ Update_repo_metadata:
             do im = 1 to words(mem_delta)
               mem = word(mem_delta,im)
               file = root.umdi
-              m = usssafe(strip(mem))
-              e = usssafe(edsn)
-              r = usssafe(file)
+              m = strip(mem)
+              e = edsn
+              r = file
               if zdsn.file /= null
               then do
                 rm = lower(strip(m)'.'zdsn.file)
@@ -6857,6 +6867,7 @@ Update_repo_metadata:
           mem_omvs = null
           allmems = null
           'vget (allmemsc)'
+          if strip(allmemsc) = null then allmemsc = 0
           do im = 1 to allmemsc
             'vget (allmems'im')'
             interpret 'allmems = allmems allmems'im
@@ -6890,12 +6901,10 @@ Update_repo_metadata:
               mem_omvs = strip(mem_omvs)
               cmd = 'cd' localrep'/'zigirep'/'r'/'
               cmd = cmd '&& rm -f' mem_omvs
-              cmd = usssafe(cmd)
               x = docmd(cmd)
               if x > 0 then call view_std 'B'
               cmd = 'cd' localrep'/'zigirep'/'r ,
                 '&& git rm -f' mem_omvs
-              cmd = usssafe(cmd)
               x = docmd(cmd)
               if x > 0 then call view_std 'B'
             end
@@ -6919,7 +6928,7 @@ Update_repo_metadata:
           /* It must be a PS, just copy it over to OMVS */
           x = listdsi(fulldsn)
           if x = 0 then do
-            s = usssafe(fulldsn)
+            s = fulldsn
             if is_binfile(r) = 1 then do
               binopt = '-B'
             end
@@ -7230,48 +7239,42 @@ clean:
   return strip(string)
 
 usssafe:
-  parse arg safedsn
-  if pos('\$',safedsn) > 0 | pos('$',safedsn) = 0 then
-  if pos('\#',safedsn) > 0 | pos('#',safedsn) = 0 then return safedsn
+  parse arg safe_command
+  safe_ret = 1
+  if pos('\$',safe_command) > 0 then safe_ret = 0
+  if pos('\#',safe_command) > 0 then safe_ret = 0
+  if safe_ret = 0 then return safe_command
+  if pos('$',safe_command)  > 0 then safe_ret = 1
+  if pos('#',safe_command)  > 0 then safe_ret = 1
+  if safe_ret = 0 then return safe_command
   safe$pos = 1
   do forever
-    pos$safe = pos('$',safedsn,safe$pos)
+    pos$safe = pos('$',safe_command,safe$pos)
     if pos$safe < 1 then leave
-    left$safe = left(safedsn,pos$safe-1)
-    right$save = substr(safedsn,pos$safe)
-    safedsn = left$safe'\'right$save
+    left$safe = left(safe_command,pos$safe-1)
+    right$save = substr(safe_command,pos$safe)
+    safe_command = left$safe'\'right$save
     safe$pos = pos$safe + 2
   end
   safe$pos = 1
   do forever
-    pos$safe = pos('#',safedsn,safe$pos)
-    if pos$safe < 1 then return safedsn
-    left$safe = left(safedsn,pos$safe-1)
-    right$save = substr(safedsn,pos$safe)
-    safedsn = left$safe'\'right$save
+    pos$safe = pos('#',safe_command,safe$pos)
+    if pos$safe < 1 then return safe_command
+    left$safe = left(safe_command,pos$safe-1)
+    right$save = substr(safe_command,pos$safe)
+    safe_command = left$safe'\'right$save
     safe$pos = pos$safe + 2
   end
-  return safedsn
-
-  /* ------------------------------ *
-  | Old safe routine - was usssafe |
-  * ------------------------------ */
-oldsafe:
-  parse arg safedsn
-  if pos('$',safedsn) = 0 then return safedsn
-  /* Let's not usssafe it twice :) */
-  if pos('\$',safedsn) > 0 then return safedsn
-  safedsn = strreplace(safedsn, '$', '\$')
-  return safedsn
+  return safe_command
 
 Remove_Safe:
-  parse arg safedsn
-  if pos('\$',safedsn) = 0 then return safedsn
-  do until pos('\',safedsn) = 0
-    parse value safedsn with sl'\'sr
-    safedsn = sl''sr
+  parse arg safe_command
+  if pos('\$',safe_command) = 0 then return safe_command
+  do until pos('\',safe_command) = 0
+    parse value safe_command with sl'\'sr
+    safe_command = sl''sr
   end
-  return safedsn
+  return safe_command
 
   /* ------------------------------------------------- *
   |                                                  |
@@ -7639,13 +7642,13 @@ Do_Add_Copy:
   if SYSDSORG = 'PO' then do
     pds = what
     PDS = strip(PDS,"B","'")
-    pdss = usssafe(dsnb)
-    pdsc = usssafe(pds)
+    pdss = dsnb
+    pdsc = pds
     if pos('/',pdss) > 0 then
     parse value pdss with pdss'/'.
     mkdir = "mkdir -p "DIR"/"pdss ,
             '&& touch' dir'/.zigi/'pdss ,
-             '&& chtag -c' codep localrep'/'zigirep'/.zigi/'pdss
+            '&& chtag -c' codep localrep'/'zigirep'/.zigi/'pdss
     x = docmd(mkdir)
     binopt = null
     if translate(option) = 'BINARY' then do
@@ -7679,14 +7682,13 @@ Do_Add_Copy:
     else extopt = '-U'
     if check_mixed_bintext(dsnb) = 0 | ac_mem /= null then do
       if pos('.',ac_mem) = 0
-      then cmem = ac_mem
+      then cmem = translate(ac_mem)
       else parse value ac_mem with cmem'.'.
       if ac_mem /= null then pdsc = pdsc"("cmem")"
       call bpxwdyn "alloc da('"pdsc"') shr rtddn(ddname)"
       copycmd = "//'"pdsc"'"
       copycmd = '"'copycmd'"'
       cmd = "cp -v "binopt extopt cplmod copycmd" "DIR"/"pdss"/"ac_mem
-      x = debug('Copying:' cmd)
       x =do_copy(cmd)
       call bpxwdyn "free  fi("|| ddname ||")"
     end
@@ -7705,7 +7707,9 @@ Do_Add_Copy:
         if hit = 1 then iterate
         mem = word(cm.ci,1)
         if pos('ALIAS(',cm.ci) > 0 then hit = 1
-        ussmem = lower(mem)'.'zdsn.dsnb
+        if zdsn.dsnb /= null
+        then ussmem = lower(mem)'.'zdsn.dsnb
+        else ussmem = mem
         zs2 = 'to' dsnb'/'ussmem
         zs4 = 'Patience . . .' ci-6 'of' cm_count
         if is_binfile(pdss'/'ussmem) = 1 then
@@ -7716,14 +7720,10 @@ Do_Add_Copy:
         else zs3 = 'Copy as Text'
         call do_popup4
         pdsc = pds"("mem")"
-        pdss = usssafe(pdss)
-        pdsc = usssafe(pdsc)
-        ussmem = usssafe(ussmem)
         if binopt = null then binopt = '-T'
         copycmd = "//'"pdsc"'"
         copycmd = '"'copycmd'"'
         cmd = "cp -U -v "binopt cplmod copycmd" "dir"/"pdss"/"ussmem
-        x = debug('Copying:' cmd)
         x =do_copy(cmd)
       end
       call bpxwdyn "free  fi("|| ddname ||")"
@@ -7744,8 +7744,8 @@ Do_Add_Copy:
     x = docmd('cd' dir '&& git add .zigi/'pdss)
   end
   else do
-    W = usssafe(WHAT)
-    PSS = usssafe(dsnb)
+    W = WHAT
+    PSS = dsnb
     binopt = null
     if translate(option) = 'BINARY' then
     if is_binfile(dsnb) = 0 then do
@@ -7771,7 +7771,6 @@ Do_Add_Copy:
     copycmd = "//'"W"'"
     copycmd = '"'copycmd'"'
     copycmd = "cp -U -v "binopt copycmd" "DIR"/"pss
-    x = debug('Copying:' copycmd)
     x =do_copy(copycmd)
     if translate(option) = 'BINARY' then do
       /* for some reason the git autotagging due to .gitattributes
@@ -7868,9 +7867,9 @@ Do_Undo:
   /* -------------------------------- *
   | Undo a commit. eg checkout --    |
   * -------------------------------- */
-  d = usssafe(dsn)
+  d = dsn
   if uopt = 'M' then
-  m = usssafe(mem)
+  m = mem
 
   zs1 = 'Un-modiying 'mem
   zs2 = 'This never happened...'
@@ -7913,30 +7912,23 @@ Do_Undo:
     else cmd = cmd cmd2 ' && git checkout -- 'd
     cmd = cmd '&& echo "----------------------"'
     x = docmd(cmd)
-    drop combine.
-    combine.0 = 0
-    call combine_msgs
     if is_binfile(dsn) = 1 then cpbin = '-B'
     else cpbin = null
     if uopt = 'M' then do
-      cmd = 'cd' localrep'/'zigirep'/'d
       fdsn = strip(fulldsn,'B',"'")
-      cmd = cmd '&& echo "Copy results:" && echo " "'
+      cmd = 'cd' localrep'/'zigirep'/'d
       cmd = cmd '&& cp -U' cpbin rm ,
-        '"//' || "'"usssafe(fdsn)"("m")'" || '"'
+        '"//' || "'"fdsn"("m")'" || '"'
     end
     else do
-      cmd = 'cd' localrep'/'zigirep
-      cmd = cmd '&& echo "Copy results:" && echo " "'
-      cmd = cmd '&& cp -U' cpbin d ,
-        '"//' || "'"usssafe(strip(fulldsn,'B',"'"))"'" || '"'
+      cmd = 'cd' localrep'/'zigirep ,
+             '&& cp -U' cpbin d ,
+             '"//' || "'"strip(fulldsn,'B',"'")"'" || '"'
     end
-    cmd = cmd '&& echo " " && echo "after copy status:" && git status'
     x = do_copy(cmd)
-    call combine_msgs
-    call view_std 'C'
-    drop combine.
-    combine.0 = 0
+    cmd = 'cd' localrep'/'zigirep '&& git status'
+    x = docmd(cmd)
+    call view_std 'B'
     if uopt = 'M' then do
       sfile = localrep'/'zigirep'/.zigi/'d
       statmems = mem
@@ -7994,11 +7986,12 @@ do_history:
   cmd = 'cd' localrep'/'zigirep
   cmd = cmd '&& git log --cc -m -n 9999 --unified=1'
   cmd = cmd "--pretty=format:'commit:%h Date:%cD Subject:%f' --name-only" ,
-    '| grep -e commit -e' usssafe(element)
+    '| grep -e commit -e' element
   x = docmd(cmd)
   hhit = 0
   hist_tbl = 'ZHIST'random(999)
-  'tbcreate' hist_tbl 'Keys(hcommit) Names(hdate hsubject) nowrite'
+  'tbcreate' hist_tbl 'Keys(hcommit)' ,
+      'Names(hdate hsdate hsubject) nowrite'
   do ih = 1 to so.0
     if left(so.ih,7) = 'commit:' then do
       if pos('Date:',so.ih) = 0 then iterate
@@ -8007,6 +8000,8 @@ do_history:
       m = wordpos(translate(m), ,
         'JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEV')
       hdate = year'/'right(m+100,2)'/'right(d+100,2) time
+      parse value time with whh':'wmm':'wss
+      hsdate = year''right(m+100,2)''right(d+100,2)''whh''wmm''wss
     end
     else do
       so.ih =strip(shelement)
@@ -8027,7 +8022,7 @@ do_history:
     if pos('/',delement) > 0 then do
       parse value delement with le'/'re
     end
-    'tbsort' hist_tbl 'Fields(hdate,ch,d)'
+    'tbsort' hist_tbl 'Fields(hsdate,n,d)'
     'tbtop' hist_tbl
     save_top = ztdtop
     top = 1
@@ -8270,10 +8265,11 @@ GETENV:
   | Check for getpds/putpds |
   * ----------------------- */
   x = listdsi('NOCOZ' 'FILE')
-  if sysreason = 3 then do
+  if sysreason /= 2 then do
     enhanced_cp = 0
-    dovedir = 0
-    'vput (dovedir) shared'
+    dovedir     = 0
+    dovestat    = null
+    'vput (dovedir dovestat) shared'
     return
   end
   x = docmd('command -v getpds')
@@ -8295,7 +8291,8 @@ GETENV:
   end
   if enhanced_cp = null then enhanced_cp = 0
   dovedir = enhanced_cp dovetail_dir
-  'vput (dovedir) shared'
+  dovestat    = 'Co:Z active'
+  'vput (dovedir dovestat) shared'
   x = debug('Finished collection of env variables')
   return
 
@@ -8312,11 +8309,35 @@ do_gcmd:
   'Select cmd(%zigigcmd)'
   return
 
+  /* ------------------------- *
+   | Issue the OMVS command(s) |
+   * ------------------------- */
 docmd:
   parse arg cmd
+  cmd = usssafe(cmd)
+  if right(cmd,6) /= 'getpds' then do
+  if pos('getpds',cmd) > 0 | pos('putpds',cmd) > 0
+     then cmd = fixup_escape(cmd)
+  if pos('"//',cmd) > 0
+     then cmd = fixup_escape(cmd)
+  end
   drop so. se.
   x = debug('Command:' cmd)
   x = bpxwunix(cmd,,so.,se.,env.)
+  return x
+
+  /* ------------------------------------------ *
+   | Issue the OMVS command(s) alternate stems. |
+   * ------------------------------------------ */
+docmds:
+  parse arg cmd
+  cmd = usssafe(cmd)
+  if pos('getpds',cmd) > 0 | pos('putpds',cmd) > 0 ,
+     | pos('"//',cmd) > 0
+     then cmd = fixup_escape(cmd)
+  drop sso. sse.
+  x = debug('Command:' cmd)
+  x = bpxwunix(cmd,,sso.,sse.,env.)
   return x
 
 docmdx:
@@ -8338,6 +8359,52 @@ docmdx:
   r = rx ' ' cmd
   return r
 
+  /* ----------------------------------------- *
+   | Remove any escape chars for getpds/putpds |
+   | and for any "//'xxx'" used by cp          |
+   * ----------------------------------------- */
+fixup_escape:
+  parse arg fxescape
+  rtn_data = null
+  do forever
+    parse value fxescape with fxescape'&&' more
+    if strip(fxescape) = null then return rtn_data
+    fxrtn = 0
+    if pos('getpds',fxescape) > 0 then fxrtn = 1
+    if pos('putpds',fxescape) > 0 then fxrtn = 2
+    if fxrtn = 0 then
+    if pos("//'",fxescape) > 0
+       then fxrtn = 3
+       else fxrtn = 0
+    if fxrtn = 0 then do
+      if rtn_data = null
+        then rtn_data = fxescape
+        else rtn_data = rtn_data '&&' fxescape
+      if strip(more) = null then return rtn_data
+      fxescape = more
+      iterate
+       end
+    parse value fxescape with lc'//'fixdsn rc
+    if fxrtn < 3 then
+    do forever
+      if pos('\$',fixdsn) = 0 then leave
+      parse value fixdsn with lfc'\$'rfc
+      fixdsn = lfc'$'rfc
+    end
+    do forever
+      if pos('\#',fixdsn) = 0 then leave
+      parse value fixdsn with lfc'\#'rfc
+      fixdsn = lfc'#'rfc
+    end
+    fxescape = lc'//'fixdsn rc
+    if rtn_data = null
+      then rtn_data = fxescape
+      else rtn_data = rtn_data '&&' fxescape
+    if strip(more) = null then return rtn_data
+    fxescape = more
+  end
+  return rtn_data
+
 view_debug:
   if zigidebg = 1 then do
     filev = debugfil
@@ -8357,7 +8424,7 @@ debug:
     parse arg msg
     msg = Date() Time()' : 'msg
     c = 'echo "'msg'" >>' debugfil
-    x = bpxwunix(c,,dso.,dse.,omvsenv.)
+    x = bpxwunix(usssafe(c),,dso.,dse.,omvsenv.)
     zigidebg_use = 1
   end
   return 0
@@ -8630,7 +8697,8 @@ Get_Default_Codepage:
     if pos('zos-working-tree-encoding',s.i) = 0 then iterate
     parse value s.i with .'zos-working-tree-encoding='encoding .
     parse value encoding with .'-'codep .
-    codep = translate(codep,' ','0D'x)
+    codep = strip(translate(codep,' ','0D'x))
+    encoding = strip(translate(encoding,' ','0D'x))
     return
   end
   if encoding = null then
@@ -9007,12 +9075,12 @@ DoHist_Recover:
   if x = 0 then binopt = binopt '-X -I'
 
   cmd = 'cd' localrep'/'zigirep ,
-    '&& cp -UA' binopt usssafe(file) ,
+    '&& cp -UA' binopt file ,
     '"//'rdsn'"'
   x = do_copy(cmd)
   if x > 0 then call view_std 'B'
 
-  x = bpxwunix('rm' usssafe(file),,s.,e.,env.)
+  x = docmd('rm' file)
 
   address ispexec
 
@@ -9036,20 +9104,20 @@ DoHist_Recover:
     "LMFree  Dataid("zstats")"
   end
   if teste = testr then do
-    m = usssafe(strip(mem))
+    m = strip(mem)
     if sysvar('syspref') = null
     then pref = sysvar('sysuid')
     else pref = sysvar('syspref')
     if left(rdsn,1) /= "'"
     then rdsne = pref'.'rdsn
     else rdsne = rdsn
-    e = usssafe(strip(rdsne,'B',"'"))
-    r = usssafe(dsn)
+    e = strip(rdsne,'B',"'")
+    r = dsn
 
     if zdsn.dsn /= null
     then rm = lower(strip(mem)'.'zdsn.dsn)
     else rm = m
-    rm = usssafe(rm)
+    rm = rm
 
     copycmd = "//'"e"("m")'"
     copycmd = '"'copycmd'"'
@@ -9091,7 +9159,7 @@ DoHist_ViewSource:
   gitcmde = null
   'vput (vtitle gitcmde localrep zigirep)'
   'View File(file) panel(zigiedit) macro(zigivmac)'
-  x = bpxwunix('rm' usssafe(file),,s.,e.,env.)
+  x = docmd('rm' file)
   return
 
   /* ------------------------------------------------------ *
@@ -9112,11 +9180,6 @@ DoHist_File_Extract:
   end
   else file = home'/tmp/'element
   call check_tmp
-  /* Comment Start
-  cmd = 'cd' localrep'/'zigirep ,
-    '&& git checkout' hcommit ,
-    '&& cp' localrep'/'zigirep'/'usssafe(element) usssafe(file)
-     Comment End */
   cmd = 'cd' localrep'/'zigirep '&& git status'
   x = docmd(cmd)
   sol = so.0
@@ -9124,13 +9187,13 @@ DoHist_File_Extract:
      then
        cmd = 'cd' localrep'/'zigirep ,
          '&& git checkout' hcommit ,
-         '&& cp' localrep'/'zigirep'/'usssafe(element) usssafe(file) ,
+         '&& cp' localrep'/'zigirep'/'element file ,
          '&& git checkout' branch
      else
        cmd = 'cd' localrep'/'zigirep ,
          '&& git stash push -a -u' ,
          '&& git checkout' hcommit ,
-         '&& cp' localrep'/'zigirep'/'usssafe(element) usssafe(file) ,
+         '&& cp' localrep'/'zigirep'/'element file ,
          '&& git checkout' branch ,
          '&& git stash pop'
   dhrc = docmd(cmd)
@@ -9148,7 +9211,7 @@ DoHist_File_Extract:
   | and if it exists great, if not then it does now.             |
   * ------------------------------------------------------------ */
 Check_TMP:
-  x = bpxwunix('mkdir' home'/tmp',,so.,se.,env.)
+  x = docmd('mkdir' home'/tmp')
   return
 
   /* ------------------------------- *
@@ -9160,8 +9223,8 @@ Validate_path:
   valid_path = translate(valid_path,' ','/')
   valid_path = subword(valid_path,1,words(valid_path)-1)
   valid_path = '/'translate(valid_path,'/',' ')'/'
-  x = bpxwunix('ls -la' valid_path,,n.,e.,env.)
-  if e.0 > 0 then return 8
+  x = docmd('ls -la' valid_path)
+  if x > 0 then return 8
   else return 0
 
   /* -------------------------------------------------- *
@@ -9343,7 +9406,7 @@ Check_Delta:
   | .zigi/readonly                                 |
   * ---------------------------------------------- */
 Set_Read_Only:
-  x = bpxwunix('touch' localrep'/'zigirep'/.zigi/readonly',,s.,e.,env.)
+  x = docmd('touch' localrep'/'zigirep'/.zigi/readonly')
   cmd = 'cd' localrep'/'zigirep ,
     "&& echo '.zigi/readonly' > .gitignore" ,
     '&& git add .gitignore'
@@ -9351,8 +9414,8 @@ Set_Read_Only:
   return 0
 
 Check_Read_Only:
-  x = bpxwunix('ls -la' localrep'/'zigirep'/.zigi/readonly',,cs.,ce.,env.)
-  if cs.0 > 0 then return 1
+  x = docmd('ls -la' localrep'/'zigirep'/.zigi/readonly')
+  if so.0 > 0 then return 1
   else return 0
 
   /* ----------------------------------------------- *
@@ -9361,8 +9424,8 @@ Check_Read_Only:
 File_Exists:
   parse arg file_check
   ckotdir = localrep'/'zigirep
-  x = bpxwunix('ls -la' localrep'/'zigirep'/'file_check,,fs.,fe.,env.)
-  if fe.0 = 0 then return 1
+  x = docmd('ls -la' localrep'/'zigirep'/'file_check)
+  if se.0 = 0 then return 1
   return 0
 
   /* -------------------------------------------------------------- *
@@ -9426,7 +9489,6 @@ BrDelta:
   * ------------------------------------------------------- */
 do_copy:
   parse arg cp_cmd
-  cp_cmd = usssafe(cp_cmd)
   /* ------------------------------------------------------- *
   | If enhance cp is not enabled or if the cp is for a load |
   | module then do normal cp                                |
@@ -9436,15 +9498,18 @@ do_copy:
   if pos('-X',cp_cmd) > 0 then do_enhanced = 0
   if sysdsorg = 'PS' then do_enhanced = 0
   if do_enhanced = 0 then do
-  codepage = null
-  cp_target = word(cp_cmd,words(cp_cmd))
-  if right(cp_target,1) = '/'
-     then cp_target = cp_target'*'
-  codepage = '&& chtag -tc 'encoding cp_target
-  if pos('-B ',cp_cmd) > 0 then codepage = null
-  if pos('-X ',cp_cmd) > 0 then codepage = null
-  x = docmd(cp_cmd codepage)
-  return x
+    codepage = null
+    cp_target = word(cp_cmd,words(cp_cmd))
+    if left(cp_target,3) = '"//' then
+       cp_target = word(cp_cmd,words(cp_cmd)-1)
+    if right(cp_target,1) = '/'
+       then cp_target = cp_target'*'
+    codepage = '&& chtag -tc 'encoding cp_target
+    if pos('-B ',cp_cmd) > 0 then codepage = null
+    if pos('-X ',cp_cmd) > 0 then codepage = null
+    x = docmd(cp_cmd codepage)
+    if x > 0 then call view_std 'B'
+    return x
   end
   else do
     getpds = dovetail_dir'getpds'
@@ -9562,13 +9627,13 @@ Fixup_cpstat:
 
 Get_Ignored:
   cmd = 'cat' localrep'/'zigirep'/.gitignore'
-  x = bpxwunix(cmd,,gi.,ge.,env.)
+  x = docmds(cmd)
   return
 
 Check_ignore:
   parse arg check_git_ignore
-  do gic = 1 to gi.0
-    if check_git_ignore = strip(gi.gic) then return 'GI'
+  do gic = 1 to sso.0
+    if check_git_ignore = strip(sso.gic) then return 'GI'
   end
   return 0
 
@@ -9595,8 +9660,6 @@ Git_Safe_Add:   /* FM */
   /* Automatically tag modified and untracked files */
 Auto_Tag_Files:  /* FM */
   parse arg atf_dir atf_files
-  atf_dir  = usssafe(atf_dir)
-  atf_files = usssafe(atf_files)
   ls_cmd = 'cd' atf_dir '&& git ls-files -mo' atf_files
   x = docmd(ls_cmd)
   /* save output which otherwise is overridden */
@@ -9604,7 +9667,7 @@ Auto_Tag_Files:  /* FM */
     ls_cmd_so.i = so.i
   end
   do i=1 to ls_cmd_so.0
-    atf_data = usssafe(ls_cmd_so.i)
+    atf_data = ls_cmd_so.i
     call auto_tag_file atf_dir atf_data
   end
   return
@@ -9622,7 +9685,7 @@ Auto_Tag_File:   /* FM */
     if pos('binary:',so.atfi) > 0 then do
       cht_cmd = 'cd' atf_dir
       cht_cmd = cht_cmd '&& chtag -b' atf_file
-      x = docmd(usssafe(cht_cmd))
+      x = docmd(cht_cmd)
       return
     end
     if pos('zos-working',so.atfi) > 0 then
@@ -9631,5 +9694,13 @@ Auto_Tag_File:   /* FM */
   if codepage = null then return
   cht_cmd = 'cd' atf_dir
   cht_cmd = cht_cmd '&& chtag -tc' codepage atf_file
-  x = docmd(usssafe(cht_cmd))
+  x = docmd(cht_cmd)
   return
+
+  /* -------------------------------------------------- *
+   | Check for any lowercase characters in the provided |
+   | string and return the match count.                 |
+   * -------------------------------------------------- */
+Lower_Check: Procedure
+  parse arg check_dsn
+  return verify(check_dsn,'abcdefghijklmnopqrstuvwxyz','M')
