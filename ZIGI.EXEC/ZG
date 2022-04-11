@@ -42,6 +42,10 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            04/11/22 LBD - Use CoZ if available for stats   |
+  |                         - use current zigistat             |
+  |                         - Add tutorial for options         |
+  |            04/10/22 LBD - correct tagging on new members   |
   |            03/23/22 MWB - correct tagging on new members   |
   |            03/23/22 MWB - fix to include ~/.profile setup  |
   |            06/03/21 LBD - Change SHAREAS to REQUIRED       |
@@ -244,6 +248,11 @@
   * ----------------------------- */
   call getenv
 
+  /* ---------------------------- *
+   | Check for the Co:Z utilities |
+   * ---------------------------- */
+  call Check_for_CoZ
+
   /* ------------------------------------------------- *
   | Validate that the current dataset is part of repo |
   * ------------------------------------------------- */
@@ -252,7 +261,7 @@
   else member = null
   omvsdsn = remove_dsn_hlq(workdsn)
   cmd = 'cd' localrep'/'zigirep
-  cmd = cmd '&& ls' omvsdsn
+  cmd = cmd '&& ls' usssafe(omvsdsn)
   x = bpxwunix(cmd,,xo.,xe.)
   if x > 0 then do
     zedsmsg = 'Invalid.'
@@ -291,7 +300,7 @@
   | Copy occurs with the Open request or the select/add.    |
   * ------------------------------------------------------- */
   call pop 'Copying the member to OMVS \ Patience. . .'
-  if pos(left(zsel,1),'SAO') > 0 then do
+  if pos(left(zsel,1),'A') > 0 then do
     omvsfs = localrep"/"zigirep
     call Get_Default_Codepage
     hit = 1
@@ -300,7 +309,7 @@
     omem  = usssafe(member)
     if zdsn.omvsdsn = null
     then rmem = omem
-    else rmem = lower(omem)'.'zdsn.dsn
+    else rmem = lower(omem)'.'zdsn.omvsdsn
     sdsn = usssafe(dsname)
     copycmd = "//'"sdsn"("omem")'"
     copycmd = '"'copycmd'"'
@@ -312,10 +321,10 @@
     call view_std 'B'
     call pop 'Adding to Git Index \ Patience. . .'
     call git_add_member_stats
-    cmd = 'cd' localrep'/'zigirep'/'ofile
-    cmd = cmd '&& git add' omem ,
-          '&& cd' localrep'/'zigirep'/.zigi/' ,
-          '&& git add' ofile
+    cmd = 'cd' localrep'/'zigirep'/'ofile ,
+          '&& git add . && git status' ,
+          'cd' localrep'/'zigirep'/.zigi' ,
+          '&& git add . && git status'
     x = docmd(cmd)
     call add_so 'Command:' cmd
     if x > 0 then
@@ -406,6 +415,7 @@ Get_Out_Of_Here:
   if open /= 0 then do
     'tbend zigirepo'
   end
+  x = dropispf(load_info)
   exit 0
 
   /* ----------------------- *
@@ -474,7 +484,7 @@ do_cmsg:
   file = "'"file"'"
   address tso
   'alloc f('fdd') new spa(1,1) tr recfm(f b) lrecl(72) blksize(0)',
-    'ds('filem')'
+    'ds('filem') reuse'
   'execio * diskw' fdd '(finis stem cmsgd.'
   'free  f('fdd')'
   call outtrap 'x.'
@@ -489,10 +499,23 @@ do_cmsg:
   * ---------------------------------- */
 Git_Add_Member_Stats:
   call pop 'Updating member stats in zigi \ Patience.'
+  statfiles = usssafe(omvsfile)
+  if dovedir /= 0 then do
+  dovedir = subword(dovedir,2)
+  cmd = dovedir"getpds -M st="localrep"/"zigirep"/.zigi/"statfiles ,
+        "//'"strip(dsname,'B',"'")"'" ,
+        '&& cd' localrep'/'zigirep'/.zigi/' ,
+        '&& git add' statfiles
+  x = docmd(cmd)
+  if x > 0 then
+    call view_std 'B'
+  return
+  end
   x = zigistat("'"workdsn"'" ,
     localrep'/'zigirep'/.zigi/'omvsfile 'S')
-  statfiles = usssafe(omvsfile)
   x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfiles)
+  if x > 0 then
+    call view_std 'B'
   return
 
   /* -------------------------- *
@@ -690,7 +713,7 @@ view_std:
   if vdsn /= null then vdsnp = 'da('vdsn') unit(3390)'
   else vdsnp = null
   if vlrecl > 255 then vlrecl = 251
-  'Alloc f('dd') new spa('prim','prim') tr' ,
+  'Alloc f('dd') new spa('prim','prim') tr reuse' ,
     'recfm(v b) lrecl('vlrecl+4') blksize(0)' vdsnp
   /* ----------------------------- *
   | If stdopt is 'B' then do both |
@@ -1115,6 +1138,33 @@ Get_Default_Codepage:
   encoding = 'IBM-1047'
   return
 
+Check_for_CoZ:
+  /* ----------------------- *
+  | Check for getpds/putpds |
+  * ----------------------- */
+  x = listdsi('NOCOZ' 'FILE')
+  if sysreason /= 2 then do
+    enhanced_cp = 0
+    dovedir     = 0
+    dovestat    = null
+    'vput (dovedir dovestat) shared'
+    return
+  end
+  x = docmd('command -v getpds')
+  if x = 0
+  then do
+    enhanced_cp = 1
+    dovetail_dir = so.1
+    lp = lastpos('/',dovetail_dir,length(dovetail_dir)-1)
+    dovetail_dir = left(dovetail_dir,lp)
+  end
+    else enhanced_cp = 0
+  if enhanced_cp = null then enhanced_cp = 0
+  dovedir = enhanced_cp dovetail_dir
+  dovestat    = 'Co:Z active'
+  'vput (dovedir dovestat) shared'
+  return
+
 /*   Start of inline ISPF Panels - do NOT use REXXFORM option CI
 >Start
 >Panel zgopt
@@ -1125,9 +1175,21 @@ _ type(input) hilite(uscore) caps(on) intens(low) just(left)
 +
 +Press%Enter+to Continue, or%F3+to Cancel.
 )Init
-&zwinttl = 'zigi Git Option'
+ &zwinttl = 'zigi Git Option'
+ .help = zgopth
 )Proc
 ver (&opt,nb,list,A,AC,ACP,O)
+)End
+>Panel zgopth
+)Attr
+)Body Window(45,4)
++ZG Options:  %A+  Git Add only
++             %AC+ Git Add and Commit
++             %ACP+Git Add, Commit, and Push
++             %O+  Open the Repo in Zigi
+)Init
+ &zwinttl = 'zigi Git Option Tutorial'
+)Proc
 )End
 >Panel zgtbl
 )Attr
@@ -1148,9 +1210,24 @@ _z  +$z                  +  ]z             +}z          +
 )Init
 &zwinttl = 'Update Git Repository'
 &zscr = CSR
+.help = zgtblh
 .zvars = '(zsel zigirep zigicat zigidate)'
 )Proc
 Ver (&zsel,list,A,AC,O,ACP)
+)End
+>Panel zgtblh
+)Attr
+)Body Window(47,7)
++Select the Repository for this Dataset using
++one of these ZG options:
++
++      %A+  Git Add only
++      %AC+ Git Add and Commit
++      %ACP+Git Add, Commit, and Push
++      %O+  Open the Repo in Zigi
+)Init
+ &zwinttl = 'zigi Git Option Tutorial'
+)Proc
 )End
 >Panel zgcom
 )Attr

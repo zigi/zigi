@@ -13,7 +13,9 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
                          New Features and Functions
                          --------------------------
 
-*  Improved messages if dataset or PDS member removed.
+* Improved messages if dataset or PDS member removed.
+* Added tutorial panels to the ZG command and add support
+  for the Co:Z utilities for ISPF stats
 
                           Bug Fixes and Other Updates:
                           ----------------------------
@@ -26,7 +28,6 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 * Add visual indicator to ZIGIPRIM and ZIGIREPO if the Dovetail
   utilities are in use.
 * Updated ZG to work and correctly tag copied PDS members
-  - Note that binary members are not supported at this time
 
 -----------------------------------------------------------------------------
 
