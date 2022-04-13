@@ -16,6 +16,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 * Improved messages if dataset or PDS member removed.
 * Added tutorial panels to the ZG command and add support
   for the Co:Z utilities for ISPF stats
+* ZG updated to correctly tag and support binary elements
 
                           Bug Fixes and Other Updates:
                           ----------------------------
@@ -27,7 +28,6 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 * Correct history date/time sort
 * Add visual indicator to ZIGIPRIM and ZIGIREPO if the Dovetail
   utilities are in use.
-* Updated ZG to work and correctly tag copied PDS members
 
 -----------------------------------------------------------------------------
 

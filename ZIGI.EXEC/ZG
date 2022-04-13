@@ -42,6 +42,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            04/13/22 LBD - Support binary elements          |
   |            04/11/22 LBD - Use CoZ if available for stats   |
   |                         - use current zigistat             |
   |                         - Add tutorial for options         |
@@ -288,6 +289,7 @@
   | Get the list of datasets to check for file suffixes |
   * --------------------------------------------------- */
   call get_dsn_info
+  call get_binfiles
 
   /* -------------------------------- *
   | Process the repository selection |
@@ -310,11 +312,21 @@
     if zdsn.omvsdsn = null
     then rmem = omem
     else rmem = lower(omem)'.'zdsn.omvsdsn
+    x = is_binfile(ofile'/'rmem)
+    if x = 0
+       then do
+       binopt = null
+       tagcmd = 'chtag -tc' encoding localrep'/'zigirep'/'ofile'/'rmem
+       end
+       else do
+       binopt = '-B'
+       tagcmd = 'chtag -b 'localrep'/'zigirep'/'ofile'/'rmem
+       end
     sdsn = usssafe(dsname)
     copycmd = "//'"sdsn"("omem")'"
     copycmd = '"'copycmd'"'
-    copycmd = "cp -U -v" copycmd" "localrep"/"zigirep'/'ofile'/'rmem ,
-         '&& chtag -tc' encoding localrep'/'zigirep'/'ofile'/'rmem
+    copycmd = "cp -U -v" binopt copycmd" "localrep"/"zigirep'/'ofile'/'rmem ,
+       '&&' tagcmd
     x = bpxwunix(copycmd,,so.,se.)
     call add_so 'Command:' copycmd
     if x > 0 then
@@ -777,6 +789,47 @@ Lower: Procedure
   out = translate(input,"abcdefghijklmnopqrstuvwxyz",,
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
   return out
+
+get_binfiles:
+  /* ---------------------------------------------------------\
+  | Name:      get_binfiles                                    |
+  |                                                            |
+  | Function:  Fills the global binfiles. stem with all        |
+  |            current repo files that are added as binary.    |
+  \---------------------------------------------------------- */
+  cmd = 'cd 'localrep'/'zigirep' &&' ,
+    'cat -W filecodeset=UTF-8,pgmcodeset=IBM-1047 .gitattributes' ,
+    '| grep binary' ,
+    '| cut -d" " -f1'
+  x = docmd(cmd)
+  binfiles. = null
+  bc = 0
+  do b = 1 to so.0
+    if left(strip(so.b),2) = '*.' then iterate
+    bc = bc + 1
+    binfiles.bc = so.b
+  end
+  binfiles.0 = bc
+  return 0
+
+is_binfile:
+  /* ---------------------------------------------------------\
+  | Name:      is_binfile                                      |
+  |                                                            |
+  | Function:  Checks the global binfiles. stem for the        |
+  |            provided dataset or dataset/member              |
+  \---------------------------------------------------------- */
+  parse arg checkForBinFile
+  if datatype(binfiles.0) /= 'NUM' then return 0
+  do bi = 1 to binfiles.0
+    if binfiles.bi = checkForBinFile then return 1
+    if right(binfiles.bi,1) = '*' then do
+      parse value checkForBinFile with test'/'.
+      if left(binfiles.bi,length(binfiles.bi)-2) = test
+      then return 1
+    end
+  end
+  return 0
 
   /* ----------------------------------------- *
   | Get the .zigi/dsn to find file extensions |
