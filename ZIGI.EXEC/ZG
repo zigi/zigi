@@ -42,7 +42,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
-  |            04/14/22 LBD - Honoe default userid for repo    |
+  |            04/16/22 LBD - Support log option               |
+  |            04/14/22 LBD - Honor default userid for repo    |
   |            04/12/22 LBD - Support binary elements          |
   |            04/11/22 LBD - Use CoZ if available for stats   |
   |                         - use current zigistat             |
@@ -339,6 +340,8 @@
        '&&' tagcmd
     x = bpxwunix(copycmd,,so.,se.)
   if zglogo = 'Y' then do
+     call do_zglog 'Copy element to the repository and tag it'
+     call do_zglog copycmd
      do zi = 1 to so.0
         logc = logc + 1
         log.logc = so.zi
@@ -353,12 +356,15 @@
     call view_std 'B'
     call pop 'Adding to Git Index \ Patience. . .'
     call git_add_member_stats
+    call do_zglog 'Update ISPF statistics file'
     cmd = 'cd' localrep'/'zigirep'/'ofile ,
           '&& git add . && git status' ,
           'cd' localrep'/'zigirep'/.zigi' ,
           '&& git add . && git status'
     x = docmd(cmd)
     if zglogo = 'Y' then do
+       call do_zglog 'Git Add both the element and the ISPF stats file'
+       call do_zglog cmd
        do zi = 1 to so.0
           logc = logc + 1
           log.logc = so.zi
@@ -400,12 +406,17 @@
     else do
       cmd = cmd "&& git commit -F" file
     end
-    if right(zsel,1) = 'P' then
-    cmd = cmd '&& git push -v'
+    if right(zsel,1) = 'P' then do
+       cmd = cmd '&& git push -v'
+       pmsg = 'and Git Push'
+       end
     if cfile = 1 then
     cmd = cmd '&& rm' file
     x = docmd(cmd)
     if zglogo = 'Y' then do
+       msg = 'Do Git Commit' pmsg
+       call do_zglog 'Do commit and optional push'
+       call do_zglog cmd
        do zi = 1 to so.0
           logc = logc + 1
           log.logc = so.zi
@@ -445,6 +456,8 @@ done:
     cmd = cmd '&& git status && git log --cc -m -n 1'
     x = docmd(cmd)
     if zglogo = 'Y' then do
+       call do_zglog 'Finished so report out'
+       call do_zglog cmd
        do zi = 1 to so.0
           logc = logc + 1
           log.logc = so.zi
@@ -486,6 +499,16 @@ Get_Out_Of_Here:
   end
   x = dropispf(load_info)
   exit 0
+
+Do_zglog:
+  parse arg log_text
+  logc = logc + 1
+  log.logc = ' '
+  logc = logc + 1
+  log.logc = log_text
+  logc = logc + 1
+  log.logc = ' '
+  return
 
   /* ----------------------- *
   | Generalized Pop Message |
