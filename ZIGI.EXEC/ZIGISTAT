@@ -40,6 +40,7 @@
   |                                                            |
   | History:  (most recent on top)                             |
   |            03/23/22 TPM - delete repo files not in PDS     |
+  |            03/07/22 LBD - Update usssafe routine tests     |
   |            03/05/22 LBD - Update usssafe routine for #     |
   |            03/04/22 LBD - Add ISPF Stats if PDS member     |
   |                           does not have them               |
@@ -257,6 +258,7 @@ zigistat:
       dovedir = subword(dovedir,2)
       cmd = usssafe(dovedir"getpds -M st=- //"strip(dsn,'B',"'"))
       drop mem. se.
+      x = debug('Get ISPF Stats using getpds:' cmd)
       x = bpxwunix(cmd,,mem.,se.,env.)
       do mi = 1 to mem.0
         allmems = allmems word(mem.mi,1)
@@ -285,7 +287,7 @@ zigistat:
       x = debug('Saving stats begins to:' filepath)
       x = bpxwunix('rm' usssafe(filepath),,so.,se.)
       call write_stats
-      cmd = 'chtag -c' codep filepath
+      cmd = 'chtag -c' codep usssafe(filepath)
       x = bpxwunix(cmd,,so.,se.)
       x = debug('Saving stats completed.')
       return 0
@@ -626,28 +628,33 @@ debug:
   return 0
 
 usssafe:
-  parse arg safedsn
-  if pos('\$',safedsn) > 0 | pos('$',safedsn) = 0 then
-  if pos('\#',safedsn) > 0 | pos('#',safedsn) = 0 then return safedsn
+  parse arg safe_command
+  safe_ret = 1
+  if pos('\$',safe_command) > 0 then safe_ret = 0
+  if pos('\#',safe_command) > 0 then safe_ret = 0
+  if safe_ret = 0 then return safe_command
+  if pos('$',safe_command)  > 0 then safe_ret = 1
+  if pos('#',safe_command)  > 0 then safe_ret = 1
+  if safe_ret = 0 then return safe_command
   safe$pos = 1
   do forever
-    pos$safe = pos('$',safedsn,safe$pos)
+    pos$safe = pos('$',safe_command,safe$pos)
     if pos$safe < 1 then leave
-    left$safe = left(safedsn,pos$safe-1)
-    right$save = substr(safedsn,pos$safe)
-    safedsn = left$safe'\'right$save
+    left$safe = left(safe_command,pos$safe-1)
+    right$save = substr(safe_command,pos$safe)
+    safe_command = left$safe'\'right$save
     safe$pos = pos$safe + 2
   end
   safe$pos = 1
   do forever
-    pos$safe = pos('#',safedsn,safe$pos)
-    if pos$safe < 1 then return safedsn
-    left$safe = left(safedsn,pos$safe-1)
-    right$save = substr(safedsn,pos$safe)
-    safedsn = left$safe'\'right$save
+    pos$safe = pos('#',safe_command,safe$pos)
+    if pos$safe < 1 then return safe_command
+    left$safe = left(safe_command,pos$safe-1)
+    right$save = substr(safe_command,pos$safe)
+    safe_command = left$safe'\'right$save
     safe$pos = pos$safe + 2
   end
-  return safedsn
+  return safe_command
 
 STRREPLACE:
   ORIGINAL = ARG(1)
@@ -774,7 +781,7 @@ Get_LoadLib:
       mem.0 = oc
         if opt = 'C' then allmems = allmems member
         if oc//100 = 0 then do
-          zs3 = 'Processing count:' c
+          zs3 = 'Processing count:' oc
           Address ISPExec
           call do_popup4
           Address TSO
