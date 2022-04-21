@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            03/24/22 LBD - Version 3.14                     |
+  |            04/21/22 LBD - Version 3.14                     |
   |                         - Improve History date/time sort   |
   |                         - Correct NOCOZ check              |
   |                         - Update encoding var to remove 0D |
@@ -39,6 +39,7 @@
   |                         - Fix usssafe for cp and fix tags  |
   |                         - If PDS member changed to Binary  |
   |                           update the PDS member type to B  |
+  |                         - Pass codep to zigigeni           |
   |            03/07/22 LBD - Fix localdir after member rm     |
   |                         - Clean up usssafe                 |
   |                         - After member remove update repo  |
@@ -4180,6 +4181,7 @@ Do_Rset:
   | Check for zginstall.rex enablement |
   * ---------------------------------- */
   if zginst = 'Y' then do
+    'vput (codep)'
     rc = zigigeni(localrep'/'zigirep)
     cmd = 'cd' localrep'/'zigirep
     cmd = cmd '&& git add zginstall.rex zginstall.readme'
