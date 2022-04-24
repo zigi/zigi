@@ -29,7 +29,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            04/21/22 LBD - Version 3.14                     |
+  |            04/24/22 LBD - Version 3.14                     |
+  |                         - Honor users codepage (encoding)  |
+  |                         - Fix add of dsn with #'s          |
   |                         - Improve History date/time sort   |
   |                         - Correct NOCOZ check              |
   |                         - Update encoding var to remove 0D |
@@ -3764,10 +3766,12 @@ git_add:
   zs1 = 'Adding' fulldsn
   zs2 = 'Making it ready to Commit'
   call do_popup
+  /* Comment Start
   if left(dsn,1) = "'"
   then d = dsn
   else d = '"'dsn'"'
-  call git_safe_add localrep'/'zigirep  d
+     Comment End */
+  call git_safe_add localrep'/'zigirep dsn
   if dsnvalid(fulldsn) = "OK" then do
     /* Only get the stats if it's a z/OS dataset
     Don't do it for the USS files
@@ -6365,11 +6369,11 @@ do_git_attributes:
   ga3  = ga3a || ga3b
   call write_fd ga3
   ga4a = ".gitignore        "
-  ga4b = "git-encoding=utf-8 zos-working-tree-encoding=IBM-1047"
+  ga4b = "git-encoding=utf-8 zos-working-tree-encoding="encoding
   ga4  = ga4a || ga4b
   call write_fd  ga4
   ga5a = ".zigi/*           "
-  ga5b = "git-encoding=utf-8 zos-working-tree-encoding=IBM-1047"
+  ga5b = "git-encoding=utf-8 zos-working-tree-encoding="encoding
   ga5  = ga5a || ga5b
   call write_fd  ga5
   binaries = '*.docm *.docx *.doc *.dotx *.pdf *.epub *.mobi *.azw3' ,
@@ -6387,7 +6391,7 @@ do_git_attributes:
   reporoot = localrep'/'zigirep'/'
   /* convert to iso8859-1 */
   cmd = 'cd 'localrep'/'zigirep' && '
-  cmd = cmd 'iconv -f ibm-1047 -t iso8859-1 .ga'
+  cmd = cmd 'iconv -f' encoding '-t iso8859-1 .ga'
   cmd = cmd ' > .gitattributes'
   x = docmd(cmd)
 
@@ -7661,12 +7665,12 @@ Do_Add_Copy:
         else ga_mem = ac_mem
         /* setting the gitattributes file */
         /* first convert the ASCII atrtib file to ebcdic :( */
-        cmd = 'cd 'DIR' && iconv -f ISO8859-1 -t IBM-1047 '
+        cmd = 'cd 'DIR' && iconv -f ISO8859-1 -t' encoding
         cmd = cmd '.gitattributes > .gae'
         /* then append the binary attrib for this file */
         cmd = cmd '&& echo "'pdss'/'ga_mem' 'gabs'" >> .gae '
         /* convert it back to ascii */
-        cmd = cmd '&& iconv -f IBM-1047 -t ISO8859-1 .gae '
+        cmd = cmd '&& iconv -f' encoding '-t ISO8859-1 .gae '
         cmd = cmd '> .gitattributes '
         /* add (and commit) .gitattributes to the index */
         cmd = cmd '&& git add .gitattributes '
@@ -7754,12 +7758,12 @@ Do_Add_Copy:
       binopt = '-B'
       /* setting the gitattributes file */
       /* first convert the ASCII atrtib file to ebcdic :( */
-      cmd = 'cd 'DIR' && iconv -f ISO8859-1 -t IBM-1047 '
+      cmd = 'cd 'DIR' && iconv -f ISO8859-1 -t' encoding
       cmd = cmd '.gitattributes > .gae'
       /* then append the binary attrib for this file */
       cmd = cmd '&& echo "'pss gabs'" >> .gae '
       /* convert it back to ascii */
-      cmd = cmd '&& iconv -f IBM-1047 -t ISO8859-1 .gae '
+      cmd = cmd '&& iconv -f' encoding '-t ISO8859-1 .gae '
       cmd = cmd '> .gitattributes '
       /* add (and commit) .gitattributes to the index */
       cmd = cmd '&& git add .gitattributes '
@@ -8291,9 +8295,11 @@ GETENV:
     end
     else enhanced_cp = 0
   end
-  if enhanced_cp = null then enhanced_cp = 0
-  dovedir = enhanced_cp dovetail_dir
-  dovestat    = 'Co:Z active'
+  if enhanced_cp /= 0
+  then do
+     dovedir = enhanced_cp dovetail_dir
+     dovestat    = 'Co:Z active'
+     end
   'vput (dovedir dovestat) shared'
   x = debug('Finished collection of env variables')
   return
@@ -8652,7 +8658,7 @@ get_binfiles:
   |            current repo files that are added as binary.    |
   \---------------------------------------------------------- */
   cmd = 'cd 'localrep'/'zigirep' &&' ,
-    'cat -W filecodeset=UTF-8,pgmcodeset=IBM-1047 .gitattributes' ,
+    'cat -W filecodeset=UTF-8,pgmcodeset='encoding' .gitattributes' ,
     '| grep binary' ,
     '| cut -d" " -f1'
   x = docmd(cmd)
@@ -8691,7 +8697,7 @@ is_binfile:
    * ----------------------------------------------------- */
 Get_Default_Codepage:
   cmd = 'cd' localrep'/'zigirep '&&' ,
-    'cat -W filecodeset=UTF-8,pgmcodeset=IBM-1047 .gitattributes' ,
+    'cat -W filecodeset=UTF-8,pgmcodeset='encoding' .gitattributes' ,
     "| grep 'zos-working-tree-encoding'"
   x = bpxwunix(cmd,,s.,e.)
   encoding = null
