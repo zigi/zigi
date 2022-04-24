@@ -42,6 +42,15 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            04/16/22 LBD - Support log option               |
+  |            04/14/22 LBD - Honor default userid for repo    |
+  |            04/12/22 LBD - Support binary elements          |
+  |            04/11/22 LBD - Use CoZ if available for stats   |
+  |                         - use current zigistat             |
+  |                         - Add tutorial for options         |
+  |            04/10/22 LBD - correct tagging on new members   |
+  |            03/23/22 MWB - correct tagging on new members   |
+  |            03/23/22 MWB - fix to include ~/.profile setup  |
   |            06/03/21 LBD - Change SHAREAS to REQUIRED       |
   |            05/29/21 LBD - Improve env setup                |
   |            05/06/21 LBD - Support allmems > 32k            |
@@ -59,7 +68,7 @@
   |                                                            |
   | ---------------------------------------------------------- |
   |    zigi - the z/OS ISPF Git Interface                      |
-  |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
+  |    Copyright (C) 2020 - 2022 - Henri Kuiper and Lionel Dyck |
   |                                                            |
   |    This program is free software: you can redistribute it  |
   |    and/or modify it under the terms of the GNU General     |
@@ -160,9 +169,9 @@
   | Validate the input options |
   * -------------------------- */
   zsel = opt
-  'vget (zgdsns) profile'
+  'vget (zgdsns zglogo) profile'
 
-  if wordpos(opt,'A AC ACP') = 0 then
+  if wordpos(opt,'A AC ACP O') = 0 then
   if opt /= null then do
     wp = wordpos(dsname,zgdsns)
     if wp = 0 then opt = null   /* dsn not found */
@@ -189,6 +198,15 @@
     end
     zsel = opt
   end
+
+  /* ---------------- *
+   | Check log option |
+   * ---------------- */
+   'vput (zglogo) profile'
+   if zglogo = 'Y' then do
+      logc = 0
+      log. = null
+      end
 
   /* ------------------- *
   | Open the zigi table |
@@ -242,6 +260,11 @@
   * ----------------------------- */
   call getenv
 
+  /* ---------------------------- *
+   | Check for the Co:Z utilities |
+   * ---------------------------- */
+  call Check_for_CoZ
+
   /* ------------------------------------------------- *
   | Validate that the current dataset is part of repo |
   * ------------------------------------------------- */
@@ -250,7 +273,7 @@
   else member = null
   omvsdsn = remove_dsn_hlq(workdsn)
   cmd = 'cd' localrep'/'zigirep
-  cmd = cmd '&& ls' omvsdsn
+  cmd = cmd '&& ls' usssafe(omvsdsn)
   x = bpxwunix(cmd,,xo.,xe.)
   if x > 0 then do
     zedsmsg = 'Invalid.'
@@ -277,6 +300,7 @@
   | Get the list of datasets to check for file suffixes |
   * --------------------------------------------------- */
   call get_dsn_info
+  call get_binfiles
 
   /* -------------------------------- *
   | Process the repository selection |
@@ -289,31 +313,70 @@
   | Copy occurs with the Open request or the select/add.    |
   * ------------------------------------------------------- */
   call pop 'Copying the member to OMVS \ Patience. . .'
-  if pos(left(zsel,1),'SAO') > 0 then do
+  if pos(left(zsel,1),'A') > 0 then do
+    omvsfs = localrep"/"zigirep
+    call Get_Default_Codepage
     hit = 1
     omvsfile = omvsdsn
     ofile = usssafe(omvsfile)
     omem  = usssafe(member)
     if zdsn.omvsdsn = null
     then rmem = omem
-    else rmem = lower(omem)'.'zdsn.dsn
+    else rmem = lower(omem)'.'zdsn.omvsdsn
+    x = is_binfile(ofile'/'rmem)
+    if x = 0
+       then do
+       binopt = null
+       tagcmd = 'chtag -tc' encoding localrep'/'zigirep'/'ofile'/'rmem
+       end
+       else do
+       binopt = '-B'
+       tagcmd = 'chtag -b 'localrep'/'zigirep'/'ofile'/'rmem
+       end
     sdsn = usssafe(dsname)
     copycmd = "//'"sdsn"("omem")'"
     copycmd = '"'copycmd'"'
-    copycmd = "cp -U -v" copycmd" "localrep"/"zigirep'/'ofile
-    copycmd = copycmd || "/"rmem
+    copycmd = "cp -U -v" binopt copycmd" "localrep"/"zigirep'/'ofile'/'rmem ,
+       '&&' tagcmd
     x = bpxwunix(copycmd,,so.,se.)
+  if zglogo = 'Y' then do
+     call do_zglog 'Copy element to the repository and tag it'
+     call do_zglog copycmd
+     do zi = 1 to so.0
+        logc = logc + 1
+        log.logc = so.zi
+        end
+     do zi = 1 to se.0
+        logc = logc + 1
+        log.logc = se.zi
+        end
+     end
     call add_so 'Command:' copycmd
     if x > 0 then
     call view_std 'B'
     call pop 'Adding to Git Index \ Patience. . .'
-    cmd = 'cd' localrep'/'zigirep'/'ofile
-    cmd = cmd '&& git add' omem
+    call git_add_member_stats
+    call do_zglog 'Update ISPF statistics file'
+    cmd = 'cd' localrep'/'zigirep'/'ofile ,
+          '&& git add . && git status' ,
+          'cd' localrep'/'zigirep'/.zigi' ,
+          '&& git add . && git status'
     x = docmd(cmd)
+    if zglogo = 'Y' then do
+       call do_zglog 'Git Add both the element and the ISPF stats file'
+       call do_zglog cmd
+       do zi = 1 to so.0
+          logc = logc + 1
+          log.logc = so.zi
+          end
+       do zi = 1 to se.0
+          logc = logc + 1
+          log.logc = se.zi
+          end
+       end
     call add_so 'Command:' cmd
     if x > 0 then
     call view_std 'B'
-    call git_add_member_stats
   end
 
   /* ----------------------------------------- *
@@ -343,11 +406,26 @@
     else do
       cmd = cmd "&& git commit -F" file
     end
-    if right(zsel,1) = 'P' then
-    cmd = cmd '&& git push -v'
+    if right(zsel,1) = 'P' then do
+       cmd = cmd '&& git push -v'
+       pmsg = 'and Git Push'
+       end
     if cfile = 1 then
     cmd = cmd '&& rm' file
     x = docmd(cmd)
+    if zglogo = 'Y' then do
+       msg = 'Do Git Commit' pmsg
+       call do_zglog 'Do commit and optional push'
+       call do_zglog cmd
+       do zi = 1 to so.0
+          logc = logc + 1
+          log.logc = so.zi
+          end
+       do zi = 1 to se.0
+          logc = logc + 1
+          log.logc = se.zi
+          end
+       end
     call add_so 'Command:' cmd
     if x > 0 then
     call view_std 'B'
@@ -375,8 +453,27 @@ done:
     sortdate = date('b')''right(time('s')+100000,5)
     'tbmod zigirepo order'
     cmd = 'cd' localrep'/'zigirep
-    cmd = cmd '&& git status'
+    cmd = cmd '&& git status && git log --cc -m -n 1'
     x = docmd(cmd)
+    if zglogo = 'Y' then do
+       call do_zglog 'Finished so report out'
+       call do_zglog cmd
+       do zi = 1 to so.0
+          logc = logc + 1
+          log.logc = so.zi
+          end
+       do zi = 1 to se.0
+          logc = logc + 1
+          log.logc = se.zi
+          end
+       log.0 = logc
+       do zi = 1 to log.0
+          so.zi = log.zi
+          so.0 = zi
+          end
+       call view_std
+       x = 0
+       end
     if x > 0
     then call view_std 'B'
     else do
@@ -400,7 +497,18 @@ Get_Out_Of_Here:
   if open /= 0 then do
     'tbend zigirepo'
   end
+  x = dropispf(load_info)
   exit 0
+
+Do_zglog:
+  parse arg log_text
+  logc = logc + 1
+  log.logc = ' '
+  logc = logc + 1
+  log.logc = log_text
+  logc = logc + 1
+  log.logc = ' '
+  return
 
   /* ----------------------- *
   | Generalized Pop Message |
@@ -468,7 +576,7 @@ do_cmsg:
   file = "'"file"'"
   address tso
   'alloc f('fdd') new spa(1,1) tr recfm(f b) lrecl(72) blksize(0)',
-    'ds('filem')'
+    'ds('filem') reuse'
   'execio * diskw' fdd '(finis stem cmsgd.'
   'free  f('fdd')'
   call outtrap 'x.'
@@ -483,10 +591,38 @@ do_cmsg:
   * ---------------------------------- */
 Git_Add_Member_Stats:
   call pop 'Updating member stats in zigi \ Patience.'
+  if defruid /= null then call update_userid
+  statfiles = usssafe(omvsfile)
+  if dovedir /= 0 then do
+  dovedir = subword(dovedir,2)
+  cmd = dovedir"getpds -M st="localrep"/"zigirep"/.zigi/"statfiles ,
+        "//'"strip(dsname,'B',"'")"'" ,
+        '&& cd' localrep'/'zigirep'/.zigi/' ,
+        '&& git add' statfiles
+  x = docmd(cmd)
+  if x > 0 then
+    call view_std 'B'
+  return
+  end
   x = zigistat("'"workdsn"'" ,
     localrep'/'zigirep'/.zigi/'omvsfile 'S')
-  statfiles = usssafe(omvsfile)
   x = docmd('cd' localrep'/'zigirep '&& git add .zigi/'statfiles)
+  if x > 0 then
+    call view_std 'B'
+  return
+
+  /* ------------------------------------------------------ *
+   | Update the Userid of the Member to the Defined Default |
+   * ------------------------------------------------------ */
+Update_Userid:
+  x = listdsi("'"workdsn"'")
+  if sysdsorg /= 'PO' then iterate
+  "LMINIT DATAID(reset) DATASET('"workdsn"')"
+  "LMOPEN DATAID("reset") OPTION(INPUT)"
+  if zluser /= defruid then
+    'LMMSTATS DATAID('reset') Member('member') user('defruid')'
+  "LMClose Dataid("reset")"
+  "LMFree  Dataid("reset")"
   return
 
   /* -------------------------- *
@@ -551,10 +687,11 @@ strreplace: Procedure
   | bpxwunix commands.                                    |
   * ----------------------------------------------------- */
 GETENV:
-  cmd = 'pwd'
-  x = bpxwunix(cmd,,ho.,he.)
-  home    = strip(ho.1)
-  x = bpxwunix('. /etc/profile && env',,env.,se.)
+
+  cmd  = docmdx('env')
+
+  x = bpxwunix(cmd,,env.,se.)
+
   envc = env.0
   call add_env '_BPX_SHAREAS=MUST'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
@@ -582,7 +719,7 @@ docmd:
 docmdx:
   /* quircky thing, we need to export HOME as we are
   not running a login shell via bpxwunix */
-  parse arg cmd
+  parse arg cmdx
   cmd = 'pwd'
   x = bpxwunix(cmd,,ho.,he.)
   home    = strip(ho.1)
@@ -605,7 +742,7 @@ docmdx:
   if o.0 = 1 & o.1 = "f" then do
     rx = rx '. 'home'/.profile > /dev/null 2>&1 && '
   end
-  r = rx cmd
+  r = rx cmdx
   return r
 
   /* ----------------------------- *
@@ -683,7 +820,7 @@ view_std:
   if vdsn /= null then vdsnp = 'da('vdsn') unit(3390)'
   else vdsnp = null
   if vlrecl > 255 then vlrecl = 251
-  'Alloc f('dd') new spa('prim','prim') tr' ,
+  'Alloc f('dd') new spa('prim','prim') tr reuse' ,
     'recfm(v b) lrecl('vlrecl+4') blksize(0)' vdsnp
   /* ----------------------------- *
   | If stdopt is 'B' then do both |
@@ -747,6 +884,47 @@ Lower: Procedure
   out = translate(input,"abcdefghijklmnopqrstuvwxyz",,
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
   return out
+
+get_binfiles:
+  /* ---------------------------------------------------------\
+  | Name:      get_binfiles                                    |
+  |                                                            |
+  | Function:  Fills the global binfiles. stem with all        |
+  |            current repo files that are added as binary.    |
+  \---------------------------------------------------------- */
+  cmd = 'cd 'localrep'/'zigirep' &&' ,
+    'cat -W filecodeset=UTF-8,pgmcodeset=IBM-1047 .gitattributes' ,
+    '| grep binary' ,
+    '| cut -d" " -f1'
+  x = docmd(cmd)
+  binfiles. = null
+  bc = 0
+  do b = 1 to so.0
+    if left(strip(so.b),2) = '*.' then iterate
+    bc = bc + 1
+    binfiles.bc = so.b
+  end
+  binfiles.0 = bc
+  return 0
+
+is_binfile:
+  /* ---------------------------------------------------------\
+  | Name:      is_binfile                                      |
+  |                                                            |
+  | Function:  Checks the global binfiles. stem for the        |
+  |            provided dataset or dataset/member              |
+  \---------------------------------------------------------- */
+  parse arg checkForBinFile
+  if datatype(binfiles.0) /= 'NUM' then return 0
+  do bi = 1 to binfiles.0
+    if binfiles.bi = checkForBinFile then return 1
+    if right(binfiles.bi,1) = '*' then do
+      parse value checkForBinFile with test'/'.
+      if left(binfiles.bi,length(binfiles.bi)-2) = test
+      then return 1
+    end
+  end
+  return 0
 
   /* ----------------------------------------- *
   | Get the .zigi/dsn to find file extensions |
@@ -1089,19 +1267,81 @@ DropISPF: Procedure
   end
   return 0
 
+  /* ----------------------------------------------------- *
+   | If the encoding ISPF variable is not set then get the |
+   | repository default encoding from the .gitattributes   |
+   * ----------------------------------------------------- */
+Get_Default_Codepage:
+  cmd = 'cd' omvsfs '&&' ,
+    'cat -W filecodeset=UTF-8,pgmcodeset=IBM-1047 .gitattributes' ,
+    "| grep 'zos-working-tree-encoding'"
+  x = bpxwunix(cmd,,s.,e.)
+  encoding = null
+  do i = 1 to s.0
+    if pos('zos-working-tree-encoding',s.i) = 0 then iterate
+    parse value s.i with .'zos-working-tree-encoding='encoding .
+    return
+  end
+  if encoding = null then
+  encoding = 'IBM-1047'
+  return
+
+Check_for_CoZ:
+  /* ----------------------- *
+  | Check for getpds/putpds |
+  * ----------------------- */
+  x = listdsi('NOCOZ' 'FILE')
+  if sysreason /= 2 then do
+    enhanced_cp = 0
+    dovedir     = 0
+    dovestat    = null
+    'vput (dovedir dovestat) shared'
+    return
+  end
+  x = docmd('command -v getpds')
+  if x = 0
+  then do
+    enhanced_cp = 1
+    dovetail_dir = so.1
+    lp = lastpos('/',dovetail_dir,length(dovetail_dir)-1)
+    dovetail_dir = left(dovetail_dir,lp)
+  end
+    else enhanced_cp = 0
+  if enhanced_cp = null then enhanced_cp = 0
+  dovedir = enhanced_cp dovetail_dir
+  dovestat    = 'Co:Z active'
+  'vput (dovedir dovestat) shared'
+  return
+
 /*   Start of inline ISPF Panels - do NOT use REXXFORM option CI
 >Start
 >Panel zgopt
 )Attr
 _ type(input) hilite(uscore) caps(on) intens(low) just(left)
-)Body Window(43,3)
+)Body Window(43,5)
 +Enter Git Option:_opt+(A, AC, ACP, or O)
++
++View Log:_z+%Y+or%N+
 +
 +Press%Enter+to Continue, or%F3+to Cancel.
 )Init
-&zwinttl = 'zigi Git Option'
+ .zvars = '(zglogo)'
+ &zwinttl = 'zigi Git Option'
+ .help = zgopth
 )Proc
-ver (&opt,nb,list,A,AC,ACP,S,SC,SCP,O)
+ver (&opt,nb,list,A,AC,ACP,O)
+ver (&zglogo,nb,list,Y,N)
+)End
+>Panel zgopth
+)Attr
+)Body Window(45,4)
++ZG Options:  %A+  Git Add only
++             %AC+ Git Add and Commit
++             %ACP+Git Add, Commit, and Push
++             %O+  Open the Repo in Zigi
+)Init
+ &zwinttl = 'zigi Git Option Tutorial'
+)Proc
 )End
 >Panel zgtbl
 )Attr
@@ -1122,9 +1362,24 @@ _z  +$z                  +  ]z             +}z          +
 )Init
 &zwinttl = 'Update Git Repository'
 &zscr = CSR
+.help = zgtblh
 .zvars = '(zsel zigirep zigicat zigidate)'
 )Proc
-Ver (&zsel,list,A,AC,O,S,SC,ACP,SCP)
+Ver (&zsel,list,A,AC,O,ACP)
+)End
+>Panel zgtblh
+)Attr
+)Body Window(47,7)
++Select the Repository for this Dataset using
++one of these ZG options:
++
++      %A+  Git Add only
++      %AC+ Git Add and Commit
++      %ACP+Git Add, Commit, and Push
++      %O+  Open the Repo in Zigi
+)Init
+ &zwinttl = 'zigi Git Option Tutorial'
+)Proc
 )End
 >Panel zgcom
 )Attr
@@ -1203,6 +1458,24 @@ ver (&cmsg1,nb)
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            03/07/22 LBD - Update usssafe routine tests     |
+  |            03/05/22 LBD - Update usssafe routine for #     |
+  |            03/04/22 LBD - Add ISPF Stats if PDS member     |
+  |                           does not have them               |
+  |            03/03/22 LBD - Correct debugfil variable        |
+  |            02/15/22 LBD - Correct if no Dovetail           |
+  |            02/07/22 LBD - Fix stats if NOCOZ               |
+  |            12/18/21 LBD - Correct dsorg/recfm test         |
+  |            10/18/21 LBD - Correctly tag stats file         |
+  |            10/08/21 LBD - Check for background             |
+  |            08/18/21 LBD - Correct AMBLIST for Link and     |
+  |                           Add AMBLIST analysis popups      |
+  |            08/16/21 LBD - Align amblist (lmod) file        |
+  |                         - Support PDSE lmod libraries      |
+  |            08/04/21 LBD - Use encoding to tag stats file   |
+  |            08/02/21 LBD - Correct use of dovedir variable  |
+  |                         - use AMBLIST for load libraries   |
+  |            07/26/21 LBD - Fix allmems missing one member   |
   |            06/03/21 LBD - Change SHAREAS to REQUIRED       |
   |            05/29/21 LBD - Clean up environment setup       |
   |            05/26/21 LBD - Use dovetail getpds for stats    |
@@ -1226,7 +1499,7 @@ ver (&cmsg1,nb)
   |                                                            |
   | ---------------------------------------------------------- |
   |    ZIGI - the z/OS ISPF Git Interface                      |
-  |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
+  |    Copyright (C) 2020-2021 - Henri Kuiper and Lionel Dyck  |
   |                                                            |
   |    This program is free software: you can redistribute it  |
   |    and/or modify it under the terms of the GNU General     |
@@ -1249,8 +1522,15 @@ zigistat:
   /* --------------- *
   | Define defaults |
   * --------------- */
-  parse value '' with null string m. rx allmems
+  parse value '' with null string m. rx allmems codep
   zdd = 'ZS'time('s')
+
+  /* ---------------------------------- *
+   | Check for Background of Foreground |
+   * ---------------------------------- */
+   if sysvar('sysenv') = 'FORE'
+      then background = 0
+      else background = 1
 
   /* --------------------------------- *
   | Check for parms and return if not |
@@ -1269,10 +1549,12 @@ zigistat:
   then zigidebg = 1
   else zigidebg = 0
 
-  call getenv
-
   Address ISPExec
-  'vget (debugfil defruid readonly)'
+  'vget (debugfil defruid readonly dovedir encoding)'
+  parse value encoding with .'-'codep .
+  if codep = null then codep = 1047
+
+  call getenv
 
   x = debug('start of zigistat with option:' opt)
 
@@ -1302,7 +1584,7 @@ zigistat:
   * ------------------ */
   Address ISPExec
 
- /* ---------------------------------- *
+  /* ---------------------------------- *
   | Get dataset recfm (check for lmod) |
   * ---------------------------------- */
   x = listdsi(dsn)
@@ -1330,63 +1612,74 @@ zigistat:
   /* ----------------------- *
   * Now process all members *
   * ----------------------- */
-  if words(dovedir) = 1 then do
-  "LMINIT DATAID(STATUS) DATASET("dsn")"
-  "LMOPEN DATAID("STATUS") OPTION(INPUT)"
-  do forever
-    "LMMLIST Dataid("status") OPTION(LIST) MEMBER(MEMBER)" ,
-      "STATS(YES)"
-    /* --------------------------------- *
-    * If RC 4 or more leave the do loop *
-    * --------------------------------- */
-    if rc > 3 then leave
-    /* -------------------------------- *
-    | Check if no stats then add them. |
-    * -------------------------------- */
-    if sysrecfm /= 'U' then
-    if zlcdate = null then
-    if readonly = 0 then do
-      'LMMSTATS DATAID('status') Member('member') user('newuid')'
-      "LMMFind DATAID("status") Member("member") STATS(YES)"
-    end
-    /* ------------------------------ *
-    * Add each member info to a stem *
-    * ------------------------------ */
-    c = mem.0 + 1
-    if sysrecfm /= 'U'
-    then mem.c = strip(member ,
-      ZLCDATE  ZLMDATE  ZLVERS ZLMOD ZLMTIME ZLCNORC ,
-      ZLINORC ZLMNORC ZLUSER ,
-      zlcnorce zlinorce zlmnorce)
-    else if strip(zlalias) = null then do
-      mem.c = strip(member ,
-        zlsize zlamod zlrmode zlattr zlalias zlssi)
-    end
-    else c = c - 1
-    mem.0 = c
-    if strip(zlalias) = null then
-    if opt = 'C' then allmems = allmems member
-    if c//100 = 0 then do
-       zs3 = 'Processing count:' c
+  if sysdsorg = 'PO' & sysrecfm = 'U'
+  then do
+       zs3 = 'Collecting Load Module Information'
        call do_popup4
+       Address TSO
+       x = get_loadlib(dsn)
+       Address ISPExec
        end
-  end
+  else if sysdsorg = 'PO' then do
+    if dovedir = 0 then do
+      "LMINIT DATAID(STATUS) DATASET("dsn")"
+      "LMOPEN DATAID("STATUS") OPTION(INPUT)"
+      do forever
+        "LMMLIST Dataid("status") OPTION(LIST) MEMBER(MEMBER)" ,
+          "STATS(YES)"
+        /* --------------------------------- *
+        * If RC 4 or more leave the do loop *
+        * --------------------------------- */
+        if rc > 3 then leave
+        /* -------------------------------- *
+        | Check if no stats then add them. |
+        * -------------------------------- */
+        if sysrecfm /= 'U' then
+        if zlcdate = null then
+        if readonly = 0 then do
+          'LMMSTATS DATAID('status') Member('member') user('newuid')'
+          "LMMFind DATAID("status") Member("member") STATS(YES)"
+        end
+        /* ------------------------------ *
+        * Add each member info to a stem *
+        * ------------------------------ */
+        c = mem.0 + 1
+        if sysrecfm /= 'U'
+        then mem.c = strip(member ,
+          ZLCDATE  ZLMDATE  ZLVERS ZLMOD ZLMTIME ZLCNORC ,
+          ZLINORC ZLMNORC ZLUSER ,
+          zlcnorce zlinorce zlmnorce)
+        else if strip(zlalias) = null then do
+          mem.c = strip(member ,
+            zlsize zlamod zlrmode zlattr zlalias zlssi)
+        end
+        else c = c - 1
+        mem.0 = c
+        if strip(zlalias) = null then
+        if opt = 'C' then allmems = allmems member
+        if c//100 = 0 then do
+          zs3 = 'Processing count:' c
+          call do_popup4
+        end
+      end
 
-  /* ------------------------- *
-  * Close and Free the Dataid *
-  * ------------------------- */
-  "LMClose Dataid("status")"
-  "LMFree  Dataid("status")"
+      /* ------------------------- *
+      * Close and Free the Dataid *
+      * ------------------------- */
+      "LMClose Dataid("status")"
+      "LMFree  Dataid("status")"
+    end
+    else do
+      dovedir = subword(dovedir,2)
+      cmd = usssafe(dovedir"getpds -M st=- //"strip(dsn,'B',"'"))
+      drop mem. se.
+      x = debug('Get ISPF Stats using getpds:' cmd)
+      x = bpxwunix(cmd,,mem.,se.,env.)
+      do mi = 1 to mem.0
+        allmems = allmems word(mem.mi,1)
+      end
+    end
   end
-  else do
-       dovedir = subword(dovedir,2)
-       cmd = usssafe(dovedir"getpds -M st=- //"strip(dsn,'B',"'"))
-       drop mem. se.
-       x = bpxwunix(cmd,,mem.,se.,env.)
-       do mi = 1 to mem.0
-          allmems = allmems word(mem.mi,1)
-          end
-       end
   x = debug('Stat collection complete.')
 
   zs1 = 'Collection complete.'
@@ -1409,6 +1702,8 @@ zigistat:
       x = debug('Saving stats begins to:' filepath)
       x = bpxwunix('rm' usssafe(filepath),,so.,se.)
       call write_stats
+      cmd = 'chtag -c' codep usssafe(filepath)
+      x = bpxwunix(cmd,,so.,se.)
       x = debug('Saving stats completed.')
       return 0
     end
@@ -1476,41 +1771,63 @@ zigistat:
       /* now compare active to saved */
       do i = 1 to mem.0
         if i//100 = 0 then do
-           zs3 = 'Checked' i 'members of' mem.0
-           call do_popup4
-           end
+          zs3 = 'Checked' i 'members of' mem.0
+          call do_popup4
+        end
         parse value mem.i with actmem cd md . . mt . . . uid .
         data = strip(cd md left(mt,5) uid)
         if m.actmem = null
         then string = string actmem
         else if data /= m.actmem then string = string actmem
+        if datatype(uid) /= 'CHAR' then data = null
+        if strip(data) = null then call update_member_ispf_stats
       end
       zs3 = 'Completed - building member list.'
       call do_popup4
       allmemsc = 0
       allmems = strip(allmems)
       if length(allmems) < 32000
-         then do
-           allmemsc = allmemsc + 1
-           interpret 'allmems'allmemsc '= allmems'
-           'vput (allmems'allmemsc')'
-           end
+      then do
+        allmemsc = allmemsc + 1
+        interpret 'allmems'allmemsc '= allmems'
+        'vput (allmems'allmemsc')'
+      end
       else do forever
-           allmemsc = allmemsc + 1
-           if length(allmems) > 32000
-           then lp = lastpos(' ',allmems,length(allmems)-32000)
-           else lp = 1
-           interpret 'allmems'allmemsc '=' substr(allmems,lp)
-           'vput (allmems'allmemsc')'
-           allmems = left(allmems,lp-1)
-           if strip(allmems) = null then leave
-           end
+        allmemsc = allmemsc + 1
+        if length(allmems) > 32000
+        then lp = lastpos(' ',allmems,length(allmems)-32000)
+        else lp = 0
+        if lp > 0
+        then do
+          interpret 'allmems'allmemsc '=' substr(allmems,lp)
+          allmems = left(allmems,lp-1)
+        end
+        else do
+          interpret 'allmems'allmemsc '= allmems'
+          allmems = null
+        end
+        'vput (allmems'allmemsc')'
+        if strip(allmems) = null then leave
+      end
       'vput (allmemsc)'
       x = debug('ISPF Stats comparison complete:' string)
       return string
     end
     Otherwise nop  /* should never get here */
   end
+
+Update_Member_ISPF_Stats:
+    "LMINIT DATAID(zstats) DATASET('"sysdsname"')"
+    "LMOPEN DATAID("zstats") OPTION(INPUT)"
+    parse value mem.actmem with cdt mdt mtm uid
+    if uid /= null then
+    'LMMSTATS DATAID('zstats') Member('actmem') Created('cdt')',
+           'Moddate('mdt') Modtime('mtm') User('uid')'
+    else
+    'LMMSTATS DATAID('zstats') Member('actmem') User('userid()')'
+    "LMClose Dataid("zstats")"
+    "LMFree  Dataid("zstats")"
+   return
 
   /* -------------------------------------------- *
   | Check to see if the provided filepath exists |
@@ -1524,7 +1841,6 @@ Check_Stats_File:
     return 20
   end
   else return 0
-
 
   /* ----------------------------------------------------- *
   | Get the users current OMVS enviornment for use in the |
@@ -1561,10 +1877,10 @@ docmdx:
   /* check for users .profile */
   address syscall 'lstat' "'"home"/.profile'" 'x.'
   if x.0 > 0 then home_profile =  ". "home"/.profile &&"
-     else home_profile = null
+  else home_profile = null
 
   rx = 'export HOME='home' && . /etc/profile > /dev/null 2>&1 && ' ,
-       home_profile envfile
+    home_profile envfile
   r = rx ' ' cmd
   return r
 
@@ -1611,6 +1927,10 @@ Write_Stats:
   'close' fd
   call syscalls 'OFF'
   Address ISPExec
+  lp = lastpos('/',filepath)
+  chpath = left(filepath,lp)
+  chfile = substr(filepath,lp+1)
+  x = docmd('cd' chpath '&& chtag -tc' encoding chfile)
   return
 
   /* ----------------------------------- *
@@ -1626,12 +1946,25 @@ Write_FD:
   | Issue popup - turn off pfshow if on |
   * ----------------------------------- */
 Do_Popup4:
+  if background = 1 then do
+     if strip(zs1) /= null then say zs1
+     if strip(zs2) /= null then say zs2
+     if strip(zs3) /= null then say zs3
+     if strip(zs4) /= null then say zs4
+     return
+     end
+  if address() /= 'ISPEXEC' then do
+     poptso = 1
+     Address ISPExec
+     end
+  else poptso = 0
   call pfshow 'off'           /* make sure pfshow is off */
   'Control Display Lock'
   'Addpop row(4) column(6)'
   'Display Panel(zigipop4)'
   'Rempop'
   call pfshow 'reset'         /* restore pfshow setting */
+  if poptso = 1 then Address TSO
   return
 
   /* -------------------------------- *
@@ -1662,29 +1995,33 @@ debug:
   return 0
 
 usssafe:
- parse arg safedsn
- if pos('$',safedsn) = 0 then return safedsn
- safe$pos = 1
- do forever
-    pos$safe = pos('$',safedsn,safe$pos)
-    if pos$safe < 1 then return safedsn
-    left$safe = left(safedsn,pos$safe-1)
-    right$save = substr(safedsn,pos$safe)
-    safedsn = left$safe'\'right$save
+  parse arg safe_command
+  safe_ret = 1
+  if pos('\$',safe_command) > 0 then safe_ret = 0
+  if pos('\#',safe_command) > 0 then safe_ret = 0
+  if safe_ret = 0 then return safe_command
+  if pos('$',safe_command)  > 0 then safe_ret = 1
+  if pos('#',safe_command)  > 0 then safe_ret = 1
+  if safe_ret = 0 then return safe_command
+  safe$pos = 1
+  do forever
+    pos$safe = pos('$',safe_command,safe$pos)
+    if pos$safe < 1 then leave
+    left$safe = left(safe_command,pos$safe-1)
+    right$save = substr(safe_command,pos$safe)
+    safe_command = left$safe'\'right$save
     safe$pos = pos$safe + 2
-    end
- return safedsn
-
-  /* ---------------------------------- *
-  | Make the z/OS dsname safe for OMVS |
-  * ---------------------------------- */
-oldsafe: procedure
-  parse arg dsn
-  if pos('$',dsn) = 0 then return dsn
-  /* Let's not usssafe it twice :) */
-  if pos('\$',dsn) > 0 then return dsn
-  dsn = strreplace(dsn, '$', '\$')
-  return dsn
+  end
+  safe$pos = 1
+  do forever
+    pos$safe = pos('#',safe_command,safe$pos)
+    if pos$safe < 1 then return safe_command
+    left$safe = left(safe_command,pos$safe-1)
+    right$save = substr(safe_command,pos$safe)
+    safe_command = left$safe'\'right$save
+    safe$pos = pos$safe + 2
+  end
+  return safe_command
 
 STRREPLACE:
   ORIGINAL = ARG(1)
@@ -1703,4 +2040,122 @@ STRREPLACE:
       NEWTXT || SUBSTR(NEWSTR, POS(TMPTXT,NEWSTR) + LENGTH(TMPTXT))
   END
   RETURN NEWSTR
+
+Get_LoadLib:
+  arg lm_dsname
+
+  drop mem.
+  oc = 0
+
+  if sysvar('syspref') /= ''
+  then syspds = sysvar("syspref")".z"date("J")
+  else syspds = sysvar("sysuid")".z"date("J")
+
+  call outtrap 'x.'
+  'free f(sysin sysprint syslib)'
+  call outtrap 'off'
+
+  cc.1 = ' LISTIDR OUTPUT=ALL'
+  cc.0 = 1
+  cal = null
+
+  call outtrap 'x.'
+  "delete '"syspds"'"
+  call outtrap 'off'
+
+  'Alloc f(syslib) ds('lm_dsname') shr reuse'
+  'Alloc f(sysprint) unit(sysallda) spa(900,1500) tr new reuse' ,
+    "ds('"syspds"')"
+  'Alloc f(sysin) unit(sysallda) spa(1,1) tr recfm(f b) lrecl(80)' ,
+    'blksize(80) new reuse'
+  'Execio * diskw sysin (finis stem cc.'
+  drop cc.
+
+  address Link 'amblist'
+
+  'free f(sysprint)'
+
+  zs3 = 'AMBList completed - Filtering now.'
+  call do_popup4
+
+  /* -------------------------------------- *
+  | Escape any $ found in the dataset name |
+  * -------------------------------------- */
+  if pos('$',syspds) > 0 then
+  do forever
+    if pos('\$',syspds) > 0 | pos('$',syspds) = 0 then leave
+    p = pos('$',syspds)
+    ld = left(syspds,p-1)
+    rd = substr(syspds,p+1)
+    syspds = ld'\$'rd
+  end
+
+  grep_string = 'MEMBER|PRODUCED'
+
+  /* --------------------------------------------- *
+  | Create OMVS supported format for dataset name |
+  * --------------------------------------------- */
+  dsn = '"//'||"'"syspds"'"||'"'
+
+  /* ----------------- *
+  | Drop results stem |
+  * ----------------- */
+  drop results.
+
+  /* ---------------------------------------------------- *
+  | Invoke BPXWUNIX                                      |
+  | 1st to cat (copy) the z/OS dataset into the pipe (|) |
+  | and 2nd to grep (search) the results for the string  |
+  | with the results going into the results. stem        |
+  | and errors into the e. stem.                         |
+  * ---------------------------------------------------- */
+  x = bpxwunix('cat' dsn "| grep -E -i '"grep_string"'",,results.,e.)
+
+  'Free  f(syslib)'
+  'Alloc f(sysin) ds(*) reuse'
+  'Alloc f(sysprint) ds(*) reuse'
+
+  zs3 = 'Analyzing the filtered AMBLIST data.'
+  zs4 = results.0 'records to process.'
+  call do_popup4
+
+  do lmi = 1 to results.0
+    if word(results.lmi,1) = 'MEMBER' then do
+      member = left(word(results.lmi,3),8)
+    end
+    if subword(results.lmi,2,2) = 'PROGRAM OBJECT' then do
+       time = word(results.lmi,15)
+       parse value word(results.lmi,13) with dmon'/'day'/'year
+       day   = date('d',year''dmon''day,'s')
+       year = right(year,2)
+       cal  = year''right(day+1000,3)
+       end
+    if word(results.lmi,8) = 'BINDER' & word(results.lmi,19) = 'AT' then do
+      day = word(results.lmi,15)
+      year = substr(word(results.lmi,18),3,2)
+      time = left(word(results.lmi,20),8)
+      cal  = year''day
+    end
+    if word(results.lmi,7) = 'LINKAGE' & word(results.lmi,10) = 'AT' then do
+      day = word(results.lmi,15)
+      year = substr(word(results.lmi,18),3,2)
+      time = left(word(results.lmi,20),8)
+      cal  = year''day
+    end
+    if cal <> '' then do
+      oc = oc + 1
+      mem.oc = left(member,8) cal time
+      mem.0 = oc
+        if opt = 'C' then allmems = allmems member
+        if oc//100 = 0 then do
+          zs3 = 'Processing count:' oc
+          Address ISPExec
+          call do_popup4
+          Address TSO
+        end
+      cal = ''
+    end
+  end
+
+  return 0
 >End    End of inline ISPF Panels */
