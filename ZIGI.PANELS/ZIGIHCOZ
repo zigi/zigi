@@ -1,0 +1,38 @@
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on) color(white)
+    hilite(uscore)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>_ZCMD                                                          +
++
++ZIGI has been updated to support the use of the%Dovetailed Technologies+
+%Co:Z Co-Processing Toolkit%getpds+and%putpds+commands that are used to
++replace the OMVS%cp+command.
++
++The advantage of using these commands is speed. The%cp+command is much slower,
++especially with partitioned datasets with a large number of members.
++
+%Co:Z+is available at no charge under their Community License. They do offer
++an Enterprise License that includes 24x7 support.
++
++Included in the toolkit is an improved%sftp+for OMVS that supports z/OS
++datasets and a%Co:Z Batch+that can replace the use of IBM's BPXBATCH utility.
++
++Note that when%Co:Z+is installed and available that ZIGI will indicate that
++on the ZIGI Local Repositories panel and on the Current Repository panel.
++
+                  +Find out more at%https://dovetail.com/coz+
++
+           +Press the%Enter+key to return to the main tutorial panel.
+)Init
+ .cursor = &zcmd
+ &zup    = zigihint
+ &zcont  = zigihint
+)PROC
+)END
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2022 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */
