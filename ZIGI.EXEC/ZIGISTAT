@@ -375,6 +375,9 @@ zigistat:
       /* it up to store ISPF variable versions, identify and store a list */
       /* of the names of any repo directory files not found in the list.  */
 
+      parse var filepath pfx '/.zigi' sfx 
+      repo_dir = pfx || sfx               
+                                    
       cmd = 'ls -l' repo_dir
       x = bpxwunix(cmd,,ro.,se.,env.)
 
