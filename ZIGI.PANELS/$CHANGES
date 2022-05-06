@@ -29,6 +29,8 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 * Correct history date/time sort
 * Add visual indicator to ZIGIPRIM and ZIGIREPO if the Dovetail
   utilities are in use.
+* Updated ZG to work and correctly tag copied PDS members
+* Correctly copy binary DSORG=PS RECFM=U files (not executable)
 
 -----------------------------------------------------------------------------
 

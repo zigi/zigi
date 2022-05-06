@@ -29,7 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            04/24/22 LBD - Version 3.14                     |
+  |            05/06/22 LBD - Version 3.14                     |
+  |                         - Do not set cp -X -I if not PDS   |
   |                         - Honor users codepage (encoding)  |
   |                         - Fix add of dsn with #'s          |
   |                         - Improve History date/time sort   |
@@ -1571,6 +1572,7 @@ Work_With_Repo:
       rtbl_open = 0
       call work_with_repo
       zigi_changed = 0
+      return
     end
   end
   if zigi_changed = 1 then call work_with_repo
@@ -3251,11 +3253,12 @@ WWRF_handle_lcmd_s:
       binopt = null
     end
     /* Check if a Load Library and update binary option variable */
-    if sysrecfm = 'U' then do
+    cplmod = null
+    if sysrecfm = 'U' then
+    if sysdsorg = 'PO' then do
       binopt = null
       cplmod = '-X -I'
     end
-    else cplmod = null
     if sysdsorg = 'PS' then do
       copycmd = "//'"e"'"
       r = r'/'
@@ -6834,12 +6837,13 @@ Update_repo_metadata:
               if binopt = '-T'
               then bintext = 'as Text'
               else bintext = 'as Binary'
-              if sysrecfm = 'U' then do
+              cplmod = null
+              if sysrecfm = 'U' then
+              if sysdsorg = 'PO' then do
                 binopt = null
                 cplmod = '-X -I'
                 bintext = 'as LMod'
               end
-              else cplmod = null
               copycmd = "//'"e"("m")'"
               copycmd = '"'copycmd'"'
               copycmd = "cp" binopt cplmod extopt "-v" copycmd ,
@@ -6941,11 +6945,12 @@ Update_repo_metadata:
             else do
               binopt = '-T'
             end
-            if sysrecfm = 'U' then do
+            cplmod = null
+            if sysrecfm = 'U' then
+            if sysdsorg = 'PO' then do
               binopt = null
               cplmod = '-X -I'
             end
-            else cplmod = null
             zs1 = 'Copying:' fulldsn
             zs2 = 'To:     ' localrep'/'zigirep
             call do_popup
@@ -7170,6 +7175,7 @@ Confirm_Mem_Deletes:
         then cbinopt = '-B'
         else cbinopt = null
         x = listdsi(fulldsn)
+        if sysdsorg = 'PO' then
         if sysrecfm = 'U' then cbinopt = '-X -I'
         dw = wordpos(dmorig,mem_omvs)
         mem_omvs = delword(mem_omvs,dw,1)
@@ -7627,7 +7633,9 @@ Do_Add_Copy:
   else do
     zs3 = 'Copy as Text'
   end
-  if sysrecfm = 'U'
+  cplmod = null
+  if sysrecfm = 'U' then
+  if sysdsorg = 'PO'
   then do
     cplmod = '-X -I'
     binopt = null
@@ -7635,7 +7643,6 @@ Do_Add_Copy:
     acopt = 'BINARY'
     zs3 = 'Copy as Load Module'
   end
-  else cplmod = null
   if ac_mem = null then do
     if sysmembers /= null
     then patmem = 'Members to copy:' sysmembers
@@ -7772,7 +7779,8 @@ Do_Add_Copy:
       x = docmd(cmd)
       call get_binfiles
     end
-    if sysrecfm = 'U'
+    if sysrecfm = 'U' then
+    if sysdsorg = 'PO'
     then binopt = binopt '-X -I'
     copycmd = "//'"W"'"
     copycmd = '"'copycmd'"'
@@ -9245,6 +9253,7 @@ Validate_path:
 Check_LLib:
   arg check_llib_dsn
   x = listdsi(check_llib_dsn)
+  if sysdsorg /= 'PO' then return 1
   if sysrecfm = 'U'
   then do
     x = check_load_library(dsn)
