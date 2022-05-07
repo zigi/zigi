@@ -8,8 +8,7 @@
 +
                                 %Config+
 +
-+The%Config+command displays, and then allows changing key information used
-+by ZIGI and Git.
++The%Config+command displays, and then allows changing info used by ZIGI and Git
 +
 +Both user.name and user.email are required. These are used by Git commit.
 +
@@ -21,8 +20,9 @@
 +if outside the table or the Row Options popup if within the table.%S+
 +does nothing if outside the table or default to select if within the table.
 +
-+If you plan to use file extensions for PDS member names then set the value
-+to N, otherwise set to Y to bypass the prompt when adding datasets.
++To display the%git status+after the repository opens set to Y.
++
++For file extensions set to N to bypass prompt or Y to prompt.
 +
          +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init

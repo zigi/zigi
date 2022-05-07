@@ -29,7 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            05/06/22 LBD - Version 3.14                     |
+  |            05/07/22 LBD - Version 3.14                     |
+  |                         - Add Show Git Status on repo open |
   |                         - Do not set cp -X -I if not PDS   |
   |                         - Honor users codepage (encoding)  |
   |                         - Fix add of dsn with #'s          |
@@ -554,6 +555,8 @@
   * ------------------------------------------ */
   do forever
      check_flag = 1
+     'vget (showst) profile'
+     show_status = showst
     /* repo was not specified on start command ? */
     if szcmd = null then do
       call display_zigiprim
@@ -893,7 +896,7 @@ init_git:
   old_zigiuid = zigiuid
   old_zigimail = zigimail
 
-  'vget (mgen extfile) profile'
+  'vget (mgen extfile showst) profile'
   if pos(extfile,'YN') = 0 then do
     extfile = 'N'
     'vput (extfile) profile'
@@ -910,7 +913,7 @@ init_git:
     sl = mgen()
     'Display Panel(zigiset)'
     if rc > 0 then leave
-    'vput (mgen extfile) profile'
+    'vput (mgen showst extfile) profile'
     call update_config
     if zigiuid /= null
     then if zigimail /= null
@@ -1280,10 +1283,10 @@ handle_zigiprim_clone:
 handle_zigiprim_config:
   do forever
     zcmd = null
-    'vget (mgen pnsdef) profile'
+    'vget (mgen pnsdef showst) profile'
     sl = mgen()
     'display panel(zigiset)'
-    'vput (mgen pnsdef) profile'
+    'vput (mgen pnsdef showst) profile'
     call update_config
     if rc = 0 | rc = 8 then leave
   end
@@ -7094,6 +7097,8 @@ Update_repo_metadata:
   else do
     parse value '' with bstat baction
   end
+  if show_status = 'Y' then call view_std 'B'
+  show_status = 'N'
   'tbsort' rtbl 'fields(dsn,c,a)'
   fulldsn = save_fulldsn
   'tbmod zigirepo order'
