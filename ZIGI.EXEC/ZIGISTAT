@@ -39,6 +39,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            04/25/22 TPM - Add 2 dropped statements         |
+  |                           (LBD - my bad)                   |
   |            03/23/22 TPM - list of repo files not in PDS    |
   |                           merged by LBD                    |
   |            03/07/22 LBD - Update usssafe routine tests     |
@@ -374,6 +376,9 @@ zigistat:
       /* now that allmems has been populated, and before we start cutting */
       /* it up to store ISPF variable versions, identify and store a list */
       /* of the names of any repo directory files not found in the list.  */
+
+      parse var filepath pfx '/.zigi' sfx
+      repo_dir = pfx || sfx
 
       cmd = 'ls -l' repo_dir
       x = bpxwunix(cmd,,ro.,se.,env.)

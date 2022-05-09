@@ -16,11 +16,11 @@
 +Note: Specify%0+unless using a tool that supports generations.
 +
 %Display Options Popup or Select on Point-and-Shoot:_z+(P or S)
+%Display git status when repository is opened:_z+(Y or N)
 +
 %Bypass File Extension Prompt:_z+(Y or N)
 +Set to%Y+if you do not plan to use file extension for PDS members to bypass
 +being asked when adding partitioned datasets.
-+
 +
 %Update+using the%Config+command on the Local Repository Menu.
 +
@@ -30,10 +30,12 @@
 )Init
  if (&mgen = &Z)
      &mgen = 0
- .zvars = '(mgen pnsdef extfile)'
+ .zvars = '(mgen pnsdef showst extfile)'
  &setcont = 'Y'
  if (&pnsdef EQ &Z)
      &pnsdef = 'S'
+ if (&showst EQ &Z)
+     &showst = 'Y'
  if (&extfile EQ &Z)
      &extfile = 'Y'
  .help = zigih140
@@ -43,6 +45,7 @@
   ver (&mgen,nb,range,0,&sl)
   &setcont = &Z
   ver (&pnsdef,nb,list,P,S)
+  ver (&showst,nb,list,Y,N)
   ver (&extfile,list,Y,N)
 )end
 /* -------------------------------------------------------- */

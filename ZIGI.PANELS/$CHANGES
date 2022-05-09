@@ -18,6 +18,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
   for the Co:Z utilities for ISPF stats
 * ZG updated to correctly tag and support binary elements
   and to honor the default repository default userid
+* Add to Setting for all repos a show git status when repo is opened
 
                           Bug Fixes and Other Updates:
                           ----------------------------
@@ -29,6 +30,8 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 * Correct history date/time sort
 * Add visual indicator to ZIGIPRIM and ZIGIREPO if the Dovetail
   utilities are in use.
+* Updated ZG to work and correctly tag copied PDS members
+* Correctly copy binary DSORG=PS RECFM=U files (not executable)
 
 -----------------------------------------------------------------------------
 

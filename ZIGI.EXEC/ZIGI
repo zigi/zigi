@@ -29,7 +29,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            04/24/22 LBD - Version 3.14                     |
+  |            05/07/22 LBD - Version 3.14                     |
+  |                         - Add Show Git Status on repo open |
+  |                         - Do not set cp -X -I if not PDS   |
   |                         - Honor users codepage (encoding)  |
   |                         - Fix add of dsn with #'s          |
   |                         - Improve History date/time sort   |
@@ -553,6 +555,8 @@
   * ------------------------------------------ */
   do forever
      check_flag = 1
+     'vget (showst) profile'
+     show_status = showst
     /* repo was not specified on start command ? */
     if szcmd = null then do
       call display_zigiprim
@@ -892,7 +896,7 @@ init_git:
   old_zigiuid = zigiuid
   old_zigimail = zigimail
 
-  'vget (mgen extfile) profile'
+  'vget (mgen extfile showst) profile'
   if pos(extfile,'YN') = 0 then do
     extfile = 'N'
     'vput (extfile) profile'
@@ -909,7 +913,7 @@ init_git:
     sl = mgen()
     'Display Panel(zigiset)'
     if rc > 0 then leave
-    'vput (mgen extfile) profile'
+    'vput (mgen showst extfile) profile'
     call update_config
     if zigiuid /= null
     then if zigimail /= null
@@ -1279,10 +1283,10 @@ handle_zigiprim_clone:
 handle_zigiprim_config:
   do forever
     zcmd = null
-    'vget (mgen pnsdef) profile'
+    'vget (mgen pnsdef showst) profile'
     sl = mgen()
     'display panel(zigiset)'
-    'vput (mgen pnsdef) profile'
+    'vput (mgen pnsdef showst) profile'
     call update_config
     if rc = 0 | rc = 8 then leave
   end
@@ -1571,6 +1575,7 @@ Work_With_Repo:
       rtbl_open = 0
       call work_with_repo
       zigi_changed = 0
+      return
     end
   end
   if zigi_changed = 1 then call work_with_repo
@@ -3251,11 +3256,12 @@ WWRF_handle_lcmd_s:
       binopt = null
     end
     /* Check if a Load Library and update binary option variable */
-    if sysrecfm = 'U' then do
+    cplmod = null
+    if sysrecfm = 'U' then
+    if sysdsorg = 'PO' then do
       binopt = null
       cplmod = '-X -I'
     end
-    else cplmod = null
     if sysdsorg = 'PS' then do
       copycmd = "//'"e"'"
       r = r'/'
@@ -6834,12 +6840,13 @@ Update_repo_metadata:
               if binopt = '-T'
               then bintext = 'as Text'
               else bintext = 'as Binary'
-              if sysrecfm = 'U' then do
+              cplmod = null
+              if sysrecfm = 'U' then
+              if sysdsorg = 'PO' then do
                 binopt = null
                 cplmod = '-X -I'
                 bintext = 'as LMod'
               end
-              else cplmod = null
               copycmd = "//'"e"("m")'"
               copycmd = '"'copycmd'"'
               copycmd = "cp" binopt cplmod extopt "-v" copycmd ,
@@ -6941,11 +6948,12 @@ Update_repo_metadata:
             else do
               binopt = '-T'
             end
-            if sysrecfm = 'U' then do
+            cplmod = null
+            if sysrecfm = 'U' then
+            if sysdsorg = 'PO' then do
               binopt = null
               cplmod = '-X -I'
             end
-            else cplmod = null
             zs1 = 'Copying:' fulldsn
             zs2 = 'To:     ' localrep'/'zigirep
             call do_popup
@@ -7089,6 +7097,8 @@ Update_repo_metadata:
   else do
     parse value '' with bstat baction
   end
+  if show_status = 'Y' then call view_std 'B'
+  show_status = 'N'
   'tbsort' rtbl 'fields(dsn,c,a)'
   fulldsn = save_fulldsn
   'tbmod zigirepo order'
@@ -7170,6 +7180,7 @@ Confirm_Mem_Deletes:
         then cbinopt = '-B'
         else cbinopt = null
         x = listdsi(fulldsn)
+        if sysdsorg = 'PO' then
         if sysrecfm = 'U' then cbinopt = '-X -I'
         dw = wordpos(dmorig,mem_omvs)
         mem_omvs = delword(mem_omvs,dw,1)
@@ -7627,7 +7638,9 @@ Do_Add_Copy:
   else do
     zs3 = 'Copy as Text'
   end
-  if sysrecfm = 'U'
+  cplmod = null
+  if sysrecfm = 'U' then
+  if sysdsorg = 'PO'
   then do
     cplmod = '-X -I'
     binopt = null
@@ -7635,7 +7648,6 @@ Do_Add_Copy:
     acopt = 'BINARY'
     zs3 = 'Copy as Load Module'
   end
-  else cplmod = null
   if ac_mem = null then do
     if sysmembers /= null
     then patmem = 'Members to copy:' sysmembers
@@ -7772,7 +7784,8 @@ Do_Add_Copy:
       x = docmd(cmd)
       call get_binfiles
     end
-    if sysrecfm = 'U'
+    if sysrecfm = 'U' then
+    if sysdsorg = 'PO'
     then binopt = binopt '-X -I'
     copycmd = "//'"W"'"
     copycmd = '"'copycmd'"'
@@ -9245,6 +9258,7 @@ Validate_path:
 Check_LLib:
   arg check_llib_dsn
   x = listdsi(check_llib_dsn)
+  if sysdsorg /= 'PO' then return 1
   if sysrecfm = 'U'
   then do
     x = check_load_library(dsn)
