@@ -29,7 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            05/07/22 LBD - Version 3.14                     |
+  |            05/09/22 LBD - Version 3.14                     |
+  |                         - Do not show status on open of new|
   |                         - Add Show Git Status on repo open |
   |                         - Do not set cp -X -I if not PDS   |
   |                         - Honor users codepage (encoding)  |
@@ -532,7 +533,7 @@
   parse arg start_option
 
   parse value '' with null repo_ztdsels fetch_flag dovetail_dir codep ,
-                      dovestat
+                      dovestat created
 
   /* ------------------------------------------ *
   | ISPExec is our default host environment    |
@@ -1311,6 +1312,7 @@ handle_zigiprim_connect:
 handle_zigiprim_create:
   x = Create_Repo()
   crflag = 1
+  created = 1
   if x = 0 then do
     zcmd = 'ADDDSN'
     call work_with_repo
@@ -7097,7 +7099,9 @@ Update_repo_metadata:
   else do
     parse value '' with bstat baction
   end
+  if created /= 1 then
   if show_status = 'Y' then call view_std 'B'
+  created = null
   show_status = 'N'
   'tbsort' rtbl 'fields(dsn,c,a)'
   fulldsn = save_fulldsn
