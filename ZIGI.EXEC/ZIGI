@@ -29,8 +29,10 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |           05/10/22 HK  - Some fixes for non-dovetail setups|
-              05/09/22 LBD - Version 3.14                      |
+  |            05/10/22 - HK/LBD - Version 3.14                |
+  |                         - Some fixes for non-dovetail      |
+  |                           setups (HK)                      |
+  |                         - Improve Co:Z detection and debug |
   |                         - Do not show status on open of new|
   |                         - Add Show Git Status on repo open |
   |                         - Do not set cp -X -I if not PDS   |
@@ -8289,11 +8291,12 @@ GETENV:
   | Check for getpds/putpds |
   * ----------------------- */
   x = listdsi('NOCOZ' 'FILE')
-  if sysreason /= 2 then do
+  if sysreason = 3 then do
     enhanced_cp = 0
     dovedir     = 0
     dovestat    = null
     'vput (dovedir dovestat) shared'
+    x = debug('Co:Z is not available due to the NOCOZ DD allocation')
     return
   end
   x = docmd('command -v getpds')
@@ -8310,6 +8313,7 @@ GETENV:
       if right(x,1) /= '/' then x = x'/'
       dovetail_dir = x
       enhanced_cp = 1
+      x = debug('Co:Z is available in:' dovetail_dir 'via zigiexit')
     end
     else enhanced_cp = 0
   end
@@ -8317,10 +8321,9 @@ GETENV:
   then do
      dovedir = enhanced_cp dovetail_dir
      dovestat    = 'Co:Z active'
+     x = debug('Co:Z is available in:' dovetail_dir)
      end
-  else do
-    dovedir = 0 /* will this fix it? */
-  end
+  else dovedir = 0
   'vput (dovedir dovestat) shared'
   x = debug('Finished collection of env variables')
   return
