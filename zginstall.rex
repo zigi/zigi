@@ -41,6 +41,9 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            04/09/22 LBD - Update zigistat to current level |
+  |                         - Create zgstat.exec if mixed ds   |
+  |            06/03/21 LBD - Change SHAREAS to REQUIRED       |
   |            05/14/21 HBK - Don't parse lowercase folders    |
   |            05/11/21 LBD - Correction for mixed text/binary |
   |            05/06/21 LBD - support allmems > 32k            |
@@ -110,9 +113,9 @@
   say "           ZZZZZZZZZZZZZZZZZZZZZZ "
   say "           ZZZZZZZZZZZZZZZZZ             zOS ISPF Git Interface "
   say "          ZZZZZZZZZZZZ "
-  say "         ZZZZZZZZZg               The git interface for the rest of us"
-  say "        ZZZZZZig "
-  say "       ZZZZZZi                         Henri Kuiper & Lionel Dyck "
+  say "         ZZZZZZZZZZ               The git interface for the rest of us"
+  say "        ZZZZZZZZ "
+  say "       ZZZZZZZ                         Henri Kuiper & Lionel Dyck "
   say copies('-',73)
 
 
@@ -120,7 +123,7 @@
   | Set Default Env and   |
   | Get current directory |
   * --------------------- */
-  env.1 = '_BPX_SHAREAS=YES'
+  env.1 = '_BPX_SHAREAS=MUST'
   env.2 = '_BPX_SPAWN_SCRIPT=YES'
   env.3 = '_EDC_ZERO_RECLEN=Y'
   env.0 = 3
@@ -169,7 +172,7 @@ Restart:
   /* ------------------------- *
   | Define our work variables |
   * ------------------------- */
-  parse value '' with subs files null
+  parse value '' with subs files null zgstat_flag
   mgen  = 0
   hit   = 0
   filec = 0
@@ -248,10 +251,9 @@ Restart:
           dir.sub = 0
           si = 0
           if left(sub,1) /= '.' then do
-            /* make sure we only get the 'MVSish' folders */
             xx = translate(sub,'??????????????????????????',,
                                'abcdefghijklmnopqrstuvwxyz')
-            if pos('?',xx) > 0 then iterate /* So only UPPERCASE ones */
+            if pos('?',xx) > 0 then iterate /* No lowercase things */
             subs = subs sub
           end
         end
@@ -311,7 +313,10 @@ Restart:
     fileg = "'"ckothlq"."sub"'"
     odir = "'"ckotdir"/"sub"'"
     bin = is_binfile(sub)
-    if bin = 1 then type = 'Binary'
+    if bin = 1 then do
+       type = 'Binary'
+       zgstat_flag = 1
+       end
     else type = 'Text'
     say 'Copying' odir 'to' fileg 'as' type
     filec = filec + 1
@@ -339,7 +344,10 @@ Restart:
     parse value '' with zs1 zs2 zs3 zs4 zs5 zs6 zs7 zs8 zs9
     sub = word(subs,isub)
     bin = is_binfile(sub)
-    if bin = 1 then type = 'Binary'
+    if bin = 1 then do
+       type = 'Binary'
+       zgstat_flag = 1
+       end
     else type = 'Text'
     fx = translate(sub,'??????????????????????????', ,
       'abcdefghijklmnopqrstuvwxyz')
@@ -351,7 +359,7 @@ Restart:
   /* ------------------------------------------ *
   | Now update and create the zgstat.exec file |
   * ------------------------------------------ */
-  if enhanced = 0 then do
+  if enhanced = 0 | zgstat_flag = 1 then do
     c = 0
     hit = 0
     last = sourceline()
@@ -393,6 +401,7 @@ Restart:
     Address TSO
 
     zgstat_dsn = "'"ckothlq".ZGSTAT.EXEC'"
+    say ' '
     cmd = 'cp -v  lrhg.rex "//'zgstat_dsn '"'
     cmd = cmd '&& rm lrhg.rex'
     x = bpxwunix(cmd,,so.,se.,env.)
@@ -411,11 +420,17 @@ Restart:
   do i = 1 to filec
     say zfile.i
   end
-  if enhanced = 0 then do
+  if enhanced = 0 | zgstat_flag = 1 then do
     say ' '
     say 'Note that using this installation path does not allow the ISPF'
     say 'statistics to be recreated. Other than the missing ISPF statistics'
     say 'everything has been successfully installed on z/OS.'
+    if if enhanced /= 0 then if zgstat_flag = 1 then do
+       say ' '
+       say 'One, or more, partitioned datasets (PDS) had both text and binary'
+       say 'members. This prevented the ISPF statistics from being created'
+       say 'for that PDS.'
+       end
     say ' '
     say 'To recreate the ISPF statistics execute the following command'
     say 'after returning to TSO/ISPF:'
@@ -497,8 +512,10 @@ Alloc_Copy_PDS:
     else binopt = null
     if recfm = 'U' then binopt = '-X -I'
     if binopt = null then type = 'Text'
-    else if binopt = '-B' then  type = 'Binary'
+    else if binopt = '-B' then type = 'Binary'
     else if recfm = 'U' then type = 'Load module'
+    if type = 'Binary' then
+       zgstat_flag = 1
     say 'Copying' tcount 'members as' type
     if enhanced = 0 | recfm = 'U' then do
       zos = usssafe("//'"target"'")
@@ -552,6 +569,8 @@ Alloc_Copy_PDS:
       if binopt = null then type = 'Text'
       else if binopt = '-B' then  type = 'Binary'
       else if recfm = 'U' then type = 'Load module'
+      if type = 'Binary' then
+         zgstat_flag = 1
       say left('Copying' mcount 'of' tcount,24) 'Member:' m 'as' type
       cmd = 'cd' usssafe(rdir)
       cmd = cmd '&& cp -U -v' binopt src '"'zos'"'
@@ -922,7 +941,7 @@ zigistat: Procedure
   /* --------------------------------- *
    | Define OMVS Environment Variables |
    * --------------------------------- */
-  env.1 = '_BPX_SHAREAS=YES'
+  env.1 = '_BPX_SHAREAS=MUST'
   env.2 = '_BPX_SPAWN_SCRIPT=YES'
   env.0 = 2
 

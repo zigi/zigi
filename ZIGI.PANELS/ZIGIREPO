@@ -1,5 +1,6 @@
 )Attr Default(%+_)
   _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+ ` type(output) caps(off) color(turq) just(right)
   @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
   $ type(output) intens(low ) caps(off) just(left )
   ] type(output) intens(low ) caps(off) just(left ) color(green)
@@ -23,7 +24,7 @@
 )ABCINIT
   .ZVARS = 'MENUG'
 )ABC DESC('Local Repo') MNEM(1)
- PDC DESC('Add dataset(s)')                     ACTION RUN(AddData )
+ PDC DESC('Add dataset(s)')                     ACTION RUN(AddDSN  )
  PDC DESC('Add All Modified/Untracked')         ACTION RUN(AddAll  )
  PDC DESC('Commit Changes')                     ACTION RUN(Commit  )
  PDC DESC('Diff')                               ACTION RUN(Diff    )
@@ -72,9 +73,9 @@
 <-----------\-\--------------------------------+
 +Current Repository+--------------#zigtitle    +--------------------------------
 %Command ===>_zcmd            \ \  %Scroll ===>_zgsr+
-+Local dir     :$localdir                                                 %F3  +
++Local dir     :$localdir                                                  %F3 +
 +Remote path   :$remote1                                                    $z
-+Current Branch:$branch                                      +
++Current Branch:$branch                                      +`dovestat
 %               !bstat                                                     +
 !ro             $baction                                                   +
 +
