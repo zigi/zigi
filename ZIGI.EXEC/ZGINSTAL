@@ -41,6 +41,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            05/16/22 LBD - Remove duplicate routines        |
   |            04/09/22 LBD - Update zigistat to current level |
   |                         - Create zgstat.exec if mixed ds   |
   |            06/03/21 LBD - Change SHAREAS to REQUIRED       |
@@ -641,14 +642,6 @@ usssafe:
   end
   return safedsn
 
-oldsafe: procedure
-  parse arg dsn
-  if pos('$',dsn) = 0 then return dsn
-  /* Let's not usssafe it twice :) */
-  if pos('\$',dsn) > 0 then return dsn
-  dsn = strreplace(dsn, '$', '\$')
-  return dsn
-
 strreplace: Procedure
   string  = arg(1)
   strfrom = arg(2)
@@ -1141,41 +1134,6 @@ Check_Stats_File:
     return 20
   end
   else return 0
-
-docmd:
-  parse arg cmd
-  drop so. se.
-  x = bpxwunix(cmd,,so.,se.,env.)
-  return x
-
-  /* ---------------------------------- *
-  | Make the z/OS dsname safe for OMVS |
-  * ---------------------------------- */
-usssafe: procedure
-  parse arg dsn
-  if pos('$',dsn) = 0 then return dsn
-  /* Let's not usssafe it twice :) */
-  if pos('\$',dsn) > 0 then return dsn
-  dsn = strreplace(dsn, '$', '\$')
-  return dsn
-
-STRREPLACE:
-  ORIGINAL = ARG(1)
-  OLDTXT = ARG(2)
-  NEWTXT = ARG(3)
-  /* YOU CAN CHANGE THE BELOW KEY (TMPTXT), WHICH IS USED AS A TEMPORARY
-  POINTER TO IDENTIFY THE TEXT TO BE REPLACED */
-  TMPTXT = '6A53CD2EW1F'
-  NEWSTR = ORIGINAL
-  DO WHILE POS(OLDTXT,NEWSTR) > 0
-    NEWSTR = SUBSTR(NEWSTR, 1 , POS(OLDTXT,NEWSTR)-1) ||,
-      TMPTXT || SUBSTR(NEWSTR, POS(OLDTXT,NEWSTR) + LENGTH(OLDTXT))
-  END
-  DO WHILE POS(TMPTXT,NEWSTR) > 0
-    NEWSTR = SUBSTR(NEWSTR, 1 , POS(TMPTXT,NEWSTR)-1) ||,
-      NEWTXT || SUBSTR(NEWSTR, POS(TMPTXT,NEWSTR) + LENGTH(TMPTXT))
-  END
-  RETURN NEWSTR
 
   /* --------------------  rexx procedure  -------------------- *
   * Name:      LoadISPF                                        *

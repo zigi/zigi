@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r14'
+  ver = 'v3r141'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -29,6 +29,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            05/16/22 - Version 3.141                        |
+  |                         - LBD If show status requested     |
+  |                           don't if clean.                  |
   |            05/10/22 - HK/LBD - Version 3.14                |
   |                         - Some fixes for non-dovetail      |
   |                           setups (HK)                      |
@@ -7103,6 +7106,7 @@ Update_repo_metadata:
     parse value '' with bstat baction
   end
   if created /= 1 then
+  if pos('clean',baction) = 0 then
   if show_status = 'Y' then call view_std 'B'
   created = null
   show_status = 'N'
