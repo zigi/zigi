@@ -1459,4 +1459,4 @@ DropISPF: Procedure
     address tso "free f("dd")"
   end
   return 0
-    >ZGSTATE    *** End of the ZGSTAT inline code
+>ZGSTATE    *** End of the ZGSTAT inline code
