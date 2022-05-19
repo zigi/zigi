@@ -6,7 +6,7 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
 )Body  Expand(\\)
-+Add Datasets+--------------------#zigtitle    +--------------------------------
++Add Datasets+--------------------#zigtitle     +-------------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zgsr+
 + \ \%F3  +
 +Fixed Dataset Prefix:             $dsnapfx                               +

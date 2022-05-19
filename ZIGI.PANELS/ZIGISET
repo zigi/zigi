@@ -5,7 +5,7 @@
  { type(output) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
 )Body Expand(\\)
-+Set Defaults +-------------------#zigtitle    +--------------------------------
++Set Defaults +-------------------#zigtitle     +-------------------------------
 %Command ===>_zcmd                                                             +
 +
 %Git Defaults (used at Commit time):

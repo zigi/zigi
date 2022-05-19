@@ -8,6 +8,23 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
 
                              ZIGI Release Notes
+                               Version 3.141
+
+                         New Features and Functions
+                         --------------------------
+
+
+                          Bug Fixes and Other Updates:
+                          ----------------------------
+
+* zginstal      - remove duplicate procedures (found by rexx compiler)
+* zginstall.rex - remove duplicate procedures (found by rexx compiler)
+* zigi          - if status display requested don't if space clean
+* zg            - correct invalid iterate to a return
+
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
                                Version 3.14
 
                          New Features and Functions

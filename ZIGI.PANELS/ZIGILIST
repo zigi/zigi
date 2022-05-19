@@ -33,7 +33,7 @@
 )Body  Expand(\\)
 +| Menu | Help +
 <-----------\-\--------------------------------+
-+PDS Member List+-----------------#zigtitle    +--------------------------------
++PDS Member List+-----------------#zigtitle     +-------------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zgsr+
 +Current Dataset   :$fulldsn                     \ \%F3  +
 +Current Repository:$localdir
