@@ -13,6 +13,8 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
                          New Features and Functions
                          --------------------------
 
+* zgbatch       - moved to new zigi.samples pds
+
 
                           Bug Fixes and Other Updates:
                           ----------------------------
