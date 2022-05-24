@@ -13,6 +13,10 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
                          New Features and Functions
                          --------------------------
 
+* zgbatch       - moved to new zigi.samples pds
+* On repository create translate blanks in the repository name to
+  underscores, allowing only 1 contiguous blank.
+
 
                           Bug Fixes and Other Updates:
                           ----------------------------

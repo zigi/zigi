@@ -29,9 +29,11 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            05/16/22 - Version 3.141                        |
+  |            05/23/22 - Version 3.141                        |
   |                         - LBD If show status requested     |
   |                           don't if clean.                  |
+  |                         - LBD On TBCreate replace blanks   |
+  |                           with underscores                 |
   |            05/10/22 - HK/LBD - Version 3.14                |
   |                         - Some fixes for non-dovetail      |
   |                           setups (HK)                      |
@@ -6304,6 +6306,16 @@ Create_Repo:
       'setmsg msg(isrz003)'
       return 1
     end
+
+  /* ------------------------------------------ *
+   | Clean up repo name replacing blanks with _ |
+   | and only allow 1 contig space              |
+   * ------------------------------------------ */
+   if pos(' ',zigirep) > 0 then do
+      zigirep = space(zigirep,1)
+      zigirep = translate(zigirep,'_',' ')
+      end
+
     localrep = strip(localrep,'T','/')
     /* ---------------------------------------------------- *
     | We do some basic git repo setup here...              |
