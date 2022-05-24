@@ -1,11 +1,11 @@
-)attr default(%+_)
+)attr default(%+{)
   @ type(input ) caps(off) hilite(uscore)
-  _ type( input) intens(low ) just(left ) hilite(uscore)
+  { type( input) intens(low ) just(left ) hilite(uscore)
   ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
   [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
 )Body Expand(\\)
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
-%Selection ===>_ZCMD                                                          +
+%Selection ===>{ZCMD                                                          +
 +
                                 %Create+
 +
@@ -21,7 +21,7 @@
 %Read Only Repository+is a repository where the z/OS datasets are never
 +updated. All updates to the z/OS datasets are copied and managed by ZIGI.
 +
-%Notes:%*+Don't use spaces in the name field.
+%Notes:%*+Spaces in the name field will be translated to underscores%_+
        %*+Repository is named (and stored) in OMVS as /localdirectory/name
        %*+Fails if /localdirectory/name is present - Override with%Y+
 +
@@ -31,7 +31,7 @@
 )PROC
  &ZCONT = ZIGIH121
 )END
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */
