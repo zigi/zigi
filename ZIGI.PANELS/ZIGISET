@@ -13,16 +13,16 @@
 +  user.email :@zigimail                                                       +
 +
 %PDSE Member Generations :_z  +(0 to 999)  System Limit:{sl
-+Note: Specify%0+unless using a tool that supports generations.
+  +Note: Specify%0+unless using a tool that supports generations.
 +
 %Display Options Popup or Select on Point-and-Shoot:_z+(P or S)
-%Display git status when repository is opened:_z+(Y or N)
+%Display git status when repository is opened:      _z+(Y or N)
+%Prompt before Exiting ZIGI:                        _z+(Y or N)
+%Bypass File Extension Prompt:                      _z+(Y or N)
+  +Set to%Y+if you do not plan to use file extension for PDS members to bypass
+  +being asked when adding partitioned datasets.
 +
-%Bypass File Extension Prompt:_z+(Y or N)
-+Set to%Y+if you do not plan to use file extension for PDS members to bypass
-+being asked when adding partitioned datasets.
 +
-%Update+using the%Config+command on the Local Repository Menu.
 +
 %See:+https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup
 +
@@ -30,12 +30,14 @@
 )Init
  if (&mgen = &Z)
      &mgen = 0
- .zvars = '(mgen pnsdef showst extfile)'
+ .zvars = '(mgen pnsdef showst exitp extfile)'
  &setcont = 'Y'
  if (&pnsdef EQ &Z)
      &pnsdef = 'S'
  if (&showst EQ &Z)
      &showst = 'Y'
+ if (&exitp EQ &Z)
+     &exitp = 'N'
  if (&extfile EQ &Z)
      &extfile = 'Y'
  .help = zigih140
@@ -46,6 +48,7 @@
   &setcont = &Z
   ver (&pnsdef,nb,list,P,S)
   ver (&showst,nb,list,Y,N)
+  ver (&exitp,list,Y,N)
   ver (&extfile,list,Y,N)
 )end
 /* -------------------------------------------------------- */

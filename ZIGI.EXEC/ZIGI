@@ -29,7 +29,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            05/23/22 - Version 3.141                        |
+  |            06/08/22 - Version 3.141                        |
+  |                         - LBD Add SET option to prompt on  |
+  |                           repository exit                  |
   |                         - LBD If show status requested     |
   |                           don't if clean.                  |
   |                         - LBD On TBCreate replace blanks   |
@@ -905,10 +907,14 @@ init_git:
   old_zigiuid = zigiuid
   old_zigimail = zigimail
 
-  'vget (mgen extfile showst) profile'
+  'vget (mgen extfile exitp showst) profile'
   if pos(extfile,'YN') = 0 then do
     extfile = 'N'
     'vput (extfile) profile'
+  end
+  if pos(exitp,'YN') = 0 then do
+    exitp = 'N'
+    'vput (exitp) profile'
   end
 
   Select
@@ -922,7 +928,7 @@ init_git:
     sl = mgen()
     'Display Panel(zigiset)'
     if rc > 0 then leave
-    'vput (mgen showst extfile) profile'
+    'vput (mgen showst exitp extfile) profile'
     call update_config
     if zigiuid /= null
     then if zigimail /= null
@@ -1640,7 +1646,17 @@ WWR_display_zigirepo:
     result = trc
     zigpass = null
     'vput (zigpass) shared'
-    if trc > 4 then return trc
+    if trc > 4 then do
+       if exitp = 'N' then return trc
+       call pfshow 'off'           /* make sure pfshow is off */
+       answer = null
+       'Addpop row(6) column(16)'
+       'Display Panel(zigiextp)'
+       prc = rc
+       'Rempop'
+       call pfshow 'reset'         /* restore pfshow setting */
+       if prc = 0 then return trc
+       end
   end
   Return 0
 

@@ -16,6 +16,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 * zgbatch       - moved to new zigi.samples pds
 * On repository create translate blanks in the repository name to
   underscores, allowing only 1 contiguous blank.
+* New Config option to enable prompting when exiting a repository.
 
 
                           Bug Fixes and Other Updates:
