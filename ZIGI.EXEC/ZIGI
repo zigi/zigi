@@ -29,7 +29,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            06/08/22 - Version 3.141                        |
+  |            06/19/22 - Version 3.141                        |
+  |                         - LBD Correct test for PDS mbrs    |
+  |                           if they have a suffix in git     |
   |                         - LBD Add SET option to prompt on  |
   |                           repository exit                  |
   |                         - LBD If show status requested     |
@@ -6926,10 +6928,7 @@ Update_repo_metadata:
             if left(rd.im,1) = '.' then iterate
             m = strip(rd.im)
             mfile = m
-            if zdsn.r /= null
-            then do
               parse value m with m'.'.
-            end
             m = translate(m)
             if wordpos(m,allmems) = 0 then do
               mem_omvs = mem_omvs mfile
