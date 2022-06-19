@@ -27,6 +27,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 * zigi          - if status display requested don't if space clean
                 - correct test if pds members have git suffix
 * zigistat      - correct test if pds members have git suffix
+                - correct lmod test if binder has no time
 * zg            - correct invalid iterate to a return
 
 -----------------------------------------------------------------------------

@@ -779,6 +779,12 @@ Get_LoadLib:
       time = left(word(results.lmi,20),8)
       cal  = year''day
     end
+    if word(results.lmi,8) = 'BINDER' & word(results.lmi,19) /= 'AT' then do
+      day = word(results.lmi,15)
+      year = substr(word(results.lmi,18),3,2)
+      time = left(word(results.lmi,20),8)
+      cal  = year''day
+    end
     if word(results.lmi,7) = 'LINKAGE' & word(results.lmi,10) = 'AT' then do
       day = word(results.lmi,15)
       year = substr(word(results.lmi,18),3,2)
