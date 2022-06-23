@@ -16,6 +16,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 * zgbatch       - moved to new zigi.samples pds
 * On repository create translate blanks in the repository name to
   underscores, allowing only 1 contiguous blank.
+* New Config option to enable prompting when exiting a repository.
 
 
                           Bug Fixes and Other Updates:
@@ -24,6 +25,9 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 * zginstal      - remove duplicate procedures (found by rexx compiler)
 * zginstall.rex - remove duplicate procedures (found by rexx compiler)
 * zigi          - if status display requested don't if space clean
+                - correct test if pds members have git suffix
+* zigistat      - correct test if pds members have git suffix
+                - correct lmod test if binder has no time
 * zg            - correct invalid iterate to a return
 
 -----------------------------------------------------------------------------
@@ -152,13 +156,13 @@ commands if available, otherwise continue to use cp. The speed improvement
 is an improvement of minutes to seconds.
 
    To use the Dovetail enhancements (highly recommended) point your
-   browser to https://dovetail.com and download the Co:Z Co-Processing
+   browser to https://coztoolkit.com/ and download the Co:Z Co-Processing
    Toolkit.  Along with the getpds and putpds, that will greatly enhance
    ZIGI, you will also have Co:Z SFTP, Co:Z Launcher, Co:Z Dataset Pipes
    and Co:Z Batch.
 
    The use of the Co:Z Toolkit is subject to Dovetail's Community
-   License https://dovetail.com/docs/cozinstall/licenses.html
+   License and Support https://coztoolkit.com/support.html
 
    When installing refer to:
    https://dovetail.com/docs/cozinstall/install.html#inst_coz And note
