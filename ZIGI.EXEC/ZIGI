@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            06/25/22 - Version 3.141                        |
+  |            07/12/22 - Version 3.141                        |
   |                         - LBD Fix repo connect display     |
   |                           panel syntax                     |
   |                         - LBD Correct test for PDS mbrs    |
@@ -40,6 +40,8 @@
   |                           don't if clean.                  |
   |                         - LBD On TBCreate replace blanks   |
   |                           with underscores                 |
+  |                         - Support E(dit) selection for     |
+  |                           OMVS files                       |
   |            05/10/22 - HK/LBD - Version 3.14                |
   |                         - Some fixes for non-dovetail      |
   |                           setups (HK)                      |
@@ -1565,6 +1567,7 @@ Work_With_Repo:
     /* -------------------------------- *
     | Handle the linecommands           |
     * -------------------------------- */
+    if zsel = 'E' then zsel = 'S'
     if zsel /= null then
     Select
       when zsel = 'D' then call WWR_handle_lcmd_d

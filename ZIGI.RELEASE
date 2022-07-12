@@ -26,6 +26,8 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 * zginstall.rex - remove duplicate procedures (found by rexx compiler)
 * zigi          - if status display requested don't if space clean
                 - correct test if pds members have git suffix
+                - allow E (edit) as an alias of S (selection) for
+                  line selections
 * zigistat      - correct test if pds members have git suffix
                 - correct lmod test if binder has no time
 * zg            - correct invalid iterate to a return
