@@ -39,6 +39,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            07/19/22 LBD - Fix chtag mixed error            |
   |            06/19/22 LBD - Fix suffix check compare         |
   |            04/25/22 TPM - Add 2 dropped statements         |
   |                           (LBD - my bad)                   |
@@ -288,7 +289,7 @@ zigistat:
       x = debug('Saving stats begins to:' filepath)
       x = bpxwunix('rm' usssafe(filepath),,so.,se.)
       call write_stats
-      cmd = 'chtag -c' codep usssafe(filepath)
+      cmd = 'chtag -tc' codep usssafe(filepath)
       x = bpxwunix(cmd,,so.,se.)
       x = debug('Saving stats completed.')
       return 0

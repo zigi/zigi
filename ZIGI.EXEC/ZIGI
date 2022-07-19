@@ -29,7 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            07/12/22 - Version 3.141                        |
+  |            07/19/22 - Version 3.141                        |
+  |                         - LBD chtag mixed error            |
   |                         - LBD Fix repo connect display     |
   |                           panel syntax                     |
   |                         - LBD Correct test for PDS mbrs    |
@@ -6500,7 +6501,7 @@ do_git_attributes:
   x = docmd('cd 'reporoot' && git add .gitattributes')
 
   x = docmd('cd 'reporoot ,
-  ' && chtag -c' codep '.zigi/dsn' ,
+  ' && chtag -tc' codep '.zigi/dsn' ,
   ' && git add .zigi/dsn')
 
   commitmsg = ".gitattributes created and added by ZIGI"
@@ -6907,7 +6908,7 @@ Update_repo_metadata:
                 x = docmd(tagcmd)
               end
               else do /* text file tag */
-                tagcmd = 'chtag -c' codep localrep'/'zigirep'/'r'/'rm
+                tagcmd = 'chtag -tc' codep localrep'/'zigirep'/'r'/'rm
                 x = docmd(tagcmd)
                 end
               mem_hit = 1
@@ -7709,7 +7710,7 @@ Do_Add_Copy:
     parse value pdss with pdss'/'.
     mkdir = "mkdir -p "DIR"/"pdss ,
             '&& touch' dir'/.zigi/'pdss ,
-            '&& chtag -c' codep localrep'/'zigirep'/.zigi/'pdss
+            '&& chtag -tc' codep localrep'/'zigirep'/.zigi/'pdss
     x = docmd(mkdir)
     binopt = null
     if translate(option) = 'BINARY' then do
@@ -9679,7 +9680,7 @@ Fixup_cp: Procedure expose null putpds getpds qualignr localrep zigirep ,
        cp = cp',tag=y -t' codep
   cmd = cp source target
   if right(word(cp,1),6) = 'getpds' then
-  tagit = '&& chtag -c' codep localrep'/'zigirep'/.zigi/'statfile
+  tagit = '&& chtag -tc' codep localrep'/'zigirep'/.zigi/'statfile
   else tagit = null
   if rcmd = null then return cmd tagit
   else return cmd '&&' rcmd tagit
