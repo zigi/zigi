@@ -25,6 +25,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
                           Bug Fixes and Other Updates:
                           ----------------------------
 
+* Change to putpds to add disp=shr (-S D)
 * fixed mixed tag error in multiple elements
 * ZIGIREPO panel change for adddsn pulldown menu
 * usssafe routine updated in zigi and zigistat

@@ -29,7 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            07/19/22 - Version 3.141                        |
+  |            08/02/22 - Version 3.141                        |
+  |                         - LBD Add -S D (shared) on putpds  |
   |                         - LBD chtag mixed error            |
   |                         - LBD Fix repo connect display     |
   |                           panel syntax                     |
@@ -9635,7 +9636,7 @@ Fixup_cp: Procedure expose null putpds getpds qualignr localrep zigirep ,
     statfile = fixup_cpstat(source)
   end
   if left(target,2) = '//' then do   /* use putpds */
-    cp = putpds
+    cp = putpds '-S D'
   end
   if left(source,2) = '//' then do   /* use getpds */
     cp = getpds
