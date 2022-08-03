@@ -29,7 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            08/02/22 - Version 3.141                        |
+  |            08/03/22 - Version 3.141                        |
+  |                         - LBD Display Pull report          |
   |                         - LBD Add -S D (shared) on putpds  |
   |                         - LBD chtag mixed error            |
   |                         - LBD Fix repo connect display     |
@@ -1934,7 +1935,15 @@ WWR_handle_pull:
 
     cmd = 'cd' localdir' && git pull -v'
     x = docmd(cmd)
+    /* Comment Start
     if x > 0 then call view_std 'B'
+       Comment End */
+    zerrsm = 'Pull Complete'
+    zerrlm = 'The pull request completed. This is the pull report',
+       'Close this report with F3 and the z/OS datasets will be',
+       'updated.'
+    'setmsg msg(isrz003)'
+    call view_std 'B'
     parse value '' with pulldsns pullmems. deletes.
     deletes.0 = 0
     pulled = 0
