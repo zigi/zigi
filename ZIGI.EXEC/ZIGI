@@ -30,6 +30,7 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            08/03/22 - Version 3.141                        |
+  |                         - LBD Allow F3 on Connect prompt   |
   |                         - LBD Fix encoding/tag for README  |
   |                         - LBD Display Pull report          |
   |                         - LBD Add -S D (shared) on putpds  |
@@ -6294,6 +6295,12 @@ Connect_Repo:
     parse value '' with zerrsm zcmd zigirep cc_rc pdshlq ,
       defcpush defruid qualignr zigicat encoding
     'Display Panel(zigiconr)'
+    if rc > 0 then do
+      zerrsm = 'Canceled.'
+      zerrlm = 'Connection canceled by user action.'
+      'setmsg msg(isrz003)'
+      return 1
+    end
     'vget (qualignr)'
     if readonly = 'N' then readonly = null
     if rc > 0 then return 8
