@@ -29,6 +29,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
                 - add -S D (disp=shr) to putpds command
 * zigickot      - add -S D (disp=shr) to putpds command
 * zg            - correct invalid iterate to a return
+* zigiemmd      - fix if dataset empty
 * fixed mixed tag error in multiple elements
 
 -----------------------------------------------------------------------------
