@@ -27,6 +27,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 * zginstall.rex - remove duplicate procedures (found by rexx compiler)
 * zigi          - if status display requested don't if space clean
                 - add -S D (disp=shr) to putpds command
+                - fix tag/encoding for README.md
 * zigickot      - add -S D (disp=shr) to putpds command
 * zg            - correct invalid iterate to a return
 * zigiemmd      - fix if dataset empty

@@ -30,6 +30,7 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            08/03/22 - Version 3.141                        |
+  |                         - LBD Fix encoding/tag for README  |
   |                         - LBD Display Pull report          |
   |                         - LBD Add -S D (shared) on putpds  |
   |                         - LBD chtag mixed error            |
@@ -2131,6 +2132,9 @@ WWR_Handle_Readme:
   readme = localdir"/README.md"
   Address ISPExec ,
   'Edit File(readme) macro(zigiemmd)'
+  cmd = 'cd' localdir '&& chtag -tc' encoding 'README.md'
+  x = docmd(cmd)
+  call view_std 'B' 'V'
   return
 
   /* -------------------------------- *
