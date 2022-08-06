@@ -22,10 +22,9 @@
 %ENTER+to register updates and%F3+to Cancel or Leave the panel.
 )Init
 &zwinttl = 'ZIGI Set Defaults for Repository'
- .zvars = '(defadall defcpush extans zginst)'
- vget (defadall) profile
- if (&defadall = &Z)
-     &defadall = 'N'
+ .zvars = '(zadd defcpush extans zginst)'
+ if (&zadd = &Z)
+     &zadd = 'N'
  if (&pdshlqn = &Z)
     .cursor = PDSHLQN
  if (&defcpush = &Z)
@@ -80,11 +79,11 @@
     .CURSOR = &CSR
  if (&zedsmsg EQ &Z)
  ver (&pdshlqn,dsname)
- ver (&defadall,nb,list,Y,N)
+ ver (&zadd,nb,list,Y,N)
  ver (&defcpush,nb,list,Y,N)
  ver (&extans,nb,list,Y,N)
  ver (&zginst,nb,list,Y,N)
- vput (defadall) profile
+ vput (zadd) profile
 )End
 /* -------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                       */
