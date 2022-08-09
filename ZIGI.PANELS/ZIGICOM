@@ -39,6 +39,7 @@
       ver (&zadd,list,Y,N,&Z)
       ver (&zpush,list,Y,N,&Z)
  &resp = .resp
+  vput (zadd) profile
 *REXX(* zedsmsg zedlmsg resp)
   if resp = 'END' then exit
   zedsmsg = ''
