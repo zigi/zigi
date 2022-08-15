@@ -17,6 +17,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            08/15/22 LBD - Fix PopUp on Pull if existing    |
   |            08/03/22 LBD - Add -S D to putpds (disp=shr)    |
   |            11/19/21 LBD - Correct HLQ if null              |
   |            06/09/21 LBD - Correct HLQ if no end .          |
@@ -421,6 +422,11 @@ Alloc_Copy_PDS:
       'dsn('pds')' gens
     'Free ds('pds')'
   end
+  if deleted = 0 then do
+     zs4 = zs6
+     zs5 = zs7
+     parse value '' with zs6 zs7
+     end
   call pop_status
   /* ---------------------------------------------------- *
   | Read directory to get all member file names and then |
@@ -497,7 +503,9 @@ Alloc_Copy_PDS:
         when pos('-X',binopt) > 0 then type = 'Load Module'
         otherwise type = 'Text'
       end
-      zs7 = 'Type:                   ' type
+      if deleted = 0
+      then zs5 = 'Type:                   ' type
+      else zs7 = 'Type:                   ' type
       src = usssafe(mems.ii)
       if left(src,1) = '#' then src = '\'src
       zos = usssafe("//'"target"("m")'")
