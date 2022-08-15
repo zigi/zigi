@@ -13,6 +13,8 @@
   %A+ Add the member to the%Git index+so that it can be Committed
   %AB+Add the member in binary to the%Git index+so that it can be Committed
   %AF+For Add to override a previous Git Ignore
+  %B+ Browse - Browse the member
+  %BL+Blame - Show revision/author/date-time of all changes
   %D+ Compares the uncommited version to the current version using git diff
   %H+ History - view previous version of the PDS member
   %I+ Git Ignore the member
@@ -21,8 +23,6 @@
   %S+ Select the member and Edit it
   %U+ Undo a non-Committed change
 +
-     "The best competition I have is against myself to become better."
-      -- John Wooden
 +
            +Press the%Enter+key to begin your ZIGI tutorial journey.
 )Init
@@ -30,7 +30,7 @@
 )PROC
  &zcont = zigihs00
 )END
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */

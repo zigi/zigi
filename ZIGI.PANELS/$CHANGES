@@ -21,6 +21,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 * Update Co:Z Toolkit url to https://coztoolkit.com
 * Update the repository SET options to configure the Default Add All
   option, and when changed to remember it in the ISPF Profile.
+* New line selection of BL to invoke git blame on element
 
                           Bug Fixes and Other Updates:
                           ----------------------------

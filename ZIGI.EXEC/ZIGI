@@ -29,7 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            08/03/22 - Version 3.141                        |
+  |            08/15/22 - Version 3.141                        |
+  |                         - LBD Add BLame line command       |
   |                         - LBD Allow F3 on Connect prompt   |
   |                         - LBD Fix encoding/tag for README  |
   |                         - LBD Display Pull report          |
@@ -1575,10 +1576,11 @@ Work_With_Repo:
     if zsel = 'E' then zsel = 'S'
     if zsel /= null then
     Select
-      when zsel = 'D' then call WWR_handle_lcmd_d
-      When zsel = 'H' then call WWR_handle_lcmd_h
-      When zsel = 'B' then call WWR_handle_lcmd_b
-      When zsel = 'V' then call WWR_handle_lcmd_v
+      when zsel = 'D'  then call WWR_handle_lcmd_d
+      When zsel = 'H'  then call WWR_handle_lcmd_h
+      When zsel = 'B'  then call WWR_handle_lcmd_b
+      When zsel = 'BL' then call WWR_handle_lcmd_bl
+      When zsel = 'V'  then call WWR_handle_lcmd_v
       When zsel = 'RN' then call WWR_handle_lcmd_rn
       When zsel = 'RM' then call WWR_handle_lcmd_rm
       When zsel = 'S' & left(fulldsn,1) /= "'" then
@@ -2538,6 +2540,25 @@ WWR_handle_lcmd_d:
   end
   Return
 
+  /* --------------------------------- *
+  | git blame                          |
+  | Show the revision history for file |
+  * --------------------------------- */
+WWR_handle_lcmd_bl:
+  if left(fulldsn,1) = "'" then do
+    x = listdsi(fulldsn)
+    if sysdsorg = 'PO' then do
+      zerrlm = 'Blame does not work on Partitioned Datasets'
+      zerrsm = 'Error.'
+      'setmsg msg(isrz003)'
+      return
+    end
+  end
+  if mem = 'MEM' then mem = ''
+  else mem = '/'mem
+  call do_blame dsn''mem
+  Return
+
   /* -------------------------------- *
   | Show the history for the file    |
   * -------------------------------- */
@@ -2975,9 +2996,10 @@ Work_with_repo_file:
       if zsel /= null then do
         if zsel = 'E' then zsel = 'S'
         Select
-          When zsel = 'B' then call WWRF_handle_lcmd_b
-          When zsel = 'V' then call WWRF_handle_lcmd_v
-          When zsel = 'S' then call WWRF_handle_lcmd_s
+          When zsel = 'B'  then call WWRF_handle_lcmd_b
+          When zsel = 'BL' then call do_blame dsn'/'mem
+          When zsel = 'V'  then call WWRF_handle_lcmd_v
+          When zsel = 'S'  then call WWRF_handle_lcmd_s
           When zsel = 'H' then call do_history dsn'/'mem
           When zsel = 'RN' then call WWRF_handle_lcmd_rn
           When zsel = 'RM' then call WWRF_handle_lcmd_rm
@@ -8031,6 +8053,46 @@ Do_Undo:
     then call work_with_repo
     else call work_with_repo_file
   end
+  return
+
+  /* ------------------------- *
+  | Do Blame for an element   |
+  * ------------------------- */
+do_blame:
+  parse arg element
+  zerrlm = null
+  zsel = null
+  update_flag = 0
+  select
+    When filetype = '(D)' then zerrlm = 'Blame does not work on directories'
+    When left(element,1) = "'" then do
+      x = listdsi(element)
+      if sysdsorg = 'PO' then
+      zerrlm = 'Blame does not work on Partitioned Datasets'
+    end
+    otherwise nop
+  end
+  if zerrlm /= null then do
+    zerrsm = 'Error.'
+    'setmsg msg(isrz003)'
+    return
+  end
+  if zdsn.dsn /= null then do
+    if pos('/',element) > 0
+    then parse value element with l'/'element
+    else l = null
+    element = lower(element)'.'zdsn.dsn
+    if l /= null then element = l'/'element
+  end
+  shelement = element
+  if pos('/',zigirep) > 0 then do
+    parse value zigirep with x'/'zrep
+    element = zrep'/'element
+  end
+  cmd = 'cd' localrep'/'zigirep
+  cmd = cmd '&& git blame' element
+  x = docmd(cmd)
+  call view_std 'B'
   return
 
   /* ------------------------- *

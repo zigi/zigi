@@ -6,7 +6,7 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(57,18)
+)Body Window(61,19)
 +Member:@mem             $exth      @extf
 +
 +Enter Selection:_z +
@@ -15,6 +15,7 @@
 +]AddBin+  (AB)+Add the member as Binary to the Git Index
 +]AddForce+(AF)+Add an ignored member to the Git Index
 +]Browse+  (B)+ Browse the dataset/file
++]BLame+   (BL)+Show revision/author/date-time of all changes
 +]Edit+    (E)+ Edit the dataset/file
 +]Diff+    (D)+ Show the Diff's
 +]History+ (H)+ Display Commit History
@@ -50,6 +51,7 @@ lower:
  &addbin  = 'AddBin'
  &addforce = 'AddForce'
  &browse  = 'Browse'
+ &blame   = 'BLame'
  &diff    = 'Diff'
  &history = 'History'
  &ignore  = 'Ignore'
@@ -64,6 +66,7 @@ lower:
   Field(addbin )  var(zsel) val('AB')
   Field(addforce) var(zsel) val('AF')
   Field(browse )  var(zsel) val('B')
+  Field(blame  )  var(zsel) val('BL')
   Field(diff   )  var(zsel) val('D')
   Field(edit   )  var(zsel) val('S')
   Field(select )  var(zsel) val('S')
@@ -74,7 +77,7 @@ lower:
   Field(undo   )  var(zsel) val('U')
   Field(view   )  var(zsel) val('V')
 )End
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */
