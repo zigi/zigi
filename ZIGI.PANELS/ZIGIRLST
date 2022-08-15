@@ -60,7 +60,7 @@ lower:
  &select  = 'Select'
  &undo    = 'Undo'
 )Proc
- ver (&zsel,list,A,AB,AF,B,E,D,H,I,RM,RN,S,U,V)
+ ver (&zsel,list,A,AB,AF,B,BL,E,D,H,I,RM,RN,S,U,V)
 )PNTS
   Field(add    )  var(zsel) val('A')
   Field(addbin )  var(zsel) val('AB')
