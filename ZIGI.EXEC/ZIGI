@@ -9718,7 +9718,7 @@ Fixup_cp: Procedure expose null putpds getpds qualignr localrep zigirep ,
     statfile = fixup_cpstat(source)
   end
   if left(target,2) = '//' then do   /* use putpds */
-    cp = putpds '-S D'
+    cp = putpds
   end
   if left(source,2) = '//' then do   /* use getpds */
     cp = getpds
@@ -9752,11 +9752,14 @@ Fixup_cp: Procedure expose null putpds getpds qualignr localrep zigirep ,
     if cpu /= null
     then cp = cp '-M' cpu',r=y'
   end
+  if right(word(cp,1),6) = 'putpds'
+     then putsd = '-S D '  /* trailing blank required */
+     else putsd = null
   if cp = null & pos('-X',cp) = 0
-  then cp = '-M st='localrep'/'zigirep'/.zigi/'statfile
+  then cp = putsd'-M st='localrep'/'zigirep'/.zigi/'statfile
   else do
     cp = word(cp,1) ,
-      '-M st='localrep'/'zigirep'/.zigi/'statfile','strip(subword(cp,3))
+      putsd'-M st='localrep'/'zigirep'/.zigi/'statfile','strip(subword(cp,3))
   end
   if pos('-B',cmd) > 0 then cp = cp '-b'
   else if right(word(cp,1),6) = 'getpds' then
