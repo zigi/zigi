@@ -670,21 +670,21 @@ is_binfile: procedure expose binfiles.
   do bi = 1 to binfiles.0
     if right(binfiles.bi,1) = '*' then do
       parse value file with test'/'testmem .
-      if length(testmem) = 1 then do
-         p = pos('*',binfiles.bi)
-         if left(binfiles.bi,p-1) = test
-         then return 1
+      parse value binfiles.bi with testb'/'binmem
+      if test /= testb then return 0  /* not binary */
+      if testmem = '*' then do
+         if test = testb
+            then return 1   /* binary */
          end
       else do
-           parse value binfiles.bi with test'/'binmem
            if left(binmem,length(binmem)-1) = ,
               left(testmem,length(binmem)-1)
-              then return 1
+              then return 1  /* binary */
            end
     end
-    if binfiles.bi = file then return 1
+    if binfiles.bi = file then return 1  /* binary */
   end
-  return 0
+  return 0 /* not binary */
 
 docmd:
   parse arg cmd
