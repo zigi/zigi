@@ -17,6 +17,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            08/17/22 LBD - Fix Check_Mixed and fix test     |
+  |                           for binfiles with * mask (end)   |
   |            08/16/22 LBD - Fix get binfiles                 |
   |            08/15/22 LBD - Fix PopUp on Pull if existing    |
   |            08/03/22 LBD - Add -S D to putpds (disp=shr)    |
@@ -667,10 +669,18 @@ is_binfile: procedure expose binfiles.
   if datatype(binfiles.0) /= 'NUM' then return 0
   do bi = 1 to binfiles.0
     if right(binfiles.bi,1) = '*' then do
-      parse value file with test'/'.
-      p = pos('*',binfiles.bi)
-      if left(binfiles.bi,p-1) = test
-      then return 1
+      parse value file with test'/'testmem .
+      if length(testmem) = 1 then do
+         p = pos('*',binfiles.bi)
+         if left(binfiles.bi,p-1) = test
+         then return 1
+         end
+      else do
+           parse value binfiles.bi with test'/'binmem
+           if left(binmem,length(binmem)-1) = ,
+              left(testmem,length(binmem)-1)
+              then return 1
+           end
     end
     if binfiles.bi = file then return 1
   end
@@ -816,7 +826,7 @@ Check_Mixed_BinText:
     parse value binfiles.bi with cmbtfile'/'cmbtmbr
     parse value checkForBinFile with checkFile'/'checkmbr
     if cmbtfile = checkFile then
-    if pos('*',cmbtmbr) > 0 then cmbtRC = 0
+    if pos('*',cmbtmbr) > 0 then cmbtRC = 1
     else return 1
     if binfiles.bi = checkForBinFile then return 1
   end
