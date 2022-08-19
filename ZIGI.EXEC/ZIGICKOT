@@ -18,6 +18,7 @@
   |                                                            |
   | History:  (most recent on top)                             |
   |            08/19/22 LBD - Fix mgen variable typo           |
+  |                           Fix RECFM=U copy                 |
   |            08/17/22 LBD - Fix Check_Mixed and fix test     |
   |                           for binfiles with * mask (end)   |
   |            08/16/22 LBD - Fix get binfiles                 |
@@ -518,6 +519,7 @@ Alloc_Copy_PDS:
     call pop_status
     cmd = 'cd' usssafe(rdir)
     cmd = cmd '&& cp -v' aopt binopt src '"'zos'"'
+    if recfm /= 'U' then
     if enhanced_cp = 1 then do
       lp = lastpos('/',rdir)
       dvstat = left(rdir,lp)'.zigi/'substr(rdir,lp+1)
