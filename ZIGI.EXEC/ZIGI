@@ -2932,7 +2932,7 @@ Work_with_repo_file:
   x = debug('Working with Repo File:' zigirep'/'dsn)
   x = listdsi(fulldsn)
   if sysdsorg /= 'PS' then do
-    zs1 = 'Building list of library statuses....'
+    zs1 = 'Building list of library status....'
     zs2 = 'Patience . . .'
     call do_popup
   end
