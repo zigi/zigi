@@ -32,6 +32,8 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
                 - add -S D (disp=shr) to putpds command
                 - fix tag/encoding for README.md
                 - allow F3 during Connect processing
+                - use ISPF LMMREN to rename a PDS member instead of
+                  the TSO RENAME command
 * zigickot      - add -S D (disp=shr) to putpds command
 * zg            - correct invalid iterate to a return
 * zigiemmd      - fix if dataset empty

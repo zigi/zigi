@@ -29,7 +29,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            08/15/22 - Version 3.141                        |
+  |            08/19/22 - Version 3.141                        |
+  |                         - LBD Use ISPF LMMREN to rename    |
+  |                           a PDS Member                     |
   |                         - LBD Add BLame line command       |
   |                         - LBD Allow F3 on Connect prompt   |
   |                         - LBD Fix encoding/tag for README  |
@@ -3434,7 +3436,6 @@ WWRF_handle_lcmd_rn:
     'rempop'
     call pfshow 'reset'         /* restore pfshow setting */
     if drc > 0 then leave
-    olddsn = "'"strip(fulldsn,'B',"'")"("mem")'"
     newdsn = "'"strip(fulldsn,'B',"'")"("newmem")'"
     call outtrap 'x.'
     rc = sysdsn(newdsn)
@@ -3446,7 +3447,16 @@ WWRF_handle_lcmd_rn:
       'setmsg msg(isrz003)'
     end
     else do
-      Address TSO 'Rename' olddsn newdsn
+     /* ----------------------------------- *
+      | Use ISPF Services for Member Rename |
+      * ----------------------------------- */
+      Address ISPEXEC
+      "LMINIT DATAID(STATUS) DATASET("fulldsn") ENQ(SHRW)"
+      "LMOPEN DATAID("STATUS") OPTION(output)"
+      'lmmren dataid('status') member('mem') newname('newmem')'
+      "LMClose Dataid("status")"
+      "LMFree  Dataid("status")"
+
       if zdsn.dsn /= null then do
         rnmem = lower(mem)'.'zdsn.dsn
         rnnewmem = lower(newmem)'.'zdsn.dsn
