@@ -17,6 +17,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            08/19/22 LBD - Fix mgen variable typo           |
   |            08/17/22 LBD - Fix Check_Mixed and fix test     |
   |                           for binfiles with * mask (end)   |
   |            08/16/22 LBD - Fix get binfiles                 |
@@ -122,7 +123,7 @@
   | Get the ISPF Variables with our instructions |
   * -------------------------------------------- */
   Address ISPExec
-  'vget (ckothlq ckotdir pulldsns mgenl debugfil)'
+  'vget (ckothlq ckotdir pulldsns mgen debugfil)'
   if datatype(mgen) /= 'NUM' then mgen = 0
 
   Address TSO
