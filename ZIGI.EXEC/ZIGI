@@ -29,7 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            08/19/22 - Version 3.141                        |
+  |            08/24/22 - Version 3.141                        |
+  |                         - LBD Fix BLame (mem var) issue    |
   |                         - LBD Use ISPF LMMREN to rename    |
   |                           a PDS Member                     |
   |                         - LBD Add BLame line command       |
@@ -2556,8 +2557,8 @@ WWR_handle_lcmd_bl:
       return
     end
   end
-  if mem = 'MEM' then mem = ''
-  else mem = '/'mem
+  else mem = null
+  if mem /= null then mem = '/'mem
   call do_blame dsn''mem
   Return
 
