@@ -42,7 +42,7 @@
 )Proc
  if (&zsel = 'E')
      &zsel = 'S'
- ver (&zsel,list,A,B,D,E,H,RM,RN,V,S,U)
+ ver (&zsel,list,A,B,BL,D,E,H,RM,RN,V,S,U)
 )PNTS
   Field(add    ) var(zsel) val('A')
   Field(blame  ) var(zsel) val('BL')
