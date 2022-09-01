@@ -71,7 +71,7 @@
 )Body  Expand(\\)
 +| General | Local Repo | Remote Repo | Handy Functions | Help +
 <-----------\-\--------------------------------+
-+Current Repository+--------------#zigtitle    +--------------------------------
++Current Repository+--------------#zigtitle     +-------------------------------
 %Command ===>_zcmd            \ \  %Scroll ===>_zgsr+
 +Local dir     :$localdir                                                  %F3 +
 +Remote path   :$remote1                                                    $z

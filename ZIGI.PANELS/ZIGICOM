@@ -5,7 +5,7 @@
  + type(text ) intens(low) skip(on)
  @ type(input) caps(on ) hilite(uscore) intens(low)
 )Body Expand(\\)
-+Git Commit+----------------------}zigtitle    +--------------------------------
++Git Commit+----------------------}zigtitle     +-------------------------------
 %Command ===>_zcmd       \ \ %Scroll ===>_ccsr+
 + \ \ %F3  +
 %Commit Title:_msg1                                        +%Add+before:@z+(Y/N)
@@ -39,6 +39,7 @@
       ver (&zadd,list,Y,N,&Z)
       ver (&zpush,list,Y,N,&Z)
  &resp = .resp
+  vput (zadd) profile
 *REXX(* zedsmsg zedlmsg resp)
   if resp = 'END' then exit
   zedsmsg = ''

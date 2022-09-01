@@ -39,6 +39,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            07/19/22 LBD - Fix chtag mixed error            |
+  |            06/19/22 LBD - Fix suffix check compare         |
   |            04/25/22 TPM - Add 2 dropped statements         |
   |                           (LBD - my bad)                   |
   |            03/23/22 TPM - list of repo files not in PDS    |
@@ -287,7 +289,7 @@ zigistat:
       x = debug('Saving stats begins to:' filepath)
       x = bpxwunix('rm' usssafe(filepath),,so.,se.)
       call write_stats
-      cmd = 'chtag -c' codep usssafe(filepath)
+      cmd = 'chtag -tc' codep usssafe(filepath)
       x = bpxwunix(cmd,,so.,se.)
       x = debug('Saving stats completed.')
       return 0
@@ -389,6 +391,12 @@ zigistat:
         if words(ro.n) < 3 then iterate n
 
         repo_mem = word(ro.n,words(ro.n))
+
+        if pos('.',repo_mem) > 0 then do
+           p = pos('.',repo_mem)
+           repo_mem = translate(left(repo_mem,p-1))
+           end
+
         if wordpos(repo_mem,allmems) = 0 then repo@nf = repo@nf repo_mem
         end
 
@@ -400,7 +408,6 @@ zigistat:
           repo@nf1 = strip(repo@nf)
           'VPUT (REPO@NF1)'
           end
-
         else do forever
           repo@nfc = repo@nfc + 1
           if length(repo@nf) > 32000 then
@@ -768,6 +775,12 @@ Get_LoadLib:
        cal  = year''right(day+1000,3)
        end
     if word(results.lmi,8) = 'BINDER' & word(results.lmi,19) = 'AT' then do
+      day = word(results.lmi,15)
+      year = substr(word(results.lmi,18),3,2)
+      time = left(word(results.lmi,20),8)
+      cal  = year''day
+    end
+    if word(results.lmi,8) = 'BINDER' & word(results.lmi,19) /= 'AT' then do
       day = word(results.lmi,15)
       year = substr(word(results.lmi,18),3,2)
       time = left(word(results.lmi,20),8)

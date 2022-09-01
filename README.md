@@ -27,6 +27,11 @@ or
 
 ### Make sure you are authorized to allocate the target datasets
 
+## Samples
+
+The ZGBATCH exec is located in the ZIGI.SAMPLES dataset and is provided as an example for you to use
+to create a batch process to add/commit/push updates in batch to a zigi managed git repository.
+
 
 ## Contributing to zigi?
 
@@ -48,10 +53,10 @@ disable encryption for all uses of git and this is strongly discouraged in non-s
 ### Text File Corruption
 
 If a text file contains the following special characters they will be corrupted when copied from z/OS to OMVS:
-                                    
-       x'0D'  Carriage Return (CR)  
-       x'15'  New Line (NL)         
-       x'25'  Line Feed (LF)        
+
+       x'0D'  Carriage Return (CR)
+       x'15'  New Line (NL)
+       x'25'  Line Feed (LF)
 
 This typically occurs in ISPF Panels where there special characters are used as attribute characters.
 

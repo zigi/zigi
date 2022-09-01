@@ -5,7 +5,7 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
-)Body Window(65,13) Expand(\\)
+)Body Window(65,14) Expand(\\)
 +Command ===>_zcmd   \ \ +
 %
 +Review/Update Repository Settings:
@@ -13,7 +13,8 @@
 +Name of the Repository: _reponame           +
 +Category for Repository:_zigicat      + (optional)
 +PREFIX for datasets:    @pdshlqn                 + (no quotes)
-+Default Push on Commit: @z+(Y or N)
++Default Add All on Commit:                   @z+(Y or N)
++Default Push on Commit:                      @z+(Y or N)
 +Default Userid to set prior to Commit:       @defruid + or blank
 +Disable File Extension Prompt on Dataset Add:@z+(Y or N)
 +Prime Respository with zginstall.rex:        @z+(Y or N)
@@ -21,7 +22,9 @@
 %ENTER+to register updates and%F3+to Cancel or Leave the panel.
 )Init
 &zwinttl = 'ZIGI Set Defaults for Repository'
- .zvars = '(defcpush extans zginst)'
+ .zvars = '(zadd defcpush extans zginst)'
+ if (&zadd = &Z)
+     &zadd = 'N'
  if (&pdshlqn = &Z)
     .cursor = PDSHLQN
  if (&defcpush = &Z)
@@ -76,9 +79,11 @@
     .CURSOR = &CSR
  if (&zedsmsg EQ &Z)
  ver (&pdshlqn,dsname)
+ ver (&zadd,nb,list,Y,N)
  ver (&defcpush,nb,list,Y,N)
  ver (&extans,nb,list,Y,N)
  ver (&zginst,nb,list,Y,N)
+ vput (zadd) profile
 )End
 /* -------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                       */

@@ -6,7 +6,7 @@
  # type(output) hilite(reverse) color(turq) caps(off)
  + type(text) intens(low) skip(on)
 )Body Expand(\\) Width(&zscreenw)
-+Git Commands+-----\-\------------#zigtitle   +\-\------------------------------
++Git Commands+-----\-\------------#zigtitle     +\-\----------------------------
 +Command ===>_zcmd                             \ \+Scroll ===>_gscr+
   \ \ %F3  +
 +Git repo dir:[localdir

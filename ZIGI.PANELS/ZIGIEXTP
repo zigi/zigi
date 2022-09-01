@@ -1,0 +1,14 @@
+)Attr
+ $ type(output) caps(off)
+ _ type(input)  caps(off) hilite(uscore) intens(low)
+)Body Window(50,2)
+  %Confirm+exit from active repository or cancel.
+  +Press%Enter+to proceed or%F3+to cancel exit.
+)Init
+ &zwinttl = 'ZIGI Repository Exit Prompt'
+)Proc
+)end
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2021-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */
