@@ -5,7 +5,7 @@
  { type(output) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
 )Body Expand(\\)
-+SnapShot+------------------------#zigtitle     +-------------------------------
++SnapShot+-------------------------#zigtitle    +-------------------------------
 %Command ===>_zcmd                                                             +
 +
 +Enter a git tag to identify this milestone:@gtag                            +

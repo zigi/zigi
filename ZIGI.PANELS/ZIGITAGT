@@ -25,7 +25,7 @@
 )Body  Expand(\\)
 +| Commands | Help +
 <-----------\-\--------------------------------+
-+Tag Summary +-----------\-\------#zigtitle     +----\-\------------------------
++Tag Summary+----------------------#zigtitle    +-------------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zgsr+
 + \ \%F3  +
 +Sel Date/Time            Tag
