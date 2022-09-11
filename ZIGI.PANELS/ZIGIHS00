@@ -5,7 +5,7 @@
  + type(text ) intens(low) skip(on)
  @ type(input) caps(on ) hilite(uscore) intens(low)
 )Body Expand(\\)
-+Tutorial\-\{zigtitle                           +-\-\Tutorial
++Tutorial\-\{zigtitle                         +-\-\Tutorial
 %Command ===>_zcmd                                                             +
 +
                       %ZG - Stand-Alone ZIGI Interface

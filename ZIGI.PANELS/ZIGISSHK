@@ -4,7 +4,7 @@
  _ type(input ) hilite(uscore) caps(on) intens(low )
  # type(output) hilite(reverse) color(turq) caps(off)
 )Body Expand(\\)
-+SSH Key Review+------------------#zigtitle     +-------------------------------
++SSH Key Review+-------------------#zigtitle    +-------------------------------
 %Command ===>_zcmd
 +
 +SSH Key File: @keyfile

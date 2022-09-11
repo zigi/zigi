@@ -3,7 +3,7 @@
  _ type(input) caps(off) hilite(uscore) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
 )Body Expand(\\)
-+Add Remote+----------------------#zigtitle     +-------------------------------
++Add Remote+-----------------------#zigtitle    +-------------------------------
 %Command ===>_zcmd
 +
 +Add remote _origin

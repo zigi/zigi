@@ -5,7 +5,7 @@
  # type(output) hilite(reverse) color(turq) caps(off)
  ! type(output) color(red) caps(off)
 )Body Expand(\\)
-+-\-\#zigtitle     +\-\
++-\-\#zigtitle    +\-\
 %Command ===>_zcmd
 +
 %     GIT ENVIRONMENT SETTINGS NOT FOUND IN DEFAULT LOCATIONS

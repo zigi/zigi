@@ -6,7 +6,7 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
 )Body  Expand(\\)
-+Conflict Resolution+-------------#zigtitle     +-------------------------------
++Conflict Resolution+--------------#zigtitle    +-------------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zgsr+
 + \ \%F3  +
 +Merge Conflict Resolution - Fix what's broke and Merge will Retry

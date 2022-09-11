@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r141'
+  ver = 'v3r15'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            08/24/22 - Version 3.141                        |
+  |            08/24/22 - Version 3.15                         |
   |                         - LBD Fix BLame (mem var) issue    |
   |                         - LBD Use ISPF LMMREN to rename    |
   |                           a PDS Member                     |

@@ -7,7 +7,7 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
 )Body  Expand(\\)
-+-\-\#zigtitle     +\-\
++-\-\#zigtitle    +\-\
 %Command ===>_zcmd   \ \ %Scroll ===>_zgsr+
 +
 +The following members were not found in the z/OS PDS but were found in the
