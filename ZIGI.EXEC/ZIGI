@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r14'
+  ver = 'v3r15'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -29,6 +29,28 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            08/24/22 - Version 3.15                         |
+  |                         - LBD Fix BLame (mem var) issue    |
+  |                         - LBD Use ISPF LMMREN to rename    |
+  |                           a PDS Member                     |
+  |                         - LBD Add BLame line command       |
+  |                         - LBD Allow F3 on Connect prompt   |
+  |                         - LBD Fix encoding/tag for README  |
+  |                         - LBD Display Pull report          |
+  |                         - LBD Add -S D (shared) on putpds  |
+  |                         - LBD chtag mixed error            |
+  |                         - LBD Fix repo connect display     |
+  |                           panel syntax                     |
+  |                         - LBD Correct test for PDS mbrs    |
+  |                           if they have a suffix in git     |
+  |                         - LBD Add SET option to prompt on  |
+  |                           repository exit                  |
+  |                         - LBD If show status requested     |
+  |                           don't if clean.                  |
+  |                         - LBD On TBCreate replace blanks   |
+  |                           with underscores                 |
+  |                         - Support E(dit) selection for     |
+  |                           OMVS files                       |
   |            05/10/22 - HK/LBD - Version 3.14                |
   |                         - Some fixes for non-dovetail      |
   |                           setups (HK)                      |
@@ -900,10 +922,14 @@ init_git:
   old_zigiuid = zigiuid
   old_zigimail = zigimail
 
-  'vget (mgen extfile showst) profile'
+  'vget (mgen extfile exitp showst) profile'
   if pos(extfile,'YN') = 0 then do
     extfile = 'N'
     'vput (extfile) profile'
+  end
+  if pos(exitp,'YN') = 0 then do
+    exitp = 'N'
+    'vput (exitp) profile'
   end
 
   Select
@@ -917,7 +943,7 @@ init_git:
     sl = mgen()
     'Display Panel(zigiset)'
     if rc > 0 then leave
-    'vput (mgen showst extfile) profile'
+    'vput (mgen showst exitp extfile) profile'
     call update_config
     if zigiuid /= null
     then if zigimail /= null
@@ -1550,12 +1576,14 @@ Work_With_Repo:
     /* -------------------------------- *
     | Handle the linecommands           |
     * -------------------------------- */
+    if zsel = 'E' then zsel = 'S'
     if zsel /= null then
     Select
-      when zsel = 'D' then call WWR_handle_lcmd_d
-      When zsel = 'H' then call WWR_handle_lcmd_h
-      When zsel = 'B' then call WWR_handle_lcmd_b
-      When zsel = 'V' then call WWR_handle_lcmd_v
+      when zsel = 'D'  then call WWR_handle_lcmd_d
+      When zsel = 'H'  then call WWR_handle_lcmd_h
+      When zsel = 'B'  then call WWR_handle_lcmd_b
+      When zsel = 'BL' then call WWR_handle_lcmd_bl
+      When zsel = 'V'  then call WWR_handle_lcmd_v
       When zsel = 'RN' then call WWR_handle_lcmd_rn
       When zsel = 'RM' then call WWR_handle_lcmd_rm
       When zsel = 'S' & left(fulldsn,1) /= "'" then
@@ -1635,7 +1663,17 @@ WWR_display_zigirepo:
     result = trc
     zigpass = null
     'vput (zigpass) shared'
-    if trc > 4 then return trc
+    if trc > 4 then do
+       if exitp = 'N' then return trc
+       call pfshow 'off'           /* make sure pfshow is off */
+       answer = null
+       'Addpop row(6) column(16)'
+       'Display Panel(zigiextp)'
+       prc = rc
+       'Rempop'
+       call pfshow 'reset'         /* restore pfshow setting */
+       if prc = 0 then return trc
+       end
   end
   Return 0
 
@@ -1904,7 +1942,15 @@ WWR_handle_pull:
 
     cmd = 'cd' localdir' && git pull -v'
     x = docmd(cmd)
+    /* Comment Start
     if x > 0 then call view_std 'B'
+       Comment End */
+    zerrsm = 'Pull Complete'
+    zerrlm = 'The pull request completed. This is the pull report',
+       'Close this report with F3 and the z/OS datasets will be',
+       'updated.'
+    'setmsg msg(isrz003)'
+    call view_std 'B'
     parse value '' with pulldsns pullmems. deletes.
     deletes.0 = 0
     pulled = 0
@@ -2092,6 +2138,9 @@ WWR_Handle_Readme:
   readme = localdir"/README.md"
   Address ISPExec ,
   'Edit File(readme) macro(zigiemmd)'
+  cmd = 'cd' localdir '&& chtag -tc' encoding 'README.md'
+  x = docmd(cmd)
+  call view_std 'B' 'V'
   return
 
   /* -------------------------------- *
@@ -2494,6 +2543,25 @@ WWR_handle_lcmd_d:
   end
   Return
 
+  /* --------------------------------- *
+  | git blame                          |
+  | Show the revision history for file |
+  * --------------------------------- */
+WWR_handle_lcmd_bl:
+  if left(fulldsn,1) = "'" then do
+    x = listdsi(fulldsn)
+    if sysdsorg = 'PO' then do
+      zerrlm = 'Blame does not work on Partitioned Datasets'
+      zerrsm = 'Error.'
+      'setmsg msg(isrz003)'
+      return
+    end
+  end
+  else mem = null
+  if mem /= null then mem = '/'mem
+  call do_blame dsn''mem
+  Return
+
   /* -------------------------------- *
   | Show the history for the file    |
   * -------------------------------- */
@@ -2867,7 +2935,7 @@ Work_with_repo_file:
   x = debug('Working with Repo File:' zigirep'/'dsn)
   x = listdsi(fulldsn)
   if sysdsorg /= 'PS' then do
-    zs1 = 'Building list of library statuses....'
+    zs1 = 'Building list of library status....'
     zs2 = 'Patience . . .'
     call do_popup
   end
@@ -2931,9 +2999,10 @@ Work_with_repo_file:
       if zsel /= null then do
         if zsel = 'E' then zsel = 'S'
         Select
-          When zsel = 'B' then call WWRF_handle_lcmd_b
-          When zsel = 'V' then call WWRF_handle_lcmd_v
-          When zsel = 'S' then call WWRF_handle_lcmd_s
+          When zsel = 'B'  then call WWRF_handle_lcmd_b
+          When zsel = 'BL' then call do_blame dsn'/'mem
+          When zsel = 'V'  then call WWRF_handle_lcmd_v
+          When zsel = 'S'  then call WWRF_handle_lcmd_s
           When zsel = 'H' then call do_history dsn'/'mem
           When zsel = 'RN' then call WWRF_handle_lcmd_rn
           When zsel = 'RM' then call WWRF_handle_lcmd_rm
@@ -3368,7 +3437,6 @@ WWRF_handle_lcmd_rn:
     'rempop'
     call pfshow 'reset'         /* restore pfshow setting */
     if drc > 0 then leave
-    olddsn = "'"strip(fulldsn,'B',"'")"("mem")'"
     newdsn = "'"strip(fulldsn,'B',"'")"("newmem")'"
     call outtrap 'x.'
     rc = sysdsn(newdsn)
@@ -3380,7 +3448,16 @@ WWRF_handle_lcmd_rn:
       'setmsg msg(isrz003)'
     end
     else do
-      Address TSO 'Rename' olddsn newdsn
+     /* ----------------------------------- *
+      | Use ISPF Services for Member Rename |
+      * ----------------------------------- */
+      Address ISPEXEC
+      "LMINIT DATAID(STATUS) DATASET("fulldsn") ENQ(SHRW)"
+      "LMOPEN DATAID("STATUS") OPTION(output)"
+      'lmmren dataid('status') member('mem') newname('newmem')'
+      "LMClose Dataid("status")"
+      "LMFree  Dataid("status")"
+
       if zdsn.dsn /= null then do
         rnmem = lower(mem)'.'zdsn.dsn
         rnnewmem = lower(newmem)'.'zdsn.dsn
@@ -6250,7 +6327,13 @@ Connect_Repo:
   do forever
     parse value '' with zerrsm zcmd zigirep cc_rc pdshlq ,
       defcpush defruid qualignr zigicat encoding
-    'Display Panel(zigiconr'
+    'Display Panel(zigiconr)'
+    if rc > 0 then do
+      zerrsm = 'Canceled.'
+      zerrlm = 'Connection canceled by user action.'
+      'setmsg msg(isrz003)'
+      return 1
+    end
     'vget (qualignr)'
     if readonly = 'N' then readonly = null
     if rc > 0 then return 8
@@ -6301,6 +6384,16 @@ Create_Repo:
       'setmsg msg(isrz003)'
       return 1
     end
+
+  /* ------------------------------------------ *
+   | Clean up repo name replacing blanks with _ |
+   | and only allow 1 contig space              |
+   * ------------------------------------------ */
+   if pos(' ',zigirep) > 0 then do
+      zigirep = space(zigirep,1)
+      zigirep = translate(zigirep,'_',' ')
+      end
+
     localrep = strip(localrep,'T','/')
     /* ---------------------------------------------------- *
     | We do some basic git repo setup here...              |
@@ -6462,7 +6555,7 @@ do_git_attributes:
   x = docmd('cd 'reporoot' && git add .gitattributes')
 
   x = docmd('cd 'reporoot ,
-  ' && chtag -c' codep '.zigi/dsn' ,
+  ' && chtag -tc' codep '.zigi/dsn' ,
   ' && git add .zigi/dsn')
 
   commitmsg = ".gitattributes created and added by ZIGI"
@@ -6869,7 +6962,7 @@ Update_repo_metadata:
                 x = docmd(tagcmd)
               end
               else do /* text file tag */
-                tagcmd = 'chtag -c' codep localrep'/'zigirep'/'r'/'rm
+                tagcmd = 'chtag -tc' codep localrep'/'zigirep'/'r'/'rm
                 x = docmd(tagcmd)
                 end
               mem_hit = 1
@@ -6895,10 +6988,7 @@ Update_repo_metadata:
             if left(rd.im,1) = '.' then iterate
             m = strip(rd.im)
             mfile = m
-            if zdsn.r /= null
-            then do
               parse value m with m'.'.
-            end
             m = translate(m)
             if wordpos(m,allmems) = 0 then do
               mem_omvs = mem_omvs mfile
@@ -7103,6 +7193,7 @@ Update_repo_metadata:
     parse value '' with bstat baction
   end
   if created /= 1 then
+  if pos('clean',baction) = 0 then
   if show_status = 'Y' then call view_std 'B'
   created = null
   show_status = 'N'
@@ -7673,7 +7764,7 @@ Do_Add_Copy:
     parse value pdss with pdss'/'.
     mkdir = "mkdir -p "DIR"/"pdss ,
             '&& touch' dir'/.zigi/'pdss ,
-            '&& chtag -c' codep localrep'/'zigirep'/.zigi/'pdss
+            '&& chtag -tc' codep localrep'/'zigirep'/.zigi/'pdss
     x = docmd(mkdir)
     binopt = null
     if translate(option) = 'BINARY' then do
@@ -7973,6 +8064,46 @@ Do_Undo:
     then call work_with_repo
     else call work_with_repo_file
   end
+  return
+
+  /* ------------------------- *
+  | Do Blame for an element   |
+  * ------------------------- */
+do_blame:
+  parse arg element
+  zerrlm = null
+  zsel = null
+  update_flag = 0
+  select
+    When filetype = '(D)' then zerrlm = 'Blame does not work on directories'
+    When left(element,1) = "'" then do
+      x = listdsi(element)
+      if sysdsorg = 'PO' then
+      zerrlm = 'Blame does not work on Partitioned Datasets'
+    end
+    otherwise nop
+  end
+  if zerrlm /= null then do
+    zerrsm = 'Error.'
+    'setmsg msg(isrz003)'
+    return
+  end
+  if zdsn.dsn /= null then do
+    if pos('/',element) > 0
+    then parse value element with l'/'element
+    else l = null
+    element = lower(element)'.'zdsn.dsn
+    if l /= null then element = l'/'element
+  end
+  shelement = element
+  if pos('/',zigirep) > 0 then do
+    parse value zigirep with x'/'zrep
+    element = zrep'/'element
+  end
+  cmd = 'cd' localrep'/'zigirep
+  cmd = cmd '&& git blame' element
+  x = docmd(cmd)
+  call view_std 'B'
   return
 
   /* ------------------------- *
@@ -9632,18 +9763,21 @@ Fixup_cp: Procedure expose null putpds getpds qualignr localrep zigirep ,
     if cpu /= null
     then cp = cp '-M' cpu',r=y'
   end
+  if right(word(cp,1),6) = 'putpds'
+     then putsd = '-S D '  /* trailing blank required */
+     else putsd = null
   if cp = null & pos('-X',cp) = 0
-  then cp = '-M st='localrep'/'zigirep'/.zigi/'statfile
+  then cp = putsd'-M st='localrep'/'zigirep'/.zigi/'statfile
   else do
     cp = word(cp,1) ,
-      '-M st='localrep'/'zigirep'/.zigi/'statfile','strip(subword(cp,3))
+      putsd'-M st='localrep'/'zigirep'/.zigi/'statfile','strip(subword(cp,3))
   end
   if pos('-B',cmd) > 0 then cp = cp '-b'
   else if right(word(cp,1),6) = 'getpds' then
        cp = cp',tag=y -t' codep
   cmd = cp source target
   if right(word(cp,1),6) = 'getpds' then
-  tagit = '&& chtag -c' codep localrep'/'zigirep'/.zigi/'statfile
+  tagit = '&& chtag -tc' codep localrep'/'zigirep'/.zigi/'statfile
   else tagit = null
   if rcmd = null then return cmd tagit
   else return cmd '&&' rcmd tagit

@@ -8,6 +8,40 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
 
                              ZIGI Release Notes
+                                Version 3.15
+
+                         New Features and Functions
+                         --------------------------
+
+* Display the Pull report to allow user to see detailed pull info
+* zgbatch moved to new zigi.samples pds
+* On repository create translate blanks in the repository name to
+  underscores, allowing only 1 contiguous blank.
+* New Config option to enable prompting when exiting a repository.
+* Update Co:Z Toolkit url to https://coztoolkit.com
+* Update the repository SET options to configure the Default Add All
+  option, and when changed to remember it in the ISPF Profile.
+* New line selection of BL to invoke git blame on element
+
+                          Bug Fixes and Other Updates:
+                          ----------------------------
+
+* zginstal      - remove duplicate procedures (found by rexx compiler)
+* zginstall.rex - remove duplicate procedures (found by rexx compiler)
+* zigi          - if status display requested don't if space clean
+                - add -S D (disp=shr) to putpds command
+                - fix tag/encoding for README.md
+                - allow F3 during Connect processing
+                - use ISPF LMMREN to rename a PDS member instead of
+                  the TSO RENAME command
+* zigickot      - add -S D (disp=shr) to putpds command
+* zg            - correct invalid iterate to a return
+* zigiemmd      - fix if dataset empty
+* fixed mixed tag error in multiple elements
+
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
                                Version 3.14
 
                          New Features and Functions
@@ -25,6 +59,9 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
                           Bug Fixes and Other Updates:
                           ----------------------------
 
+* Change to putpds to add disp=shr (-S D)
+  - zigi and zigickot
+* fixed mixed tag error in multiple elements
 * ZIGIREPO panel change for adddsn pulldown menu
 * usssafe routine updated in zigi and zigistat
 * usssafe usage improved
@@ -131,16 +168,16 @@ commands if available, otherwise continue to use cp. The speed improvement
 is an improvement of minutes to seconds.
 
    To use the Dovetail enhancements (highly recommended) point your
-   browser to https://dovetail.com and download the Co:Z Co-Processing
+   browser to https://coztoolkit.com and download the Co:Z Co-Processing
    Toolkit.  Along with the getpds and putpds, that will greatly enhance
    ZIGI, you will also have Co:Z SFTP, Co:Z Launcher, Co:Z Dataset Pipes
    and Co:Z Batch.
 
    The use of the Co:Z Toolkit is subject to Dovetail's Community
-   License https://dovetail.com/docs/cozinstall/licenses.html
+   License https://coztoolkit.com/docs/cozinstall/licenses.html
 
    When installing refer to:
-   https://dovetail.com/docs/cozinstall/install.html#inst_coz And note
+   https://coztoolkit.com/docs/cozinstall/install.html#inst_coz And note
    that the UID=0 (superuser) or other special permissions are not
    required for use with ZIGI. Also, you do not need to address other
    requirements or customizations such as z/OS OpenSSH.

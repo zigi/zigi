@@ -10,17 +10,17 @@
 +
 %SET+configures default values for the current respository:
 +
+%*+Configure the default Add All option on a Commit.
++
 %*+Configure the default push option on a Commit.
 +
-%*+Configure a userid to be set for all PDS Members that have been Added and
-+  are ready to be Committed. The userid is changed prior to the Commit
-+  process and updates the ISPF statistics file that is part of the repository.
+%*+Configure a userid to be set for all PDS Members that will be set at Commit.
++  The userid is udpated prior to Commit.
 +
 +The repository's z/OS dataset HLQ may be changed with the requirement that
 +the number of qualifiers remain the same as the previous HLQ.
 +
-+Turn off, or on, prompting for file extensions when adding a partitioned
-+datasets.
++Turn off, or on, prompting for file extensions when adding a PDS.
 +
 +Add the zginstall.rex generic installation script to the repository.
 +

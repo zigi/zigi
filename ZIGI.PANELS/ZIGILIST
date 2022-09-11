@@ -33,7 +33,7 @@
 )Body  Expand(\\)
 +| Menu | Help +
 <-----------\-\--------------------------------+
-+PDS Member List+-----------------#zigtitle    +--------------------------------
++PDS Member List+------------------#zigtitle    +-------------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zgsr+
 +Current Dataset   :$fulldsn                     \ \%F3  +
 +Current Repository:$localdir
@@ -76,7 +76,7 @@
     &zsel = &z
  if (&zsel = 'MV')
      &zsel = 'RN'
- ver (&zsel,list,A,AB,AF,B,E,D,H,I,RM,RN,S,U,V,/,Z)
+ ver (&zsel,list,A,AB,AF,B,BL,E,D,H,I,RM,RN,S,U,V,/,Z)
 )PNTS
  FIELD(TMEM )  VAR(ZCMD) VAL('SORT MEMBER')
  FIELD(TSTAT)  VAR(ZCMD) VAL('SORT STATUS')
@@ -85,7 +85,7 @@
  FIELD(TTIME)  VAR(ZCMD) VAL('SORT TIME')
  FIELD(TUSER)  VAR(ZCMD) VAL('SORT USERID')
 )End
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */

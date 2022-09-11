@@ -6,7 +6,7 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
 )Body  Expand(\\)
-+Repository Extract+----\-\------#zigtitle     +-----\-\------------------------
++Repository Extract+---------------#zigtitle    +-------------------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zgsr+
 + \ \%F3  +
 +Commits to Review:_z   +(1 to 9999)

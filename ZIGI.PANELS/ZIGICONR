@@ -4,7 +4,7 @@
  # type(output) hilite(reverse) color(turq) caps(off)
   _ type( input) intens(low ) just(left ) hilite(uscore)
 )Body Expand(\\)
-+Connect Repository+--------------#zigtitle    +--------------------------------
++Connect Repository+---------------#zigtitle    +-------------------------------
 %Command ===>_zcmd
 +
 %Local Directory:   +? to browse OMVS folder structure

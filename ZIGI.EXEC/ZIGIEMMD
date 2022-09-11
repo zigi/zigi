@@ -7,6 +7,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            2022/08/03 LBD - Fix if readme empty            |
   |            2021/06/07 LBD - Change noteline to msgline     |
   |            2021/06/01 LBD - Creation                       |
   |                                                            |
@@ -35,6 +36,11 @@
  'Num off'
  'Caps off'
   prefix = ''
+  '(lc) = linenum .zlast'
+  if lc = 0 then do
+      data = '# Title for Readme'
+      'line_after 0 = (data)'
+      end
   call nl 'Markdown (MD) syntax:'
   call nl '#      Heading Level 1   ####   Heading Level 4'
   call nl '##     Heading Level 2   #####  Heading Level 5'
