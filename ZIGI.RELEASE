@@ -8,6 +8,22 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
 
                              ZIGI Release Notes
+                                Version 3.16
+
+                         New Features and Functions
+                         --------------------------
+
+* Update History Show and Recover to use git show instead of
+  stash/checkout/cp/stash
+
+                          Bug Fixes and Other Updates:
+                          ----------------------------
+
+* zigiorep      - updated panel to add fetch (missing for no good reason)
+
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
                                 Version 3.15
 
                          New Features and Functions

@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r15'
+  ver = 'v3r16'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -29,6 +29,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            09/12/22 - Version 3.16                         |
+  |                         - LBD Use git show for history     |
+  |                           show and replace (no more stash) |
   |            08/24/22 - Version 3.15                         |
   |                         - LBD Fix BLame (mem var) issue    |
   |                         - LBD Use ISPF LMMREN to rename    |
@@ -9329,9 +9332,8 @@ DoHist_ViewSource:
   | Extract the historic level of the element based on the |
   | commit hash provided.                                  |
   |                                                        |
-  | 1. change (checkout) to the commit hash level          |
-  | 2. copy (cp) the requested file to home/tmp/file-name  |
-  | 3. change (checkout) back to the original branch       |
+  | 1. use git show on hash level for element              |
+  | 2. copy (using cat) to /tmp/file-name                  |
   * ------------------------------------------------------ */
 DoHist_File_Extract:
   if pos('/',element) > 0
@@ -9343,30 +9345,11 @@ DoHist_File_Extract:
   end
   else file = home'/tmp/'element
   call check_tmp
-  cmd = 'cd' localrep'/'zigirep '&& git status'
-  x = docmd(cmd)
-  sol = so.0
-  if wordpos('nothing',so.sol) > 0
-     then
-       cmd = 'cd' localrep'/'zigirep ,
-         '&& git checkout' hcommit ,
-         '&& cp' localrep'/'zigirep'/'element file ,
-         '&& git checkout' branch
-     else
-       cmd = 'cd' localrep'/'zigirep ,
-         '&& git stash push -a -u' ,
-         '&& git checkout' hcommit ,
-         '&& cp' localrep'/'zigirep'/'element file ,
-         '&& git checkout' branch ,
-         '&& git stash pop'
+  cmd = 'cd' localrep'/'zigirep ,
+     '&& git show' hcommit':'element ,
+     '| cat >' file
   dhrc = docmd(cmd)
   if dhrc > 0 then call view_std 'B'
-  /* Comment Start
-  cmd = 'cd' localrep'/'zigirep ,
-    '&& git checkout' branch
-  x = docmd(cmd)
-  if x > 0 then call view_std 'B'
-     Comment End */
   return dhrc
 
   /* ------------------------------------------------------------ *
