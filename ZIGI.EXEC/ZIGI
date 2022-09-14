@@ -30,6 +30,7 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            09/14/22 - Version 3.16                         |
+  |                         - LBD Support / in branch names    |
   |                         - LBD Fix History Date (DEV s/b    |
   |                           DEC) - fat fingers               |
   |                         - LBD Add History Compare (Z)      |
@@ -5741,7 +5742,7 @@ Branch_it:
   bl.0 = 0
   do bri = 1 to so.0
     b1 = strip(so.bri,'B')
-    if pos('/',b1) > 0 then do
+    if pos('remotes/',b1) > 0 then do
       /* this is a remote branch we (maybe) have never checked out */
       seen_this_branch = 0
       parse var b1 remotes'/'origin'/'bname zooi
