@@ -15,10 +15,13 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
 * Update History Show and Recover to use git show instead of
   stash/checkout/cp/stash
+* Update History with option Z to compare the historical version to
+  the current version
 
                           Bug Fixes and Other Updates:
                           ----------------------------
 
+* zigi          - fixed history issue with month of December (was DEV)
 * zigiorep      - updated panel to add fetch (missing for no good reason)
 
 -----------------------------------------------------------------------------

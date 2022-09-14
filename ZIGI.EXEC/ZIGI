@@ -29,7 +29,11 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            09/12/22 - Version 3.16                         |
+  |            09/14/22 - Version 3.16                         |
+  |                         - LBD Fix History Date (DEV s/b    |
+  |                           DEC) - fat fingers               |
+  |                         - LBD Add History Compare (Z)      |
+  |                           to compare current to history    |
   |                         - LBD Use git show for history     |
   |                           show and replace (no more stash) |
   |            08/24/22 - Version 3.15                         |
@@ -8151,17 +8155,15 @@ do_history:
   hhit = 0
   hist_tbl = 'ZHIST'random(999)
   'tbcreate' hist_tbl 'Keys(hcommit)' ,
-      'Names(hdate hsdate hsubject) nowrite'
+      'Names(hdate hsubject) nowrite'
   do ih = 1 to so.0
     if left(so.ih,7) = 'commit:' then do
       if pos('Date:',so.ih) = 0 then iterate
       parse value so.ih with 'commit:'hcommit . 'Date:'.',' d m year ,
         time zone 'Subject:'hsubject
       m = wordpos(translate(m), ,
-        'JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEV')
+        'JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC')
       hdate = year'/'right(m+100,2)'/'right(d+100,2) time
-      parse value time with whh':'wmm':'wss
-      hsdate = year''right(m+100,2)''right(d+100,2)''whh''wmm''wss
     end
     else do
       so.ih =strip(shelement)
@@ -8182,7 +8184,7 @@ do_history:
     if pos('/',delement) > 0 then do
       parse value delement with le'/'re
     end
-    'tbsort' hist_tbl 'Fields(hsdate,n,d)'
+    'tbsort' hist_tbl 'Fields(hdate,c,d)'
     'tbtop' hist_tbl
     save_top = ztdtop
     top = 1
@@ -8259,6 +8261,7 @@ do_history:
         When zsel = 'C' then call DoHist_ComView
         When zsel = 'R' then call DoHist_Recover
         When zsel = 'S' then call DoHist_ViewSource
+        When zsel = 'Z' then call DoHist_Compare
         Otherwise nop
       end
     end
@@ -9328,6 +9331,38 @@ DoHist_ViewSource:
   x = docmd('rm' file)
   return
 
+  /* -------------------------------------------- *
+   | Compare active element to historical element |
+   * -------------------------------------------- */
+DoHist_Compare:
+  hrc = dohist_file_extract()
+  if hrc > 0 then do
+    zerrsm = 'No History.'
+    zerrlm = 'No History found for this commit level.'
+    'setmsg msg(isrz003)'
+    return
+  end
+  vtitle = 'History date:' hdate '\Subject:' hsubject
+  zfile = file
+  if left(fulldsn,1) = "'" then do
+     if pos('/',element) > 0 then do
+        parse value element with .'/'workm
+        if pos('.',workm) > 0 then
+           parse value workm with workm'.'.
+        workdsn = "'"strip(translate(fulldsn,"","'"))'('workm')'"'"
+        end
+     else workdsn = fulldsn
+     'vput (vtitle localrep zigirep zfile workdsn)'
+     'view dataset('workdsn') panel(zigiedit) macro(zigizmac)'
+     end
+  else do
+      workdsn = localrep'/'zigirep'/'fulldsn
+      'vput (vtitle localrep zigirep zfile workdsn)'
+      'View File(workdsn) panel(zigiedit) macro(zigizmac)'
+       end
+  x = docmd('rm' file)
+  return
+
   /* ------------------------------------------------------ *
   | Extract the historic level of the element based on the |
   | commit hash provided.                                  |
@@ -9340,8 +9375,7 @@ DoHist_File_Extract:
   then do
     parse value element with file'/'work
     file = translate(file,' ','.')
-    ext = word(file,words(file))
-    file = home'/tmp/'work'.'ext
+    file = home'/tmp/'work
   end
   else file = home'/tmp/'element
   call check_tmp
