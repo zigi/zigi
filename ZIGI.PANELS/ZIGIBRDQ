@@ -1,8 +1,9 @@
 )Attr
  $ type(output) caps(off)
+ @ type(output) caps(off) intens(low)
  _ type(input)  caps(on ) hilite(uscore) intens(low)
-)Body Window(41,3)
-+Confirm deletion of the request branch:
+)Body Window(60,3)
++Confirm deletion of the request branch: @bloc
 + $bname
 +Answer:_z+(Y or N)
 )Init
@@ -11,7 +12,7 @@
 )Proc
  ver (&ans,nb,list,Y,N)
 )end
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */

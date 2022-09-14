@@ -30,6 +30,7 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            09/14/22 - Version 3.16                         |
+  |                         - LBD Allow deleting remote branch |
   |                         - LBD Support / in branch names    |
   |                         - LBD Fix History Date (DEV s/b    |
   |                           DEC) - fat fingers               |
@@ -5850,13 +5851,10 @@ Branch_it:
       leave
     end
     if zsel = "D" then do
-      if brstatus = 'Remote' then do
-        zerrsm = 'Invalid.'
-        zerrlm = 'Unable to delete a remote only branch.' ,
-          'That can only be done at the remote repository.'
-        'setmsg msg(isrz003)'
-      end
-      else do
+        ans = null
+        if pos('/',brstatus) > 0
+           then bloc = 'Local'
+           else bloc = brstatus
         call pfshow 'off'           /* make sure pfshow is off */
         'Addpop row(4) column(6)'
         'display panel(zigibrdq)'
@@ -5871,11 +5869,13 @@ Branch_it:
           'setmsg msg(isrz003)'
         end
         if ans = 'Y' then do
-          x = docmd('cd 'localdir' && git branch -D 'bname)
-          if pos('Remote',brstatus) = 0 then do
+          if bloc = 'Local'
+             then x = docmd('cd 'localdir' && git branch -D 'bname)
+             else x = docmd('cd 'localdir' && git push origin --delete' bname)
+          if bloc = 'Remote' then do
             'tbdelete' rtbb
-            zerrsm = 'Deleted.'
-            zerrlm = 'Branch 'bname' succesfully deleted'
+            zerrsm = 'Remote Deleted.'
+            zerrlm = 'Branch 'bname' succesfully deleted on the server.'
             'Setmsg msg(isrz003)'
           end
           else do
@@ -5887,7 +5887,6 @@ Branch_it:
             'tbmod' rtbb
           end
         end
-      end
     end
   end
   'tbend' rtbb
