@@ -17,6 +17,8 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
   stash/checkout/cp/stash
 * Update History with option Z to compare the historical version to
   the current version
+* Support / in a branch name
+* Allow deletes of a Remote branch after the Local branch has been deleted
 
                           Bug Fixes and Other Updates:
                           ----------------------------
