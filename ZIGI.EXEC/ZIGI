@@ -29,7 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            09/14/22 - Version 3.16                         |
+  |            09/16/22 - Version 3.16                         |
+  |                         - LBD Fix view_std lrecl           |
   |                         - LBD Allow deleting remote branch |
   |                         - LBD Support / in branch names    |
   |                         - LBD Fix History Date (DEV s/b    |
@@ -6630,7 +6631,6 @@ view_std:
   end
   if vdsn /= null then vdsnp = 'da('vdsn') unit(3390)'
   else vdsnp = null
-  if vlrecl > 255 then vlrecl = 251
   'Alloc f('dd') new spa('prim','prim') tr' ,
     'recfm(v b) lrecl('vlrecl+4') blksize(0)' vdsnp
   /* ----------------------------- *
