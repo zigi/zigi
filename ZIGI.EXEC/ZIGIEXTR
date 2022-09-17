@@ -49,6 +49,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            09/16/22 LBD - Fix view_std lrecl               |
   |            02/03/22 LBD - Fix DSNVALID for blank check     |
   |            06/03/21 LBD - Change SHAREAS to REQUIRED       |
   |            05/29/21 LBD - Correct env settings             |
@@ -629,7 +630,6 @@ view_std:
   end
   if vdsn /= null then vdsnp = 'da('vdsn') unit(3390)'
   else vdsnp = null
-  if vlrecl > 255 then vlrecl = 251
   'Alloc f('dd') new spa('prim','prim') tr' ,
     'recfm(v b) lrecl('vlrecl+4') blksize(0)' vdsnp
   /* ----------------------------- *

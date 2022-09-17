@@ -46,9 +46,9 @@ _z+ $z                   $z
      &osel = &zsel
  if (&row = 0)
      &zsel = &z
- ver (&zsel,list,R,S,C,/)
+ ver (&zsel,list,R,S,C,Z,/)
 )End
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */

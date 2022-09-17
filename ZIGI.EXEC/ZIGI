@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r15'
+  ver = 'v3r16'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -29,6 +29,16 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            09/16/22 - Version 3.16                         |
+  |                         - LBD Fix view_std lrecl           |
+  |                         - LBD Allow deleting remote branch |
+  |                         - LBD Support / in branch names    |
+  |                         - LBD Fix History Date (DEV s/b    |
+  |                           DEC) - fat fingers               |
+  |                         - LBD Add History Compare (Z)      |
+  |                           to compare current to history    |
+  |                         - LBD Use git show for history     |
+  |                           show and replace (no more stash) |
   |            08/24/22 - Version 3.15                         |
   |                         - LBD Fix BLame (mem var) issue    |
   |                         - LBD Use ISPF LMMREN to rename    |
@@ -5734,7 +5744,7 @@ Branch_it:
   bl.0 = 0
   do bri = 1 to so.0
     b1 = strip(so.bri,'B')
-    if pos('/',b1) > 0 then do
+    if pos('remotes/',b1) > 0 then do
       /* this is a remote branch we (maybe) have never checked out */
       seen_this_branch = 0
       parse var b1 remotes'/'origin'/'bname zooi
@@ -5842,13 +5852,10 @@ Branch_it:
       leave
     end
     if zsel = "D" then do
-      if brstatus = 'Remote' then do
-        zerrsm = 'Invalid.'
-        zerrlm = 'Unable to delete a remote only branch.' ,
-          'That can only be done at the remote repository.'
-        'setmsg msg(isrz003)'
-      end
-      else do
+        ans = null
+        if pos('/',brstatus) > 0
+           then bloc = 'Local'
+           else bloc = brstatus
         call pfshow 'off'           /* make sure pfshow is off */
         'Addpop row(4) column(6)'
         'display panel(zigibrdq)'
@@ -5863,11 +5870,13 @@ Branch_it:
           'setmsg msg(isrz003)'
         end
         if ans = 'Y' then do
-          x = docmd('cd 'localdir' && git branch -D 'bname)
-          if pos('Remote',brstatus) = 0 then do
+          if bloc = 'Local'
+             then x = docmd('cd 'localdir' && git branch -D 'bname)
+             else x = docmd('cd 'localdir' && git push origin --delete' bname)
+          if bloc = 'Remote' then do
             'tbdelete' rtbb
-            zerrsm = 'Deleted.'
-            zerrlm = 'Branch 'bname' succesfully deleted'
+            zerrsm = 'Remote Deleted.'
+            zerrlm = 'Branch 'bname' succesfully deleted on the server.'
             'Setmsg msg(isrz003)'
           end
           else do
@@ -5879,7 +5888,6 @@ Branch_it:
             'tbmod' rtbb
           end
         end
-      end
     end
   end
   'tbend' rtbb
@@ -6623,7 +6631,6 @@ view_std:
   end
   if vdsn /= null then vdsnp = 'da('vdsn') unit(3390)'
   else vdsnp = null
-  if vlrecl > 255 then vlrecl = 251
   'Alloc f('dd') new spa('prim','prim') tr' ,
     'recfm(v b) lrecl('vlrecl+4') blksize(0)' vdsnp
   /* ----------------------------- *
@@ -8148,17 +8155,15 @@ do_history:
   hhit = 0
   hist_tbl = 'ZHIST'random(999)
   'tbcreate' hist_tbl 'Keys(hcommit)' ,
-      'Names(hdate hsdate hsubject) nowrite'
+      'Names(hdate hsubject) nowrite'
   do ih = 1 to so.0
     if left(so.ih,7) = 'commit:' then do
       if pos('Date:',so.ih) = 0 then iterate
       parse value so.ih with 'commit:'hcommit . 'Date:'.',' d m year ,
         time zone 'Subject:'hsubject
       m = wordpos(translate(m), ,
-        'JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEV')
+        'JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC')
       hdate = year'/'right(m+100,2)'/'right(d+100,2) time
-      parse value time with whh':'wmm':'wss
-      hsdate = year''right(m+100,2)''right(d+100,2)''whh''wmm''wss
     end
     else do
       so.ih =strip(shelement)
@@ -8179,7 +8184,7 @@ do_history:
     if pos('/',delement) > 0 then do
       parse value delement with le'/'re
     end
-    'tbsort' hist_tbl 'Fields(hsdate,n,d)'
+    'tbsort' hist_tbl 'Fields(hdate,c,d)'
     'tbtop' hist_tbl
     save_top = ztdtop
     top = 1
@@ -8256,6 +8261,7 @@ do_history:
         When zsel = 'C' then call DoHist_ComView
         When zsel = 'R' then call DoHist_Recover
         When zsel = 'S' then call DoHist_ViewSource
+        When zsel = 'Z' then call DoHist_Compare
         Otherwise nop
       end
     end
@@ -9325,48 +9331,59 @@ DoHist_ViewSource:
   x = docmd('rm' file)
   return
 
+  /* -------------------------------------------- *
+   | Compare active element to historical element |
+   * -------------------------------------------- */
+DoHist_Compare:
+  hrc = dohist_file_extract()
+  if hrc > 0 then do
+    zerrsm = 'No History.'
+    zerrlm = 'No History found for this commit level.'
+    'setmsg msg(isrz003)'
+    return
+  end
+  vtitle = 'History date:' hdate '\Subject:' hsubject
+  zfile = file
+  if left(fulldsn,1) = "'" then do
+     if pos('/',element) > 0 then do
+        parse value element with .'/'workm
+        if pos('.',workm) > 0 then
+           parse value workm with workm'.'.
+        workdsn = "'"strip(translate(fulldsn,"","'"))'('workm')'"'"
+        end
+     else workdsn = fulldsn
+     'vput (vtitle localrep zigirep zfile workdsn)'
+     'view dataset('workdsn') panel(zigiedit) macro(zigizmac)'
+     end
+  else do
+      workdsn = localrep'/'zigirep'/'fulldsn
+      'vput (vtitle localrep zigirep zfile workdsn)'
+      'View File(workdsn) panel(zigiedit) macro(zigizmac)'
+       end
+  x = docmd('rm' file)
+  return
+
   /* ------------------------------------------------------ *
   | Extract the historic level of the element based on the |
   | commit hash provided.                                  |
   |                                                        |
-  | 1. change (checkout) to the commit hash level          |
-  | 2. copy (cp) the requested file to home/tmp/file-name  |
-  | 3. change (checkout) back to the original branch       |
+  | 1. use git show on hash level for element              |
+  | 2. copy (using cat) to /tmp/file-name                  |
   * ------------------------------------------------------ */
 DoHist_File_Extract:
   if pos('/',element) > 0
   then do
     parse value element with file'/'work
     file = translate(file,' ','.')
-    ext = word(file,words(file))
-    file = home'/tmp/'work'.'ext
+    file = home'/tmp/'work
   end
   else file = home'/tmp/'element
   call check_tmp
-  cmd = 'cd' localrep'/'zigirep '&& git status'
-  x = docmd(cmd)
-  sol = so.0
-  if wordpos('nothing',so.sol) > 0
-     then
-       cmd = 'cd' localrep'/'zigirep ,
-         '&& git checkout' hcommit ,
-         '&& cp' localrep'/'zigirep'/'element file ,
-         '&& git checkout' branch
-     else
-       cmd = 'cd' localrep'/'zigirep ,
-         '&& git stash push -a -u' ,
-         '&& git checkout' hcommit ,
-         '&& cp' localrep'/'zigirep'/'element file ,
-         '&& git checkout' branch ,
-         '&& git stash pop'
+  cmd = 'cd' localrep'/'zigirep ,
+     '&& git show' hcommit':'element ,
+     '| cat >' file
   dhrc = docmd(cmd)
   if dhrc > 0 then call view_std 'B'
-  /* Comment Start
-  cmd = 'cd' localrep'/'zigirep ,
-    '&& git checkout' branch
-  x = docmd(cmd)
-  if x > 0 then call view_std 'B'
-     Comment End */
   return dhrc
 
   /* ------------------------------------------------------------ *
