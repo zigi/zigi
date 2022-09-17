@@ -2,15 +2,21 @@
  $ type(output) caps(off)
  @ type(output) caps(off) intens(low)
  _ type(input)  caps(on ) hilite(uscore) intens(low)
-)Body Window(60,3)
-+Confirm deletion of the request branch: @bloc
+)Body Window(60,5)
++Confirm deletion of the request branch:
 + $bname
-+Answer:_z+(Y or N)
++Location: @bloc
++
++Answer:_z+(Y or N)   Remote Confirm:_z+(Y or N)
 )Init
  &zwinttl = 'ZIGI Prompt Popup'
- .zvars = '(ans)'
+ .zvars = '(ans rans)'
 )Proc
  ver (&ans,nb,list,Y,N)
+ if (&bloc = 'Remote')
+    ver (&rans,nb,list,Y,N)
+    if (&ans = 'Y')
+       ver (&rans,nb,list,Y)
 )end
 /* ------------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                            */
