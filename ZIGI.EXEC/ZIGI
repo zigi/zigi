@@ -29,7 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            09/16/22 - Version 3.16                         |
+  |            10/01/22 - Version 3.16                         |
+  |                         - LBD History Compare Edit support |
   |                         - LBD Fix view_std lrecl           |
   |                         - LBD Allow deleting remote branch |
   |                         - LBD Support / in branch names    |
@@ -3319,7 +3320,11 @@ WWRF_handle_lcmd_s:
     'control display restore'
   end
   else erc = 1
-  if erc = 0 then do
+  if erc = 0 then
+     call copy_pds_mem
+  Return
+
+Copy_PDS_Mem:
     m = strip(mem)
     if zdsn.dsn /= null
     then m = lower(m)'.'zdsn.dsn
@@ -3327,18 +3332,12 @@ WWRF_handle_lcmd_s:
     e = edsn
     r = dsn
     /* Binary v1, check if PDS is a bin, then copy binary */
-    if is_binfile(dsn'/*') = 1 then do
-      binopt = '-B'
-    end
-    else do
-      binopt = null
-    end
-    if is_binfile(dsn'/'mem) = 1 then do
-      binopt = '-B'
-    end
-    else do
-      binopt = null
-    end
+    binopt = null
+    if is_binfile(dsn'/*') = 1 then
+       binopt = '-B'
+    if binfile = null then
+    if is_binfile(dsn'/'mem) = 1 then
+       binopt = '-B'
     /* Check if a Load Library and update binary option variable */
     cplmod = null
     if sysrecfm = 'U' then
@@ -3370,8 +3369,7 @@ WWRF_handle_lcmd_s:
     end
     call update_mem_ispf_stats r mem
     call update_mem_status r mem
-    zigi_changed = 1
-  end
+     zigi_changed = 1
   Return
 
 Update_Mem_ISPF_Stats:
@@ -5561,6 +5559,7 @@ Edit_PS:
   end
   "Edit Dataset('"edsn"')"
   /* so after the edit, we should update it to working directory */
+Copy_PS:
   if rc = 0 then do
     copcm = "//'"edsn"'"
     /* -M was replaced with -v in all CP commands */
@@ -9336,6 +9335,7 @@ DoHist_ViewSource:
    * -------------------------------------------- */
 DoHist_Compare:
   hrc = dohist_file_extract()
+  compare_update = 0
   if hrc > 0 then do
     zerrsm = 'No History.'
     zerrlm = 'No History found for this commit level.'
@@ -9344,6 +9344,7 @@ DoHist_Compare:
   end
   vtitle = 'History date:' hdate '\Subject:' hsubject
   zfile = file
+  'control display save'
   if left(fulldsn,1) = "'" then do
      if pos('/',element) > 0 then do
         parse value element with .'/'workm
@@ -9353,13 +9354,30 @@ DoHist_Compare:
         end
      else workdsn = fulldsn
      'vput (vtitle localrep zigirep zfile workdsn)'
-     'view dataset('workdsn') panel(zigiedit) macro(zigizmac)'
+     'edit dataset('workdsn') panel(zigiedit) macro(zigizmac)'
+     if rc = 0 then do
+        if sysdsorg = 'PS' then do
+           ztdsels = 2
+           call copy_ps
+           ztdsels = 0
+           dsnstat = '[ M] Modified'
+           'tbput' rtbl
+           end
+        else do
+             call copy_pds_mem
+             end
+        end
      end
   else do
       workdsn = localrep'/'zigirep'/'fulldsn
       'vput (vtitle localrep zigirep zfile workdsn)'
-      'View File(workdsn) panel(zigiedit) macro(zigizmac)'
-       end
+      'edit File(workdsn) panel(zigiedit) macro(zigizmac)'
+      if rc = 0 then do
+         dsnstat = '[ M] Modified'
+         'tbput' rtbl
+         end
+      end
+  'control display restore'
   x = docmd('rm' file)
   return
 
