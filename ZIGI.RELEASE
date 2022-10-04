@@ -16,7 +16,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 * Update History Show and Recover to use git show instead of
   stash/checkout/cp/stash
 * Update History with option Z to compare the historical version to
-  the current version
+  the current version using ISPF Edit
 * Support / in a branch name
 * Allow deletes of a Remote branch after the Local branch has been deleted
 
@@ -25,6 +25,9 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
 * zigi          - fixed history issue with month of December (was DEV)
 * zigiorep      - updated panel to add fetch (missing for no good reason)
+* multiple      - fixup the lrecl used for viewing bpxwunix output
+* zigidelc      - update panel to prevent z/OS dataset delete if ReadOnly
+                  already had code but someone skipped it somehow
 
 -----------------------------------------------------------------------------
 
