@@ -13,6 +13,7 @@
 +
       +Press%Enter+to continue or%F3+to cancel.
 )Init
+  vget (readonly)
  .zvars = '(delgit delco delzd delcf)'
  &zwinttl = 'ZIGI Delete Confirmation'
  .help = zigihdel
@@ -41,6 +42,8 @@
     delgit = 'N'
   end
 *ENDREXX
+ if (&readonly EQ 1)
+     &delzd = N
  if (&zerrlm NE &Z)
      &delzd = N
     .msg = isrz003
@@ -51,7 +54,7 @@
    ver (&delzd,nb,list,Y,N)
    ver (&delcf,nb,list,Y,N)
 )end
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */
