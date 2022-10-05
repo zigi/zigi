@@ -38,14 +38,14 @@
     zerrhm   = 'zigih00'
     zerralrm = 'NO'
     zerrtp   = 'NOTIFY'
-    delzd = 'N'
+    delzd = 'Y'
     delgit = 'N'
   end
 *ENDREXX
  if (&readonly EQ 1)
-     &delzd = N
+     &delzd = Y
  if (&zerrlm NE &Z)
-     &delzd = N
+     &delzd = Y
     .msg = isrz003
     .cursor = delzd
  if (&zerrlm EQ &Z)
