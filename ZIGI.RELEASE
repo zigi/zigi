@@ -24,7 +24,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
                           ----------------------------
 
 * zigi          - fixed history issue with month of December (was DEV)
-                - delete the temp dataset used by AMBLIST
+* zigistat      - delete the temp dataset used by AMBLIST
 * zigiorep      - updated panel to add fetch (missing for no good reason)
 * multiple      - fixup the lrecl used for viewing bpxwunix output
 * zigidelc      - update panel to prevent z/OS dataset delete if ReadOnly
