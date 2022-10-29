@@ -31,6 +31,7 @@
   |                                                            |
   |            10/29/22 - Version 3.16                         |
   |                         - LBD Fix merge - use origin/xxx   |
+  |                         - LBD Check for ahead status       |
   |                         - LBD Improve check after Merge    |
   |                         - LBD History Compare Edit support |
   |                         - LBD Fix view_std lrecl           |
@@ -571,7 +572,7 @@
   parse arg start_option
 
   parse value '' with null repo_ztdsels fetch_flag dovetail_dir codep ,
-                      dovestat created
+                      dovestat created repdone
 
   /* ------------------------------------------ *
   | ISPExec is our default host environment    |
@@ -787,6 +788,7 @@ display_zigioprm:
 display_zigiprim:
   parse value '' with zsel row readonly
   fetch_flag = 0
+  repdone = null
   zigpass = 'PASSTHRU'
   'vput (zigpass) shared'
   'TBTop zigirepo'
@@ -1486,8 +1488,13 @@ Work_With_Repo:
   | Process the Repository Data Sets |
   * -------------------------------- */
   do forever
-    call WWR_display_zigirepo
-    if result > 3 then return
+    if repdone = 1 then return
+    x = WWR_display_zigirepo()
+    if x > 3 then do
+       'tbend' rtbl
+       repdone = 1
+       return
+       end
     repo_ztdsels = ztdsels
     drop so. se.
     zigi_changed = 0
@@ -7234,6 +7241,9 @@ Update_Status:
         pos('up-to-date',so.usi) > 0 then bstat = so.usi
       When bstat = null & ,
         pos('branch is behind',so.usi) > 0 then
+      parse value so.usi with bstat',' .
+      When bstat = null & ,
+        pos('branch is ahead',so.usi) > 0 then
       parse value so.usi with bstat',' .
       When pos('working tree clean',so.usi) > 0 then baction = so.usi
       When pos('Untracked files:',so.usi)   > 0 then baction = so.usi
