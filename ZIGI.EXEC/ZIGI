@@ -29,7 +29,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            10/01/22 - Version 3.16                         |
+  |            10/29/22 - Version 3.16                         |
+  |                         - LBD Fix merge - use origin/xxx   |
+  |                         - LBD Improve check after Merge    |
   |                         - LBD History Compare Edit support |
   |                         - LBD Fix view_std lrecl           |
   |                         - LBD Allow deleting remote branch |
@@ -1488,6 +1490,7 @@ Work_With_Repo:
     if result > 3 then return
     repo_ztdsels = ztdsels
     drop so. se.
+    zigi_changed = 0
 
     /* translate primary command to upper case */
     zcmd = translate(zcmd)
@@ -1617,8 +1620,9 @@ Work_With_Repo:
     if ztdsels = 1 then do
       'tbend' rtbl
       rtbl_open = 0
-      call work_with_repo
       zigi_changed = 0
+      call update_status
+      call work_with_repo
       return
     end
   end
@@ -5989,7 +5993,7 @@ Merge_it:
       /* branches being merged.                    */
       /* ----------------------------------------- */
       cmd = 'cd 'localdir
-      cmd = cmd '&& git diff --name-status' branch'..'bname
+      cmd = cmd '&& git diff --name-status' branch'..origin/'bname
       x = docmd(cmd)
       /* save the delta info for future use */
       drop save_so.
@@ -5998,9 +6002,18 @@ Merge_it:
       end
       save_so.0 = so.0
       /* ----------------------------------------- */
-      cmd = 'cd 'localdir' && git merge --no-commit --no-ff'
-      cmd = cmd || ' refs/heads/'bname
+      cmd = 'cd 'localdir' && git fetch --all' ,
+            '&& git merge --no-commit --no-ff'
+      cmd = cmd || ' origin/'bname
       x = docmd(cmd)
+      zigi_changed = 1
+      mok = 'Automatic merge went well'
+      mokf = 0
+      do i = 1 to se.0
+         if pos(mod,se.i) = 0 then mokf = 1
+         if mokf = 1 then leave
+         end
+      if mokf = 0 then call view_std 'B'
       if so.1 = 'Already up-to-date.' then do
         /* No need to merge! */
         zs1 = "Merge not needed"
