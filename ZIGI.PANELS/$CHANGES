@@ -28,6 +28,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
                 - fixed merge to use origin/branch
                 - check for 'ahead' status for status message
                 - correct nesting after merge
+                - add fetch --all for merge diff
 * zigistat      - delete the temp dataset used by AMBLIST
 * zigiorep      - updated panel to add fetch (missing for no good reason)
 * multiple      - fixup the lrecl used for viewing bpxwunix output

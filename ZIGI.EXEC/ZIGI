@@ -29,7 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            10/29/22 - Version 3.16                         |
+  |            10/30/22 - Version 3.16                         |
+  |                         - LBD Add fetch all for merge diff |
   |                         - LBD Fix merge - use origin/xxx   |
   |                         - LBD Check for ahead status       |
   |                         - LBD Improve check after Merge    |
@@ -1913,7 +1914,8 @@ WWR_handle_merge:
     zerrlm = 'Merge is not supported in subdirectories.'
     'setmsg msg(isrz003)'
   end
-  if zerrsm = null then call Merge_it
+  if zerrsm = null then x = Merge_it()
+  if x > 0 then return x
   check_flag = 1
   call work_with_repo
   zsel = null
@@ -5812,7 +5814,10 @@ Branch_it:
       'tbskip' rtbb 'number('save_btop')'
     end
     'tbdispl' rtbb 'panel(zigibra)'
-    if rc > 4 then leave
+    if rc > 4 then do
+       'tbend' rtbb
+       return 0
+       end
     save_btop = ztdtop
     if abbrev('GITHELP',word(zcmd,1),4) = 1 then
     Address TSO '%githelp' subword(zcmd,2)
@@ -5987,7 +5992,10 @@ Merge_it:
       'tbskip' rtbm 'number('save_btop')'
     end
     'tbdispl' rtbm 'panel(zigimer)'
-    if rc > 4 then leave
+    if rc > 4 then do
+       'tbend' rtbm
+       return 4
+       end
     save_btop = ztdtop
     if abbrev('GITHELP',word(zcmd,1),4) = 1 then
     Address TSO '%githelp' subword(zcmd,2)
@@ -5999,8 +6007,9 @@ Merge_it:
       /* Get the delta of the elements between the */
       /* branches being merged.                    */
       /* ----------------------------------------- */
-      cmd = 'cd 'localdir
-      cmd = cmd '&& git diff --name-status' branch'..origin/'bname
+      cmd = 'cd 'localdir ,
+        '&& git fetch --all',
+        '&& git diff --name-status' branch'..origin/'bname
       x = docmd(cmd)
       /* save the delta info for future use */
       drop save_so.
@@ -6009,7 +6018,7 @@ Merge_it:
       end
       save_so.0 = so.0
       /* ----------------------------------------- */
-      cmd = 'cd 'localdir' && git fetch --all' ,
+      cmd = 'cd 'localdir ,
             '&& git merge --no-commit --no-ff'
       cmd = cmd || ' origin/'bname
       x = docmd(cmd)
@@ -6290,7 +6299,7 @@ Merge_it:
   'tbend' rtbm
   ztdsels = 1
   zsel = null
-  return
+  return 0
 
   /* -------------------------------------------------------- *
   | During a merge if there are deletions then those need to |
