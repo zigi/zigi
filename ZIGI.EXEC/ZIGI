@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            10/30/22 - Version 3.16                         |
+  |            11/05/22 - Version 3.16                         |
   |                         - LBD Add fetch all for merge diff |
   |                         - LBD Fix merge - use origin/xxx   |
   |                         - LBD Check for ahead status       |
@@ -6007,9 +6007,11 @@ Merge_it:
       /* Get the delta of the elements between the */
       /* branches being merged.                    */
       /* ----------------------------------------- */
+      if brstatus = 'Local' then mer_branch = bname
+      else mer_branch = 'origin/'bname
       cmd = 'cd 'localdir ,
         '&& git fetch --all',
-        '&& git diff --name-status' branch'..origin/'bname
+        '&& git diff --name-status' branch'..'mer_branch
       x = docmd(cmd)
       /* save the delta info for future use */
       drop save_so.
@@ -6019,8 +6021,7 @@ Merge_it:
       save_so.0 = so.0
       /* ----------------------------------------- */
       cmd = 'cd 'localdir ,
-            '&& git merge --no-commit --no-ff'
-      cmd = cmd || ' origin/'bname
+            '&& git merge --no-commit --no-ff' mer_branch
       x = docmd(cmd)
       zigi_changed = 1
       mok = 'Automatic merge went well'
@@ -6039,6 +6040,7 @@ Merge_it:
         call do_popup4p
         leave
       end
+
       parse var se.1 "Automatic merge went well; stopped" rest
       if rest /= "" then do
         /* No issues. Commit the merge then execute a Replace */
