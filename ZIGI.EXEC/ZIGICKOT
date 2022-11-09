@@ -17,6 +17,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            11/09/22 SP  - Fix stat files with merge issues |
   |            09/16/22 LBD - Fix view_std lrecl               |
   |            08/19/22 LBD - Fix mgen variable typo           |
   |                           Fix RECFM=U copy                 |
@@ -482,7 +483,7 @@ Alloc_Copy_PDS:
       /* do a reverse grep to remove possible merge conflict markers
 existing in stats file */
   cmd =  'egrep -v'
-  cmd = cmd '''<<<<<<<!=======!>>>>>>>'''
+  cmd = cmd '''<<<<<<<|=======|>>>>>>>'''
  cmd = cmd dvstat
  cmd = cmd '> temp.txt'
   cmd = cmd '&& mv temp.txt '
