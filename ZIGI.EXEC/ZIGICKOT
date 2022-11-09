@@ -480,13 +480,13 @@ Alloc_Copy_PDS:
       if pos('-B',binopt) > 0 then
       dvstat_file = '-b' dvstat_file
       /* do a reverse grep to remove possible merge conflict markers
-existing in stats file */                                     
-  cmd =  'egrep -v'                                           
-  cmd = cmd '''<<<<<<<!=======!>>>>>>>'''                     
- cmd = cmd dvstat                                             
- cmd = cmd '> temp.txt'                                       
-  cmd = cmd '&& mv temp.txt '                                 
-  cmd = cmd dvstat                                            
+existing in stats file */
+  cmd =  'egrep -v'
+  cmd = cmd '''<<<<<<<!=======!>>>>>>>'''
+ cmd = cmd dvstat
+ cmd = cmd '> temp.txt'
+  cmd = cmd '&& mv temp.txt '
+  cmd = cmd dvstat
       cmd = cmd '&& 'dovetail_dir'putpds -S D' dvstat_file rdir'/* //'pds
     end
     x = docmd(cmd)
@@ -539,13 +539,13 @@ existing in stats file */
       if pos('-B',binopt) > 0 then
       dvstat_file = '-b' dvstat_file
       /* do a reverse grep to remove possible merge conflict markers
-existing in stats file */                                     
-  cmd =  'egrep -v'                                           
-  cmd = cmd '''<<<<<<<!=======!>>>>>>>'''                     
- cmd = cmd dvstat                                             
- cmd = cmd '> temp.txt'                                       
-  cmd = cmd '&& mv temp.txt '                                 
-  cmd = cmd dvstat                                            
+existing in stats file */
+  cmd =  'egrep -v'
+  cmd = cmd '''<<<<<<<!=======!>>>>>>>'''
+ cmd = cmd dvstat
+ cmd = cmd '> temp.txt'
+  cmd = cmd '&& mv temp.txt '
+  cmd = cmd dvstat
       cmd = cmd '&& 'dovetail_dir'putpds -S D' dvstat_file rdir'/'src '//'pds
     end
     x = docmd(cmd)
