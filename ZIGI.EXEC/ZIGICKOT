@@ -542,7 +542,7 @@ existing in stats file */
       /* do a reverse grep to remove possible merge conflict markers
 existing in stats file */
   cmd =  'egrep -v'
-  cmd = cmd '''<<<<<<<!=======!>>>>>>>'''
+  cmd = cmd '''<<<<<<<|=======|>>>>>>>'''
  cmd = cmd dvstat
  cmd = cmd '> temp.txt'
   cmd = cmd '&& mv temp.txt '
