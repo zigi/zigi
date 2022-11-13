@@ -2386,7 +2386,7 @@ WWR_handle_remote:
     if port /= 22 then extrabits = '-p 'port
     else extrabits = null
     cmd = 'touch 'home'/.ssh/known_hosts && '
-    cmd = cmd 'if ! grep 'host
+    cmd = cmd 'if | grep 'host
     cmd = cmd home'/.ssh/known_hosts >/dev/null;'
     cmd = cmd 'then ssh-keyscan 'extrabits' -t rsa,dsa 'host
     cmd = cmd ' 2>/dev/null >> 'home'/.ssh/known_hosts ;'
@@ -5441,7 +5441,7 @@ Clone_Repo:
     if reponame /= null then zigirep = reponame
     else reponame = zigirep
     /* Check to see if this is a ZIGI-managed repo */
-    cmd = '[[ ! -d 'localrep'/'zigirep'/.zigi ]] && echo 0'
+    cmd = '[[ | -d 'localrep'/'zigirep'/.zigi ]] && echo 0'
     x = docmd(cmd)
     if so.0 = 1 & so.1 = 0 then do
       call pfshow 'off'           /* make sure pfshow is off */
@@ -7376,7 +7376,7 @@ porcelain:
     When stat == "DR" then res = "Renamed"
     When stat == "DC" then res = "Copied"
     When stat == "??" then res = "Untracked"
-    When stat == "!!" then res = "Ignored"
+    When stat == "||" then res = "Ignored"
     When left(stat,1) == " " then res = "Not Updated"
     When left(stat,1) == "M" then res = "Updated in index"
     When left(stat,1) == "A" then res = "Added to index"
