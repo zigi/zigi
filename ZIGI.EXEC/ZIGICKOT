@@ -491,7 +491,7 @@ Alloc_Copy_PDS:
       cmd = cmd dvstat
       cmd = cmd '&& 'dovetail_dir'putpds -S D' dvstat_file rdir'/* //'pds
     end
-    x = docmd(cmd)
+    x = docmd(usssafe(cmd))
 
     if x > 0 then call view_std 'B'
     drop so. se.
