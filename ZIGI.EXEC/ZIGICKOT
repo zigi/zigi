@@ -480,10 +480,11 @@ Alloc_Copy_PDS:
       else dvstat_file = '-M r=y'
       if pos('-B',binopt) > 0 then
       dvstat_file = '-b' dvstat_file
-      /* do a reverse grep to remove possible merge conflict markers
-existing in stats file */
-  cmd =  'egrep -v'
-  cmd = cmd '''<<<<<<<|=======|>>>>>>>'''
+/* do a sed cmd to resolve possible merge conflicts    
+existing in stats file in favor of master (or main branch) */
+cmd ='sed -e '  '''/^<<<<<<< HEAD/,/^=======/d'''            
+cmd = cmd '-e '  '''/^>>>>>>> master/d'''                    
+cmd = cmd '-e '  '''/^>>>>>>> main/d'''      
  cmd = cmd dvstat
  cmd = cmd '> temp.txt'
   cmd = cmd '&& mv temp.txt '
@@ -539,10 +540,11 @@ existing in stats file */
       else dvstat_file = '-M r=y'
       if pos('-B',binopt) > 0 then
       dvstat_file = '-b' dvstat_file
-      /* do a reverse grep to remove possible merge conflict markers
-existing in stats file */
-  cmd =  'egrep -v'
-  cmd = cmd '''<<<<<<<|=======|>>>>>>>'''
+/* do a sed cmd to resolve possible merge conflicts    
+existing in stats file in favor of master (or main branch) */
+cmd ='sed -e '  '''/^<<<<<<< HEAD/,/^=======/d'''            
+cmd = cmd '-e '  '''/^>>>>>>> master/d'''                    
+cmd = cmd '-e '  '''/^>>>>>>> main/d'''      
  cmd = cmd dvstat
  cmd = cmd '> temp.txt'
   cmd = cmd '&& mv temp.txt '
