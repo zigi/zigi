@@ -29,7 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            11/05/22 - Version 3.16                         |
+  |            11/15/22 - Version 3.16                         |
+  |                         - LBD For getpds add chtag for stat|
   |                         - LBD Add fetch all for merge diff |
   |                         - LBD Fix merge - use origin/xxx   |
   |                         - LBD Check for ahead status       |
@@ -6924,7 +6925,8 @@ Update_repo_metadata:
                filesuf = filesuf',tag=y -t' codep
             cmd = 'cd' localrep'/'zigirep'/'file '&&' ,
               'getpds' binopt '-LI -M' ,
-              'st='statpath',upd=n'filesuf '//'edsn '.'
+              'st='statpath',upd=n'filesuf '//'edsn '.' ,
+              '&& chtag -tc' encoding statpath
             x = docmd(cmd)
        /* ---------------------------------------------------------------- *
         | If mixed and there are binary members then copy all of them      |
@@ -6936,8 +6938,9 @@ Update_repo_metadata:
               cmd = 'cd' localrep'/'zigirep'/'file '&&' ,
                 'getpds -b -LI -M' ,
                 'st='statpath',r=y'filesuf ,
-                '//'edsn"'("bin_members")'" '.'
-              x = docmd(cmd)
+                '//'edsn"'("bin_members")'" '.' ,
+              '&& chtag -tc' encoding statpath
+            x = docmd(cmd)
             end
           end
           else do
@@ -9880,7 +9883,8 @@ Update_stats:
     us_dsn = us_dsn''r_dsn
   end
   if left(us_dsn,1) /= "'" then us_dsn = "'"us_dsn"'"
-  uscmd = dovetail_dir'getpds -M st='us_stats',upd=n' '//'us_dsn
+  uscmd = dovetail_dir'getpds -M st='us_stats',upd=n' '//'us_dsn ,
+     '&& chtag -tc' encoding us_stats
   x = docmd(uscmd)
   if rc > 0 then call view_std 'B'
   return
