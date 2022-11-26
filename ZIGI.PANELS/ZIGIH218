@@ -11,9 +11,9 @@
 %ADDALL+adds all Untracked or Modified datasets and files to the Git
 +staging area so they are eligible to be Committed.
 +
++May be abbreviated as%AA+or just%ADD+to save keystrokes.
 +
-%
-%
++
 +
 +
 +

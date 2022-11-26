@@ -29,7 +29,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            11/15/22 - Version 3.16                         |
+  |            11/26/22 - Version 3.16                         |
+  |                         - LBD Allow AA for AddAll and      |
+  |                               AD for AddDSN                |
   |                         - LBD For getpds add chtag for stat|
   |                         - LBD Add fetch all for merge diff |
   |                         - LBD Fix merge - use origin/xxx   |
@@ -1558,7 +1560,10 @@ Work_With_Repo:
       When abbrev('SNAPSHOT',zcmd,2) = 1 then call WWR_handle_snapshot
       When abbrev('TAG',zcmd,2)      = 1 then call WWR_handle_tag
       When abbrev('TAGLIST',zcmd,2)  = 1 then call do_taglist
+      When zcmd = 'AD'                   then call WWR_handle_adddsn
+      When zcmd = 'ADS'                  then call WWR_handle_adddsn
       When abbrev('ADDDSN',zcmd,4)   = 1 then call WWR_handle_adddsn
+      When zcmd = 'AA'                   then call WWR_handle_addall
       When abbrev('ADDALL',zcmd,3)   = 1 then call WWR_handle_addall
       When abbrev('STATUS',zcmd,2)   = 1 then call do_status
       When abbrev('GREP',zcmd,2)     = 1 then call WWR_handle_grep
@@ -1567,7 +1572,6 @@ Work_With_Repo:
       When abbrev('FLOWSEL',zcmd,5)  = 1 then call WWR_handle_flowsel
       When abbrev('FLOWGO',zcmd,5)   = 1 then call WWR_handle_flowgo
       When abbrev('FLOWEND',zcmd,5)  = 1 then call WWR_handle_flowend
-      When zcmd = 'ADS' then call WWR_handle_adddsn
       When zcmd = 'STASHL' then call stash_list
       when zcmd = 'VIEWD' then call view_debug
       Otherwise do
