@@ -30,6 +30,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
                 - correct nesting after merge
                 - add fetch --all for merge diff
                 - force chtag after ispf stat updates with co:z getpds
+                - support AA for AddAll and AD for AddDSN
 * zigickot      - Update to remove merge conflicts in ISPF stat files
                   thanks to spiridopoulos pan
 * zigistat      - delete the temp dataset used by AMBLIST
