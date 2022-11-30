@@ -10,6 +10,7 @@
 +Answer:_z+(Y or N)   Remote Confirm:_z+(Y or N)
 )Init
  &zwinttl = 'ZIGI Prompt Popup'
+ &rans = ''
  .zvars = '(ans rans)'
 )Proc
  ver (&ans,nb,list,Y,N)
