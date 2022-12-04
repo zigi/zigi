@@ -1,17 +1,26 @@
 )Attr
  $ type(output) caps(off)
- @ type(output) caps(off) intens(low)
+ @ type(output) caps(off) intens(low) skip(on)
  _ type(input)  caps(on ) hilite(uscore) intens(low)
+ # type(input)  caps(on ) hilite(&us) intens(low) skip(on)
 )Body Window(60,5)
 +Confirm deletion of the request branch:
 + $bname
 +Location: @bloc
 +
-+Answer:_z+(Y or N)   Remote Confirm:_z+(Y or N)
++Answer:_z+(Y or N)   @rq            #z@rp
 )Init
  &zwinttl = 'ZIGI Prompt Popup'
  &rans = ''
  .zvars = '(ans rans)'
+ IF (&bloc EQ 'Local')
+    &rq = &Z
+    &rp = &Z
+    &us = &z
+ IF (&bloc NE 'Local')
+    &rq = 'Remote Confirm:'
+    &rp = '(Y or N)'
+    &us = 'uscore'
 )Proc
  ver (&ans,nb,list,Y,N)
  if (&bloc = 'Remote')
