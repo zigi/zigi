@@ -6,7 +6,7 @@
  # type(output) hilite(reverse) color(turq) caps(off)
  + type(text) intens(low) skip(on)
 )Body Expand(\\) Width(&zscreenw)
-+Git Commands+\-\#zigtitle    +\-\-
++Git Commands+\-\#zigtitle    +\-\------------
 +Command ===>_zcmd                             \ \+Scroll ===>_gscr+
   \ \ %F3  +
 +Git repo dir:[localdir
@@ -46,7 +46,7 @@ $z+[gitcmde              \ \ [gs
 )Field
  Field(gitcmde) ind(gs,'<>') len(255)
 )End
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* --------------------- Copyright (C) ------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */

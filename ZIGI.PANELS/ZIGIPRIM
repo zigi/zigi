@@ -33,7 +33,7 @@
 )Body Expand(\\)
 +| Commands | Help +
 <-----------\-\--------------------------------+
-+Local Repositories+---------------#zigtitle    +-------------------------------
++Local Repositories+\-\#zigtitle    +\-\------------------
 %Command ===>{zcmd       \ \ %Scroll ===>_zgsr+
                             `dovestat                                      %F3 +
 %    @repo      +           @pref  +               @cat     +      @last       +
@@ -70,7 +70,7 @@ _z+  $z                    +]z                    +[z             +}z          +
  FIELD(PREF    ) VAR(ZCMD) VAL('SORT PREFIX')
  FIELD(REPO    ) VAR(ZCMD) VAL('SORT REPOSITORY')
 )end
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* --------------------- Copyright (C) ------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */

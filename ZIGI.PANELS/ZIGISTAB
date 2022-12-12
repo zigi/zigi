@@ -22,7 +22,7 @@
 )Body  Expand(\\)
 +| Commands | Help +
 <-----------\-\--------------------------------+
-+Stash Summary+--------------------#zigtitle    +-------------------------------
++Stash Summary+\-\#zigtitle    +\-\-------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zgsr+
 + \ \%F3  +
 +Sel Stash-ID    Comments
@@ -35,7 +35,7 @@ _z+ $z          $z
   .help = ZIGIH2J0
 )Proc
 )End
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* --------------------- Copyright (C) ------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */
