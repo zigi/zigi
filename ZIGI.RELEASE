@@ -19,11 +19,13 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
   the current version using ISPF Edit
 * Support / in a branch name
 * Allow deletes of a Remote branch after the Local branch has been deleted
+* Allow / as alias of O on panels display popup prompt
 
                           Bug Fixes and Other Updates:
                           ----------------------------
 
 * zigi          - fixed history issue with month of December (was DEV)
+                - fix ZIGIOREP panel so it works on popup
                 - display more msgs after merge if issues
                 - fixed merge to use origin/branch
                 - check for 'ahead' status for status message
