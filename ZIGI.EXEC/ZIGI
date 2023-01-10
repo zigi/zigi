@@ -1733,7 +1733,7 @@ WWR_handle_options:
   parse value zcmd with x'.'zcmd
   if pos(zcmd,'O/') > 0 then do
     call pfshow 'off'           /* make sure pfshow is off */
-    'Addpop'
+    'Addpop row(2)'
     'Display Panel(zigiorep)'
     'rempop'
     call pfshow 'reset'         /* restore pfshow setting */
