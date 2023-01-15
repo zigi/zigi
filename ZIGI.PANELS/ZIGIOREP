@@ -6,20 +6,20 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   [ type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(78,15) cmd()
+)Body Window(76,15)
 +Enter Selection:_z        +
 +
-[Add   +  Add dataset      [Githelp+Git Help          [Remote+  Add remote
-[AddAll+  Add all to Git   [GitCMD +Git Commands      [Set+     Set Defaults
-[Br    +  Change Branch    [GitLog+ Query git log     [Snapshot+Create Escrow
-[Check+   Check z/OS DSNs  [Grep+   Find Strings      [Stash+   Save Workspace
-[Commit+  Record Changes   [info+   Info on Repo      [StashL+  List Stashes
-[Convrepo+Convert non-zigi [Merge+  Merge Branches    [Status+  Git Status
-[Diff+    Diff             [Network+Network Report    [Tag+     Git Tag
-[Extract+ Packaging        [Pull+   Pull from origin  [TagList+ List all Tags
-[Fetch+   Fetch            [Push+   Push to origin    [View+    OMVS Dir
-[Find+    Find in table    [Readme+ Edit README.md
-[Flow+    Flow Menu        [Replace+ Replace Datasets
+[Add   +  Add dataset     [Githelp+Git Help        [Remote+   Add remote
+[AddAll+  Add all to Git  [GitCMD +Git Commands    [Set+      Set Defaults
+[Br    +  Change Branch   [GitLog+ Query git log   [Snapshot+Create Escrow
+[Check+   Check z/OS DSNs [Grep+   Find Strings    [Stash+    Save Workspace
+[Commit+  Record Changes  [info+   Info on Repo    [StashL+   List Stashes
+[Convrepo+Convert non-zigi[Merge+  Merge Branches  [Status+   Git Status
+[Diff+    Diff            [Network+Network Report  [Tag+      Git Tag
+[Extract+ Packaging       [Pull+   Pull from origin[TagList+  List all Tags
+[Fetch+   Fetch           [Push+   Push to origin  [View+     OMVS Dir
+[Find+    Find in table   [Readme+ Edit README.md
+[Flow+    Flow Menu       [Replace+Replace Datasets
 
                            +Or%F3+to cancel
 )Init

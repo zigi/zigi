@@ -39,6 +39,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            10/16/22 LBD - Delete amdlist sysprint tmp dsn  |
   |            07/19/22 LBD - Fix chtag mixed error            |
   |            06/19/22 LBD - Fix suffix check compare         |
   |            04/25/22 TPM - Add 2 dropped statements         |
@@ -758,6 +759,10 @@ Get_LoadLib:
   'Free  f(syslib)'
   'Alloc f(sysin) ds(*) reuse'
   'Alloc f(sysprint) ds(*) reuse'
+
+  call outtrap 'x.'
+  'delete' "'"syspds"'"
+  call outtrap 'off'
 
   zs3 = 'Analyzing the filtered AMBLIST data.'
   zs4 = results.0 'records to process.'

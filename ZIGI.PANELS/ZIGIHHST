@@ -16,7 +16,7 @@
 +Or select using%C+to browse the commit record.%R+can be used to recover the
 +historical version to a new, or existing dataset (OMVS files are not
 +supported for recovery at this time).%Z+can be used to compare the current
-+version of the element to the selected historical version.
++version of the element to the selected historical version using ISPF Edit.
 +
 +
 +Because it is%View+no permanent changes may be made in it.

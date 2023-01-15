@@ -17,6 +17,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            11/09/22 SP  - Fix stat files with merge issues |
   |            09/16/22 LBD - Fix view_std lrecl               |
   |            08/19/22 LBD - Fix mgen variable typo           |
   |                           Fix RECFM=U copy                 |
@@ -479,9 +480,18 @@ Alloc_Copy_PDS:
       else dvstat_file = '-M r=y'
       if pos('-B',binopt) > 0 then
       dvstat_file = '-b' dvstat_file
-      cmd = dovetail_dir'putpds -S D' dvstat_file rdir'/* //'pds
+      /* do a sed cmd to resolve possible merge conflicts existing
+         in stats file in favor of master (or main branch) */
+      cmd ='sed -e '  '''/^<<<<<<< HEAD/,/^=======/d'''
+      cmd = cmd '-e '  '''/^>>>>>>> master/d'''
+      cmd = cmd '-e '  '''/^>>>>>>> main/d'''
+      cmd = cmd dvstat
+      cmd = cmd '> temp.txt'
+      cmd = cmd '&& mv temp.txt '
+      cmd = cmd dvstat
+      cmd = cmd '&& 'dovetail_dir'putpds -S D' dvstat_file rdir'/* //'pds
     end
-    x = docmd(cmd)
+    x = docmd(usssafe(cmd))
 
     if x > 0 then call view_std 'B'
     drop so. se.
@@ -530,9 +540,18 @@ Alloc_Copy_PDS:
       else dvstat_file = '-M r=y'
       if pos('-B',binopt) > 0 then
       dvstat_file = '-b' dvstat_file
-      cmd = dovetail_dir'putpds -S D' dvstat_file rdir'/'src '//'pds
+      /* do a sed cmd to resolve possible merge conflicts
+         existing in stats file in favor of master (or main branch) */
+      cmd ='sed -e '  '''/^<<<<<<< HEAD/,/^=======/d'''
+      cmd = cmd '-e '  '''/^>>>>>>> master/d'''
+      cmd = cmd '-e '  '''/^>>>>>>> main/d'''
+      cmd = cmd dvstat
+      cmd = cmd '> temp.txt'
+      cmd = cmd '&& mv temp.txt '
+      cmd = cmd dvstat
+      cmd = cmd '&& 'dovetail_dir'putpds -S D' dvstat_file rdir'/'src '//'pds
     end
-    x = docmd(cmd)
+    x = docmd(usssafe(cmd))
     if x > 0 then call view_std 'B'
     Address ISPexec
     zs9 = null
