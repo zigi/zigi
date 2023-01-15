@@ -5,7 +5,7 @@
  + type(text ) intens(low) skip(on)
  @ type(input) caps(on ) hilite(uscore) intens(low)
 )Body Expand(\\)
-+Git Commit+-----------------------}zigtitle    +-------------------------------
++Git Commit+\-\}zigtitle    +\-\----------
 %Command ===>_zcmd       \ \ %Scroll ===>_ccsr+
 + \ \ %F3  +
 %Commit Title:_msg1                                        +%Add+before:@z+(Y/N)
@@ -52,7 +52,7 @@
     .cursor = TAGID
     .msg = isrz001
 )end
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2021 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* --------------------- Copyright (C) ------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */

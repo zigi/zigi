@@ -4,7 +4,7 @@
  # type(output) hilite(reverse) color(turq) caps(off)
   _ type( input) intens(low ) just(left ) hilite(uscore)
 )Body Expand(\\)
-+Create New Repository+------------#zigtitle    +-------------------------------
++Create New Repository+\-\#zigtitle    +\-\---------------------
 %Command ===>_zcmd
 +
 %Name:@zigirep                         +
@@ -85,7 +85,7 @@
   ver (&defcpush,nb,list,Y,N)
   ver (&defruid,dsname)
 )end
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* --------------------- Copyright (C) ------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */

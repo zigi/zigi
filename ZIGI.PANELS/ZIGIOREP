@@ -6,19 +6,20 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   [ type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(77,14) cmd()
+)Body Window(76,15)
 +Enter Selection:_z        +
 +
-[Add   +  Add dataset     [Githelp+Git Help        [Replace+ Replace Datasets
-[AddAll+  Add all to Git  [GitCMD +Git Commands    [Remote+  Add remote
-[Br    +  Change Branch   [GitLog+ Query git log   [Set+     Set Defaults
-[Check+   Check z/OS DSNs [Grep+   Find Strings    [Snapshot+Create Escrow
-[Commit+  Record Changes  [info+   Info on Repo    [Stash+   Save Workspace
-[Convrepo+Convert non-zigi[Merge+  Merge Branches  [StashL+  List Stashes
-[Diff+    Diff            [Network+Network Report  [Status+  Git Status
-[Extract+ Packaging       [Pull+   Pull from origin[Tag+     Git Tag
-[Find+    Find in table   [Push+   Push to origin  [TagList+ List all Tags
-[Flow+    Flow Menu       [Readme+ Edit README.md  [View+    OMVS Dir
+[Add   +  Add dataset     [Githelp+Git Help        [Remote+   Add remote
+[AddAll+  Add all to Git  [GitCMD +Git Commands    [Set+      Set Defaults
+[Br    +  Change Branch   [GitLog+ Query git log   [Snapshot+Create Escrow
+[Check+   Check z/OS DSNs [Grep+   Find Strings    [Stash+    Save Workspace
+[Commit+  Record Changes  [info+   Info on Repo    [StashL+   List Stashes
+[Convrepo+Convert non-zigi[Merge+  Merge Branches  [Status+   Git Status
+[Diff+    Diff            [Network+Network Report  [Tag+      Git Tag
+[Extract+ Packaging       [Pull+   Pull from origin[TagList+  List all Tags
+[Fetch+   Fetch           [Push+   Push to origin  [View+     OMVS Dir
+[Find+    Find in table   [Readme+ Edit README.md
+[Flow+    Flow Menu       [Replace+Replace Datasets
 
                            +Or%F3+to cancel
 )Init
@@ -33,6 +34,7 @@
  &Commit  = 'Commit'
  &Convrepo = 'COnvrepo'
  &Diff    = 'Diff'
+ &Fetch   = 'Fetch'
  &Find    = 'Find'
  &Flow    = 'Flow'
  &Gitcmd  = 'GitCmd'
@@ -69,6 +71,7 @@
  FIELD(CONVREPO)  VAR(ZCMD) VAL('CONVREPO')
  FIELD(DIFF  )  VAR(ZCMD) VAL('DIFF')
  FIELD(GITCMD)  VAR(ZCMD) VAL('GITCMD')
+ FIELD(FETCH )  VAR(ZCMD) VAL('FETCH')
  FIELD(FIND  )  VAR(ZCMD) VAL('FIND')
  FIELD(FLOW  )  VAR(ZCMD) VAL('FLOW')
  FIELD(GITHELP) VAR(ZCMD) VAL('GITHELP')

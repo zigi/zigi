@@ -1,0 +1,61 @@
+  /* --------------------  rexx procedure  -------------------- *
+  | Name:      zigizmac                                        |
+  |                                                            |
+  | Function:  ISPF Edit Macro to compare the current file or  |
+  |            dataset to a historical commit version          |
+  |                                                            |
+  |            file for comparison passed in ispf variable     |
+  |            zfile                                           |
+  |                                                            |
+  | Author:    Lionel B. Dyck                                  |
+  |                                                            |
+  | History:  (most recent on top)                             |
+  |            10/02/22 LBD - Split message to 2 lines if > 72 |
+  |            09/14/22 LBD - creation                         |
+  |                                                            |
+  | ---------------------------------------------------------- |
+  |    ZIGI - the z/OS ISPF Git Interface                      |
+  |    Copyright (C) 2020-2022 - Henri Kuiper and Lionel Dyck  |
+  |                                                            |
+  |    This program is free software: you can redistribute it  |
+  |    and/or modify it under the terms of the GNU General     |
+  |    Public License as published by the Free Software        |
+  |    Foundation, either version 3 of the License, or (at     |
+  |    your option) any later version.                         |
+  |                                                            |
+  |    This program is distributed in the hope that it will be |
+  |    useful, but WITHOUT ANY WARRANTY; without even the      |
+  |    implied warranty of MERCHANTABILITY or FITNESS FOR A    |
+  |    PARTICULAR PURPOSE.  See the GNU General Public License |
+  |    for more details.                                       |
+  |                                                            |
+  |    You should have received a copy of the GNU General      |
+  |    Public License along with this program.  If not, see    |
+  |    <https://www.gnu.org/licenses/>.                        |
+  * ---------------------------------------------------------- */
+  Address ISREdit
+  'Macro (options)'
+  'Reset ALL'
+  '(last) = linenum .zlast'
+  '(lrecl) = lrecl'
+  Address ISPExec 'vget (vtitle localrep zigirep zfile workdsn)'
+  parse value vtitle with hd '\' hs
+  'Compare' zfile 'x'
+  call add_data copies('-',72)
+  if length('Comparing' workdsn 'to' zfile) > 72
+  then do
+    call add_data 'Comparing:' workdsn
+    call add_data '       to:' zfile
+  end
+  else call add_data 'Comparing' workdsn 'to' zfile
+  call add_data hd
+  call add_data hs
+  call add_data copies('-',72)
+  'locate special first'
+  '(c) = cursor'
+  exit
+
+Add_data:
+  parse arg data
+  'line_before .zfirst = msgline (data)'
+  return

@@ -6,7 +6,7 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
 )Body  Expand(\\)
-+Grep Datasets/Files+--------------#zigtitle    +-------------------------------
++Grep Datasets/Files+\-\#zigtitle    +\-\-------------------
 %Command ===>_zcmd        \ \ %Scroll ===>_zgsr+
 + \ \%F3  +
 +Grep Command:@grepstr
@@ -38,7 +38,7 @@ _z+      $z         $z                                          $z
      &zsel = &z
  ver (&zsel,list,S,B,E,V,/)
 )End
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* --------------------- Copyright (C) ------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */

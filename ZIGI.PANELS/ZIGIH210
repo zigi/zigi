@@ -10,7 +10,7 @@
 +
 %AddDsn+is used to add z/OS datasets to the repository.
 +
-+Or abbreviated to%ADS+or%ADDD+
++Or abbreviated to%AD+or%ADS+or%ADDD+
 +
 +When a dataset is added, a copy of it is made to the OMVS filesystem
 +where the local repository is located. If the dataset is a PDS, then the ISPF

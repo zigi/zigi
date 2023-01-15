@@ -22,7 +22,7 @@
 +    untouched.
 +
 + %D+to delete from the local system any branch that is no longer needed.
-+    The remote branch is untouched.
++    If the local branch has been deleted then the Remote branch may be deleted.
 +
 +        +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
@@ -30,7 +30,7 @@
 )PROC
  &zcont = zigih225
 )END
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */
