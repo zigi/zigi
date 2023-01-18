@@ -17,6 +17,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            01/18/23 LBD - Correct USSSAFE routine to use   |
+  |                           updated version (from zigi)      |
   |            11/09/22 SP  - Fix stat files with merge issues |
   |            09/16/22 LBD - Fix view_std lrecl               |
   |            08/19/22 LBD - Fix mgen variable typo           |
@@ -573,26 +575,33 @@ get_dcb:
   return
 
 usssafe:
-  parse arg safedsn
-  if pos('$',safedsn) = 0 then return safedsn
+  parse arg safe_command
+  safe_ret = 1
+  if pos('\$',safe_command) > 0 then safe_ret = 0
+  if pos('\#',safe_command) > 0 then safe_ret = 0
+  if safe_ret = 0 then return safe_command
+  if pos('$',safe_command)  > 0 then safe_ret = 1
+  if pos('#',safe_command)  > 0 then safe_ret = 1
+  if safe_ret = 0 then return safe_command
   safe$pos = 1
   do forever
-    pos$safe = pos('$',safedsn,safe$pos)
-    if pos$safe < 1 then return safedsn
-    left$safe = left(safedsn,pos$safe-1)
-    right$save = substr(safedsn,pos$safe)
-    safedsn = left$safe'\'right$save
+    pos$safe = pos('$',safe_command,safe$pos)
+    if pos$safe < 1 then leave
+    left$safe = left(safe_command,pos$safe-1)
+    right$save = substr(safe_command,pos$safe)
+    safe_command = left$safe'\'right$save
     safe$pos = pos$safe + 2
   end
-  return safedsn
-
-oldsafe: procedure
-  parse arg dsn
-  if pos('$',dsn) = 0 then return dsn
-  /* Let's not usssafe it twice :) */
-  if pos('\$',dsn) > 0 then return dsn
-  dsn = strreplace(dsn, '$', '\$')
-  return dsn
+  safe$pos = 1
+  do forever
+    pos$safe = pos('#',safe_command,safe$pos)
+    if pos$safe < 1 then return safe_command
+    left$safe = left(safe_command,pos$safe-1)
+    right$save = substr(safe_command,pos$safe)
+    safe_command = left$safe'\'right$save
+    safe$pos = pos$safe + 2
+  end
+  return safe_command
 
 strreplace: Procedure
   string  = arg(1)

@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r16'
+  ver = 'v3r17'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -29,6 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            01/18/23 - Version 3.17                         |
+  |                         - Version change only              |
   |            01/15/23 - Version 3.16                         |
   |                         - Allow / on command lines as alias|
   |                           of O to display prompt popup     |

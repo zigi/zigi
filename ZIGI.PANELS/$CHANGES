@@ -8,6 +8,22 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
 
                              ZIGI Release Notes
+                                Version 3.17
+
+                         New Features and Functions
+                         --------------------------
+
+* No features/functions updates
+
+                          Bug Fixes and Other Updates:
+                          ----------------------------
+
+* zigickot      - Update to correct bug in the usssafe routine by using
+                  the version of the routine from zigi exec
+
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
                                 Version 3.16
 
                          New Features and Functions
