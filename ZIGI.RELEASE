@@ -18,8 +18,10 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
                           Bug Fixes and Other Updates:
                           ----------------------------
 
-* zigickot      - Update to correct bug in the usssafe routine by using
-                  the version of the routine from zigi exec
+* ziginstall.rex - Update with current zigistat routine
+* ziginstal      - Update with current zigistat routine
+* zigickot       - Update to correct bug in the usssafe routine by using
+                   the version of the routine from zigi exec
 
 -----------------------------------------------------------------------------
 
