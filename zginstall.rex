@@ -41,6 +41,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            01/23/23 LBD - Add zgpop4 panel                 |
   |            01/21/23 LBD - Update zigistat subroutine       |
   |            05/16/22 LBD - Remove duplicate routines        |
   |            04/09/22 LBD - Update zigistat to current level |
@@ -872,6 +873,24 @@ $repodir                                                      +
   ver (&hlq,nb,dsname)
   ver (&repodir,nb)
 )End
+>Panel zgpop4
+)Attr
+ $ type(output) caps(off)
+)Body Window(62,6)
++
+  $zs1
+  $zs2
+  $zs3
+  $zs4
+
+)Init
+ &zwinttl = 'ZIGI Status Popup'
+)Proc
+)end
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */
 >End   */
 
 
@@ -1483,7 +1502,7 @@ Do_Popup4:
   call pfshow 'off'           /* make sure pfshow is off */
   'Control Display Lock'
   'Addpop row(4) column(6)'
-  'Display Panel(zigipop4)'
+  'Display Panel(zgpop4)'
   'Rempop'
   call pfshow 'reset'         /* restore pfshow setting */
   if poptso = 1 then Address TSO

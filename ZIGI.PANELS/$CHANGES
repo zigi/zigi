@@ -19,7 +19,9 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
                           ----------------------------
 
 * ziginstall.rex - Update with current zigistat routine
+                 - Add zgpop4 ispf panel (inline)
 * ziginstal      - Update with current zigistat routine
+                 - Add zgpop4 ispf panel (inline)
 * zigickot       - Update to correct bug in the usssafe routine by using
                    the version of the routine from zigi exec
 
