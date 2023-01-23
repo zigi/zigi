@@ -782,8 +782,8 @@ docmd:
     exit 8
   end
 
-  do i = 1 to files.0
-    file = files.i
+  do if = 1 to files.0
+    file = files.if
     if left(file,1) = '.' then iterate
     /* check for lower case so ignore these */
     fx = translate(file,'??????????????????????????', ,
