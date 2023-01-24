@@ -29,8 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            01/18/23 - Version 3.17                         |
-  |                         - Version change only              |
+  |            01/24/23 - Version 3.17                         |
+  |                         - Fix for subdirectories           |
   |            01/15/23 - Version 3.16                         |
   |                         - Allow / on command lines as alias|
   |                           of O to display prompt popup     |
@@ -584,7 +584,7 @@
   parse arg start_option
 
   parse value '' with null repo_ztdsels fetch_flag dovetail_dir codep ,
-                      dovestat created repdone
+                      dovestat created
 
   /* ------------------------------------------ *
   | ISPExec is our default host environment    |
@@ -801,7 +801,6 @@ display_zigioprm:
 display_zigiprim:
   parse value '' with zsel row readonly
   fetch_flag = 0
-  repdone = null
   zigpass = 'PASSTHRU'
   'vput (zigpass) shared'
   'TBTop zigirepo'
@@ -1501,11 +1500,9 @@ Work_With_Repo:
   | Process the Repository Data Sets |
   * -------------------------------- */
   do forever
-    if repdone = 1 then return
     x = WWR_display_zigirepo()
     if x > 3 then do
        'tbend' rtbl
-       repdone = 1
        return
        end
     repo_ztdsels = ztdsels

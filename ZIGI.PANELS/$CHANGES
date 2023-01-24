@@ -18,6 +18,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
                           Bug Fixes and Other Updates:
                           ----------------------------
 
+* zigi           - Correction for sub-directories
 * ziginstall.rex - Update with current zigistat routine
                  - Add zgpop4 ispf panel (inline)
 * ziginstal      - Update with current zigistat routine
