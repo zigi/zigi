@@ -29,8 +29,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            01/24/23 - Version 3.17                         |
+  |            01/30/23 - Version 3.17                         |
   |                         - Fix for subdirectories           |
+  |                         - Fix for pds member untracked     |
   |            01/15/23 - Version 3.16                         |
   |                         - Allow / on command lines as alias|
   |                           of O to display prompt popup     |
@@ -3112,6 +3113,7 @@ WWRF_build_member_table:
   dstat = dsnstat
 
   call get_ignored
+  memstat = null
 
   do bmi = 1 to root.0
     if left(root.bmi,1) = ' ' then iterate
@@ -3151,7 +3153,7 @@ WWRF_build_member_table:
         if mem = MEMBER then do
           memstat = porcelain(stat)
           if FOLDER = "./" & stat = "??" then
-          memstat = '[??] Untracked'
+             memstat = '[??] Untracked'
           leave
         end
       end
@@ -3161,7 +3163,7 @@ WWRF_build_member_table:
     if statc /= 0 then memstat = '[  ] Git Ignored'
 
     if stat = '??' then
-    memstat = '[??] Untracked'
+       memstat = '[??] Untracked'
 
     /* ------------------------------------------------------- *
     |  The files in OMVS have some chars changed due to cp -M |
