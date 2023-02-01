@@ -9467,7 +9467,8 @@ DoHist_File_Extract:
   cmd = 'cd' localrep'/'zigirep ,
      '&& unset _TAG_REDIR_OUT' ,
      '&& git show' hcommit':'element ,
-     '>' file
+     '>' file ,
+     '&& chtag -tc 'encoding file
   dhrc = docmd(cmd)
   if dhrc > 0 then call view_std 'B'
   return dhrc

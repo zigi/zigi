@@ -19,7 +19,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
                           ----------------------------
 
 * zigi           - Correction for sub-directories
-                 - Correct invalid untrack pds member status
+                 - Correct invalid untrack PDS member status
                  - Correct file extract file encoding
 * ziginstall.rex - Update with current zigistat routine
                  - Add zgpop4 ispf panel (inline)
