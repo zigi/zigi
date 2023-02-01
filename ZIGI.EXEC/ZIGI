@@ -35,6 +35,8 @@
   |                         - Speed up history extract         |
   |                           remove cat > ...                 |
   |                         - Correct file extract encoding    |
+  |                         - Use default edit panel for       |
+  |                           history viewing                  |
   |            01/15/23 - Version 3.16                         |
   |                         - Allow / on command lines as alias|
   |                           of O to display prompt popup     |
@@ -567,7 +569,7 @@
   |                                                            |
   | ---------------------------------------------------------- |
   |    ZIGI - the z/OS ISPF Git Interface                      |
-  |    Copyright (C) 2020-2021 - Henri Kuiper and Lionel Dyck  |
+  |    Copyright (C) 2020-2023 - Henri Kuiper and Lionel Dyck  |
   |                                                            |
   |    This program is free software: you can redistribute it  |
   |    and/or modify it under the terms of the GNU General     |
@@ -9393,7 +9395,7 @@ DoHist_ViewSource:
   vtitle = element '\' hdate '\' hsubject '\' fulldsn
   gitcmde = null
   'vput (vtitle gitcmde localrep zigirep)'
-  'View File(file) panel(zigiedit) macro(zigivmac)'
+  'View File(file) macro(zigivmac)'
   x = docmd('rm' file)
   return
 

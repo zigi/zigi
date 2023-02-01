@@ -19,8 +19,10 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
                           ----------------------------
 
 * zigi           - Correction for sub-directories
-                 - Correct invalid untrack PDS member status
+                 - Correct invalid untrack pds member status
                  - Correct file extract file encoding
+                 - Use the default ISPF Edit panel when viewing history
+* zigivmac       - Change to improve hilite usage
 * ziginstall.rex - Update with current zigistat routine
                  - Add zgpop4 ispf panel (inline)
 * ziginstal      - Update with current zigistat routine
