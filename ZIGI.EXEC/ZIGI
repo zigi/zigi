@@ -29,9 +29,12 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            01/30/23 - Version 3.17                         |
+  |            02/01/23 - Version 3.17                         |
   |                         - Fix for subdirectories           |
   |                         - Fix for pds member untracked     |
+  |                         - Speed up history extract         |
+  |                           remove cat > ...                 |
+  |                         - Correct file extract encoding    |
   |            01/15/23 - Version 3.16                         |
   |                         - Allow / on command lines as alias|
   |                           of O to display prompt popup     |
@@ -9462,8 +9465,9 @@ DoHist_File_Extract:
   else file = home'/tmp/'element
   call check_tmp
   cmd = 'cd' localrep'/'zigirep ,
+     '&& unset _TAG_REDIR_OUT' ,
      '&& git show' hcommit':'element ,
-     '| cat >' file
+     '>' file
   dhrc = docmd(cmd)
   if dhrc > 0 then call view_std 'B'
   return dhrc
