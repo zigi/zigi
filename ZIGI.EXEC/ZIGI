@@ -29,7 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            02/01/23 - Version 3.17                         |
+  |            02/03/23 - Version 3.17                         |
+  |                         - Save version for panel titles    |
   |                         - Fix for subdirectories           |
   |                         - Fix for pds member untracked     |
   |                         - Speed up history extract         |
@@ -903,6 +904,8 @@ init_git:
   required_version = '2.26'
   x = so.0
   parse var so.x 'git' 'version' version'_'subversion
+  gitver = version
+  'vput (gitver) shared'
   version = strip(version,'B')
   if version < required_version then do
     zs1 = "Your git version is not at the minimum required level"

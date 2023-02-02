@@ -12,8 +12,8 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                          New Features and Functions
                          --------------------------
+* various panels updated to include the active git version
 
-* No features/functions updates
 
                           Bug Fixes and Other Updates:
                           ----------------------------

@@ -5,6 +5,8 @@
  [ type(output) caps(off) intens(low) color(&src)
  } type(output) caps(off) intens(low) just(right) color(&srl)
  { type(input) caps(off) hilite(uscore) intens(low)
+ ~ type(output) intens(high) caps(off) just(right)
+ ! type(text  ) intens(high) caps(off) just(right)
  _ type(input) caps(on ) hilite(uscore) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
  @ type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
@@ -31,7 +33,7 @@
 )ABCINIT
   .ZVARS = HELPX
 )Body Expand(\\)
-+| Commands | Help +
++| Commands | Help + \ \!Git~gitver
 <-----------\-\--------------------------------+
 +Local Repositories+\-\#zigtitle    +\-\------------------
 %Command ===>{zcmd       \ \ %Scroll ===>_zgsr+
