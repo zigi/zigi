@@ -5,8 +5,8 @@
  [ type(output) caps(off) intens(low) skip(on)
  # type(output) hilite(reverse) color(turq) caps(off)
  + type(text) intens(low) skip(on)
- { type(output) intens(high) caps(off) just(right)
- } type(text  ) intens(high) caps(off) just(right)
+ { type(output) intens(high) caps(off) just(right) color(blue)
+ } type(text  ) intens(high) caps(off) just(right) color(blue)
 )Body Expand(\\) Width(&zscreenw)
 +Git Commands+\-\#zigtitle    +\-\------------
 +Command ===>_zcmd                             \ \+Scroll ===>_gscr+

@@ -8,8 +8,8 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
-  { type(output) intens(high) caps(off) just(right)
-  } type(text  ) intens(high) caps(off) just(right)
+  { type(output) intens(high) caps(off) just(right) color(blue)
+  } type(text  ) intens(high) caps(off) just(right) color(blue)
   [ type(output) caps(off) pas(on) intens(high) color(white)
   | TYPE(AB)           /* Action bar                */
   < TYPE(ABSL) GE(ON)  /* Action bar separator line */
