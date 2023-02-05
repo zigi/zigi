@@ -3,6 +3,7 @@
  _ type(input ) hilite(uscore) caps(on) intens(low )
  $ type(output) hilite(uscore) caps(off)
  { type(output) intens(low)
+ } type(input ) hilite(uscore) caps(on) intens(low ) just(right)
  # type(output) hilite(reverse) color(turq) caps(off)
 )Body Expand(\\)
 +Set Defaults+\-\#zigtitle    +\-\-----------
@@ -12,7 +13,7 @@
 +  user.name  :@zigiuid                                                        +
 +  user.email :@zigimail                                                       +
 +
-%PDSE Member Generations :_z  +(0 to 999)  System Limit:{sl
+%PDSE Member Generations :}z   +Range 0 to{sl
   +Note: Specify%0+unless using a tool that supports generations.
 +
 %Display Options Popup or Select on Point-and-Shoot:_z+(P or S)
@@ -53,5 +54,5 @@
 )end
 /* --------------------- Copyright (C) ------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                            */
-/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* Copyright (C) 2020-2023 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* ------------------------------------------------------------- */
