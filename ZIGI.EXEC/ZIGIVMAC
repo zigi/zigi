@@ -7,6 +7,7 @@
  | Author:    Lionel B. Dyck                                  |
  |                                                            |
  | History:  (most recent on top)                             |
+ |            02/06/23 LBD - Set hilite off for diff displays |
  |            02/03/23 LBD - remove hilite off if lrecl > 255 |
  |            02/01/23 LBD - Improve hilte if lrecl < 256     |
  |            12/06/21 LBD - Check LRECL < 256 before turning |
@@ -46,6 +47,7 @@
      exit
      end
   '(lrecl) = lrecl'
+  '(data) = line 1'
   if lrecl < 256
       then 'hilite on'
   Address ISPExec 'vget (vtitle gitcmde localrep zigirep)'
@@ -57,7 +59,11 @@
     data = left('-',length(data),'-')
     'line_before 1 = msgline (data)'
   end
-  if vtitle = '' then exit
+  if vtitle = '' then do
+     if lrecl < 256 then
+        'hilite off'
+     exit
+     end
   parse value vtitle with element'\'hdate'\'hauthor'\'fulldsn .
   if left(fulldsn,1) = "'" then do
     parse value element with x'/'mem .

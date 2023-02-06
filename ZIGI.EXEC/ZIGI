@@ -29,7 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            02/03/23 - Version 3.17                         |
+  |            02/06/23 - Version 3.17                         |
+  |                         - Correct bugs in grep viewing     |
   |                         - Save version for panel titles    |
   |                         - Fix for subdirectories           |
   |                         - Fix for pds member untracked     |
@@ -4848,7 +4849,8 @@ do_grep:
         if qualignr > 0 then
         pdshlqt = subword(pdshlqt,1,qualignr)
         pdshlqt = translate(pdshlqt,'.',' ')
-        parse value '' with dsntbl gstat gcount
+        parse value '' with dsntbl gstat
+        gcount = 0
         zgreptbl = 'ZG'time('s')
         'TBCreate' zgreptbl 'Keys(gdsn) Names(gstat gcount) nowrite share'
         do si = 1 to so.0
@@ -4915,6 +4917,11 @@ do_grep:
             call pfshow 'reset'         /* restore pfshow setting */
           end
           if zsel = 'S' then zsel = 'E'
+          gdsno = gdsn
+          if pos('(',gdsn) > 0 then do
+             parse value gdsn with wd'('wm')'
+             gdsn = "'"pdshlqt"."wd"("translate(wm)")'"
+             end
           Select
             When zsel = 'B' then do
               if left(gdsn,1) = "'"
@@ -4926,6 +4933,7 @@ do_grep:
                 Address TSO 'OBrowse' grepdir'/'gdsn
                 gstat = '*OBrowse'
               end
+              gdsn = gdsno
               'tbmod' zgreptbl
             end
             When zsel = 'E' then do
@@ -4941,6 +4949,7 @@ do_grep:
                 gstat = '*Edit'
                 if rc = 0 then file_changed = 1
               end
+              gdsn = gdsno
               'tbmod' zgreptbl
             end
             When zsel = 'V' then do
@@ -4954,6 +4963,7 @@ do_grep:
                 'View file(ofile)'
                 gstat = '*View'
               end
+              gdsn = gdsno
               'tbmod' zgreptbl
             end
             Otherwise nop
