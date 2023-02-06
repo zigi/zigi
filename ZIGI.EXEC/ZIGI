@@ -4862,10 +4862,13 @@ do_grep:
             if zdsn.gdsn /= null then
             parse value mem with mem'.'.
             if dsnvalid(gdsn) = 'OK'
-            then gdsn = gdsn'('mem')'
+            then do
+                 gdsn = gdsn'('translate(mem)')'
+                 end
             else gdsn = gdsn'/'mem
           end
-          gdsnt = "'"pdshlqt"."strip(gdsn)"'"
+          if left(gdsn,1) /= "'" then
+            gdsnt = "'"pdshlqt"."strip(gdsn)"'"
           if lower_check(gdsnt) = 0 then
           if pos('/',gdsnt) = 0 then do
             call outtrap 'x.'
@@ -4918,6 +4921,7 @@ do_grep:
           end
           if zsel = 'S' then zsel = 'E'
           gdsno = gdsn
+          if left(gdsn,1) /= "'" then
           if pos('(',gdsn) > 0 then do
              parse value gdsn with wd'('wm')'
              gdsn = "'"pdshlqt"."wd"("translate(wm)")'"
