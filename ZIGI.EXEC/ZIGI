@@ -9440,7 +9440,7 @@ DoHist_Compare:
         end
      else workdsn = fulldsn
      'vput (vtitle localrep zigirep zfile workdsn)'
-     'edit dataset('workdsn') panel(zigiedit) macro(zigizmac)'
+     'edit dataset('workdsn') macro(zigizmac)'
      if rc = 0 then do
         if sysdsorg = 'PS' then do
            ztdsels = 2
@@ -9457,7 +9457,7 @@ DoHist_Compare:
   else do
       workdsn = localrep'/'zigirep'/'fulldsn
       'vput (vtitle localrep zigirep zfile workdsn)'
-      'edit File(workdsn) panel(zigiedit) macro(zigizmac)'
+      'edit File(workdsn) macro(zigizmac)'
       if rc = 0 then do
          dsnstat = '[ M] Modified'
          'tbput' rtbl
