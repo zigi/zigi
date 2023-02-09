@@ -672,6 +672,7 @@
     /* handle remaining primairy commands */
     if zcmd /= null then
     Select
+      When abbrev('GITINFO',zcmd,4) = 1 then call display_gitinfo
       When abbrev('CONNECT',zcmd,2) = 1 then call handle_zigiprim_connect
       When abbrev('CREATE',zcmd,2) = 1 then call handle_zigiprim_create
       When abbrev('CLONE',zcmd,2) = 1 then call handle_zigiprim_clone
@@ -783,6 +784,18 @@ init_repo:
   * ------------------------------ */
 set_sortdate:
   sortdate = date('b')''right(time('s')+100000,5)
+  return
+
+  /* ---------------------------- *
+   | Display ZIGI/Git Information |
+   * ---------------------------- */
+display_gitinfo:
+  x = bpxwunix('df -k' zigigitl,,so.,se.)
+  gitzfs = word(so.2,2)
+  gitzfs = strip(translate(gitzfs,' ','()'))
+  'addpop row(4)'
+  'display panel(zigiginf)'
+  'rempop'
   return
 
   /* ------------------------------------------- *
@@ -1545,6 +1558,7 @@ Work_With_Repo:
       end
       When abbrev('BRANCH',zcmd,2) = 1 then call WWR_handle_branch
       When abbrev('CONVREPO',zcmd,4) = 1 then call WWR_handle_convrepo
+      When abbrev('GITINFO',zcmd,4) = 1 then call display_gitinfo
       /* ----------------- *
       | Git command prompt |
       * ------------------ */

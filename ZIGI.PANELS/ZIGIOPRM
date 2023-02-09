@@ -7,7 +7,7 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(47,12) cmd()
+)Body Window(47,13) cmd()
 +Enter Selection:_z        +
 +
  ]Clone+   Remote repository
@@ -16,6 +16,7 @@
  ]Create+  Local repo from scratch
  ]Find+    String in table fields:_findstr +
  ]Githelp+ Display menu of Git Help pages
+ ]Gitinfo+ Display ZIGI/Git Information
  ]SElect+  Select a Repository:}selfind +
  ]SOrt+    Sort the table
  ]SSH+     View your SSH public key
@@ -34,6 +35,7 @@
  &sort    = 'Sort'
  &config  = 'Config'
  &githelp = 'GitHelp'
+ &gitinfo = 'GITInfo'
  .help = zigih100
 )Proc
 *REXX(*)
@@ -50,8 +52,9 @@
  FIELD(SSH     ) VAR(ZCMD) VAL('SSH')
  FIELD(CONFIG  ) VAR(ZCMD) VAL('CONFIG')
  FIELD(GITHELP ) VAR(ZCMD) VAL('GITHELP')
+ FIELD(GITINFO ) VAR(ZCMD) VAL('GITINFO')
 )End
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2023 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */

@@ -1,0 +1,23 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+  @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  $ type(output) intens(high) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output)
+)Body Window(72,4)
++ZIGI Version  : $ver
++Git Version   : $gitver
++Git Location  : $zigigitl                                           #z+
++Git ZFS       : $gitzfs
+)Init
+ &zwinttl = 'ZIGI Git Information Summary'
+ .zvars = '(zgsc)'
+)Proc
+)Field
+ Field(zigigitl) ind(zgsc,'<>') len(255)
+)End
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2023 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */
