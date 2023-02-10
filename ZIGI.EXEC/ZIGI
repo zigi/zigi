@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            02/06/23 - Version 3.17                         |
+  |            02/10/23 - Version 3.17                         |
   |                         - Correct bugs in grep viewing     |
   |                         - Save version for panel titles    |
   |                         - Fix for subdirectories           |
@@ -793,9 +793,11 @@ display_gitinfo:
   x = bpxwunix('df -k' zigigitl,,so.,se.)
   gitzfs = word(so.2,2)
   gitzfs = strip(translate(gitzfs,' ','()'))
+  call pfshow 'off'           /* make sure pfshow is off */
   'addpop row(4)'
   'display panel(zigiginf)'
   'rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
   return
 
   /* ------------------------------------------- *
