@@ -5,18 +5,25 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output)
-)Body Window(66,5)
+)Body Window(66,6)
 +ZIGI Version  : $ver
 +Git Version   : $gitver
 +Git Location  : $zigigitl                                     #z+
 +Git ZFS       : $gitzfs
 +Using CoZ     : $dovestat
++CoZ Location  : $dovedirl                                     #z+
 )Init
  &zwinttl = 'ZIGI Git Information Summary'
- .zvars = '(zgsc)'
+ .zvars = '(gsc dsc)'
+*rexx(* dovedir)
+ if dovedir /= ''
+    then dovedirl = subword(dovedir,2)
+    else dovedirl = ''
+*endrexx
 )Proc
 )Field
- Field(zigigitl) ind(zgsc,'<>') len(255)
+ Field(zigigitl) ind(gsc,'<>') len(255)
+ Field(dovedir ) ind(dsc,'<>') len(255)
 )End
 /* -------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                       */
