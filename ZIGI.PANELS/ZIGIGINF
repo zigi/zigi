@@ -10,15 +10,18 @@
 +Git Version   : $gitver
 +Git Location  : $zigigitl                                     #z+
 +Git ZFS       : $gitzfs
-+Using CoZ     : $dovestat
++Using CoZ     : $cozstat
 +CoZ Location  : $dovedirl                                     #z+
 )Init
  &zwinttl = 'ZIGI Git Information Summary'
  .zvars = '(gsc dsc)'
-*rexx(* dovedir)
+*rexx(* dovedir dovestat)
+ if dovestat = ''
+    then cozstat = 'Not Installed'
+    else cozstat = dovestat
  if dovedir /= ''
     then dovedirl = subword(dovedir,2)
-    else dovedirl = ''
+    else dovedirl = 'see https://coztoolkit.com'
 *endrexx
 )Proc
 )Field
