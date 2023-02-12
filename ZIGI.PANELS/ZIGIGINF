@@ -19,7 +19,7 @@
  if dovestat = ''
     then cozstat = 'Not Installed'
     else cozstat = dovestat
- if dovedir /= ''
+ if dovedir /= '0'
     then dovedirl = subword(dovedir,2)
     else dovedirl = 'see https://coztoolkit.com'
 *endrexx
