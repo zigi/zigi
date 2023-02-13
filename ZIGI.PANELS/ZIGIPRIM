@@ -18,6 +18,7 @@
  PDC DESC('Connect existing repository')         ACTION RUN(CONNECT)
  PDC DESC('Create Local repository')             ACTION RUN(CREATE)
  PDC DESC('Find text in table')                  ACTION RUN(FIND)
+ PDC DESC('Set Git Defaults')                    ACTION RUN(SET)
  PDC DESC('Select a Repo to work with')          ACTION RUN(SELECT)
  PDC DESC('Sort the Table')                      ACTION RUN(SORT)
  PDC DESC('View your SSH public key')            ACTION RUN(SSH)

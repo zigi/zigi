@@ -9,7 +9,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                              ZIGI Release Notes
                                 Version 3.17
-                              February 12, 2023
+                              February 13, 2023
 
                          New Features and Functions
                          --------------------------
@@ -17,6 +17,8 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 * panel zigiset cleanup for member generation value
 * new command for local and current repository of GITINFO to display
   information on the version of ZIGI, Git, and other information
+* update zigiprim command pulldown menu to add SET
+* update zigioprm to add SET
 
                           Bug Fixes and Other Updates:
                           ----------------------------

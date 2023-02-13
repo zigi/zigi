@@ -7,7 +7,7 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(47,13) cmd()
+)Body Window(47,14) cmd()
 +Enter Selection:_z        +
 +
  ]Clone+   Remote repository
@@ -17,6 +17,7 @@
  ]Find+    String in table fields:_findstr +
  ]Githelp+ Display menu of Git Help pages
  ]Gitinfo+ Display ZIGI/Git Information
+ ]SET+     Set Git Defaults
  ]SElect+  Select a Repository:}selfind +
  ]SOrt+    Sort the table
  ]SSH+     View your SSH public key
@@ -31,6 +32,7 @@
  &connect = 'Connect'
  &ssh     = 'SSH'
  &find    = 'FIND'
+ &set     = 'SET'
  &select  = 'Select'
  &sort    = 'Sort'
  &config  = 'Config'
@@ -49,6 +51,7 @@
  FIELD(CONNECT ) VAR(ZCMD) VAL('CONNECT')
  FIELD(SELECT  ) VAR(ZCMD) VAL('SELECT')
  FIELD(SORT    ) VAR(ZCMD) VAL('SORT')
+ FIELD(SET     ) VAR(ZCMD) VAL('SET')
  FIELD(SSH     ) VAR(ZCMD) VAL('SSH')
  FIELD(CONFIG  ) VAR(ZCMD) VAL('CONFIG')
  FIELD(GITHELP ) VAR(ZCMD) VAL('GITHELP')
