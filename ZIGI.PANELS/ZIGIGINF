@@ -5,16 +5,17 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output)
-)Body Window(66,6)
+)Body Window(66,7)
 +ZIGI Version  : $ver
 +Git Version   : $gitver
 +Git Location  : $zigigitl                                     #z+
 +Git ZFS       : $gitzfs
 +Using CoZ     : $cozstat
 +CoZ Location  : $dovedirl                                     #z+
++CoZ ZFS       : $zfscoz                                       #z+
 )Init
  &zwinttl = 'ZIGI Git Information Summary'
- .zvars = '(gsc dsc)'
+ .zvars = '(gsc dsc csc)'
 *rexx(* dovedir dovestat)
  if dovestat = ''
     then cozstat = 'Not Installed'
@@ -27,6 +28,7 @@
 )Field
  Field(zigigitl) ind(gsc,'<>') len(255)
  Field(dovedir ) ind(dsc,'<>') len(255)
+ Field(zfscoz  ) ind(csc,'<>') len(255)
 )End
 /* -------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                       */

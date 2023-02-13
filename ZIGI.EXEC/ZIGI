@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            02/10/23 - Version 3.17                         |
+  |            02/13/23 - Version 3.17                         |
   |                         - Correct bugs in grep viewing     |
   |                         - Save version for panel titles    |
   |                         - Fix for subdirectories           |
@@ -8559,8 +8559,14 @@ GETENV:
      dovedir = enhanced_cp dovetail_dir
      dovestat    = 'Co:Z active'
      x = debug('Co:Z is available in:' dovetail_dir)
+     x = bpxwunix('cd' dovetail_dir '&& df .',,dso.,dse.)
+     parse value dso.2 with . zfscoz .
+     zfscoz = strip(translate(zfscoz,' ','()'))
      end
-  else dovedir = 0
+  else do
+       dovedir = 0
+       zfscoz = null
+       end
   'vput (dovedir dovestat) shared'
   x = debug('Finished collection of env variables')
   return
