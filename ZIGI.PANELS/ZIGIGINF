@@ -5,7 +5,7 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output)
-)Body Window(66,7)
+)Body Window(66,8)
 +ZIGI Version  : $ver
 +Git Version   : $gitver
 +Git Location  : $zigigitl                                     #z+
@@ -13,6 +13,7 @@
 +Using CoZ     : $cozstat
 +CoZ Location  : $dovedirl                                     #z+
 +CoZ ZFS       : $zfscoz                                       #z+
++Encoding      : $encoding
 )Init
  &zwinttl = 'ZIGI Git Information Summary'
  .zvars = '(gsc dsc csc)'
