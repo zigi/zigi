@@ -12,7 +12,7 @@
 +
 %Commands available+(select one more information or press%Enter+to see all):
 +
-[Add   + Add dataset{*   [Githelp+Git Help          [Remote+ Add remote
+[Add   + Add dataset{*   [Githelp+Git Help          [Remote+  Add remote
 [AddAll+ Add all to Git  [Gitinfo+ZIGI/Git Info     [Row+     Options
 [Br    + Change Branch{* [GitLog+ Show git log      [Set+     Set Defaults
 [Check+  Check z/OS DSNs [Grep+   Find Strings      [Snapshot+Escrow
