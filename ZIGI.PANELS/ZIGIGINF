@@ -10,7 +10,7 @@
 +Git Version   : $gitver
 +Git Location  : $zigigitl                                     #z+
 +Git ZFS       : $gitzfs
-+Using CoZ     : $cozstat
++CoZ Status    : $cozstat
 +CoZ Location  : $dovedirl                                     #z+
 +CoZ ZFS       : $zfscoz                                       #z+
 +Encoding      : $encoding
