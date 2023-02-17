@@ -19,6 +19,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
   information on the version of ZIGI, Git, and other information
 * update zigiprim command pulldown menu to add SET
 * update zigioprm to add SET
+* update zigispls (Splash Screen) to remove bypass prompt (moved to SET)
 
                           Bug Fixes and Other Updates:
                           ----------------------------
@@ -28,6 +29,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
                  - Correct file extract file encoding
                  - Use the default ISPF Edit panel when viewing history
                  - Correct but in viewing grep results
+                 - Change splash screen bypass setting to the SET dialog
 * zigivmac       - Change to improve hilite usage
 * ziginstall.rex - Update with current zigistat routine
                  - Add zgpop4 ispf panel (inline)

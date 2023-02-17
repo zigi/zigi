@@ -22,7 +22,7 @@
 %Bypass File Extension Prompt:                      _z+(Y or N)
   +Set to%Y+if you do not plan to use file extension for PDS members to bypass
   +being asked when adding partitioned datasets.
-+
+%Bypass ZIGI Splash Screen at startup:              _z+(Y or N)
 +
 +
 %See:+https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup
@@ -31,7 +31,8 @@
 )Init
  if (&mgen = &Z)
      &mgen = 0
- .zvars = '(mgen pnsdef showst exitp extfile)'
+ vget (bypass)
+ .zvars = '(mgen pnsdef showst exitp extfile bypass)'
  &setcont = 'Y'
  if (&pnsdef EQ &Z)
      &pnsdef = 'S'
@@ -41,6 +42,8 @@
      &exitp = 'N'
  if (&extfile EQ &Z)
      &extfile = 'Y'
+ if (&bypass EQ &Z)
+     &bypass = 'N'
  .help = zigih140
 )Proc
   ver (&zigiuid,nb)
@@ -49,8 +52,9 @@
   &setcont = &Z
   ver (&pnsdef,nb,list,P,S)
   ver (&showst,nb,list,Y,N)
-  ver (&exitp,list,Y,N)
-  ver (&extfile,list,Y,N)
+  ver (&exitp,list,nb,Y,N)
+  ver (&extfile,list,nb,Y,N)
+  ver (&bypass,list,nb,Y,N)
 )end
 /* --------------------- Copyright (C) ------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                            */

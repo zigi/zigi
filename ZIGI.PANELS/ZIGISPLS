@@ -29,16 +29,12 @@
 +
 +               _ Copyright 2019 -{year_under GPL Version 3
 +
-+    !ENTER+to continue!F1+for Release Information          +Bypass:$z+
+                !ENTER+to continue!F1+for Release Information
 )Init
- .zvars = '(bypass)'
  .help = zigihrln
- if (&bypass = &Z)
-     &bypass = 'N'
 )Proc
- ver (&bypass,list,N,Y)
 )end
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2023 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */

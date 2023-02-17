@@ -29,16 +29,17 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            02/13/23 - Version 3.17                         |
-  |                         - Correct bugs in grep viewing     |
-  |                         - Save version for panel titles    |
-  |                         - Fix for subdirectories           |
-  |                         - Fix for pds member untracked     |
-  |                         - Speed up history extract         |
-  |                           remove cat > ...                 |
-  |                         - Correct file extract encoding    |
-  |                         - Use default edit panel for       |
-  |                           history viewing                  |
+  |            02/17/23 - Version 3.17                         |
+  |                     - Move splash bypass option            |
+  |                     - Correct bugs in grep viewing         |
+  |                     - Save version for panel titles        |
+  |                     - Fix for subdirectories               |
+  |                     - Fix for pds member untracked         |
+  |                     - Speed up history extract             |
+  |                       remove cat > ...                     |
+  |                     - Correct file extract encoding        |
+  |                     - Use default edit panel for           |
+  |                       history viewing                      |
   |            01/15/23 - Version 3.16                         |
   |                         - Allow / on command lines as alias|
   |                           of O to display prompt popup     |
@@ -1051,7 +1052,6 @@ display_splash:
     pnsdef = 'S'
     'vput (pnsdef) profile'
   end
-  bypasso = bypass
   if translate(start_option) = 'S' then bypass = 'N'
   if bypass /= 'Y' then do
     'display panel(zigispls)'
@@ -1368,7 +1368,7 @@ handle_zigiprim_config:
     'vget (mgen pnsdef showst) profile'
     sl = mgen()
     'display panel(zigiset)'
-    'vput (mgen pnsdef showst) profile'
+    'vput (mgen pnsdef showst bypass) profile'
     call update_config
     if rc = 0 | rc = 8 then leave
   end
