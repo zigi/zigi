@@ -29,7 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            02/17/23 - Version 3.17                         |
+  |            02/19/23 - Version 3.17                         |
+  |                     - Fixup Remote info for git 2.39+      |
   |                     - Move splash bypass option            |
   |                     - Correct bugs in grep viewing         |
   |                     - Save version for panel titles        |
@@ -2436,10 +2437,11 @@ WWR_handle_remote:
     if zigi_offline = 0 then do
       x = docmd(cmd '&& git push -vu origin 'branch)
       call View_std 'B'
-      gitcmd = 'git remote -v | sed -e "s/[[:space:]]\+/ /g"'
+      gitcmd = 'git remote -v'
       x = docmd('cd 'localrep'/'zigirep' && 'gitcmd)
+      call fix_remote_tab
       if so.0 > 0 then
-      remote1 = word(so.1,1)' 'word(so.1,2)
+      parse value so.1 with . (tab) remote1 .
       'tbmod zigirepo order'
       'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
     end
@@ -6884,15 +6886,18 @@ Update_repo_metadata:
     /* get the remote info.....but */
     /* we have to get rid of the tab in git output */
     x = debug('getting the remotes')
-    gitcmd = 'git remote -v | sed -e "s/[[:space:]]\+/ /g"'
+    gitcmd = 'git remote -v'
     localdir = localrep'/'zigirep
     x = docmd('cd 'localdir' && 'gitcmd)
+      call fix_remote_tab
     if so.0 > 0 then
-    remote1 = word(so.1,1)' 'word(so.1,2)
+      parse value so.1 with . (tab) remote1 .
     if so.0 = 0 then do
       remote1 = "<no remote defined>"
       remote2 = null
     end
+      'tbmod zigirepo order'
+      'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
   end
   cmd = 'cd' localrep'/'zigirep
   /* Fetch only if there's a remote */
@@ -10017,3 +10022,13 @@ Auto_Tag_File:   /* FM */
 Lower_Check: Procedure
   parse arg check_dsn
   return verify(check_dsn,'abcdefghijklmnopqrstuvwxyz','M')
+
+Fix_Remote_Tab:
+  Select
+    When pos('05'x,so.1) > 0 then
+         tab = '05'x
+    When pos('09'x,so.1) > 0 then
+         tab = '09'x
+    Otherwise nop
+    end
+    return
