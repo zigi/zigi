@@ -3,7 +3,7 @@
  _ type(input ) hilite(uscore) caps(on) intens(low )
  $ type(output) hilite(uscore) caps(off)
  { type(output) intens(low)
- } type(input ) hilite(uscore) caps(on) intens(low ) just(right)
+ } type(input ) hilite(uscore) caps(on) intens(low ) just(left)
  # type(output) hilite(reverse) color(turq) caps(off)
 )Body Expand(\\)
 +Set Defaults+\-\#zigtitle    +\-\-----------
