@@ -32,7 +32,7 @@ ZZZZZZZg               ZZZZZZZZ       ZZZZ    ZZZZZZ      ZZZZZZZZZg
 +
 +This is ZIGI@ver . Made with love by Henri Kuiper and Lionel B. Dyck.
 +If you like to contribute to zigi, head on over to github at
-!https://github.com/wizardofzos/zigi+and fork the repository to start adding
+!https://github.com/zigi/zigi+and fork the repository to start adding
 +your features to zigi. To keep up to date, follow ZIGI on twitter%@ispfgit
 +
 +The Mainframe is alive and kicking.
@@ -47,7 +47,7 @@ ZZZZZZZg               ZZZZZZZZ       ZZZZ    ZZZZZZ      ZZZZZZZZZg
   &zcont = zigihint
 )Proc
 )end
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2023 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */

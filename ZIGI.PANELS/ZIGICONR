@@ -45,7 +45,7 @@
     x = bpxwunix('ls -la' localrep,,so.,se.)
     if so.0 = 0 then do
       zedsmsg = 'Error.'
-      zedlmsg = localrep 'does not exist. Tray again.'
+      zedlmsg = localrep 'does not exist. Try again.'
       csr = 'LOCALREP'
     end
     else do i = 1 to so.0

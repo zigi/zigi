@@ -5,6 +5,8 @@
  [ type(output) caps(off) intens(low) color(&src)
  } type(output) caps(off) intens(low) just(right) color(&srl)
  { type(input) caps(off) hilite(uscore) intens(low)
+ ~ type(output) intens(high) caps(off) just(right) color(blue)
+ ! type(text  ) intens(high) caps(off) just(right) color(blue)
  _ type(input) caps(on ) hilite(uscore) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
  @ type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
@@ -16,9 +18,11 @@
  PDC DESC('Connect existing repository')         ACTION RUN(CONNECT)
  PDC DESC('Create Local repository')             ACTION RUN(CREATE)
  PDC DESC('Find text in table')                  ACTION RUN(FIND)
+ PDC DESC('Set Git Defaults')                    ACTION RUN(SET)
  PDC DESC('Select a Repo to work with')          ACTION RUN(SELECT)
  PDC DESC('Sort the Table')                      ACTION RUN(SORT)
  PDC DESC('View your SSH public key')            ACTION RUN(SSH)
+ PDC DESC('ZIGI/Git Information')                ACTION RUN(GITINFO)
  PDC DESC('End') Action Run(END)
 )ABCINIT
   .ZVARS = 'MENUX'
@@ -31,7 +35,7 @@
 )ABCINIT
   .ZVARS = HELPX
 )Body Expand(\\)
-+| Commands | Help +
++| Commands | Help + \ \!Git~gitver
 <-----------\-\--------------------------------+
 +Local Repositories+\-\#zigtitle    +\-\------------------
 %Command ===>{zcmd       \ \ %Scroll ===>_zgsr+
@@ -72,5 +76,5 @@ _z+  $z                    +]z                    +[z             +}z          +
 )end
 /* --------------------- Copyright (C) ------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                            */
-/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* Copyright (C) 2020-2023 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* ------------------------------------------------------------- */

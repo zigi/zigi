@@ -6,7 +6,7 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                                %Config+
+                             %Config+or%Set
 +
 +The%Config+command displays, and then allows changing info used by ZIGI and Git
 +
@@ -20,9 +20,9 @@
 +if outside the table or the Row Options popup if within the table.%S+
 +does nothing if outside the table or default to select if within the table.
 +
-+
-+
-+
++Prompt before exiting ZIGI just in case.
++Bypass File Extension prompt when adding PDS Members is a glocal default.
++Bypass the ZIGI Splash screen for those who don't want to see it.
 +
          +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
@@ -32,5 +32,5 @@
 )END
 /* ------------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                            */
-/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* Copyright (C) 2020-2023 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* ------------------------------------------------------------- */

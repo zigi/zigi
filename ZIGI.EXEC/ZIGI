@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r16'
+  ver = 'v3r17'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -29,7 +29,19 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            xx/xx/23 - Version 3.16                         |
+  |            02/19/23 - Version 3.17                         |
+  |                     - Fixup Remote info for git 2.39+      |
+  |                     - Move splash bypass option            |
+  |                     - Correct bugs in grep viewing         |
+  |                     - Save version for panel titles        |
+  |                     - Fix for subdirectories               |
+  |                     - Fix for pds member untracked         |
+  |                     - Speed up history extract             |
+  |                       remove cat > ...                     |
+  |                     - Correct file extract encoding        |
+  |                     - Use default edit panel for           |
+  |                       history viewing                      |
+  |            01/15/23 - Version 3.16                         |
   |                         - Allow / on command lines as alias|
   |                           of O to display prompt popup     |
   |                         - Enable View for OMVS files if    |
@@ -561,7 +573,7 @@
   |                                                            |
   | ---------------------------------------------------------- |
   |    ZIGI - the z/OS ISPF Git Interface                      |
-  |    Copyright (C) 2020-2021 - Henri Kuiper and Lionel Dyck  |
+  |    Copyright (C) 2020-2023 - Henri Kuiper and Lionel Dyck  |
   |                                                            |
   |    This program is free software: you can redistribute it  |
   |    and/or modify it under the terms of the GNU General     |
@@ -582,7 +594,7 @@
   parse arg start_option
 
   parse value '' with null repo_ztdsels fetch_flag dovetail_dir codep ,
-                      dovestat created repdone
+                      dovestat created
 
   /* ------------------------------------------ *
   | ISPExec is our default host environment    |
@@ -662,6 +674,7 @@
     /* handle remaining primairy commands */
     if zcmd /= null then
     Select
+      When abbrev('GITINFO',zcmd,4) = 1 then call display_gitinfo
       When abbrev('CONNECT',zcmd,2) = 1 then call handle_zigiprim_connect
       When abbrev('CREATE',zcmd,2) = 1 then call handle_zigiprim_create
       When abbrev('CLONE',zcmd,2) = 1 then call handle_zigiprim_clone
@@ -775,6 +788,20 @@ set_sortdate:
   sortdate = date('b')''right(time('s')+100000,5)
   return
 
+  /* ---------------------------- *
+   | Display ZIGI/Git Information |
+   * ---------------------------- */
+display_gitinfo:
+  x = bpxwunix('df -k' zigigitl,,so.,se.)
+  gitzfs = word(so.2,2)
+  gitzfs = strip(translate(gitzfs,' ','()'))
+  call pfshow 'off'           /* make sure pfshow is off */
+  'addpop row(4)'
+  'display panel(zigiginf)'
+  'rempop'
+  call pfshow 'reset'         /* restore pfshow setting */
+  return
+
   /* ------------------------------------------- *
   | Handle zigiprim panel primary command O      |
   * ------------------------------------------- */
@@ -799,7 +826,6 @@ display_zigioprm:
 display_zigiprim:
   parse value '' with zsel row readonly
   fetch_flag = 0
-  repdone = null
   zigpass = 'PASSTHRU'
   'vput (zigpass) shared'
   'TBTop zigirepo'
@@ -896,6 +922,8 @@ init_git:
   required_version = '2.26'
   x = so.0
   parse var so.x 'git' 'version' version'_'subversion
+  gitver = version
+  'vput (gitver) shared'
   version = strip(version,'B')
   if version < required_version then do
     zs1 = "Your git version is not at the minimum required level"
@@ -1025,7 +1053,6 @@ display_splash:
     pnsdef = 'S'
     'vput (pnsdef) profile'
   end
-  bypasso = bypass
   if translate(start_option) = 'S' then bypass = 'N'
   if bypass /= 'Y' then do
     'display panel(zigispls)'
@@ -1342,7 +1369,7 @@ handle_zigiprim_config:
     'vget (mgen pnsdef showst) profile'
     sl = mgen()
     'display panel(zigiset)'
-    'vput (mgen pnsdef showst) profile'
+    'vput (mgen pnsdef showst bypass) profile'
     call update_config
     if rc = 0 | rc = 8 then leave
   end
@@ -1499,11 +1526,9 @@ Work_With_Repo:
   | Process the Repository Data Sets |
   * -------------------------------- */
   do forever
-    if repdone = 1 then return
     x = WWR_display_zigirepo()
     if x > 3 then do
        'tbend' rtbl
-       repdone = 1
        return
        end
     repo_ztdsels = ztdsels
@@ -1536,6 +1561,7 @@ Work_With_Repo:
       end
       When abbrev('BRANCH',zcmd,2) = 1 then call WWR_handle_branch
       When abbrev('CONVREPO',zcmd,4) = 1 then call WWR_handle_convrepo
+      When abbrev('GITINFO',zcmd,4) = 1 then call display_gitinfo
       /* ----------------- *
       | Git command prompt |
       * ------------------ */
@@ -2411,10 +2437,11 @@ WWR_handle_remote:
     if zigi_offline = 0 then do
       x = docmd(cmd '&& git push -vu origin 'branch)
       call View_std 'B'
-      gitcmd = 'git remote -v | sed -e "s/[[:space:]]\+/ /g"'
+      gitcmd = 'git remote -v'
       x = docmd('cd 'localrep'/'zigirep' && 'gitcmd)
+      call fix_remote_tab
       if so.0 > 0 then
-      remote1 = word(so.1,1)' 'word(so.1,2)
+      parse value so.1 with . (tab) remote1 .
       'tbmod zigirepo order'
       'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
     end
@@ -3113,6 +3140,7 @@ WWRF_build_member_table:
   dstat = dsnstat
 
   call get_ignored
+  memstat = null
 
   do bmi = 1 to root.0
     if left(root.bmi,1) = ' ' then iterate
@@ -3152,7 +3180,7 @@ WWRF_build_member_table:
         if mem = MEMBER then do
           memstat = porcelain(stat)
           if FOLDER = "./" & stat = "??" then
-          memstat = '[??] Untracked'
+             memstat = '[??] Untracked'
           leave
         end
       end
@@ -3162,7 +3190,7 @@ WWRF_build_member_table:
     if statc /= 0 then memstat = '[  ] Git Ignored'
 
     if stat = '??' then
-    memstat = '[??] Untracked'
+       memstat = '[??] Untracked'
 
     /* ------------------------------------------------------- *
     |  The files in OMVS have some chars changed due to cp -M |
@@ -4839,7 +4867,8 @@ do_grep:
         if qualignr > 0 then
         pdshlqt = subword(pdshlqt,1,qualignr)
         pdshlqt = translate(pdshlqt,'.',' ')
-        parse value '' with dsntbl gstat gcount
+        parse value '' with dsntbl gstat
+        gcount = 0
         zgreptbl = 'ZG'time('s')
         'TBCreate' zgreptbl 'Keys(gdsn) Names(gstat gcount) nowrite share'
         do si = 1 to so.0
@@ -4851,10 +4880,13 @@ do_grep:
             if zdsn.gdsn /= null then
             parse value mem with mem'.'.
             if dsnvalid(gdsn) = 'OK'
-            then gdsn = gdsn'('mem')'
+            then do
+                 gdsn = gdsn'('translate(mem)')'
+                 end
             else gdsn = gdsn'/'mem
           end
-          gdsnt = "'"pdshlqt"."strip(gdsn)"'"
+          if left(gdsn,1) /= "'" then
+            gdsnt = "'"pdshlqt"."strip(gdsn)"'"
           if lower_check(gdsnt) = 0 then
           if pos('/',gdsnt) = 0 then do
             call outtrap 'x.'
@@ -4906,6 +4938,12 @@ do_grep:
             call pfshow 'reset'         /* restore pfshow setting */
           end
           if zsel = 'S' then zsel = 'E'
+          gdsno = gdsn
+          if left(gdsn,1) /= "'" then
+          if pos('(',gdsn) > 0 then do
+             parse value gdsn with wd'('wm')'
+             gdsn = "'"pdshlqt"."wd"("translate(wm)")'"
+             end
           Select
             When zsel = 'B' then do
               if left(gdsn,1) = "'"
@@ -4917,6 +4955,7 @@ do_grep:
                 Address TSO 'OBrowse' grepdir'/'gdsn
                 gstat = '*OBrowse'
               end
+              gdsn = gdsno
               'tbmod' zgreptbl
             end
             When zsel = 'E' then do
@@ -4932,6 +4971,7 @@ do_grep:
                 gstat = '*Edit'
                 if rc = 0 then file_changed = 1
               end
+              gdsn = gdsno
               'tbmod' zgreptbl
             end
             When zsel = 'V' then do
@@ -4945,6 +4985,7 @@ do_grep:
                 'View file(ofile)'
                 gstat = '*View'
               end
+              gdsn = gdsno
               'tbmod' zgreptbl
             end
             Otherwise nop
@@ -6845,15 +6886,18 @@ Update_repo_metadata:
     /* get the remote info.....but */
     /* we have to get rid of the tab in git output */
     x = debug('getting the remotes')
-    gitcmd = 'git remote -v | sed -e "s/[[:space:]]\+/ /g"'
+    gitcmd = 'git remote -v'
     localdir = localrep'/'zigirep
     x = docmd('cd 'localdir' && 'gitcmd)
+      call fix_remote_tab
     if so.0 > 0 then
-    remote1 = word(so.1,1)' 'word(so.1,2)
+      parse value so.1 with . (tab) remote1 .
     if so.0 = 0 then do
       remote1 = "<no remote defined>"
       remote2 = null
     end
+      'tbmod zigirepo order'
+      'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
   end
   cmd = 'cd' localrep'/'zigirep
   /* Fetch only if there's a remote */
@@ -8520,8 +8564,14 @@ GETENV:
      dovedir = enhanced_cp dovetail_dir
      dovestat    = 'Co:Z active'
      x = debug('Co:Z is available in:' dovetail_dir)
+     x = bpxwunix('cd' dovetail_dir '&& df .',,dso.,dse.)
+     parse value dso.2 with . zfscoz .
+     zfscoz = strip(translate(zfscoz,' ','()'))
      end
-  else dovedir = 0
+  else do
+       dovedir = 0
+       zfscoz = null
+       end
   'vput (dovedir dovestat) shared'
   x = debug('Finished collection of env variables')
   return
@@ -9389,7 +9439,7 @@ DoHist_ViewSource:
   vtitle = element '\' hdate '\' hsubject '\' fulldsn
   gitcmde = null
   'vput (vtitle gitcmde localrep zigirep)'
-  'View File(file) panel(zigiedit) macro(zigivmac)'
+  'View File(file) macro(zigivmac)'
   x = docmd('rm' file)
   return
 
@@ -9417,7 +9467,7 @@ DoHist_Compare:
         end
      else workdsn = fulldsn
      'vput (vtitle localrep zigirep zfile workdsn)'
-     'edit dataset('workdsn') panel(zigiedit) macro(zigizmac)'
+     'edit dataset('workdsn') macro(zigizmac)'
      if rc = 0 then do
         if sysdsorg = 'PS' then do
            ztdsels = 2
@@ -9434,7 +9484,7 @@ DoHist_Compare:
   else do
       workdsn = localrep'/'zigirep'/'fulldsn
       'vput (vtitle localrep zigirep zfile workdsn)'
-      'edit File(workdsn) panel(zigiedit) macro(zigizmac)'
+      'edit File(workdsn) macro(zigizmac)'
       if rc = 0 then do
          dsnstat = '[ M] Modified'
          'tbput' rtbl
@@ -9461,8 +9511,10 @@ DoHist_File_Extract:
   else file = home'/tmp/'element
   call check_tmp
   cmd = 'cd' localrep'/'zigirep ,
+     '&& unset _TAG_REDIR_OUT' ,
      '&& git show' hcommit':'element ,
-     '| cat >' file
+     '>' file ,
+     '&& chtag -tc 'encoding file
   dhrc = docmd(cmd)
   if dhrc > 0 then call view_std 'B'
   return dhrc
@@ -9970,3 +10022,13 @@ Auto_Tag_File:   /* FM */
 Lower_Check: Procedure
   parse arg check_dsn
   return verify(check_dsn,'abcdefghijklmnopqrstuvwxyz','M')
+
+Fix_Remote_Tab:
+  Select
+    When pos('05'x,so.1) > 0 then
+         tab = '05'x
+    When pos('09'x,so.1) > 0 then
+         tab = '09'x
+    Otherwise nop
+    end
+    return

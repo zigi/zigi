@@ -6,22 +6,22 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                                %GITHELP+
+                                %GITINFO+
 +
-%GITHELP+displays all the available%Git+commands, along with other%Git+pages
-+with more information. This helps the Git novice, and%Git+guru to better use
-%Git+and%zigi.
-%
-%Syntax: GITHelp optional-git-command +(e.g. gith commit)
-%
-%Commands:+
-+   %Only+removes all rows that do not have the provided string:
-+         e.g.  o git
-+   %Replace+is used after Only to rebuild the table
+%GITINFO+displays all information about the current %ZIGI+and%Git+environment.
 +
-%Selection:+
-+   %S+Display the manpage for the selected row.
-+   (may also put cursor on the row and press enter or double click)
+%Syntax: GITInfo
+%
+%
+%
+%
++
++
++
++
+%
++
++
 +
 +
          +Press the%Enter+key to continue your ZIGI tutorial journey.
@@ -30,7 +30,8 @@
  vget (ztut)
 )PROC
  if (&ztut = 100)
-     &zcont = ZIGIH161
+     &zup   = ZIGIH160
+     &zcont = ZIGIH170
  if (&ztut = 200)
      &zcont = ZIGIH250
 )END
