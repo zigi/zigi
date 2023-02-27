@@ -29,7 +29,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            02/19/23 - Version 3.17                         |
+  |            02/27/23 - Version 3.17                         |
+  |                     - when setting up .gitconfig change    |
+  |                       defaultBranch to main                |
   |                     - Fixup Remote info for git 2.39+      |
   |                     - Move splash bypass option            |
   |                     - Correct bugs in grep viewing         |
@@ -8890,6 +8892,15 @@ Update_Config:
     x = docmd('git config --global user.email "'zigimail'"')
     if x > 0 then do
       zs1 = "something went wrong with git config user.email"
+      x = so.0
+      zs2 = so.x
+      zs3 = se.1
+      zs4 = null
+      call do_popup4
+    end
+    x = docmd(' git config --global init.defaultBranch main')
+    if x > 0 then do
+      zs1 = "something went wrong with git config defaultBranch"
       x = so.0
       zs2 = so.x
       zs3 = se.1
