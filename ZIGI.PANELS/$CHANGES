@@ -13,6 +13,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                          New Features and Functions
                          --------------------------
+* New startup parm of /ENV to reset the Git Environemnt variable
 * when setting up .gitconfig use main as the defaultBranch
 * update remote detection due to change in git 2.39
 * various panels updated to include the active git version

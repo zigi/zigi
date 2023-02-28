@@ -15,11 +15,11 @@
 +wish to see the splash panel again, then the command would be %TSO ZIGI S+to
 %start zigi.
 +
++Starting with%/ENV+will force the Git Environment Prompt.
++
 +If you know the name of a specific repository you want to start with then
 +the command would be%TSO ZIGI repository-name+and ZIGI opens that
 +repository and bypasses the Local Repository table.
-+
-+
 +
 +   "Don't hurry your code. Make sure it works well and is well designed.
      Don't worry about timing"  -- Linus Torvalds
