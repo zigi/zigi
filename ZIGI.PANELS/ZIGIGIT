@@ -24,7 +24,7 @@
 + export LIBPATH=/zdo/rocket/lib/perl5/5.24.0/os390/CORE:$LIBPATH
 +
 +
-+
++ Use start option%/ENV+to be prompted to change this. Or use%ENVR+to nullify.
 +
 +
                   +Press%Enter+to continue, or%F3+to cancel

@@ -29,7 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            02/27/23 - Version 3.17                         |
+  |            02/28/23 - Version 3.17                         |
+  |                     - new /ENVR start parm to blank git env|
   |                     - new /ENV start parm to reset git env |
   |                     - when setting up .gitconfig change    |
   |                       defaultBranch to main                |
@@ -1133,6 +1134,15 @@ init_ispf:
    * ----------------------------- */
    if translate(start_option) = '/ENV' then do
       reset_env = 1
+      start_option = null
+      end
+
+  /* ------------------------------ *
+   | Check for /ENVR startup option |
+   * ------------------------------ */
+   if translate(start_option) = '/ENVR' then do
+      gitenv = null
+      'verase (gitenv) profile'
       start_option = null
       end
 
