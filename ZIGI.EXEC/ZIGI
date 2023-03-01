@@ -8650,6 +8650,7 @@ docmdx:
   if gitenv /= null
   then envfile = '.' gitenv ' >/dev/null 2>&1 &&'
   else envfile = null
+  reset_env = null
 
   /* check for users .profile */
   address syscall 'lstat' "'"home"/.profile'" 'x.'
