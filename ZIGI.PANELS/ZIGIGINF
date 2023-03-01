@@ -5,19 +5,23 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output)
-)Body Window(66,8)
-+ZIGI Version  : $ver
-+Git Version   : $gitver
-+Git Location  : $zigigitl                                     #z+
-+Git ZFS       : $gitzfs
-+CoZ Status    : $cozstat
-+CoZ Location  : $dovedirl                                     #z+
-+CoZ ZFS       : $zfscoz                                       #z+
-+Encoding      : $encoding
+)Body Window(67,9)
++ZIGI Version   : $ver
++Git Version    : $gitver
++Git Location   : $zigigitl                                     #z+
++Git ZFS        : $gitzfs
++CoZ Status     : $cozstat
++CoZ Location   : $dovedirl                                     #z+
++CoZ ZFS        : $zfscoz                                       #z+
++Encoding       : $encoding
++Custom Env Var : $vgitenv
 )Init
  &zwinttl = 'ZIGI Git Information Summary'
  .zvars = '(gsc dsc csc)'
-*rexx(* dovedir dovestat)
+*rexx(* dovedir dovestat gitenv)
+ if gitenv = ''
+    then vgitenv = 'Not Defined'
+    else vgitenv = gitenv
  if dovestat = ''
     then cozstat = 'Not Installed'
     else cozstat = dovestat
