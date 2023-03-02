@@ -17,6 +17,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            03/02/23 LBD - Correctly detect all mbrs are bin|
   |            01/18/23 LBD - Correct USSSAFE routine to use   |
   |                           updated version (from zigi)      |
   |            11/09/22 SP  - Fix stat files with merge issues |
@@ -856,6 +857,7 @@ Check_Mixed_BinText:
   do bi = 1 to binfiles.0
     parse value binfiles.bi with cmbtfile'/'cmbtmbr
     parse value checkForBinFile with checkFile'/'checkmbr
+    if cmbtmbr = '*' then return 0
     if cmbtfile = checkFile then
     if pos('*',cmbtmbr) > 0 then cmbtRC = 1
     else return 1

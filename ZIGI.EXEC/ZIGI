@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            02/28/23 - Version 3.17                         |
+  |            03/02/23 - Version 3.17                         |
   |                     - new /ENVR start parm to blank git env|
   |                     - new /ENV start parm to reset git env |
   |                     - when setting up .gitconfig change    |
@@ -3182,6 +3182,7 @@ WWRF_build_member_table:
       do ii = 1 to so.0
         /* see if we have this file in git status */
         stat = substr(so.ii,1,2)
+        memstat = null
         if pos('R',stat) = 0
         then thepath = word(so.ii,2)
         else thepath = word(so.ii,4)
