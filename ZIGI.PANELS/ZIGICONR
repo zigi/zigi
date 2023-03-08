@@ -58,7 +58,7 @@
             end
          if qualignr = '' then do
              zedsmsg = 'Error.'
-             zedlmsg = pdshlq 'does is not part of the requested repository' ,
+             zedlmsg = pdshlq 'is not part of the requested repository' ,
                'because there are no datasets that conform to the naming' ,
                'convention. Is the correct directory?'
              csr = 'LOCALREP'
