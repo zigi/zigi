@@ -13,6 +13,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                          New Features and Functions
                          --------------------------
+* New startup parm of /ENV to reset the Git Environemnt variable
 * when setting up .gitconfig use main as the defaultBranch
 * update remote detection due to change in git 2.39
 * various panels updated to include the active git version
@@ -22,6 +23,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 * update zigiprim command pulldown menu to add SET
 * update zigioprm to add SET
 * update zigispls (Splash Screen) to remove bypass prompt (moved to SET)
+* moved SAMPXIT0 and STARTZIG to the Samples PDS
 
                           Bug Fixes and Other Updates:
                           ----------------------------
@@ -39,6 +41,8 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
                  - Add zgpop4 ispf panel (inline)
 * zigickot       - Update to correct bug in the usssafe routine by using
                    the version of the routine from zigi exec
+                 - Correct detection when .gitattributes are /* to
+                   copy all members at once instead of one at a time
 
 -----------------------------------------------------------------------------
 

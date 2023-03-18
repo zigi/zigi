@@ -29,7 +29,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            02/27/23 - Version 3.17                         |
+  |            03/02/23 - Version 3.17                         |
+  |                     - new /ENVR start parm to blank git env|
+  |                     - new /ENV start parm to reset git env |
   |                     - when setting up .gitconfig change    |
   |                       defaultBranch to main                |
   |                     - Fixup Remote info for git 2.39+      |
@@ -596,7 +598,7 @@
   parse arg start_option
 
   parse value '' with null repo_ztdsels fetch_flag dovetail_dir codep ,
-                      dovestat created
+                      dovestat created reset_env
 
   /* ------------------------------------------ *
   | ISPExec is our default host environment    |
@@ -1126,6 +1128,23 @@ init_ispf:
   end
   zigpass = null
   'vput (zigpass) shared'
+
+  /* ----------------------------- *
+   | Check for /ENV startup option |
+   * ----------------------------- */
+   if translate(start_option) = '/ENV' then do
+      reset_env = 1
+      start_option = null
+      end
+
+  /* ------------------------------ *
+   | Check for /ENVR startup option |
+   * ------------------------------ */
+   if translate(start_option) = '/ENVR' then do
+      gitenv = null
+      'verase (gitenv) profile'
+      start_option = null
+      end
 
   parse value '' with null rx save_zigirep fulldsn cltime
   cscnt = 0
@@ -3163,6 +3182,7 @@ WWRF_build_member_table:
       do ii = 1 to so.0
         /* see if we have this file in git status */
         stat = substr(so.ii,1,2)
+        memstat = null
         if pos('R',stat) = 0
         then thepath = word(so.ii,2)
         else thepath = word(so.ii,4)
@@ -8627,9 +8647,11 @@ docmdx:
   not running a login shell via bpxwunix */
   parse arg cmd
   drop o. se.
+  if reset_env = null then
   if gitenv /= null
   then envfile = '.' gitenv ' >/dev/null 2>&1 &&'
   else envfile = null
+  reset_env = null
 
   /* check for users .profile */
   address syscall 'lstat' "'"home"/.profile'" 'x.'
