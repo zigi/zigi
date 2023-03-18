@@ -17,6 +17,7 @@
   [Create+ Create a new local repository
   [Find+   Find/RFind a string in either the repository name or the prefix
   [Githelp+Navigate the Git help output via ISPF panels
+  [Gitinfo+ZIGI/Git Information
   [Select+ Select a repository by name
   [SOrt+   Sort the table
   [SSH+    Review your SSH public key
@@ -34,6 +35,7 @@
  &ssh     = 'SSH'
  &config  = 'Config'
  &githelp = 'GitHelp'
+ &gitinfo = 'GITInfo'
  &find    = 'Find'
  &sort    = 'Sort'
  &select  = 'Select'
@@ -47,11 +49,12 @@
     When abbrev('CREATE',zcmd,2) = 1 then zcmd = 2
     When abbrev('SSH',zcmd,2) = 1 then zcmd = 3
     When abbrev('CONFIG',zcmd,2) = 1 then zcmd = 4
-    When abbrev('GITHELP',zcmd,2) = 1 then zcmd = 5
-    When abbrev('FIND',zcmd,2) = 1 then zcmd = 6
-    When abbrev('SELECT',zcmd,2) = 1 then zcmd = 7
-    When abbrev('SORT',zcmd,2) = 1 then zcmd = 8
-    When abbrev('CONNECT',zcmd,3) = 1 then zcmd = 9
+    When abbrev('GITHELP',zcmd,4) = 1 then zcmd = 5
+    When abbrev('GITINFO',zcmd,4) = 1 then zcmd = 6
+    When abbrev('FIND',zcmd,2) = 1 then zcmd = 7
+    When abbrev('SELECT',zcmd,2) = 1 then zcmd = 8
+    When abbrev('SORT',zcmd,2) = 1 then zcmd = 9
+    When abbrev('CONNECT',zcmd,3) = 1 then zcmd = 10
     Otherwise nop
   end
 *Endrexx
@@ -62,10 +65,11 @@
            3,zigih130    /*  SSH                 */
            4,zigih140    /*  CONFIG              */
            5,zigih160    /*  GITHELP             */
-           6,zigih170    /*  Find                */
-           7,zigih180    /*  Select              */
-           8,zigih190    /*  Sort                */
-           9,zigih125    /*  Connect             */
+           6,zigih161    /*  GITINFO             */
+           7,zigih170    /*  Find                */
+           8,zigih180    /*  Select              */
+           9,zigih190    /*  Sort                */
+          10,zigih125    /*  Connect             */
            *,'?'
            )
 )PNTS
@@ -74,12 +78,13 @@
  Field(ssh   )  var(zcmd) val('3')
  Field(config)  var(zcmd) val('4')
  Field(githelp) var(zcmd) val('5')
- Field(find   ) var(zcmd) val('6')
- Field(select ) var(zcmd) val('7')
- Field(sort   ) var(zcmd) val('8')
- Field(connect) var(zcmd) val('9')
+ Field(gitinfo) var(zcmd) val('6')
+ Field(find   ) var(zcmd) val('7')
+ Field(select ) var(zcmd) val('8')
+ Field(sort   ) var(zcmd) val('9')
+ Field(connect) var(zcmd) val('10')
 )END
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2023 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */

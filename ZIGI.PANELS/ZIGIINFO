@@ -9,7 +9,7 @@
 +Name          : $reponame
 +Repository    : $zigirep
 +Branch        : $branch
-+Remote        : $remotex
++Remote        : $remote1
 +                $remotex2
 +Home Directory: $home
 +Category      : $zigicat

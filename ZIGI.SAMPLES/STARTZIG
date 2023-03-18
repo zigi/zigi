@@ -1,0 +1,19 @@
+  /* --------------------- REXX -------------------------------- *
+  | This is a REXX exec that may be copied into a system level, |
+  | group level, or personal SYSEXEC or SYSPROC library for the |
+  | purpose of making it easy to invoke zigi.                   |
+  |                                                             |
+  | It is suggested to name it ZIGI, but that is up to you.     |
+  |                                                             |
+  | To use customize the exec and panels variables.             |
+  * ----------------------------------------------------------- */
+  arg opt
+  exec   = "'hlq.exec'"                 /* <=== update */
+  panels = "'hlq.panels'"               /*  <=== update */
+
+  Address TSO 'altlib act application(exec) dataset('exec')'
+  Address ISPexec
+  'libdef ispplib dataset id('panels') stack'
+  "Select CMD(%zigi" opt") Newappl(ZIGI) Passlib Scrname(zigi)"
+  'libdef ispplib'
+  Address TSO 'altlib deact application(exec)'

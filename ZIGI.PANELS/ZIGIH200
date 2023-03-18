@@ -12,16 +12,16 @@
 +
 %Commands available+(select one more information or press%Enter+to see all):
 +
-[Add   + Add dataset{*   [Githelp+Git Help          [Row+     Options
-[AddAll+ Add all to Git  [GitLog+ Show git log      [Set+     Set Defaults
-[Br    + Change Branch{* [Grep+   Find Strings      [Snapshot+Escrow
-[Check+  Check z/OS DSNs [Merge+  Merge Branches{*  [Stash+   Stash Save
-[Commit+ Record Changes  [Network+Network Report    [StashL+  Stash List
-[Diff+  +Diff            [Pull+   Pull from origin  [Status+  Git Status
-[Extract+Package{*       [Push+   Push to origin    [Tag+     Git Tag
-[Find+   Find in table   [READme+ Edit README.md    [TagList+ List Tags
-[Flow+   ZIGI Flow       [Replace+Replace Datasets{*[View+    OMVS Dir
-[GitCMD +Git Commands    [Remote+ Add remote
+[Add   + Add dataset{*   [Githelp+Git Help          [Remote+  Add remote
+[AddAll+ Add all to Git  [Gitinfo+ZIGI/Git Info     [Row+     Options
+[Br    + Change Branch{* [GitLog+ Show git log      [Set+     Set Defaults
+[Check+  Check z/OS DSNs [Grep+   Find Strings      [Snapshot+Escrow
+[Commit+ Record Changes  [Merge+  Merge Branches{*  [Stash+   Stash Save
+[Diff+  +Diff            [Network+Network Report    [StashL+  Stash List
+[Extract+Package{*       [Pull+   Pull from origin  [Status+  Git Status
+[Find+   Find in table   [Push+   Push to origin    [Tag+     Git Tag
+[Flow+   ZIGI Flow       [READme+ Edit README.md    [TagList+ List Tags
+[GitCMD +Git Commands    [Replace+Replace Datasets{*[View+    OMVS Dir
 +
 {*+Not supported within subdirectories.
 {*+Use%O+to display a popup for commands if the menu has been hidden.
@@ -39,6 +39,7 @@
  &Flow    = 'Flow'
  &Gitcmd  = 'GitCmd'
  &Githelp = 'Githelp'
+ &Gitinfo = 'GITInfo'
  &GitLog  = 'Gitlog'
  &Grep    = 'Grep'
  &Merge   = 'Merge'
@@ -74,24 +75,25 @@
     When abbrev('FLOW',zcmd,2)    = 1 then zcmd = 8
     When abbrev('GITCMD',zcmd,4)  = 1 then zcmd = 9
     When abbrev('GITHELP',zcmd,4) = 1 then zcmd = 10
-    When abbrev('GITLOG',zcmd,4)  = 1 then zcmd = 11
-    When abbrev('GREP',zcmd,2)    = 1 then zcmd = 12
-    When abbrev('MERGE',zcmd,2)   = 1 then zcmd = 13
-    When abbrev('NETWORK',zcmd,2) = 1 then zcmd = 14
-    When abbrev('PULL',zcmd,3)    = 1 then zcmd = 15
-    When abbrev('PUSH',zcmd,3)    = 1 then zcmd = 16
-    When abbrev('REPLACE',zcmd,3) = 1 then zcmd = 17
-    When abbrev('REMOTE',zcmd,3)  = 1 then zcmd = 18
-    When abbrev('SET',zcmd,2)     = 1 then zcmd = 19
-    When abbrev('SNAPSHOT',zcmd,2) = 1 then zcmd = 20
-    When abbrev('STASH',zcmd,2)   = 1 then zcmd =21
-    When abbrev('STASHL',zcmd,2)  = 1 then zcmd = 21
-    When abbrev('STATUS',zcmd,2)  = 1 then zcmd = 22
-    When abbrev('VIEW',zcmd,1)    = 1 then zcmd = 23
-    When abbrev('TAG',zcmd,1)    = 1  then zcmd = 24
-    When abbrev('TAGLIST',zcmd,4)  = 1 then zcmd = 25
-    When abbrev('DIFF',zcmd,1)    = 1 then zcmd = 26
-    When abbrev('README',zcmd,1)  = 1 then zcmd = 27
+    When abbrev('GITINFO',zcmd,4) = 1 then zcmd = 11
+    When abbrev('GITLOG',zcmd,4)  = 1 then zcmd = 12
+    When abbrev('GREP',zcmd,2)    = 1 then zcmd = 13
+    When abbrev('MERGE',zcmd,2)   = 1 then zcmd = 14
+    When abbrev('NETWORK',zcmd,2) = 1 then zcmd = 15
+    When abbrev('PULL',zcmd,3)    = 1 then zcmd = 16
+    When abbrev('PUSH',zcmd,3)    = 1 then zcmd = 17
+    When abbrev('REPLACE',zcmd,3) = 1 then zcmd = 18
+    When abbrev('REMOTE',zcmd,3)  = 1 then zcmd = 19
+    When abbrev('SET',zcmd,2)     = 1 then zcmd = 20
+    When abbrev('SNAPSHOT',zcmd,2) = 1 then zcmd = 21
+    When abbrev('STASH',zcmd,2)   = 1 then zcmd = 22
+    When abbrev('STASHL',zcmd,2)  = 1 then zcmd = 22
+    When abbrev('STATUS',zcmd,2)  = 1 then zcmd = 23
+    When abbrev('VIEW',zcmd,1)    = 1 then zcmd = 24
+    When abbrev('TAG',zcmd,1)    = 1  then zcmd = 25
+    When abbrev('TAGLIST',zcmd,4)  = 1 then zcmd = 26
+    When abbrev('DIFF',zcmd,1)    = 1 then zcmd = 27
+    When abbrev('README',zcmd,1)  = 1 then zcmd = 28
     Otherwise nop
   end
 *Endrexx
@@ -107,23 +109,24 @@
            8,zigih2k0  /* FLOW           */
            9,zigih240  /* GITCMD         */
           10,zigih160  /* GITHELP        */
-          11,zigih250  /* GITLOG         */
-          12,zigih260  /* GREP           */
-          13,zigih270  /* MERGE          */
-          14,zigih280  /* NETWORK        */
-          15,zigih290  /* PULL           */
-          16,zigih2A0  /* PUSH           */
-          17,zigih2B0  /* Replace        */
-          18,zigih2C0  /* REMOTE         */
-          19,zigih2E0  /* SET            */
-          20,zigihsnp  /* Snapshot       */
-          21,zigih2j0  /* Stash/Stashl   */
-          22,zigih2F0  /* STATUS         */
-          23,zigih2G0  /* VIEW           */
-          24,zigih2H0  /* Tag            */
-          25,zigih2I0  /* TagList        */
-          26,zigih2l0  /* Diff           */
-          27,zigih2m0  /* README         */
+          11,zigih161  /* GITINfo        */
+          12,zigih250  /* GITLOG         */
+          13,zigih260  /* GREP           */
+          14,zigih270  /* MERGE          */
+          15,zigih280  /* NETWORK        */
+          16,zigih290  /* PULL           */
+          17,zigih2A0  /* PUSH           */
+          18,zigih2B0  /* Replace        */
+          19,zigih2C0  /* REMOTE         */
+          20,zigih2E0  /* SET            */
+          21,zigihsnp  /* Snapshot       */
+          22,zigih2j0  /* Stash/Stashl   */
+          23,zigih2F0  /* STATUS         */
+          24,zigih2G0  /* VIEW           */
+          25,zigih2H0  /* Tag            */
+          26,zigih2I0  /* TagList        */
+          27,zigih2l0  /* Diff           */
+          28,zigih2m0  /* README         */
            *,'?'
            )
 )PNTS
@@ -138,25 +141,27 @@
  FIELD(FLOW  )  VAR(ZCMD)  VAL('8')
  FIELD(GITCMD)  VAR(ZCMD)  VAL('9')
  FIELD(GITHELP) VAR(ZCMD)  VAL('10')
- FIELD(GITLOG)  VAR(ZCMD)  VAL('11')
- FIELD(GREP  )  VAR(ZCMD)  VAL('12')
- FIELD(MERGE)   VAR(ZCMD)  VAL('13')
- FIELD(NETWORK) VAR(ZCMD)  VAL('14')
- FIELD(PULL  )  VAR(ZCMD)  VAL('15')
- FIELD(PUSH  )  VAR(ZCMD)  VAL('16')
- FIELD(REPLACE) VAR(ZCMD)  VAL('17')
- FIELD(REMOTE)  VAR(ZCMD)  VAL('18')
- FIELD(SET   )  VAR(ZCMD)  VAL('19')
- FIELD(SNAPSHOT) VAR(ZCMD) VAL('20')
- FIELD(STASH )  VAR(ZCMD)  VAL('21')
- FIELD(STASHL)  VAR(ZCMD)  VAL('21')
- FIELD(STATUS)  VAR(ZCMD)  VAL('22')
- FIELD(TAG   )  VAR(ZCMD)  VAL('23')
- FIELD(TAGLIST) VAR(ZCMD)  VAL('24')
- FIELD(VIEW  )  VAR(ZCMD)  VAL('25')
- FIELD(DIFF  )  VAR(ZCMD)  VAL('26')
+ FIELD(GITINFO) VAR(ZCMD)  VAL('11')
+ FIELD(GITLOG)  VAR(ZCMD)  VAL('12')
+ FIELD(GREP  )  VAR(ZCMD)  VAL('13')
+ FIELD(MERGE)   VAR(ZCMD)  VAL('14')
+ FIELD(NETWORK) VAR(ZCMD)  VAL('15')
+ FIELD(PULL  )  VAR(ZCMD)  VAL('16')
+ FIELD(PUSH  )  VAR(ZCMD)  VAL('17')
+ FIELD(REPLACE) VAR(ZCMD)  VAL('18')
+ FIELD(REMOTE)  VAR(ZCMD)  VAL('19')
+ FIELD(SET   )  VAR(ZCMD)  VAL('20')
+ FIELD(SNAPSHOT) VAR(ZCMD) VAL('21')
+ FIELD(STASH )  VAR(ZCMD)  VAL('22')
+ FIELD(STASHL)  VAR(ZCMD)  VAL('22')
+ FIELD(STATUS)  VAR(ZCMD)  VAL('23')
+ FIELD(VIEW  )  VAR(ZCMD)  VAL('24')
+ FIELD(TAG   )  VAR(ZCMD)  VAL('25')
+ FIELD(TAGLIST) VAR(ZCMD)  VAL('26')
+ FIELD(DIFF  )  VAR(ZCMD)  VAL('27')
+ FIELD(README)  VAR(ZCMD)  VAL('28')
 )END
 /* --------------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                              */
-/* Copyright (C) 2020 - 2021 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* Copyright (C) 2020 - 2023 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* --------------------------------------------------------------- */

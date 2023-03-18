@@ -9,7 +9,7 @@
 %Command ===>_zcmd
 +
 %     GIT ENVIRONMENT SETTINGS NOT FOUND IN DEFAULT LOCATIONS
-+
+%     SPECIFY THE LOCATION OF AN ENVIRONMENT FILE
 +
 +
 + Location of env-file: @gitenv                                             +
@@ -24,16 +24,15 @@
 + export LIBPATH=/zdo/rocket/lib/perl5/5.24.0/os390/CORE:$LIBPATH
 +
 +
-+
++ Use start option%/ENV+to be prompted to change this. Or use%ENVR+to nullify.
 +
 +
                   +Press%Enter+to continue, or%F3+to cancel
 )Init
  .help = zigihint
 )Proc
-  ver (&gitenv,nb)
 )end
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2023 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */

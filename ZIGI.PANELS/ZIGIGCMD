@@ -5,10 +5,12 @@
  [ type(output) caps(off) intens(low) skip(on)
  # type(output) hilite(reverse) color(turq) caps(off)
  + type(text) intens(low) skip(on)
+ { type(output) intens(high) caps(off) just(right) color(blue)
+ } type(text  ) intens(high) caps(off) just(right) color(blue)
 )Body Expand(\\) Width(&zscreenw)
 +Git Commands+\-\#zigtitle    +\-\------------
 +Command ===>_zcmd                             \ \+Scroll ===>_gscr+
-  \ \ %F3  +
+  \ \ %F3}Git{gitver
 +Git repo dir:[localdir
 +
 +Enter any Git command (without git):    Browse/View:$z+(B or V)
@@ -25,6 +27,7 @@ $z+[gitcmde              \ \ [gs
  .zvars = '(gopt gsel)'
  .help = zigih240
  &gscr = CSR
+ vget (gitver)
 )Proc
  &row = &z
  if (&ZCMD = &Z)
