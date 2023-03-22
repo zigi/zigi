@@ -8,6 +8,22 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
 
                              ZIGI Release Notes
+                                Version 3.18
+                              xxxxxxxx xx, 2023
+
+                         New Features and Functions
+                         --------------------------
+*
+
+                          Bug Fixes and Other Updates:
+                          ----------------------------
+
+* zigi           - When the repository SET Rename is used update the
+                   .gitattributes and .zigi/dsn with the renames.
+
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
                                 Version 3.17
                               February 27, 2023
 

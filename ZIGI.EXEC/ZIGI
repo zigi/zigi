@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r17'
+  ver = 'v3r18'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -29,6 +29,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            03/22/23 - Version 3.18                         |
+  |                     - Update for SET Rename HLQ to update  |
+  |                       .gitattributes and .zigi/dsn         |
   |            03/02/23 - Version 3.17                         |
   |                     - new /ENVR start parm to blank git env|
   |                     - new /ENV start parm to reset git env |
@@ -4412,6 +4415,8 @@ Do_Rset:
         if s.1 = 1 then do
           cmd = cmd '&& cd .zigi'
           cmd = cmd '&& git mv' oldfile newfile
+          cmd = cmd "&& sed -i s/"oldfile"/"newfile"/g dsn"
+          cmd = cmd "&& sed -i s/"oldfile"/"newfile"/g ../.gitattributes"
         end
         x = docmd(cmd)
         if x > 0 then call view_std 'B'
