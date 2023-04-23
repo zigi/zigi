@@ -20,6 +20,10 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
 * zigi           - When the repository SET Rename is used update the
                    .gitattributes and .zigi/dsn with the renames.
+                 - Ignore invalid records in the ISPF stats file when
+                   updating using the LMMSTATS after a pull/merge.
+                   * Caused by a corrupt stats file from not fixing
+                     merge conflicts on the stat file
 * zigickot       - Add allocation unit of TRACK for PDS allocations
 
 -----------------------------------------------------------------------------

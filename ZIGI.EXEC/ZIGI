@@ -29,7 +29,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            03/22/23 - Version 3.18                         |
+  |            04/23/23 - Version 3.18                         |
+  |                     - Check for invalid stats record and   |
+  |                       ignore stat reset                    |
   |                     - Update for SET Rename HLQ to update  |
   |                       .gitattributes and .zigi/dsn         |
   |            03/02/23 - Version 3.17                         |
@@ -9624,6 +9626,7 @@ Check_LMOD_PTF:
   * --------------------------- */
 Add_Stats:
   arg mstats
+  if pos(left(word(mstats,1),1),'=<>') > 0 then return
   zstats = 'ZS'time('s')
   "LMINIT DATAID(zstats) DATASET("fulldsn")"
   "LMOPEN DATAID("zstats") OPTION(INPUT)"
