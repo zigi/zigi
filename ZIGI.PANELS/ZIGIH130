@@ -15,8 +15,8 @@
 +This is your personal key that was created by you prior to using the%ZIGI+
 +application, or during your first execution of the%ZIGI+application.
 %
-+
-+
++Primary command%REGen+will regenerate your existing SSH keys while saving
++them with todays date (yyyymmdd) as a suffix.
 +
 +
 +      "Never interrupt someone doing what you said couldn't be done."
@@ -30,7 +30,7 @@
 )PROC
  &ZCONT = ZIGIH140
 )END
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2023 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */
