@@ -6849,6 +6849,7 @@ Do_Keygen:
   call do_popup
   cmd = 'mkdir -p 'home'/.ssh'
   x = docmd(cmd)
+  id_home = home'/.ssh'
   id_rsa_bkup = 'id_rsa.'date('s')
   id_rsa.pub_bkup = 'id_rsa.pub.'date('s')
   if no_key= 1
@@ -6861,8 +6862,10 @@ Do_Keygen:
   x = docmd(cmd)
   call catsshk
   zerrsm = null
-  zerrlm = 'SSH Keys regenerated. Old keys saved as' id_rsa_bkup 'and' ,
-           id_rsa.pub_bkup'. Be sure to replace your GIT SSH key and' ,
+  zerrlm = 'SSH Keys regenerated. Old keys saved as' ,
+           id_home'/'id_rsa_bkup 'and' ,
+           id_home'/'id_rsa.pub_bkup'.' ,
+           'Be sure to replace your GIT SSH key and' ,
            'update any authorized_keys files on other servers if' ,
            'appropriate.'
   'setmsg msg(isrz002)'
