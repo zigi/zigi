@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            05/23/23 - Version 3.18                         |
+  |            05/24/23 - Version 3.18                         |
   |                     - Add REGEN option to SSH key panel    |
   |                     - Check for invalid stats record and   |
   |                       ignore stat reset                    |
@@ -970,8 +970,11 @@ init_git:
   end
   cmd = 'cat 'home'/.ssh/id_rsa.pub'
   x = docmd(cmd)
-  if x > 0 then
+  if x > 0 then do
+     no_key = 1
      call do_keygen
+     call handle_zigiprim_ssh
+     end
   old_zigiuid = zigiuid
   old_zigimail = zigimail
 
@@ -6848,15 +6851,15 @@ Do_Keygen:
   x = docmd(cmd)
   id_rsa_bkup = 'id_rsa.'date('s')
   id_rsa.pub_bkup = 'id_rsa.pub.'date('s')
-  cmd = 'cd' home'/.ssh &&' ,
-    'mv id_rsa' id_rsa_bkup '&&' ,
-    'mv id_rsa.pub' id_rsa.pub_bkup '&&' ,
+  if no_key= 1
+     then mv_cmd = null
+     else mv_cmd = ,
+         'mv id_rsa' id_rsa_bkup '&&' ,
+         'mv id_rsa.pub' id_rsa.pub_bkup '&&'
+  cmd = 'cd' home'/.ssh &&' mv_cmd ,
     'cd .. && ssh-keygen -t rsa -f .ssh/id_rsa'
   x = docmd(cmd)
-  cmd = 'cat 'home'/.ssh/id_rsa.pub'
-  x = docmd(cmd)
-  x = so.0
-  zigissh = so.x
+  call catsshk
   zerrsm = null
   zerrlm = 'SSH Keys regenerated. Old keys saved as' id_rsa_bkup 'and' ,
            id_rsa.pub_bkup'. Be sure to replace your GIT SSH key and' ,
