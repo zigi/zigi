@@ -8557,6 +8557,7 @@ Do_Popup4p:
 Handle_Gitenv:
   zcmd = null
   'vget (gitenv) profile'
+  save_gitenv = gitenv
   'Display Panel(zigigit)'
   'vput (gitenv) profile'
   call getenv
@@ -8564,16 +8565,18 @@ Handle_Gitenv:
   if so.0 > 0 then do
     x = so.0
     zigigitl = strip(so.x)
-    'vput (zigigitl) profile'
-    zerrsm = 'Updated.'
-    zerrlm = 'Git environment file updated to:' gitenv
-    'setmsg msg(isrz002)'
-    x = docmd('git --version')
-    required_version = '2.26'
-    x = so.0
-    parse var so.x 'git' 'version' version'_'subversion
-    gitver = version
-    'vput (gitver) shared'
+    if gitenv /= save_gitenv then do
+      'vput (zigigitl) profile'
+      zerrsm = 'Updated.'
+      zerrlm = 'Git environment file updated to:' gitenv
+      'setmsg msg(isrz002)'
+      x = docmd('git --version')
+      required_version = '2.26'
+      x = so.0
+      parse var so.x 'git' 'version' version'_'subversion
+      gitver = version
+      'vput (gitver) shared'
+    end
     return 0
   end
   else return 1
