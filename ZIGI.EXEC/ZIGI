@@ -8566,6 +8566,12 @@ Handle_Gitenv:
     zerrsm = 'Updated.'
     zerrlm = 'Git environment file updated to:' gitenv
     'setmsg msg(isrz002)'
+    x = docmd('git --version')
+    required_version = '2.26'
+    x = so.0
+    parse var so.x 'git' 'version' version'_'subversion
+    gitver = version
+    'vput (gitver) shared'
     return 0
   end
   else return 1
