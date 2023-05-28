@@ -909,6 +909,7 @@ init_git:
     'vput (zigigitl) profile'
   end
   else do
+    'vget (gitenv) profile'
     x = handle_gitenv()
     if x /= 0 then nop
     else do
@@ -8555,6 +8556,7 @@ Do_Popup4p:
 
 Handle_Gitenv:
   zcmd = null
+  'vget (gitenv) profile'
   'Display Panel(zigigit)'
   'vput (gitenv) profile'
   call getenv
