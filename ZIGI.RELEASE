@@ -9,13 +9,15 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                              ZIGI Release Notes
                                 Version 3.18
-                                May 24, 2023
+                                May 28, 2023
 
                          New Features and Functions
                          --------------------------
 
 * zigi           - Support REGEN on the SSH key panel to regenerate
                    the SSH key-pair while saving the old key-pair files.
+                 - New GITEnv command on the ZIGIPRIM panel to review
+                   and/or update the git environment file.
 
                           Bug Fixes and Other Updates:
                           ----------------------------

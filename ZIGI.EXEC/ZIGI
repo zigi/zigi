@@ -29,7 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            05/24/23 - Version 3.18                         |
+  |            05/28/23 - Version 3.18                         |
+  |                     - New PRIM command GITEnv              |
   |                     - Add REGEN option to SSH key panel    |
   |                     - Check for invalid stats record and   |
   |                       ignore stat reset                    |
@@ -684,6 +685,7 @@
     /* handle remaining primairy commands */
     if zcmd /= null then
     Select
+      When abbrev('GITENV',zcmd,4) = 1 then call handle_gitenv
       When abbrev('GITINFO',zcmd,4) = 1 then call display_gitinfo
       When abbrev('CONNECT',zcmd,2) = 1 then call handle_zigiprim_connect
       When abbrev('CREATE',zcmd,2) = 1 then call handle_zigiprim_create
@@ -907,15 +909,8 @@ init_git:
     'vput (zigigitl) profile'
   end
   else do
-    'Display Panel(zigigit)'
-    'vput (gitenv) profile'
-    call getenv
-    x = docmd('command -v git')
-    if so.0 > 0 then do
-      x = so.0
-      zigigitl = strip(so.x)
-      'vput (zigigitl) profile'
-    end
+    x = handle_gitenv()
+    if x /= 0 then nop
     else do
       /* Nope that file is not correct. removing from profile */
       zs1 =  "The env file ("gitenv") does not point me to git :("
@@ -8557,6 +8552,23 @@ Do_Popup4p:
   'Rempop'
   call pfshow 'reset'         /* restore pfshow setting */
   return
+
+Handle_Gitenv:
+  zcmd = null
+  'Display Panel(zigigit)'
+  'vput (gitenv) profile'
+  call getenv
+  x = docmd('command -v git')
+  if so.0 > 0 then do
+    x = so.0
+    zigigitl = strip(so.x)
+    'vput (zigigitl) profile'
+    zerrsm = 'Updated.'
+    zerrlm = 'Git environment file updated to:' gitenv
+    'setmsg msg(isrz002)'
+    return 0
+  end
+  else return 1
 
   /* ----------------------------------------------------- *
   | Get the users current OMVS enviornment for use in the |

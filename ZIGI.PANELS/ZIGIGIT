@@ -31,6 +31,30 @@
 )Init
  .help = zigihint
 )Proc
+*REXX(* zerrsm zerrlm)
+  parse value '' with zerrsm zerrlm
+  if gitenv = '' then return
+  x = syscalls('ON')   /* setup syscall environment */
+  if left(gitenv,1) = '~' /* test for ~ - home alias */
+  then do
+    address syscall ,    /* get the home directory in case */
+      'getpwnam' sysvar('sysuid') 'pw.'
+    home = pw.pw_dir     /* save it in home variable */
+    gitenv = home''substr(gitenv,2) /* replace with home */
+  end
+  else gitenv = gitenv              /* or not            */
+  address syscall ,
+    'stat (gitenv) st.'    /* test if file exists */
+  x = syscalls('OFF')         /* Turn off syscalls environment */
+  if st.0 = 0 then do
+     zerrsm = 'Error.'
+     zerrlm = gitenv 'does not exist - try again.'
+     end
+*EndREXX
+  if (&zerrsm NE &Z)
+     .msg = isrz002
+     .cursor = gitenv
+     ver (&gitenv,nb)
 )end
 /* ------------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                            */
