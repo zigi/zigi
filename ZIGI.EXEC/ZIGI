@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            05/28/23 - Version 3.18                         |
+  |            05/29/23 - Version 3.18                         |
   |                     - New PRIM command GITEnv              |
   |                     - Add REGEN option to SSH key panel    |
   |                     - Check for invalid stats record and   |
@@ -911,11 +911,11 @@ init_git:
   else do
     'vget (gitenv) profile'
     x = handle_gitenv()
-    if x /= 0 then nop
-    else do
+    if zerrsm /= 'Updated.' then do
       /* Nope that file is not correct. removing from profile */
-      zs1 =  "The env file ("gitenv") does not point me to git :("
-      zs2 =  "Please rerun ZIGI and specify a valid env file"
+      zs1 = "The env file ("gitenv") does not point me to"
+      zs2 = "git :( Please rerun ZIGI and specify a valid"
+      zs3 = "environment file."
       zs4 = 'Press Enter to exit and try again.'
       call do_popup4p
       parse value '' with zs3
