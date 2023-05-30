@@ -1,10 +1,10 @@
-)attr default(%+])
-  ] type( input) intens(low ) just(left ) hilite(uscore)
+)attr default(%+_)
+  _ type( input) intens(low ) just(left ) hilite(uscore)
   ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
   [ type(output) intens(high) caps(off) just(left) pas(on) skip(on)
 )Body Expand(\\)
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
-%Selection ===>]ZCMD                                                          +
+%Selection ===>_ZCMD                                                          +
 +
                                 %GITENV+
 +
@@ -12,17 +12,17 @@
 +the optional GIT environment file.
 %
 %Syntax: GITEnv
+%
++Note that the Git environment file is used when you wish you use a version
++of Git that is not defined in your /etc/profile or home/.profile settings.
 +
-+ The GIT environment file is used when you wish to use a Git that is not
-+ referenced by your installations /etc/profile or your personal home/.profile.
++ It may look something like this:
 +
 +   export ZOT_HOME="/u/lbdyck/zot/boot"
 +   META_HOME=${ZOT_HOME}/meta-main
-+   PATH=${ZOT_HOME}/git-2.40.1/bin:${ZOT_HOME}/libiconv-master/bin: . . .
++   PATH=${ZOT_HOME}/git/bin:${ZOT_HOME}/libiconv-master/bin: . . .
 +   GIT_EXEC_PATH=${ZOT_HOME}/git-2.40.1/libexec/git-core/
 +
-+
-+        "Never test the depth of the water with both feet."
 +
          +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init

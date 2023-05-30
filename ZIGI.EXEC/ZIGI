@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            05/29/23 - Version 3.18                         |
+  |            05/30/23 - Version 3.18                         |
   |                     - New PRIM command GITEnv              |
   |                     - Add REGEN option to SSH key panel    |
   |                     - Check for invalid stats record and   |
@@ -732,6 +732,7 @@
     End
   end
 
+Done:
   if rtbl_open = 1 then
   'tbend' rtbl
   'tbclose zigirepo'
@@ -911,7 +912,7 @@ init_git:
   else do
     'vget (gitenv) profile'
     x = handle_gitenv()
-    if zerrsm /= 'Updated.' then do
+    if so.0 = 0 then do
       /* Nope that file is not correct. removing from profile */
       zs1 = "The env file ("gitenv") does not point me to"
       zs2 = "git :( Please rerun ZIGI and specify a valid"
@@ -8558,7 +8559,15 @@ Handle_Gitenv:
   zcmd = null
   'vget (gitenv) profile'
   save_gitenv = gitenv
+  do forever
   'Display Panel(zigigit)'
+  if rc > 3 then do
+     zerrsm = 'Cancelled.'
+     zerrlm = 'ZIGI has been cancelled. Come back when you have a valid',
+      'environment file.'
+     'setmsg msg (isrz002)'
+     call done
+     end
   'vput (gitenv) profile'
   call getenv
   x = docmd('command -v git')
@@ -8579,7 +8588,16 @@ Handle_Gitenv:
     end
     return 0
   end
-  else return 1
+  else do
+      zs1 = "The env file ("gitenv") does not point me to"
+      zs2 = "git :( Please try again and specify a valid"
+      zs3 = "environment file."
+      zs4 = 'Press Enter to exit and try again.'
+      call do_popup4p
+      parse value '' with zs1 zs2 zs3 zs4
+      'verase (gitenv) profile'
+      end
+  end
 
   /* ----------------------------------------------------- *
   | Get the users current OMVS enviornment for use in the |
