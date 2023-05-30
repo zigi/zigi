@@ -912,6 +912,7 @@ init_git:
   else do
     'vget (gitenv) profile'
     x = handle_gitenv()
+    if gitenv_rc > 0 then exit 0
     if so.0 = 0 then do
       /* Nope that file is not correct. removing from profile */
       zs1 = "The env file ("gitenv") does not point me to"
@@ -8561,7 +8562,9 @@ Handle_Gitenv:
   save_gitenv = gitenv
   do forever
   'Display Panel(zigigit)'
-  if rc > 3 then do
+  gitenv_rc = rc
+  if gitenv_rc > 3 then do
+     if save_gitenv = gitenv then return gitenv_rc
      zerrsm = 'Cancelled.'
      zerrlm = 'ZIGI has been cancelled. Come back when you have a valid',
       'environment file.'
