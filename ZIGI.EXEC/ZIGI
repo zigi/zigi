@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            05/30/23 - Version 3.18                         |
+  |            05/31/23 - Version 3.18                         |
   |                     - New PRIM command GITEnv              |
   |                     - Add REGEN option to SSH key panel    |
   |                     - Check for invalid stats record and   |
