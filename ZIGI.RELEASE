@@ -9,7 +9,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                              ZIGI Release Notes
                                 Version 3.18
-                                May 31, 2023
+                                June 1, 2023
 
                          New Features and Functions
                          --------------------------
@@ -18,6 +18,8 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
                    the SSH key-pair while saving the old key-pair files.
                  - New GITEnv command on the ZIGIPRIM panel to review
                    and/or update the git environment file.
+                 - Remove -m for git log as not needed with 2.26.x and
+                   prevents diff for 2.4x.x
 
                           Bug Fixes and Other Updates:
                           ----------------------------

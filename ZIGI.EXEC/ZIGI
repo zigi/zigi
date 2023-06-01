@@ -29,7 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            05/31/23 - Version 3.18                         |
+  |            06/01/23 - Version 3.18                         |
+  |                     - Remove -m from git log               |
   |                     - New PRIM command GITEnv              |
   |                     - Add REGEN option to SSH key panel    |
   |                     - Check for invalid stats record and   |
@@ -4849,7 +4850,7 @@ Do_Extract_Log:
   'TBCreate' zcrtbl 'Keys(ctag) Names(cdatetim ctitle) nowrite share'
   cmd = 'cd' localdir
   if ext_type = 'T' then do
-    x = docmd(cmd '&& git log --cc -m -n' ocrcnt)
+    x = docmd(cmd '&& git log --cc -n' ocrcnt)
     do cri = 1 to so.0
       parse value so.cri with 'refs/tags/'ctag dow mon day time year . ctitle
       mon = wordpos(mon,'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec')
@@ -5059,7 +5060,7 @@ Do_GitLog:
   call pfshow 'reset'         /* restore pfshow setting */
   if drc = 0 then do
     lopts = null
-    if incldiff = 'Y' then lopts = '--cc -m'
+    if incldiff = 'Y' then lopts = '--cc'
     if lcnt /= null then lopts = lopts '-n' lcnt
     if logdfrom /= null then lopts = lopts '--after="'logdfrom'"'
     if logdto   /= null then lopts = lopts '--until="'logdto'"'
@@ -8314,7 +8315,7 @@ do_history:
     element = zrep'/'element
   end
   cmd = 'cd' localrep'/'zigirep
-  cmd = cmd '&& git log --cc -m -n 9999 --unified=1'
+  cmd = cmd '&& git log --cc -n 9999 --unified=1'
   cmd = cmd "--pretty=format:'commit:%h Date:%cD Subject:%f' --name-only" ,
     '| grep -e commit -e' element
   x = docmd(cmd)
