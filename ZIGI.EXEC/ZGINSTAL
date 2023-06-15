@@ -41,6 +41,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/15/23 LBD - Add env ICONV_EBCDIC_ZOS_UNIX=1  |
   |            01/23/23 LBD - Add zgpop4 panel                 |
   |            01/21/23 LBD - Update zigistat subroutine       |
   |            05/16/22 LBD - Remove duplicate routines        |
@@ -74,7 +75,7 @@
   |            06/09/20 LBD - Creation from zigickot           |
   | ---------------------------------------------------------- |
   |    zigi - the z/OS ISPF Git Interface                      |
-  |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
+  |    Copyright (C) 2020-2023 - Henri Kuiper and Lionel Dyck  |
   |                                                            |
   |    This program is free software: you can redistribute it  |
   |    and/or modify it under the terms of the GNU General     |
@@ -129,7 +130,8 @@
   env.1 = '_BPX_SHAREAS=MUST'
   env.2 = '_BPX_SPAWN_SCRIPT=YES'
   env.3 = '_EDC_ZERO_RECLEN=Y'
-  env.0 = 3
+  env.4 = 'ICONV_EBCDIC_ZOS_UNIX=1'
+  env.0 = 4
   cmd = 'pwd'
   x = bpxwunix(cmd,,so.,se.,env.)
   ckotdir = strip(so.1)
@@ -1402,8 +1404,9 @@ GETENV:
   envc = env.0
   call add_env '_BPX_SHAREAS=MUST'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
-  call add_env 'EXPORT _EDC_ADD_ERRNO2=1'
+  call add_env '_EDC_ADD_ERRNO2=1'
   call add_env '_EDC_ZERO_RECLEN=Y'
+  call add_env 'ICONV_EBCDIC_ZOS_UNIX=1'
   env.0 = envc
 
 docmdx:

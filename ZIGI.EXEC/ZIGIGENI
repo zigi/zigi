@@ -16,6 +16,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/15/23 LBD - Add env ICONV_EBCDIC_ZOS_UNIX=1  |
   |            09/16/22 LBD - Fix view_std lrecl               |
   |            07/19/22 LBD - Fix chtag mixed error            |
   |            04/21/22 LBD - Fix environment and add tagging  |
@@ -26,7 +27,7 @@
   |            06/11/20 LBD - Creation                         |
   | ---------------------------------------------------------- |
   |    zigi - the z/OS ISPF Git Interface                      |
-  |    Copyright (C) 2020 - Henri Kuiper and Lionel Dyck       |
+  |    Copyright (C) 2020-2023 - Henri Kuiper and Lionel Dyck  |
   |                                                            |
   |    This program is free software: you can redistribute it  |
   |    and/or modify it under the terms of the GNU General     |
@@ -181,6 +182,7 @@ GETENV:
   call add_env '_BPX_SPAWN_SCRIPT=YES'
   call add_env 'EXPORT _EDC_ADD_ERRNO2=1'
   call add_env '_EDC_ZERO_RECLEN=Y'
+  call add_env 'ICONV_EBCDIC_ZOS_UNIX=1'
   env.0 = envc
   drop so. se.
   return

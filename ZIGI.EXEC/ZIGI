@@ -29,7 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            06/01/23 - Version 3.18                         |
+  |            06/15/23 - Version 3.18                         |
+  |                     - Add env ICONV_EBCDIC_ZOS_UNIX=1      |
   |                     - Remove -m from git log               |
   |                     - New PRIM command GITEnv              |
   |                     - Add REGEN option to SSH key panel    |
@@ -8626,6 +8627,7 @@ GETENV:
   call add_env '_BPX_SPAWN_SCRIPT=YES'
   call add_env 'EXPORT _EDC_ADD_ERRNO2=1'
   call add_env '_EDC_ZERO_RECLEN=Y'
+  call add_env 'ICONV_EBCDIC_ZOS_UNIX=1'
   env.0 = envc
   drop so. se.
 

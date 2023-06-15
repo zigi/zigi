@@ -9,7 +9,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                              ZIGI Release Notes
                                 Version 3.18
-                                June 1, 2023
+                                June 15, 2023
 
                          New Features and Functions
                          --------------------------
@@ -20,6 +20,9 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
                    and/or update the git environment file.
                  - Remove -m for git log as not needed with 2.26.x and
                    prevents diff for 2.4x.x
+                 - add ICONV_EBCDIC_ZOS_UNIX=1 to the default environment to
+                   support the z/OS Open Tools man-db port which includes
+                   an updated ICONV
 
                           Bug Fixes and Other Updates:
                           ----------------------------

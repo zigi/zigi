@@ -42,6 +42,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/15/23 LBD - Add env ICONV_EBCDIC_ZOS_UNIX=1  |
   |            09/16/22 LBD - Fix view_std lrecl               |
   |            05/16/22 LBD - Correct bad iterate              |
   |            04/16/22 LBD - Support log option               |
@@ -70,7 +71,7 @@
   |                                                            |
   | ---------------------------------------------------------- |
   |    zigi - the z/OS ISPF Git Interface                      |
-  |    Copyright (C) 2020 - 2022 - Henri Kuiper and Lionel Dyck |
+  |    Copyright (C) 2020-2023 - Henri Kuiper and Lionel Dyck  |
   |                                                            |
   |    This program is free software: you can redistribute it  |
   |    and/or modify it under the terms of the GNU General     |
@@ -700,6 +701,7 @@ GETENV:
   call add_env 'EXPORT _EDC_ADD_ERRORNO2=1'
   call add_env 'HOME='home
   call add_env '_EDC_ZERO_RECLEN=Y'
+  call add_env 'ICONV_EBCDIC_ZOS_UNIX=1'
   env.0 = envc
   return
 
