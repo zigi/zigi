@@ -7,7 +7,7 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(47,14) cmd()
+)Body Window(47,15) cmd()
 +Enter Selection:_z        +
 +
  ]Clone+   Remote repository
@@ -15,6 +15,7 @@
  ]Connect+ Connect to Existing Local Repository
  ]Create+  Local repo from scratch
  ]Find+    String in table fields:_findstr +
+ ]GitEnv+  Review/Update Git Environment File
  ]Githelp+ Display menu of Git Help pages
  ]Gitinfo+ Display ZIGI/Git Information
  ]SET+     Set Git Defaults
@@ -27,16 +28,17 @@
  .zvars = '(zcmd)'
  .cursor = zcmd
  &zcmd  = &z
- &clone   = 'Clone'
- &create  = 'Create'
- &connect = 'Connect'
+ &clone   = 'CLone'
+ &create  = 'CReate'
+ &connect = 'COnnect'
  &ssh     = 'SSH'
  &find    = 'FIND'
  &set     = 'SET'
  &select  = 'Select'
  &sort    = 'Sort'
- &config  = 'Config'
- &githelp = 'GitHelp'
+ &config  = 'COnfig'
+ &gitenv  = 'GITEnv'
+ &githelp = 'GITHelp'
  &gitinfo = 'GITInfo'
  .help = zigih100
 )Proc
@@ -54,6 +56,7 @@
  FIELD(SET     ) VAR(ZCMD) VAL('SET')
  FIELD(SSH     ) VAR(ZCMD) VAL('SSH')
  FIELD(CONFIG  ) VAR(ZCMD) VAL('CONFIG')
+ FIELD(GITENV  ) VAR(ZCMD) VAL('GITENV')
  FIELD(GITHELP ) VAR(ZCMD) VAL('GITHELP')
  FIELD(GITINFO ) VAR(ZCMD) VAL('GITINFO')
 )End

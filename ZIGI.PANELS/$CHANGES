@@ -8,6 +8,36 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
 
                              ZIGI Release Notes
+                                Version 3.18
+                                June 15, 2023
+
+                         New Features and Functions
+                         --------------------------
+
+* zigi           - Support REGEN on the SSH key panel to regenerate
+                   the SSH key-pair while saving the old key-pair files.
+                 - New GITEnv command on the ZIGIPRIM panel to review
+                   and/or update the git environment file.
+                 - Remove -m for git log as not needed with 2.26.x and
+                   prevents diff for 2.4x.x
+                 - add ICONV_EBCDIC_ZOS_UNIX=1 to the default environment to
+                   support the z/OS Open Tools man-db port which includes
+                   an updated ICONV
+
+                          Bug Fixes and Other Updates:
+                          ----------------------------
+
+* zigi           - When the repository SET Rename is used update the
+                   .gitattributes and .zigi/dsn with the renames.
+                 - Ignore invalid records in the ISPF stats file when
+                   updating using the LMMSTATS after a pull/merge.
+                   * Caused by a corrupt stats file from not fixing
+                     merge conflicts on the stat file
+* zigickot       - Add allocation unit of TRACK for PDS allocations
+
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
                                 Version 3.17
                               February 27, 2023
 
