@@ -1,0 +1,17 @@
+)Attr
+ $ type(output) caps(off)
+ _ type(input)  caps(on) hilite(uscore) intens(low)
+)Body Window(50,3)
++
+  %Confirm+regeneration of%SSH+Keys ==>_z+
+  +Enter%Y+to proceed or%F3+to cancel exit.
+)Init
+ .zvars = '(kgen)'
+ &zwinttl = 'ZIGI SSH Key Regneration Prompt'
+)Proc
+ ver (&kgen,nb,list,Y)
+)End
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2023 GPL V3 - Henri Kuiper and Lionel Dyck      */
+/* ------------------------------------------------------------- */

@@ -25,7 +25,7 @@ $sshkey
 
 
 +
-+Press%F3+when ready to continue.
++Press%F3+when ready to continue - or%REGEN+to recreate the%SSH+keys.
 )Init
 *rexx(* zigissh sshkey)
  sshkey = left('Copy the records below and paste into' ,
@@ -36,5 +36,5 @@ $sshkey
 )end
 /* --------------------- Copyright (C) ------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                            */
-/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* Copyright (C) 2020-2023 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* ------------------------------------------------------------- */
