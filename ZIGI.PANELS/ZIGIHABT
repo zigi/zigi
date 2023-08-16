@@ -1,10 +1,10 @@
 )attr default(%+_)
   _ type( input) intens(low ) just(left ) hilite(uscore)
   ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
-  [ type(output) intens(high) caps(off) just(left) pas(on) color(white)
-    hilite(uscore)
-)Body Window(60,11) Expand(\\)
+  [ type(output) intens(high) caps(off) color(white)
+)Body Window(60,12) Expand(\\)
 %About -\-\~The z ISPF Git Interface (zigi)%\-\- About
+\ \Version[zigiver\ \
 +
 %ZIGI+is the z/OS ISPF Git Interface designed to provide the
 +z/OS community with an easy to use interface to the Git
@@ -16,10 +16,14 @@
 + \ \+Website:%https://zigi.rocks\ \
 + \ \+YouTube:%https://zigi.rocks/video\ \%F3
 )Init
+  vget (zigtitle)
+*Rexx(* zigtitle zigiver)
+  parse value zigtitle with '('. zigiver')'.
+*EndRexx
 )PROC
  &zcont = zigihabt
 )END
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2023 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */

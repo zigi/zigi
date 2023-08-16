@@ -6,29 +6,30 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                                %SSH+
+                                %GITENV+
 +
-%SSH+displays your personal Public SSH Key location and key contents. The
-+key contents may be copied and pasted into your account security settings
-+at the remote%Git+repository that you are be working with.
+%GITENV+displays the GIT Environment file prompt allowing the user to change
++the optional GIT environment file.
 %
-+This is your personal key that was created by you prior to using the%ZIGI+
-+application, or during your first execution of the%ZIGI+application.
+%Syntax: GITEnv
 %
-+Primary command%REGen+will regenerate your existing SSH keys while saving
-+them with todays date (yyyymmdd) as a suffix.
++Note that the Git environment file is used when you wish you use a version
++of Git that is not defined in your /etc/profile or home/.profile settings.
 +
++ It may look something like this:
 +
-+      "Never interrupt someone doing what you said couldn't be done."
-+             -- Amelia Earhart
-+
++   export ZOT_HOME="/u/lbdyck/zot/boot"
++   META_HOME=${ZOT_HOME}/meta-main
++   PATH=${ZOT_HOME}/git/bin:${ZOT_HOME}/libiconv-master/bin: . . .
++   GIT_EXEC_PATH=${ZOT_HOME}/git-2.40.1/libexec/git-core/
 +
 +
          +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
+ vget (ztut)
 )PROC
- &ZCONT = ZIGIH140
+ &zcont = ZIGIH160
 )END
 /* ------------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                            */
