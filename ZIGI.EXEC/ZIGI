@@ -1400,10 +1400,13 @@ handle_zigiprim_clone:
 handle_zigiprim_config:
   do forever
     zcmd = null
-    'vget (mgen pnsdef showst) profile'
+    'vget (mgen pnsdef showst bypass) profile'
     sl = mgen()
     'display panel(zigiset)'
-    if rc > 4 then return 8
+    if rc > 4 then do
+       'vget (mgen pnsdef showst bypass) profile'
+       return 8
+       end
     'vput (mgen pnsdef showst bypass) profile'
     call update_config
     if rc = 0 | rc = 8 then leave
