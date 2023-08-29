@@ -8,8 +8,19 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
 
                              ZIGI Release Notes
+                                Version 3.19
+                              August 29, 2023
+
+                         New Features and Functions
+                         --------------------------
+
+* zigi           - Honor F3 on the ZIGISET (Config) panel
+
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
                                 Version 3.18
-                                June 15, 2023
+                              August 13, 2023
 
                          New Features and Functions
                          --------------------------

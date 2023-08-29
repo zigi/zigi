@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r18'
+  ver = 'v3r19'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -29,6 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            08/29/23 - Version 3.19                         |
+  |                     - Honor F3 on Config (zigiset) panel   |
   |            06/15/23 - Version 3.18                         |
   |                     - Add env ICONV_EBCDIC_ZOS_UNIX=1      |
   |                     - Remove -m from git log               |
@@ -1401,6 +1403,7 @@ handle_zigiprim_config:
     'vget (mgen pnsdef showst) profile'
     sl = mgen()
     'display panel(zigiset)'
+    if rc > 4 then return 8
     'vput (mgen pnsdef showst bypass) profile'
     call update_config
     if rc = 0 | rc = 8 then leave
