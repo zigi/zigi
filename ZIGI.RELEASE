@@ -15,6 +15,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
                          --------------------------
 
 * zigi           - Honor F3 on the ZIGISET (Config) panel
+                 - Honor users umask
 
 -----------------------------------------------------------------------------
 

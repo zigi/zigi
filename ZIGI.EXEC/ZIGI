@@ -29,8 +29,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            08/29/23 - Version 3.19                         |
+  |            08/30/23 - Version 3.19                         |
   |                     - Honor F3 on Config (zigiset) panel   |
+  |                     - Honor umask                          |
   |            06/15/23 - Version 3.18                         |
   |                     - Add env ICONV_EBCDIC_ZOS_UNIX=1      |
   |                     - Remove -m from git log               |
@@ -8625,6 +8626,11 @@ GETENV:
 
   x = debug('Starting collection of env variables')
 
+  cmd  = docmdx('umask')
+  rc = bpxwunix(cmd,,s.,se.,omvsenv.)
+  last = s.0
+  umask = strip(s.last)
+
   cmd  = docmdx('env')
 
   rc = bpxwunix(cmd,,env.,se.,omvsenv.)
@@ -8720,6 +8726,7 @@ docmd:
      then cmd = fixup_escape(cmd)
   end
   drop so. se.
+  cmd = 'umask' umask '&&' cmd
   x = debug('Command:' cmd)
   x = bpxwunix(cmd,,so.,se.,env.)
   return x
