@@ -29,9 +29,11 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            08/30/23 - Version 3.19                         |
+  |            xx/xx/23 - Version 3.19                         |
   |                     - Honor F3 on Config (zigiset) panel   |
   |                     - Honor umask                          |
+  |                     - Update .gitattribute update routine  |
+  |                       when adding binary elements          |
   |            06/15/23 - Version 3.18                         |
   |                     - Add env ICONV_EBCDIC_ZOS_UNIX=1      |
   |                     - Remove -m from git log               |
@@ -7957,12 +7959,12 @@ Do_Add_Copy:
         else ga_mem = ac_mem
         /* setting the gitattributes file */
         /* first convert the ASCII atrtib file to ebcdic :( */
-        cmd = 'cd 'DIR' && iconv -f ISO8859-1 -t' encoding
-        cmd = cmd '.gitattributes > .gae'
+        cmd = 'cd 'DIR' &&'
+        cmd = cmd 'cat .gitattributes > .gae'
         /* then append the binary attrib for this file */
         cmd = cmd '&& echo "'pdss'/'ga_mem' 'gabs'" >> .gae '
         /* convert it back to ascii */
-        cmd = cmd '&& iconv -f' encoding '-t ISO8859-1 .gae '
+        cmd = cmd '&& cat .gae '
         cmd = cmd '> .gitattributes '
         /* add (and commit) .gitattributes to the index */
         cmd = cmd '&& git add .gitattributes '
