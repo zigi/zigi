@@ -9,15 +9,16 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                              ZIGI Release Notes
                                 Version 3.19
-                              xxxxxx xx, 2023
+                            November 05, 2023
 
                          New Features and Functions
                          --------------------------
 
 * zigi           - Honor F3 on the ZIGISET (Config) panel
                  - Honor users umask
-                 - Correct update of .gitattributes with binary elements
-* zigickot       - Bypass the SED if binary elements
+                 - update get_binfiles to ignore . #
+                 - Update .gitattribute update routine
+                   when adding binary elements
 
 -----------------------------------------------------------------------------
 

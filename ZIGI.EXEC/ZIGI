@@ -32,6 +32,7 @@
   |            xx/xx/23 - Version 3.19                         |
   |                     - Honor F3 on Config (zigiset) panel   |
   |                     - Honor umask                          |
+  |                     - update get_binfiles to ignore . #    |
   |                     - Update .gitattribute update routine  |
   |                       when adding binary elements          |
   |            06/15/23 - Version 3.18                         |
@@ -9076,6 +9077,8 @@ get_binfiles:
   binfiles. = null
   bc = 0
   do b = 1 to so.0
+    if left(strip(so.b),1) = '#'  then iterate
+    if left(strip(so.b),1) = '.'  then iterate
     if left(strip(so.b),2) = '*.' then iterate
     bc = bc + 1
     binfiles.bc = so.b
