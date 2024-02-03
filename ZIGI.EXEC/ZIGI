@@ -29,7 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            xx/xx/23 - Version 3.19                         |
+  |            02/03/24 - Version 3.19                         |
+  |                     - Fix grep in a pds to use pds member  |
   |                     - Honor F3 on Config (zigiset) panel   |
   |                     - Honor umask                          |
   |                     - update get_binfiles to ignore . #    |
@@ -4988,6 +4989,10 @@ do_grep:
           if pos('(',gdsn) > 0 then do
              parse value gdsn with wd'('wm')'
              gdsn = "'"pdshlqt"."wd"("translate(wm)")'"
+             end
+          if gds = 'PDS Member' then do
+              parse value fulldsn with "'"wdsn"'"
+              gdsn = "'"wdsn"("gdsn")'"
              end
           Select
             When zsel = 'B' then do
