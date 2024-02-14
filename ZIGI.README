@@ -24,7 +24,7 @@ To get started with this package:
 6. ./install.sh (su and MVS HLQ access might be required)
 7. ISPF,3.4. Go to ZIGI.EXEC and exec ZIGI
 
-More information in the wiki: https://github.com/wizardofzos/zigi/wiki
+More information in the wiki: https://github.com/zigi/zigi/wiki
 
 This file is part of zIGI.
 

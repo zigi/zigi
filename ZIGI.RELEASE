@@ -8,6 +8,21 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
 
                              ZIGI Release Notes
+                                Version 3.19
+                            November 05, 2023
+
+                         New Features and Functions
+                         --------------------------
+
+* zigi           - Honor F3 on the ZIGISET (Config) panel
+                 - Honor users umask
+                 - update get_binfiles to ignore . #
+                 - Update .gitattribute update routine
+                   when adding binary elements
+
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
                                 Version 3.18
                               August 13, 2023
 

@@ -8,8 +8,25 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
 
                              ZIGI Release Notes
+                                Version 3.19
+                            February 02, 2024
+
+                         New Features and Functions
+                         --------------------------
+
+* zg             - Bug fix if log turned off
+* zigi           - Honor F3 on the ZIGISET (Config) panel
+                 - Grep in a PDS fix to use PDS member
+                 - Honor users umask
+                 - update get_binfiles to ignore . #
+                 - Update .gitattribute update routine
+                   when adding binary elements
+
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
                                 Version 3.18
-                                June 15, 2023
+                              August 13, 2023
 
                          New Features and Functions
                          --------------------------
