@@ -19,7 +19,7 @@ To get started with this package:
 2. Make sure Git-related setups (PATH/LIB etc.) is set via
    /etc/profile
 3. Create an account at github.com and add your SSH public key to it.
-4. From OMVS-shell invoke: git clone git@github.com/wizardofzos/zigi.git
+4. From OMVS-shell invoke: git clone git@github.com/zigi/zigi.git
 5. cd zigi
 6. ./install.sh (su and MVS HLQ access might be required)
 7. ISPF,3.4. Go to ZIGI.EXEC and exec ZIGI
