@@ -1,5 +1,6 @@
 ========================= RELEASE INFORMATION =============================
 
+
 zIGI is the open source z/OS ISPF Git Interface application that enables
 the traditional ISPF user to utilize many of the facilities of Git without
 having to "fully" learn Git while avoiding the need to use the OMVS
@@ -7,29 +8,23 @@ environment.
 
 To get started with this package:
 
-z/OS Open Tools port of Git
-  1. Go to url https://github.com/ZOSOpenTools
-  2. Follow the instructions to install the zopen installer
-  3. Then to "zopen install git" to install git and its dependencies
+1. Install Git for OMVS via the great folks at Rocket Software
+1a. Go to this url for Git and the pre-requisite tools (bash, gzip,
+    and perl):
+    https://www.rocketsoftware.com/product-categories/mainframe/git-for-zos
+1b. Go to this url to get a simplified installer for Git and the
+    pre-requisite tools:
+    https://gist.github.com/wizardofzos/897b243d4cbe9fbc471ec1396fbbe174
+1c. Now install Git using the installer
+2. Make sure Git-related setups (PATH/LIB etc.) is set via
+   /etc/profile
+3. Create an account at github.com and add your SSH public key to it.
+4. From OMVS-shell invoke: git clone git@github.com/wizardofzos/zigi.git
+5. cd zigi
+6. ./install.sh (su and MVS HLQ access might be required)
+7. ISPF,3.4. Go to ZIGI.EXEC and exec ZIGI
 
-Rocket port of Git:
-  1. Install Git for OMVS via the great folks at Rocket Software
-  1a. Go to this url for Git and the pre-requisite tools (bash, gzip,
-      and perl):
-      https://www.rocketsoftware.com/product-categories/mainframe/git-for-zos
-  1b. Go to this url to get a simplified installer for Git and the
-      pre-requisite tools:
-      https://gist.github.com/wizardofzos/897b243d4cbe9fbc471ec1396fbbe174
-  1c. Now install Git using the installer
-  2. Make sure Git-related setups (PATH/LIB etc.) is set via
-     /etc/profile
-  3. Create an account at github.com and add your SSH public key to it.
-  4. From OMVS-shell invoke: git clone git@github.com/wizardofzos/zigi.git
-  5. cd zigi
-  6. ./install.sh (su and MVS HLQ access might be required)
-  7. ISPF,3.4. Go to ZIGI.EXEC and exec ZIGI
-
-More information in the wiki: https://github.com/wizardofzos/zigi/wiki
+More information in the wiki: https://github.com/zigi/zigi/wiki
 
 This file is part of zIGI.
 

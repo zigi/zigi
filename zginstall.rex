@@ -765,9 +765,19 @@ docmd:
   |    <https://www.gnu.org/licenses/>.                        |
   * ---------------------------------------------------------- */
 
-/* ------------------------------------------------ *
- | These variables will be updated by zginstall.rex |
- * ------------------------------------------------ */
+ /* ------------------------------*
+  | Check to see if we're in ISPF |
+  * ----------------------------- */
+	
+  parse source . . . . s5 . . s8 .
+  if s8 /= 'ISPF' then do
+     say s5 'must be run under ISPF'
+     exit 8
+  end /* if s8 */
+	
+ /* ------------------------------------------------ *
+  | These variables will be updated by zginstall.rex |
+  * ------------------------------------------------ */
   repodir = '$$$$$$'
   hlq     = '$$$$$$'
 
@@ -1005,7 +1015,7 @@ $repodir                                                      +
   * ---------------------------------------------------------- */
 zigistat:
 
-  /* --------------- *
+ /* --------------- *
   | Define defaults |
   * --------------- */
   parse value '' with null string m. rx allmems codep
