@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r18'
+  ver = 'v3r19'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -29,6 +29,13 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            02/03/24 - Version 3.19                         |
+  |                     - Fix grep in a pds to use pds member  |
+  |                     - Honor F3 on Config (zigiset) panel   |
+  |                     - Honor umask                          |
+  |                     - update get_binfiles to ignore . #    |
+  |                     - Update .gitattribute update routine  |
+  |                       when adding binary elements          |
   |            06/15/23 - Version 3.18                         |
   |                     - Add env ICONV_EBCDIC_ZOS_UNIX=1      |
   |                     - Remove -m from git log               |
@@ -1398,9 +1405,13 @@ handle_zigiprim_clone:
 handle_zigiprim_config:
   do forever
     zcmd = null
-    'vget (mgen pnsdef showst) profile'
+    'vget (mgen pnsdef showst bypass) profile'
     sl = mgen()
     'display panel(zigiset)'
+    if rc > 4 then do
+       'vget (mgen pnsdef showst bypass) profile'
+       return 8
+       end
     'vput (mgen pnsdef showst bypass) profile'
     call update_config
     if rc = 0 | rc = 8 then leave
@@ -4979,6 +4990,10 @@ do_grep:
              parse value gdsn with wd'('wm')'
              gdsn = "'"pdshlqt"."wd"("translate(wm)")'"
              end
+          if gds = 'PDS Member' then do
+              parse value fulldsn with "'"wdsn"'"
+              gdsn = "'"wdsn"("gdsn")'"
+             end
           Select
             When zsel = 'B' then do
               if left(gdsn,1) = "'"
@@ -7950,12 +7965,12 @@ Do_Add_Copy:
         else ga_mem = ac_mem
         /* setting the gitattributes file */
         /* first convert the ASCII atrtib file to ebcdic :( */
-        cmd = 'cd 'DIR' && iconv -f ISO8859-1 -t' encoding
-        cmd = cmd '.gitattributes > .gae'
+        cmd = 'cd 'DIR' &&'
+        cmd = cmd 'cat .gitattributes > .gae'
         /* then append the binary attrib for this file */
         cmd = cmd '&& echo "'pdss'/'ga_mem' 'gabs'" >> .gae '
         /* convert it back to ascii */
-        cmd = cmd '&& iconv -f' encoding '-t ISO8859-1 .gae '
+        cmd = cmd '&& cat .gae '
         cmd = cmd '> .gitattributes '
         /* add (and commit) .gitattributes to the index */
         cmd = cmd '&& git add .gitattributes '
@@ -8619,6 +8634,11 @@ GETENV:
 
   x = debug('Starting collection of env variables')
 
+  cmd  = docmdx('umask')
+  rc = bpxwunix(cmd,,s.,se.,omvsenv.)
+  last = s.0
+  umask = strip(s.last)
+
   cmd  = docmdx('env')
 
   rc = bpxwunix(cmd,,env.,se.,omvsenv.)
@@ -8714,6 +8734,7 @@ docmd:
      then cmd = fixup_escape(cmd)
   end
   drop so. se.
+  cmd = 'umask' umask '&&' cmd
   x = debug('Command:' cmd)
   x = bpxwunix(cmd,,so.,se.,env.)
   return x
@@ -9061,6 +9082,8 @@ get_binfiles:
   binfiles. = null
   bc = 0
   do b = 1 to so.0
+    if left(strip(so.b),1) = '#'  then iterate
+    if left(strip(so.b),1) = '.'  then iterate
     if left(strip(so.b),2) = '*.' then iterate
     bc = bc + 1
     binfiles.bc = so.b
