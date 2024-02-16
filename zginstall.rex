@@ -41,6 +41,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            02/16/24 LBD - Correct 2 bad chars x'05'        |
   |            06/15/23 LBD - Add env ICONV_EBCDIC_ZOS_UNIX=1  |
   |            01/23/23 LBD - Add zgpop4 panel                 |
   |            01/21/23 LBD - Update zigistat subroutine       |
@@ -768,13 +769,13 @@ docmd:
  /* ------------------------------*
   | Check to see if we're in ISPF |
   * ----------------------------- */
-	
+
   parse source . . . . s5 . . s8 .
   if s8 /= 'ISPF' then do
      say s5 'must be run under ISPF'
      exit 8
   end /* if s8 */
-	
+
  /* ------------------------------------------------ *
   | These variables will be updated by zginstall.rex |
   * ------------------------------------------------ */
