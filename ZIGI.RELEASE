@@ -8,6 +8,17 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
 
                              ZIGI Release Notes
+                                Version 3.20
+                               March 28, 2024
+
+                         New Features and Functions
+                         --------------------------
+
+* zigistat       - Add in secnds on the zigi stats if not using Co:Z
+
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
                                 Version 3.19
                             November 05, 2023
 
