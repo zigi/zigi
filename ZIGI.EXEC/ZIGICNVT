@@ -190,7 +190,7 @@ Create_GitAttributes: Procedure
   /* ------------------------------------------------------- */
   /* convert to iso8859-1 */
   cmd = 'cd' convdir ' && '
-  cmd = cmd 'iconv -f ibm-1047 -t iso8859-1 .ga'
+  cmd = cmd '/bin/iconv -f ibm-1047 -t iso8859-1 .ga'
   cmd = cmd ' > .gitattributes'
   x = bpxwunix(cmd)
 
@@ -380,7 +380,7 @@ Set_Binary:
       /* setting the gitattributes file */
       /* first convert the ASCII atrtib file to ebcdic :( */
     gabs = 'git-encoding=BINARY zos-working-tree-encoding=BINARY binary'
-    cmd = 'cd' convdir '&& iconv -f ISO8859-1 -t IBM-1047 '
+    cmd = 'cd' convdir '&& /bin/iconv -f ISO8859-1 -t IBM-1047 '
     cmd = cmd '.gitattributes > .gae'
       /* then append the binary attrib for this file */
     if type = 1 then
@@ -388,7 +388,7 @@ Set_Binary:
     if type = 3 then
     cmd = cmd '&& echo "'file gabs'" >> .gae '
       /* convert it back to ascii */
-    cmd = cmd '&& iconv -f IBM-1047 -t ISO8859-1 .gae '
+    cmd = cmd '&& /bin/iconv -f IBM-1047 -t ISO8859-1 .gae '
     cmd = cmd '> .gitattributes '
     cmd = cmd '&& rm .gae'
     x = bpxwunix(cmd,,so.,se.)

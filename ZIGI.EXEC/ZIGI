@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r19'
+  ver = 'v3r20'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -29,6 +29,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            03/29/24 - Version 3.20                         |
+  |                     - Update all iconv use to use          |
+  |                       /bin/iconv                           |
   |            02/03/24 - Version 3.19                         |
   |                     - Fix grep in a pds to use pds member  |
   |                     - Honor F3 on Config (zigiset) panel   |
@@ -6650,7 +6653,7 @@ do_git_attributes:
   reporoot = localrep'/'zigirep'/'
   /* convert to iso8859-1 */
   cmd = 'cd 'localrep'/'zigirep' && '
-  cmd = cmd 'iconv -f' encoding '-t iso8859-1 .ga'
+  cmd = cmd '/bin/iconv -f' encoding '-t iso8859-1 .ga'
   cmd = cmd ' > .gitattributes'
   x = docmd(cmd)
 
@@ -8058,12 +8061,12 @@ Do_Add_Copy:
       binopt = '-B'
       /* setting the gitattributes file */
       /* first convert the ASCII atrtib file to ebcdic :( */
-      cmd = 'cd 'DIR' && iconv -f ISO8859-1 -t' encoding
+      cmd = 'cd 'DIR' && /bin/iconv -f ISO8859-1 -t' encoding
       cmd = cmd '.gitattributes > .gae'
       /* then append the binary attrib for this file */
       cmd = cmd '&& echo "'pss gabs'" >> .gae '
       /* convert it back to ascii */
-      cmd = cmd '&& iconv -f' encoding '-t ISO8859-1 .gae '
+      cmd = cmd '&& /bin/iconv -f' encoding '-t ISO8859-1 .gae '
       cmd = cmd '> .gitattributes '
       /* add (and commit) .gitattributes to the index */
       cmd = cmd '&& git add .gitattributes '

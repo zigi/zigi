@@ -8,15 +8,26 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
 
                              ZIGI Release Notes
-                                Version 3.19
-                            February 02, 2024
+                                Version 3.20
+                               March 29, 2024
 
                          New Features and Functions
                          --------------------------
 
-* zg             - Bug fix if log turned off
+* zigi           - Change all iconv use to /bin/iconv
+* zigicnvt       - Change all iconv use to /bin/iconv
+* zigistat       - Add in secnds on the zigi stats if not using Co:Z
+
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
+                                Version 3.19
+                            November 05, 2023
+
+                         New Features and Functions
+                         --------------------------
+
 * zigi           - Honor F3 on the ZIGISET (Config) panel
-                 - Grep in a PDS fix to use PDS member
                  - Honor users umask
                  - update get_binfiles to ignore . #
                  - Update .gitattribute update routine

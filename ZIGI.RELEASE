@@ -9,11 +9,13 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                              ZIGI Release Notes
                                 Version 3.20
-                               March 28, 2024
+                               March 29, 2024
 
                          New Features and Functions
                          --------------------------
 
+* zigi           - Change all iconv use to /bin/iconv
+* zigicnvt       - Change all iconv use to /bin/iconv
 * zigistat       - Add in secnds on the zigi stats if not using Co:Z
 
 -----------------------------------------------------------------------------
