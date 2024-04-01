@@ -12,3 +12,4 @@ ZIGI/PANELS/*     git-encoding=iso8859-1 zos-working-tree-encoding=ibm-1047 ling
 *.azw3 binary
 *.pdf binary
 ZIGI.PANELS/ZIGIEDIT git-encoding=BINARY zos-working-tree-encoding=BINARY binary
+ZIGI.PANELS/ZIGIEDIT git-encoding=BINARY zos-working-tree-encoding=BINARY binary
