@@ -29,7 +29,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            03/29/24 - Version 3.20                         |
+  |            04/02/24 - Version 3.20                         |
+  |                     - remove zos-working-tree-encoding     |
+  |                       =BINARY as not needed(breaks zot)    |
   |                     - Update all iconv use to use          |
   |                       /bin/iconv                           |
   |            02/03/24 - Version 3.19                         |
@@ -7890,7 +7892,7 @@ Get_List:
 Do_Add_Copy:
   arg acopt
   parse arg option with ''
-  gabs = 'git-encoding=BINARY zos-working-tree-encoding=BINARY binary'
+  gabs = 'git-encoding=BINARY binary'
   call get_binfiles
   zsel = null
   ac_mem = null
