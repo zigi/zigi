@@ -29,7 +29,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            04/02/24 - Version 3.20                         |
+  |            04/25/24 - Version 3.20                         |
+  |                     - check ~/.ssh permissions             |
+  |                       and prompt to reset                  |
   |                     - remove zos-working-tree-encoding     |
   |                       =BINARY as not needed(breaks zot)    |
   |                     - Update all iconv use to use          |
@@ -8635,6 +8637,8 @@ GETENV:
   x = bpxwunix(cmd,,so.,se.,omvsenv.)
   home    = strip(so.1)
 
+  call check_ssh_perms
+
   call init_debug
 
   x = debug('Starting collection of env variables')
@@ -8720,6 +8724,44 @@ add_env:
   parse arg env_val
   envc = envc + 1
   env.envc = env_val
+  return
+
+  /* ----------------------------------------------------- *
+   | Check the permission bits for the home/.ssh directory |
+   | and if not then tell the user to fix them and retry.  |
+   * ----------------------------------------------------- */
+check_ssh_perms:
+  /* drwxr-xr-x  xx xxxxxx   xxxxxxx     8192 mmm dd hh:mm .. */
+  file = home'/.ssh'
+  x = bpxwunix('ls -la' file,,s.,e.)
+  parse value s.2 with f1 . . . . . . . f2
+  if f2 /= '.' then return  /* not a directory so bigger issues */
+  parse value f1 with 2 p1 5 p2 8 p3
+  if substr(p2,2,1) = 'w' then bad = 1
+  if substr(p3,2,1) = 'w' then bad = 1
+  if bad = 1 then do
+      call pfshow 'off'           /* make sure pfshow is off */
+      'Addpop row(4) column(6)'
+      'Display Panel(zigiperm)'
+      prc = rc
+      'rempop'
+      call pfshow 'reset'         /* restore pfshow setting */
+      if zigiperm /= 'Y' then prc = 4
+      if prc > 0 then do
+      zerrsm = ''
+      zerrlm = 'Invalid permissions on your' file ,
+               'with' f1 'but should be drwxr-xr-x' ,
+               'and this must be fixed and then you can try' ,
+               'again. Write (w) is not allowed in the 2nd or 3rd',
+               'permission fields. Use: "chmod 700 .ssh"' ,
+               'to fix.'
+      'setmsg msg(isrz003)'
+      exit 8
+      end
+      else do
+           rc = bpxwunix('chmod 700' file,,s.,e.)
+           end
+      end
   return
 
 do_gcmd:
