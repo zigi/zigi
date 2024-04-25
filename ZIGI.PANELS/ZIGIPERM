@@ -8,7 +8,7 @@
 +Your%.ssh+directory allows write permissions to those  +
 +in your group and universal which is%not+allowed.      +
 +
-+Change%.ssh+permissions to%700+tp fix this:_z+(Y)
++Change%.ssh+permissions to%700+to fix this:_z+(Y)
 +
 +Press%Enter+to Change, or%F3+to Cancel Extension.
 +
