@@ -10,7 +10,7 @@
 +
 +Change%.ssh+permissions to%700+to fix this:_z+(Y)
 +
-+Press%Enter+to Change, or%F3+to Cancel Extension.
++Press%Enter+to Change, or%F3+to Cancel.
 +
 +Current Directory:@file
 +Current Permissions:@f1
