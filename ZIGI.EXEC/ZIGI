@@ -8736,7 +8736,7 @@ check_ssh_perms:
   x = bpxwunix('ls -la' file,,s.,e.)
   parse value s.2 with f1 . . . . . . . f2
   if f2 /= '.' then return  /* not a directory so bigger issues */
-  parse value f1 with 2 p1 5 p2 8 p3
+  parse value f1 with 2 p1 5 p2 8 p3 . 2 perms
   if substr(p2,2,1) = 'w' then bad = 1
   if substr(p3,2,1) = 'w' then bad = 1
   if bad = 1 then do

@@ -13,7 +13,7 @@
 +Press%Enter+to Change, or%F3+to Cancel.
 +
 +Current Directory:@file
-+Current Permissions:@f1
++Current Permissions:@perms
 )Init
  &zwinttl = 'ZIGI .ssh Permissions Alert'
  .zvars = '(zigiperm)'
