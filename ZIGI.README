@@ -24,6 +24,13 @@ To get started with this package:
 6. ./install.sh (su and MVS HLQ access might be required)
 7. ISPF,3.4. Go to ZIGI.EXEC and exec ZIGI
 
+Note: that if the repository was downloaded from GitHub as a zip file
+rather than doing a git clone operation that the file attributes may not
+be accurate. These are resolved by the zginstall.rex which will detect
+this and call the zgcvtenc.awk routine to resolve the file attributes by
+changing them from iso8859-1 to ibm1047 prior to creating the z/OS
+datasets.
+
 More information in the wiki: https://github.com/zigi/zigi/wiki
 
 This file is part of zIGI.
