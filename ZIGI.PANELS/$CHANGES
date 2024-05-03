@@ -9,7 +9,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                              ZIGI Release Notes
                                 Version 3.20
-                               April 25, 2024
+                                 May 3, 2024
 
                          New Features and Functions
                          --------------------------
@@ -23,6 +23,8 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
                  - remove zos-working-tree-encoding=BINARY as not needed
                    in generated/update to .gitattributes
 * zigistat       - Add in secnds on the zigi stats if not using Co:Z
+* zigickot       - Change to correctly handle binary elements in a
+                   mixed text/binary PDS when using Co:Z putpds
 
 -----------------------------------------------------------------------------
 

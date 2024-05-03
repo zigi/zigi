@@ -17,6 +17,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            05/03/24 LBD - Correctly handle binary mems     |
+  |                           stats if in mixed pds            |
   |            10/02/24 LBD - Bypass SED if binary file        |
   |            06/15/23 LBD - Add env ICONV_EBCDIC_ZOS_UNIX=1  |
   |            04/21/23 LBD - Add Tracks for allocation unit   |
@@ -540,8 +542,7 @@ Alloc_Copy_PDS:
     call pop_status
     cmd = 'cd' usssafe(rdir)
     cmd = cmd '&& cp -v' aopt binopt src '"'zos'"'
-    if pos('-B',binopt) = 0
-    then if recfm /= 'U'
+    if recfm /= 'U'
     then if enhanced_cp = 1 then do
       lp = lastpos('/',rdir)
       dvstat = left(rdir,lp)'.zigi/'substr(rdir,lp+1)
