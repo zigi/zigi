@@ -18,6 +18,7 @@
   |                                                            |
   | History:  (most recent on top)                             |
   |            05/04/24 LBD - Remove duplicate SED on stats    |
+  |                         - Fix binary find in .gitattributes|
   |            10/02/24 LBD - Bypass SED if binary file        |
   |            06/15/23 LBD - Add env ICONV_EBCDIC_ZOS_UNIX=1  |
   |            04/21/23 LBD - Add Tracks for allocation unit   |
@@ -545,8 +546,11 @@ Alloc_Copy_PDS:
     call pop_status
     cmd = 'cd' usssafe(rdir)
     cmd = cmd '&& cp -v' aopt binopt src '"'zos'"'
+    /* Comment Start
     if pos('-B',binopt) = 0
     then if recfm /= 'U'
+       Comment End */
+    if recfm /= 'U'
     then if enhanced_cp = 1 then do
       lp = lastpos('/',rdir)
       dvstat = left(rdir,lp)'.zigi/'substr(rdir,lp+1)
@@ -694,7 +698,7 @@ get_binfiles:
   |            current repo files that are added as binary.    |
   \---------------------------------------------------------- */
   cmd = 'cd' ckotdir'/ &&' ,
-    'cat -W filecodeset=UTF-8,pgmcodeset=IBM-1047' ckotdir'/.gitattributes'
+    'cat' ckotdir'/.gitattributes'
   cmd = cmd ' | grep BINARY'
   cmd = cmd '| cut -d" " -f1'
   x = docmd(cmd)

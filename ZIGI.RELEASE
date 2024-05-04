@@ -15,6 +15,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
                          --------------------------
 
 * zigi           - Change all iconv use to /bin/iconv
+                 - correct check for binary element in .gitattributes
                  - remove zos-working-tree-encoding=BINARY as not needed
                    in generated/update to .gitattributes
                  - check for .ssh permissions and prompt to change if
@@ -24,6 +25,9 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
                    in generated/update to .gitattributes
 * zigistat       - Add in secnds on the zigi stats if not using Co:Z
 * zigickot       - Change to one do one sed per stats file to clean up
+                 - correct check for binary element in .gitattributes
+* zg             - correct check for binary element in .gitattributes
+* zginstal       - correct check for binary element in .gitattributes
 
 -----------------------------------------------------------------------------
 
