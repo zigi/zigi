@@ -23,7 +23,7 @@
 + export PERL5LIB=/zdo/rocket/lib/perl5:$PERL5LIB
 + export LIBPATH=/zdo/rocket/lib/perl5/5.24.0/os390/CORE:$LIBPATH
 +
-+ Use start option%/ENV+to be prompted to change this, Or use%ENVR+to nullify
++ Use start option%/ENV+to be prompted to change this, Or use%/ENVR+to nullify
 + or use the%GITEnv+command on the primary menu to access.
 +
               +Press%Enter+to update and continue, or%F3+to cancel
