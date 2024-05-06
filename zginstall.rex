@@ -41,6 +41,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            05/04/24 LBD - Fix binary find in .gitattributes|
   |            04/21/24 PJF - Support ascii to ebcdic tagging  |
   |            02/16/24 LBD - Correct 2 bad chars x'05'        |
   |            06/15/23 LBD - Add env ICONV_EBCDIC_ZOS_UNIX=1  |
@@ -705,7 +706,7 @@ get_binfiles:
   |            current repo files that are added as binary.    |
   \---------------------------------------------------------- */
   cmd = 'cd' ckotdir'/ &&'
-  cmd = 'cat -W filecodeset=UTF-8,pgmcodeset=IBM-1047' ckotdir'/.gitattributes'
+  cmd = 'cat'  ckotdir'/.gitattributes'
   cmd = cmd ' | grep BINARY'
   cmd = cmd '| cut -d" " -f1'
   x = docmd(cmd)
