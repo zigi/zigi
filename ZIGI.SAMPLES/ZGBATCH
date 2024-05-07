@@ -68,6 +68,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            05/07/24 LBD - Fix binary detection in .gita..  |
   |            06/15/23 LBD - Add env ICONV_EBCDIC_ZOS_UNIX=1  |
   |            03/23/22 TPM&MWB fixes are listed below         |
   |                         - support for deleted PDS Members  |
@@ -634,7 +635,7 @@ get_binfiles:
   |            current repo files that are added as binary.    |
   \---------------------------------------------------------- */
   cmd = 'cd' omvsfs'/ &&'
-  cmd = 'cat -W filecodeset=UTF-8,pgmcodeset=IBM-1047' omvsfs'/.gitattributes'
+  cmd = 'cat' omvsfs'/.gitattributes'
   cmd = cmd ' | grep BINARY'
   cmd = cmd '| cut -d" " -f1'
   x = bpxwunix(cmd,,binfiles.,se.,bpxenv.)
