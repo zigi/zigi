@@ -8637,6 +8637,8 @@ GETENV:
   omvsenv.0 = 1
   x = bpxwunix(cmd,,so.,se.,omvsenv.)
   home    = strip(so.1)
+  omvsenv.0 = 2
+  omvsenv.2 = 'HOME='home
 
   call check_ssh_perms
 
@@ -8644,22 +8646,36 @@ GETENV:
 
   x = debug('Starting collection of env variables')
 
-  cmd  = docmdx('umask')
-  rc = bpxwunix(cmd,,s.,se.,omvsenv.)
+  /* ------------------------------------- *
+   | Access the defined umask for the user |
+   * ------------------------------------- */
+  cmd  = 'umask'
+  rc = bpxwunix(cmd,,s.,se.,omvsenv.,1)
   last = s.0
   umask = strip(s.last)
 
+  /* Comment Start
   cmd  = docmdx('env')
+     Comment End */
 
-  rc = bpxwunix(cmd,,env.,se.,omvsenv.)
-  envc = env.0
+  if gitenv = null
+     then cmd = 'env'
+     else cmd = '.' gitenv '&& env'
+
+  cmd = cmd
+
+  rc = bpxwunix(cmd,,tenv.,se.,omvsenv.,1)
+  envc = 0
+  do ienv = 1 to tenv.0
+     if pos('=',tenv.ienv) = 0 then iterate
+     call add_env tenv.ienv
+     end
   call add_env '_BPX_SHAREAS=MUST'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
   call add_env 'EXPORT _EDC_ADD_ERRNO2=1'
   call add_env '_EDC_ZERO_RECLEN=Y'
   call add_env 'ICONV_EBCDIC_ZOS_UNIX=1'
   env.0 = envc
-  drop so. se.
 
   /* -------------------------------------------- *
   | Fill out the env ispf variables for zigigcmd |
