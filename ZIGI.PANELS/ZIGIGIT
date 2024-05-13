@@ -9,8 +9,8 @@
 %Command ===>_zcmd
 +
 % Specify+the Location of an Environment File that points to Git. This is
-+ used when you wish to use a Git that isn't defined in your /etc/profile or
-+ your home/.profile.
++ used when you wish to use a Git that isn't defined in your%/etc/profile+or
++ your%home/.profile+, or it can be the zopen tools%../etc/zopen-config+file.
 +
 + Location of env-file: @gitenv                                             +
 +
@@ -23,7 +23,7 @@
 + export PERL5LIB=/zdo/rocket/lib/perl5:$PERL5LIB
 + export LIBPATH=/zdo/rocket/lib/perl5/5.24.0/os390/CORE:$LIBPATH
 +
-+ Use start option%/ENV+to be prompted to change this, Or use%ENVR+to nullify
++ Use start option%/ENV+to be prompted to change, or use%/ENVR+to nullify
 + or use the%GITEnv+command on the primary menu to access.
 +
               +Press%Enter+to update and continue, or%F3+to cancel

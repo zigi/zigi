@@ -8,6 +8,31 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
 
                              ZIGI Release Notes
+                                Version 3.20
+                                May 12, 2024
+
+                         New Features and Functions
+                         --------------------------
+
+* zigi           - Change all iconv use to /bin/iconv
+                 - correct check for binary element in .gitattributes
+                 - remove zos-working-tree-encoding=BINARY as not needed
+                   in generated/update to .gitattributes
+                 - check for .ssh permissions and prompt to change if
+                   write enabled for group or universal
+* zigicnvt       - Change all iconv use to /bin/iconv
+                 - remove zos-working-tree-encoding=BINARY as not needed
+                   in generated/update to .gitattributes
+* zigigit        - Update panel for the z/OS Open Tools (zopen) config
+* zigistat       - Add in secnds on the zigi stats if not using Co:Z
+* zigickot       - Change to one do one sed per stats file to clean up
+                 - correct check for binary element in .gitattributes
+* zg             - correct check for binary element in .gitattributes
+* zginstal       - correct check for binary element in .gitattributes
+
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
                                 Version 3.19
                             November 05, 2023
 

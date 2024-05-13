@@ -17,6 +17,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            05/04/24 LBD - Remove duplicate SED on stats    |
+  |                         - Fix binary find in .gitattributes|
   |            10/02/24 LBD - Bypass SED if binary file        |
   |            06/15/23 LBD - Add env ICONV_EBCDIC_ZOS_UNIX=1  |
   |            04/21/23 LBD - Add Tracks for allocation unit   |
@@ -492,14 +494,18 @@ Alloc_Copy_PDS:
       dvstat_file = '-b' dvstat_file
       /* do a sed cmd to resolve possible merge conflicts existing
          in stats file in favor of master (or main branch) */
-      cmd ='sed -e '  '''/^<<<<<<< HEAD/,/^=======/d'''
-      cmd = cmd '-e '  '''/^>>>>>>> master/d'''
-      cmd = cmd '-e '  '''/^>>>>>>> main/d'''
-      cmd = cmd dvstat
-      cmd = cmd '> temp.txt'
-      cmd = cmd '&& mv temp.txt '
-      cmd = cmd dvstat
-      cmd = cmd '&& 'dovetail_dir'putpds -S D' dvstat_file rdir'/* //'pds
+      if old_dvstat /= dvstat then do
+         old_dvstat = dvstat
+         cmd ='sed -e '  '''/^<<<<<<< HEAD/,/^=======/d'''
+         cmd = cmd '-e '  '''/^>>>>>>> master/d'''
+         cmd = cmd '-e '  '''/^>>>>>>> main/d'''
+         cmd = cmd dvstat
+         cmd = cmd '> temp.txt'
+         cmd = cmd '&& mv temp.txt '
+         cmd = cmd dvstat '&&'
+         end
+      else cmd = null
+      cmd = cmd dovetail_dir'putpds -S D' dvstat_file rdir'/* //'pds
     end
     x = docmd(usssafe(cmd))
 
@@ -540,8 +546,11 @@ Alloc_Copy_PDS:
     call pop_status
     cmd = 'cd' usssafe(rdir)
     cmd = cmd '&& cp -v' aopt binopt src '"'zos'"'
+    /* Comment Start
     if pos('-B',binopt) = 0
     then if recfm /= 'U'
+       Comment End */
+    if recfm /= 'U'
     then if enhanced_cp = 1 then do
       lp = lastpos('/',rdir)
       dvstat = left(rdir,lp)'.zigi/'substr(rdir,lp+1)
@@ -553,14 +562,18 @@ Alloc_Copy_PDS:
       dvstat_file = '-b' dvstat_file
       /* do a sed cmd to resolve possible merge conflicts
          existing in stats file in favor of master (or main branch) */
-      cmd ='sed -e '  '''/^<<<<<<< HEAD/,/^=======/d'''
-      cmd = cmd '-e '  '''/^>>>>>>> master/d'''
-      cmd = cmd '-e '  '''/^>>>>>>> main/d'''
-      cmd = cmd dvstat
-      cmd = cmd '> temp.txt'
-      cmd = cmd '&& mv temp.txt '
-      cmd = cmd dvstat
-      cmd = cmd '&& 'dovetail_dir'putpds -S D' dvstat_file rdir'/'src '//'pds
+      if old_dvstat /= dvstat then do
+         old_dvstat = dvstat
+         cmd ='sed -e '  '''/^<<<<<<< HEAD/,/^=======/d'''
+         cmd = cmd '-e '  '''/^>>>>>>> master/d'''
+         cmd = cmd '-e '  '''/^>>>>>>> main/d'''
+         cmd = cmd dvstat
+         cmd = cmd '> temp.txt'
+         cmd = cmd '&& mv temp.txt '
+         cmd = cmd dvstat '&&'
+         end
+      else cmd = null
+      cmd = cmd dovetail_dir'putpds -S D' dvstat_file rdir'/'src '//'pds
     end
     x = docmd(usssafe(cmd))
     if x > 0 then call view_std 'B'
@@ -685,7 +698,7 @@ get_binfiles:
   |            current repo files that are added as binary.    |
   \---------------------------------------------------------- */
   cmd = 'cd' ckotdir'/ &&' ,
-    'cat -W filecodeset=UTF-8,pgmcodeset=IBM-1047' ckotdir'/.gitattributes'
+    'cat' ckotdir'/.gitattributes'
   cmd = cmd ' | grep BINARY'
   cmd = cmd '| cut -d" " -f1'
   x = docmd(cmd)

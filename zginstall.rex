@@ -41,6 +41,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            05/04/24 LBD - Fix binary find in .gitattributes|
+  |            04/21/24 PJF - Support ascii to ebcdic tagging  |
   |            02/16/24 LBD - Correct 2 bad chars x'05'        |
   |            06/15/23 LBD - Add env ICONV_EBCDIC_ZOS_UNIX=1  |
   |            01/23/23 LBD - Add zgpop4 panel                 |
@@ -101,7 +103,17 @@
 
   ckothlq = strip(ckothlq)
 
-  x = bpxwunix('clear')
+  /* /bin/clear does not work for TERM=xterm-256color          */
+  /* If TERM=xterm-256color then invoke clear with TERM=xterm  */
+  x = bpxwunix('echo $TERM',,so.,se.)
+  curterm = strip(so.1)
+  if curterm = "xterm-256color" then do
+    env.0 = 1
+    env.1 = "TERM=xterm"
+    x = bpxwunix("clear",,,,env.)
+  end
+  else
+    x = bpxwunix('clear')
   say copies('-',73)
   say "                                         .zZ.     Zz "
   say "                    ZZZZZZZZ           ZZZZZZZ "
@@ -143,6 +155,16 @@
     enhanced = 1
     putpds = so.1
   end
+
+  /* -------------------------------------------------------------- *
+  | First check if the repository directory is an unzipped manual  |
+  | download or a git-supported directory, and if it is unzipped   |
+  | and needs conversion then do so according to the rules found   |
+  | in the .gitattributes file                                     |
+  * -------------------------------------------------------------- */
+  rc = ChkIfGIT(ckotdir)
+  if rc <> 0 & rc <> 4 & rc <> 8 then exit rc /* Conversion error */
+  if rc = 8 then exit rc /* Conversion not possible, see msgs */
 
 Restart:
   /* ------------------- *
@@ -684,7 +706,7 @@ get_binfiles:
   |            current repo files that are added as binary.    |
   \---------------------------------------------------------- */
   cmd = 'cd' ckotdir'/ &&'
-  cmd = 'cat -W filecodeset=UTF-8,pgmcodeset=IBM-1047' ckotdir'/.gitattributes'
+  cmd = 'cat'  ckotdir'/.gitattributes'
   cmd = cmd ' | grep BINARY'
   cmd = cmd '| cut -d" " -f1'
   x = docmd(cmd)
@@ -722,6 +744,178 @@ docmd:
   drop so. se.
   x = bpxwunix(cmd,,so.,se.,env.)
   return x
+
+ChkIfFile:
+  /* -------------------------------------------- *
+  | Check if a file is a regular file            |
+  | rc 0  it is not                              |
+  | rc 1  it is                                  |
+  * -------------------------------------------- */
+  parse arg _file
+  Address SYSCALL "lstat" _file "_stat."
+  if _stat.0 < 1 | _stat.ST_TYPE <> S_ISREG then
+    return 0
+  else
+    return 1
+
+ChkIfDir:
+  /* -------------------------------------------- *
+  | Check if a file is a directory               |
+  | rc 0  it is not                              |
+  | rc 1  it is                                  |
+  * -------------------------------------------- */
+  parse arg _file
+  Address SYSCALL "lstat" _file "_stat."
+  if _stat.0 < 1 | _stat.ST_TYPE <> S_ISDIR then
+    return 0
+  else
+    return 1
+
+ChkIfEBC:
+  /* -------------------------------------------- *
+  | Check if a file's CCSID is IBM1047 or not    |
+  | rc 0  it is not                              |
+  | rc 1  it is                                  |
+  * -------------------------------------------- */
+  parse arg _file
+  Address SYSCALL "lstat" _file "_stat."
+  if _stat.0 < 1 | _stat.ST_TYPE <> S_ISREG then
+    return 0
+  else
+    if substr(_stat.ST_CCSID, 1, 2) = '0417'X then
+      return 1
+    else
+      return 0
+
+SayErrors:
+  /* -------------------------------------------- *
+  | Display STDOUT and STDERR from a command     |
+  | when the command failed for some reason      |
+  * -------------------------------------------- */
+  parse arg _emsg
+  say _emsg
+  say ' '
+  say 'Standard messages:'
+  say ' '
+  do vs = 1 to so.0;say so.vs;end
+  say ' '
+  say 'Error messages:'
+  say ' '
+  do vs = 1 to se.0;say se.vs;end
+  return
+
+CvtToEBC:
+  /* -------------------------------------------- *
+  | Convert a file to IBM1047 encoding           |
+  | rc 0  it was successfully converted          |
+  | rc <> 0 an error occurred, see output msgs   |
+  * -------------------------------------------- */
+  parse arg _file
+  _febc = _file".ebc"
+  _rc = docmd("/bin/iconv -f ISO8859-1 -t IBM-1047" _file ">" _febc)
+  if _rc > 0 then do
+    SayErrors("Conversion of" _file "failed with RC="_rc)
+    return _rc
+  end
+  _rc = docmd("rm -f" _file)
+  if _rc > 0 then do
+    SayErrors("Removal of" _file "failed with RC="_rc)
+    return _rc
+  end
+  _rc = docmd("mv" _febc _file)
+  if _rc > 0 then do
+    SayErrors("Rename of" _febc "failed with RC="_rc)
+    return _rc
+  end
+  _rc = docmd("chtag -tc IBM1047" _file)
+  if _rc > 0 then do
+    SayErrors("Tagging of" _file "failed with RC="_rc)
+    return _rc
+  end
+  return 0
+
+ChkIfGIT:
+  /* -------------------------------------------- *
+  | ChkIfGIT to convert unzipped git zip files   |
+  | to IBM-1047 encoding according to the rules  |
+  | listed in the .gitattributes file            |
+  | rc 0  FIles needed and were converted        |
+  | rc 4  FIles do not need conversion           |
+  | rc 8  Files needed to perform the conversion |
+  |       are missing                            |
+  | Other rc <> 0 Return code from the           |
+  |       conversion process                     |
+  * -------------------------------------------- */
+  /* Get output top directory for conversion */
+  parse arg outdir
+  parse value '' with null /* Needed by zmsg */
+  call zmsg " "
+  if ChkIfDir(outdir"/.git") = 0 then do
+    call zmsg "This appears to be a manually unzipped directory"
+    call zmsg "Checking if all required conversion tools are here"
+  end
+  else do
+    call zmsg "This appears to be a git-created directory"
+    call zmsg "No encoding conversion is required"
+    return 4
+  end
+  if ChkIfFile(outdir"/.gitattributes") = 0 then do
+    call zmsg "There is no .gitattributes file in this directory"
+    call zmsg "Please re-download and rerun"
+    return 8
+  end
+  if ChkIfFile(outdir"/zgcvtenc.awk") = 0 then do
+    call zmsg "Conversion script zgcvtenc.awk not found"
+    call zmsg "Please re-download and rerun"
+    return 8
+  end
+  if ChkIfEBC(outdir"/zgcvtenc.awk") = 1 then do
+    call zmsg "Files appear to already have been converted to EBCDIC"
+    call zmsg "Please continue with the normal installation procedure"
+    return 4
+  end
+  call zmsg " "
+  call zmsg "Conversion tools and files seem to all be present"
+  call zmsg "Files in this unzipped directory will be converted"
+  call zmsg "as specified by the rules in the .gitattributes file"
+  call zmsg " "
+  /* Save the current Address mode */
+  saveAddr = address()
+  /* Switch to SHell mode for necessary tasks */
+  Address SH
+  /* Remove output files for the zgcvtenc process */
+  rmlist = outdir"/zgcvtenc.err" outdir"/zgcvtenc.log"
+  rmlist = rmlist outdir"/zgcvtenc.lst"  outdir"/zgcvtenc.dbglog"
+  rmlist = rmlist  outdir"/.gitattributes.ebc"
+  "rm -f" rmlist
+  /* Create list of files for script zgcvtenc.awk to process */
+  "ls -RFA1 >" outdir"/zgcvtenc.lst"
+  /* POSIX awk requires scripts to be encoded in EBCDIC */
+  rc = CvtToEBC(outdir"/zgcvtenc.awk")
+  /* -------------------------------------------------------- *
+  | The script zgcvtenc.awk requires file .gitattributes.ebc |
+  | to be a copy of .gitattributes encoded as IBM-1047 text  |
+  | The original ASCII .gitattributes file is not changed    |
+  * -------------------------------------------------------- */
+  "cp" outdir"/.gitattributes" outdir"/.gitattributes.ebc"
+  rc = CvtToEBC(outdir"/.gitattributes.ebc")
+  /* Must add a final pattern to .gitattributes to ignore *ccsid* files */
+  "echo ""*cvtenc* binary"" >>"  outdir"/.gitattributes.ebc"
+  /* The script zgcvtenc.awk requires environment variable PWD */
+  nextenvc = env.0 + 1
+  env.nextenvc = "PWD="outdir
+  env.0 = nextenvc
+  /* Now we are ready to run the conversion process */
+  rc = docmd("awk -f" outdir"/zgcvtenc.awk" outdir"/zgcvtenc.lst >" ,
+       outdir"/zgcvtenc.log 2>" outdir"/zgcvtenc.err")
+  call zmsg "Return code from conversion process is" rc
+  call zmsg " "
+  /* Restore original Address and environment settings*/
+  Address value saveAddr
+  env.nextenvc = ""
+  env.0 = nextenvc - 1
+  /* Exit with return code from conversion process */
+  return rc
 
 /*
 >ZGSTAT     *** Inline ZGSTAT that will be updated and uploaded */

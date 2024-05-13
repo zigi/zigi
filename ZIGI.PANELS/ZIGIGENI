@@ -4,12 +4,19 @@ The zginstall.rex is the ZIGI generalized installation tool and it is
 used by this repository, when the ZIGI ISPF dialog is not used, to
 install the repositories z/OS datasets from the Git OMVS repository.
 
+Note: that if the repository was downloaded from GitHub as a zip file
+rather than doing a git clone operation that the file attributes may not
+be accurate. These are resolved by the zginstall.rex which will detect
+this and call the zgcvtenc.awk routine to resolve the file attributes by
+changing them from iso8859-1 to ibm1047 prior to creating the z/OS
+datasets.
+
 To use zginstall.rex:
 
-    1. Enter OMVS
-    2. At the OMVS prompt change to the OMVS directory where the Git
+    1. Enter OMVS via TSO OMVS or via ssh
+    2. At the shell prompt change to the directory where the Git
        repository is located
-    3. Enter at the OMVS prompt ./zginstall.rex
+    3. Enter at the shell prompt ./zginstall.rex
     4. Enter when prompted the z/OS dataset high level qualifier to be
        used for the z/OS datasets to be created from this Git repository
     5. When zginstall.rex completes all of the z/OS datasets that are
@@ -18,5 +25,5 @@ To use zginstall.rex:
     6. Next return to TSO/ISPF and execute the ZGSTAT command that is
        documented by the zginstall.rex installation report. This will
        apply the ISPF statistics to all of the partitioned datasets,
-       something that ZIGI supports because neither Git or OMVS
+       something that ZIGI supports because neither Git or shell
        understand what ISPF statistics are.

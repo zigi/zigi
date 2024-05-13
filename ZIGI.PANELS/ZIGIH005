@@ -15,7 +15,7 @@
 +wish to see the splash panel again, then the command would be %TSO ZIGI S+to
 %start zigi.
 +
-+Starting with%/ENV+will force the Git Environment Prompt. Or%ENVR+to nullify.
++Starting with%/ENV+will force the Git Environment Prompt. Or%/ENVR+to nullify.
 +
 +If you know the name of a specific repository you want to start with then
 +the command would be%TSO ZIGI repository-name+and ZIGI opens that
