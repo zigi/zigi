@@ -9180,7 +9180,7 @@ is_binfile:
    * ----------------------------------------------------- */
 Get_Default_Codepage:
   cmd = 'cd' localrep'/'zigirep '&&' ,
-    'cat -W filecodeset=UTF-8,pgmcodeset='encoding' .gitattributes' ,
+    'cat .gitattributes' ,
     "| grep 'zos-working-tree-encoding'"
   x = bpxwunix(cmd,,s.,e.)
   encoding = null
