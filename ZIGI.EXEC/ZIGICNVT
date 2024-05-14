@@ -410,9 +410,9 @@ get_binfiles:
   | Function:  Fills the global binfiles. stem with all        |
   |            current repo files that are added as binary.    |
   \---------------------------------------------------------- */
-  cmd = 'cd 'localrep'/'zigirep' &&'
-  cmd = cmd 'cat .gitattributes | grep BINARY'
-  cmd = cmd '| cut -d" " -f1'
+  cmd = 'cd 'localrep'/'zigirep' &&' ,
+    'cat -W filecodeset=UTF-8 .gitattributes' ,
+    'grep BINARY | cut -d" " -f1'
   x = bpxwunix(cmd,,so.,se.)
   binfiles. = null
   do b = 1 to so.0

@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            05/04/24 - Version 3.20                         |
+  |            05/14/24 - Version 3.20                         |
   |                     - fix binary .gitattributes check      |
   |                     - check ~/.ssh permissions             |
   |                       and prompt to reset                  |
@@ -9139,7 +9139,7 @@ get_binfiles:
   |            current repo files that are added as binary.    |
   \---------------------------------------------------------- */
   cmd = 'cd 'localrep'/'zigirep' &&' ,
-    'cat .gitattributes' ,
+    'cat -W filecodeset=UTF-8 .gitattributes' ,
     '| grep binary' ,
     '| cut -d" " -f1'
   x = docmd(cmd)
@@ -9180,7 +9180,7 @@ is_binfile:
    * ----------------------------------------------------- */
 Get_Default_Codepage:
   cmd = 'cd' localrep'/'zigirep '&&' ,
-    'cat .gitattributes' ,
+    'cat -W filecodeset=UTF-8 .gitattributes' ,
     "| grep 'zos-working-tree-encoding'"
   x = bpxwunix(cmd,,s.,e.)
   encoding = null

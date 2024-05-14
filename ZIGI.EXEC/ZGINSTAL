@@ -41,7 +41,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
-  |            05/04/24 LBD - Fix binary find in .gitattributes|
+  |            05/14/24 LBD - Fix binary find in .gitattributes|
   |            04/21/24 PJF - Support ascii to ebcdic tagging  |
   |            02/16/24 LBD - Correct 2 bad chars x'05'        |
   |            06/15/23 LBD - Add env ICONV_EBCDIC_ZOS_UNIX=1  |
@@ -705,10 +705,10 @@ get_binfiles:
   | Function:  Fills the global binfiles. stem with all        |
   |            current repo files that are added as binary.    |
   \---------------------------------------------------------- */
-  cmd = 'cd' ckotdir'/ &&'
-  cmd = 'cat'  ckotdir'/.gitattributes'
-  cmd = cmd ' | grep BINARY'
-  cmd = cmd '| cut -d" " -f1'
+  cmd = 'cd' ckotdir'/ &&' ,
+        'cat -W filecodeset=UTF-8' ckotdir'/.gitattributes' ,
+        ' | grep BINARY' ,
+        '| cut -d" " -f1'
   x = docmd(cmd)
   if so.0 = 0 then do
     binfiles.0 = 0
