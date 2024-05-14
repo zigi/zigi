@@ -23,6 +23,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            04/02/24 LBD - Update binary encoding           |
   |            02/03/22 LBD - Replace dsnvalid routine         |
   |            10/25/20 LBD - Improved usssafe routine         |
   |            10/20/20 LBD - Add .gitattributes if not there  |
@@ -190,7 +191,7 @@ Create_GitAttributes: Procedure
   /* ------------------------------------------------------- */
   /* convert to iso8859-1 */
   cmd = 'cd' convdir ' && '
-  cmd = cmd 'iconv -f ibm-1047 -t iso8859-1 .ga'
+  cmd = cmd '/bin/iconv -f ibm-1047 -t iso8859-1 .ga'
   cmd = cmd ' > .gitattributes'
   x = bpxwunix(cmd)
 
@@ -379,8 +380,8 @@ Set_Binary:
     binopt = '-B'
       /* setting the gitattributes file */
       /* first convert the ASCII atrtib file to ebcdic :( */
-    gabs = 'git-encoding=BINARY zos-working-tree-encoding=BINARY binary'
-    cmd = 'cd' convdir '&& iconv -f ISO8859-1 -t IBM-1047 '
+    gabs = 'git-encoding=BINARY binary'
+    cmd = 'cd' convdir '&& /bin/iconv -f ISO8859-1 -t IBM-1047 '
     cmd = cmd '.gitattributes > .gae'
       /* then append the binary attrib for this file */
     if type = 1 then
@@ -388,7 +389,7 @@ Set_Binary:
     if type = 3 then
     cmd = cmd '&& echo "'file gabs'" >> .gae '
       /* convert it back to ascii */
-    cmd = cmd '&& iconv -f IBM-1047 -t ISO8859-1 .gae '
+    cmd = cmd '&& /bin/iconv -f IBM-1047 -t ISO8859-1 .gae '
     cmd = cmd '> .gitattributes '
     cmd = cmd '&& rm .gae'
     x = bpxwunix(cmd,,so.,se.)
@@ -409,9 +410,9 @@ get_binfiles:
   | Function:  Fills the global binfiles. stem with all        |
   |            current repo files that are added as binary.    |
   \---------------------------------------------------------- */
-  cmd = 'cd 'localrep'/'zigirep' &&'
-  cmd = cmd 'cat .gitattributes | grep BINARY'
-  cmd = cmd '| cut -d" " -f1'
+  cmd = 'cd 'localrep'/'zigirep' &&' ,
+    'cat -W filecodeset=UTF-8 .gitattributes' ,
+    'grep BINARY | cut -d" " -f1'
   x = bpxwunix(cmd,,so.,se.)
   binfiles. = null
   do b = 1 to so.0

@@ -1,0 +1,27 @@
+)Attr
+ $ type(input) caps(off) hilite(uscore) intens(low)
+ _ type(input) caps(on ) hilite(uscore) intens(low)
+ @ type(output) caps(off)
+)Body Window(57,11)
++Command ===>$zcmd
++
++Your%.ssh+directory allows write permissions to those  +
++in your group and universal which is%not+allowed.      +
++
++Change%.ssh+permissions to%700+to fix this:_z+(Y)
++
++Press%Enter+to Change, or%F3+to Cancel.
++
++Current Directory:@file
++Current Permissions:@perms
+)Init
+ &zwinttl = 'ZIGI .ssh Permissions Alert'
+ .zvars = '(zigiperm)'
+ .help = zigihprm
+)Proc
+ ver (&zigiperm,list,Y)
+)END
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2024 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */

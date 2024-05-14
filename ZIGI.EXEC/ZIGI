@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r19'
+  ver = 'v3r20'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -29,6 +29,14 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            05/14/24 - Version 3.20                         |
+  |                     - fix binary .gitattributes check      |
+  |                     - check ~/.ssh permissions             |
+  |                       and prompt to reset                  |
+  |                     - remove zos-working-tree-encoding     |
+  |                       =BINARY as not needed(breaks zot)    |
+  |                     - Update all iconv use to use          |
+  |                       /bin/iconv                           |
   |            02/03/24 - Version 3.19                         |
   |                     - Fix grep in a pds to use pds member  |
   |                     - Honor F3 on Config (zigiset) panel   |
@@ -6650,7 +6658,7 @@ do_git_attributes:
   reporoot = localrep'/'zigirep'/'
   /* convert to iso8859-1 */
   cmd = 'cd 'localrep'/'zigirep' && '
-  cmd = cmd 'iconv -f' encoding '-t iso8859-1 .ga'
+  cmd = cmd '/bin/iconv -f' encoding '-t iso8859-1 .ga'
   cmd = cmd ' > .gitattributes'
   x = docmd(cmd)
 
@@ -7887,7 +7895,7 @@ Get_List:
 Do_Add_Copy:
   arg acopt
   parse arg option with ''
-  gabs = 'git-encoding=BINARY zos-working-tree-encoding=BINARY binary'
+  gabs = 'git-encoding=BINARY binary'
   call get_binfiles
   zsel = null
   ac_mem = null
@@ -8058,12 +8066,12 @@ Do_Add_Copy:
       binopt = '-B'
       /* setting the gitattributes file */
       /* first convert the ASCII atrtib file to ebcdic :( */
-      cmd = 'cd 'DIR' && iconv -f ISO8859-1 -t' encoding
+      cmd = 'cd 'DIR' && /bin/iconv -f ISO8859-1 -t' encoding
       cmd = cmd '.gitattributes > .gae'
       /* then append the binary attrib for this file */
       cmd = cmd '&& echo "'pss gabs'" >> .gae '
       /* convert it back to ascii */
-      cmd = cmd '&& iconv -f' encoding '-t ISO8859-1 .gae '
+      cmd = cmd '&& /bin/iconv -f' encoding '-t ISO8859-1 .gae '
       cmd = cmd '> .gitattributes '
       /* add (and commit) .gitattributes to the index */
       cmd = cmd '&& git add .gitattributes '
@@ -8629,27 +8637,45 @@ GETENV:
   omvsenv.0 = 1
   x = bpxwunix(cmd,,so.,se.,omvsenv.)
   home    = strip(so.1)
+  omvsenv.0 = 2
+  omvsenv.2 = 'HOME='home
+
+  call check_ssh_perms
 
   call init_debug
 
   x = debug('Starting collection of env variables')
 
-  cmd  = docmdx('umask')
-  rc = bpxwunix(cmd,,s.,se.,omvsenv.)
+  /* ------------------------------------- *
+   | Access the defined umask for the user |
+   * ------------------------------------- */
+  cmd  = 'umask'
+  rc = bpxwunix(cmd,,s.,se.,omvsenv.,1)
   last = s.0
   umask = strip(s.last)
 
+  /* Comment Start
   cmd  = docmdx('env')
+     Comment End */
 
-  rc = bpxwunix(cmd,,env.,se.,omvsenv.)
-  envc = env.0
+  if gitenv = null
+     then cmd = 'env'
+     else cmd = '.' gitenv '&& env'
+
+  cmd = cmd
+
+  rc = bpxwunix(cmd,,tenv.,se.,omvsenv.,1)
+  envc = 0
+  do ienv = 1 to tenv.0
+     if pos('=',tenv.ienv) = 0 then iterate
+     call add_env tenv.ienv
+     end
   call add_env '_BPX_SHAREAS=MUST'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
   call add_env 'EXPORT _EDC_ADD_ERRNO2=1'
   call add_env '_EDC_ZERO_RECLEN=Y'
   call add_env 'ICONV_EBCDIC_ZOS_UNIX=1'
   env.0 = envc
-  drop so. se.
 
   /* -------------------------------------------- *
   | Fill out the env ispf variables for zigigcmd |
@@ -8715,6 +8741,44 @@ add_env:
   parse arg env_val
   envc = envc + 1
   env.envc = env_val
+  return
+
+  /* ----------------------------------------------------- *
+   | Check the permission bits for the home/.ssh directory |
+   | and if not then tell the user to fix them and retry.  |
+   * ----------------------------------------------------- */
+check_ssh_perms:
+  /* drwxr-xr-x  xx xxxxxx   xxxxxxx     8192 mmm dd hh:mm .. */
+  file = home'/.ssh'
+  x = bpxwunix('ls -la' file,,s.,e.)
+  parse value s.2 with f1 . . . . . . . f2
+  if f2 /= '.' then return  /* not a directory so bigger issues */
+  parse value f1 with 2 p1 5 p2 8 p3 . 2 perms
+  if substr(p2,2,1) = 'w' then bad = 1
+  if substr(p3,2,1) = 'w' then bad = 1
+  if bad = 1 then do
+      call pfshow 'off'           /* make sure pfshow is off */
+      'Addpop row(4) column(6)'
+      'Display Panel(zigiperm)'
+      prc = rc
+      'rempop'
+      call pfshow 'reset'         /* restore pfshow setting */
+      if zigiperm /= 'Y' then prc = 4
+      if prc > 0 then do
+      zerrsm = ''
+      zerrlm = 'Invalid permissions on your' file ,
+               'with' f1 'but should be drwxr-xr-x' ,
+               'and this must be fixed and then you can try' ,
+               'again. Write (w) is not allowed in the 2nd or 3rd',
+               'permission fields. Use: "chmod 700 .ssh"' ,
+               'to fix.'
+      'setmsg msg(isrz003)'
+      exit 8
+      end
+      else do
+           rc = bpxwunix('chmod 700' file,,s.,e.)
+           end
+      end
   return
 
 do_gcmd:
@@ -9075,7 +9139,7 @@ get_binfiles:
   |            current repo files that are added as binary.    |
   \---------------------------------------------------------- */
   cmd = 'cd 'localrep'/'zigirep' &&' ,
-    'cat -W filecodeset=UTF-8,pgmcodeset='encoding' .gitattributes' ,
+    'cat -W filecodeset=UTF-8 .gitattributes' ,
     '| grep binary' ,
     '| cut -d" " -f1'
   x = docmd(cmd)
@@ -9116,7 +9180,7 @@ is_binfile:
    * ----------------------------------------------------- */
 Get_Default_Codepage:
   cmd = 'cd' localrep'/'zigirep '&&' ,
-    'cat -W filecodeset=UTF-8,pgmcodeset='encoding' .gitattributes' ,
+    'cat -W filecodeset=UTF-8 .gitattributes' ,
     "| grep 'zos-working-tree-encoding'"
   x = bpxwunix(cmd,,s.,e.)
   encoding = null

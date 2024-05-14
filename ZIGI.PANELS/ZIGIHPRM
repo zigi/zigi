@@ -1,0 +1,36 @@
+)attr default(%+#)
+  # type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on)
+)Body Expand(\\)
+%Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
+%Selection ===>#ZCMD                                                          +
++
+                               %.ssh Permissions
++
++The%.ssh+directory is a special directory used for your ssh keys and files
++and as such requires special permissions. While%rwxr_xr_x+is allowed,
++allowing universal access is not recommended. Enabling%w+, write, for
++group and universal will prevent most%ssh+activities.
++
++It is true that the files within%.ssh+are created with the correct
++permissions, the directory must also be configured properly.
++
++It is recommended that the%.ssh+permissions be either%750+or%700+
++and the prompt will change the permissions for the user to%700+.
++
++
+%         "Never test the depth of the water with both feet."
++
++
++
+          +Press the%Enter+key to continue your ZIGI tutorial journey.
+)Init
+ .cursor = &zcmd
+)PROC
+ &ZUP   = ZIGIHPRM
+)END
+/* -------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                       */
+/* Copyright (C) 2024 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* -------------------------------------------------------- */
