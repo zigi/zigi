@@ -899,7 +899,7 @@ get_binfiles:
   |            current repo files that are added as binary.    |
   \---------------------------------------------------------- */
   cmd = 'cd 'localrep'/'zigirep' &&' ,
-    'cat .gitattributes' ,
+    'cat -W filecodeset=UTF-8 .gitattributes' ,
     '| grep binary' ,
     '| cut -d" " -f1'
   x = docmd(cmd)
