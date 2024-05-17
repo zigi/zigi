@@ -8,6 +8,17 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
 
                              ZIGI Release Notes
+                                Version 3.21
+                                May 17, 2024
+
+                         New Features and Functions
+                         --------------------------
+
+* githelp        - Correction to work with z/OS Open Tools Git
+
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
                                 Version 3.20
                                 May 14, 2024
 
