@@ -16,6 +16,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            05/16/24 LBD - Update for env ispf vars         |
+  |                           in getenv routine                |
   |            06/03/21 LBD - Change SHAREAS to REQUIRED       |
   |            05/29/21 LBD - Improve the docmd env setup      |
   |            06/10/20 LBD - Speed up using shareas=yes       |
@@ -432,22 +434,17 @@ pfshow:
   end
   return
 
-  /* ----------------------------------------------------- *
-  | Get the users current OMVS enviornment for use in the |
-  | bpxwunix commands. Needed for git.                    |
-  * ----------------------------------------------------- */
+  /* -------------------------------------------- *
+   | Get the environment variables passed by zigi |
+   * -------------------------------------------- */
 GETENV:
-  cmd = 'pwd'
-  e.1 = '_BPX_SHAREAS=MUST'
-  e.0 = 1
-  x = bpxwunix(cmd,,so.,se.,e.)
-  home    = strip(so.1)
-  rv=bpxwunix('env',,env.,se.,e.,1)
-  x = env.0
-  x = x + 1
-  env.x = 'HOME='pwd
-  env.0 = x
-  drop so. se.
+  Address ISPExec
+  'vget (envs)'
+  'vget ('envs')'
+  do i = 1 to words(envs)
+     interpret 'env.'i '= env'i
+     end
+  env.0 = words(envs)
   return
 
 docmd:
