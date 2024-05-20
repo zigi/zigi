@@ -52,7 +52,7 @@ Example: `ZOPEN_ROOTFS="/isv/zopen"`
 
 Since you wish to use this with `zigi` there is one more step.
 
-###
+### The zigi Environment File
 
 The `zigi` interface to z/OS UNIX System Services (aka USS or OMVS) uses the REXX interface service `bpxwunix` which, unfortunately, does not support having sub scripts like the `zopen-config` run from `/etc/profile`. So we have developed a work-around which requires that once you start `zigi` that you enter the full path and name for the `zopen-config`.
 
@@ -68,16 +68,20 @@ Here is an example:
 
 Next you need to run the `zginstall.rex` command from either USS/OMVS or via the shell. This will allocate the `zigi` z/OS datasets and copy the contents to them for use.
 
+# Suggested Tool
+
+`zigi` will use the z/OS supplied `cp` command to copy datasets, and PDS members, between z/OS and USS *but* it is slow so not ideal if you have PDS datasets with more than a few dozen members. The Dovetail Technologies company has made available their ***Co:Z Toolkit***, which includes `getpds` and `putpds` tools that are lightning fast compared to `cp`, for ***free*** (although it is recommended that you support them by getting a support contract). 
+
+Go to [(https://coztoolkit.com/downloads/coz/index.html](https://coztoolkit.com/downloads/coz/index.html) and review the terms and conditions to determine if you installation qualifies for the *free* license and how to acquire a support (paid) contract if you are able.
+
 # Samples
 
 The ZGBATCH exec is located in the ZIGI.SAMPLES dataset and is provided as an example for you to use
 to create a batch process to add/commit/push updates in batch to a zigi managed git repository.
 
-
 # Contributing to zigi?
 
-Yes please!
-
+Yes please! We can always use others to join with us in addressing bugs, adding features, improving and/or creating documentation, etc.
 
 # Known Issues (maybe solutions...)
 
