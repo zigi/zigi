@@ -81,13 +81,13 @@ Yes please!
 
 # Known Issues (maybe solutions...)
 
-### Weird Certificate Errors
+## Weird Certificate Errors
 When faced with a "SSL Certificate problem: unable to get local issuer" this might 'fix' it. Please note that this will
 disable encryption for all uses of git and this is strongly discouraged in non-sandbox environments.
 
     git config --global http.sslVerify false
 
-### Text File Corruption
+## Text File Corruption
 
 If a text file contains the following special characters they will be corrupted when copied from z/OS to OMVS:
 
