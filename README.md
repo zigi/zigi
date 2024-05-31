@@ -38,7 +38,7 @@ Be sure to follow the instructions provided by Rocket Software to update the `PA
 
 The other available port of `git` is from the z/OS Open Tools project. They provide an installer called `zopen` which you will need to download from (https://zosopentools.org/#/Guides/QuickStart)[https://zosopentools.org/#/Guides/QuickStart]. 
 
-Once the `zopen` installer is installed youj will need execute the `zopen-config` script found in the installation directory `mountpoint/etc`. At that point you can run `open install git` and follow the prompts to install `git` along with any pre-reqs and co-reqs.
+Once the `zopen` installer is installed you will need execute the `zopen-config` script found in the installation directory `mountpoint/etc`. At that point you can run `open install git` and follow the prompts to install `git` along with any pre-reqs and co-reqs.
 
 ## Setting up your environment
 
