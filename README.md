@@ -40,6 +40,20 @@ The other available port of `git` is from the z/OS Open Tools project. They prov
 
 Once the `zopen` installer is installed you will need execute the `zopen-config` script found in the installation directory `mountpoint/etc`. At that point you can run `open install git` and follow the prompts to install `git` along with any pre-reqs and co-reqs.
 
+# Installing git - IBM Open Enterprise Foundation
+
+IBM Open Enterprise Foundation for z/OS provides a comprehensive suite of open source UNIX-based development tools that are enabled to run natively on z/OS. These tools and libraries are designed to enhance the development and deployment experience on the z/OS platform.
+
+Included with your existing IBM z/OS Service and Support at ***no*** additional charge.
+
+Product information, including an easier way to plan and order, prerequisites, other products, and more, is available on or before general availability in IBM Shopz for the following programs:
+* IBM Open Enterprise Foundation for z/OS 1.1 (5655-OEF)
+* IBM Open Enterprise Foundation for z/OS Subscription and Support (S&S) (5655-EFS)
+
+## Doc
+
+https://www.ibm.com/docs/en/oefzos
+
 ## Setting up your environment
 
 To make the z/OS Open Tools installed tools available you will need to update your `/etc/profile` to execute that `zopen-config` script.
