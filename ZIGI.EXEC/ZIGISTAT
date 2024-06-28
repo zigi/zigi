@@ -39,6 +39,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            06/28/24 LBD - Update LMMSTATs to match Co:Z    |
+  |                           stat format                      |
   |            03/28/24 LBD - Update zlmtime with zlmsec       |
   |            06/15/23 LBD - Add env ICONV_EBCDIC_ZOS_UNIX=1  |
   |            10/16/22 LBD - Delete amdlist sysprint tmp dsn  |
@@ -236,7 +238,8 @@ zigistat:
         c = mem.0 + 1
         if sysrecfm /= 'U'
         then mem.c = strip(member ,
-          ZLCDATE  ZLMDATE  ZLVERS ZLMOD ZLMTIME":"zlmsec ZLCNORC ,
+          ZLCDATE  ZLMDATE  right(ZLVERS+0,2) right(ZLMOD+0,2) ,
+          ZLMTIME":"zlmsec ZLCNORC ,
           ZLINORC ZLMNORC ZLUSER ,
           zlcnorce zlinorce zlmnorce)
         else if strip(zlalias) = null then do
