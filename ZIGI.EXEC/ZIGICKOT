@@ -17,6 +17,9 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            07/19/24 LBD - change to use putpds for all     |
+  |                           text and binary elements in one  |
+  |                           call instead of individually     |
   |            05/14/24 LBD - fix (for sure) binary in attrib  |
   |            05/04/24 LBD - Remove duplicate SED on stats    |
   |                         - Fix binary find in .gitattributes|
@@ -426,7 +429,8 @@ Alloc_Copy_PDS:
   end
   else  zs8 = 'Allocating New'
   zs6 = 'Allocating PDSE:        ' pds
-  call pop_status
+  if enhanced_cp = 0 then
+     call pop_status
   if dsnstat /= 'OK' then deleted = 1
   if deleted = 1 then do
     call get_dcb
@@ -436,17 +440,22 @@ Alloc_Copy_PDS:
     end
     if mgen > 0 then gens = 'maxgens('mgen')'
     else gens = null
+    call outtrap 'a.'
     'Alloc new spa('tracks','tracks') recfm('recfm') lrecl('lrecl')' ,
       'Blksize('blksize') Dsntype(Library,2) dsorg(po) dir(1)' ,
       'dsn('pds')' gens 'tracks'
     'Free ds('pds')'
+    call outtrap 'off'
+    if a.0 > 0 then
+       zs8 = 'Unable to re-allocate - copying with replace.'
   end
   if deleted = 0 then do
     zs4 = zs6
     zs5 = zs7
     parse value '' with zs6 zs7
   end
-  call pop_status
+  if enhanced_cp = 0 then
+     call pop_status
   /* ---------------------------------------------------- *
   | Read directory to get all member file names and then |
   | adjust according and then do individual cp           |
@@ -513,7 +522,11 @@ Alloc_Copy_PDS:
     if x > 0 then call view_std 'B'
     drop so. se.
   end
-  else
+  else do
+ /* ------------------------------------------- *
+  | Mixed Text and Binary so Process Separately |
+  * ------------------------------------------- */
+  parse value '' with text_mems bin_mems
   do ii = 1 to mems.0
     if left(mems.ii,1) = "." then iterate
     m = mems.ii    /* ignore the translation */
@@ -538,19 +551,20 @@ Alloc_Copy_PDS:
     end
     if deleted = 0
     then zs5 = 'Type:                   ' type
-    else zs7 = 'Type:                   ' type
+    else
+    if enhanced_cp = 0
+    then zs7 = 'Type:                   ' type
+    else zs7 = null
     src = usssafe(mems.ii)
     if left(src,1) = '#' then src = '\'src
     zos = usssafe("//'"target"("m")'")
     mcount = mcount + 1
-    zs9 = left('Copying' mcount 'of' tcount,24) 'Member:' m
-    call pop_status
+    if enhanced_cp = 0 then do
+       zs9 = left('Copying' mcount 'of' tcount,24) 'Member:' m
+       call pop_status
+       end
     cmd = 'cd' usssafe(rdir)
     cmd = cmd '&& cp -v' aopt binopt src '"'zos'"'
-    /* Comment Start
-    if pos('-B',binopt) = 0
-    then if recfm /= 'U'
-       Comment End */
     if recfm /= 'U'
     then if enhanced_cp = 1 then do
       lp = lastpos('/',rdir)
@@ -559,8 +573,6 @@ Alloc_Copy_PDS:
       if dvs.0 > 0
       then dvstat_file = '-M st='dvstat',r=y'
       else dvstat_file = '-M r=y'
-      if pos('-B',binopt) > 0 then
-      dvstat_file = '-b' dvstat_file
       /* do a sed cmd to resolve possible merge conflicts
          existing in stats file in favor of master (or main branch) */
       if old_dvstat /= dvstat then do
@@ -571,18 +583,35 @@ Alloc_Copy_PDS:
          cmd = cmd dvstat
          cmd = cmd '> temp.txt'
          cmd = cmd '&& mv temp.txt '
-         cmd = cmd dvstat '&&'
+         cmd = cmd dvstat
+         x = docmd(usssafe(cmd))
          end
-      else cmd = null
-      cmd = cmd dovetail_dir'putpds -S D' dvstat_file rdir'/'src '//'pds
+      if binopt = '-B'
+         then bin_mems = bin_mems src
+         else text_mems = text_mems src
     end
-    x = docmd(usssafe(cmd))
-    if x > 0 then call view_std 'B'
-    Address ISPexec
-    zs9 = null
+  end
+  if enhanced_cp = 1 then do
+  cmd = 'cd' rdir '&&'
+  if strip(text_mems) /= null then
+     cmd = cmd dovetail_dir'putpds -S D' dvstat_file text_mems '//'pds
+  if strip(bin_mems) /= null then do
+      dvstat_file = '-b' dvstat_file
+      cmd = cmd '&& 'dovetail_dir'putpds -S D' ,
+      dvstat_file bin_mems '//'pds
+      end
+  zs7 = null
+  zs9 = 'Copying Text Members:' words(text_mems) 'and' ,
+        'Binary Members:' words(bin_mems)
+  call pop_status
+  end
+  x = docmd(usssafe(cmd))
+  if x > 0 then call view_std 'B'
   end
   call syscalls 'OFF'
   call outtrap 'off'
+  Address ISPexec
+  zs9 = null
   return
 
 get_dcb:
