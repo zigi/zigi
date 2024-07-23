@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r20'
+  ver = 'v3r21'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -29,6 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            05/17/24 - Version 3.21                         |
+  |                     - version change for githelp update    |
   |            05/14/24 - Version 3.20                         |
   |                     - fix binary .gitattributes check      |
   |                     - check ~/.ssh permissions             |

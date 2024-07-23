@@ -8,6 +8,19 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
 
                              ZIGI Release Notes
+                                Version 3.21
+                               July 20, 2024
+
+                         New Features and Functions
+                         --------------------------
+
+* githelp        - Correction to work with z/OS Open Tools Git
+* zigickot       - Enhance if Co:Z then copy all members in one call
+* zigistat       - Fix so the ISPF stat format matches the Co:Z format
+
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
                                 Version 3.20
                                 May 14, 2024
 
