@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r21'
+  ver = 'v3r22'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -29,6 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            08/12/24 - Version 3.22                         |
+  |                     - Ignore binary merge conflicts        |
   |            05/17/24 - Version 3.21                         |
   |                     - version change for githelp update    |
   |            05/14/24 - Version 3.20                         |
@@ -6185,8 +6187,20 @@ Merge_it:
       end
       else do
         mhit = 0
+        mrgfile = null
         do im = 1 to so.0
+         /* ----------------------- *
+          | Ignore binary conflicts |
+          * ----------------------- */
+          if wordpos('binary',so.im) > 0 then do
+             parse value so.im with . 'files:' mrgfile .
+             iterate
+             end
           if word(so.im,1) /= 'CONFLICT' then iterate
+         /* ----------------------------------- *
+          | If binary file conflict then ignore |
+          * ----------------------------------- */
+          if pos(mrgfile,so.im) > 0 then iterate
           if pos('.zigi/',so.im) = 0  then do
             mhit = 1
             zcmd = 2
@@ -6254,9 +6268,21 @@ Merge_it:
             'Names(mfile mstat) nowrite share'
           mrgdir = localrep'/'zigirep
           merge_rms = null
+          mrgfile = null
           do si = 1 to so.0
             mem = null
+           /* ----------------------- *
+            | Ignore binary conflicts |
+            * ----------------------- */
+            if wordpos('binary',so.si) > 0 then do
+               parse value so.si with . 'files:' mrgfile .
+               iterate
+               end
             if word(so.si,1) /= 'CONFLICT' then iterate
+           /* ----------------------------------- *
+            | If binary file conflict then ignore |
+            * ----------------------------------- */
+            if pos(mrgfile,so.si) > 0 then iterate
             Select
               When pos('rename/',word(so.si,2)) > 0 then
               parse value so.si with . '->'mdsn .
