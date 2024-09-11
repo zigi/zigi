@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r22'
+  ver = 'v3r23'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -29,6 +29,12 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            10/xx/24 - Version 3.23                         |
+  |                     - Fix typo for un-modifying            |
+  |                     - Add diff to compare another branch   |
+  |                     - update edit member copy to skip      |
+  |                       git add for updated member stats     |
+  |                     - On member undo also undo ISPF stats  |
   |            08/12/24 - Version 3.22                         |
   |                     - Ignore binary merge conflicts        |
   |            05/17/24 - Version 3.21                         |
@@ -1958,15 +1964,19 @@ WWR_handle_convrepo:
   * ------------------------------------ */
 WWR_handle_diff:
   diff = word(zcmd,2)
-  if pos(diff,'12') = 0 then do
+  if pos(diff,'123') = 0 then do
     call pfshow 'off'           /* make sure pfshow is off */
     'addpop row(3) column(2)'
     'display panel(zigidiff)'
     'rempop'
     call pfshow 'reset'         /* restore pfshow setting */
   end
-  if diff = 1 then gcmd = 'git diff'
-  else gcmd = 'git diff --cached'
+  select
+  when diff = 1 then gcmd = 'git diff'
+  when diff = 2 then gcmd = 'git diff --cached'
+  when diff = 3 then call do_diff_branch
+  otherwise nop
+  end
   cmd = 'cd' localrep'/'zigirep '&&' gcmd
   x = docmd(cmd)
   if so.0 = 0 then do
@@ -1976,6 +1986,26 @@ WWR_handle_diff:
   end
   else call view_std 'B' 'V'
   return
+
+  /* ------------------------------------------------------------ *
+   | Preform a diff of the current branch to a selected           |
+   | branch.                                                      |
+   |                                                              |
+   | Display a selection list of available branches to            |
+   | compare with.                                                |
+   |                                                              |
+   | Display an ispf table with a row for each diff element.      |
+   | Selecting a row will then display the diff for that element. |
+   |                                                              |
+   | The basic command is:                                        |
+   |    git diff curent-branch..other-branch                      |
+   |                                                              |
+   | For the other-branch is may require the full path            |
+   |                                                              |
+   * ------------------------------------------------------------ */
+Do_Diff_Branch:
+  say 'Not Implemented Yet...'
+  return 0
 
   /* -------------------------------- *
   | View summary info of repository  |
@@ -3530,7 +3560,9 @@ Update_mem_status:
     call update_stats uscmd
   end
   cmd = 'cd' localrep'/'zigirep
+  /* Comment Start   $$$$$
   cmd = cmd '&& git add .zigi/'dsn
+     Comment End */
   x = docmd(cmd)
   return
 
@@ -8207,6 +8239,29 @@ Do_Undo:
   arg uopt
   if uopt = 'D' then mem = null
   zerrsm = null
+
+  /* ----------------------------------------- *
+   | If a member then undo the ISPF Stats file |
+   * ----------------------------------------- */
+   if mem /= null then do
+    cmd = 'cd' localrep'/'zigirep ,
+          '&& git diff .zigi/'dsn ,
+          '| grep "^-'mem'"'
+    x = docmd(cmd)
+    if so.0 > 0 then do
+       rec = substr(so.1,2)
+       rname = localrep'/'zigirep'/.zigi/'dsn
+       address syscall 'readfile (rname) stats.'
+       do istat = 1 to stats.0
+          if left(stats.istat,8) /= left(rec,8)
+             then iterate
+          stats.istat = rec
+          leave
+          end
+       address syscall 'writefile (rname) 644 stats.'
+       end
+    end
+
   /* -------------------------------- *
   | Undo a commit. eg checkout --    |
   * -------------------------------- */
@@ -8214,7 +8269,7 @@ Do_Undo:
   if uopt = 'M' then
   m = mem
 
-  zs1 = 'Un-modiying 'mem
+  zs1 = 'Un-modifying 'mem
   zs2 = 'This never happened...'
   call do_popup
   address 'SYSCALL' 'SLEEP (1)'

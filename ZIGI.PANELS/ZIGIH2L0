@@ -12,7 +12,7 @@
 +
  %1+the unstaged changes
  %2+the staged changes
-+
+ %3+the selected branch
 +
 +Command syntax:%diff+
 +            or:%diff #+
@@ -30,7 +30,7 @@
 )PROC
  &zcont = zigih2d0
 )END
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */

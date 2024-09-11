@@ -1,0 +1,35 @@
+)Attr Default(%+_)
+  _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
+  @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  $ type(output) intens(low ) caps(off) just(left )
+  [ type(output) intens(high) caps(off) just(left )
+  + type(text) intens(low) skip(on)
+  % type(text) intens(high) skip(on)
+  # type(output) hilite(reverse) color(turq) caps(off)
+)Body  Expand(\\)
++Git Diff Branch +\-\#zigtitle    +\-\--------------------
+%Command ===>_zcmd   \ \  %Scroll ===>_zgsr+
++ \ \%F3  +
++Current Repository : $zigirep
++Current HLQ        : $pdshlq
+%
++Type%D+to run a diff on the selected branch to[branch
++Press%F3+to exit
++
++
++S  Branch                                      Status
+)Model
+@z+$z                                         +$z
+)Init
+  .zvars = '(zsel bname brstatus)'
+  &newb=''
+  .cursor = &zcmd
+  .help = zigih270
+  &zgsr = CSR
+)Proc
+ ver (&zsel,list,D)
+)End
+/* --------------------- Copyright (C) ------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */
