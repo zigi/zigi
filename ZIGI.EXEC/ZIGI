@@ -1965,13 +1965,16 @@ WWR_handle_convrepo:
   * ------------------------------------ */
 WWR_handle_diff:
   diff = word(zcmd,2)
+  drc = 0
   if pos(diff,'123') = 0 then do
     call pfshow 'off'           /* make sure pfshow is off */
     'addpop row(3) column(2)'
     'display panel(zigidiff)'
+    drc = rc
     'rempop'
     call pfshow 'reset'         /* restore pfshow setting */
   end
+  if drc > 0 then return
   select
   when diff = 1 then gcmd = 'git diff'
   when diff = 2 then gcmd = 'git diff --cached'
@@ -2076,6 +2079,13 @@ Do_Diff_Branch:
                   then maxlrecl = length(so.idf)
               end
          end
+     if dfrow = 0 then do
+        'tbend' dbtable
+        zerrsm = 'No Diff'
+        zerrlm = 'No difference found.'
+        'Setmsg msg(isrz003)'
+        return
+        end
      'tbadd' dbtable
      do forever
          zdsel = null
@@ -2089,7 +2099,7 @@ Do_Diff_Branch:
      else do
           if so.0 = 0 then do
              zerrsm = 'No Diff'
-             zerrlm = 'No differnce found.'
+             zerrlm = 'No difference found.'
              'Setmsg msg(isrz003)'
              end
           else call diff_branch_display
@@ -2110,7 +2120,7 @@ Diff_Branch_Display:
    Address TSO
    if dmember = null then do
       'Alloc f('dbtable') new spa(15,15) tr unit(3390)' ,
-         'recfm(v b) lrecl('maxlrecl') blksize(0)'
+         'recfm(v b) lrecl('maxlrecl+4') blksize(0)'
       'execio * diskw' dbtable '(finis stem diffs.'dfrow'.'
       end
     else do
@@ -2119,7 +2129,7 @@ Diff_Branch_Display:
             then maxlrecl = length(so.idm)
           end
       'Alloc f('dbtable') new spa(15,15) tr unit(3390)' ,
-         'recfm(v b) lrecl('maxlrecl') blksize(0)'
+         'recfm(v b) lrecl('maxlrecl+4') blksize(0)'
       'execio * diskw' dbtable '(finis stem so.'
       end
     Address ISPExec
@@ -2807,7 +2817,7 @@ WWR_handle_lcmd_d:
     then call View_std 'X' 'V'
     else do
       zerrsm = 'No Diff'
-      zerrlm = 'No differnce found.'
+      zerrlm = 'No difference found.'
       'Setmsg msg(isrz003)'
     end
   end
@@ -3867,7 +3877,7 @@ WWRF_handle_lcmd_d:
   then call View_std 'X' 'V'
   else do
     zerrsm = 'No Diff'
-    zerrlm = 'No differnce found.'
+    zerrlm = 'No difference found.'
     'Setmsg msg(isrz003)'
   end
   Return

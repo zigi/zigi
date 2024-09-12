@@ -16,6 +16,8 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
 * zigi           - Fix typo for un-modifying
                  - Add diff to compare another branch
+                   and compare selected member to member in
+                   another branch
                  - update edit member copy to skip
                    git add for updated member stats
                  - On member undo also undo ISPF stats
@@ -23,6 +25,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 * zigidiff       - Update for zigi diff command options
 * zigih2l0       - Update for zigi diff command options
 * zigih2l1       - New panel for zigi diff branch
+* zigirlst       - add DB option to diff branch on member
 
 
 -----------------------------------------------------------------------------
