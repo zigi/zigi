@@ -11,6 +11,7 @@
 + \ \%F3  +
 +Current Repository : $zigirep
 +Current Branch     : $branch
++Current Member     : $dmember
 %
 +Type%S+to run a diff on the selected branch
 +Press%F3+to exit

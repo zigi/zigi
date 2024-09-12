@@ -28,7 +28,7 @@
 )Init
  .cursor  = &zcmd
 )PROC
- &zcont = zigih2d0
+ &zcont = zigih2l1
 )END
 /* ------------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                            */

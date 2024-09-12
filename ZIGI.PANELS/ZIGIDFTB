@@ -12,14 +12,14 @@
 +Current Repository : $zigirep
 +Current Branch     : $branch
 %
-+Type%S+to run a diff on the selected branch
++Type%S+to run view the diff results for the branch
 +Press%F3+to exit
 +
-+S  Branch
++S  Element
 )Model
 @z+$z
 )Init
-  .zvars = '(zdsel bname)'
+  .zvars = '(zdsel delement)'
   &newb=''
   .cursor = &zcmd
   .help = zigih2L1
