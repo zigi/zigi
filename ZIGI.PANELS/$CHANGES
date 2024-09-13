@@ -9,7 +9,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                              ZIGI Release Notes
                                 Version 3.23
-                                Sep 11, 2024
+                                Sep 13, 2024
 
                          New Features and Functions
                          --------------------------
@@ -25,7 +25,10 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 * zigidiff       - Update for zigi diff command options
 * zigih2l0       - Update for zigi diff command options
 * zigih2l1       - New panel for zigi diff branch
+* zigih201       - add DB option to diff branch on member
+* zigih340       - add DB option to diff branch on member
 * zigirlst       - add DB option to diff branch on member
+* zigirrep       - add DB option to diff branch on member
 
 
 -----------------------------------------------------------------------------
