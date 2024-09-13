@@ -1,6 +1,3 @@
-  /* ----------------------------------- *
-   | db on a file fails for now - FIX IT |
-   * ----------------------------------- */
   /* --------------------  rexx procedure  ------------------- */
   ver = 'v3r23'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
