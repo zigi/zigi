@@ -1,3 +1,6 @@
+  /* ----------------------------------- *
+   | db on a file fails for now - FIX IT |
+   * ----------------------------------- */
   /* --------------------  rexx procedure  ------------------- */
   ver = 'v3r23'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
@@ -1702,6 +1705,7 @@ Work_With_Repo:
     if zsel /= null then
     Select
       when zsel = 'D'  then call WWR_handle_lcmd_d
+      when zsel = 'DB' then call do_diff_branch '+'
       When zsel = 'H'  then call WWR_handle_lcmd_h
       When zsel = 'B'  then call WWR_handle_lcmd_b
       When zsel = 'BL' then call WWR_handle_lcmd_bl
@@ -2014,129 +2018,139 @@ WWR_handle_diff:
    * ------------------------------------------------------------ */
 Do_Diff_Branch:
   parse arg dmember
-  if dmember = null
-     then do
-          diff_mem = null
-          diff_panel = 'zigidfbr'
-          end
-     else do
-          diff_mem = '--' dsn'/'dmember
-          diff_panel = 'zigidfmt'
-          end
+  Select
+    When dmember = null
+    then do
+      diff_mem = null
+      diff_panel = 'zigidfbr'
+    end
+    When dmember /= '+'  then do
+      diff_mem = '--' dsn'/'dmember
+      diff_panel = 'zigidfmt'
+    end
+    When dmember = '+'  then do
+      diff_mem = '--' dsn
+      diff_panel = 'zigidfmt'
+    end
+    Otherwise nop
+  end
   dbr_exit = 0
   dbr = 'dbr'time('s')
   cmd = 'cd' localrep'/'zigirep ,
-        '&& git branch -a'
+    '&& git branch -a'
   x = docmd(cmd)
   'tbcreate' dbr 'names(bname) nowrite'
   do idb = 1 to so.0
-     if left(so.idb,1) = '*' then iterate
-     parse value so.idb with bname .
-     if right(bname,length('/'branch)) = '/'branch then iterate
-     'tbadd' dbr
-     end
+    if left(so.idb,1) = '*' then iterate
+    parse value so.idb with bname .
+    if right(bname,length('/'branch)) = '/'branch then iterate
+    'tbadd' dbr
+  end
   'tbtop' dbr
   do forever
-     do forever
-        zdsel = null
-        'tbdispl' dbr 'panel(zigidfbr)'
-        if rc > 0 then do
-          dbr_exit = 1
-          leave
-          end
-     if rc = 0 then do
+    do forever
+      zdsel = null
+      'tbdispl' dbr 'panel(zigidfbr)'
+      if rc > 0 then do
+        dbr_exit = 1
+        leave
+      end
+      if rc = 0 then do
         if zdsel = null then iterate
-     cmd = 'cd' localrep'/'zigirep ,
-           '&& git diff' branch'..'bname diff_mem
-     x = docmd(cmd)
-     dbtable = 'dt'time('s')
-     maxlrecl = 80
-  /* ------------------------------------------- *
-   | complete the table build and then the       |
-   | table display and process                   |
-   |                                             |
-   | use Edit Panel(zigiedit) macro(zigivmac)    |
-   * ------------------------------------------- */
-   if dmember = null then do
-      delement = null
-      dfrow = 0
-      'tbcreate' dbtable 'names(delement dfrow) nowrite'
-      do idf = 1 to so.0
-         if left(so.idf,4) = 'diff' then do
-            if delement /= null then 'tbadd' dbtable
-            parse value so.idf with . 'b/'delement
-            dfrow = dfrow + 1
-            diffs.dfrow.0 = 1
-            diffs.dfrow.1 = so.idf
-            if length(so.idf) > maxlrecl
-               then maxlrecl = length(so.idf)
+        cmd = 'cd' localrep'/'zigirep ,
+          '&& git diff' branch'..'bname diff_mem
+        x = docmd(cmd)
+        dbtable = 'dt'time('s')
+        maxlrecl = 80
+        /* ------------------------------------------- *
+        | complete the table build and then the       |
+        | table display and process                   |
+        |                                             |
+        | use Edit Panel(zigiedit) macro(zigivmac)    |
+        * ------------------------------------------- */
+        if dmember = null then do
+          delement = null
+          dfrow = 0
+          'tbcreate' dbtable 'names(delement dfrow) nowrite'
+          do idf = 1 to so.0
+            if left(so.idf,4) = 'diff' then do
+              if delement /= null then 'tbadd' dbtable
+              parse value so.idf with . 'b/'delement
+              dfrow = dfrow + 1
+              diffs.dfrow.0 = 1
+              diffs.dfrow.1 = so.idf
+              if length(so.idf) > maxlrecl
+              then maxlrecl = length(so.idf)
             end
-         else do
+            else do
               dc = diffs.dfrow.0 + 1
               diffs.dfrow.dc = so.idf
               diffs.dfrow.0 = dc
               if length(so.idf) > maxlrecl
-                  then maxlrecl = length(so.idf)
-              end
-         end
-     if dfrow = 0 then do
-        'tbend' dbtable
-        zerrsm = 'No Diff'
-        zerrlm = 'No difference found.'
-        'Setmsg msg(isrz003)'
-        return
-        end
-     'tbadd' dbtable
-     do forever
-         zdsel = null
-        'tbtop' dbtable
-        'tbdispl' dbtable 'panel(zigidftb)'
-        if rc > 0 then leave
-        if zdsel = null then iterate
-        call diff_branch_display
-      end
-     end
-     else do
-          if so.0 = 0 then do
-             zerrsm = 'No Diff'
-             zerrlm = 'No difference found.'
-             'Setmsg msg(isrz003)'
-             end
-          else call diff_branch_display
+              then maxlrecl = length(so.idf)
+            end
           end
-     end
-     end
-     if dbr_exit = 1 then leave
-     end
+          if dfrow = 0 then do
+            'tbend' dbtable
+            zerrsm = 'No Diff'
+            zerrlm = 'No difference found.'
+            'Setmsg msg(isrz003)'
+            return
+          end
+          'tbadd' dbtable
+          ztdsels = 0
+          do forever
+            zdsel = null
+            'tbtop' dbtable
+            if ztdsels = 0
+               then 'tbdispl' dbtable 'panel(zigidftb)'
+               else 'tbdispl' dbtable
+            if rc > 4 then leave
+            if zdsel = null then iterate
+            call diff_branch_display
+          end
+        end
+        else do
+          if so.0 = 0 then do
+            zerrsm = 'No Diff'
+            zerrlm = 'No difference found.'
+            'Setmsg msg(isrz003)'
+          end
+          else call diff_branch_display
+        end
+      end
+    end
+    if dbr_exit = 1 then leave
+  end
   'tbend' dbr
   return 0
 
 Diff_Branch_Display:
   /* ------------------------------------------- *
-   | write out the stem to a file and then edit  |
-   | edit (file) Panel(zigiedit) macro(zigivmac) |
-   | this provides the edit hilite for diffs     |
-   * ------------------------------------------- */
-   Address TSO
-   if dmember = null then do
-      'Alloc f('dbtable') new spa(15,15) tr unit(3390)' ,
-         'recfm(v b) lrecl('maxlrecl+4') blksize(0)'
-      'execio * diskw' dbtable '(finis stem diffs.'dfrow'.'
-      end
-    else do
-      do idm = 1 to so.0
-         if length(so.idm) > maxlrecl
-            then maxlrecl = length(so.idm)
-          end
-      'Alloc f('dbtable') new spa(15,15) tr unit(3390)' ,
-         'recfm(v b) lrecl('maxlrecl+4') blksize(0)'
-      'execio * diskw' dbtable '(finis stem so.'
-      end
-    Address ISPExec
-    "LMINIT DATAID(diffed) DDName("dbtable")"
-    'edit dataid('diffed')  Panel(zigiedit) macro(zigivmac)'
-    "LMFree Dataid("diffed")"
-    address TSO 'free  f('dbtable')'
+  | write out the stem to a file and then edit  |
+  | edit (file) Panel(zigiedit) macro(zigivmac) |
+  | this provides the edit hilite for diffs     |
+  * ------------------------------------------- */
+  Address TSO
+  if dmember = null then do
+    'Alloc f('dbtable') new spa(15,15) tr unit(3390)' ,
+      'recfm(v b) lrecl('maxlrecl+4') blksize(0)'
+    'execio * diskw' dbtable '(finis stem diffs.'dfrow'.'
+  end
+  else do
+    do idm = 1 to so.0
+      if length(so.idm) > maxlrecl
+      then maxlrecl = length(so.idm)
+    end
+    'Alloc f('dbtable') new spa(15,15) tr unit(3390)' ,
+      'recfm(v b) lrecl('maxlrecl+4') blksize(0)'
+    'execio * diskw' dbtable '(finis stem so.'
+  end
+  Address ISPExec
+  "LMINIT DATAID(diffed) DDName("dbtable")"
+  'edit dataid('diffed')  Panel(zigiedit) macro(zigivmac)'
+  "LMFree Dataid("diffed")"
+  address TSO 'free  f('dbtable')'
   return 0
 
   /* -------------------------------- *
