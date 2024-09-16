@@ -36,6 +36,7 @@
   |                     - update edit member copy to skip      |
   |                       git add for updated member stats     |
   |                     - On member undo also undo ISPF stats  |
+  |                     - Add info on diff branch command      |
   |            08/12/24 - Version 3.22                         |
   |                     - Ignore binary merge conflicts        |
   |            05/17/24 - Version 3.21                         |
@@ -2057,6 +2058,8 @@ Do_Diff_Branch:
         cmd = 'cd' localrep'/'zigirep ,
           '&& git diff' branch'..'bname diff_mem
         x = docmd(cmd)
+        gitcmde = 'git diff' branch'..' bname diff_mem
+        'vput (gitcmde)'
         dbtable = 'dt'time('s')
         maxlrecl = 80
         /* ------------------------------------------- *
