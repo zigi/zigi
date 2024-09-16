@@ -6,7 +6,7 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(61,19)
+)Body Window(68,20)
 +Member:@mem             $exth      @extf
 +
 +Enter Selection:_z +
@@ -18,6 +18,7 @@
 +]BLame+   (BL)+Show revision/author/date-time of all changes
 +]Edit+    (E)+ Edit the dataset/file
 +]Diff+    (D)+ Show the Diff's
++]DiffBr+  (DB)+ Show the Diff's for this member with another branch
 +]History+ (H)+ Display Commit History
 +]Ignore+  (I)+ Git Ignore the Member
 +]Remove+  (RM)+Remove the element
@@ -53,6 +54,7 @@ lower:
  &browse  = 'Browse'
  &blame   = 'BLame'
  &diff    = 'Diff'
+ &diffbr  = 'DiffBr'
  &history = 'History'
  &ignore  = 'Ignore'
  &remove  = 'Remove'
@@ -60,7 +62,7 @@ lower:
  &select  = 'Select'
  &undo    = 'Undo'
 )Proc
- ver (&zsel,list,A,AB,AF,B,BL,E,D,H,I,RM,RN,S,U,V)
+ ver (&zsel,list,A,AB,AF,B,BL,E,D,DB,H,I,RM,RN,S,U,V)
 )PNTS
   Field(add    )  var(zsel) val('A')
   Field(addbin )  var(zsel) val('AB')
@@ -68,6 +70,7 @@ lower:
   Field(browse )  var(zsel) val('B')
   Field(blame  )  var(zsel) val('BL')
   Field(diff   )  var(zsel) val('D')
+  Field(diffbr )  var(zsel) val('DB')
   Field(edit   )  var(zsel) val('S')
   Field(select )  var(zsel) val('S')
   Field(history)  var(zsel) val('H')
@@ -79,5 +82,5 @@ lower:
 )End
 /* ------------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                            */
-/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* ------------------------------------------------------------- */

@@ -8,6 +8,32 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
 
                              ZIGI Release Notes
+                                Version 3.23
+                                Sep 13, 2024
+
+                         New Features and Functions
+                         --------------------------
+
+* zigi           - Fix typo for un-modifying
+                 - Add diff to compare another branch
+                   and compare selected member to member in
+                   another branch
+                 - update edit member copy to skip
+                   git add for updated member stats
+                 - On member undo also undo ISPF stats
+* zigidfbr       - New panel for diff branch
+* zigidiff       - Update for zigi diff command options
+* zigih2l0       - Update for zigi diff command options
+* zigih2l1       - New panel for zigi diff branch
+* zigih201       - add DB option to diff branch on member
+* zigih340       - add DB option to diff branch on member
+* zigirlst       - add DB option to diff branch on member
+* zigirrep       - add DB option to diff branch on member
+* githelp        =- Improved to actually work better and add tbsort
+
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
                                 Version 3.22
                                 Aug 12, 2024
 

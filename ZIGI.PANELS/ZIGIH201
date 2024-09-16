@@ -12,6 +12,7 @@
 +    - Inform Git that this dataset/file is to be updated or added to the repo
   %B+Browse the dataset or file%*+
   %D+Diff the dataset or file (not directory or PDS)
+  %DB+Diff the dataset or file with another Branch
   %H+History to view a previous version of the selected dataset or file
 +    - For a PDS the member must be selected
   %RM+Remove the dataset/file from the repository and from Git management
@@ -30,7 +31,7 @@
  &zcont = zigih210
 )PROC
 )END
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */

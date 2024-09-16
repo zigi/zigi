@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r22'
+  ver = 'v3r23'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -29,6 +29,13 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            10/xx/24 - Version 3.23                         |
+  |                     - Fix typo for un-modifying            |
+  |                     - Add diff to compare another branch   |
+  |                       for both full branch and member      |
+  |                     - update edit member copy to skip      |
+  |                       git add for updated member stats     |
+  |                     - On member undo also undo ISPF stats  |
   |            08/12/24 - Version 3.22                         |
   |                     - Ignore binary merge conflicts        |
   |            05/17/24 - Version 3.21                         |
@@ -1695,6 +1702,7 @@ Work_With_Repo:
     if zsel /= null then
     Select
       when zsel = 'D'  then call WWR_handle_lcmd_d
+      when zsel = 'DB' then call do_diff_branch '+'
       When zsel = 'H'  then call WWR_handle_lcmd_h
       When zsel = 'B'  then call WWR_handle_lcmd_b
       When zsel = 'BL' then call WWR_handle_lcmd_bl
@@ -1958,15 +1966,25 @@ WWR_handle_convrepo:
   * ------------------------------------ */
 WWR_handle_diff:
   diff = word(zcmd,2)
-  if pos(diff,'12') = 0 then do
+  drc = 0
+  if pos(diff,'123') = 0 then do
     call pfshow 'off'           /* make sure pfshow is off */
     'addpop row(3) column(2)'
     'display panel(zigidiff)'
+    drc = rc
     'rempop'
     call pfshow 'reset'         /* restore pfshow setting */
   end
-  if diff = 1 then gcmd = 'git diff'
-  else gcmd = 'git diff --cached'
+  if drc > 0 then return
+  select
+  when diff = 1 then gcmd = 'git diff'
+  when diff = 2 then gcmd = 'git diff --cached'
+  when diff = 3 then do
+       call do_diff_branch
+       return
+       end
+  otherwise nop
+  end
   cmd = 'cd' localrep'/'zigirep '&&' gcmd
   x = docmd(cmd)
   if so.0 = 0 then do
@@ -1976,6 +1994,161 @@ WWR_handle_diff:
   end
   else call view_std 'B' 'V'
   return
+
+  /* ------------------------------------------------------------ *
+   | Preform a diff of the current branch to a selected           |
+   | branch, and on a selected member if provided.                |
+   |                                                              |
+   | Display a selection list of available branches to            |
+   | compare with.                                                |
+   |                                                              |
+   | Display an ispf table with a row for each diff element.      |
+   | Selecting a row will then display the diff for that element. |
+   |                                                              |
+   | The basic command is:                                        |
+   |    git diff curent-branch..other-branch                      |
+   |    or                                                        |
+   |    git diff curent-branch..other-branch -- file/member       |
+   |                                                              |
+   | For the other-branch is may require the full path            |
+   |                                                              |
+   * ------------------------------------------------------------ */
+Do_Diff_Branch:
+  parse arg dmember
+  Select
+    When dmember = null
+    then do
+      diff_mem = null
+      diff_panel = 'zigidfbr'
+    end
+    When dmember /= '+'  then do
+      diff_mem = '--' dsn'/'dmember
+      diff_panel = 'zigidfmt'
+    end
+    When dmember = '+'  then do
+      diff_mem = '--' dsn
+      diff_panel = 'zigidfmt'
+    end
+    Otherwise nop
+  end
+  dbr_exit = 0
+  dbr = 'dbr'time('s')
+  cmd = 'cd' localrep'/'zigirep ,
+    '&& git branch -a'
+  x = docmd(cmd)
+  'tbcreate' dbr 'names(bname) nowrite'
+  do idb = 1 to so.0
+    if left(so.idb,1) = '*' then iterate
+    parse value so.idb with bname .
+    if right(bname,length('/'branch)) = '/'branch then iterate
+    'tbadd' dbr
+  end
+  'tbtop' dbr
+  do forever
+    do forever
+      zdsel = null
+      'tbdispl' dbr 'panel(zigidfbr)'
+      if rc > 0 then do
+        dbr_exit = 1
+        leave
+      end
+      if rc = 0 then do
+        if zdsel = null then iterate
+        cmd = 'cd' localrep'/'zigirep ,
+          '&& git diff' branch'..'bname diff_mem
+        x = docmd(cmd)
+        dbtable = 'dt'time('s')
+        maxlrecl = 80
+        /* ------------------------------------------- *
+        | complete the table build and then the       |
+        | table display and process                   |
+        |                                             |
+        | use Edit Panel(zigiedit) macro(zigivmac)    |
+        * ------------------------------------------- */
+        if dmember = null then do
+          delement = null
+          dfrow = 0
+          'tbcreate' dbtable 'names(delement dfrow) nowrite'
+          do idf = 1 to so.0
+            if left(so.idf,4) = 'diff' then do
+              if delement /= null then 'tbadd' dbtable
+              parse value so.idf with . 'b/'delement
+              dfrow = dfrow + 1
+              diffs.dfrow.0 = 1
+              diffs.dfrow.1 = so.idf
+              if length(so.idf) > maxlrecl
+              then maxlrecl = length(so.idf)
+            end
+            else do
+              dc = diffs.dfrow.0 + 1
+              diffs.dfrow.dc = so.idf
+              diffs.dfrow.0 = dc
+              if length(so.idf) > maxlrecl
+              then maxlrecl = length(so.idf)
+            end
+          end
+          if dfrow = 0 then do
+            'tbend' dbtable
+            zerrsm = 'No Diff'
+            zerrlm = 'No difference found.'
+            'Setmsg msg(isrz003)'
+            return
+          end
+          'tbadd' dbtable
+          ztdsels = 0
+          do forever
+            zdsel = null
+            'tbtop' dbtable
+            if ztdsels = 0
+               then 'tbdispl' dbtable 'panel(zigidftb)'
+               else 'tbdispl' dbtable
+            if rc > 4 then leave
+            if zdsel = null then iterate
+            call diff_branch_display
+          end
+        end
+        else do
+          if so.0 = 0 then do
+            zerrsm = 'No Diff'
+            zerrlm = 'No difference found.'
+            'Setmsg msg(isrz003)'
+          end
+          else call diff_branch_display
+        end
+      end
+    end
+    if dbr_exit = 1 then leave
+  end
+  'tbend' dbr
+  return 0
+
+Diff_Branch_Display:
+  /* ------------------------------------------- *
+  | write out the stem to a file and then edit  |
+  | edit (file) Panel(zigiedit) macro(zigivmac) |
+  | this provides the edit hilite for diffs     |
+  * ------------------------------------------- */
+  Address TSO
+  if dmember = null then do
+    'Alloc f('dbtable') new spa(15,15) tr unit(3390)' ,
+      'recfm(v b) lrecl('maxlrecl+4') blksize(0)'
+    'execio * diskw' dbtable '(finis stem diffs.'dfrow'.'
+  end
+  else do
+    do idm = 1 to so.0
+      if length(so.idm) > maxlrecl
+      then maxlrecl = length(so.idm)
+    end
+    'Alloc f('dbtable') new spa(15,15) tr unit(3390)' ,
+      'recfm(v b) lrecl('maxlrecl+4') blksize(0)'
+    'execio * diskw' dbtable '(finis stem so.'
+  end
+  Address ISPExec
+  "LMINIT DATAID(diffed) DDName("dbtable")"
+  'edit dataid('diffed')  Panel(zigiedit) macro(zigivmac)'
+  "LMFree Dataid("diffed")"
+  address TSO 'free  f('dbtable')'
+  return 0
 
   /* -------------------------------- *
   | View summary info of repository  |
@@ -2655,7 +2828,7 @@ WWR_handle_lcmd_d:
     then call View_std 'X' 'V'
     else do
       zerrsm = 'No Diff'
-      zerrlm = 'No differnce found.'
+      zerrlm = 'No difference found.'
       'Setmsg msg(isrz003)'
     end
   end
@@ -3153,6 +3326,7 @@ Work_with_repo_file:
           when zsel = 'I'  then call WWRF_handle_lcmd_i
           When zsel = 'U' then call do_undo 'M'
           When zsel = 'D' then call WWRF_handle_lcmd_d
+          When zsel = 'DB' then call do_diff_branch mem
           When zsel = 'Z' then call WWRF_handle_lcmd_z
           Otherwise do
             zerrsm = 'Invalid.'
@@ -3714,7 +3888,7 @@ WWRF_handle_lcmd_d:
   then call View_std 'X' 'V'
   else do
     zerrsm = 'No Diff'
-    zerrlm = 'No differnce found.'
+    zerrlm = 'No difference found.'
     'Setmsg msg(isrz003)'
   end
   Return
@@ -8207,6 +8381,29 @@ Do_Undo:
   arg uopt
   if uopt = 'D' then mem = null
   zerrsm = null
+
+  /* ----------------------------------------- *
+   | If a member then undo the ISPF Stats file |
+   * ----------------------------------------- */
+   if mem /= null then do
+    cmd = 'cd' localrep'/'zigirep ,
+          '&& git diff .zigi/'dsn ,
+          '| grep "^-'mem'"'
+    x = docmd(cmd)
+    if so.0 > 0 then do
+       rec = substr(so.1,2)
+       rname = localrep'/'zigirep'/.zigi/'dsn
+       address syscall 'readfile (rname) stats.'
+       do istat = 1 to stats.0
+          if left(stats.istat,8) /= left(rec,8)
+             then iterate
+          stats.istat = rec
+          leave
+          end
+       address syscall 'writefile (rname) 644 stats.'
+       end
+    end
+
   /* -------------------------------- *
   | Undo a commit. eg checkout --    |
   * -------------------------------- */
@@ -8214,7 +8411,7 @@ Do_Undo:
   if uopt = 'M' then
   m = mem
 
-  zs1 = 'Un-modiying 'mem
+  zs1 = 'Un-modifying 'mem
   zs2 = 'This never happened...'
   call do_popup
   address 'SYSCALL' 'SLEEP (1)'
