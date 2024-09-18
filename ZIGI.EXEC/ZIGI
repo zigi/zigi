@@ -2241,9 +2241,6 @@ WWR_handle_pull:
 
     cmd = 'cd' localdir' && git pull -v'
     x = docmd(cmd)
-    /* Comment Start
-    if x > 0 then call view_std 'B'
-       Comment End */
     zerrsm = 'Pull Complete'
     zerrlm = 'The pull request completed. This is the pull report',
        'Close this report with F3 and the z/OS datasets will be',
@@ -3712,9 +3709,6 @@ Update_mem_status:
     uscmd = localrep'/'zigirep'/.zigi/'dsn fulldsn
     call update_stats uscmd
   end
-  cmd = 'cd' localrep'/'zigirep
-  cmd = cmd '&& git add .zigi/'dsn
-  x = docmd(cmd)
   return
 
 FixUp_DSN_Status:
@@ -4168,11 +4162,6 @@ git_add:
   zs1 = 'Adding' fulldsn
   zs2 = 'Making it ready to Commit'
   call do_popup
-  /* Comment Start
-  if left(dsn,1) = "'"
-  then d = dsn
-  else d = '"'dsn'"'
-     Comment End */
   call git_safe_add localrep'/'zigirep dsn
   if dsnvalid(fulldsn) = "OK" then do
     /* Only get the stats if it's a z/OS dataset
@@ -8887,10 +8876,6 @@ GETENV:
   rc = bpxwunix(cmd,,s.,se.,omvsenv.,1)
   last = s.0
   umask = strip(s.last)
-
-  /* Comment Start
-  cmd  = docmdx('env')
-     Comment End */
 
   if gitenv = null
      then cmd = 'env'
