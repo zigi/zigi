@@ -7,6 +7,7 @@
  | Author:    Lionel B. Dyck                                  |
  |                                                            |
  | History:  (most recent on top)                             |
+ |            09/17/24 LBD - get git diff info                |
  |            02/06/23 LBD - Set hilite off for diff displays |
  |            02/03/23 LBD - remove hilite off if lrecl > 255 |
  |            02/01/23 LBD - Improve hilte if lrecl < 256     |
@@ -20,7 +21,7 @@
  |                                                            |
  | ---------------------------------------------------------- |
  |    ZIGI - the z/OS ISPF Git Interface                      |
- |    Copyright (C) 2020-2023 - Henri Kuiper and Lionel Dyck  |
+ |    Copyright (C) 2020-2024 - Henri Kuiper and Lionel Dyck  |
  |                                                            |
  |    This program is free software: you can redistribute it  |
  |    and/or modify it under the terms of the GNU General     |
@@ -38,6 +39,7 @@
  |    Public License along with this program.  If not, see    |
  |    <https://www.gnu.org/licenses/>.                        |
  * ---------------------------------------------------------- */
+  parse value '' with null
   Address ISREdit
   'Macro (options)'
   'Reset ALL'
@@ -50,7 +52,26 @@
   '(data) = line 1'
   if lrecl < 256
       then 'hilite on'
-  Address ISPExec 'vget (vtitle gitcmde localrep zigirep)'
+  Address ISPExec 'vget (vtitle gitcmde localrep zigirep gitdiff)'
+  if gitdiff /= null then do
+     gitcmde = null
+     parse value gitdiff with branch bname gfile
+     if gfile = '+' then gfile = null
+     if pos('--',gfile) > 0 then do
+        parse value gfile with . '--' gfile
+        gfile = strip(gfile)
+        end
+    data = 'Git Diff:'
+    'line_before 1 = msgline (data)'
+    data = 'Current Branch:' branch
+    'line_before 1 = msgline (data)'
+    data = 'Compare Branch:' bname
+    'line_before 1 = msgline (data)'
+    if strip(gfile) /= null then do
+       data = 'Compare File:  ' gfile
+       'line_before 1 = msgline (data)'
+       end
+    end
   if gitcmde /= '' then do
     data = 'Current Directory:' localrep'/'zigirep
     'line_before 1 = msgline (data)'

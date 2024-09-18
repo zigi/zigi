@@ -634,7 +634,7 @@
   parse arg start_option
 
   parse value '' with null repo_ztdsels fetch_flag dovetail_dir codep ,
-                      dovestat created reset_env
+                      dovestat created reset_env gitdiff
 
   /* ------------------------------------------ *
   | ISPExec is our default host environment    |
@@ -2049,17 +2049,17 @@ Do_Diff_Branch:
     do forever
       zdsel = null
       'tbdispl' dbr 'panel(zigidfbr)'
-      if rc > 0 then do
+      if rc > 4 then do
         dbr_exit = 1
         leave
       end
-      if rc = 0 then do
+      if rc < 5 then do
         if zdsel = null then iterate
         cmd = 'cd' localrep'/'zigirep ,
           '&& git diff' branch'..'bname diff_mem
         x = docmd(cmd)
-        gitcmde = 'git diff' branch'..' bname diff_mem
-        'vput (gitcmde)'
+        gitdiff = branch bname diff_mem
+        'vput (gitdiff)'
         dbtable = 'dt'time('s')
         maxlrecl = 80
         /* ------------------------------------------- *
@@ -2131,6 +2131,8 @@ Diff_Branch_Display:
   | edit (file) Panel(zigiedit) macro(zigivmac) |
   | this provides the edit hilite for diffs     |
   * ------------------------------------------- */
+  gitdiff = branch bname diff_mem
+  'vput (gitdiff)'
   Address TSO
   if dmember = null then do
     'Alloc f('dbtable') new spa(15,15) tr unit(3390)' ,
@@ -2150,6 +2152,8 @@ Diff_Branch_Display:
   "LMINIT DATAID(diffed) DDName("dbtable")"
   'edit dataid('diffed')  Panel(zigiedit) macro(zigivmac)'
   "LMFree Dataid("diffed")"
+  gitdiff = null
+  'vput (gitdiff)'
   address TSO 'free  f('dbtable')'
   return 0
 
@@ -9876,7 +9880,8 @@ DoHist_ViewSource:
   end
   vtitle = element '\' hdate '\' hsubject '\' fulldsn
   gitcmde = null
-  'vput (vtitle gitcmde localrep zigirep)'
+  gitdiff = null
+  'vput (vtitle gitcmde localrep zigirep gitdiff)'
   'View File(file) macro(zigivmac)'
   x = docmd('rm' file)
   return
