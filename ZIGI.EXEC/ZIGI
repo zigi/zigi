@@ -2019,15 +2019,15 @@ Do_Diff_Branch:
   Select
     When dmember = null
     then do
-      diff_mem = null
+      diffmem = null
       diff_panel = 'zigidfbr'
     end
     When dmember /= '+'  then do
-      diff_mem = '--' dsn'/'dmember
+      diffmem = '--' dsn'/'dmember
       diff_panel = 'zigidfmt'
     end
     When dmember = '+'  then do
-      diff_mem = '--' dsn
+      diffmem = '--' dsn
       diff_panel = 'zigidfmt'
     end
     Otherwise nop
@@ -2056,9 +2056,9 @@ Do_Diff_Branch:
       if rc < 5 then do
         if zdsel = null then iterate
         cmd = 'cd' localrep'/'zigirep ,
-          '&& git diff' branch'..'bname diff_mem
+          '&& git diff' branch'..'bname diffmem
         x = docmd(cmd)
-        gitdiff = branch bname diff_mem
+        gitdiff = branch bname diffmem
         'vput (gitdiff)'
         dbtable = 'dt'time('s')
         maxlrecl = 80
@@ -2107,6 +2107,7 @@ Do_Diff_Branch:
                else 'tbdispl' dbtable
             if rc > 4 then leave
             if zdsel = null then iterate
+            diffmem = delement
             call diff_branch_display
           end
         end
@@ -2122,6 +2123,7 @@ Do_Diff_Branch:
     end
     if dbr_exit = 1 then leave
   end
+  'tbend' dbtable
   'tbend' dbr
   return 0
 
@@ -2131,7 +2133,7 @@ Diff_Branch_Display:
   | edit (file) Panel(zigiedit) macro(zigivmac) |
   | this provides the edit hilite for diffs     |
   * ------------------------------------------- */
-  gitdiff = branch bname diff_mem
+  gitdiff = branch bname diffmem
   'vput (gitdiff)'
   Address TSO
   if dmember = null then do
