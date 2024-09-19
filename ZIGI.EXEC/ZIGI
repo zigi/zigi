@@ -31,6 +31,7 @@
   |                                                            |
   |            10/xx/24 - Version 3.23                         |
   |                     - Fix typo for un-modifying            |
+  |                     - Enable undo for OMVS files           |
   |                     - Add diff to compare another branch   |
   |                       for both full branch and member      |
   |                     - update edit member copy to skip      |
@@ -2019,15 +2020,15 @@ Do_Diff_Branch:
   Select
     When dmember = null
     then do
-      diff_mem = null
+      diffmem = null
       diff_panel = 'zigidfbr'
     end
     When dmember /= '+'  then do
-      diff_mem = '--' dsn'/'dmember
+      diffmem = '--' dsn'/'dmember
       diff_panel = 'zigidfmt'
     end
     When dmember = '+'  then do
-      diff_mem = '--' dsn
+      diffmem = '--' dsn
       diff_panel = 'zigidfmt'
     end
     Otherwise nop
@@ -2056,9 +2057,9 @@ Do_Diff_Branch:
       if rc < 5 then do
         if zdsel = null then iterate
         cmd = 'cd' localrep'/'zigirep ,
-          '&& git diff' branch'..'bname diff_mem
+          '&& git diff' branch'..'bname diffmem
         x = docmd(cmd)
-        gitdiff = branch bname diff_mem
+        gitdiff = branch bname diffmem
         'vput (gitdiff)'
         dbtable = 'dt'time('s')
         maxlrecl = 80
@@ -2107,6 +2108,7 @@ Do_Diff_Branch:
                else 'tbdispl' dbtable
             if rc > 4 then leave
             if zdsel = null then iterate
+            diffmem = delement
             call diff_branch_display
           end
         end
@@ -2122,6 +2124,7 @@ Do_Diff_Branch:
     end
     if dbr_exit = 1 then leave
   end
+  'tbend' dbtable
   'tbend' dbr
   return 0
 
@@ -2131,7 +2134,7 @@ Diff_Branch_Display:
   | edit (file) Panel(zigiedit) macro(zigivmac) |
   | this provides the edit hilite for diffs     |
   * ------------------------------------------- */
-  gitdiff = branch bname diff_mem
+  gitdiff = branch bname diffmem
   'vput (gitdiff)'
   Address TSO
   if dmember = null then do
@@ -2239,9 +2242,6 @@ WWR_handle_pull:
 
     cmd = 'cd' localdir' && git pull -v'
     x = docmd(cmd)
-    /* Comment Start
-    if x > 0 then call view_std 'B'
-       Comment End */
     zerrsm = 'Pull Complete'
     zerrlm = 'The pull request completed. This is the pull report',
        'Close this report with F3 and the z/OS datasets will be',
@@ -3210,10 +3210,13 @@ WWR_handle_lcmd_a:
   * -------------------------------- */
 WWR_handle_lcmd_u:
   if dsnvalid(fulldsn) = 'NO' then do
+    call do_undo 'X'
+    return
+    /*
     zerrsm = 'Invalid.'
     zerrlm = 'Undo is only valid on a PDS member and not on an OMVS file.'
     'setmsg msg(isrz003)'
-    return
+    return  */
   end
   x = listdsi(fulldsn)
   if sysdsorg = 'PS' then call do_undo 'D'
@@ -3710,9 +3713,6 @@ Update_mem_status:
     uscmd = localrep'/'zigirep'/.zigi/'dsn fulldsn
     call update_stats uscmd
   end
-  cmd = 'cd' localrep'/'zigirep
-  cmd = cmd '&& git add .zigi/'dsn
-  x = docmd(cmd)
   return
 
 FixUp_DSN_Status:
@@ -4166,11 +4166,6 @@ git_add:
   zs1 = 'Adding' fulldsn
   zs2 = 'Making it ready to Commit'
   call do_popup
-  /* Comment Start
-  if left(dsn,1) = "'"
-  then d = dsn
-  else d = '"'dsn'"'
-     Comment End */
   call git_safe_add localrep'/'zigirep dsn
   if dsnvalid(fulldsn) = "OK" then do
     /* Only get the stats if it's a z/OS dataset
@@ -8386,7 +8381,7 @@ Do_Undo:
     return
   end
   arg uopt
-  if uopt = 'D' then mem = null
+  if pos(uopt,'DX') > 0 then mem = null
   zerrsm = null
 
   /* ----------------------------------------- *
@@ -8418,7 +8413,9 @@ Do_Undo:
   if uopt = 'M' then
   m = mem
 
-  zs1 = 'Un-modifying 'mem
+  if mem /= null
+     then zs1 = 'Un-modifying 'mem
+     else zs1 = 'Un-modifying '
   zs2 = 'This never happened...'
   call do_popup
   address 'SYSCALL' 'SLEEP (1)'
@@ -8431,6 +8428,7 @@ Do_Undo:
     zerrlm = 'Undo is only valid on a status of [M ] or [ M]' ,
       'where the element is modified or Ready for commit.'
     'setmsg msg(isrz003)'
+    return
   end
 
   /* ------------------------ *
@@ -8459,6 +8457,7 @@ Do_Undo:
     else cmd = cmd cmd2 ' && git checkout -- 'd
     cmd = cmd '&& echo "----------------------"'
     x = docmd(cmd)
+    if uopt /= 'X' then do
     if is_binfile(dsn) = 1 then cpbin = '-B'
     else cpbin = null
     if uopt = 'M' then do
@@ -8490,6 +8489,11 @@ Do_Undo:
       'tbmod' rtbl
     end
     call update_repo_metadata
+    end
+    else do
+         dsnstat = null
+         'tbmod' rtbl
+         end
     if uopt = 'D'
     then call work_with_repo
     else call work_with_repo_file
@@ -8885,10 +8889,6 @@ GETENV:
   rc = bpxwunix(cmd,,s.,se.,omvsenv.,1)
   last = s.0
   umask = strip(s.last)
-
-  /* Comment Start
-  cmd  = docmdx('env')
-     Comment End */
 
   if gitenv = null
      then cmd = 'env'
