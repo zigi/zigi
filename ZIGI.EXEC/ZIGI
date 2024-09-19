@@ -31,6 +31,7 @@
   |                                                            |
   |            10/xx/24 - Version 3.23                         |
   |                     - Fix typo for un-modifying            |
+  |                     - Enable undo for OMVS files           |
   |                     - Add diff to compare another branch   |
   |                       for both full branch and member      |
   |                     - update edit member copy to skip      |
@@ -3209,10 +3210,13 @@ WWR_handle_lcmd_a:
   * -------------------------------- */
 WWR_handle_lcmd_u:
   if dsnvalid(fulldsn) = 'NO' then do
+    call do_undo 'X'
+    return
+    /*
     zerrsm = 'Invalid.'
     zerrlm = 'Undo is only valid on a PDS member and not on an OMVS file.'
     'setmsg msg(isrz003)'
-    return
+    return  */
   end
   x = listdsi(fulldsn)
   if sysdsorg = 'PS' then call do_undo 'D'
@@ -8377,7 +8381,7 @@ Do_Undo:
     return
   end
   arg uopt
-  if uopt = 'D' then mem = null
+  if pos(uopt,'DX') > 0 then mem = null
   zerrsm = null
 
   /* ----------------------------------------- *
@@ -8409,7 +8413,9 @@ Do_Undo:
   if uopt = 'M' then
   m = mem
 
-  zs1 = 'Un-modifying 'mem
+  if mem /= null
+     then zs1 = 'Un-modifying 'mem
+     else zs1 = 'Un-modifying '
   zs2 = 'This never happened...'
   call do_popup
   address 'SYSCALL' 'SLEEP (1)'
@@ -8422,6 +8428,7 @@ Do_Undo:
     zerrlm = 'Undo is only valid on a status of [M ] or [ M]' ,
       'where the element is modified or Ready for commit.'
     'setmsg msg(isrz003)'
+    return
   end
 
   /* ------------------------ *
@@ -8450,6 +8457,7 @@ Do_Undo:
     else cmd = cmd cmd2 ' && git checkout -- 'd
     cmd = cmd '&& echo "----------------------"'
     x = docmd(cmd)
+    if uopt /= 'X' then do
     if is_binfile(dsn) = 1 then cpbin = '-B'
     else cpbin = null
     if uopt = 'M' then do
@@ -8481,6 +8489,11 @@ Do_Undo:
       'tbmod' rtbl
     end
     call update_repo_metadata
+    end
+    else do
+         dsnstat = null
+         'tbmod' rtbl
+         end
     if uopt = 'D'
     then call work_with_repo
     else call work_with_repo_file
