@@ -8,6 +8,36 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
 
                              ZIGI Release Notes
+                                Version 3.23
+                                Sep 20, 2024
+
+                         New Features and Functions
+                         --------------------------
+
+* zigi            - Fix typo for un-modifying
+                  - Enable undo for OMVS files
+                  - Add diff to compare another branch for
+                    both full branch and member
+                  - update edit member copy to skip git add
+                    for updated member stats
+                  - On member undo also undo ISPF stats
+                  - Add info on diff branch command
+* zigidfbr       - New panel for diff branch
+* zigidiff       - Update for zigi diff command options
+* zigih2l0       - Update for zigi diff command options
+* zigih2l1       - New panel for zigi diff branch
+* zigih201       - add DB option to diff branch on member
+* zigih340       - add DB option to diff branch on member
+* zigirlst       - add DB option to diff branch on member
+* zigirrep       - add DB option to diff branch on member
+* githelp        =- Improved to actually work better and add tbsort
+
+Note: Behavior change for the ISPF statistic files in .zigi directory
+      which are do not have a git add done automatically. Use ADDAll or
+      Add on Commit.
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
                                 Version 3.22
                                 Aug 12, 2024
 

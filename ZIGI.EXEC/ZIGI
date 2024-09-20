@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            10/xx/24 - Version 3.23                         |
+  |            09/20/24 - Version 3.23                         |
   |                     - Fix typo for un-modifying            |
   |                     - Enable undo for OMVS files           |
   |                     - Add diff to compare another branch   |
@@ -3212,11 +3212,6 @@ WWR_handle_lcmd_u:
   if dsnvalid(fulldsn) = 'NO' then do
     call do_undo 'X'
     return
-    /*
-    zerrsm = 'Invalid.'
-    zerrlm = 'Undo is only valid on a PDS member and not on an OMVS file.'
-    'setmsg msg(isrz003)'
-    return  */
   end
   x = listdsi(fulldsn)
   if sysdsorg = 'PS' then call do_undo 'D'
@@ -4169,8 +4164,7 @@ git_add:
   call git_safe_add localrep'/'zigirep dsn
   if dsnvalid(fulldsn) = "OK" then do
     /* Only get the stats if it's a z/OS dataset
-    Don't do it for the USS files
-    */
+    Don't do it for the USS files */
     x = listdsi(fulldsn)
     use_enhanced_cp = enhanced_cp
     if sysrecfm = 'U' then use_enhanced_cp = 0
@@ -5792,8 +5786,7 @@ Git_Add_Member:
   /* The member 'can' have an extension in the local-repo
   of course this information is not present in the member-name
   as shown in the table. So we 'should' check the dsn-info file
-  and check if it has an extension (and if so which one).
-  */
+  and check if it has an extension (and if so which one). */
   repodir = localrep'/'zigirep
   readfile = " '"repodir"/.zigi/dsn'"
   address syscall 'readfile' readfile 'so.'
@@ -8248,8 +8241,7 @@ Do_Add_Copy:
     end
     if translate(option) = 'BINARY' then do
       /* for some reason the git autotagging due to .gitattributes
-      does not work all the time (?? weird) so we tag it if binary
-      */
+      does not work all the time (?? weird) so we tag it if binary */
       tagcmd = 'chtag -bR 'dir'/'pdss'/'ac_mem
       x = docmd(tagcmd)
     end
@@ -8293,8 +8285,7 @@ Do_Add_Copy:
     x =do_copy(copycmd)
     if translate(option) = 'BINARY' then do
       /* for some reason the git autotagging due to .gitattributes
-      does not work all the time (?? weird) so we tag it if binary
-      */
+      does not work all the time (?? weird) so we tag it if binary */
       tagcmd = 'chtag -b 'DIR'/'pss
       x =docmd(tagcmd)
     end
@@ -9306,8 +9297,7 @@ Update_Config:
   'VPut (zigiuid zigimail zigissh) Profile'
   /* maybe we could use the ispprof for some lazy caching */
   /* now that we've had the user see the settings.
-  set the git config if they have changed...
-  */
+  set the git config if they have changed... */
   if old_zigiuid /= zigiuid then do
     x = docmd('git config --global user.name "'zigiuid'"')
     if x > 0 then do
