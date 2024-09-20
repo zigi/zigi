@@ -9,7 +9,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                              ZIGI Release Notes
                                 Version 3.23
-                                Sep 19, 2024
+                                Sep 20, 2024
 
                          New Features and Functions
                          --------------------------
@@ -32,6 +32,9 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 * zigirrep       - add DB option to diff branch on member
 * githelp        =- Improved to actually work better and add tbsort
 
+Note: Behavior change for the ISPF statistic files in .zigi directory
+      which are do not have a git add done automatically. Use ADDAll or
+      Add on Commit.
 -----------------------------------------------------------------------------
 
                              ZIGI Release Notes
