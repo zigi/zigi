@@ -30,7 +30,8 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 * zigih340       - add DB option to diff branch on member
 * zigirlst       - add DB option to diff branch on member
 * zigirrep       - add DB option to diff branch on member
-* githelp        =- Improved to actually work better and add tbsort
+* githelp        - Improved to actually work better and add tbsort
+                 - Add git help -a for more options
 
 Note: Behavior change for the ISPF statistic files in .zigi directory
       which are do not have a git add done automatically. Use ADDAll or

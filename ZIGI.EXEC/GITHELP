@@ -16,6 +16,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            09/20/24 LBD - Add git help -a for more         |
   |            09/13/24 LBD - Fix up help info and tbsort      |
   |            05/16/24 LBD - Update for env ispf vars         |
   |                           in getenv routine                |
@@ -37,7 +38,7 @@
   |                                                            |
   | ---------------------------------------------------------- |
   |    Githelp - the z/OS ISPF Git Help Interface              |
-  |    Copyright (C) 2019-2023 - Henri Kuiper and Lionel Dyck  |
+  |    Copyright (C) 2019-2024 - Henri Kuiper and Lionel Dyck  |
   |                                                            |
   |    This program is free software: you can redistribute it  |
   |    and/or modify it under the terms of the GNU General     |
@@ -130,7 +131,7 @@
   /* ---------------------- *
   | Now get the git guides |
   * ---------------------- */
-  cmd = 'git help -g && git help'
+  cmd = 'git help -g && git help -a'
   x = tcmd(cmd)
   help=0                 /* wjs*/
   do i = 1 to so.0
