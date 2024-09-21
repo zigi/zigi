@@ -13,8 +13,8 @@
 +
 +Principal Authors:%Henri Kuiper+and%Lionel B. Dyck+
 +
-+ \ \+Website:%https://zigi.rocks\ \
-+ \ \+YouTube:%https://zigi.rocks/video\ \%F3
++ \ \+Website:%https://github.com/zigi/zigi\ \
++ \ \F3\ \
 )Init
   vget (zigtitle)
 *Rexx(* zigtitle zigiver)
