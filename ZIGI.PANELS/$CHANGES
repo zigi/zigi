@@ -32,6 +32,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 * zigirrep       - add DB option to diff branch on member
 * zigifdbk       - change zigi.rocks to github.com/zigi/zigi
 * zigihrln       - change zigi.rocks to github.com/zigi/zigi
+* zigihau        - various small text corrections
 * githelp        - Improved to actually work better and add tbsort
                  - Add git help -a for more options
 
