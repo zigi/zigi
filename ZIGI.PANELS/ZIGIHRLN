@@ -3,9 +3,9 @@
  $ type(input ) caps(on ) hilite(uscore)
  @ type(output) caps(off)
  ! type(text)  color(yellow)
-  } area(SCRL) Extend(ON)
+ # area(SCRL) Extend(ON)
 )Body Expand(\\)
-}ZIGI -------------------------------------------------------------------------}
+#ZIGI -------------------------------------------------------------------------#
 )Area ZIGI
 +
 +
@@ -39,7 +39,7 @@ ZZZZZZZg               ZZZZZZZZ       ZZZZ    ZZZZZZ      ZZZZZZZZZg
 +And we now have an ISPF-native Git interface too.
 +Version 1 Release 0 was been released at GSE-UK on November 7 2019
 +
-%https://zigi.rocks
+%https://github.com/zigi/zigi
 +Henri & Lionel
 +2019 and onwards
 +
@@ -49,5 +49,5 @@ ZZZZZZZg               ZZZZZZZZ       ZZZZ    ZZZZZZ      ZZZZZZZZZg
 )end
 /* ------------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                            */
-/* Copyright (C) 2020-2023 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* ------------------------------------------------------------- */
