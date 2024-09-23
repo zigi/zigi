@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            09/20/24 - Version 3.23                         |
+  |            09/23/24 - Version 3.23                         |
   |                     - Fix typo for un-modifying            |
   |                     - Enable undo for OMVS files           |
   |                     - Add diff to compare another branch   |
@@ -2029,7 +2029,7 @@ Do_Diff_Branch:
     end
     When dmember = '+'  then do
       diffmem = '--' dsn
-      diff_panel = 'zigidfmt'
+      diff_panel = 'zigidfbr'
     end
     Otherwise nop
   end
@@ -2049,7 +2049,7 @@ Do_Diff_Branch:
   do forever
     do forever
       zdsel = null
-      'tbdispl' dbr 'panel(zigidfbr)'
+      'tbdispl' dbr 'panel('diff_panel')'
       if rc > 4 then do
         dbr_exit = 1
         leave
