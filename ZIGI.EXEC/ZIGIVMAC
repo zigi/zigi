@@ -7,6 +7,7 @@
  | Author:    Lionel B. Dyck                                  |
  |                                                            |
  | History:  (most recent on top)                             |
+ |            09/24/24 LBD - preserve blanks                  |
  |            09/17/24 LBD - get git diff info                |
  |            02/06/23 LBD - Set hilite off for diff displays |
  |            02/03/23 LBD - remove hilite off if lrecl > 255 |
@@ -43,6 +44,7 @@
   Address ISREdit
   'Macro (options)'
   'Reset ALL'
+  'Preserve On'
   '(last) = linenum .zlast'
   if last = 0 then do
      'end'
