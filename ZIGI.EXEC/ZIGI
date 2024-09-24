@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            09/23/24 - Version 3.23                         |
+  |            09/24/24 - Version 3.23                         |
   |                     - Fix typo for un-modifying            |
   |                     - Enable undo for OMVS files           |
   |                     - Add diff to compare another branch   |
@@ -2016,7 +2016,8 @@ WWR_handle_diff:
    |                                                              |
    * ------------------------------------------------------------ */
 Do_Diff_Branch:
-  parse arg dmember
+  parse arg dmember delement
+  dtype = 3
   Select
     When dmember = null
     then do
@@ -2030,6 +2031,14 @@ Do_Diff_Branch:
     When dmember = '+'  then do
       diffmem = '--' dsn
       diff_panel = 'zigidfbr'
+      call syscalls 'ON'
+      stfile = localrep'/'zigirep'/'dsn
+      Address syscall ,
+      'stat' stfile 'st.'
+      if st.st_type = s_isreg
+         then dtype = 3
+         else dtype = 1
+      call syscalls 'OFF'
     end
     Otherwise nop
   end
@@ -2069,7 +2078,10 @@ Do_Diff_Branch:
         |                                             |
         | use Edit Panel(zigiedit) macro(zigivmac)    |
         * ------------------------------------------- */
-        if dmember = null then do
+        if dtype = 1 & dmember = '+' then do
+        /* Comment Start
+        if dmember = '+' then do
+           Comment End */
           delement = null
           dfrow = 0
           'tbcreate' dbtable 'names(delement dfrow) nowrite'
@@ -2137,7 +2149,7 @@ Diff_Branch_Display:
   gitdiff = branch bname diffmem
   'vput (gitdiff)'
   Address TSO
-  if dmember = null then do
+  if dtype = 1 then do
     'Alloc f('dbtable') new spa(15,15) tr unit(3390)' ,
       'recfm(v b) lrecl('maxlrecl+4') blksize(0)'
     'execio * diskw' dbtable '(finis stem diffs.'dfrow'.'
