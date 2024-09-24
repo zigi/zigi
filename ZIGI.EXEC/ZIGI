@@ -2022,6 +2022,7 @@ Do_Diff_Branch:
     When dmember = null
     then do
       diffmem = null
+      dtype = 0
       diff_panel = 'zigidfbr'
     end
     When dmember /= '+'  then do
@@ -2078,10 +2079,7 @@ Do_Diff_Branch:
         |                                             |
         | use Edit Panel(zigiedit) macro(zigivmac)    |
         * ------------------------------------------- */
-        if dtype = 1 & dmember = '+' then do
-        /* Comment Start
-        if dmember = '+' then do
-           Comment End */
+        if dtype = 1 & dmember = '+' | dtype = 0 then do
           delement = null
           dfrow = 0
           'tbcreate' dbtable 'names(delement dfrow) nowrite'
