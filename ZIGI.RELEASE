@@ -9,19 +9,20 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                              ZIGI Release Notes
                                 Version 3.23
-                                Sep 24, 2024
+                                Sep 25, 2024
 
                          New Features and Functions
                          --------------------------
 
-* zigi            - Fix typo for un-modifying
-                  - Enable undo for OMVS files
-                  - Add diff to compare another branch for
-                    both full branch and member
-                  - update edit member copy to skip git add
-                    for updated member stats
-                  - On member undo also undo ISPF stats
-                  - Add info on diff branch command
+* zigi           - Fix typo for un-modifying
+                 - Enable undo for OMVS files
+                 - Add diff to compare another branch for
+                   both full branch and member
+                 - update edit member copy to skip git add
+                   for updated member stats
+                 - On member undo also undo ISPF stats
+                 - Add info on diff branch command
+                 - Make Diff 1/2/3 displays consistent
 * zigidfbr       - New panel for diff branch
 * zigidiff       - Update for zigi diff command options
 * zigih2l0       - Update for zigi diff command options
