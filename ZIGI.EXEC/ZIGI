@@ -2111,6 +2111,7 @@ Do_Diff_Branch:
             return
           end
           'tbadd' dbtable
+          if dfrow > 1 then do
           ztdsels = 0
           do forever
             zdsel = null
@@ -2123,6 +2124,11 @@ Do_Diff_Branch:
             diffmem = delement
             call diff_branch_display
           end
+          end
+          else do
+              diffmem = delement
+              call diff_branch_display
+              end
         end
         else do
           if so.0 = 0 then do
