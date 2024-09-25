@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            09/24/24 - Version 3.23                         |
+  |            09/25/24 - Version 3.23                         |
   |                     - Fix typo for un-modifying            |
   |                     - Enable undo for OMVS files           |
   |                     - Add diff to compare another branch   |
@@ -38,6 +38,7 @@
   |                       git add for updated member stats     |
   |                     - On member undo also undo ISPF stats  |
   |                     - Add info on diff branch command      |
+  |                     - Make diff display consistent         |
   |            08/12/24 - Version 3.22                         |
   |                     - Ignore binary merge conflicts        |
   |            05/17/24 - Version 3.21                         |
@@ -1994,7 +1995,7 @@ WWR_handle_diff:
     zerrlm = 'No differences to display for:' gcmd
     'setmsg msg(isrz002)'
   end
-  else call view_std 'B' 'V'
+  else call do_diff_branch '-'
   return
 
   /* ------------------------------------------------------------ *
@@ -2019,10 +2020,16 @@ Do_Diff_Branch:
   parse arg dmember delement
   dtype = 3
   Select
+    When dmember = '-'
+    then do
+      diffmem = null
+      dtype = 1
+      diff_panel = 'zigidfbr'
+    end
     When dmember = null
     then do
       diffmem = null
-      dtype = 0
+      dtype = 1
       diff_panel = 'zigidfbr'
     end
     When dmember /= '+'  then do
@@ -2037,8 +2044,8 @@ Do_Diff_Branch:
       Address syscall ,
       'stat' stfile 'st.'
       if st.st_type = s_isreg
-         then dtype = 3
-         else dtype = 1
+         then dtype = 3  /* sequential */
+         else dtype = 1  /* directory so probably pds */
       call syscalls 'OFF'
     end
     Otherwise nop
@@ -2066,9 +2073,11 @@ Do_Diff_Branch:
       end
       if rc < 5 then do
         if zdsel = null then iterate
-        cmd = 'cd' localrep'/'zigirep ,
-          '&& git diff' branch'..'bname diffmem
-        x = docmd(cmd)
+        if dmember /= '-' then do
+           cmd = 'cd' localrep'/'zigirep ,
+             '&& git diff' branch'..'bname diffmem
+           x = docmd(cmd)
+           end
         gitdiff = branch bname diffmem
         'vput (gitdiff)'
         dbtable = 'dt'time('s')
@@ -2079,7 +2088,7 @@ Do_Diff_Branch:
         |                                             |
         | use Edit Panel(zigiedit) macro(zigivmac)    |
         * ------------------------------------------- */
-        if dtype = 1 & dmember = '+' | dtype = 0 then do
+        if dtype = 1 | dtype = 0 then do
           delement = null
           dfrow = 0
           'tbcreate' dbtable 'names(delement dfrow) nowrite'
