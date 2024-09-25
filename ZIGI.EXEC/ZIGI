@@ -1995,7 +1995,7 @@ WWR_handle_diff:
     zerrlm = 'No differences to display for:' gcmd
     'setmsg msg(isrz002)'
   end
-  else call do_diff_branch '-'
+  else call view_std 'B' 'V'
   return
 
   /* ------------------------------------------------------------ *
@@ -2020,14 +2020,7 @@ Do_Diff_Branch:
   parse arg dmember delement
   dtype = 3
   Select
-    When dmember = '-'
-    then do
-      diffmem = null
-      dtype = 1
-      diff_panel = 'zigidfbr'
-    end
-    When dmember = null
-    then do
+    When dmember = null then do
       diffmem = null
       dtype = 1
       diff_panel = 'zigidfbr'
