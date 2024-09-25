@@ -11,6 +11,7 @@
 + \ \%F3  +
 +Current Repository : $zigirep
 +Current Branch     : $branch
++Compare Branch     : $bname
 %
 +Type%S+to run view the diff results for the branch
 +Press%F3+to exit
