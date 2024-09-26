@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            09/25/24 - Version 3.23                         |
+  |            09/26/24 - Version 3.23                         |
   |                     - Fix typo for un-modifying            |
   |                     - Enable undo for OMVS files           |
   |                     - Add diff to compare another branch   |
@@ -1980,13 +1980,13 @@ WWR_handle_diff:
   end
   if drc > 0 then return
   select
-  when diff = 1 then gcmd = 'git diff'
-  when diff = 2 then gcmd = 'git diff --cached'
-  when diff = 3 then do
-       call do_diff_branch
-       return
-       end
-  otherwise nop
+    when diff = 1 then gcmd = 'git diff'
+    when diff = 2 then gcmd = 'git diff --cached'
+    when diff = 3 then do
+      call do_diff_branch
+      return
+    end
+    otherwise nop
   end
   cmd = 'cd' localrep'/'zigirep '&&' gcmd
   x = docmd(cmd)
@@ -1995,27 +1995,32 @@ WWR_handle_diff:
     zerrlm = 'No differences to display for:' gcmd
     'setmsg msg(isrz002)'
   end
-  else call view_std 'B' 'V'
+  else do
+    if diff = 1 then bname = 'Untracked Changes'
+    if diff = 2 then bname = 'Uncommitted Changes'
+    dtype = 0
+    call process_diff_display
+  end
   return
 
   /* ------------------------------------------------------------ *
-   | Preform a diff of the current branch to a selected           |
-   | branch, and on a selected member if provided.                |
-   |                                                              |
-   | Display a selection list of available branches to            |
-   | compare with.                                                |
-   |                                                              |
-   | Display an ispf table with a row for each diff element.      |
-   | Selecting a row will then display the diff for that element. |
-   |                                                              |
-   | The basic command is:                                        |
-   |    git diff curent-branch..other-branch                      |
-   |    or                                                        |
-   |    git diff curent-branch..other-branch -- file/member       |
-   |                                                              |
-   | For the other-branch is may require the full path            |
-   |                                                              |
-   * ------------------------------------------------------------ */
+  | Preform a diff of the current branch to a selected           |
+  | branch, and on a selected member if provided.                |
+  |                                                              |
+  | Display a selection list of available branches to            |
+  | compare with.                                                |
+  |                                                              |
+  | Display an ispf table with a row for each diff element.      |
+  | Selecting a row will then display the diff for that element. |
+  |                                                              |
+  | The basic command is:                                        |
+  |    git diff curent-branch..other-branch                      |
+  |    or                                                        |
+  |    git diff curent-branch..other-branch -- file/member       |
+  |                                                              |
+  | For the other-branch is may require the full path            |
+  |                                                              |
+  * ------------------------------------------------------------ */
 Do_Diff_Branch:
   parse arg dmember delement
   dtype = 3
@@ -2035,15 +2040,14 @@ Do_Diff_Branch:
       call syscalls 'ON'
       stfile = localrep'/'zigirep'/'dsn
       Address syscall ,
-      'stat' stfile 'st.'
+        'stat' stfile 'st.'
       if st.st_type = s_isreg
-         then dtype = 3  /* sequential */
-         else dtype = 1  /* directory so probably pds */
+      then dtype = 3  /* sequential */
+      else dtype = 1  /* directory so probably pds */
       call syscalls 'OFF'
     end
     Otherwise nop
   end
-  dbr_exit = 0
   dbr = 'dbr'time('s')
   cmd = 'cd' localrep'/'zigirep ,
     '&& git branch -a'
@@ -2061,90 +2065,94 @@ Do_Diff_Branch:
       zdsel = null
       'tbdispl' dbr 'panel('diff_panel')'
       if rc > 4 then do
-        dbr_exit = 1
-        leave
+        'tbend' dbr
+        return
       end
       if rc < 5 then do
         if zdsel = null then iterate
         if dmember /= '-' then do
-           cmd = 'cd' localrep'/'zigirep ,
-             '&& git diff' branch'..'bname diffmem
-           x = docmd(cmd)
-           end
+          cmd = 'cd' localrep'/'zigirep ,
+            '&& git diff' branch'..'bname diffmem
+          x = docmd(cmd)
+        end
         gitdiff = branch bname diffmem
         'vput (gitdiff)'
-        dbtable = 'dt'time('s')
-        maxlrecl = 80
-        /* ------------------------------------------- *
-        | complete the table build and then the       |
-        | table display and process                   |
-        |                                             |
-        | use Edit Panel(zigiedit) macro(zigivmac)    |
-        * ------------------------------------------- */
-        if dtype = 1 | dtype = 0 then do
-          delement = null
-          dfrow = 0
-          'tbcreate' dbtable 'names(delement dfrow) nowrite'
-          do idf = 1 to so.0
-            if left(so.idf,4) = 'diff' then do
-              if delement /= null then 'tbadd' dbtable
-              parse value so.idf with . 'b/'delement
-              dfrow = dfrow + 1
-              diffs.dfrow.0 = 1
-              diffs.dfrow.1 = so.idf
-              if length(so.idf) > maxlrecl
-              then maxlrecl = length(so.idf)
-            end
-            else do
-              dc = diffs.dfrow.0 + 1
-              diffs.dfrow.dc = so.idf
-              diffs.dfrow.0 = dc
-              if length(so.idf) > maxlrecl
-              then maxlrecl = length(so.idf)
-            end
-          end
-          if dfrow = 0 then do
-            'tbend' dbtable
-            zerrsm = 'No Diff'
-            zerrlm = 'No difference found.'
-            'Setmsg msg(isrz003)'
-            return
-          end
-          'tbadd' dbtable
-          if dfrow > 1 then do
-          ztdsels = 0
-          do forever
-            zdsel = null
-            'tbtop' dbtable
-            if ztdsels = 0
-               then 'tbdispl' dbtable 'panel(zigidftb)'
-               else 'tbdispl' dbtable
-            if rc > 4 then leave
-            if zdsel = null then iterate
-            diffmem = delement
-            call diff_branch_display
-          end
-          end
-          else do
-              diffmem = delement
-              call diff_branch_display
-              end
-        end
-        else do
-          if so.0 = 0 then do
-            zerrsm = 'No Diff'
-            zerrlm = 'No difference found.'
-            'Setmsg msg(isrz003)'
-          end
-          else call diff_branch_display
-        end
+        call process_diff_display
       end
     end
-    if dbr_exit = 1 then leave
   end
-  'tbend' dbtable
-  'tbend' dbr
   return 0
+
+Process_Diff_Display:
+  /* ------------------------------------------- *
+  | complete the table build and then the       |
+  | table display and process                   |
+  |                                             |
+  | use Edit Panel(zigiedit) macro(zigivmac)    |
+  * ------------------------------------------- */
+  if dtype = 1 | dtype = 0 then do
+    dbtable = 'dt'time('s')
+    maxlrecl = 80
+    delement = null
+    dfrow = 0
+    'tbcreate' dbtable 'names(delement dfrow) nowrite'
+    do idf = 1 to so.0
+      if left(so.idf,4) = 'diff' then do
+        if delement /= null then 'tbadd' dbtable
+        parse value so.idf with . 'b/'delement
+        dfrow = dfrow + 1
+        diffs.dfrow.0 = 1
+        diffs.dfrow.1 = so.idf
+        if length(so.idf) > maxlrecl
+        then maxlrecl = length(so.idf)
+      end
+      else do
+        dc = diffs.dfrow.0 + 1
+        diffs.dfrow.dc = so.idf
+        diffs.dfrow.0 = dc
+        if length(so.idf) > maxlrecl
+        then maxlrecl = length(so.idf)
+      end
+    end
+    if dfrow = 0 then do
+      'tbend' dbtable
+      zerrsm = 'No Diff'
+      zerrlm = 'No difference found.'
+      'Setmsg msg(isrz003)'
+      return
+    end
+    'tbadd' dbtable
+    if dfrow > 1 then do
+      ztdsels = 0
+      do forever
+        zdsel = null
+        'tbtop' dbtable
+        if ztdsels = 0
+        then 'tbdispl' dbtable 'panel(zigidftb)'
+        else 'tbdispl' dbtable
+        if rc > 4 then do
+          'tbend' dbtable
+          leave
+        end
+        if zdsel = null then iterate
+        diffmem = delement
+        call diff_branch_display
+      end
+    end
+    else do
+      diffmem = delement
+      call diff_branch_display
+    end
+  end
+  else do
+    if so.0 = 0 then do
+      zerrsm = 'No Diff'
+      zerrlm = 'No difference found.'
+      'Setmsg msg(isrz003)'
+    end
+    else call diff_branch_display
+  end
+  return
 
 Diff_Branch_Display:
   /* ------------------------------------------- *
