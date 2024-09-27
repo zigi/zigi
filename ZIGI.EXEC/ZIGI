@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            09/26/24 - Version 3.23                         |
+  |            09/27/24 - Version 3.23                         |
   |                     - Fix typo for un-modifying            |
   |                     - Enable undo for OMVS files           |
   |                     - Add diff to compare another branch   |
@@ -8406,7 +8406,7 @@ Do_Undo:
    * ----------------------------------------- */
    if mem /= null then do
     cmd = 'cd' localrep'/'zigirep ,
-          '&& git diff .zigi/'dsn ,
+          '&& git diff HEAD .zigi/'dsn ,
           '| grep "^-'mem'"'
     x = docmd(cmd)
     if so.0 > 0 then do
