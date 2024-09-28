@@ -40,6 +40,7 @@
   |                     - On member undo also undo ISPF stats  |
   |                     - Add info on diff branch command      |
   |                     - Make diff display consistent         |
+  |                     - Pass all env. to zigigeni            |
   |            08/12/24 - Version 3.22                         |
   |                     - Ignore binary merge conflicts        |
   |            05/17/24 - Version 3.21                         |
@@ -4616,7 +4617,11 @@ Do_Rset:
   | Check for zginstall.rex enablement |
   * ---------------------------------- */
   if zginst = 'Y' then do
-    'vput (codep)'
+    sharenv = null
+    do sei = 1 to env.0
+       sharenv = sharenv env.sei '~~'
+       end
+    'vput (codep sharenv)'
     rc = zigigeni(localrep'/'zigirep)
     cmd = 'cd' localrep'/'zigirep
     cmd = cmd '&& git add zginstall.rex zginstall.readme'
