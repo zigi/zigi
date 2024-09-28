@@ -9,10 +9,16 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                              ZIGI Release Notes
                                 Version 3.23
-                                Sep 27, 2024
+                                Sep 28, 2024
 
                          New Features and Functions
                          --------------------------
+
+Key changes:     - undo now reverses ISPF statistic updates
+                 - 8 character TSO userid supported (thx Ray Mullins)
+                 - greatly improved diff command processing
+                   - using the diff command on the repository panel
+                 - new diff branch to compare active to other branch
 
 * zigi           - Fix typo for un-modifying
                  - Enable undo for OMVS files
@@ -33,6 +39,9 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 * zigihrln       - change zigi.rocks to github.com/zigi/zigi
 * zigihau        - various small text corrections
 * zigivmac       - edit macro - add preserver on to keep blanks
+* zg             - support 8 character TSO userids (thx to Ray Mullins)
+* zginstal       - support 8 character TSO userids (thx to Ray Mullins)
+* zigistat       - support 8 character TSO userids (thx to Ray Mullins)
 * githelp        - Improved to actually work better and add tbsort
                  - Add git help -a for more options
 
