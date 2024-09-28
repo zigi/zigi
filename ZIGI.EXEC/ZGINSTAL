@@ -1441,7 +1441,7 @@ zigistat:
             'LMMSTATS DATAID('zstats') MEMBER('member') VERSION('zlvers')' ,
             'MODLEVEL('zlmod') CREATED('zlcdate') MODDATE('zlmdate')' ,
             'MODTIME('zlmtime') INITSIZE('zlinorc')' ,
-            'MODRECS('zlmnorc')' zlmmuser(zluser)'
+            'MODRECS('zlmnorc')' zlmmuser(zluser)
         end
         "LMClose Dataid("zstats")"
         "LMFree  Dataid("zstats")"

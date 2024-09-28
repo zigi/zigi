@@ -27,8 +27,10 @@ Key changes:     - undo now reverses ISPF statistic updates
                  - On member undo also undo ISPF stats
                  - Add info on diff branch command
                  - Make Diff 1/2/3 displays consistent
+                 - Pass env. stem to zigigini
 * zigidfbr       - New panel for diff branch
 * zigidiff       - Update for zigi diff command options
+* zigigini       - Update to use the env values from zigi
 * zigih2l0       - Update for zigi diff command options
 * zigih2l1       - New panel for zigi diff branch
 * zigih201       - add DB option to diff branch on member

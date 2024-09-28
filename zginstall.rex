@@ -41,7 +41,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
-  |            05/04/24 LBD - Fix binary find in .gitattributes|
+  |            09/28/24 LBD - Support 8 Char TSO Userid        |
+  |            05/14/24 LBD - Fix binary find in .gitattributes|
   |            04/21/24 PJF - Support ascii to ebcdic tagging  |
   |            02/16/24 LBD - Correct 2 bad chars x'05'        |
   |            06/15/23 LBD - Add env ICONV_EBCDIC_ZOS_UNIX=1  |
@@ -78,7 +79,7 @@
   |            06/09/20 LBD - Creation from zigickot           |
   | ---------------------------------------------------------- |
   |    zigi - the z/OS ISPF Git Interface                      |
-  |    Copyright (C) 2020-2023 - Henri Kuiper and Lionel Dyck  |
+  |    Copyright (C) 2020-2024 - Henri Kuiper and Lionel Dyck  |
   |                                                            |
   |    This program is free software: you can redistribute it  |
   |    and/or modify it under the terms of the GNU General     |
@@ -477,6 +478,15 @@ zmsg:
   say '* 'left(message,63)' *'
   return
 
+  /* ---------------------- *
+   | ISPF Stat Userid Setup |
+   * ---------------------- */
+zlmmuser: procedure
+   arg uid
+   if length(uid) > 7
+      then return 'user8('uid')'
+      else return 'user('uid')'
+
   /* ----------------------------------------------------- */
   /* number format code thanks to Doug Nadel               */
   /* ----------------------------------------------------- */
@@ -705,10 +715,10 @@ get_binfiles:
   | Function:  Fills the global binfiles. stem with all        |
   |            current repo files that are added as binary.    |
   \---------------------------------------------------------- */
-  cmd = 'cd' ckotdir'/ &&'
-  cmd = 'cat'  ckotdir'/.gitattributes'
-  cmd = cmd ' | grep BINARY'
-  cmd = cmd '| cut -d" " -f1'
+  cmd = 'cd' ckotdir'/ &&' ,
+        'cat -W filecodeset=UTF-8' ckotdir'/.gitattributes' ,
+        ' | grep BINARY' ,
+        '| cut -d" " -f1'
   x = docmd(cmd)
   if so.0 = 0 then do
     binfiles.0 = 0
@@ -1328,7 +1338,7 @@ zigistat:
         if sysrecfm /= 'U' then
         if zlcdate = null then
         if readonly = 0 then do
-          'LMMSTATS DATAID('status') Member('member') user('newuid')'
+          'LMMSTATS DATAID('status') Member('member')' zlmmuser(newuid)
           "LMMFind DATAID("status") Member("member") STATS(YES)"
         end
         /* ------------------------------ *
@@ -1425,12 +1435,13 @@ zigistat:
           if statmems /= null then
           if wordpos(member,statmems) = 0 then iterate
           if zlcdate = null then ,
-            'LMMSTATS DATAID('zstats') Member('member') user('sysvar(sysuid)')'
+            'LMMSTATS DATAID('zstats') Member('member')',
+             zlmmuser(sysvar(sysuid))
           else ,
             'LMMSTATS DATAID('zstats') MEMBER('member') VERSION('zlvers')' ,
             'MODLEVEL('zlmod') CREATED('zlcdate') MODDATE('zlmdate')' ,
             'MODTIME('zlmtime') INITSIZE('zlinorc')' ,
-            'MODRECS('zlmnorc') USER('zluser')'
+            'MODRECS('zlmnorc')' zlmmuser(zluser)
         end
         "LMClose Dataid("zstats")"
         "LMFree  Dataid("zstats")"
@@ -1570,9 +1581,9 @@ Update_Member_ISPF_Stats:
     parse value mem.actmem with cdt mdt mtm uid
     if uid /= null then
     'LMMSTATS DATAID('zstats') Member('actmem') Created('cdt')',
-           'Moddate('mdt') Modtime('mtm') User('uid')'
+           'Moddate('mdt') Modtime('mtm')' zlmmuser(uid)
     else
-    'LMMSTATS DATAID('zstats') Member('actmem') User('userid()')'
+    'LMMSTATS DATAID('zstats') Member('actmem')' zlmmuser(userid())
     "LMClose Dataid("zstats")"
     "LMFree  Dataid("zstats")"
    return
