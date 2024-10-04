@@ -16,6 +16,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
 Key changes:     - undo now reverses ISPF statistic updates
                  - 8 character TSO userid supported (thx Ray Mullins)
+                 - correct command reporting truncation
                  - greatly improved diff command processing
                    - using the diff command on the repository panel
                  - new diff branch to compare active to other branch
