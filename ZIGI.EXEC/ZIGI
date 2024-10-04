@@ -32,6 +32,7 @@
   |            10/04/24 - Version 3.23                         |
   |                     - Fix missing zigissh profile var      |
   |                     - Support 8 Char TSO Userid (thx Ray   |
+  |                     - Correct command reporting truncation |
   |                     - Fix typo for un-modifying            |
   |                     - Enable undo for OMVS files           |
   |                     - Add diff to compare another branch   |
@@ -7018,6 +7019,9 @@ view_std:
   | Allocate a temporary data set for our data |
   * ------------------------------------------ */
   Address TSO
+  cmd_report = 'Command:' cmd
+  if length(cmd_report) > vlrecl
+     then vlrecl = length(cmd_report)
   /* calculate space needed with avg 50 bytes per record */
   prim = (((so.0 + se.0) * 50) % 56000) + 1
   if prim < 2 then prim = 5
@@ -7046,7 +7050,7 @@ view_std:
     sc = sc + 1
     so.sc = left('-',70,'-')
     sc = sc + 1
-    so.sc = 'Command:' cmd
+    so.sc = cmd_report
     so.0 = sc
     do xi = 1 to se.0
       sc = sc + 1
