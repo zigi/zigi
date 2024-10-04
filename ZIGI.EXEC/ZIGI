@@ -29,7 +29,8 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            09/27/24 - Version 3.23                         |
+  |            10/04/24 - Version 3.23                         |
+  |                     - Fix missing zigissh profile var      |
   |                     - Support 8 Char TSO Userid (thx Ray   |
   |                     - Fix typo for un-modifying            |
   |                     - Enable undo for OMVS files           |
@@ -1318,6 +1319,8 @@ handle_zigiprim_lcmd_d:
   | Handle zigiprim panel primary command ssh   |
   * ------------------------------------------ */
 handle_zigiprim_ssh:
+  'vget (zigissh) profile'
+  if zigissh = null then call catsshk
   do forever
     zcmd = null
     'display panel(zigisshk)'
