@@ -16,6 +16,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            09/28/24 LBD - Get env values from sharenv ispf |
+  |                           variable                         |
   |            04/23/24 LBD - Add zgcvtenc routine copy        |
   |            06/15/23 LBD - Add env ICONV_EBCDIC_ZOS_UNIX=1  |
   |            09/16/22 LBD - Fix view_std lrecl               |
@@ -28,7 +30,7 @@
   |            06/11/20 LBD - Creation                         |
   | ---------------------------------------------------------- |
   |    zigi - the z/OS ISPF Git Interface                      |
-  |    Copyright (C) 2020-2023 - Henri Kuiper and Lionel Dyck  |
+  |    Copyright (C) 2020-2024 - Henri Kuiper and Lionel Dyck  |
   |                                                            |
   |    This program is free software: you can redistribute it  |
   |    and/or modify it under the terms of the GNU General     |
@@ -85,23 +87,26 @@
     return 4
   end
 
-  /* -------------------------------------- *
-  | Define the BPX environmental variables |
-  * -------------------------------------- */
-  call getenv
-
   /* ------------------------------------------------------------- *
   | Copy the ZGINSTAL REXX member into zginstall.rex and copy the |
   | ZIGIGENI ISPF Panel member (not really a panel) into          |
   | zginstall.readme, then copy zgcvtenc into zgcvtenc.awk        |
   * ------------------------------------------------------------- */
+  address ispexec 'vget (codep sharenv)'
+  envi = 0
+  do forever
+     parse value sharenv with envv '~~' sharenv
+     if strip(sharenv) = null then leave
+     envi = envi + 1
+     env.envi = strip(envv)
+     end
+  env.0 = envi
   commit = null
   if check_clean() = 'YES' then do
   commit = "&& git commit -m 'ZIGI Generalized Installation Tool added.'"
   com_push = 'PUSH'
   end
   else com_push = 'COMMIT with a PUSH'
-  address ispexec 'vget (codep)'
   cmd = 'cd' omvsdir ,
     '&& cp -v "//'dsn'" zginstall.rex' ,
     '&& cp -v "//'panels'" zginstall.readme' ,
@@ -176,41 +181,10 @@ check_clean:
   | bpxwunix commands.                                    |
   * ----------------------------------------------------- */
 
-  /* ----------------------------------------------------- *
-  | Get the users current OMVS enviornment for use in the |
-  | bpxwunix commands.                                    |
-  * ----------------------------------------------------- */
-GETENV:
-  cmd = 'pwd'
-  omvsenv.1 = '_BPX_SHAREAS=MUST'
-  omvsenv.0 = 1
-  x = bpxwunix(cmd,,so.,se.,omvsenv.)
-  home    = strip(so.1)
-  cmd  = docmdx('env')
-  rc = bpxwunix(cmd,,env.,se.,omvsenv.)
-  envc = env.0
-  call add_env '_BPX_SHAREAS=MUST'
-  call add_env '_BPX_SPAWN_SCRIPT=YES'
-  call add_env 'EXPORT _EDC_ADD_ERRNO2=1'
-  call add_env '_EDC_ZERO_RECLEN=Y'
-  call add_env 'ICONV_EBCDIC_ZOS_UNIX=1'
-  env.0 = envc
-  drop so. se.
-  return
-
-  /* -------------------- *
-  | Add info to env stem |
-  * -------------------- */
-add_env:
-  parse arg env_val
-  envc = envc + 1
-  env.envc = env_val
-  return
-
 docmd:
   parse arg cmd
   drop so. se.
-  x = bpxwunix(cmd,,so.,se.,env.)
+  x = bpxwunix(cmd,,so.,se.,env.,1)
   return x
 
 docmdx:

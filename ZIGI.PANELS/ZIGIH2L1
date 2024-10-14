@@ -6,34 +6,28 @@
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
 +
-                                 %Merge+
+                                 %Diff+
 +
-%Merge+resolution using the native Git conflict records is performed using
-+ISPF Edit. The Git records are highlighted in%white+for easy identification.
+%Diff+branch will use a%git diff+on the current branch to the selected
++branch.
 +
-+The%<<<<<<<+marker begins the current branch set of records.
-+The%=======+marker separates the current branch from the merge branch records.
-+The%>>>>>>>+marker ends the merge branch records.
++The differences will then be displayed in an ISPF table with a row
++for each element. Select that element to view the differences.
 +
-+To resolve the conflict:
 +
-+ %*+Remove the records that should NOT be in the merged file.
-+ %*+Remove the Git marker records.
-+ %*+Save and exit Edit.
 +
-+Using%F3+or not updating ALL the conflict files results in a
-%git merge --abort+being processed.
++
++
++  I am always doing what I can't do yet in order to learn how to do it.
++  --- Vincent Van Gogh (letter to Anthon van Rappard in 1885)
++
++
 +
          +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
- vget (ztut)
 )PROC
- &zup   = zigih271
- if (&ztut EQ 'mrg')
-     &zcont = zigih270
- if (&ztut NE 'mrg')
-     &zcont = zigih280
+     &zcont = zigih2d0
 )END
 /* ------------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                            */
