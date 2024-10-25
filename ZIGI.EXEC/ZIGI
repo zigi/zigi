@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r23'
+  ver = 'v3r24'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -29,6 +29,10 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            10/25/24 - Version 3.24                         |
+  |                     - Prevent working with the active EXEC |
+  |                       data set when it is in a repository. |
+  |                     - Fix some confusing indenting         |
   |            10/04/24 - Version 3.23                         |
   |                     - Fix missing zigissh profile var      |
   |                     - Support 8 Char TSO Userid (thx Ray   |
@@ -752,19 +756,20 @@
       call pfshow 'reset'         /* restore pfshow setting */
     end
 
-    if zsel /= null then
-    Select
-      When zsel = 'I' then call handle_zigiprim_lcmd_i
-      When zsel = 'S' then call select_repo
-      When zsel = 'V' then
-      'SELECT PGM(ISRDSLST) PARM(UDL' localrep'/'zigirep') SUSPEND'
-      When zsel = 'D' then call handle_zigiprim_lcmd_d
-      Otherwise do
-        zerrsm = 'Unknown'
-        zerrlm = zsel 'is not a recognized command.'
-        'setmsg msg(isrz003)'
-      end
-    End
+    if zsel /= null then do
+        Select
+          When zsel = 'I' then call handle_zigiprim_lcmd_i
+          When zsel = 'S' then call select_repo
+          When zsel = 'V' then
+          'SELECT PGM(ISRDSLST) PARM(UDL' localrep'/'zigirep') SUSPEND'
+          When zsel = 'D' then call handle_zigiprim_lcmd_d
+          Otherwise do
+            zerrsm = 'Unknown'
+            zerrlm = zsel 'is not a recognized command.'
+            'setmsg msg(isrz003)'
+          end
+        End
+    end
   end
 
 Done:
@@ -1718,31 +1723,31 @@ Work_With_Repo:
     * -------------------------------- */
     if zsel = 'E' then zsel = 'S'
     if zsel /= null then
-    Select
-      when zsel = 'D'  then call WWR_handle_lcmd_d
-      when zsel = 'DB' then call do_diff_branch '+'
-      When zsel = 'H'  then call WWR_handle_lcmd_h
-      When zsel = 'B'  then call WWR_handle_lcmd_b
-      When zsel = 'BL' then call WWR_handle_lcmd_bl
-      When zsel = 'V'  then call WWR_handle_lcmd_v
-      When zsel = 'RN' then call WWR_handle_lcmd_rn
-      When zsel = 'RM' then call WWR_handle_lcmd_rm
-      When zsel = 'S' & left(fulldsn,1) /= "'" then
-      call WWR_handle_lcmd_s_omvs
-      When zsel = 'S' & zosflg = 1 then
-      call WWR_handle_lcmd_s_mvs
-      When zsel = 'A' then
-      call WWR_handle_lcmd_a
-      When zsel = 'U' then call WWR_handle_lcmd_u
-      When zsel = 'Z' then call WWR_handle_lcmd_z
-      Otherwise do
-        zerrsm = 'Invalid.'
-        zerrlm = zsel 'is not a valid selection value. Review the' ,
-          'ISPF Tutorial using F1 for available line selection' ,
-          'options.'
-        'setmsg msg(isrz003)'
+      Select
+        when zsel = 'D'  then call WWR_handle_lcmd_d
+        when zsel = 'DB' then call do_diff_branch '+'
+        When zsel = 'H'  then call WWR_handle_lcmd_h
+        When zsel = 'B'  then call WWR_handle_lcmd_b
+        When zsel = 'BL' then call WWR_handle_lcmd_bl
+        When zsel = 'V'  then call WWR_handle_lcmd_v
+        When zsel = 'RN' then call WWR_handle_lcmd_rn
+        When zsel = 'RM' then call WWR_handle_lcmd_rm
+        When zsel = 'S' & left(fulldsn,1) /= "'" then
+          call WWR_handle_lcmd_s_omvs
+        When zsel = 'S' & zosflg = 1 then
+          call WWR_handle_lcmd_s_mvs
+        When zsel = 'A' then
+          call WWR_handle_lcmd_a
+        When zsel = 'U' then call WWR_handle_lcmd_u
+        When zsel = 'Z' then call WWR_handle_lcmd_z
+        Otherwise do
+          zerrsm = 'Invalid.'
+          zerrlm = zsel 'is not a valid selection value. Review the' ,
+            'ISPF Tutorial using F1 for available line selection' ,
+            'options.'
+          'setmsg msg(isrz003)'
+        end
       end
-    end
     if zigi_changed = 1 then
     if ztdsels = 1 then do
       'tbend' rtbl
@@ -1768,7 +1773,20 @@ WWR_init:
   x = debug('Working with Repo:' zigirep)
   readonly = check_read_only()
   'vput (readonly) shared'
+  x = 0 /* x is 1 coming out of check_read_only,
+           causes get_dsn_info to return early   */
   call get_dsn_info
+  stemsuf = 'ZIGI.EXEC'
+  if "'"pdshlq"."dsninfo.stemsuf"'" == exec then do
+    zerrsm = 'Bad idea.'
+    zerrlm = 'You are attempting to work with the current EXEC data set.',
+     'This is a Very Bad Idea (tm). If you need to work with this data',
+     'set, check out to a different HLQ or execute ZIGI from a different',
+     'data set.'
+    'setmsg msg(isrz003)'
+    wwr_opt = 'Bad idea.'
+    return
+  end /* if fulldsn */
   call update_repo_metadata
   if cltime /= null then do
     zerrsm  = 'Clone:' cltime
