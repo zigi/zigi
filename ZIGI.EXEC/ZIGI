@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r22'
+  ver = 'v3r23'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -29,6 +29,20 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |            10/04/24 - Version 3.23                         |
+  |                     - Fix missing zigissh profile var      |
+  |                     - Support 8 Char TSO Userid (thx Ray   |
+  |                     - Correct command reporting truncation |
+  |                     - Fix typo for un-modifying            |
+  |                     - Enable undo for OMVS files           |
+  |                     - Add diff to compare another branch   |
+  |                       for both full branch and member      |
+  |                     - update edit member copy to skip      |
+  |                       git add for updated member stats     |
+  |                     - On member undo also undo ISPF stats  |
+  |                     - Add info on diff branch command      |
+  |                     - Make diff display consistent         |
+  |                     - Pass all env. to zigigeni            |
   |            08/12/24 - Version 3.22                         |
   |                     - Ignore binary merge conflicts        |
   |            05/17/24 - Version 3.21                         |
@@ -626,7 +640,7 @@
   parse arg start_option
 
   parse value '' with null repo_ztdsels fetch_flag dovetail_dir codep ,
-                      dovestat created reset_env
+                      dovestat created reset_env gitdiff
 
   /* ------------------------------------------ *
   | ISPExec is our default host environment    |
@@ -814,6 +828,15 @@ init_repo:
     call pfshow 'reset'         /* restore pfshow setting */
   end
   Return
+
+  /* ---------------------- *
+   | ISPF Stat Userid Setup |
+   * ---------------------- */
+zlmmuser: procedure
+   arg uid
+   if length(uid) > 7
+      then return 'user8('uid')'
+      else return 'user('uid')'
 
   /* ------------------------------ *
   | Populate the SortDate variable |
@@ -1297,6 +1320,8 @@ handle_zigiprim_lcmd_d:
   | Handle zigiprim panel primary command ssh   |
   * ------------------------------------------ */
 handle_zigiprim_ssh:
+  'vget (zigissh) profile'
+  if zigissh = null then call catsshk
   do forever
     zcmd = null
     'display panel(zigisshk)'
@@ -1695,6 +1720,7 @@ Work_With_Repo:
     if zsel /= null then
     Select
       when zsel = 'D'  then call WWR_handle_lcmd_d
+      when zsel = 'DB' then call do_diff_branch '+'
       When zsel = 'H'  then call WWR_handle_lcmd_h
       When zsel = 'B'  then call WWR_handle_lcmd_b
       When zsel = 'BL' then call WWR_handle_lcmd_bl
@@ -1958,15 +1984,25 @@ WWR_handle_convrepo:
   * ------------------------------------ */
 WWR_handle_diff:
   diff = word(zcmd,2)
-  if pos(diff,'12') = 0 then do
+  drc = 0
+  if pos(diff,'123') = 0 then do
     call pfshow 'off'           /* make sure pfshow is off */
     'addpop row(3) column(2)'
     'display panel(zigidiff)'
+    drc = rc
     'rempop'
     call pfshow 'reset'         /* restore pfshow setting */
   end
-  if diff = 1 then gcmd = 'git diff'
-  else gcmd = 'git diff --cached'
+  if drc > 0 then return
+  select
+    when diff = 1 then gcmd = 'git diff'
+    when diff = 2 then gcmd = 'git diff --cached'
+    when diff = 3 then do
+      call do_diff_branch
+      return
+    end
+    otherwise nop
+  end
   cmd = 'cd' localrep'/'zigirep '&&' gcmd
   x = docmd(cmd)
   if so.0 = 0 then do
@@ -1974,8 +2010,200 @@ WWR_handle_diff:
     zerrlm = 'No differences to display for:' gcmd
     'setmsg msg(isrz002)'
   end
-  else call view_std 'B' 'V'
+  else do
+    if diff = 1 then bname = 'Untracked Changes'
+    if diff = 2 then bname = 'Uncommitted Changes'
+    dtype = 0
+    call process_diff_display
+  end
   return
+
+  /* ------------------------------------------------------------ *
+  | Preform a diff of the current branch to a selected           |
+  | branch, and on a selected member if provided.                |
+  |                                                              |
+  | Display a selection list of available branches to            |
+  | compare with.                                                |
+  |                                                              |
+  | Display an ispf table with a row for each diff element.      |
+  | Selecting a row will then display the diff for that element. |
+  |                                                              |
+  | The basic command is:                                        |
+  |    git diff curent-branch..other-branch                      |
+  |    or                                                        |
+  |    git diff curent-branch..other-branch -- file/member       |
+  |                                                              |
+  | For the other-branch is may require the full path            |
+  |                                                              |
+  * ------------------------------------------------------------ */
+Do_Diff_Branch:
+  parse arg dmember delement
+  dtype = 3
+  Select
+    When dmember = null then do
+      diffmem = null
+      dtype = 1
+      diff_panel = 'zigidfbr'
+    end
+    When dmember /= '+'  then do
+      diffmem = '--' dsn'/'dmember
+      diff_panel = 'zigidfmt'
+    end
+    When dmember = '+'  then do
+      diffmem = '--' dsn
+      diff_panel = 'zigidfbr'
+      call syscalls 'ON'
+      stfile = localrep'/'zigirep'/'dsn
+      Address syscall ,
+        'stat' stfile 'st.'
+      if st.st_type = s_isreg
+      then dtype = 3  /* sequential */
+      else dtype = 1  /* directory so probably pds */
+      call syscalls 'OFF'
+    end
+    Otherwise nop
+  end
+  dbr = 'dbr'time('s')
+  cmd = 'cd' localrep'/'zigirep ,
+    '&& git branch -a'
+  x = docmd(cmd)
+  'tbcreate' dbr 'names(bname) nowrite'
+  do idb = 1 to so.0
+    if left(so.idb,1) = '*' then iterate
+    parse value so.idb with bname .
+    if right(bname,length('/'branch)) = '/'branch then iterate
+    'tbadd' dbr
+  end
+  'tbtop' dbr
+  do forever
+    do forever
+      zdsel = null
+      'tbdispl' dbr 'panel('diff_panel')'
+      if rc > 4 then do
+        'tbend' dbr
+        return
+      end
+      if rc < 5 then do
+        if zdsel = null then iterate
+        if dmember /= '-' then do
+          cmd = 'cd' localrep'/'zigirep ,
+            '&& git diff' branch'..'bname diffmem
+          x = docmd(cmd)
+        end
+        gitdiff = branch bname diffmem
+        'vput (gitdiff)'
+        call process_diff_display
+      end
+    end
+  end
+  return 0
+
+Process_Diff_Display:
+  /* ------------------------------------------- *
+  | complete the table build and then the       |
+  | table display and process                   |
+  |                                             |
+  | use Edit Panel(zigiedit) macro(zigivmac)    |
+  * ------------------------------------------- */
+  if dtype = 1 | dtype = 0 then do
+    dbtable = 'dt'time('s')
+    maxlrecl = 80
+    delement = null
+    dfrow = 0
+    'tbcreate' dbtable 'names(delement dfrow) nowrite'
+    delement = 'All diff elements'
+    dfrow = 0
+    'tbadd' dbtable
+    delement = null
+    do idf = 1 to so.0
+      if left(so.idf,4) = 'diff' then do
+        if delement /= null then 'tbadd' dbtable
+        parse value so.idf with . 'b/'delement
+        dfrow = dfrow + 1
+        diffs.dfrow.0 = 1
+        diffs.dfrow.1 = so.idf
+        if length(so.idf) > maxlrecl
+        then maxlrecl = length(so.idf)
+      end
+      else do
+        dc = diffs.dfrow.0 + 1
+        diffs.dfrow.dc = so.idf
+        diffs.dfrow.0 = dc
+        if length(so.idf) > maxlrecl
+        then maxlrecl = length(so.idf)
+      end
+    end
+    if dfrow = 0 then do
+      'tbend' dbtable
+      zerrsm = 'No Diff'
+      zerrlm = 'No difference found.'
+      'Setmsg msg(isrz003)'
+      return
+    end
+    'tbadd' dbtable
+    if dfrow > 1 then do
+      ztdsels = 0
+      do forever
+        zdsel = null
+        'tbtop' dbtable
+        if ztdsels = 0
+        then 'tbdispl' dbtable 'panel(zigidftb)'
+        else 'tbdispl' dbtable
+        if rc > 4 then do
+          'tbend' dbtable
+          leave
+        end
+        if zdsel = null then iterate
+        diffmem = delement
+        call diff_branch_display
+      end
+    end
+    else do
+      diffmem = delement
+      call diff_branch_display
+    end
+  end
+  else do
+    if so.0 = 0 then do
+      zerrsm = 'No Diff'
+      zerrlm = 'No difference found.'
+      'Setmsg msg(isrz003)'
+    end
+    else call diff_branch_display
+  end
+  return
+
+Diff_Branch_Display:
+  /* ------------------------------------------- *
+  | write out the stem to a file and then edit  |
+  | edit (file) Panel(zigiedit) macro(zigivmac) |
+  | this provides the edit hilite for diffs     |
+  * ------------------------------------------- */
+  gitdiff = branch bname diffmem
+  'vput (gitdiff)'
+  Address TSO
+  if dtype = 1 | dfrow > 0 then do
+    'Alloc f('dbtable') new spa(15,15) tr unit(3390)' ,
+      'recfm(v b) lrecl('maxlrecl+4') blksize(0)'
+    'execio * diskw' dbtable '(finis stem diffs.'dfrow'.'
+  end
+  else do
+    do idm = 1 to so.0
+      if length(so.idm) > maxlrecl
+      then maxlrecl = length(so.idm)
+    end
+    'Alloc f('dbtable') new spa(15,15) tr unit(3390)' ,
+      'recfm(v b) lrecl('maxlrecl+4') blksize(0)'
+    'execio * diskw' dbtable '(finis stem so.'
+  end
+  Address ISPExec
+  "LMINIT DATAID(diffed) DDName("dbtable")"
+  'edit dataid('diffed')  Panel(zigiedit) macro(zigivmac)'
+  "LMFree Dataid("diffed")"
+  gitdiff = null
+  'vput (gitdiff)'
+  address TSO 'free  f('dbtable')'
+  return 0
 
   /* -------------------------------- *
   | View summary info of repository  |
@@ -2059,9 +2287,6 @@ WWR_handle_pull:
 
     cmd = 'cd' localdir' && git pull -v'
     x = docmd(cmd)
-    /* Comment Start
-    if x > 0 then call view_std 'B'
-       Comment End */
     zerrsm = 'Pull Complete'
     zerrlm = 'The pull request completed. This is the pull report',
        'Close this report with F3 and the z/OS datasets will be',
@@ -2655,7 +2880,7 @@ WWR_handle_lcmd_d:
     then call View_std 'X' 'V'
     else do
       zerrsm = 'No Diff'
-      zerrlm = 'No differnce found.'
+      zerrlm = 'No difference found.'
       'Setmsg msg(isrz003)'
     end
   end
@@ -3030,9 +3255,7 @@ WWR_handle_lcmd_a:
   * -------------------------------- */
 WWR_handle_lcmd_u:
   if dsnvalid(fulldsn) = 'NO' then do
-    zerrsm = 'Invalid.'
-    zerrlm = 'Undo is only valid on a PDS member and not on an OMVS file.'
-    'setmsg msg(isrz003)'
+    call do_undo 'X'
     return
   end
   x = listdsi(fulldsn)
@@ -3153,6 +3376,7 @@ Work_with_repo_file:
           when zsel = 'I'  then call WWRF_handle_lcmd_i
           When zsel = 'U' then call do_undo 'M'
           When zsel = 'D' then call WWRF_handle_lcmd_d
+          When zsel = 'DB' then call do_diff_branch mem
           When zsel = 'Z' then call WWRF_handle_lcmd_z
           Otherwise do
             zerrsm = 'Invalid.'
@@ -3256,6 +3480,8 @@ WWRF_build_member_table:
     | Now get ISPF stats for each member for the list |
     * ----------------------------------------------- */
     "LMMFind DATAID("did") Member("mem") STATS(YES)"
+    if zluser8 /= null
+       then zluser = zluser8
     'tbadd' rtll
   end
   "LMCLOSE DATAID("did")"
@@ -3529,9 +3755,6 @@ Update_mem_status:
     uscmd = localrep'/'zigirep'/.zigi/'dsn fulldsn
     call update_stats uscmd
   end
-  cmd = 'cd' localrep'/'zigirep
-  cmd = cmd '&& git add .zigi/'dsn
-  x = docmd(cmd)
   return
 
 FixUp_DSN_Status:
@@ -3714,7 +3937,7 @@ WWRF_handle_lcmd_d:
   then call View_std 'X' 'V'
   else do
     zerrsm = 'No Diff'
-    zerrlm = 'No differnce found.'
+    zerrlm = 'No difference found.'
     'Setmsg msg(isrz003)'
   end
   Return
@@ -3985,16 +4208,10 @@ git_add:
   zs1 = 'Adding' fulldsn
   zs2 = 'Making it ready to Commit'
   call do_popup
-  /* Comment Start
-  if left(dsn,1) = "'"
-  then d = dsn
-  else d = '"'dsn'"'
-     Comment End */
   call git_safe_add localrep'/'zigirep dsn
   if dsnvalid(fulldsn) = "OK" then do
     /* Only get the stats if it's a z/OS dataset
-    Don't do it for the USS files
-    */
+    Don't do it for the USS files */
     x = listdsi(fulldsn)
     use_enhanced_cp = enhanced_cp
     if sysrecfm = 'U' then use_enhanced_cp = 0
@@ -4404,7 +4621,11 @@ Do_Rset:
   | Check for zginstall.rex enablement |
   * ---------------------------------- */
   if zginst = 'Y' then do
-    'vput (codep)'
+    sharenv = null
+    do sei = 1 to env.0
+       sharenv = sharenv env.sei '~~'
+       end
+    'vput (codep sharenv)'
     rc = zigigeni(localrep'/'zigirep)
     cmd = 'cd' localrep'/'zigirep
     cmd = cmd '&& git add zginstall.rex zginstall.readme'
@@ -5135,7 +5356,9 @@ Do_Resetid:
       if rc > 3 then leave
       if zluser = resetid then iterate
       zluser = resetid
-      'LMMSTATS DATAID('zstats') Member('mem') user('zluser')'
+      if zluser8 /= null
+         then zluser = zluser8
+      'LMMSTATS DATAID('zstats') Member('mem')' zlmmuser(zluser)
       'tbput' rtll
     end
     "LMClose Dataid("zstats")"
@@ -5471,7 +5694,7 @@ fixup_userids:
       "LMMFind DATAID("reset") Member("member") STATS(YES)"
       if rc > 7 then iterate
       if zluser /= defruid then do
-        'LMMSTATS DATAID('reset') Member('member') user('defruid')'
+        'LMMSTATS DATAID('reset') Member('member')' zlmmuser(defruid)
       end
     end
     "LMClose Dataid("reset")"
@@ -5616,8 +5839,7 @@ Git_Add_Member:
   /* The member 'can' have an extension in the local-repo
   of course this information is not present in the member-name
   as shown in the table. So we 'should' check the dsn-info file
-  and check if it has an extension (and if so which one).
-  */
+  and check if it has an extension (and if so which one). */
   repodir = localrep'/'zigirep
   readfile = " '"repodir"/.zigi/dsn'"
   address syscall 'readfile' readfile 'so.'
@@ -6797,6 +7019,9 @@ view_std:
   | Allocate a temporary data set for our data |
   * ------------------------------------------ */
   Address TSO
+  cmd_report = 'Command:' cmd
+  if length(cmd_report) > vlrecl
+     then vlrecl = length(cmd_report)
   /* calculate space needed with avg 50 bytes per record */
   prim = (((so.0 + se.0) * 50) % 56000) + 1
   if prim < 2 then prim = 5
@@ -6825,7 +7050,7 @@ view_std:
     sc = sc + 1
     so.sc = left('-',70,'-')
     sc = sc + 1
-    so.sc = 'Command:' cmd
+    so.sc = cmd_report
     so.0 = sc
     do xi = 1 to se.0
       sc = sc + 1
@@ -8072,8 +8297,7 @@ Do_Add_Copy:
     end
     if translate(option) = 'BINARY' then do
       /* for some reason the git autotagging due to .gitattributes
-      does not work all the time (?? weird) so we tag it if binary
-      */
+      does not work all the time (?? weird) so we tag it if binary */
       tagcmd = 'chtag -bR 'dir'/'pdss'/'ac_mem
       x = docmd(tagcmd)
     end
@@ -8117,8 +8341,7 @@ Do_Add_Copy:
     x =do_copy(copycmd)
     if translate(option) = 'BINARY' then do
       /* for some reason the git autotagging due to .gitattributes
-      does not work all the time (?? weird) so we tag it if binary
-      */
+      does not work all the time (?? weird) so we tag it if binary */
       tagcmd = 'chtag -b 'DIR'/'pss
       x =docmd(tagcmd)
     end
@@ -8205,8 +8428,31 @@ Do_Undo:
     return
   end
   arg uopt
-  if uopt = 'D' then mem = null
+  if pos(uopt,'DX') > 0 then mem = null
   zerrsm = null
+
+  /* ----------------------------------------- *
+   | If a member then undo the ISPF Stats file |
+   * ----------------------------------------- */
+   if mem /= null then do
+    cmd = 'cd' localrep'/'zigirep ,
+          '&& git diff HEAD .zigi/'dsn ,
+          '| grep "^-'mem'"'
+    x = docmd(cmd)
+    if so.0 > 0 then do
+       rec = substr(so.1,2)
+       rname = localrep'/'zigirep'/.zigi/'dsn
+       address syscall 'readfile (rname) stats.'
+       do istat = 1 to stats.0
+          if left(stats.istat,8) /= left(rec,8)
+             then iterate
+          stats.istat = rec
+          leave
+          end
+       address syscall 'writefile (rname) 644 stats.'
+       end
+    end
+
   /* -------------------------------- *
   | Undo a commit. eg checkout --    |
   * -------------------------------- */
@@ -8214,7 +8460,9 @@ Do_Undo:
   if uopt = 'M' then
   m = mem
 
-  zs1 = 'Un-modiying 'mem
+  if mem /= null
+     then zs1 = 'Un-modifying 'mem
+     else zs1 = 'Un-modifying '
   zs2 = 'This never happened...'
   call do_popup
   address 'SYSCALL' 'SLEEP (1)'
@@ -8227,6 +8475,7 @@ Do_Undo:
     zerrlm = 'Undo is only valid on a status of [M ] or [ M]' ,
       'where the element is modified or Ready for commit.'
     'setmsg msg(isrz003)'
+    return
   end
 
   /* ------------------------ *
@@ -8255,6 +8504,7 @@ Do_Undo:
     else cmd = cmd cmd2 ' && git checkout -- 'd
     cmd = cmd '&& echo "----------------------"'
     x = docmd(cmd)
+    if uopt /= 'X' then do
     if is_binfile(dsn) = 1 then cpbin = '-B'
     else cpbin = null
     if uopt = 'M' then do
@@ -8286,6 +8536,11 @@ Do_Undo:
       'tbmod' rtbl
     end
     call update_repo_metadata
+    end
+    else do
+         dsnstat = null
+         'tbmod' rtbl
+         end
     if uopt = 'D'
     then call work_with_repo
     else call work_with_repo_file
@@ -8681,10 +8936,6 @@ GETENV:
   rc = bpxwunix(cmd,,s.,se.,omvsenv.,1)
   last = s.0
   umask = strip(s.last)
-
-  /* Comment Start
-  cmd  = docmdx('env')
-     Comment End */
 
   if gitenv = null
      then cmd = 'env'
@@ -9102,8 +9353,7 @@ Update_Config:
   'VPut (zigiuid zigimail zigissh) Profile'
   /* maybe we could use the ispprof for some lazy caching */
   /* now that we've had the user see the settings.
-  set the git config if they have changed...
-  */
+  set the git config if they have changed... */
   if old_zigiuid /= zigiuid then do
     x = docmd('git config --global user.name "'zigiuid'"')
     if x > 0 then do
@@ -9618,7 +9868,7 @@ DoHist_Recover:
     if left(rdsn,1) = "'" then rdsn = rdsn"'"
     "LMINIT DATAID(zstats) DATASET("rdsn")"
     "LMOPEN DATAID("zstats") OPTION(INPUT)"
-    'LMMSTATS DATAID('zstats') Member('mem') user('zluser')'
+    'LMMSTATS DATAID('zstats') Member('mem')' zlmmuser(zluser)
     "LMClose Dataid("zstats")"
     "LMFree  Dataid("zstats")"
   end
@@ -9676,7 +9926,8 @@ DoHist_ViewSource:
   end
   vtitle = element '\' hdate '\' hsubject '\' fulldsn
   gitcmde = null
-  'vput (vtitle gitcmde localrep zigirep)'
+  gitdiff = null
+  'vput (vtitle gitcmde localrep zigirep gitdiff)'
   'View File(file) macro(zigivmac)'
   x = docmd('rm' file)
   return
@@ -9832,12 +10083,12 @@ Add_Stats:
     ZLMTIME ZLCNORC ZLINORC ZLMNORC ZLUSER ZLCNORCE ,
     ZLINORCE ZLMNORCE .
   if zlcdate = null then ,
-    'LMMSTATS DATAID('zstats') Member('upmbr') user('sysvar(sysuid)')'
+    'LMMSTATS DATAID('zstats') Member('upmbr')' zlmmuser(sysvar(sysuid))
   else ,
     'LMMSTATS DATAID('zstats') MEMBER('upmbr') VERSION('zlvers')' ,
     'MODLEVEL('zlmod') CREATED('zlcdate') MODDATE('zlmdate')' ,
     'MODTIME('zlmtime') INITSIZE('zlinorc')' ,
-    'MODRECS('zlmnorc') USER('zluser')'
+    'MODRECS('zlmnorc')' zlmmuser(zluser)
   "LMClose Dataid("zstats")"
   "LMFree  Dataid("zstats")"
   return

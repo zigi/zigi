@@ -16,6 +16,7 @@
   %B+ Browse - Browse the member
   %BL+Blame - Show revision/author/date-time of all changes
   %D+ Compares the uncommited version to the current version using git diff
+  %DB+Compares the selected member to another Branch
   %H+ History - view previous version of the PDS member
   %I+ Git Ignore the member
   %RM+Remove the member from the PDS and the repository

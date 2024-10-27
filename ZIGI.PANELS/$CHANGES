@@ -8,6 +8,53 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
 
                              ZIGI Release Notes
+                                Version 3.23
+                                Oct 04, 2024
+
+                         New Features and Functions
+                         --------------------------
+
+Key changes:     - undo now reverses ISPF statistic updates
+                 - 8 character TSO userid supported (thx Ray Mullins)
+                 - correct command reporting truncation
+                 - greatly improved diff command processing
+                   - using the diff command on the repository panel
+                 - new diff branch to compare active to other branch
+
+* zigi           - Fix typo for un-modifying
+                 - Enable undo for OMVS files
+                 - Fix missing zigissh ispf profile variable
+                 - Add diff to compare another branch for
+                   both full branch and member
+                 - On member undo also undo ISPF stats
+                 - Add info on diff branch command
+                 - Make Diff 1/2/3 displays consistent
+                 - Pass env. stem to zigigini
+* zigidfbr       - New panel for diff branch
+* zigidiff       - Update for zigi diff command options
+* zigigini       - Update to use the env values from zigi
+* zigih2l0       - Update for zigi diff command options
+* zigih2l1       - New panel for zigi diff branch
+* zigih201       - add DB option to diff branch on member
+* zigih340       - add DB option to diff branch on member
+* zigirlst       - add DB option to diff branch on member
+* zigirrep       - add DB option to diff branch on member
+* zigifdbk       - change zigi.rocks to github.com/zigi/zigi
+* zigihrln       - change zigi.rocks to github.com/zigi/zigi
+* zigihau        - various small text corrections
+* zigivmac       - edit macro - add preserver on to keep blanks
+* zg             - support 8 character TSO userids (thx to Ray Mullins)
+* zginstal       - support 8 character TSO userids (thx to Ray Mullins)
+* zigistat       - support 8 character TSO userids (thx to Ray Mullins)
+* githelp        - Improved to actually work better and add tbsort
+                 - Add git help -a for more options
+
+Note: Behavior change for the ISPF statistic files in .zigi directory
+      which are do not have a git add done automatically. Use ADDAll or
+      Add on Commit.
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
                                 Version 3.22
                                 Aug 12, 2024
 

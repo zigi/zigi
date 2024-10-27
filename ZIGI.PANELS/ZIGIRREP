@@ -6,7 +6,7 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(60,16)
+)Body Window(60,17)
 +DSN/File:@fulldsn                                       +
 +
 +Enter Selection:_z +
@@ -16,6 +16,7 @@
 +]Browse+ (B)+ Browse the dataset/file
 +]Edit+   (E)+ Edit the dataset/file
 +]Diff+   (D)+ Show the Diff's
++]DiffBr+ (DB)+Diff on another branch
 +]History+(H)+ Display Commit History
 +]Remove+ (RM)+Remove the dataset/file
 +]Rename+ (RN)+Rename the dataset/file
@@ -32,6 +33,7 @@
  &blame   = 'BLame'
  &browse  = 'Browse'
  &diff    = 'Diff'
+ &diffbr  = 'DiffBr'
  &edit    = 'Edit'
  &history = 'History'
  &remove  = 'Remove'
@@ -42,12 +44,13 @@
 )Proc
  if (&zsel = 'E')
      &zsel = 'S'
- ver (&zsel,list,A,B,BL,D,E,H,RM,RN,V,S,U)
+ ver (&zsel,list,A,B,BL,D,DB,E,H,RM,RN,V,S,U)
 )PNTS
   Field(add    ) var(zsel) val('A')
   Field(blame  ) var(zsel) val('BL')
   Field(browse ) var(zsel) val('B')
   Field(diff   ) var(zsel) val('D')
+  Field(diffbr ) var(zsel) val('DB')
   Field(edit   ) var(zsel) val('S')
   Field(history) var(zsel) val('H')
   Field(select ) var(zsel) val('S')

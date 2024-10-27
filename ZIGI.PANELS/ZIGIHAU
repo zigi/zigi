@@ -20,12 +20,12 @@
 +there wouldn't be a ZIGI as you see it. He provided the insights, logic, and
 +code for 99% of the Git processing.
 +
-@Lionel B. Dyck+0f+21st Century Software (www.21stcenturysoftware.com)
+@Lionel B. Dyck+now retired and a Z Open Source Developer and Advocate.
 +
 +Lionel nudged Henri to get the project rolling beyond Henri's initial efforts
 +and is the impetus for the ISPF elements and other features. Lionel is
 +a prolific tool creator who has been blessed with management allowing him to
-+share his creations, which can be found at www.lbdsoftware.com.
++share his creations, which can be found at https://github.com/lbdyck.
 +
 @Special Thanks To our Contributors:
 +
@@ -39,7 +39,7 @@
 )PROC
  &ZUP = ZIGIHINT
 )END
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */
