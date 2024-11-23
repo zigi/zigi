@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r24'
+  ver = 'v3r23'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -29,8 +29,6 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            xx/xx/24 - Version 3.24                         |
-  |                     - xxx
   |            10/04/24 - Version 3.23                         |
   |                     - Fix missing zigissh profile var      |
   |                     - Support 8 Char TSO Userid (thx Ray   |
