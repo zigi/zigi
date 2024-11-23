@@ -8,6 +8,20 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
 
                              ZIGI Release Notes
+                                Version 3.24
+                                xxx xx, 2024
+
+                         New Features and Functions
+                         --------------------------
+
+Key changes:     - zginstall.rex now understatistic updates
+
+* zginstal       - Fix support for 8 char userids
+* zigistat       - Fix support for 8 char userids
+
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
                                 Version 3.23
                                 Oct 04, 2024
 
