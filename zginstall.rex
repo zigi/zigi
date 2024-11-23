@@ -152,15 +152,23 @@
   x = bpxwunix(cmd,,so.,se.,env.)
   ckotdir = strip(so.1)
 
-  x = listdsi('NOCOZ' 'FILE')
-  if sysreason = 3 then
-    enhanced_cp = 0
-
-  x = bpxwunix('command -v putpds',,so.,se.)
-  if so.0 = 0 then enhanced = 0
+  rc = bpxwdyn('INFO DD(NOCOZ)')
+  if rc /= 0 then do
+     enhanced = 0
+     say ' '
+     say 'Using OMVS cp.'
+     say ' '
+    end
   else do
-    enhanced = 1
-    putpds = so.1
+    x = bpxwunix('command -v putpds',,so.,se.)
+    if so.0 = 0 then enhanced = 0
+    else do
+      enhanced = 1
+      putpds = so.1
+      say ' '
+      say 'Using Dovetail Co:Z Toolkit putpds.'
+      say ' '
+    end
   end
 
   /* -------------------------------------------------------------- *
