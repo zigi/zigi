@@ -41,6 +41,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            11/23/24 LBD - Check for NOCOZ DD               |
   |            11/05/24 LBD - Correct ZGSTAT for 8 char userid |
   |            09/28/24 LBD - Support 8 Char TSO Userid        |
   |            05/14/24 LBD - Fix binary find in .gitattributes|
@@ -151,11 +152,23 @@
   x = bpxwunix(cmd,,so.,se.,env.)
   ckotdir = strip(so.1)
 
-  x = bpxwunix('command -v putpds',,so.,se.)
-  if so.0 = 0 then enhanced = 0
+  rc = bpxwdyn('INFO DD(NOCOZ)')
+  if rc /= 0 then do
+     enhanced = 0
+     say ' '
+     say 'Using OMVS cp.'
+     say ' '
+    end
   else do
-    enhanced = 1
-    putpds = so.1
+    x = bpxwunix('command -v putpds',,so.,se.)
+    if so.0 = 0 then enhanced = 0
+    else do
+      enhanced = 1
+      putpds = so.1
+      say ' '
+      say 'Using Dovetail Co:Z Toolkit putpds.'
+      say ' '
+    end
   end
 
   /* -------------------------------------------------------------- *

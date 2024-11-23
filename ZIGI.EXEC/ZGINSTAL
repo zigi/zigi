@@ -41,6 +41,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            11/23/24 LBD - Check for NOCOZ DD               |
   |            11/05/24 LBD - Correct ZGSTAT for 8 char userid |
   |            09/28/24 LBD - Support 8 Char TSO Userid        |
   |            05/14/24 LBD - Fix binary find in .gitattributes|
@@ -150,6 +151,10 @@
   cmd = 'pwd'
   x = bpxwunix(cmd,,so.,se.,env.)
   ckotdir = strip(so.1)
+
+  x = listdsi('NOCOZ' 'FILE')
+  if sysreason = 3 then
+    enhanced_cp = 0
 
   x = bpxwunix('command -v putpds',,so.,se.)
   if so.0 = 0 then enhanced = 0
