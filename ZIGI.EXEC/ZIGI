@@ -30,7 +30,7 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            xx/xx/xx - Version 3.24                         |
-  |                     - xxxx                                 |
+  |                     - Correct detection of ssh key         |
   |            10/04/24 - Version 3.23                         |
   |                     - Fix missing zigissh profile var      |
   |                     - Support 8 Char TSO Userid (thx Ray   |
@@ -642,7 +642,7 @@
   parse arg start_option
 
   parse value '' with null repo_ztdsels fetch_flag dovetail_dir codep ,
-                      dovestat created reset_env gitdiff
+                      dovestat created reset_env gitdiff zigissh
 
   /* ------------------------------------------ *
   | ISPExec is our default host environment    |
