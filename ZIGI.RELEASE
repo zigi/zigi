@@ -16,6 +16,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
 Key changes:     - zginstall.rex now understatistic updates
 
+* zigi           - Correct detection of ssh key, or lack thereof
 * zginstal       - Fix support for 8 char userids
 * zigistat       - Fix support for 8 char userids
 
