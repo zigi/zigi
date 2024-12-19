@@ -14,11 +14,18 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
                          New Features and Functions
                          --------------------------
 
-Key changes:     - zginstall.rex now understatistic updates
+Key changes:     - zginstall.rex now updates ispf statistics properly
+                 - branch display improvements
 
 * zigi           - Correct detection of ssh key, or lack thereof
+                 - Improve BRanch, MERge, and DiffBranch display
+                   with userid and date of last update
 * zginstal       - Fix support for 8 char userids
 * zigistat       - Fix support for 8 char userids
+* zigibra        - ISPF Panel update for new branch info
+* zigidfbr       - ISPF Panel update for new branch info
+* zigidfmt       - ISPF Panel update for new branch info
+* zigimer        - ISPF Panel update for new branch info
 
 -----------------------------------------------------------------------------
 
