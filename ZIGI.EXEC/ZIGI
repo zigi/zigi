@@ -30,7 +30,11 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            xx/xx/xx - Version 3.24                         |
+  |                     - Force /bin/ssh-keygen use            |
   |                     - Correct detection of ssh key         |
+  |                     - Correct member stat initialization   |
+  |                     - Add on branch displays userid and    |
+  |                       date of last update                  |
   |            10/04/24 - Version 3.23                         |
   |                     - Fix missing zigissh profile var      |
   |                     - Support 8 Char TSO Userid (thx Ray   |
@@ -2065,24 +2069,13 @@ Do_Diff_Branch:
     end
     Otherwise nop
   end
-  dbr = 'dbr'time('s')
-  cmd = 'cd' localrep'/'zigirep ,
-    '&& git branch -a'
-  x = docmd(cmd)
-  'tbcreate' dbr 'names(bname) nowrite'
-  do idb = 1 to so.0
-    if left(so.idb,1) = '*' then iterate
-    parse value so.idb with bname .
-    if right(bname,length('/'branch)) = '/'branch then iterate
-    'tbadd' dbr
-  end
-  'tbtop' dbr
+  call create_branch_table
   do forever
     do forever
       zdsel = null
-      'tbdispl' dbr 'panel('diff_panel')'
+      'tbdispl' rtbb 'panel('diff_panel')'
       if rc > 4 then do
-        'tbend' dbr
+        'tbend' rtbb
         return
       end
       if rc < 5 then do
@@ -3422,6 +3415,7 @@ WWRF_build_member_table:
 
   call get_ignored
   memstat = null
+  stat    = null
 
   do bmi = 1 to root.0
     if left(root.bmi,1) = ' ' then iterate
@@ -6088,32 +6082,39 @@ Check_Replace:
   if drc > 0 then return 3
   return 0
 
-  /* ----------------------------- *
-  | Branch management             |
-  * ----------------------------- */
-Branch_it:
+  /* -------------------------------------------- *
+   | Create the branch table for use where needed |
+   * -------------------------------------------- */
+Create_Branch_Table:
   if rtbb_open = 1 then 'tbend' rtbb
-  'TBCreate' rtbb 'keys(bname) Names(brstatus) Replace NoWrite'
+  'TBCreate' rtbb 'keys(bname) Names(brstatus brlastu brlastd)' ,
+      'Replace NoWrite'
   rtbb_open = 1
   localdir = localrep'/'zigirep
   if zigi_offline = 0 then do
-    cmd = ' && git remote prune origin > /dev/null 2>&1 && git branch -a'
+    cmd = ' && git remote prune origin > /dev/null 2>&1 &&' ,
+     "git branch -a --format='%(if)%(HEAD)%(then)* %(else)" ,
+     "%(end)%(refname:lstrip=1) - %(committername)" ,
+     "- %(committerdate:relative)'"
     x = docmd('cd 'localdir cmd)
   end
   else parse value '0 0' with so.0 se.0
   if so.0 + se.0 = 0 then do
-    cmd = '&& git branch -a'
+    cmd = " && git branch -a --format='%(if)%(HEAD)%(then)* %(else)" ,
+     "%(end)%(refname:lstrip=1) - %(committername)" ,
+     "- %(committerdate:relative)'"
     x = docmd('cd 'localdir cmd)
   end
-  bl. = null
+  parse value '' with bl. remote_brs local_brs
   bl.0 = 0
   do bri = 1 to so.0
     b1 = strip(so.bri,'B')
     if pos('remotes/',b1) > 0 then do
       /* this is a remote branch we (maybe) have never checked out */
       seen_this_branch = 0
-      parse var b1 remotes'/'origin'/'bname zooi
-      bname = strip(bname)
+      parse var b1 remotes'/'origin'/'bname brlast
+      parse value brlast with '-' brlastu '-' brlastd
+      remote_brs = remote_brs bname
       do ii = 1 to bl.0
         if bl.ii = bname then seen_this_branch = 1
       end
@@ -6136,7 +6137,6 @@ Branch_it:
           ni = bl.0 + 1
           bl.ni = bname
           bl.0 = ni
-          brstatus = 'Remote'
           'tbadd' rtbb
         end
       end
@@ -6145,11 +6145,17 @@ Branch_it:
       /* this is already a local branch */
       if pos('*',b1) = 0 then do
         /* Add it to the table if it's not the current (*) branch */
-        bname = strip(so.bri)
+        if pos('/',b1) > 0
+           then parse value b1 with .'/'bname brlast
+           else parse value b1 with bname brlast
+        local_brs = local_brs bname
+        parse value brlast with '-' brlastu '-' brlastd
         ni = bl.0 + 1
-        bl.ni = b1
+        bl.ni = bname
         bl.0 = ni
-        brstatus = 'Local'
+        if wordpos(bname,remote_brs) > 0
+           then brstatus = 'Local/Remote'
+           else brstatus = 'Local'
         'tbadd' rtbb
       end
     end
@@ -6157,6 +6163,13 @@ Branch_it:
   'tbsort' rtbb 'fields(bname,c,a)'
   'tbtop' rtbb
   save_btop = 0
+  return
+
+  /* ----------------------------- *
+  | Branch management             |
+  * ----------------------------- */
+Branch_it:
+  call create_branch_table
   do forever
     zcmd = null
     cc_rc = 0
@@ -6269,84 +6282,21 @@ Branch_it:
   | Merging things...             |
   * ----------------------------- */
 Merge_it:
-  'tbquery' rtbm
-  if rc = 0 then 'tbend' rtbm
-  'TBCreate' rtbm 'keys(bname) Names(brstatus) Replace NoWrite'
-  localdir = localrep'/'zigirep
-  zsel = null
-  if zigi_offline = 0 then do
-    cmd = ' && git remote prune origin > /dev/null 2>&1 && git branch -a'
-    x = docmd('cd 'localdir cmd)
-  end
-  else parse value '0 0' with so.0 se.0
-  if so.0 + se.0 = 0 then do
-    cmd = '&& git branch -a'
-    x = docmd('cd 'localdir cmd)
-  end
-  bl. = null
-  bl.0 = 0
-  do bri = 1 to so.0
-    b1 = strip(so.bri,'B')
-    if pos('/',b1) > 0 then do
-      /* this is a remote branch we (maybe) have never checked out */
-      seen_this_branch = 0
-      parse var b1 remotes'/'origin'/'bname zooi
-      bname = strip(bname)
-      do ii = 1 to bl.0
-        if bl.ii = bname then seen_this_branch = 1
-      end
-      if seen_this_branch = 1 then do
-        sbname = bname
-        'tbtop' rtbm
-        do forever
-          'tbskip' rtbm
-          if rc > 0 then leave
-          if sbname = bname then do
-            brstatus = 'Local/Remote'
-            'tbmod' rtbm
-            leave
-          end
-        end
-      end
-      /* but only add it to table if we haven't yet */
-      if seen_this_branch = 0 then do
-        if bname <> branch & bname <> "HEAD" then do
-          ni = bl.0 + 1
-          bl.ni = bname
-          bl.0 = ni
-          brstatus = 'Remote'
-          'tbadd' rtbm
-        end
-      end
-    end
-    else do
-      /* this is already a local branch */
-      if pos('*',b1) = 0 then do
-        /* Add it to the table if it's not the current (*) branch */
-        bname = strip(so.bri)
-        ni = bl.0 + 1
-        bl.ni = b1
-        bl.0 = ni
-        brstatus = 'Local'
-        'tbadd' rtbm
-      end
-    end
-  end
-  'tbsort' rtbm 'fields(bname,c,a)'
-  'tbtop' rtbm
-  save_btop = 0
+  'tbquery' rtbb
+  if rc = 0 then 'tbend' rtbb
+  call create_branch_table
   do forever
     zcmd = null
     cc_rc = 0
     newb = null
     zsel = null
     if save_btop > 0 then do
-      'tbtop' rtbm
-      'tbskip' rtbm 'number('save_btop')'
+      'tbtop' rtbb
+      'tbskip' rtbb 'number('save_btop')'
     end
-    'tbdispl' rtbm 'panel(zigimer)'
+    'tbdispl' rtbb 'panel(zigimer)'
     if rc > 4 then do
-       'tbend' rtbm
+       'tbend' rtbb
        return 4
        end
     save_btop = ztdtop
@@ -6675,7 +6625,7 @@ Merge_it:
       leave
     end
   end
-  'tbend' rtbm
+  'tbend' rtbb
   ztdsels = 1
   zsel = null
   return 0
@@ -7136,7 +7086,7 @@ Do_Keygen:
          'mv id_rsa' id_rsa_bkup '&&' ,
          'mv id_rsa.pub' id_rsa.pub_bkup '&&'
   cmd = 'cd' home'/.ssh &&' mv_cmd ,
-    'cd .. && ssh-keygen -t rsa -f .ssh/id_rsa'
+    'cd .. && /bin/ssh-keygen -t rsa -f .ssh/id_rsa'
   x = docmd(cmd)
   call catsshk
   zerrsm = null
