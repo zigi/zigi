@@ -20,6 +20,8 @@ Key changes:     - zginstall.rex now updates ispf statistics properly
 * zigi           - Correct detection of ssh key, or lack thereof
                  - Improve BRanch, MERge, and DiffBranch display
                    with userid and date of last update
+                 - For use of /bin/ssh-keygen
+                 - Fix bug for [??] Untracked incorrect reporting on members
 * zginstal       - Fix support for 8 char userids
 * zigistat       - Fix support for 8 char userids
 * zigibra        - ISPF Panel update for new branch info

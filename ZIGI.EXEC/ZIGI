@@ -30,6 +30,7 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |            xx/xx/xx - Version 3.24                         |
+  |                     - Force /bin/ssh-keygen use            |
   |                     - Correct detection of ssh key         |
   |                     - Correct member stat initialization   |
   |                     - Add on branch displays userid and    |
@@ -7085,7 +7086,7 @@ Do_Keygen:
          'mv id_rsa' id_rsa_bkup '&&' ,
          'mv id_rsa.pub' id_rsa.pub_bkup '&&'
   cmd = 'cd' home'/.ssh &&' mv_cmd ,
-    'cd .. && ssh-keygen -t rsa -f .ssh/id_rsa'
+    'cd .. && /bin/ssh-keygen -t rsa -f .ssh/id_rsa'
   x = docmd(cmd)
   call catsshk
   zerrsm = null
