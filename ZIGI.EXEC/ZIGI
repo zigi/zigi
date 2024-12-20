@@ -31,6 +31,7 @@
   |                                                            |
   |            xx/xx/xx - Version 3.24                         |
   |                     - Correct detection of ssh key         |
+  |                     - Correct member stat initialization   |
   |                     - Add on branch displays userid and    |
   |                       date of last update                  |
   |            10/04/24 - Version 3.23                         |
@@ -3413,6 +3414,7 @@ WWRF_build_member_table:
 
   call get_ignored
   memstat = null
+  stat    = null
 
   do bmi = 1 to root.0
     if left(root.bmi,1) = ' ' then iterate
