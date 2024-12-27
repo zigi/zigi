@@ -2,7 +2,8 @@
  _ type(input ) hilite(uscore) caps(on) intens(low )
  $ type(output)  caps(off)
  + type(text) skip(on) caps(off) intens(low)
-)Body Window(57,7)
+)Body Window(57,8)
++
 +Git Tag:  $gtag                            +
 +z/OS HLQ: $snaphlq                      +
 +OMVS Path:$path                                        +

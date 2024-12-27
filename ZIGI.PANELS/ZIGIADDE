@@ -2,7 +2,7 @@
  $ type(input) caps(off) hilite(uscore) intens(low)
  _ type(input) caps(on ) hilite(uscore) intens(low)
  @ type(output) caps(on)
-)Body Window(57,9)
+)Body Window(57,10)
 +
 +Command ===>$zcmd
 +
@@ -12,6 +12,7 @@
   +Press%Enter+to Continue, or%F3+to Cancel Extension.
 +
         +Disable extension prompting:_z+(Y or N)
++
 )Init
  &zwinttl = 'ZIGI PDS Optional Member Extension'
  .zvars = '(extans)'

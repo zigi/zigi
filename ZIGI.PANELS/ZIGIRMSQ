@@ -1,7 +1,8 @@
 )Attr
  $ type(output) caps(off)
  _ type(input)  caps(on ) hilite(uscore) intens(low)
-)Body Window(76,8)
+)Body Window(76,10)
++
 +Confirm removal of sequential dataset and/or OMVS file
 +from the repository and git:
 +
@@ -10,6 +11,7 @@
 +Confirm Git removal:  _z  +(YES or NO or%F3+to cancel)
 +Confirm delete:       _z+  (Z for z/OS, O for OMVS, B for both, N for none)
 +Turn Confirmation off:_z  +(YES or NO)
++
 )Init
  .zvars = '(rema remq remc)'
  &zwinttl = 'ZIGI Remove Prompt'

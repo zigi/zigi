@@ -6,7 +6,7 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(45,9)
+)Body Window(45,10)
 +
 +Enter Selection:_z+
 +
@@ -16,6 +16,7 @@
 +]Remove+ (R)+ Remove (Drop) the stash
 +]Show+   (S)+ Show stash summary
              +Or%F3+to cancel.
++
 )Init
  &zwinttl = 'ZIGI Stash Row Selection Options'
  .zvars = '(zsel)'

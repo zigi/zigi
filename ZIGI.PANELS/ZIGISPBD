@@ -2,7 +2,8 @@
  _ type(input ) hilite(uscore) caps(on) intens(low )
  $ type(output)  caps(off)
  + type(text) skip(on) caps(off) intens(low)
-)Body Window(64,11)
+)Body Window(64,12)
++
     %Alert: Stash Pop was unable to complete successfully.
 +
 +Stash Pop may not be used in a git workspace that is%not+clean.

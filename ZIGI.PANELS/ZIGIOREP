@@ -6,7 +6,8 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   [ type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(77,15)
+)Body Window(77,16)
++
 +Enter Selection:_z        +
 +
 [Add   +  Add dataset     [GitCMD +Git Commands    [Replace+ Replace Datasets

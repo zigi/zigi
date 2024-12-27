@@ -1,7 +1,8 @@
 )Attr
  $ type(output) caps(off)
  _ type(input)  caps(off) hilite(uscore) intens(low)
-)Body Window(47,7) cmd()
+)Body Window(47,9) cmd()
++
 +Confirm you really want to create a new branch
 +from the selected Tag level?
 +
@@ -9,6 +10,7 @@
 +The new branch will be at the Tag level.
 +
       %ENTER+to continue, or%F3+to cancel
++
 )Init
  &zwinttl = 'ZIGI Tag Recovery Prompt'
 )Proc

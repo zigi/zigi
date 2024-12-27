@@ -1,7 +1,8 @@
 )Attr
  $ type(output) caps(off)
  _ type(input)  caps(off) hilite(uscore) intens(low)
-)Body Window(55,6)
+)Body Window(55,7)
++
 +The Git repository that you requested is not eligible
 +to be managed by ZIGI but it has been retained and
 +may be converted.

@@ -1,7 +1,8 @@
 )Attr
  $ type(output) caps(off)
  _ type(input)  caps(off) hilite(uscore) intens(low)
-)Body Window(47,7) cmd()
+)Body Window(47,8) cmd()
++
 +Confirm you really want to perform a rollback
 +to the selected Commit level?
 +

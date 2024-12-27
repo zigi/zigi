@@ -4,7 +4,7 @@
  $ type(output) hilite(uscore) caps(off)
  { type(output) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
-)Body Window(69,8) cmd()
+)Body Window(69,9) cmd()
 +
 +Enter%New HLQ+for the Extract:
 _tagxhlq                         +(no quotes allowed)
@@ -13,6 +13,7 @@ _tagxhlq                         +(no quotes allowed)
 @tagxpath                                             +
 
       +Press%Enter+to proceed, or%F3+to cancel.
++
 )Init
  &zwinttl = 'ZIGI Extract Prompt'
  .help = zigih2i1

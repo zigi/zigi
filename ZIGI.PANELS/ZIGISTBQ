@@ -1,8 +1,10 @@
 )Attr
  $ type(input ) caps(off) hilite(uscore) intens(low)
-)Body Window(41,3) cmd()
+)Body Window(41,4) cmd()
++
 +Enter the name of a new branch:
 +=>$bname
++
 )Init
  &zwinttl = 'ZIGI Prompt Popup'
   .cursor = bname

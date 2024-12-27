@@ -2,7 +2,8 @@
  $ type(output) caps(off)
  _ type(input)  caps(on ) hilite(uscore) intens(low)
  { type(input)  caps(off) hilite(uscore) intens(low)
-)Body Window(41,5)
+)Body Window(41,6)
++
 +Command:_zcmd
 +
 +Enter the Repo to Select:{fstring +

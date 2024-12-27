@@ -7,6 +7,7 @@
 +Type of Diff:@z+1:unstaged+
 +                2:staged+
 +                3:branch
++
 )Init
  &zwinttl = 'ZIGI git diff'
  .zvars = '(diff)'

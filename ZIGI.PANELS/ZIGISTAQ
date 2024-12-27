@@ -1,8 +1,10 @@
 )Attr
  $ type(input) caps(off) hilite(uscore) intens(low)
-)Body Window(60,3) cmd()
+)Body Window(60,4) cmd()
++
 +Enter a comment for the stash:
 +=>$stashmsg
++
 )Init
  &zwinttl = 'ZIGI Prompt Popup'
   .cursor = stashmsg

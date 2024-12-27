@@ -1,6 +1,7 @@
 )Attr Default(%+_)
   _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
-)Body  Expand(\\) Window(46,9)
+)Body  Expand(\\) Window(46,10)
++
 +Command ===>_zcmd   \ \ +
 %
 +Review/Update New Directory Info

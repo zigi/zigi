@@ -1,7 +1,8 @@
 )Attr
  $ type(output) caps(off)
  _ type(input)  caps(on ) hilite(uscore) intens(low)
-)Body Window(66,7)
+)Body Window(66,9)
++
 +Confirm you really want to%remove+the dataset and/or file
 +from the repository%and delete+from z/OS and OMVS:
 +
@@ -9,6 +10,7 @@
 +
 +Confirm removal:      _z  +(YES or NO or F3)
 +Turn Confirmation off:_z  +(YES or NO)
++
 )Init
  .zvars = '(rema remc)'
  &zwinttl = 'ZIGI Remove Prompt'

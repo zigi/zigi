@@ -2,7 +2,7 @@
  $ type(output) caps(off)
  _ type(input)  caps(on ) hilite(uscore) intens(low)
  # type(input)  caps(on) hilite(uscore) intens(low)
-)Body Window(61,12) cmd()
+)Body Window(61,13) cmd()
 +
 +Recover a historical level of:
 $relement
@@ -15,6 +15,7 @@ _rdsn                                                      +
 +Confirm Recovery:#z+(Y or N)
 +
 +Press%Enter+to continue or%F3+to Cancel.
++
 )Init
  &zwinttl = 'ZIGI History Recovery'
  .zvars = '(ralc rans)'
