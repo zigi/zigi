@@ -2,7 +2,7 @@
  _ type(input ) hilite(uscore) caps(on) intens(low )
  $ type(output)  caps(off)
  + type(text) skip(on) caps(off) intens(low)
-)Body Window(64,12)
+)Body Window(64,13)
 +
     %Alert: Stash Pop was unable to complete successfully.
 +
@@ -15,12 +15,13 @@
 + Then Retry Stash Pop
 +
              +Press%Enter+or%F3+to return to zigi.
++
 )Init
  &zwinttl = 'ZIGI Stash Pop ALert'
  .help = zigih2j0
 )Proc
 )end
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */

@@ -1,10 +1,9 @@
 )Attr
  $ type(input)  caps(on ) hilite(uscore) intens(low)
-)Body Window(45,5) cmd()
+)Body Window(45,4) cmd()
 +
 +Enter the userid to be set for all members:
 +Userid:$resetid +
-+
 +
 )Init
  &zwinttl = 'ZIGI Reset ID Prompt'
@@ -30,7 +29,7 @@
  if (&zedsmsg EQ &Z)
   ver (&resetid,nb,dsname)
 )end
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */

@@ -3,13 +3,14 @@
  @ type(output) caps(off) intens(low) skip(on)
  _ type(input)  caps(on ) hilite(uscore) intens(low)
  # type(input)  caps(on ) hilite(&us) intens(low)
-)Body Window(60,6)
+)Body Window(60,7)
 +
 +Confirm deletion of the request branch:
 + $bname
 +Location: @bloc
 +
 +Answer:_z+(Y or N)   @rq            #z@rp
++
 )Init
  &zwinttl = 'ZIGI Prompt Popup'
  &rans = ''

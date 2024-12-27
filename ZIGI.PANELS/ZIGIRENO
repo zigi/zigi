@@ -1,18 +1,19 @@
 )Attr
  $ type(output) caps(on )
  _ type(input)  caps(off) hilite(uscore) intens(low)
-)Body Window(76,5) cmd()
+)Body Window(76,6) cmd()
 +
 +Rename:  $fulldsnq
 +New Name:_newdsn                                                          +
 +
              %Enter+to continue%F3+to cancel.
++
 )Init
  &zwinttl = 'ZIGI OVMVS File Rename'
 )Proc
   ver (&newdsn,nb)
 )end
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */

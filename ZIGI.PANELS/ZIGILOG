@@ -2,7 +2,7 @@
  $ type(input)  caps(on ) hilite(uscore) intens(low)
  @ type(input)  caps(off) hilite(uscore) intens(low)
  + type(text) skip(on) intens(low)
-)Body Window(53,10) CMD()
+)Body Window(53,9) CMD()
 +
 +Enter/Review Log Filter:  (use any, all, or none)
 +   Number of Commits:$lcnt+       1 to 9999
@@ -32,7 +32,7 @@
  Call ISPPRXVP 'T'
 *ENDREXX
 )end
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */

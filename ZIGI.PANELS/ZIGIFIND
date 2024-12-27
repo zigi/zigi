@@ -1,19 +1,20 @@
 )Attr
  $ type(output) caps(off)
  _ type(input)  caps(on ) hilite(uscore) intens(low)
-)Body Window(41,6)
+)Body Window(41,7)
 +
 +Command:_zcmd
 +
 +Enter the Find String:_find
 +
 +Press%Enter+to Continue, or%F3+to cancel
++
 )Init
  &zwinttl = 'ZIGI Find Prompt'
 )Proc
  ver (&find,nb)
 )end
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */
