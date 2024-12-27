@@ -6,7 +6,8 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(64,15) Cmd()
+)Body Window(64,16) Cmd()
++
 +This will start a new 'zigiflow'.
 +Two branches will be created :%zigiflow-<flowname>+and
 %<flowname>+.

@@ -1,6 +1,7 @@
 )Attr
  $ type(input) caps(on) hilite(uscore) intens(low)
-)Body Window(58,4) cmd()
+)Body Window(58,5) cmd()
++
 +Enter a dataset to import Git Commit comments:
 +=>$comimprt                                             +
 +
@@ -34,7 +35,7 @@
  IF (&zerrsm NE &Z)
      .msg = isrz003
 )end
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */

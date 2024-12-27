@@ -1,7 +1,8 @@
 )Attr
  $ type(output) caps(off)
  _ type(input)  caps(on ) hilite(uscore) intens(low)
-)Body Window(41,5)
+)Body Window(41,6)
++
 +Command:_zcmd
 +
 +Enter the Find String:_find

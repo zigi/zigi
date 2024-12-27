@@ -5,7 +5,8 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output)
-)Body Window(67,9)
+)Body Window(67,10)
++
 +ZIGI Version   : $ver
 +Git Version    : $gitver
 +Git Location   : $zigigitl                                     #z+
