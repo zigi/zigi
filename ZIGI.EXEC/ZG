@@ -1334,7 +1334,8 @@ Check_for_CoZ:
 >Panel zgopt
 )Attr
 _ type(input) hilite(uscore) caps(on) intens(low) just(left)
-)Body Window(43,5)
+)Body Window(43,6)
++
 +Enter Git Option:_opt+(A, AC, ACP, or O)
 +
 +View Log:_z+%Y+or%N+
@@ -1400,7 +1401,8 @@ Ver (&zsel,list,A,AC,O,ACP)
 >Panel zgcom
 )Attr
 _ type(input) hilite(uscore) caps(off) intens(low) just(left)
-)Body Window(68,10)
+)Body Window(68,11)
++
 +Enter Commit Message:
 _cmsg1                                                            +
 _cmsg2                                                            +
