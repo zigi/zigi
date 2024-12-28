@@ -3,12 +3,14 @@
  @ type(output) caps(off) intens(low) skip(on)
  _ type(input)  caps(on ) hilite(uscore) intens(low)
  # type(input)  caps(on ) hilite(&us) intens(low)
-)Body Window(60,5)
+)Body Window(60,7)
++
 +Confirm deletion of the request branch:
 + $bname
 +Location: @bloc
 +
 +Answer:_z+(Y or N)   @rq            #z@rp
++
 )Init
  &zwinttl = 'ZIGI Prompt Popup'
  &rans = ''
@@ -28,7 +30,7 @@
     if (&ans = 'Y')
        ver (&rans,nb,list,Y)
 )end
-/* ------------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                            */
-/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* ------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */
