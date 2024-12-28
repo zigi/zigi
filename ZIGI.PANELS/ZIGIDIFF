@@ -7,13 +7,14 @@
 +Type of Diff:@z+1:unstaged+
 +                2:staged+
 +                3:branch
++
 )Init
  &zwinttl = 'ZIGI git diff'
  .zvars = '(diff)'
 )Proc
  ver (&diff,nb,list,1,2,3)
 )end
-/* ------------------------------------------------------------ */
-/* ZIGI - the z/OS ISPF Git Interface                           */
-/* Copyright (C) 20202024 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* ------------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */

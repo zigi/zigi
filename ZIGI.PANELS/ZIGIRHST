@@ -6,7 +6,7 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(42,8)
+)Body Window(42,9)
 +
 +Enter Selection:_z+
 +
@@ -15,6 +15,7 @@
 +]Select+ (S) View the dataset/file
 +]Compare+(Z) Compare with Current version
             +Or%F3+to cancel.
++
 )Init
  &zwinttl = 'ZIGI History Selection Options'
  .zvars = '(zsel)'
@@ -32,7 +33,7 @@
   Field(select ) var(zsel) val('S')
   Field(recover) var(zsel) val('R')
 )End
-/* ------------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                            */
-/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* ------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */

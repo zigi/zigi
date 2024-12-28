@@ -1,17 +1,19 @@
 )Attr
  $ type(output) caps(on )
  _ type(input)  caps(on ) hilite(uscore) intens(low)
-)Body Window(32,4) cmd()
+)Body Window(32,6) cmd()
++
 +Current Member:$mem
 +New Member:    _newmem  +
 +
 %Enter+to continue%F3+to cancel.
++
 )Init
  &zwinttl = 'ZIGI PDS Member Rename'
 )Proc
   ver (&newmem,nb,dsname)
 )end
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */

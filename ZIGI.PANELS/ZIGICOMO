@@ -6,7 +6,7 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(38,7) Cmd()
+)Body Window(38,8) Cmd()
 +
 +Enter Selection:_z +
 +
@@ -14,6 +14,7 @@
 +]Rollback+(R)+Rollback
 +]Extract+ (X)+Extract for Packaging
           +Or%F3+to cancel.
++
 )Init
  &zwinttl = 'ZIGI Extract Line Options'
  .zvars = '(zsel)'
@@ -29,7 +30,7 @@
   Field(Extract )  var(zsel) val('X')
   Field(Rollback)  var(zsel) val('R')
 )End
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */

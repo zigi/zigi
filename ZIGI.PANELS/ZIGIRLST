@@ -6,7 +6,8 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(68,20)
+)Body Window(68,22)
++
 +Member:@mem             $exth      @extf
 +
 +Enter Selection:_z +
@@ -27,6 +28,7 @@
 +]Undo+    (U)+ Undo an UnCommitted Change
 +]View+    (V)+ View the dataset/file
                    +Or%F3+to cancel.
++
 )Init
 *REXX(* exth extf extens)
  parse value '' with exth extf null
@@ -80,7 +82,7 @@ lower:
   Field(undo   )  var(zsel) val('U')
   Field(view   )  var(zsel) val('V')
 )End
-/* ------------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                            */
-/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* ------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */
