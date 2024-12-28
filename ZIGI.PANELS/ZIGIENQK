@@ -4,7 +4,7 @@
  ] type(text) intens(low) color(blue)
  + type(text) intens(low) color(turq)
  { type(input) caps(off) hilite(uscore) intens(low)
- _ type( input) intens(low ) caps(on) just(left ) hilite(uscore)
+ _ type(input) intens(low ) caps(on) just(left) hilite(uscore)
 )Body Window(75,15) expand(\\)
 +
 %Command ===>_zcmd
