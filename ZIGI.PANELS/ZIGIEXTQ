@@ -1,5 +1,5 @@
 )Attr
- _ type(input ) hilite(uscore) caps(on) intens(low )
+ _ type(input) hilite(uscore) caps(on) intens(low)
  $ type(output)  caps(off)
  + type(text) skip(on) caps(off) intens(low)
 )Body Window(58,8)
