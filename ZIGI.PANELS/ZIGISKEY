@@ -1,0 +1,41 @@
+)Attr
+ $ type(output) caps(off)
+ _ type(input) caps(off) hilite(uscore) intens(low)
+ @ type(input) caps(on ) hilite(uscore) intens(low)
+ # type(output) hilite(reverse) color(turq) caps(off)
+ + type(text) skip(on) intens(low)
+)Body Window(37,7) Expand(\\)
++
++Select SSH RSA Key Size:
++
++_z+2048 (default)  _z+4096
++
++Press%Enter+or%F3+to Cancel
++
+)Init
+ &zwinttl = 'ZIGI SSH Key Generation'
+ .zvars = '(k2 k4)'
+ .help = zigih130
+ &k2 = &z
+ &k4 = &z
+)Proc
+*rexx(* msg)
+ msg = ''
+ if words(k2 k4) = 0 then k2 = '/'
+ if words(k2 k4) > 1 then do
+    msg = 'You may not select more than one key size - try again.'
+    parse value '' with k2 k4
+    end
+*endrexx
+ if (&msg NE &z)
+     &zerrlm = &msg
+     &zerrsm = &z
+     &zerrhm   = ''           /* tutorial panel or null */
+     &zerralrm = 'NO'         /* yes or no */
+     &zerrtp   = 'Notify'     /* notify, warning, action, critial */
+     ver (&k2,nb,msg=isrz003)
+)end
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */

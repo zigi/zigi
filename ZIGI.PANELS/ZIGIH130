@@ -18,11 +18,11 @@
 +Primary command%REGen+will regenerate your existing SSH keys while saving
 +them with todays date (yyyymmdd) as a suffix.
 +
++When prompted you can create a 2K or 4K ssh RSA key. This may take some
++time depending on your processor.
 +
 +      "Never interrupt someone doing what you said couldn't be done."
 +             -- Amelia Earhart
-+
-+
 +
          +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
