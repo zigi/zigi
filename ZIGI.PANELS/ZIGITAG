@@ -1,10 +1,10 @@
 )Attr
  $ type(output) caps(off)
  _ type(input)  caps(off) hilite(uscore) intens(low)
-)Body Window(41,6) cmd()
+)Body Window(76,6)
 +
 +Enter Tag ID:_tagid                   +
-+Optional Text:_tagmsg
++Optional Text:_tagmsg                                                     +
 +
 +Press%Enter+to continue or%F3+to Cancel.
 +

@@ -1,12 +1,12 @@
 )Attr Default(%+_)
   _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
-)Body  Expand(\\) Window(46,10)
+)Body Window(72,10) Expand(\\)
 +
 +Command ===>_zcmd   \ \ +
 %
 +Review/Update New Directory Info
 %
-+New Directory:_mkdir                        +
++New Directory:_mkdir                                                  +
 +
 +Permissions:_mp + (755 is the default)
 +
