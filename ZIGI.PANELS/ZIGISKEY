@@ -4,7 +4,7 @@
  @ type(input) caps(on ) hilite(uscore) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
  + type(text) skip(on) intens(low)
-)Body Window(37,7) Expand(\\)
+)Body Window(28,7) Expand(\\)
 +
 +Select SSH RSA Key Size:
 +

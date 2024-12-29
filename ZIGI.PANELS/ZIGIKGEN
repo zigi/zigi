@@ -1,7 +1,7 @@
 )Attr
  $ type(output) caps(off)
  _ type(input)  caps(on) hilite(uscore) intens(low)
-)Body Window(50,4)
+)Body Window(43,4)
 +
   %Confirm+regeneration of%SSH+Keys ==>_z+
   +Enter%Y+to proceed or%F3+to cancel exit.
