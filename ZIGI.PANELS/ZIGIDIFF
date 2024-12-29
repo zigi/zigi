@@ -2,7 +2,7 @@
  $ type(output) caps(off)
  @ type(input ) hilite(uscore) intens(low)
  + type(text) skip(on) intens(low)
-)Body Window(30,5)
+)Body Window(28,5)
 +
 +Type of Diff:@z+1:unstaged+
 +                2:staged+

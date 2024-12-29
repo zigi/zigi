@@ -2,7 +2,7 @@
  $ type(output) caps(off)
  _ type(input) caps(off) hilite(uscore) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
-)Body Expand(\\) Window(57,12)
+)Body Window(57,12) Expand(\\)
 +
 %Command ===>_zcmd
 +

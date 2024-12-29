@@ -3,7 +3,7 @@
 )Body Window(41,4) cmd()
 +
 +Enter the name of a new branch:
-+=>$bname
++=>$bname                               +
 +
 )Init
  &zwinttl = 'ZIGI Prompt Popup'
