@@ -23,7 +23,8 @@ Key changes:     - zginstall.rex now updates ispf statistics properly
                    with userid and date of last update
                  - For use of /bin/ssh-keygen
                  - Fix bug for [??] Untracked incorrect reporting on members
-                 - Prompt for ssh key size (2048/4096/8192)
+                 - Prompt for ssh key size (2048/3072/4096) for RSA and
+                   ed25519 keys
 * zginstal       - Fix support for 8 char userids
 * zigistat       - Fix support for 8 char userids
 * zigibra        - ISPF Panel update for new branch info

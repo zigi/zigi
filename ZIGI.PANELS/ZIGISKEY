@@ -4,27 +4,30 @@
  @ type(input) caps(on ) hilite(uscore) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
  + type(text) skip(on) intens(low)
-)Body Window(28,7) Expand(\\)
+)Body Window(46,8) Expand(\\)
 +
 +Select SSH RSA Key Size:
+  +_z+2048 _z+3072 _z+4096    +Default: 3072
 +
-+_z+2048 (default)  _z+4096
++Or SSH ED25519 Key:_z+
 +
-+Press%Enter+or%F3+to Cancel
++Press%Enter+to generate or%F3+to Cancel
 +
 )Init
  &zwinttl = 'ZIGI SSH Key Generation'
- .zvars = '(k2 k4)'
+ .zvars = '(k2 k3 k4 ked)'
  .help = zigih130
- &k2 = &z
- &k4 = &z
+ &ked = &z
+ &k2  = &z
+ &k3  = &z
+ &k4  = &z
 )Proc
 *rexx(* msg)
  msg = ''
- if words(k2 k4) = 0 then k2 = '/'
- if words(k2 k4) > 1 then do
-    msg = 'You may not select more than one key size - try again.'
-    parse value '' with k2 k4
+ if words(ked k2 k3 k4) = 0 then k3 = '/'
+ if words(ked k2 k3 k4) > 1 then do
+    msg = 'You may not select more than one key size or type - try again.'
+    parse value '' with k2 k3 k4 ked
     end
 *endrexx
  if (&msg NE &z)
@@ -33,7 +36,7 @@
      &zerrhm   = ''           /* tutorial panel or null */
      &zerralrm = 'NO'         /* yes or no */
      &zerrtp   = 'Notify'     /* notify, warning, action, critial */
-     ver (&k2,nb,msg=isrz003)
+     ver (&k3,nb,msg=isrz003)
 )end
 /* -------------------------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                                         */
