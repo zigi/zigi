@@ -17,6 +17,8 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 Key changes:     - zginstall.rex now updates ispf statistics properly
                  - branch display improvements
                  - Prompt for ssh key size
+                 - Check for zopen version of openssh (ssh-keygen) and
+                   if not found then only support rsa key (3072)
 
 * zigi           - Correct detection of ssh key, or lack thereof
                  - Improve BRanch, MERge, and DiffBranch display

@@ -30,9 +30,10 @@
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
   |         2025 Jan xx - Version 3.24                         |
-  |                     - Force /bin/ssh-keygen use            |
   |                     - Support enhanced ssh keys (rsa and   |
   |                       ed25519)                             |
+  |                     - Check for zopen openssh (ssh-keygen) |
+  |                       otherwise no ed25519 only rsa        |
   |                     - Replace cat with readfile for sshkey |
   |                     - Prompt for ssh-keygen key size       |
   |                     - Correct detection of ssh key         |
@@ -1019,6 +1020,19 @@ init_git:
   else do
     zigimail = null
   end
+
+  /* ----------------------------------------- *
+   | Check which version of ssh-keygen we have |
+   * ----------------------------------------- */
+   cmd = 'command -v ssh-keygen'
+   x = docmd(cmd)
+   if pos('zopen',so.1) = 0
+      then do
+           sshkg = 'zos'
+           sshkeyt = 'rsa'
+           end
+      else sshkg = 'zopen'
+
   if sshkeyt = 'rsa'
      then keyfile = home'/.ssh/id_rsa.pub'
      else keyfile = home'/.ssh/id_ed25519.pub'
@@ -7089,20 +7103,27 @@ Do_Keygen:
   cmd = 'mkdir -p 'home'/.ssh'
   x = docmd(cmd)
   id_home = home'/.ssh'
-  call pfshow 'off'           /* make sure pfshow is off */
-  'AddPop Row(5) Column(8)'
-  'display panel(zigiskey)'
-  drc = rc
-  'rempop'
-  call pfshow 'reset'         /* restore pfshow setting */
-  if drc > 4 then do
-     zerrsm = 'Cancelled.'
-     zerrlm = 'SSH Key generation cancelled. If you do not have' ,
-              'an SSH key then you will have to create one to use' ,
-              'git.'
-     'setmsg msg(isrz002)'
-     return 4
-     end
+  if sshkg = 'zopen' then do
+    call pfshow 'off'           /* make sure pfshow is off */
+    'AddPop Row(5) Column(8)'
+    'display panel(zigiskey)'
+    drc = rc
+    'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
+    if drc > 4 then do
+      zerrsm = 'Cancelled.'
+      zerrlm = 'SSH Key generation cancelled. If you do not have' ,
+        'an SSH key then you will have to create one to use' ,
+        'git.'
+      'setmsg msg(isrz002)'
+      return 4
+    end
+  end
+  else do
+       parse value '' with k2 k4 ked
+       k3 = 'x'
+       ks = '-b 3072'
+       end
   kt = '-t rsa'
   kf = '-f' home'/.ssh/id_rsa'
   sshkeyt = 'rsa'
@@ -7131,8 +7152,11 @@ Do_Keygen:
      else mv_cmd = ,
          'mv' key_id id_bkup '&&' ,
          'mv 'key_pub id.pub_bkup '&&'
+  if sshkg = 'zos'
+     then sshkg_path = '/bin/ssh-keygen'
+      else sshkg_path = 'ssh-keygen'
   cmd = 'cd' home'/.ssh &&' mv_cmd ,
-    'cd .. && ssh-keygen' kt ks kf
+    'cd .. &&' sshkg_path  kt ks kf
   x = docmd(cmd)
   call catsshk
   zerrsm = null
