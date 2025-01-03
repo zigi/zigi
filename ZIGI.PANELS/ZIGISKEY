@@ -21,9 +21,9 @@
  .zvars = '(k2 k3 k4 ked)'
  .help = zigih130
  if (&sshkeyt EQ &Z)
-     &type = 'ed12259'
+     &type = 'ed25519'
  if (&sshkeyt EQ 'ed')
-     &type = 'ed12259'
+     &type = 'ed25519'
  if (&sshkeyt EQ 'rsa')
      &type = 'rsa'
  &k2  = &z
