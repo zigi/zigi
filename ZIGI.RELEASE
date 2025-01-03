@@ -18,15 +18,16 @@ Key changes:     - zginstall.rex now updates ispf statistics properly
                  - branch display improvements
                  - Prompt for ssh key size
                  - Check for zopen version of openssh (ssh-keygen) and
-                   if not found then only support rsa key (3072)
+                   if not found then only support rsa key
 
 * zigi           - Correct detection of ssh key, or lack thereof
                  - Improve BRanch, MERge, and DiffBranch display
                    with userid and date of last update
-                 - For use of /bin/ssh-keygen
                  - Fix bug for [??] Untracked incorrect reporting on members
                  - Prompt for ssh key size (2048/3072/4096) for RSA and
                    ed25519 keys
+                 - If zopen openssh (ssh-keygen) is not installed then only
+                   support RSA keys
 * zginstal       - Fix support for 8 char userids
 * zigistat       - Fix support for 8 char userids
 * zigibra        - ISPF Panel update for new branch info
@@ -36,6 +37,7 @@ Key changes:     - zginstall.rex now updates ispf statistics properly
 * zigiskey       - ISPF Panel added for key size
 * ---            - All ISPF popup panels to add row at the top to
                    allow room for panel headers
+* ---            - Additional panels as needed
                          --------------------------
 -----------------------------------------------------------------------------
 

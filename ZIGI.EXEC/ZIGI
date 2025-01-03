@@ -34,7 +34,6 @@
   |                       ed25519)                             |
   |                     - Check for zopen openssh (ssh-keygen) |
   |                       otherwise no ed25519 only rsa        |
-  |                     - Replace cat with readfile for sshkey |
   |                     - Prompt for ssh-keygen key size       |
   |                     - Correct detection of ssh key         |
   |                     - Correct member stat initialization   |
@@ -7103,10 +7102,12 @@ Do_Keygen:
   cmd = 'mkdir -p 'home'/.ssh'
   x = docmd(cmd)
   id_home = home'/.ssh'
-  if sshkg = 'zopen' then do
+  if sshkg = 'zopen'
+     then ssh_panel = 'zigiskey'
+     else ssh_panel = 'zigiskyr'
     call pfshow 'off'           /* make sure pfshow is off */
     'AddPop Row(5) Column(8)'
-    'display panel(zigiskey)'
+    'display panel('ssh_panel')'
     drc = rc
     'rempop'
     call pfshow 'reset'         /* restore pfshow setting */
@@ -7118,12 +7119,6 @@ Do_Keygen:
       'setmsg msg(isrz002)'
       return 4
     end
-  end
-  else do
-       parse value '' with k2 k4 ked
-       k3 = 'x'
-       ks = '-b 3072'
-       end
   kt = '-t rsa'
   kf = '-f' home'/.ssh/id_rsa'
   sshkeyt = 'rsa'
@@ -10246,19 +10241,6 @@ Check_Read_Only:
   x = docmd('ls -la' localrep'/'zigirep'/.zigi/readonly')
   if so.0 > 0 then return 1
   else return 0
-
-  /* ----------------------------------------------- *
-  | Check if a OMVS file exists (rc = 1 if it does) |
-  * ----------------------------------------------- */
-File_Exists:
-  parse arg file_check opt
-  ckotdir = localrep'/'zigirep
-  if opt /= null
-     then file = file_check
-     else file = ckotdir'/'file_check
-  address syscall 'readfile (file) so.'
-  if so.0 = 0 then return 1
-  return 0
 
   /* -------------------------------------------------------------- *
   | Process the branch delta from the git diff command to identify |
