@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            xx/xx/xx - Version 3.24                         |
+  |         2025 Jan xx - Version 3.24                         |
   |                     - Force /bin/ssh-keygen use            |
   |                     - Support enhanced ssh keys (rsa and   |
   |                       ed25519)                             |
@@ -629,7 +629,7 @@
   |                                                            |
   | ---------------------------------------------------------- |
   |    ZIGI - the z/OS ISPF Git Interface                      |
-  |    Copyright (C) 2020-2023 - Henri Kuiper and Lionel Dyck  |
+  |    Copyright (C) 2020-2025 - Henri Kuiper and Lionel Dyck  |
   |                                                            |
   |    This program is free software: you can redistribute it  |
   |    and/or modify it under the terms of the GNU General     |
@@ -1135,7 +1135,7 @@ init_ispf:
   'vget (zapplid)'
   'vget (sshkeyt) profile'
   if sshkeyt = null
-     then sshkeyt = 'rsa'
+     then sshkeyt = 'ed'
 
   /* ----------------------------------------------------- *
   | Get the Active HLQ for use with the ALTLIB and LIBDEF |
@@ -7122,7 +7122,8 @@ Do_Keygen:
          end
     otherwise ks = '-b 3072'
     end
-  'vput (sshkeyt) profile'
+  sshkeys = word(ks,2)
+  'vput (sshkeyt sshkeys) profile'
   id_bkup = home'/.ssh/id.'date('s')
   id.pub_bkup = home'/.ssh/id.pub.'date('s')
   if no_key= 1
