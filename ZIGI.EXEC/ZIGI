@@ -1357,6 +1357,7 @@ handle_zigiprim_ssh:
     'display panel(zigisshk)'
     if rc > 0 then leave
     if abbrev('REGEN',zcmd,3) = 1 then do
+       zcmd = null
        'addpop'
        'display panel(zigikgen)'
        krc = rc
@@ -7123,7 +7124,7 @@ Do_Keygen:
   sshkeyt = 'rsa'
   key_id = home'/.ssh/id_rsa'
   keyfile = home'/.ssh/id_rsa.pub'
-  kf = '-f' key_id
+  kf = '-f id_rsa'
   select
     when k2 /= null then ks = '-b 2048'
     when k3 /= null then ks = '-b 3072'
@@ -7134,14 +7135,14 @@ Do_Keygen:
          sshkeyt = 'ed'
          key_id = home'/.ssh/id_ed25519'
          keyfile = home'/.ssh/id_ed25519.pub'
-         kf = '-f' key_id
+         kf = '-f id_ed25519'
          end
     otherwise ks = '-b 3072'
     end
   sshkeys = word(ks,2)
   'vput (sshkeyt sshkeys) profile'
-  id_bkup = home'/.ssh/id.'date('s')
-  id.pub_bkup = home'/.ssh/id.pub.'date('s')
+  id_bkup = home'/.ssh/'sshkeyt'.id.'date('s')'.'time('m')
+  id.pub_bkup = home'/.ssh/'sshkeyt'.id.pub.'date('s')'.'time('m')
   if no_key= 1
      then mv_cmd = null
      else mv_cmd = ,
@@ -7151,7 +7152,7 @@ Do_Keygen:
      then sshkg_path = '/bin/ssh-keygen'
       else sshkg_path = 'ssh-keygen'
   cmd = 'cd' home'/.ssh &&' mv_cmd ,
-    'cd .. &&' sshkg_path  kt ks kf '&& command -v ssh-keygen'
+    sshkg_path  kt ks kf
   x = docmd(cmd)
   call catsshk
   zerrsm = null
