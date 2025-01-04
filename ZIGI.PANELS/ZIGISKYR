@@ -25,10 +25,13 @@
  &ked = &z
  if (&sshkeys EQ 2048)
      &k2 = 'x'
+     .cursor = k2
  if (&sshkeys EQ 3072)
      &k3 = 'x'
+     .cursor = k3
  if (&sshkeys EQ 4096)
      &k4 = 'x'
+     .cursor = k4
 )ReInit
  &k2  = &z
  &k3  = &z
@@ -36,10 +39,13 @@
  &ked = &z
  if (&sshkeys EQ 2048)
      &k2 = 'x'
+     .cursor = k2
  if (&sshkeys EQ 3072)
      &k3 = 'x'
+     .cursor = k3
  if (&sshkeys EQ 4096)
      &k4 = 'x'
+     .cursor = k4
 )Proc
 *rexx(* msg)
  msg = ''

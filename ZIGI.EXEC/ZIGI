@@ -1027,7 +1027,7 @@ init_git:
    x = docmd(cmd)
    if pos('zopen',so.1) = 0
       then do
-           sshkg = 'zos'
+           sshkg   = 'zos'
            sshkeyt = 'rsa'
            end
       else sshkg = 'zopen'
@@ -1072,7 +1072,7 @@ init_git:
     call update_config
     if zigiuid /= null
     then if zigimail /= null
-    then if zigissh /= null
+    then if zigissh = null
     then do forever
       zcmd = null
       'Display Panel(zigisshk)'
@@ -7120,10 +7120,10 @@ Do_Keygen:
       return 4
     end
   kt = '-t rsa'
-  kf = '-f' home'/.ssh/id_rsa'
   sshkeyt = 'rsa'
   key_id = home'/.ssh/id_rsa'
-  key_pub = home'/.ssh/id_rsa.pub'
+  keyfile = home'/.ssh/id_rsa.pub'
+  kf = '-f' key_id
   select
     when k2 /= null then ks = '-b 2048'
     when k3 /= null then ks = '-b 3072'
@@ -7131,10 +7131,10 @@ Do_Keygen:
     when ked /= null then do
          ks = null
          kt = '-t ed25519'
-         kf = '-f' home'/.ssh/id_ed25519'
          sshkeyt = 'ed'
          key_id = home'/.ssh/id_ed25519'
-         key_pub = home'/.ssh/id_ed25519.pub'
+         keyfile = home'/.ssh/id_ed25519.pub'
+         kf = '-f' key_id
          end
     otherwise ks = '-b 3072'
     end
@@ -7146,12 +7146,12 @@ Do_Keygen:
      then mv_cmd = null
      else mv_cmd = ,
          'mv' key_id id_bkup '&&' ,
-         'mv 'key_pub id.pub_bkup '&&'
+         'mv 'keyfile id.pub_bkup '&&'
   if sshkg = 'zos'
      then sshkg_path = '/bin/ssh-keygen'
       else sshkg_path = 'ssh-keygen'
   cmd = 'cd' home'/.ssh &&' mv_cmd ,
-    'cd .. &&' sshkg_path  kt ks kf
+    'cd .. &&' sshkg_path  kt ks kf '&& command -v ssh-keygen'
   x = docmd(cmd)
   call catsshk
   zerrsm = null
@@ -7177,6 +7177,7 @@ catsshk:
   if se.0 = 0
   then do
     zigissh = so.1
+    no_key = 0
     'vput (zigissh) profile'
   end
   else zigissh = null
