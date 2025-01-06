@@ -38,7 +38,13 @@ Key changes:     - zginstall.rex now updates ispf statistics properly
 * ---            - All ISPF popup panels to add row at the top to
                    allow room for panel headers
 * ---            - Additional panels as needed
-                         --------------------------
+
+Notes: ssh keys generated with type of ed25519 prior to the installation
+       of the zopen openssh are untagged and will fail after the zopen
+       openssh is installed - the solution is to recreate the keys.
+       IF the zopen ssh-keygen is not installed then only RSA ssh keys
+       are supported.
+
 -----------------------------------------------------------------------------
 
                              ZIGI Release Notes
