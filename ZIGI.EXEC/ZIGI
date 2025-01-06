@@ -7143,7 +7143,8 @@ Do_Keygen:
   'vput (sshkeyt sshkeys) profile'
   id_bkup = home'/.ssh/'sshkeyt'.id.'date('s')'.'time('m')
   id.pub_bkup = home'/.ssh/'sshkeyt'.id.pub.'date('s')'.'time('m')
-  if no_key= 1
+  address syscall 'stat (key_id) sk.'
+  if sk.0 = 0
      then mv_cmd = null
      else mv_cmd = ,
          'mv' key_id id_bkup '&&' ,
