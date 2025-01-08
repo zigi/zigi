@@ -49,8 +49,8 @@
 )Proc
 *rexx(* msg)
  msg = ''
- if words(ked k2 k3 k4) = 0 then k3 = '/'
- if words(ked k2 k3 k4) > 1 then do
+ if words(k2 k3 k4) = 0 then k3 = '/'
+ if words(k2 k3 k4) > 1 then do
     msg = 'You may not select more than one key size or type - try again.'
     end
 *endrexx
