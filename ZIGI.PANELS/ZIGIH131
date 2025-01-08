@@ -9,7 +9,7 @@
                                 %SSH+
 +
 +When prompted for the SSH Key it will depend which version of OpenSSH is
-+available. If the%zopen+version is available then the%ed25519+key option
++available. If%OpenSSH+is version 9, or later, then the%ed25519+key option
 +is presented. If not, then only the%rsa+key options are available.
 +
 +With%ed25519+the key size is pre-defined in ssh-keygen. This will be
