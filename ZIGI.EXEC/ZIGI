@@ -1023,14 +1023,15 @@ init_git:
   /* ----------------------------------------- *
    | Check which version of ssh-keygen we have |
    * ----------------------------------------- */
-   cmd = 'command -v ssh-keygen'
+   cmd = 'ssh -V'
    x = docmd(cmd)
-   if pos('zopen',so.1) = 0
+   parse value se.1 with 'OpenSSH_'ver'.' .
+   if ver < 9
       then do
-           sshkg   = 'zos'
+           sshkg   = 'sshok'
            sshkeyt = 'rsa'
            end
-      else sshkg = 'zopen'
+      else sshkg = 'sshgood'
 
   if sshkeyt = 'rsa'
      then keyfile = home'/.ssh/id_rsa.pub'
@@ -7103,7 +7104,7 @@ Do_Keygen:
   cmd = 'mkdir -p 'home'/.ssh'
   x = docmd(cmd)
   id_home = home'/.ssh'
-  if sshkg = 'zopen'
+  if sshkg = 'sshgood'
      then ssh_panel = 'zigiskey'
      else ssh_panel = 'zigiskyr'
     call pfshow 'off'           /* make sure pfshow is off */
