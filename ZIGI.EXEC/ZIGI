@@ -29,8 +29,11 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |            xx/xx/xx - Version 3.24                         |
-  |                     - Force /bin/ssh-keygen use            |
+  |         2025 Jan xx - Version 3.24                         |
+  |                     - Support enhanced ssh keys (rsa and   |
+  |                       ed25519)                             |
+  |                     - Check for zopen openssh (ssh-keygen) |
+  |                       otherwise no ed25519 only rsa        |
   |                     - Prompt for ssh-keygen key size       |
   |                     - Correct detection of ssh key         |
   |                     - Correct member stat initialization   |
@@ -626,7 +629,7 @@
   |                                                            |
   | ---------------------------------------------------------- |
   |    ZIGI - the z/OS ISPF Git Interface                      |
-  |    Copyright (C) 2020-2023 - Henri Kuiper and Lionel Dyck  |
+  |    Copyright (C) 2020-2025 - Henri Kuiper and Lionel Dyck  |
   |                                                            |
   |    This program is free software: you can redistribute it  |
   |    and/or modify it under the terms of the GNU General     |
@@ -937,7 +940,6 @@ init_git:
   'vget (gitenv) profile'
   call getenv
 
-  keyfile = home'/.ssh/id_rsa.pub'
   rtbl = 'ZIGL'random(9999)
   rtll = 'ZIGM'random(9999)
   rtbb = 'ZIGB'random(9999)
@@ -1017,13 +1019,32 @@ init_git:
   else do
     zigimail = null
   end
-  cmd = 'cat 'home'/.ssh/id_rsa.pub'
+
+  /* ----------------------------------------- *
+   | Check which version of ssh-keygen we have |
+   * ----------------------------------------- */
+   cmd = 'ssh -V'
+   x = docmd(cmd)
+   parse value se.1 with 'OpenSSH_'ver'.' .
+   if ver < 9
+      then do
+           sshkg   = 'sshok'
+           sshkeyt = 'rsa'
+           end
+      else sshkg = 'sshgood'
+
+  if sshkeyt = 'rsa'
+     then keyfile = home'/.ssh/id_rsa.pub'
+     else keyfile = home'/.ssh/id_ed25519.pub'
+  cmd = 'cat' keyfile
   x = docmd(cmd)
-  if x > 0 then do
+  if so.0 = 0 then do
      no_key = 1
      call do_keygen
      call handle_zigiprim_ssh
      end
+  else zigissh = so.1
+  'vput (zigissh) profile'
   old_zigiuid = zigiuid
   old_zigimail = zigimail
 
@@ -1052,7 +1073,7 @@ init_git:
     call update_config
     if zigiuid /= null
     then if zigimail /= null
-    then if zigissh /= null
+    then if zigissh = null
     then do forever
       zcmd = null
       'Display Panel(zigisshk)'
@@ -1126,6 +1147,9 @@ display_splash:
   * ----------------------------------------------------- */
 init_ispf:
   'vget (zapplid)'
+  'vget (sshkeyt) profile'
+  if sshkeyt = null
+     then sshkeyt = 'ed'
 
   /* ----------------------------------------------------- *
   | Get the Active HLQ for use with the ALTLIB and LIBDEF |
@@ -1334,6 +1358,7 @@ handle_zigiprim_ssh:
     'display panel(zigisshk)'
     if rc > 0 then leave
     if abbrev('REGEN',zcmd,3) = 1 then do
+       zcmd = null
        'addpop'
        'display panel(zigikgen)'
        krc = rc
@@ -7073,48 +7098,71 @@ Build_SSH:
    * -------------------------- */
 Do_Keygen:
   if zs1 = null then
-  zs1 = 'No SSH identity found in 'home'/.ssh/id_rsa'
+  zs1 = 'No SSH identity found in 'home'/.ssh/'
   zs2 = 'Generating keypair, please standby'
   call do_popup
   cmd = 'mkdir -p 'home'/.ssh'
   x = docmd(cmd)
   id_home = home'/.ssh'
-  id_rsa_bkup = 'id_rsa.'date('s')
-  id_rsa.pub_bkup = 'id_rsa.pub.'date('s')
-  if no_key= 1
-     then mv_cmd = null
-     else mv_cmd = ,
-         'mv id_rsa' id_rsa_bkup '&&' ,
-         'mv id_rsa.pub' id_rsa.pub_bkup '&&'
-  call pfshow 'off'           /* make sure pfshow is off */
-  'AddPop Row(5) Column(8)'
-  'display panel(zigiskey)'
-  drc = rc
-  'rempop'
-  call pfshow 'reset'         /* restore pfshow setting */
-  if drc > 4 then do
-     zerrsm = 'Cancelled.'
-     zerrlm = 'SSH Key generation cancelled. If you do not have' ,
-              'an SSH key then you will have to create one to use' ,
-              'git.'
-     'setmsg msg(isrz002)'
-     return 4
-     end
+  if sshkg = 'sshgood'
+     then ssh_panel = 'zigiskey'
+     else ssh_panel = 'zigiskyr'
+    call pfshow 'off'           /* make sure pfshow is off */
+    'AddPop Row(5) Column(8)'
+    'display panel('ssh_panel')'
+    drc = rc
+    'rempop'
+    call pfshow 'reset'         /* restore pfshow setting */
+    if drc > 4 then do
+      zerrsm = 'Cancelled.'
+      zerrlm = 'SSH Key generation cancelled. If you do not have' ,
+        'an SSH key then you will have to create one to use' ,
+        'git.'
+      'setmsg msg(isrz002)'
+      return 4
+    end
+  kt = '-t rsa'
+  sshkeyt = 'rsa'
+  key_id = home'/.ssh/id_rsa'
+  keyfile = home'/.ssh/id_rsa.pub'
+  kf = '-f id_rsa'
   select
     when k2 /= null then ks = '-b 2048'
+    when k3 /= null then ks = '-b 3072'
     when k4 /= null then ks = '-b 4096'
-    otherwise ks = '-b 2048'
+    when ked /= null then do
+         ks = null
+         kt = '-t ed25519'
+         sshkeyt = 'ed'
+         key_id = home'/.ssh/id_ed25519'
+         keyfile = home'/.ssh/id_ed25519.pub'
+         kf = '-f id_ed25519'
+         end
+    otherwise ks = '-b 3072'
     end
+  sshkeys = word(ks,2)
+  'vput (sshkeyt sshkeys) profile'
+  id_bkup = home'/.ssh/'sshkeyt'.id.'date('s')'.'time('m')
+  id.pub_bkup = home'/.ssh/'sshkeyt'.id.pub.'date('s')'.'time('m')
+  address syscall 'stat (key_id) sk.'
+  if sk.0 = 0
+     then mv_cmd = null
+     else mv_cmd = ,
+         'mv' key_id id_bkup '&&' ,
+         'mv 'keyfile id.pub_bkup '&&'
+  if sshkg = 'zos'
+     then sshkg_path = '/bin/ssh-keygen'
+      else sshkg_path = 'ssh-keygen'
   cmd = 'cd' home'/.ssh &&' mv_cmd ,
-    'cd .. && /bin/ssh-keygen -t rsa' ks '-f .ssh/id_rsa'
+    sshkg_path  kt ks kf
   x = docmd(cmd)
   call catsshk
   zerrsm = null
   if no_key = 1
      then kmsg = null
      else kmsg = 'Old keys saved as' ,
-           id_home'/'id_rsa_bkup 'and' ,
-           id_home'/'id_rsa.pub_bkup'.' ,
+           id_home'/'id.bkup 'and' ,
+           id_home'/'id.pub_bkup'.' ,
   zerrlm = 'SSH Keys regenerated.' kmsg ,
            'Be sure to replace your GIT SSH key and' ,
            'update any authorized_keys files on other servers if' ,
@@ -7132,6 +7180,7 @@ catsshk:
   if se.0 = 0
   then do
     zigissh = so.1
+    no_key = 0
     'vput (zigissh) profile'
   end
   else zigissh = null
@@ -10196,16 +10245,6 @@ Check_Read_Only:
   x = docmd('ls -la' localrep'/'zigirep'/.zigi/readonly')
   if so.0 > 0 then return 1
   else return 0
-
-  /* ----------------------------------------------- *
-  | Check if a OMVS file exists (rc = 1 if it does) |
-  * ----------------------------------------------- */
-File_Exists:
-  parse arg file_check
-  ckotdir = localrep'/'zigirep
-  x = docmd('ls -la' localrep'/'zigirep'/'file_check)
-  if se.0 = 0 then return 1
-  return 0
 
   /* -------------------------------------------------------------- *
   | Process the branch delta from the git diff command to identify |

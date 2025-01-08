@@ -9,7 +9,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                              ZIGI Release Notes
                                 Version 3.24
-                                xxx xx, 2024
+                                xxx xx, 2025
 
                          New Features and Functions
                          --------------------------
@@ -17,13 +17,17 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 Key changes:     - zginstall.rex now updates ispf statistics properly
                  - branch display improvements
                  - Prompt for ssh key size
+                 - Check for zopen version of openssh (ssh-keygen) and
+                   if not found then only support rsa key
 
 * zigi           - Correct detection of ssh key, or lack thereof
                  - Improve BRanch, MERge, and DiffBranch display
                    with userid and date of last update
-                 - For use of /bin/ssh-keygen
                  - Fix bug for [??] Untracked incorrect reporting on members
-                 - Prompt for ssh key size (2048/4096/8192)
+                 - Prompt for ssh key size (2048/3072/4096) for RSA and
+                   ed25519 keys
+                 - If zopen openssh (ssh-keygen) is not installed then only
+                   support RSA keys
 * zginstal       - Fix support for 8 char userids
 * zigistat       - Fix support for 8 char userids
 * zigibra        - ISPF Panel update for new branch info
@@ -33,7 +37,14 @@ Key changes:     - zginstall.rex now updates ispf statistics properly
 * zigiskey       - ISPF Panel added for key size
 * ---            - All ISPF popup panels to add row at the top to
                    allow room for panel headers
-                         --------------------------
+* ---            - Additional panels as needed
+
+Notes: ssh keys generated with type of ed25519 prior to the installation
+       of the zopen openssh are untagged and will fail after the zopen
+       openssh is installed - the solution is to recreate the keys.
+       IF the zopen ssh-keygen is not installed then only RSA ssh keys
+       are supported.
+
 -----------------------------------------------------------------------------
 
                              ZIGI Release Notes
