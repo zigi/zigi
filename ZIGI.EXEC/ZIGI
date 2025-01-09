@@ -32,7 +32,8 @@
   |         2025 Jan xx - Version 3.24                         |
   |                     - Support enhanced ssh keys (rsa and   |
   |                       ed25519)                             |
-  |                     - Check for zopen openssh (ssh-keygen) |
+  |                     - Add *.tiff to .gitattributes         |
+  |                     - Check for openssh verison 9 =>       |
   |                       otherwise no ed25519 only rsa        |
   |                     - Prompt for ssh-keygen key size       |
   |                     - Correct detection of ssh key         |
@@ -6873,7 +6874,7 @@ do_git_attributes:
   call write_fd  ga5
   binaries = '*.docm *.docx *.doc *.dotx *.pdf *.epub *.mobi *.azw3' ,
     '*.jpg *.jpeg *.png *.gif *.zip *.gzip *.tz *.z *.Z *.pax' ,
-    '*.ppt *.pptx *.xls *.xlsx *.xlsm *.obj *.bin'
+    '*.ppt *.pptx *.xls *.xlsx *.xlsm *.obj *.bin *.tiff'
   do gai = 1 to words(binaries)
     ga = word(binaries,gai) 'binary'
     call write_fd ga
@@ -7150,9 +7151,9 @@ Do_Keygen:
      else mv_cmd = ,
          'mv' key_id id_bkup '&&' ,
          'mv 'keyfile id.pub_bkup '&&'
-  if sshkg = 'zos'
+  if sshkg = 'sshok'
      then sshkg_path = '/bin/ssh-keygen'
-      else sshkg_path = 'ssh-keygen'
+     else sshkg_path = 'ssh-keygen'
   cmd = 'cd' home'/.ssh &&' mv_cmd ,
     sshkg_path  kt ks kf
   x = docmd(cmd)
