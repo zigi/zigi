@@ -1,0 +1,27 @@
+)Attr
+ $ type(output) caps(off)
+ _ type(input) caps(off) hilite(uscore) intens(low)
+ @ type(input) caps(on ) hilite(uscore) intens(low)
+ # type(output) hilite(reverse) color(turq) caps(off)
+ + type(text) skip(on) intens(low)
+)Body Window(47,7) Expand(\\)
++
++Found both%ed25519+and%rsa+keys defined. Which
++one should%zigi+honor:
++
+  %ed25519+_z+
+  %rsa+    _z+     Default
++
+)Init
+ &zwinttl = 'ZIGI SSH Key Selection'
+ .zvars = '(ed krsa)'
+)Proc
+ if (&ed NE &z)
+     ver (&krsa,list,&z)
+ if (&krsa NE &z)
+     ver (&ed,list,&z)
+)End
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2025 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */
