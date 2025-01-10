@@ -1024,34 +1024,40 @@ init_git:
   /* ----------------------------------------- *
   | Check which version of ssh-keygen we have |
   * ----------------------------------------- */
+  'vget (zigissh keyfile) profile'
   keyrsa = home'/.ssh/id_rsa.pub'
   keyed  = home'/.ssh/id_ed25519.pub'
 
-  cmd = 'ssh -V'
-  x = bpxwunix(cmd,,so.,se.,omvsenv.,1)
-  parse value se.1 with 'OpenSSH_'ver'.' .
-  if ver < 9
-  then do
-    sshkg   = 'sshok'
-    sshkeyt = 'rsa'
+  if keyfile = null then do
+    cmd = 'ssh -V'
+    x = bpxwunix(cmd,,so.,se.,omvsenv.,1)
+    parse value se.1 with 'OpenSSH_'ver'.' .
+    if ver < 9
+    then do
+      sshkg   = 'sshok'
+      sshkeyt = 'rsa'
+    end
+    else do
+      sshkg = 'sshgood'
+      keys = 0
+      Address syscall 'stat (keyrsa) s.'
+      Address syscall 'stat (keyed)  e.'
+      if s.0 > 0 then keys = keys + 1
+      if e.0 > 0 then keys = keys + 1
+      if keys > 1 then do
+        call pfshow 'off'           /* make sure pfshow is off */
+        'AddPop Row(5) Column(17)'
+        'display panel(zigiskq)'
+        'rempop'
+        if krsa /= null
+        then sshkeyt = 'rsa'
+        else sshkeyt = 'ed'
+      end
+    end
   end
-  else do
-    sshkg = 'sshgood'
-    keys = 0
-    Address syscall 'stat (keyrsa) s.'
-    Address syscall 'stat (keyed)  e.'
-    if s.0 > 0 then keys = keys + 1
-    if e.0 > 0 then keys = keys + 1
-    if keys > 1 then do
-       call pfshow 'off'           /* make sure pfshow is off */
-       'AddPop Row(5) Column(17)'
-       'display panel(zigiskq)'
-       'rempop'
-       if krsa /= null
-          then sshkeyt = 'rsa'
-          else sshkeyt = 'ed'
-       end
-  end
+  else if pos('rsa',keyfile) > 0
+  then sshkeyt = 'rsa'
+  else sshkeyt = 'ed'
 
   if sshkeyt = 'rsa'
   then keyfile = keyrsa
@@ -1077,6 +1083,8 @@ init_git:
     exitp = 'N'
     'vput (exitp) profile'
   end
+
+ 'vput (keyfile) profile'
 
   Select
     When mgen = null then hit = 0
