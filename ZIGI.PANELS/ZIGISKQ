@@ -7,7 +7,7 @@
 )Body Window(47,7) Expand(\\)
 +
 +Found both%ed25519+and%rsa+keys defined. Which
-+one should%zigi+honor:
++one are you using for%Git+
 +
   %ed25519+_z+
   %rsa+    _z+     Default

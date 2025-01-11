@@ -1024,11 +1024,11 @@ init_git:
   /* ----------------------------------------- *
   | Check which version of ssh-keygen we have |
   * ----------------------------------------- */
-  'vget (zigissh keyfile) profile'
+  'vget (zigissh) profile'
   keyrsa = home'/.ssh/id_rsa.pub'
   keyed  = home'/.ssh/id_ed25519.pub'
 
-  if keyfile = null then do
+  if zigissh = null then do
     cmd = 'ssh -V'
     x = bpxwunix(cmd,,so.,se.,omvsenv.,1)
     parse value se.1 with 'OpenSSH_'ver'.' .
@@ -1055,7 +1055,7 @@ init_git:
       end
     end
   end
-  else if pos('rsa',keyfile) > 0
+  else if pos('rsa',zigissh) > 0
   then sshkeyt = 'rsa'
   else sshkeyt = 'ed'
 
@@ -1084,7 +1084,6 @@ init_git:
     'vput (exitp) profile'
   end
 
- 'vput (keyfile) profile'
 
   Select
     When mgen = null then hit = 0
