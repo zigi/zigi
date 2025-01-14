@@ -29,9 +29,10 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |         2025 Jan xx - Version 3.24                         |
+  |         2025 Jan 14 - Version 3.24                         |
   |                     - Support enhanced ssh keys (rsa and   |
   |                       ed25519)                             |
+  |                     - Add ssh keyfile name to GitInfo      |
   |                     - Add *.tiff to .gitattributes         |
   |                     - Check for openssh verison 9 =>       |
   |                       otherwise no ed25519 only rsa        |
@@ -1030,8 +1031,8 @@ init_git:
 
     cmd = 'ssh -V'
     x = bpxwunix(cmd,,so.,se.,omvsenv.,1)
-    parse value se.1 with 'OpenSSH_'ver'.' .
-    if ver < 9
+    parse value se.1 with 'OpenSSH_'sshver'.' .
+    if sshver < 9
     then do
       sshkg   = 'sshok'
       sshkeyt = 'rsa'
