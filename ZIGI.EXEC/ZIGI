@@ -29,10 +29,11 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |         2025 Jan 14 - Version 3.24                         |
+  |         2025 Jan 15 - Version 3.24                         |
   |                     - Support enhanced ssh keys (rsa and   |
   |                       ed25519)                             |
   |                     - Add ssh keyfile name to GitInfo      |
+  |                     - Add popup for ssh-keygen processing  |
   |                     - Add *.tiff to .gitattributes         |
   |                     - Check for openssh verison 9 =>       |
   |                       otherwise no ed25519 only rsa        |
@@ -7181,6 +7182,9 @@ Do_Keygen:
   else sshkg_path = 'ssh-keygen'
   cmd = 'cd' home'/.ssh &&' mv_cmd ,
     sshkg_path  kt ks kf
+  zs1 = 'Generating SSH Key . . . ' word(kt,2)
+  zs2 = 'Patience . . .'
+  call do_popup
   x = docmd(cmd)
   call catsshk
   zerrsm = null

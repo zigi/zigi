@@ -9,7 +9,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                              ZIGI Release Notes
                                 Version 3.24
-                                Jan 14, 2025
+                                Jan 15, 2025
 
                          New Features and Functions
                          --------------------------
@@ -27,6 +27,7 @@ Key changes:     - zginstall.rex now updates ispf statistics properly
                  - Fix bug for [??] Untracked incorrect reporting on members
                  - Prompt for ssh key size (2048/3072/4096) for RSA and
                    ed25519 keys
+                 - Popup (patience) for ssh-keygen processing
                  - Check version of OpenSSH
 * zginstal       - Fix support for 8 char userids
 * zigistat       - Fix support for 8 char userids
