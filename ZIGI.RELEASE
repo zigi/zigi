@@ -9,7 +9,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                              ZIGI Release Notes
                                 Version 3.24
-                                Jan 15, 2025
+                                Jan 16, 2025
 
                          New Features and Functions
                          --------------------------
@@ -20,6 +20,7 @@ Key changes:     - zginstall.rex now updates ispf statistics properly
                  - Check for OpenSSH version 9 or later to support ed25519
                    keys, if not found then only support rsa key
                  - add ssh key filename to GITInfo
+                 - BUG Fix to Replace with mixed PDS (text/binary)
 
 * zigi           - Correct detection of ssh key, or lack thereof
                  - Improve BRanch, MERge, and DiffBranch display
@@ -30,6 +31,7 @@ Key changes:     - zginstall.rex now updates ispf statistics properly
                  - Popup (patience) for ssh-keygen processing
                  - Check version of OpenSSH
 * zginstal       - Fix support for 8 char userids
+* zigickot       - Bug fix with replace on mixed pds (text and binary)
 * zigistat       - Fix support for 8 char userids
 * zigiginf       - ISPF Panel update for ssh key filename
 * zigibra        - ISPF Panel update for new branch info
