@@ -39,7 +39,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
-  |            01/16/25 LBD - Add Control Errors Return        |
+  |            01/16/25 LBD - Bug fix on option                |
   |            09/29/24 LBD - Support 8 Char TSO Userid        |
   |            06/28/24 LBD - Update LMMSTATs to match Co:Z    |
   |                           stat format                      |
@@ -145,7 +145,6 @@ zigistat:
 
   Address ISPExec
   'vget (debugfil defruid readonly dovedir encoding)'
-  'Control Errors Return'
   parse value encoding with .'-'codep .
   if codep = null then codep = 1047
 
@@ -204,6 +203,7 @@ zigistat:
   zs4 = null
   call do_popup4
 
+  if opt /= 'U' then do
   /* ----------------------- *
   * Now process all members *
   * ----------------------- */
@@ -282,6 +282,7 @@ zigistat:
 
   zs1 = 'Collection complete.'
   call do_popup4
+  end
 
   /* ----------------------------------------------- *
   | Process the data based on the provided options: |

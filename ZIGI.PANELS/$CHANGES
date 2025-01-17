@@ -33,6 +33,7 @@ Key changes:     - zginstall.rex now updates ispf statistics properly
 * zginstal       - Fix support for 8 char userids
 * zigickot       - Bug fix with replace on mixed pds (text and binary)
 * zigistat       - Fix support for 8 char userids
+                 - Fix to not read ISPF stats if option U passed
 * zigiginf       - ISPF Panel update for ssh key filename
 * zigibra        - ISPF Panel update for new branch info
 * zigidfbr       - ISPF Panel update for new branch info
