@@ -9,7 +9,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                              ZIGI Release Notes
                                 Version 3.24
-                                Jan 19, 2025
+                                Jan 21, 2025
 
                          New Features and Functions
                          --------------------------
@@ -21,6 +21,8 @@ Key changes:     - zginstall.rex now updates ispf statistics properly
                    keys, if not found then only support rsa key
                  - Add ssh key filename to GITInfo
                  - BUG Fix to Clone/Replace with mixed PDS (text/binary)
+                 - Updated ZIGIEDIT panel attributes so it is no longer
+                   stored in binary format
 
 * zigi           - Correct detection of ssh key, or lack thereof
                  - Improve BRanch, MERge, and DiffBranch display
