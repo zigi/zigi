@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |         2025 Jan 21 - Version 3.24                         |
+  |         2025 Jan 30 - Version 3.24                         |
   |                     - Support enhanced ssh keys (rsa and   |
   |                       ed25519)                             |
   |                     - Add ssh keyfile name to GitInfo      |
@@ -43,6 +43,8 @@
   |                     - Add on branch displays userid and    |
   |                       date of last update                  |
   |                     - Correct all diff branch report       |
+  |                     - On branch display do not include     |
+  |                       the current branch                   |
   |            10/04/24 - Version 3.23                         |
   |                     - Fix missing zigissh profile var      |
   |                     - Support 8 Char TSO Userid (thx Ray   |
@@ -6180,9 +6182,11 @@ Create_Branch_Table:
          then brstatus = 'Local/Remote'
          else brstatus = 'Remote'
       brfull = word(b1,1)
+      if branch /= bname then do
          if wordpos(bname,all_brs) > 0
             then 'tbmod' rtbb
             else 'tbadd' rtbb
+         end
        end
       /* this is already a local branch */
      else if pos('*',b1) = 0 then do
@@ -6198,6 +6202,7 @@ Create_Branch_Table:
         bl.0 = ni
         brstatus = 'Local'
         brfull = bname
+        if branch /= bname then
         'tbadd' rtbb
       end
   end
