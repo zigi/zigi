@@ -9,7 +9,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                              ZIGI Release Notes
                                 Version 3.24
-                                Jan 21, 2025
+                                Jan 30, 2025
 
                          New Features and Functions
                          --------------------------
@@ -32,6 +32,7 @@ Key changes:     - zginstall.rex now updates ispf statistics properly
                    ed25519 keys
                  - Popup (patience) for ssh-keygen processing
                  - Check version of OpenSSH
+                 - On branch display do NOT include the current branch
 * zginstal       - Fix support for 8 char userids
 * zigickot       - Bug fix with replace on mixed pds (text and binary)
                  - If mixed pds improve speed by eliminating individual copies
