@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |         2025 Jan 15 - Version 3.24                         |
+  |         2025 Jan 21 - Version 3.24                         |
   |                     - Support enhanced ssh keys (rsa and   |
   |                       ed25519)                             |
   |                     - Add ssh keyfile name to GitInfo      |
@@ -42,6 +42,7 @@
   |                     - Correct member stat initialization   |
   |                     - Add on branch displays userid and    |
   |                       date of last update                  |
+  |                     - Correct all diff branch report       |
   |            10/04/24 - Version 3.23                         |
   |                     - Fix missing zigissh profile var      |
   |                     - Support 8 Char TSO Userid (thx Ray   |
@@ -2134,8 +2135,8 @@ Do_Diff_Branch:
       if rc < 5 then do
         if zdsel = null then iterate
         if dmember /= '-' then do
-          cmd = 'cd' localrep'/'zigirep ,
-            '&& git diff' branch'..'bname diffmem
+           cmd = 'cd' localrep'/'zigirep ,
+                 '&& git diff' branch'..'brfull diffmem
           x = docmd(cmd)
         end
         gitdiff = branch bname diffmem
@@ -2161,6 +2162,15 @@ Process_Diff_Display:
     'tbcreate' dbtable 'names(delement dfrow) nowrite'
     delement = 'All diff elements'
     dfrow = 0
+    diffs.dfrow.0 = 0
+    /* build all diff element */
+    do idf = 1 to so.0
+        dc = diffs.dfrow.0 + 1
+        diffs.dfrow.dc = so.idf
+        diffs.dfrow.0 = dc
+        if length(so.idf) > maxlrecl
+        then maxlrecl = length(so.idf)
+       end
     'tbadd' dbtable
     delement = null
     do idf = 1 to so.0
@@ -6140,7 +6150,7 @@ Check_Replace:
   * -------------------------------------------- */
 Create_Branch_Table:
   if rtbb_open = 1 then 'tbend' rtbb
-  'TBCreate' rtbb 'keys(bname) Names(brstatus brlastu brlastd)' ,
+  'TBCreate' rtbb 'keys(bname) Names(brstatus brlastu brlastd brfull)' ,
     'Replace NoWrite'
   rtbb_open = 1
   localdir = localrep'/'zigirep
@@ -6158,60 +6168,38 @@ Create_Branch_Table:
       "- %(committerdate:relative)'"
     x = docmd('cd 'localdir cmd)
   end
-  parse value '' with bl. remote_brs local_brs
+  parse value '' with bl. local_brs all_brs
   bl.0 = 0
   do bri = 1 to so.0
     b1 = strip(so.bri,'B')
     if pos('remotes/',b1) > 0 then do
       /* this is a remote branch we (maybe) have never checked out */
-      seen_this_branch = 0
       parse var b1 remotes'/'origin'/'bname brlast
       parse value brlast with '-' brlastu '-' brlastd
-      remote_brs = remote_brs bname
-      do ii = 1 to bl.0
-        if bl.ii = bname then seen_this_branch = 1
-      end
-      if seen_this_branch = 1 then do
-        sbname = bname
-        'tbtop' rtbb
-        do forever
-          'tbskip' rtbb
-          if rc > 0 then leave
-          if sbname = bname then do
-            brstatus = 'Local/Remote'
-            'tbmod' rtbb
-            leave
-          end
-        end
-      end
-      /* but only add it to table if we haven't yet */
-      if seen_this_branch = 0 then do
-        if bname <> branch & bname <> "HEAD" then do
-          ni = bl.0 + 1
-          bl.ni = bname
-          bl.0 = ni
-          'tbadd' rtbb
-        end
-      end
-    end
-    else do
+      if wordpos(bname,local_brs) > 0
+         then brstatus = 'Local/Remote'
+         else brstatus = 'Remote'
+      brfull = word(b1,1)
+         if wordpos(bname,all_brs) > 0
+            then 'tbmod' rtbb
+            else 'tbadd' rtbb
+       end
       /* this is already a local branch */
-      if pos('*',b1) = 0 then do
+     else if pos('*',b1) = 0 then do
         /* Add it to the table if it's not the current (*) branch */
         if pos('/',b1) > 0
         then parse value b1 with .'/'bname brlast
         else parse value b1 with bname brlast
         local_brs = local_brs bname
+        all_brs = all_brs bname
         parse value brlast with '-' brlastu '-' brlastd
         ni = bl.0 + 1
         bl.ni = bname
         bl.0 = ni
-        if wordpos(bname,remote_brs) > 0
-        then brstatus = 'Local/Remote'
-        else brstatus = 'Local'
+        brstatus = 'Local'
+        brfull = bname
         'tbadd' rtbb
       end
-    end
   end
   'tbsort' rtbb 'fields(bname,c,a)'
   'tbtop' rtbb
