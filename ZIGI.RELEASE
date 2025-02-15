@@ -9,7 +9,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                              ZIGI Release Notes
                                 Version 3.24
-                                Feb 12, 2025
+                                Feb 15, 2025
 
                          New Features and Functions
                          --------------------------
@@ -23,6 +23,7 @@ Key changes:     - zginstall.rex now updates ispf statistics properly
                  - BUG Fix to Clone/Replace with mixed PDS (text/binary)
                  - Updated ZIGIEDIT panel attributes so it is no longer
                    stored in binary format
+                 - Add info on the latest release version to Help->About
 
 * zigi           - Correct detection of ssh key, or lack thereof
                  - Improve BRanch, MERge, and DiffBranch display
@@ -48,6 +49,7 @@ Key changes:     - zginstall.rex now updates ispf statistics properly
 * ---            - All ISPF popup panels to add row at the top to
                    allow room for panel headers
 * ---            - Additional panels as needed
+* zigihabt       - ISPF Panel About added latest release info
 
 Notes: ssh keys generated with type of ed25519 prior to the installation
        of the zopen openssh are untagged and will fail after the zopen
