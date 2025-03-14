@@ -6,13 +6,15 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body Window(40,6)
+)Body Window(40,8)
++
 +Enter Selection:_z+
 +
 +]Select+ (S)+ Display the Tag Info
 +]Create+ (C)+ Create a new Branch
 +]eXtract+(X)+ Extract updates for Patch
           +Or%F3+to cancel.
++
 )Init
  &zwinttl = 'ZIGI TagList Line Options'
  .zvars = '(zsel)'
@@ -29,7 +31,7 @@
   Field(create ) var(zsel) val('C')
   Field(extract) var(zsel) val('X')
 )End
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */

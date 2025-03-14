@@ -2,7 +2,8 @@
  $ type(input) caps(off) hilite(uscore) intens(low)
  _ type(input) caps(on ) hilite(uscore) intens(low)
  @ type(output) caps(on)
-)Body Window(57,8)
+)Body Window(57,10)
++
 +Command ===>$zcmd
 +
 +Dataset:@dsna                                          +
@@ -11,6 +12,7 @@
   +Press%Enter+to Continue, or%F3+to Cancel Extension.
 +
         +Disable extension prompting:_z+(Y or N)
++
 )Init
  &zwinttl = 'ZIGI PDS Optional Member Extension'
  .zvars = '(extans)'
@@ -23,7 +25,7 @@
 *ENDREXX
  ver (&extans,list,Y,N)
 )END
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */

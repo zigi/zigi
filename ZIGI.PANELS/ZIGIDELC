@@ -2,7 +2,8 @@
  $ type(output) caps(off)
  @ type(input ) hilite(uscore) intens(low)
  + type(text) skip(on) intens(low)
-)Body Window(53,9)
+)Body Window(53,10)
++
 +Repository:$zigirep
 +
 +Keep the Git files     @z+%Y+to keep, or%N+to delete
@@ -54,7 +55,7 @@
    ver (&delzd,nb,list,Y,N)
    ver (&delcf,nb,list,Y,N)
 )end
-/* ------------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                            */
-/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* ------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */

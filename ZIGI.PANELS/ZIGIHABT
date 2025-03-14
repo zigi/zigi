@@ -2,9 +2,11 @@
   _ type( input) intens(low ) just(left ) hilite(uscore)
   ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
   [ type(output) intens(high) caps(off) color(white)
-)Body Window(60,12) Expand(\\)
+  ] type(output) intens(low ) caps(off)
+)Body Window(60,13) Expand(\\)
 %About -\-\~The z ISPF Git Interface (zigi)%\-\- About
 \ \Version[zigiver\ \
+\ \]zigilmsg      [zigilver\ \
 +
 %ZIGI+is the z/OS ISPF Git Interface designed to provide the
 +z/OS community with an easy to use interface to the Git
@@ -17,13 +19,28 @@
 + \ \F3\ \
 )Init
   vget (zigtitle)
-*Rexx(* zigtitle zigiver)
+*Rexx(* zigtitle zigiver zigilver)
   parse value zigtitle with '('. zigiver')'.
+  cmd = 'curl -s' ,
+    'https://raw.githubusercontent.com/zigi/zigi/master/ZIGI.EXEC/ZIGI' ,
+    '| grep " ver =" | tail -1'
+  user = userid()
+  address syscall ,
+    'getpwnam (user) pw.'
+  env.1 = 'HOME='pw.4
+  env.0 = 1
+  x = bpxwunix(cmd,,s.,e.,env.,1)
+  l = s.0
+  parse value s.l with . "'"ver"'"
+  zigilver = ver
+  if ver = ''
+     then zigilmsg = ''
+     else zigilmsg = 'Latest Release'
 *EndRexx
 )PROC
  &zcont = zigihabt
 )END
-/* ------------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                            */
-/* Copyright (C) 2020-2023 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* ------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2025 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */

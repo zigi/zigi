@@ -1,12 +1,13 @@
 )Attr
  $ type(output) caps(off)
  _ type(input)  caps(off) hilite(uscore) intens(low)
-)Body Window(41,5) cmd()
+)Body Window(76,6)
 +
 +Enter Tag ID:_tagid                   +
-+Optional Text:_tagmsg
++Optional Text:_tagmsg                                                     +
 +
 +Press%Enter+to continue or%F3+to Cancel.
++
 )Init
  &zwinttl = 'ZIGI Tag Repository'
  .help = zigih2h0
@@ -27,7 +28,7 @@
     .cursor = TAGID
     .msg = isrz001
 )end
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */

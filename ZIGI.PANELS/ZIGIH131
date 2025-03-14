@@ -8,27 +8,27 @@
 +
                                 %SSH+
 +
-%SSH+displays your personal Public SSH Key location and key contents. The
-+key contents may be copied and pasted into your account security settings
-+at the remote%Git+repository that you are be working with.
-%
-+This is your personal key that was created by you prior to using the%ZIGI+
-+application, or during your first execution of the%ZIGI+application.
-%
-+Primary command%REGen+will regenerate your existing SSH keys while saving
-+them with todays date (yyyymmdd) as a suffix.
++When prompted for the SSH Key it will depend which version of OpenSSH is
++available. If%OpenSSH+is version 9, or later, then the%ed25519+key option
++is presented. If not, then only the%rsa+key options are available.
++
++With%ed25519+the key size is pre-defined in ssh-keygen. This will be
++the default is available.
++
++With%rsa+the key size options are: 2048, 3072 (default), or 4096.
 +
 +
 +
 +
-+      "Never interrupt someone doing what you said couldn't be done."
-+             -- Amelia Earhart
++  "The whole point of getting things done is knowing what to leave undone."
++      --- Oswald Chambers
++
 +
          +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
- &ZCONT = ZIGIH131
+ &ZCONT = ZIGIH140
 )END
 /* ------------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                            */

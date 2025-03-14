@@ -8,7 +8,9 @@ The next requirement is to install a ported version of `git` for z/OS.
 
 Currently there are two ported versions of `git`. One from Rocket Software and the other from the z/OS Open Tools project. Below is a short explanation of how to install `git` from each:
 
-# Installing git - Rocket Software
+# Step 1 - Installing Git 
+
+## Option 1 - Installing Git from Rocket Software
 
 Point your browser to https://www.rocketsoftware.com/ and create an account. Then install the Rocket installer `miniconda` and follow their instructions.
 Then download git, bash, gzip and perl and bring all those files to one directory in USS.
@@ -30,31 +32,17 @@ or
 
 [![anaconda/dl](https://anaconda.org/zdevops/zigi/badges/installer/conda.svg)](https://anaconda.org/zdevops/zigi)
 
-## Setting up your environment
+### Setting up your environment
 
 Be sure to follow the instructions provided by Rocket Software to update the `PATH`, `LIBPATH`,  `MANPATH`, etc. in your `/etc/profile`.
 
-# Installing git - z/OS Open Tools
+## Option 2 - Installing Git from the zopen community
 
-The other available port of `git` is from the z/OS Open Tools project. They provide an installer called `zopen` which you will need to download from (https://zosopentools.org/#/Guides/QuickStart)[https://zosopentools.org/#/Guides/QuickStart]. 
+The other available port of `git` is from the [zopen community](https://zopen.community/) project. They provide an installer called `zopen` which you will need to download from (https://zopen.community/#/Guides/QuickStart)[https://zopen.community/#/Guides/QuickStart]. 
 
 Once the `zopen` installer is installed you will need execute the `zopen-config` script found in the installation directory `mountpoint/etc`. At that point you can run `open install git` and follow the prompts to install `git` along with any pre-reqs and co-reqs.
 
-# Installing git - IBM Open Enterprise Foundation
-
-IBM Open Enterprise Foundation for z/OS provides a comprehensive suite of open source UNIX-based development tools that are enabled to run natively on z/OS. These tools and libraries are designed to enhance the development and deployment experience on the z/OS platform.
-
-Included with your existing IBM z/OS Service and Support at ***no*** additional charge.
-
-Product information, including an easier way to plan and order, prerequisites, other products, and more, is available on or before general availability in IBM Shopz for the following programs:
-* IBM Open Enterprise Foundation for z/OS 1.1 (5655-OEF)
-* IBM Open Enterprise Foundation for z/OS Subscription and Support (S&S) (5655-EFS)
-
-## Doc
-
-https://www.ibm.com/docs/en/oefzos
-
-## Setting up your environment
+### Setting up your environment
 
 To make the z/OS Open Tools installed tools available you will need to update your `/etc/profile` to execute that `zopen-config` script.
 
@@ -64,9 +52,10 @@ Add `. ./mountpoint/etc/zopen-config` to your `/etc/profile and your good to go.
 
 Example: `ZOPEN_ROOTFS="/isv/zopen"` 
 
+
 Since you wish to use this with `zigi` there is one more step.
 
-### The zigi Environment File
+#### The zigi Environment File
 
 The `zigi` interface to z/OS UNIX System Services (aka USS or OMVS) uses the REXX interface service `bpxwunix` which, unfortunately, does not support having sub scripts like the `zopen-config` run from `/etc/profile`. So we have developed a work-around which requires that once you start `zigi` that you enter the full path and name for the `zopen-config`.
 
@@ -75,6 +64,22 @@ Here is an example:
 
 `zigi` will display this when it is started if it is unable to detect a version of `git` in the USS Path. You can also display this ISPF Panel using the command `zigi /envr` when you start or once in `zigi` enter the command `gitenv`.
 
+
+## Option 3 - Installing Git from IBM Open Enterprise Foundation for z/OS
+
+IBM Open Enterprise Foundation for z/OS provides a comprehensive suite of open source UNIX-based development tools that are enabled to run natively on z/OS. These tools and libraries are designed to enhance the development and deployment experience on the z/OS platform.
+
+Included with your existing IBM z/OS Service and Support at ***no*** additional charge.
+
+Product information, including an easier way to plan and order, prerequisites, other products, and more, is available on or before general availability in IBM Shopz for the following programs:
+* IBM Open Enterprise Foundation for z/OS 1.1 (5655-OEF)
+* IBM Open Enterprise Foundation for z/OS Subscription and Support (S&S) (5655-EFS)
+
+### References
+* Documentation: https://www.ibm.com/docs/en/oefzos
+* Product page: https://www.ibm.com/products/open-enterprise-foundation-zos
+
+----------
 
 # Creating the z/OS ZIGI Datasets
 

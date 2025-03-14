@@ -2,7 +2,8 @@
  _ type(input ) hilite(uscore) caps(on) intens(low )
  $ type(output)  caps(off)
  + type(text) skip(on) caps(off) intens(low)
-)Body Window(57,7)
+)Body Window(57,9)
++
 +Git Tag:  $gtag                            +
 +z/OS HLQ: $snaphlq                      +
 +OMVS Path:$path                                        +
@@ -10,6 +11,7 @@
 +Confirm the above:_z+(Y or N)
 +
 +Press%Enter+to proceed, or%F3+to cancel.
++
 )Init
  &zwinttl = ' SnapShot Confirmation'
  .zvars = '(sans)'
@@ -17,7 +19,7 @@
 )Proc
  ver (&sans,nb,list,Y,N)
 )end
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */

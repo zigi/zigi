@@ -7,7 +7,7 @@
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
   ] type(output) caps(off) pas(on) intens(high) color(white) hilite(uscore)
-)Body  window(44,12) cmd()
+)Body Window(44,13)
 +
 +Enter Selection:_z     +
 +
@@ -20,6 +20,7 @@
  ]Create+  a local repo from scratch
 
              +Or%F3+to cancel.
++
 )Init
  &zwinttl = 'No Repositories for current profile'
  .zvars = '(SZCMD)'
@@ -38,7 +39,7 @@
  FIELD(CLONE   ) VAR(SZCMD) VAL('CLONE')
  FIELD(CREATE  ) VAR(SZCMD) VAL('CREATE')
 )End
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */

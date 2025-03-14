@@ -3,27 +3,25 @@
  _ type(input) caps(off) hilite(uscore) intens(low)
  @ type(input) caps(on ) hilite(uscore) intens(low)
  # type(output) hilite(reverse) color(turq) caps(off)
-)Body Window(47,9) Expand(\\) cmd()
+ + type(text) skip(on) intens(low)
+)Body Window(47,7) Expand(\\)
 +
-+Git grep: _grepstr                           +
++Found both%ed25519+and%rsa+keys defined. Which
++one are you using for%Git+
 +
-+Dataset/File or Report View:@z+(D or R)
-+
-+Note: The grep is NOT case sensitive.
-+
-+\ \Press%F3+to exit grep prompt \ \
+  %ed25519+_z+
+  %rsa+    _z+     Default
 +
 )Init
- &zwinttl = 'ZIGI Grep'
- .help = zigih260
- &ztut = 'G'
- vput (ztut)
- .zvars = '(grepopt)'
+ &zwinttl = 'ZIGI SSH Key Selection'
+ .zvars = '(ed krsa)'
 )Proc
- ver (&grepstr,nb)
- ver (&grepopt,nb,list,D,R)
-)end
+ if (&ed NE &z)
+     ver (&krsa,list,&z)
+ if (&krsa NE &z)
+     ver (&ed,list,&z)
+)End
 /* -------------------------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                                         */
-/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* Copyright (C) 2020-2025 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
 /* -------------------------------------------------------------------------- */

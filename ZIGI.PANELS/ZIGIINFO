@@ -1,11 +1,12 @@
 )Attr Default(%+_)
-  _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
-  @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
-  $ type(output) intens(low ) caps(off) just(left )
+  _ type(input) intens(low) caps(off) just(left ) hilite(uscore)
+  @ type( input) intens(low) caps(on ) just(left ) hilite(uscore)
+  $ type(output) intens(low) caps(off) just(left )
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
-)Body Window(75,13)
+)Body Window(75,14)
++
 +Name          : $reponame
 +Repository    : $zigirep
 +Branch        : $branch
@@ -30,7 +31,7 @@
 *ENDREXX
 )Proc
 )End
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */

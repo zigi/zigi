@@ -1,11 +1,12 @@
 )Attr Default(%+_)
   _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
-)Body  Expand(\\) Window(46,9)
+)Body Window(72,10) Expand(\\)
++
 +Command ===>_zcmd   \ \ +
 %
 +Review/Update New Directory Info
 %
-+New Directory:_mkdir                        +
++New Directory:_mkdir                                                  +
 +
 +Permissions:_mp + (755 is the default)
 +
@@ -54,7 +55,7 @@ if bad = 1 then do
     .MSG = ISRZ001
     .CURSOR = MP
 )End
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */

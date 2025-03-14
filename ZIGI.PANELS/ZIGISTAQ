@@ -1,15 +1,17 @@
 )Attr
  $ type(input) caps(off) hilite(uscore) intens(low)
-)Body Window(60,3) cmd()
+)Body Window(75,4)
++
 +Enter a comment for the stash:
-+=>$stashmsg
++=>$stashmsg                                                              +
++
 )Init
  &zwinttl = 'ZIGI Prompt Popup'
   .cursor = stashmsg
 )Proc
  ver (&stashmsg,nb)
 )end
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */

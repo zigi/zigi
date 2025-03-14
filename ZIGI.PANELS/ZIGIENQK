@@ -4,8 +4,9 @@
  ] type(text) intens(low) color(blue)
  + type(text) intens(low) color(turq)
  { type(input) caps(off) hilite(uscore) intens(low)
- _ type( input) intens(low ) caps(on) just(left ) hilite(uscore)
-)Body Window(75,14) expand(\\)
+ _ type(input) intens(low ) caps(on) just(left) hilite(uscore)
+)Body Window(75,15) expand(\\)
++
 %Command ===>_zcmd
 +
 ]These allocations will prevent a successful pull operation.
@@ -27,7 +28,7 @@
 )Proc
  ver (&enqact,nb,list,R,A)
 )end
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */

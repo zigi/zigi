@@ -5,7 +5,8 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
-)Body Window(65,14) Expand(\\)
+)Body Window(65,15) Expand(\\)
++
 +Command ===>_zcmd   \ \ +
 %
 +Review/Update Repository Settings:
@@ -85,7 +86,7 @@
  ver (&zginst,nb,list,Y,N)
  vput (zadd) profile
 )End
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */

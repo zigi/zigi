@@ -1,0 +1,83 @@
+)Attr
+ $ type(output) caps(off)
+ _ type(input) caps(off) hilite(uscore) intens(low)
+ @ type(input) caps(on ) hilite(uscore) intens(low)
+ # type(output) hilite(reverse) color(turq) caps(off)
+ + type(text) skip(on) intens(low)
+)Body Window(40,10) Expand(\\)
++
++Previous SSH Key Type:$type
++
++Select SSH RSA Key Size:
+  +_z+2048 _z+3072 _z+4096
++
++Or SSH ED25519 Key:_z+     %Default+
++
++Press%Enter+to generate or%F3+to Cancel
++
+)Init
+ vget (sshkeyt sshkeys)
+ &zwinttl = 'ZIGI SSH Key Generation'
+ .zvars = '(k2 k3 k4 ked)'
+ .help = zigih130
+ if (&sshkeyt EQ &Z)
+     &type = 'ed25519'
+ if (&sshkeyt EQ 'ed')
+     &type = 'ed25519'
+ if (&sshkeyt EQ 'rsa')
+     &type = 'rsa'
+ &k2  = &z
+ &k3  = &z
+ &k4  = &z
+ &ked = &z
+ if (&sshkeyt EQ 'ed')
+     &ked = 'x'
+     .cursor = ked
+ if (&sshkeyt EQ 'rsa')
+    if (&sshkeys EQ 2048)
+        &k2 = 'x'
+        .cursor = k2
+    if (&sshkeys EQ 3072)
+        &k3 = 'x'
+        .cursor = k3
+    if (&sshkeys EQ 4096)
+        &k4 = 'x'
+        .cursor = k4
+)ReInit
+ &k2  = &z
+ &k3  = &z
+ &k4  = &z
+ &ked = &z
+ if (&type EQ 'ed')
+     &ked = 'x'
+     .cursor = ked
+ if (&type EQ 'rsa')
+    if (&sshkeys EQ 2048)
+        &k2 = 'x'
+        .cursor = k2
+    if (&sshkeys EQ 3072)
+        &k3 = 'x'
+        .cursor = k3
+    if (&sshkeys EQ 4096)
+        &k4 = 'x'
+        .cursor = k4
+)Proc
+*rexx(* msg)
+ msg = ''
+ if words(ked k2 k3 k4) = 0 then ked = '/'
+ if words(ked k2 k3 k4) > 1 then do
+    msg = 'You may not select more than one key size or type - try again.'
+    end
+*endrexx
+ if (&msg NE &z)
+     &zerrlm = &msg
+     &zerrsm = &z
+     &zerrhm   = ''           /* tutorial panel or &z */
+     &zerralrm = 'NO'         /* yes or no */
+     &zerrtp   = 'Notify'     /* notify, warning, action, critial */
+     ver (&ked,nb,msg=isrz003)
+)end
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2025 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */

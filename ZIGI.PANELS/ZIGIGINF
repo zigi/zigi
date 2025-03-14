@@ -5,7 +5,8 @@
   + type(text) intens(low) skip(on)
   % type(text) intens(high) skip(on)
   # type(output)
-)Body Window(67,9)
+)Body Window(67,12)
++
 +ZIGI Version   : $ver
 +Git Version    : $gitver
 +Git Location   : $zigigitl                                     #z+
@@ -15,6 +16,8 @@
 +CoZ ZFS        : $zfscoz                                       #z+
 +Encoding       : $encoding
 +Custom Env Var : $vgitenv
++SSH Key File   : $keyfile
++
 )Init
  &zwinttl = 'ZIGI Git Information Summary'
  .zvars = '(gsc dsc csc)'
@@ -35,7 +38,7 @@
  Field(dovedir ) ind(dsc,'<>') len(255)
  Field(zfscoz  ) ind(csc,'<>') len(255)
 )End
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2023 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2025 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */

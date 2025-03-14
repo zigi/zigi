@@ -2,7 +2,7 @@
  $ type(output) caps(off)
  _ type(input)  caps(on ) hilite(uscore) intens(low)
  # type(input)  caps(on) hilite(uscore) intens(low)
-)Body Window(61,12) cmd()
+)Body Window(61,13) cmd()
 +
 +Recover a historical level of:
 $relement
@@ -15,6 +15,7 @@ _rdsn                                                      +
 +Confirm Recovery:#z+(Y or N)
 +
 +Press%Enter+to continue or%F3+to Cancel.
++
 )Init
  &zwinttl = 'ZIGI History Recovery'
  .zvars = '(ralc rans)'
@@ -110,7 +111,7 @@ _rdsn                                                      +
  if (&csr NE &Z)
    .CURSOR = &csr
 )End
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                                         */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* -------------------------------------------------------------------------- */

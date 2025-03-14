@@ -39,6 +39,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            01/16/25 LBD - Bug fix on option                |
   |            09/29/24 LBD - Support 8 Char TSO Userid        |
   |            06/28/24 LBD - Update LMMSTATs to match Co:Z    |
   |                           stat format                      |
@@ -92,7 +93,7 @@
   |                                                            |
   | ---------------------------------------------------------- |
   |    ZIGI - the z/OS ISPF Git Interface                      |
-  |    Copyright (C) 2020-2024 - Henri Kuiper and Lionel Dyck  |
+  |    Copyright (C) 2020-2025 - Henri Kuiper and Lionel Dyck  |
   |                                                            |
   |    This program is free software: you can redistribute it  |
   |    and/or modify it under the terms of the GNU General     |
@@ -202,6 +203,7 @@ zigistat:
   zs4 = null
   call do_popup4
 
+  if opt /= 'U' then do
   /* ----------------------- *
   * Now process all members *
   * ----------------------- */
@@ -280,6 +282,7 @@ zigistat:
 
   zs1 = 'Collection complete.'
   call do_popup4
+  end
 
   /* ----------------------------------------------- *
   | Process the data based on the provided options: |

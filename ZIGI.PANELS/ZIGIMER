@@ -1,9 +1,11 @@
 )Attr Default(%+_)
   _ type( input) intens(low ) caps(off) just(left ) hilite(uscore)
   @ type( input) intens(low ) caps(on ) just(left ) hilite(uscore)
+  ! type(output) intens(low ) caps(off) just(left ) color(turq)
   $ type(output) intens(low ) caps(off) just(left )
   [ type(output) intens(high) caps(off) just(left )
   + type(text) intens(low) skip(on)
+  { type(text) intens(low) skip(on) color(turq)
   % type(text) intens(high) skip(on)
   # type(output) hilite(reverse) color(turq) caps(off)
 )Body  Expand(\\)
@@ -17,11 +19,14 @@
 +Press%F3+to exit
 +
 +
-+S  Branch                                      Status
+%S  Branch                                      Status
+{   Updated by                                  Update Date
++   -------------------------------------------------------
 )Model
 @z+$z                                         +$z
+   !z                                          !z
 )Init
-  .zvars = '(zsel bname brstatus)'
+  .zvars = '(zsel bname brstatus brlastu brlastd)'
   &newb=''
   .cursor = &zcmd
   .help = zigih270
@@ -31,5 +36,5 @@
 )End
 /* --------------------- Copyright (C) ------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                            */
-/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* ------------------------------------------------------------- */
