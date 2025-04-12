@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r24'
+  ver = 'v3r25'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -28,6 +28,9 @@
   |           FM  - Filipe Meireles                            |
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
+  |                                                            |
+  |         2025 Apr 12 - Version 3.25                         |
+  |                     - Clean up SSH key regen messages      |
   |                                                            |
   |         2025 Jan 30 - Version 3.24                         |
   |                     - Support enhanced ssh keys (rsa and   |
@@ -7185,7 +7188,7 @@ Do_Keygen:
   then kmsg = null
   else kmsg = 'Old keys saved as' ,
     id_home'/'id.bkup 'and' ,
-    id_home'/'id.pub_bkup'.' ,
+    id_home'/'id.pub_bkup'.'
     zerrlm = 'SSH Keys regenerated.' kmsg ,
     'Be sure to replace your GIT SSH key and' ,
     'update any authorized_keys files on other servers if' ,

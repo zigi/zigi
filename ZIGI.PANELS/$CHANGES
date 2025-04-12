@@ -8,6 +8,19 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
 
                              ZIGI Release Notes
+                                Version 3.25
+                                Apr 12, 2024
+
+                         New Features and Functions
+                         --------------------------
+
+Key changes:     - Correct SSH Key REGEN message
+
+* zigi           - Correct SSH Key REGEN message
+
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
                                 Version 3.24
                                 Mar 14, 2025
 
