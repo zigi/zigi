@@ -9,14 +9,18 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                              ZIGI Release Notes
                                 Version 3.25
-                                Apr 12, 2024
+                                Apr 29, 2024
 
                          New Features and Functions
                          --------------------------
 
 Key changes:     - Correct SSH Key REGEN message
+                 - PDS member aliases are ignored by Co:Z and should
+                   be ignored by non-Co:Z uses. The real member is processed
+                   and there is no way to identify the alias to git.
 
 * zigi           - Correct SSH Key REGEN message
+* zigistat       - Bypass processing of PDS member aliases
 
 -----------------------------------------------------------------------------
 
