@@ -9,7 +9,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                              ZIGI Release Notes
                                 Version 3.25
-                                June 2, 2025
+                                Aug 23, 2025
 
                          New Features and Functions
                          --------------------------
@@ -18,9 +18,12 @@ Key changes:     - Correct SSH Key REGEN message
                  - PDS member aliases are ignored by Co:Z and should
                    be ignored by non-Co:Z uses. The real member is processed
                    and there is no way to identify the alias to git.
+                 - If the known_hosts file is not available then create it
+                   based on github.com using the local public key
 
 * zg             - Improve test for Co:Z getpds
 * zigi           - Correct SSH Key REGEN message
+                 - Create known_hosts if it doesn't exist in ~/.ssh
 * zigistat       - Bypass processing of PDS member aliases
 
 -----------------------------------------------------------------------------
