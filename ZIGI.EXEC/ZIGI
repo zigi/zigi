@@ -29,8 +29,10 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |         2025 Apr 12 - Version 3.25                         |
+  |         2025 Aug 24 - Version 3.25                         |
   |                     - Clean up SSH key regen messages      |
+  |                     - Create ~/.ssh/known_hosts if not     |
+  |                       already there                        |
   |                                                            |
   |         2025 Jan 30 - Version 3.24                         |
   |                     - Support enhanced ssh keys (rsa and   |
@@ -670,6 +672,7 @@
   /* ============================================================== */
   /* ======== main flow          ================================== */
   /* ============================================================== */
+  call syscalls 'ON'
 
   call init_ispf
   call display_splash
@@ -1090,7 +1093,6 @@ init_git:
     'vput (exitp) profile'
   end
 
-
   Select
     When mgen = null then hit = 0
     when zigiuid = null then hit = 0
@@ -1117,6 +1119,17 @@ init_git:
     end
   end
 
+  /* ------------------------------------------ *
+  | Check if $HOME/.ssh/known_hosts exists and |
+  | if not then create it.                     |
+  * ------------------------------------------ */
+  address syscall 'getpwnam' userid() 'pwnam.'
+  file = pwnam.pw_dir'/.ssh/known_hosts'
+  Address syscall ,
+    'stat (file) knst.'
+  if knst.0 > 0 then return
+  cmd = 'ssh-keyscan -H github.com >>' file
+  x = docmd(cmd)
   Return
 
   /* ---------------------------------------------------------- *
@@ -1854,6 +1867,7 @@ WWR_display_zigirepo:
   parse value '' with zsel row
   check_flag = 0
   ztdsels = repo_ztdsels
+  if known_exists = 0 then call create_known_hosts
   if zcmd /= 'ADDDSN' then do
     parse value '' with zsel zcmd row zcmd
     if ztdsels > 1
@@ -2117,14 +2131,12 @@ Do_Diff_Branch:
     When dmember = '+'  then do
       diffmem = '--' dsn
       diff_panel = 'zigidfbr'
-      call syscalls 'ON'
       stfile = localrep'/'zigirep'/'dsn
       Address syscall ,
         'stat' stfile 'st.'
       if st.st_type = s_isreg
       then dtype = 3  /* sequential */
       else dtype = 1  /* directory so probably pds */
-      call syscalls 'OFF'
     end
     Otherwise nop
   end
@@ -6862,7 +6874,6 @@ do_git_attributes:
   cmd = 'ls' localrep'/'zigirep'/.gitattributes'
   x = docmd(cmd)
   if so.0 = 1 then return
-  call syscalls 'ON'
   address syscall
   path = localrep"/"zigirep"/.ga"
   'open' path,
@@ -6874,7 +6885,6 @@ do_git_attributes:
     zs4 = 'Press F3 to close this popup and exit.'
     parse value '' with zs2 zs3
     call do_popup4
-    call syscalls 'OFF'
     return
   end
   fd = retval  /* as I think it's weird to write to a retval lol */
@@ -6902,7 +6912,6 @@ do_git_attributes:
     call write_fd ga
   end
   'close' fd
-  call syscalls 'OFF'
   /* -------------------- .gitattributes written ----------- */
   /*             UNFORTUNATELY, IT'S IN EBCDIC :(            */
   /* ------------------------------------------------------- */
@@ -9001,7 +9010,7 @@ GETENV:
   end
   call add_env '_BPX_SHAREAS=MUST'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
-  call add_env 'EXPORT _EDC_ADD_ERRNO2=1'
+  call add_env '_EDC_ADD_ERRNO2=1'
   call add_env '_EDC_ZERO_RECLEN=Y'
   call add_env 'ICONV_EBCDIC_ZOS_UNIX=1'
   env.0 = envc
@@ -10544,6 +10553,14 @@ Auto_Tag_File:   /* FM */
   cht_cmd = cht_cmd '&& chtag -tc' codepage atf_file
   x = docmd(cht_cmd)
   return
+
+/* ---------------------- *
+ | Create Known Hosts ??? |
+ * ---------------------- */
+ return
+ /* issue  ssh-keyscan github.com >> ~/.ssh/known_hosts
+   or some variation ????
+ */
 
   /* -------------------------------------------------- *
   | Check for any lowercase characters in the provided |
