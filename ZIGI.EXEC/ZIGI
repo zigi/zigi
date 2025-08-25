@@ -10556,7 +10556,7 @@ Auto_Tag_File:   /* FM */
  if strip(remote1) = null then return /*if no remote set */
  parse value remote1 with .'@'gs':'.
  cmd = 'cd' localrep'/'zigirep '&&' ,
-       'ssh -o StrictHostKeyChecking=no git@'gs '-q'
+       'ssh -o StrictHostKeyChecking=accept-new git@'gs '-q'
  x = docmd(cmd)
  return
 
