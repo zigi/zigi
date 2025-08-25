@@ -29,10 +29,10 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |         2025 Aug 24 - Version 3.25                         |
+  |         2025 Aug 25 - Version 3.25                         |
   |                     - Clean up SSH key regen messages      |
-  |                     - Create ~/.ssh/known_hosts if not     |
-  |                       already there                        |
+  |                     - create/update ~/.ssh/known_hosts     |
+  |                       when repo is selected                |
   |                                                            |
   |         2025 Jan 30 - Version 3.24                         |
   |                     - Support enhanced ssh keys (rsa and   |
@@ -1119,19 +1119,6 @@ init_git:
     end
   end
 
-  /* ------------------------------------------ *
-  | Check if $HOME/.ssh/known_hosts exists and |
-  | if not then create it.                     |
-  * ------------------------------------------ */
-  address syscall 'getpwnam' userid() 'pwnam.'
-  file = pwnam.pw_dir'/.ssh/known_hosts'
-  Address syscall ,
-    'stat (file) knst.'
-  if knst.0 > 0 then return
-  cmd = 'ssh-keyscan -H github.com >>' file
-  x = docmd(cmd)
-  Return
-
   /* ---------------------------------------------------------- *
   | Enable RFIND (Repeat Find) by adding an RFIND entry to the |
   | active site command table with a symbolic that will be     |
@@ -1843,6 +1830,7 @@ WWR_init:
   list_top = 0
   crflag = 0
   remc = 'NO'
+  call update_sshkey
   x = debug('Working with Repo:' zigirep)
   readonly = check_read_only()
   'vput (readonly) shared'
@@ -10558,9 +10546,17 @@ Auto_Tag_File:   /* FM */
  | Create Known Hosts ??? |
  * ---------------------- */
  return
- /* issue  ssh-keyscan github.com >> ~/.ssh/known_hosts
-   or some variation ????
- */
+
+/* ----------------------------------------------------- *
+ | Check and update the known_hosts file from the server |
+ | ssh key if new                                        |
+ * ----------------------------------------------------- */
+ Update_sshkey:
+ parse value remote1 with .'@'gs':'.
+ cmd = 'cd' localrep'/'zigirep '&&' ,
+       'ssh -o StrictHostKeyChecking=no git@'gs '-q'
+ x = docmd(cmd)
+ return
 
   /* -------------------------------------------------- *
   | Check for any lowercase characters in the provided |
