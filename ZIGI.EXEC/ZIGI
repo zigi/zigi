@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |         2025 Aug 25 - Version 3.25                         |
+  |         2025 Aug 27 - Version 3.25                         |
   |                     - Clean up SSH key regen messages      |
   |                     - create/update ~/.ssh/known_hosts     |
   |                       when repo is selected                |
@@ -1830,7 +1830,6 @@ WWR_init:
   list_top = 0
   crflag = 0
   remc = 'NO'
-  call update_sshkey
   x = debug('Working with Repo:' zigirep)
   readonly = check_read_only()
   'vput (readonly) shared'
@@ -1855,7 +1854,6 @@ WWR_display_zigirepo:
   parse value '' with zsel row
   check_flag = 0
   ztdsels = repo_ztdsels
-  if known_exists = 0 then call create_known_hosts
   if zcmd /= 'ADDDSN' then do
     parse value '' with zsel zcmd row zcmd
     if ztdsels > 1
@@ -2764,6 +2762,7 @@ WWR_handle_remote:
     'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
     parsedURI = parseGitURI(origin)
     parse var parsedURI user host port repo
+    /* Comment Start
     if port /= 22 then extrabits = '-p 'port
     else extrabits = null
     cmd = 'touch 'home'/.ssh/known_hosts && '
@@ -2773,6 +2772,8 @@ WWR_handle_remote:
     cmd = cmd ' 2>/dev/null >> 'home'/.ssh/known_hosts ;'
     cmd = cmd 'fi'
     x = docmd(cmd)
+       Comment End */
+    call update_known_hosts host
     cmd = 'cd' localrep'/'zigirep
     x = docmd(cmd '&& git remote add origin 'origin)
     call View_std 'B'
@@ -2788,7 +2789,6 @@ WWR_handle_remote:
       'tbmod zigirepo order'
       'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
     end
-    call update_sshkey
     call update_repo_metadata
   end
   Return
@@ -5836,12 +5836,15 @@ Clone_Repo:
     zs1 = "Cloning "zigirep" by "owner
     zs2 = "from "host
     call do_popup
+    /* Comment Start
     cmd = 'touch 'home'/.ssh/known_hosts && '
     cmd = cmd 'ssh-keyscan 'extrabits' -t rsa,dsa 'host
     cmd = cmd ' 2>&1 | sort -u - 'home'/.ssh/known_hosts >'
     cmd = cmd ' 'home'/.ssh/tmp_hosts && '
     cmd = cmd 'mv 'home'/.ssh/tmp_hosts 'home'/.ssh/known_hosts'
     x = docmd(cmd)
+       Comment End */
+    call update_known_hosts host
     localrep = strip(localrep,'T','/')
     x = time('r')  /* begin timer */
     cmd = 'cd 'localrep
@@ -10552,11 +10555,10 @@ Auto_Tag_File:   /* FM */
  | Check and update the known_hosts file from the server |
  | ssh key if new                                        |
  * ----------------------------------------------------- */
- Update_sshkey:
- if strip(remote1) = null then return /*if no remote set */
- parse value remote1 with .'@'gs':'.
- cmd = 'cd' localrep'/'zigirep '&&' ,
-       'ssh -o StrictHostKeyChecking=accept-new git@'gs '-q'
+ Update_Known_Hosts:
+ parse arg git_host
+ if strip(git_host) = null then return /*if no remote set */
+ cmd = 'ssh -o StrictHostKeyChecking=accept-new git@'git_host '-q'
  x = docmd(cmd)
  return
 
