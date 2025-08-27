@@ -1854,7 +1854,6 @@ WWR_display_zigirepo:
   parse value '' with zsel row
   check_flag = 0
   ztdsels = repo_ztdsels
-  if known_exists = 0 then call create_known_hosts
   if zcmd /= 'ADDDSN' then do
     parse value '' with zsel zcmd row zcmd
     if ztdsels > 1
