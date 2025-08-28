@@ -29,10 +29,12 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |         2025 Aug 27 - Version 3.25                         |
+  |         2025 Aug 28 - Version 3.25                         |
   |                     - Clean up SSH key regen messages      |
   |                     - create/update ~/.ssh/known_hosts     |
   |                       when repo is selected                |
+  |                     - Remove OpenSSH version 9 check as    |
+  |                       not needed for ed25519 keys          |
   |                                                            |
   |         2025 Jan 30 - Version 3.24                         |
   |                     - Support enhanced ssh keys (rsa and   |
@@ -1038,16 +1040,6 @@ init_git:
   'vget (zigissh) profile'
   keyrsa = home'/.ssh/id_rsa.pub'
   keyed  = home'/.ssh/id_ed25519.pub'
-
-    cmd = 'ssh -V'
-    x = bpxwunix(cmd,,so.,se.,omvsenv.,1)
-    parse value se.1 with 'OpenSSH_'sshver'.' .
-    if sshver < 9
-    then do
-      sshkg   = 'sshok'
-      sshkeyt = 'rsa'
-    end
-    else sshkg = 'sshgood'
   if zigissh = null then do
       keys = 0
       Address syscall 'stat (keyrsa) s.'
@@ -7128,9 +7120,7 @@ Do_Keygen:
   cmd = 'mkdir -p 'home'/.ssh'
   x = docmd(cmd)
   id_home = home'/.ssh'
-  if sshkg = 'sshgood'
-  then ssh_panel = 'zigiskey'
-  else ssh_panel = 'zigiskyr'
+  ssh_panel = 'zigiskey'
   call pfshow 'off'           /* make sure pfshow is off */
   'AddPop Row(5) Column(8)'
   'display panel('ssh_panel')'
