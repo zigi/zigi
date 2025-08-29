@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |         2025 Aug 28 - Version 3.25                         |
+  |         2025 Aug 29 - Version 3.25                         |
   |                     - Clean up SSH key regen messages      |
   |                     - create/update ~/.ssh/known_hosts     |
   |                       when repo is selected                |
@@ -10545,12 +10545,13 @@ Auto_Tag_File:   /* FM */
  | Check and update the known_hosts file from the server |
  | ssh key if new                                        |
  * ----------------------------------------------------- */
- Update_Known_Hosts:
- parse arg git_host
- if strip(git_host) = null then return /*if no remote set */
- cmd = 'ssh -o StrictHostKeyChecking=accept-new git@'git_host '-q'
- x = docmd(cmd)
- return
+Update_Known_Hosts:
+  parse arg git_host
+  if strip(git_host) = null then return /*if no remote set */
+  cmd = 'grep -q' git_host '~/.ssh/known_hosts ||' ,
+        'ssh -o StrictHostKeyChecking=accept-new git@'git_host '-q'
+  x = bpxwunix(cmd,,so.,se.,omvsenv.,1)
+  return
 
   /* -------------------------------------------------- *
   | Check for any lowercase characters in the provided |
