@@ -10,8 +10,7 @@
 +
 +SSH Key File: @keyfile
 +
-]sshkey
-$zigissh
+$sshkey
 
 
 
@@ -31,8 +30,9 @@ $zigissh
 )Init
 vget (zscreenw)
 *rexx(* zigissh sshkey zscreenw)
- sshkey = 'Copy the records below and paste into' ,
-               'your Git Account SSH Key:'
+ sshkey = left('Copy the records below and paste into' ,
+               'your Git Account SSH Key:',zscreenw-2)
+ sshkey = sshkey zigissh
 *endrexx
 .help = zigih130
 )Proc
