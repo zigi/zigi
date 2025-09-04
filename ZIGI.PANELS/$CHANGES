@@ -9,7 +9,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                              ZIGI Release Notes
                                 Version 3.25
-                                Aug 29, 2025
+                                Sep 04, 2025
 
                          New Features and Functions
                          --------------------------
@@ -26,6 +26,7 @@ Key changes:     - Correct SSH Key REGEN message
                  - Create/updateknown_hosts if it doesn't exist in ~/.ssh
                  - Remove OpenSSH version 9 check as not needed for edf25519
                    keys
+                 - Remove HEAD from branch list as redundant
 * zigistat       - Bypass processing of PDS member aliases
 * zigisshk       - panel update for wide screen
 * zigisshk       - panel update for wide screen
