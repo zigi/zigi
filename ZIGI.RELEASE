@@ -8,6 +8,33 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
 
                              ZIGI Release Notes
+                                Version 3.25
+                                Sep 04, 2025
+
+                         New Features and Functions
+                         --------------------------
+
+Key changes:     - Correct SSH Key REGEN message
+                 - PDS member aliases are ignored by Co:Z and should
+                   be ignored by non-Co:Z uses. The real member is processed
+                   and there is no way to identify the alias to git.
+                 - If the known_hosts file is not available then create it
+                   and if it does exist then update it if the key has changed
+
+* zg             - Improve test for Co:Z getpds
+* zigi           - Correct SSH Key REGEN message
+                 - Create/updateknown_hosts if it doesn't exist in ~/.ssh
+                 - Remove OpenSSH version 9 check as not needed for edf25519
+                   keys
+                 - Remove HEAD from branch list as redundant
+* zigistat       - Bypass processing of PDS member aliases
+* zigisshk       - panel update for wide screen
+* zigisshk       - panel update for wide screen
+* zigiskyr       - panel removed
+
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
                                 Version 3.24
                                 Mar 14, 2025
 

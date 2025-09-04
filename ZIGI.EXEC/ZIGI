@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r24'
+  ver = 'v3r25'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -28,6 +28,14 @@
   |           FM  - Filipe Meireles                            |
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
+  |                                                            |
+  |         2025 Sep 04 - Version 3.25                         |
+  |                     - Clean up SSH key regen messages      |
+  |                     - create/update ~/.ssh/known_hosts     |
+  |                       when repo is selected                |
+  |                     - Remove OpenSSH version 9 check as    |
+  |                       not needed for ed25519 keys          |
+  |                     - Remove HEAD from branch list         |
   |                                                            |
   |         2025 Jan 30 - Version 3.24                         |
   |                     - Support enhanced ssh keys (rsa and   |
@@ -667,6 +675,7 @@
   /* ============================================================== */
   /* ======== main flow          ================================== */
   /* ============================================================== */
+  call syscalls 'ON'
 
   call init_ispf
   call display_splash
@@ -1032,16 +1041,6 @@ init_git:
   'vget (zigissh) profile'
   keyrsa = home'/.ssh/id_rsa.pub'
   keyed  = home'/.ssh/id_ed25519.pub'
-
-    cmd = 'ssh -V'
-    x = bpxwunix(cmd,,so.,se.,omvsenv.,1)
-    parse value se.1 with 'OpenSSH_'sshver'.' .
-    if sshver < 9
-    then do
-      sshkg   = 'sshok'
-      sshkeyt = 'rsa'
-    end
-    else sshkg = 'sshgood'
   if zigissh = null then do
       keys = 0
       Address syscall 'stat (keyrsa) s.'
@@ -1087,7 +1086,6 @@ init_git:
     'vput (exitp) profile'
   end
 
-
   Select
     When mgen = null then hit = 0
     when zigiuid = null then hit = 0
@@ -1113,8 +1111,6 @@ init_git:
       end
     end
   end
-
-  Return
 
   /* ---------------------------------------------------------- *
   | Enable RFIND (Repeat Find) by adding an RFIND entry to the |
@@ -2114,14 +2110,12 @@ Do_Diff_Branch:
     When dmember = '+'  then do
       diffmem = '--' dsn
       diff_panel = 'zigidfbr'
-      call syscalls 'ON'
       stfile = localrep'/'zigirep'/'dsn
       Address syscall ,
         'stat' stfile 'st.'
       if st.st_type = s_isreg
       then dtype = 3  /* sequential */
       else dtype = 1  /* directory so probably pds */
-      call syscalls 'OFF'
     end
     Otherwise nop
   end
@@ -2761,6 +2755,7 @@ WWR_handle_remote:
     'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
     parsedURI = parseGitURI(origin)
     parse var parsedURI user host port repo
+    /* Comment Start
     if port /= 22 then extrabits = '-p 'port
     else extrabits = null
     cmd = 'touch 'home'/.ssh/known_hosts && '
@@ -2770,6 +2765,8 @@ WWR_handle_remote:
     cmd = cmd ' 2>/dev/null >> 'home'/.ssh/known_hosts ;'
     cmd = cmd 'fi'
     x = docmd(cmd)
+       Comment End */
+    call update_known_hosts host
     cmd = 'cd' localrep'/'zigirep
     x = docmd(cmd '&& git remote add origin 'origin)
     call View_std 'B'
@@ -5832,12 +5829,15 @@ Clone_Repo:
     zs1 = "Cloning "zigirep" by "owner
     zs2 = "from "host
     call do_popup
+    /* Comment Start
     cmd = 'touch 'home'/.ssh/known_hosts && '
     cmd = cmd 'ssh-keyscan 'extrabits' -t rsa,dsa 'host
     cmd = cmd ' 2>&1 | sort -u - 'home'/.ssh/known_hosts >'
     cmd = cmd ' 'home'/.ssh/tmp_hosts && '
     cmd = cmd 'mv 'home'/.ssh/tmp_hosts 'home'/.ssh/known_hosts'
     x = docmd(cmd)
+       Comment End */
+    call update_known_hosts host
     localrep = strip(localrep,'T','/')
     x = time('r')  /* begin timer */
     cmd = 'cd 'localrep
@@ -6174,6 +6174,7 @@ Create_Branch_Table:
   bl.0 = 0
   do bri = 1 to so.0
     b1 = strip(so.bri,'B')
+    if pos('HEAD',b1) > 0 then iterate
     if pos('remotes/',b1) > 0 then do
       /* this is a remote branch we (maybe) have never checked out */
       parse var b1 remotes'/'origin'/'bname brlast
@@ -6718,7 +6719,7 @@ get_branches:
   do bri = 1 to so.0
     branch = strip(so.bri)
     if word(branch,1) = '*' then branch = word(branch,2)
-    if pos('->',branch) > 0 then iterate
+    if pos('HEAD',branch) > 0 then iterate
     if pos('/',branch) > 0 then do
       branch = translate(branch,' ','/')
       branch = word(branch,words(branch))
@@ -6859,7 +6860,6 @@ do_git_attributes:
   cmd = 'ls' localrep'/'zigirep'/.gitattributes'
   x = docmd(cmd)
   if so.0 = 1 then return
-  call syscalls 'ON'
   address syscall
   path = localrep"/"zigirep"/.ga"
   'open' path,
@@ -6871,7 +6871,6 @@ do_git_attributes:
     zs4 = 'Press F3 to close this popup and exit.'
     parse value '' with zs2 zs3
     call do_popup4
-    call syscalls 'OFF'
     return
   end
   fd = retval  /* as I think it's weird to write to a retval lol */
@@ -6899,7 +6898,6 @@ do_git_attributes:
     call write_fd ga
   end
   'close' fd
-  call syscalls 'OFF'
   /* -------------------- .gitattributes written ----------- */
   /*             UNFORTUNATELY, IT'S IN EBCDIC :(            */
   /* ------------------------------------------------------- */
@@ -7124,9 +7122,7 @@ Do_Keygen:
   cmd = 'mkdir -p 'home'/.ssh'
   x = docmd(cmd)
   id_home = home'/.ssh'
-  if sshkg = 'sshgood'
-  then ssh_panel = 'zigiskey'
-  else ssh_panel = 'zigiskyr'
+  ssh_panel = 'zigiskey'
   call pfshow 'off'           /* make sure pfshow is off */
   'AddPop Row(5) Column(8)'
   'display panel('ssh_panel')'
@@ -7185,7 +7181,7 @@ Do_Keygen:
   then kmsg = null
   else kmsg = 'Old keys saved as' ,
     id_home'/'id.bkup 'and' ,
-    id_home'/'id.pub_bkup'.' ,
+    id_home'/'id.pub_bkup'.'
     zerrlm = 'SSH Keys regenerated.' kmsg ,
     'Be sure to replace your GIT SSH key and' ,
     'update any authorized_keys files on other servers if' ,
@@ -8998,7 +8994,7 @@ GETENV:
   end
   call add_env '_BPX_SHAREAS=MUST'
   call add_env '_BPX_SPAWN_SCRIPT=YES'
-  call add_env 'EXPORT _EDC_ADD_ERRNO2=1'
+  call add_env '_EDC_ADD_ERRNO2=1'
   call add_env '_EDC_ZERO_RECLEN=Y'
   call add_env 'ICONV_EBCDIC_ZOS_UNIX=1'
   env.0 = envc
@@ -9586,6 +9582,7 @@ flowselect:
   bl.0 = 0
   do flowi = 1 to so.0
     b1 = strip(so.flowi,'B')
+    if pos('HEAD',b1) > 0 then iterate
     if pos('/',b1) > 0 then do
       /* this is a remote branch we (maybe) have never checked out */
       seen_this_branch = 0
@@ -10540,6 +10537,23 @@ Auto_Tag_File:   /* FM */
   cht_cmd = 'cd' atf_dir
   cht_cmd = cht_cmd '&& chtag -tc' codepage atf_file
   x = docmd(cht_cmd)
+  return
+
+/* ---------------------- *
+ | Create Known Hosts ??? |
+ * ---------------------- */
+ return
+
+/* ----------------------------------------------------- *
+ | Check and update the known_hosts file from the server |
+ | ssh key if new                                        |
+ * ----------------------------------------------------- */
+Update_Known_Hosts:
+  parse arg git_host
+  if strip(git_host) = null then return /*if no remote set */
+  cmd = 'grep -q' git_host '~/.ssh/known_hosts ||' ,
+        'ssh -o StrictHostKeyChecking=accept-new git@'git_host '-q'
+  x = bpxwunix(cmd,,so.,se.,omvsenv.,1)
   return
 
   /* -------------------------------------------------- *

@@ -3,7 +3,8 @@
  @ type(output) caps(off)
  _ type(input ) hilite(uscore) caps(on) intens(low )
  # type(output) hilite(reverse) color(turq) caps(off)
-)Body Expand(\\)
+ ] type(output) color(turq) caps(off)
+)Body Width(&zscreenw) Expand(\\)
 +SSH Key Review+\-\#zigtitle    +\-\--------------
 %Command ===>_zcmd
 +
@@ -24,12 +25,14 @@ $sshkey
 
 
 
-+
+
 +Press%F3+when ready to continue - or%REGEN+to recreate the%SSH+keys.
 )Init
-*rexx(* zigissh sshkey)
+vget (zscreenw)
+*rexx(* zigissh sshkey zscreenw)
  sshkey = left('Copy the records below and paste into' ,
-               'your Git Account SSH Key:',78) zigissh
+               'your Git Account SSH Key:',zscreenw-2)
+ sshkey = sshkey zigissh
 *endrexx
 .help = zigih130
 )Proc
