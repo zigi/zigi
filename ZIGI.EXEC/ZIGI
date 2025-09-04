@@ -29,12 +29,13 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |         2025 Aug 29 - Version 3.25                         |
+  |         2025 Sep 04 - Version 3.25                         |
   |                     - Clean up SSH key regen messages      |
   |                     - create/update ~/.ssh/known_hosts     |
   |                       when repo is selected                |
   |                     - Remove OpenSSH version 9 check as    |
   |                       not needed for ed25519 keys          |
+  |                     - Remove HEAD from branch list         |
   |                                                            |
   |         2025 Jan 30 - Version 3.24                         |
   |                     - Support enhanced ssh keys (rsa and   |
@@ -6173,6 +6174,7 @@ Create_Branch_Table:
   bl.0 = 0
   do bri = 1 to so.0
     b1 = strip(so.bri,'B')
+    if pos('HEAD',b1) > 0 then iterate
     if pos('remotes/',b1) > 0 then do
       /* this is a remote branch we (maybe) have never checked out */
       parse var b1 remotes'/'origin'/'bname brlast
@@ -6717,7 +6719,7 @@ get_branches:
   do bri = 1 to so.0
     branch = strip(so.bri)
     if word(branch,1) = '*' then branch = word(branch,2)
-    if pos('->',branch) > 0 then iterate
+    if pos('HEAD',branch) > 0 then iterate
     if pos('/',branch) > 0 then do
       branch = translate(branch,' ','/')
       branch = word(branch,words(branch))
@@ -9580,6 +9582,7 @@ flowselect:
   bl.0 = 0
   do flowi = 1 to so.0
     b1 = strip(so.flowi,'B')
+    if pos('HEAD',b1) > 0 then iterate
     if pos('/',b1) > 0 then do
       /* this is a remote branch we (maybe) have never checked out */
       seen_this_branch = 0
