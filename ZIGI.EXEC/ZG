@@ -1269,6 +1269,7 @@ Alloc_DD:
   * Author:    Janko                                           *
   *                                                            *
   * History:                                                   *
+  *            06/02/25 - Update test for Co:Z getpds          *
   *            12/05/18 - Creation                             *
   * ---------------------------------------------------------- */
 DropISPF: Procedure
@@ -1310,6 +1311,7 @@ Check_for_CoZ:
   /* ----------------------- *
   | Check for getpds/putpds |
   * ----------------------- */
+  enhanced_cp = 1
   x = listdsi('NOCOZ' 'FILE')
   if sysreason /= 2 then do
     enhanced_cp = 0
@@ -1318,16 +1320,17 @@ Check_for_CoZ:
     'vput (dovedir dovestat) shared'
     return
   end
+  if enhanced_cp = 1 then do
   x = docmd('command -v getpds')
   if x = 0
-  then do
-    enhanced_cp = 1
-    dovetail_dir = so.1
-    lp = lastpos('/',dovetail_dir,length(dovetail_dir)-1)
-    dovetail_dir = left(dovetail_dir,lp)
+     then do
+       enhanced_cp = 1
+       dovetail_dir = so.1
+       lp = lastpos('/',dovetail_dir,length(dovetail_dir)-1)
+       dovetail_dir = left(dovetail_dir,lp)
+     end
   end
     else enhanced_cp = 0
-  if enhanced_cp = null then enhanced_cp = 0
   dovedir = enhanced_cp dovetail_dir
   dovestat    = 'Co:Z active'
   'vput (dovedir dovestat) shared'
