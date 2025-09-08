@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r25'
+  ver = 'v3r26'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -28,6 +28,10 @@
   |           FM  - Filipe Meireles                            |
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
+  |                                                            |
+  |         2025 Sep 08 - Version 3.26                         |
+  |                     - Support HTTPS clone                  |
+  |                       - push will not be allowed           |
   |                                                            |
   |         2025 Sep 04 - Version 3.25                         |
   |                     - Clean up SSH key regen messages      |
@@ -2315,6 +2319,13 @@ WWR_handle_network:
   | Push current branch to origin    |
   * -------------------------------- */
 WWR_handle_push:
+  if translate(substr(remote1,1,4)) = 'HTTP' then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'Push is not allowed when the remote server is accessed' ,
+             'using https.'
+    'Setmsg msg(isrz003)'
+    Return
+  end
   if zigi_offline = 0 then call do_push
   else do
     zerrsm = 'Offline.'
@@ -4661,6 +4672,7 @@ Do_Rset:
   hlq_change = 0
   extans = extfile
   zginst = 'N'
+  'vput (remote1)'
   call pfshow 'off'           /* make sure pfshow is off */
   'Addpop row(2) column(4)'
   'Display Panel(zigirset)'
@@ -9385,8 +9397,14 @@ parseGitURI:
   parse var uri user '@' site ':' owner '/' repo
   else
   /* no user specified */
-  parse var uri site ':' owner '/' repo
+  if translate(substr(uri,1,8)) = 'HTTPS://' then do
+    port = null
+    defcpush = 'N'
+    uri = substr(uri,9)
+    parse var uri  site '/' owner '/' repo
   return owner site port repo
+  end
+  parse var uri site ':' owner '/' repo
 
   /* -------------------------------------------------- *
   | Routine to update git with the user name and email |

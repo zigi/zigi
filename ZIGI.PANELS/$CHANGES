@@ -8,6 +8,30 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
 
                              ZIGI Release Notes
+                                Version 3.26
+                                Sep 08, 2025
+
+                         New Features and Functions
+                         --------------------------
+
+Key changes:     - Support for HTTP/HTTPS cloning
+                   - supports only public repositories
+                   - does not support updates to the server (push)
+
+Exec (REXX) Updates:
+* zigi           - HTTP/HTTPS cloning Support
+
+Panel Updates:
+* ZIGICC         - Updates for http/https support
+* ZIGIH110       - Updates for http/https support
+* ZIGIH111       - Updates for http/https support
+* ZIGIH112       - Updates for http/https support
+* ZIGIREMO       - Updates for http/https support
+* ZIGIRSET       - Updates for http/https support
+
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
                                 Version 3.25
                                 Sep 04, 2025
 

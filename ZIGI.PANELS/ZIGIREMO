@@ -9,12 +9,12 @@
 +Add remote _origin
                                                                          +
 +
-+Default Push on Commit:$z+(Y or N)
++Default Push on Commit:$z+(Y or N)   %*+Must be%N+if using%http+remote.
 +
 +Default Userid to set prior to Commit:$defruid + or blank
 +
 +This will execute a 'git remote add origin' followed by a
-+'git push -u origin master'.
+%git push -u origin master+
 +
 +Make sure the remote repository exists and you're authorized to
 +push to master.
@@ -31,11 +31,13 @@
  REFRESH(origin)
 )Proc
  &resp = .resp
-*REXX(* zedsmsg zedlmsg resp csr)
+*REXX(* zedsmsg zedlmsg resp csr origin defcpush)
   zedsmsg = ''
   if word(origin,1) = 'git' then
      if word(origin,2) = 'clone' then
      origin = subword(origin,3)
+  if translate(substr(origin,1,4)) = 'HTTP' then
+     defcpush = 'N'
   if length(defruid) = 8 then do
     CVT      = C2D(Storage(10,4))
     TVT      = C2D(Storage(D2X(CVT + 156),4))   /* cvt + 9c */
@@ -56,7 +58,7 @@
   ver (&defcpush,nb,list,Y,N)
   ver (&defruid,dsname)
 )end
-/* --------------------- Copyright (C) ------------------------- */
+/* ------------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                            */
-/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* Copyright (C) 2020-2025 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* ------------------------------------------------------------- */

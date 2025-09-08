@@ -42,7 +42,8 @@
  &zgsr = CSR
 )Proc
  &resp = .resp
-*REXX(* zedsmsg zedlmsg resp csr pdshlq pdshlqn)
+ vget (remote1)
+*REXX(* zedsmsg zedlmsg resp csr pdshlq pdshlqn remote1 defcpush)
   zedsmsg = ''
   if pos(' ',reponame) > 0 then do
     zedsmsg = 'Error'
@@ -62,6 +63,16 @@
                  'again.'
         end
      end
+
+  if translate(substr(remote1,1,4)) = 'HTTP' then
+    if defcpush = 'Y' then do
+       defcpush = 'N'
+        zedsmsg = 'Fix Push.'
+        zedlmsg = 'Default push will be forced to N (No)',
+                 'because the remote repository' ,
+                 'is accessed using HTTPS. Press Enter to Continue.'
+    end
+
   if zedsmsg = '' then
   if length(defruid) = 8 then do
     CVT      = C2D(Storage(10,4))
@@ -88,5 +99,5 @@
 )End
 /* -------------------------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                                         */
-/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
+/* Copyright (C) 2020-2025 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
 /* -------------------------------------------------------------------------- */
