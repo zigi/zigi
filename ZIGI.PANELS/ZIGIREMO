@@ -9,7 +9,7 @@
 +Add remote _origin
                                                                          +
 +
-+Default Push on Commit:$z+(Y or N)   %*+Must be%N+if using%http+remote.
++Default Push on Commit:$z+(Y or N)  %*+Must be%N+if using%http+or%https+remote.
 +
 +Default Userid to set prior to Commit:$defruid + or blank
 +
