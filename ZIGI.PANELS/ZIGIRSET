@@ -40,6 +40,8 @@
     .cursor = ZGINST
  .help = zigih2e0
  &zgsr = CSR
+)ReInit
+  Refresh (defcpush)
 )Proc
  &resp = .resp
  vget (remote1)
@@ -68,7 +70,7 @@
     if defcpush = 'Y' then do
        defcpush = 'N'
         zedsmsg = 'Fix Push.'
-        zedlmsg = 'Default push will be forced to N (No)',
+        zedlmsg = 'Default push was reset to N (No)',
                  'because the remote repository' ,
                  'is accessed using HTTPS. Press Enter to Continue.'
     end

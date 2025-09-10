@@ -28,7 +28,7 @@
 )Init
  .zvars = '(defcpush)'
 )Reinit
- REFRESH(origin)
+ REFRESH(origin defcpush)
 )Proc
  &resp = .resp
 *REXX(* zedsmsg zedlmsg resp csr origin defcpush)

@@ -30,7 +30,7 @@
  .help = zigih110
  .zvars = '(readonly defcpush)'
 )Reinit
- REFRESH(REMOTE LOCALREP)
+ REFRESH(REMOTE LOCALREP defcpush)
 )Proc
  &resp = .resp
 *REXX(* zedsmsg zedlmsg resp csr)
