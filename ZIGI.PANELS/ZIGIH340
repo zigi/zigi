@@ -15,7 +15,7 @@
   %AF+For Add to override a previous Git Ignore
   %B+ Browse - Browse the member
   %BL+Blame - Show revision/author/date-time of all changes
-  %D+ Compares the uncommited version to the current version using git diff
+  %D+ Compares the uncommitted version to the current version using git diff
   %DB+Compares the selected member to another Branch
   %H+ History - view previous version of the PDS member
   %I+ Git Ignore the member
@@ -33,5 +33,5 @@
 )END
 /* ------------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                            */
-/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* Copyright (C) 2020-2025 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* ------------------------------------------------------------- */

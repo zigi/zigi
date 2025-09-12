@@ -16,7 +16,7 @@
 +  %*+Finish your ZIGI flow (FLOWEND or via Action Bar)
 +
  %FLOWGO +Creates a new branch based on%master+named zigiflow-%your-flow-name.
-         +You can do this whenever your workingspace is 'clean'.
+         +You can do this whenever your workspace is 'clean'.
          +(it also creates an identical branch named%your-flow-name+)
  %FLOWEND+Squashes all commits from zigiflow-%your-flow-name+into the +
          %your-flow-name+branch. And prepopulates a commit panel.
@@ -30,7 +30,7 @@
 )PROC
  &zcont = zigih240
 )END
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2025 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */

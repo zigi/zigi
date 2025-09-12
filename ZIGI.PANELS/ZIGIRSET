@@ -18,7 +18,7 @@
 +Default Push on Commit:                      @z+(Y or N)
 +Default Userid to set prior to Commit:       @defruid + or blank
 +Disable File Extension Prompt on Dataset Add:@z+(Y or N)
-+Prime Respository with zginstall.rex:        @z+(Y or N)
++Prime Repository with zginstall.rex:        @z+(Y or N)
 +
 %ENTER+to register updates and%F3+to Cancel or Leave the panel.
 )Init
