@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |         2025 Sep 08 - Version 3.26                         |
+  |         2025 Sep 14 - Version 3.26                         |
   |                     - Support HTTPS clone                  |
   |                       - push will not be allowed           |
   |                                                            |
@@ -6293,6 +6293,9 @@ Branch_it:
     end
     if zsel = "D" then do
       ans = null
+      if left(translate(remote1),4) = 'HTTP'
+         then if bloc = 'Remote'
+         then return
       if pos('/',brstatus) > 0
       then bloc = 'Local'
       else bloc = brstatus
@@ -6323,9 +6326,17 @@ Branch_it:
           zerrsm = 'Local Deleted.'
           zerrlm = 'Branch 'bname' succesfully deleted from the local' ,
             'repository but remains on the remote.'
+          if left(translate(remote1),4) = 'HTTP'
+             then do
+                  'tbdelete' rtbb
+                  zerrlm = 'Branch 'bname' succesfully deleted from the local' ,
+                           'repository.'
+                  end
+             else do
+                  brstatus = 'Remote'
+                  'tbmod' rtbb
+                  end
           'Setmsg msg(isrz003)'
-          brstatus = 'Remote'
-          'tbmod' rtbb
         end
       end
     end
