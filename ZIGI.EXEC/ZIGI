@@ -5851,6 +5851,7 @@ Clone_Repo:
     x = docmd(cmd)
        Comment End */
     call update_known_hosts host
+    trace '?i'
     localrep = strip(localrep,'T','/')
     x = time('r')  /* begin timer */
     cmd = 'cd 'localrep
@@ -5867,9 +5868,11 @@ Clone_Repo:
     if reponame /= null then zigirep = reponame
     else reponame = zigirep
     /* Check to see if this is a ZIGI-managed repo */
-    cmd = '[[ | -d 'localrep'/'zigirep'/.zigi ]] && echo 0'
-    x = docmd(cmd)
-    if so.0 = 1 & so.1 = 0 then do
+    if pos('.git',zigirep) > 0
+       then parse value zigirep with zigirep'.git'
+    file = localrep'/'zigirep'/.zigi'
+    Address syscall 'stat (file) so.'
+    if so.0 = 0 then do
       call pfshow 'off'           /* make sure pfshow is off */
       'Addpop row(4) column(7)'
       'Display Panel(zigipopn)'
@@ -9404,17 +9407,17 @@ parseGitURI:
   end
   /* alternative scp-like processing */
   else
-  /* user specified */
   if pos('@',uri) > 0 then
   parse var uri user '@' site ':' owner '/' repo
   else
   /* no user specified */
-  if translate(substr(uri,1,8)) = 'HTTPS://' then do
-    port = null
+  if translate(left(uri,4)) = 'HTTP' then do
     defcpush = 'N'
-    uri = substr(uri,9)
+    parse value uri with . '://' uri
     parse var uri  site '/' owner '/' repo
+    return owner site port repo
   end
+  else
   parse var uri site ':' owner '/' repo
   return owner site port repo
 
@@ -10568,11 +10571,6 @@ Auto_Tag_File:   /* FM */
   cht_cmd = cht_cmd '&& chtag -tc' codepage atf_file
   x = docmd(cht_cmd)
   return
-
-/* ---------------------- *
- | Create Known Hosts ??? |
- * ---------------------- */
- return
 
 /* ----------------------------------------------------- *
  | Check and update the known_hosts file from the server |
