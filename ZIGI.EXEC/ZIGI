@@ -29,9 +29,10 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |         2025 Sep 14 - Version 3.26                         |
+  |         2025 Sep 16 - Version 3.26                         |
   |                     - Support HTTPS clone                  |
   |                       - push will not be allowed           |
+  |                     - Fix major bug in parseGitURI routine |
   |                                                            |
   |         2025 Sep 04 - Version 3.25                         |
   |                     - Clean up SSH key regen messages      |
@@ -9413,9 +9414,9 @@ parseGitURI:
     defcpush = 'N'
     uri = substr(uri,9)
     parse var uri  site '/' owner '/' repo
-  return owner site port repo
   end
   parse var uri site ':' owner '/' repo
+  return owner site port repo
 
   /* -------------------------------------------------- *
   | Routine to update git with the user name and email |
@@ -9461,7 +9462,7 @@ Update_Config:
   zerrsm = 'Updated.'
   zerrlm = 'ZIGI Settings updated successfully.'
   'Setmsg msg(isrz003)'
-  return
+  return 0
 
 MGEN:
   /* ---------------------------------------------------------- |
