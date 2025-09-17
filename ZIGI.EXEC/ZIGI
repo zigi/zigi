@@ -29,10 +29,12 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |         2025 Sep 16 - Version 3.26                         |
+  |         2025 Sep 17 - Version 3.26                         |
   |                     - Support HTTPS clone                  |
   |                       - push will not be allowed           |
   |                     - Fix major bug in parseGitURI routine |
+  |                     - Enhance Debug to include standard    |
+  |                       out and error messages.              |
   |                                                            |
   |         2025 Sep 04 - Version 3.25                         |
   |                     - Clean up SSH key regen messages      |
@@ -9150,6 +9152,10 @@ docmd:
   cmd = 'umask' umask '&&' cmd
   x = debug('Command:' cmd)
   x = bpxwunix(cmd,,so.,se.,env.)
+  if zigidebg  = 1 then do
+     address syscall 'writefile (debugfil) 644 so. 1'
+     address syscall 'writefile (debugfil) 644 se. 1'
+     end
   return x
 
   /* ------------------------------------------ *

@@ -18,11 +18,15 @@ Key changes:     - Support for HTTP/HTTPS cloning
                    - supports only public repositories
                    - does not support updates to the server (push)
                  - Fixed typos in various ISPF panels
+                 - Enhance Debug to include standard out and error
+                   messages.
 
 Exec (REXX) Updates:
 * zigi           - HTTP/HTTPS cloning Support
                  - Fix major bug in clone routine parseGitURI introduced
                    in 3.25 by fat fingers
+                 - Enhance Debug to include standard out and error
+                   messages.
 
 Panel Updates:
 * ZIGICC         - Updates for http/https support
