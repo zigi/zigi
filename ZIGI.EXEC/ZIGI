@@ -5853,7 +5853,6 @@ Clone_Repo:
     x = docmd(cmd)
        Comment End */
     call update_known_hosts host
-    trace '?i'
     localrep = strip(localrep,'T','/')
     x = time('r')  /* begin timer */
     cmd = 'cd 'localrep
