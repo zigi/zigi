@@ -1,0 +1,15 @@
+  /* ----------------- REXX ------------------------- *
+  | A toggle exec that will allocate the ZIGIDEBG DD |
+  | if it does not exist and if it does then it will |
+  | be freed.                                        |
+  * ------------------------------------------------ */
+  x = listdsi('ZIGIDEBG' 'FILE')
+  if x > 0 then if sysreason = 3
+  then do
+    'Free F(ZIGIDEBG)'
+    say 'Freeing ZIGIDEBG allocation.'
+  end
+  else do
+    'Alloc f(zigidebg) dummy reuse'
+    say 'Allocating ZIGIDEBG to Dummy.'
+  end

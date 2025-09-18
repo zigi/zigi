@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |         2025 Sep 17 - Version 3.26                         |
+  |         2025 Sep 18 - Version 3.26                         |
   |                     - Support HTTPS clone                  |
   |                       - push will not be allowed           |
   |                     - Fix major bug in parseGitURI routine |
@@ -1071,10 +1071,10 @@ init_git:
   if sshkeyt = 'rsa'
   then keyfile = keyrsa
   else keyfile = keyed
-  cmd = 'cat' keyfile
-  x = docmd(cmd)
+  address syscall 'readfile' keyfile 'so.'
   if so.0 = 0 then do
     no_key = 1
+    x = debug('No SSH Key found - begin generation.')
     call do_keygen
     call handle_zigiprim_ssh
   end
@@ -7223,13 +7223,13 @@ Do_Keygen:
   * ------------------------------ */
 catsshk:
   drop so. se.
-  cmd = 'cat' keyfile
-  x = docmd(cmd)
+  address syscall 'readfile' keyfile 'so.'
   if se.0 = 0
   then do
     zigissh = so.1
     no_key = 0
     'vput (zigissh) profile'
+    x = debug('No SSH Key found.')
   end
   else zigissh = null
   return
@@ -9150,11 +9150,22 @@ docmd:
   end
   drop so. se.
   cmd = 'umask' umask '&&' cmd
-  x = debug('Command:' cmd)
   x = bpxwunix(cmd,,so.,se.,env.)
   if zigidebg  = 1 then do
+     dbmsg.0 = 3
+     dbmsg.1 = '  '
+     dbmsg.2 = 'Command:' cmd
+     dbmsg.3 = 'Standard Out:'
+     if so.0 = 0 then dbmsg.3 = dbmsg.3 '-none-'
+     address syscall 'writefile (debugfil) 644 dbmsg. 1'
      address syscall 'writefile (debugfil) 644 so. 1'
-     address syscall 'writefile (debugfil) 644 se. 1'
+     if se.0 > 0 then do
+        dbmsg.0 = 2
+        dbmsg.1 = '  '
+        dbmsg.2 = 'Standard Error:'
+        address syscall 'writefile (debugfil) 644 dbmsg. 1'
+        address syscall 'writefile (debugfil) 644 se. 1'
+        end
      end
   return x
 
@@ -9256,9 +9267,10 @@ view_debug:
 debug:
   if zigidebg  = 1 then do
     parse arg msg
-    msg = Date() Time()' : 'msg
-    c = 'echo "'msg'" >>' debugfil
-    x = bpxwunix(usssafe(c),,dso.,dse.,omvsenv.)
+    dmsg.0 = 2
+    dmsg.1 = '  '
+    dmsg.2 = Date() Time()' : 'msg
+    address syscall 'writefile (debugfil) 644 dmsg. 1'
     zigidebg_use = 1
   end
   return 0
@@ -10301,8 +10313,9 @@ Set_Read_Only:
   return 0
 
 Check_Read_Only:
-  x = docmd('ls -la' localrep'/'zigirep'/.zigi/readonly')
-  if so.0 > 0 then return 1
+  file = localrep'/'zigirep'/.zigi/readonly'
+  Address syscall 'stat (file) s.'
+  if s.0 > 0 then return 1
   else return 0
 
   /* -------------------------------------------------------------- *
