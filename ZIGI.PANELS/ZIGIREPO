@@ -22,6 +22,8 @@
  PDC DESC('Refresh Status')                     ACTION RUN(Check   )
  PDC DESC('Replace z/OS Datasets from Repo')    ACTION RUN(Replace )
  PDC DESC('Set Defaults')                       ACTION RUN(Set     )
+ PDC DESC('Enable Debug Logging')               ACTION RUN(LOGD)
+ PDC DESC('View Debug Log')                     ACTION RUN(VIEWD)
  PDC DESC('ZIGI/Git Information')               ACTION RUN(GITINFO)
  PDC DESC('End')                                Action Run(END)
 )ABCINIT

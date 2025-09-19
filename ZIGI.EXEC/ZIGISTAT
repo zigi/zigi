@@ -40,6 +40,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            09/18/25 LBD - Update debug logging code        |
   |            04/29/25 LBD - Bypass PDS members with aliases  |
   |            01/16/25 LBD - Bug fix on option                |
   |            09/29/24 LBD - Support 8 Char TSO Userid        |
@@ -140,15 +141,20 @@ zigistat:
   /* ---------------------------------------- *
   | Check for ZIGIDEBG DD for debug purposes |
   * ---------------------------------------- */
+  /* Comment Start
   x = listdsi('ZIGIDEBG' 'FILE')
   if x > 0 then if sysreason = 3
   then zigidebg = 1
   else zigidebg = 0
+     Comment End */
 
   Address ISPExec
   'vget (debugfil defruid readonly dovedir encoding)'
   parse value encoding with .'-'codep .
   if codep = null then codep = 1047
+  if debugfil /= null
+     then zigidebg = 1
+     else zigidebg = 0
 
   call getenv
 
@@ -665,8 +671,9 @@ debug:
   if zigidebg  = 1 then do
     parse arg msg
     msg = Date() Time()' : 'msg
-    c = 'echo "'msg'" >>' debugfil
-    x = bpxwunix(c,,dso.,dse.)
+    dmsg.0 = 1
+    dmsg.1 = Date() Time()' : 'msg
+    address syscall 'writefile (debugfil) 644 dmsg. 1'
   end
   return 0
 

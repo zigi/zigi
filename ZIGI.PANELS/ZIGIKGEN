@@ -8,11 +8,11 @@
 +
 )Init
  .zvars = '(kgen)'
- &zwinttl = 'ZIGI SSH Key Regneration Prompt'
+ &zwinttl = 'ZIGI SSH Key Regeneration Prompt'
 )Proc
  ver (&kgen,nb,list,Y)
 )End
-/* -------------------------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                                         */
-/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper, Lionel Dyck, Ray Mullins    */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2025 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */

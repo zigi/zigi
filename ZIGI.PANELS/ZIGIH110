@@ -11,8 +11,8 @@
 %Clone+as a command clones a%Remote Repository+and then creates a set of
 +z/OS Datasets based on the%files+and%folders+from the remote repository
 +(optionally prefixed with your%PREFIX+qualifier). For the remote repository,
-+the 'clone with ssh' url should be used. This requires access to the remote
-+repository via public key.
++the%clone with ssh+url should be used. This requires access to the remote
++repository via public key. Using%clone with https+will work but is limited.
 +
 %Optional:+is the name of a specific branch to clone. The default is master.
 +
@@ -31,7 +31,7 @@
 )PROC
  &zcont = zigih111
 )END
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2025 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */

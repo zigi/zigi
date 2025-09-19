@@ -8,7 +8,7 @@
 +
                                %STASH+and%STASHL+
 +
-%Shash+saves (push) your current git workspace and restores the workspace
+%Stash+saves (push) your current git workspace and restores the workspace
 +to the last commit level. This allows you to quickly switch what you're working
 +on and work on something else without forcing a commit.
 +
@@ -30,7 +30,7 @@
 )PROC
  &zcont = zigih2j1
 )END
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2025 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */

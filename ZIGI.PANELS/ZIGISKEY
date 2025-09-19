@@ -11,7 +11,7 @@
 +Select SSH RSA Key Size:
   +_z+2048 _z+3072 _z+4096
 +
-+Or SSH ED25519 Key:_z+     %Default+
++Or SSH ed25519 Key:_z+     %Default+
 +
 +Press%Enter+to generate or%F3+to Cancel
 +

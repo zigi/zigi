@@ -8,7 +8,7 @@
 +
                               %Messages+
 +
-+The message browse display uses standard ISPF Browse with a customzied
++The message browse display uses standard ISPF Browse with a customized
 +Browse panel. All ISPF Browse commands are available for use.
 +
 +This panel is used for many purposes within ZIGI as it is generalized.
@@ -29,7 +29,7 @@
  .cursor  = &zcmd
 )PROC
 )END
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2025 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */

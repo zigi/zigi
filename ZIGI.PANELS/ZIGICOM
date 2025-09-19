@@ -31,7 +31,7 @@
       &zpush = 'N'
   .help = zigih230
 )Reinit
-  REFRESH(tagid)
+  REFRESH(tagid zpush)
 )Proc
  if (&zcmd EQ &Z)
     if (&zsel EQ &Z)
@@ -40,13 +40,18 @@
       ver (&zpush,list,Y,N,&Z)
  &resp = .resp
   vput (zadd) profile
-*REXX(* zedsmsg zedlmsg resp)
+*REXX(* zedsmsg zedlmsg resp remote1 zpush)
   if resp = 'END' then exit
   zedsmsg = ''
   if words(tagid) > 1 then do
     zedsmsg = 'Error.'
     zedlmsg = 'The Tag may not have blanks.'
   end
+
+  if zedsmsg = '' then
+     if translate(substr(remote1,1,4)) = 'HTTP' then
+        zpush = 'N'
+
 *ENDREXX
  if (&zedsmsg NE &Z)
     .cursor = TAGID
@@ -54,5 +59,5 @@
 )end
 /* --------------------- Copyright (C) ------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                            */
-/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* Copyright (C) 2020-2025 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* ------------------------------------------------------------- */
