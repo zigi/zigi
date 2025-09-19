@@ -22,6 +22,7 @@
 [Find+   Find in table   [Push+   Push to origin    [Tag+     Git Tag
 [Flow+   ZIGI Flow       [READme+ Edit README.md    [TagList+ List Tags
 [GitCMD +Git Commands    [Replace+Replace Datasets{*[View+    OMVS Dir
++            {Special:[logd+Enable Logging  [viewd+View Log
 +
 {*+Not supported within subdirectories.
 {*+Use%O+to display a popup for commands if the menu has been hidden.
@@ -59,6 +60,8 @@
  &Tag     = 'Tag'
  &TagList = 'TagList'
  &View    = 'View'
+ &logd    = 'LOGD'
+ &Viewd   = 'VIEWD'
  &ztut = '200'
  vput (ztut)
 )PROC
@@ -94,6 +97,8 @@
     When abbrev('TAGLIST',zcmd,4)  = 1 then zcmd = 26
     When abbrev('DIFF',zcmd,1)    = 1 then zcmd = 27
     When abbrev('README',zcmd,1)  = 1 then zcmd = 28
+    When zcmd = 'LOGD'                then zcmd = 29
+    When zcmd = 'VIEWD'               then zcmd = 29
     Otherwise nop
   end
 *Endrexx
@@ -127,6 +132,7 @@
           26,zigih2I0  /* TagList        */
           27,zigih2l0  /* Diff           */
           28,zigih2m0  /* README         */
+          29,zigih040  /* LogD/ViewD     */
            *,'?'
            )
 )PNTS
@@ -160,8 +166,10 @@
  FIELD(TAGLIST) VAR(ZCMD)  VAL('26')
  FIELD(DIFF  )  VAR(ZCMD)  VAL('27')
  FIELD(README)  VAR(ZCMD)  VAL('28')
+ FIELD(logd  )  VAR(ZCMD)  VAL('29')
+ FIELD(viewd )  VAR(ZCMD)  VAL('29')
 )END
 /* --------------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                              */
-/* Copyright (C) 2020 - 2023 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* Copyright (C) 2020 - 2025 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* --------------------------------------------------------------- */
