@@ -6,29 +6,29 @@
 %Tutorial -}-}~The z ISPF Git Interface (zigi)%}-}- Tutorial
 %Selection ===>`ZCMD                                                          +
 +
-                             %Special Characters+
+                              %Logging Activity+
 +
-+Special characters in z/OS datasets and member names are escaped for OMVS
-+processes using the \ escape character. Some characters within the data
-+can also cause problems and cannot be escaped.
-
-+The characters that are challenges for OMVS and/or Git:
+%zigi+provides the ability to log all, or nearly all, processing. This
++is accomplished by writing to a file created in the users OMVS home
++directory. The file has a date and time stamp of when it is initially
++created. The format is:%zigidebug.dyyddd.thhmmss+
 +
-+          File names
-+          OMVS    z/OS   and    within the Data
-+         %  _+<->%@             x'0D' +Carriage Return (CR)
-+         %  .+<->%#             x'15' +New Line (NL)
-+         %  -+<->%$             x'25' +Line Feed (LF)
++To initiate logging do:
+   +1) Allocate a DUMMY DD to ZIGIDEBG
++or 2) Issue the%logd+command from within zigi
 +
++To view the file use the%viewd+command under zigi at any time. It is also
++displayed upon exiting zigi.
 +
-+    "The best competition I have is against myself to become better."
-+       -- John Wooden
++           "Nearly everything awesome takes longer than you think.
++                Get started and don't worry about the clock."
++                               --- James Clear
 +
           +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor = &zcmd
 )PROC
- &zcont = zigih040
+ &zcont = zigih100
 )END
 /* --------------------- Copyright (C) ------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                            */
