@@ -3,6 +3,7 @@
   ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
   [ type(output) intens(high) caps(off) just(left) pas(on) skip(on) color(white)
     hilite(uscore)
+  { type(text) color(yellow) intens(low)
 )Body Expand(\\)
 %Tutorial -\-\~The z ISPF Git Interface (zigi)%\-\- Tutorial
 %Selection ===>_ZCMD                                                          +
@@ -19,9 +20,9 @@
   [Gitenv+ Review/Update the Git environment file (optional)
   [Githelp+Navigate the Git help output via ISPF panels
   [Gitinfo+ZIGI/Git Information
-  [Select+ Select a repository by name
-  [SOrt+   Sort the table
-  [SSH+    Review your SSH public key
+  [Select+ Select a repository by name           {Special:+
+  [SOrt+   Sort the table                        [logd+  Enable logging
+  [SSH+    Review your SSH public key            [viewd+ Vieew log
 +
 +Use%O+to display a command popup selection menu if the menu has been hidden.
 +
@@ -39,6 +40,8 @@
  &find    = 'Find'
  &sort    = 'Sort'
  &select  = 'Select'
+ &logd    = 'LOGD'
+ &viewd   = 'VIEWD'
  &ztut = '100'
  vput (ztut)
 )PROC
@@ -56,6 +59,8 @@
     When abbrev('SELECT',zcmd,2) = 1 then zcmd = 9
     When abbrev('SORT',zcmd,2) = 1 then zcmd = 10
     When abbrev('CONNECT',zcmd,3) = 1 then zcmd = 11
+    When zcmd = 'LOGD'                then zcmd = 12
+    When zcmd = 'VIEWD'               then zcmd = 12
     Otherwise nop
   end
 *Endrexx
@@ -72,6 +77,7 @@
            9,zigih180    /*  Select              */
           10,zigih190    /*  Sort                */
           11,zigih125    /*  Connect             */
+          12,zigih040    /*  LogD/ViewD          */
            *,'?'
            )
 )PNTS
@@ -86,8 +92,10 @@
  Field(select ) var(zcmd) val('9')
  Field(sort   ) var(zcmd) val('10')
  Field(connect) var(zcmd) val('11')
+ Field(logd   ) var(zcmd) val('12')
+ Field(viewd  ) var(zcmd) val('12')
 )END
 /* ------------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                            */
-/* Copyright (C) 2020-2023 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* Copyright (C) 2020-2025 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* ------------------------------------------------------------- */
