@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r25'
+  ver = 'v3r26'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -28,6 +28,14 @@
   |           FM  - Filipe Meireles                            |
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
+  |                                                            |
+  |         2025 Sep 18 - Version 3.26                         |
+  |                     - Support HTTPS clone                  |
+  |                       - push will not be allowed           |
+  |                     - Fix major bug in parseGitURI routine |
+  |                     - Enhance Debug to include standard    |
+  |                       out and error messages.              |
+  |                     - Add LOGD command to enable debug log |
   |                                                            |
   |         2025 Sep 04 - Version 3.25                         |
   |                     - Clean up SSH key regen messages      |
@@ -756,6 +764,7 @@
       When abbrev('LOCAL',zcmd,2) = 1 then call handle_zigiprim_local
       When abbrev('SORT',word(zcmd,1),2) = 1 then call handle_zigiprim_sort
       When abbrev('SSH',zcmd,2) = 1 then call handle_zigiprim_ssh
+      When zcmd = 'LOGD' then call enable_debug
       When zcmd = 'VIEWD' then call view_debug
       Otherwise do
         rc = zigiexit(1 zcmd)
@@ -1064,10 +1073,10 @@ init_git:
   if sshkeyt = 'rsa'
   then keyfile = keyrsa
   else keyfile = keyed
-  cmd = 'cat' keyfile
-  x = docmd(cmd)
+  address syscall 'readfile' keyfile 'so.'
   if so.0 = 0 then do
     no_key = 1
+    x = debug('No SSH Key found - begin generation.')
     call do_keygen
     call handle_zigiprim_ssh
   end
@@ -1246,6 +1255,23 @@ init_ispf:
   parse value '' with null rx save_zigirep fulldsn cltime
   cscnt = 0
   cdrcnt = 0
+  return
+
+Enable_Debug:
+  /* --------------------- *
+  | Enable debug logging. |
+  * --------------------- */
+  zigidebg = 1
+  ztime = time()
+  ztime = left(ztime,2)''substr(ztime,4,2)''substr(ztime,7,2)
+  debugfil = home'/zigidebug.d'date('j')'.t'ztime
+  Address ISPExec ,
+    'vput (debugfil)'
+  zerrsm = 'Enabled.'
+  zerrlm = 'Debug logging enabled. Use the VIEWD command to' ,
+    'view or it will be displayed on exit from ZIGI.'
+  'setmsg msg(isrz003)'
+  x = debug('Debug logging enabled.')
   return
 
 Init_Debug:
@@ -1744,6 +1770,7 @@ Work_With_Repo:
       When abbrev('FLOWGO',zcmd,5)   = 1 then call WWR_handle_flowgo
       When abbrev('FLOWEND',zcmd,5)  = 1 then call WWR_handle_flowend
       When zcmd = 'STASHL' then call stash_list
+      When zcmd = 'LOGD' then call enable_debug
       when zcmd = 'VIEWD' then call view_debug
       Otherwise do
         rc = zigiexit(2 zcmd)
@@ -2315,6 +2342,13 @@ WWR_handle_network:
   | Push current branch to origin    |
   * -------------------------------- */
 WWR_handle_push:
+  if translate(substr(remote1,1,4)) = 'HTTP' then do
+    zerrsm = 'Invalid.'
+    zerrlm = 'Push is not allowed when the remote server is accessed' ,
+             'using https.'
+    'Setmsg msg(isrz003)'
+    Return
+  end
   if zigi_offline = 0 then call do_push
   else do
     zerrsm = 'Offline.'
@@ -3389,6 +3423,7 @@ Work_with_repo_file:
         When abbrev('SORT',word(zcmd,1),2) = 1 then call do_lsort
         When abbrev("LOCATE",translate(word(zcmd,1)),1) = 1 then
         call WWRF_handle_locate
+        When zcmd = 'LOGD' then call enable_debug
         when zcmd = 'VIEWD' then call view_debug
         Otherwise do
           zerrsm = 'Unknown'
@@ -4661,6 +4696,7 @@ Do_Rset:
   hlq_change = 0
   extans = extfile
   zginst = 'N'
+  'vput (remote1)'
   call pfshow 'off'           /* make sure pfshow is off */
   'Addpop row(2) column(4)'
   'Display Panel(zigirset)'
@@ -5854,9 +5890,11 @@ Clone_Repo:
     if reponame /= null then zigirep = reponame
     else reponame = zigirep
     /* Check to see if this is a ZIGI-managed repo */
-    cmd = '[[ | -d 'localrep'/'zigirep'/.zigi ]] && echo 0'
-    x = docmd(cmd)
-    if so.0 = 1 & so.1 = 0 then do
+    if pos('.git',zigirep) > 0
+       then parse value zigirep with zigirep'.git'
+    file = localrep'/'zigirep'/.zigi'
+    Address syscall 'stat (file) so.'
+    if so.0 = 0 then do
       call pfshow 'off'           /* make sure pfshow is off */
       'Addpop row(4) column(7)'
       'Display Panel(zigipopn)'
@@ -6281,6 +6319,9 @@ Branch_it:
     end
     if zsel = "D" then do
       ans = null
+      if left(translate(remote1),4) = 'HTTP'
+         then if bloc = 'Remote'
+         then return
       if pos('/',brstatus) > 0
       then bloc = 'Local'
       else bloc = brstatus
@@ -6311,9 +6352,17 @@ Branch_it:
           zerrsm = 'Local Deleted.'
           zerrlm = 'Branch 'bname' succesfully deleted from the local' ,
             'repository but remains on the remote.'
+          if left(translate(remote1),4) = 'HTTP'
+             then do
+                  'tbdelete' rtbb
+                  zerrlm = 'Branch 'bname' succesfully deleted from the local' ,
+                           'repository.'
+                  end
+             else do
+                  brstatus = 'Remote'
+                  'tbmod' rtbb
+                  end
           'Setmsg msg(isrz003)'
-          brstatus = 'Remote'
-          'tbmod' rtbb
         end
       end
     end
@@ -7194,13 +7243,13 @@ Do_Keygen:
   * ------------------------------ */
 catsshk:
   drop so. se.
-  cmd = 'cat' keyfile
-  x = docmd(cmd)
+  address syscall 'readfile' keyfile 'so.'
   if se.0 = 0
   then do
     zigissh = so.1
     no_key = 0
     'vput (zigissh) profile'
+    x = debug('No SSH Key found.')
   end
   else zigissh = null
   return
@@ -9121,8 +9170,23 @@ docmd:
   end
   drop so. se.
   cmd = 'umask' umask '&&' cmd
-  x = debug('Command:' cmd)
   x = bpxwunix(cmd,,so.,se.,env.)
+  if zigidebg  = 1 then do
+     dbmsg.0 = 3
+     dbmsg.1 = '  '
+     dbmsg.2 = 'Command:' cmd
+     dbmsg.3 = 'Standard Out:'
+     if so.0 = 0 then dbmsg.3 = dbmsg.3 '-none-'
+     address syscall 'writefile (debugfil) 644 dbmsg. 1'
+     address syscall 'writefile (debugfil) 644 so. 1'
+     if se.0 > 0 then do
+        dbmsg.0 = 2
+        dbmsg.1 = '  '
+        dbmsg.2 = 'Standard Error:'
+        address syscall 'writefile (debugfil) 644 dbmsg. 1'
+        address syscall 'writefile (debugfil) 644 se. 1'
+        end
+     end
   return x
 
   /* ------------------------------------------ *
@@ -9214,8 +9278,7 @@ view_debug:
   else do
     zerrsm = 'Invalid.'
     zerrlm = 'VIEWD is not supported when debug is not enabled. To' ,
-      'enable debug allocate a ZIGIDEBG DD to Dummy and' ,
-      'restart ZIGI.'
+      'enable debug use the LOGD command.'
     'setmsg msg(isrz003)'
   end
   return
@@ -9223,9 +9286,10 @@ view_debug:
 debug:
   if zigidebg  = 1 then do
     parse arg msg
-    msg = Date() Time()' : 'msg
-    c = 'echo "'msg'" >>' debugfil
-    x = bpxwunix(usssafe(c),,dso.,dse.,omvsenv.)
+    dmsg.0 = 2
+    dmsg.1 = '  '
+    dmsg.2 = Date() Time()' : 'msg
+    address syscall 'writefile (debugfil) 644 dmsg. 1'
     zigidebg_use = 1
   end
   return 0
@@ -9380,11 +9444,17 @@ parseGitURI:
   end
   /* alternative scp-like processing */
   else
-  /* user specified */
   if pos('@',uri) > 0 then
   parse var uri user '@' site ':' owner '/' repo
   else
   /* no user specified */
+  if translate(left(uri,4)) = 'HTTP' then do
+    defcpush = 'N'
+    parse value uri with . '://' uri
+    parse var uri  site '/' owner '/' repo
+    return owner site port repo
+  end
+  else
   parse var uri site ':' owner '/' repo
   return owner site port repo
 
@@ -9432,7 +9502,7 @@ Update_Config:
   zerrsm = 'Updated.'
   zerrlm = 'ZIGI Settings updated successfully.'
   'Setmsg msg(isrz003)'
-  return
+  return 0
 
 MGEN:
   /* ---------------------------------------------------------- |
@@ -10262,8 +10332,9 @@ Set_Read_Only:
   return 0
 
 Check_Read_Only:
-  x = docmd('ls -la' localrep'/'zigirep'/.zigi/readonly')
-  if so.0 > 0 then return 1
+  file = localrep'/'zigirep'/.zigi/readonly'
+  Address syscall 'stat (file) s.'
+  if s.0 > 0 then return 1
   else return 0
 
   /* -------------------------------------------------------------- *
@@ -10538,11 +10609,6 @@ Auto_Tag_File:   /* FM */
   cht_cmd = cht_cmd '&& chtag -tc' codepage atf_file
   x = docmd(cht_cmd)
   return
-
-/* ---------------------- *
- | Create Known Hosts ??? |
- * ---------------------- */
- return
 
 /* ----------------------------------------------------- *
  | Check and update the known_hosts file from the server |

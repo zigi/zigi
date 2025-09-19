@@ -8,6 +8,47 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 =============================================================================
 
                              ZIGI Release Notes
+                                Version 3.26
+                                Sep 18, 2025
+
+                         New Features and Functions
+                         --------------------------
+
+Key changes:     - Support for HTTP/HTTPS cloning
+                   - supports only public repositories
+                   - does not support updates to the server (push)
+                 - Fixed typos in various ISPF panels
+                 - Enhance Debug to include standard out and error
+                   messages.
+                 - Add zigidebg to Samples for use in allocating and
+                   deallocating the ZIGIDEBG DD
+                 - Add new LOGD command to dynamically enable debug logging
+                   without needing the ZIGIDEBG DD before starting ZIGI
+
+Exec (REXX) Updates:
+* zigi           - HTTP/HTTPS cloning Support
+                 - Fix major bug in clone routine parseGitURI introduced
+                   in 3.25 by fat fingers
+                 - Add LOGD command to dynamically enable debug logging
+                 - Enhance Debug to include standard out and error
+                   messages.
+* zigistat       - update debug logging code
+
+Panel Updates:
+* several        - add LOGD and VIEWD to drop down menus and to popup menus
+* ZIGICC         - Updates for http/https support
+* ZIGIH110       - Updates for http/https support
+* ZIGIH111       - Updates for http/https support
+* ZIGIH112       - Updates for http/https support
+* ZIGIREMO       - Updates for http/https support
+* ZIGIRSET       - Updates for http/https support
+
+Samples Updates:
+* ZIGIDEBG       - Added
+
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
                                 Version 3.25
                                 Sep 04, 2025
 

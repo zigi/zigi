@@ -11,6 +11,7 @@
 +Notes:
 +
 %*+Your SSH Key%must+have been added to an account with access to the repo.
+%*+Using HTTPS cloning will not support%push+operations.
 %*+Clone fails if the local repo already exists.
 %*+A successful clone results in a copy of the repo in the local directory
 %*+All 'z/OS-datasets' from this repo is copied to real z/OS datasets
@@ -23,14 +24,13 @@
 +The only time networking gets involved is when the repository instances are
 +being synchronized.
 +
-+
 +        +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
  .cursor  = &zcmd
 )PROC
- &zcont = zigih120
+ &zcont = zigih112
 )END
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2025 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */

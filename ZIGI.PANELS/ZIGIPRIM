@@ -17,12 +17,14 @@
  PDC DESC('Config View/Update Configuration')    ACTION RUN(CONFIG)
  PDC DESC('Connect existing repository')         ACTION RUN(CONNECT)
  PDC DESC('Create Local repository')             ACTION RUN(CREATE)
+ PDC DESC('Enable Debug Logging')                ACTION RUN(LOGD)
  PDC DESC('Update GIT Environment File')         ACTION RUN(GITENV)
  PDC DESC('Find text in table')                  ACTION RUN(FIND)
  PDC DESC('Set Git Defaults')                    ACTION RUN(SET)
  PDC DESC('Select a Repo to work with')          ACTION RUN(SELECT)
  PDC DESC('Sort the Table')                      ACTION RUN(SORT)
  PDC DESC('View your SSH public key')            ACTION RUN(SSH)
+ PDC DESC('View Debug Log')                      ACTION RUN(VIEWD)
  PDC DESC('ZIGI/Git Information')                ACTION RUN(GITINFO)
  PDC DESC('End') Action Run(END)
 )ABCINIT
@@ -77,5 +79,5 @@ _z+  $z                    +]z                    +[z             +}z          +
 )end
 /* --------------------- Copyright (C) ------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                            */
-/* Copyright (C) 2020-2023 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* Copyright (C) 2020-2025 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* ------------------------------------------------------------- */

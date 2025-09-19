@@ -30,7 +30,7 @@
  .help = zigih110
  .zvars = '(readonly defcpush)'
 )Reinit
- REFRESH(REMOTE LOCALREP)
+ REFRESH(REMOTE LOCALREP defcpush)
 )Proc
  &resp = .resp
 *REXX(* zedsmsg zedlmsg resp csr)
@@ -44,6 +44,7 @@
     csr = 'reponame'
   end
 
+  /* Comment Start
   if zedsmsg = '' then
   if translate(substr(remote,1,4)) = 'HTTP' then do
     zedsmsg = 'Error'
@@ -52,6 +53,7 @@
       'scp-like syntax [user@]host.xz:path/to/repo.git/'
     csr = 'remote'
   end
+     Comment End */
   if word(remote,1) = 'git' then
   if word(remote,2) = 'clone' then
   remote = subword(remote,3)
@@ -76,6 +78,10 @@
       end
     end
   end
+
+  if zedsmsg = '' then
+     if translate(substr(remote,1,4)) = 'HTTP' then
+        defcpush = 'N'
 
   if zedsmsg = '' then
   if localrep /= '' then
@@ -114,7 +120,7 @@
   ver (&defcpush,nb,list,Y,N)
   ver (&defruid,dsname)
 )end
-/* --------------------- Copyright (C) ------------------------- */
+/* ------------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                            */
-/* Copyright (C) 2020-2022 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* Copyright (C) 2020-2025 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* ------------------------------------------------------------- */
