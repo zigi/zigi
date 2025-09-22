@@ -1,0 +1,29 @@
+)Attr
+ $ type(output) caps(off)
+ @ type(input ) hilite(uscore) intens(low)
+ + type(text) skip(on) intens(low)
+ # type(ps)
+)Body Window(43,5)
++Option:@z+
++
++Debug Option:#1#Enable+Debug Logging
++             #2#Disable+Debug Logging
++             #3#View+Active Debug Log File
+)Init
+ .zvars = '(zcmd)'
+ &zwinttl = 'ZIGI Debug Logging Option'
+ .help = zigih040
+)Proc
+ ver (&zcmd,list,1,2,3)
+)PNTS
+ FIELD(ZPS00001) VAR(zcmd) VAL('1')
+ FIELD(ZPS00002) VAR(zcmd) VAL('1')
+ FIELD(ZPS00003) VAR(zcmd) VAL('2')
+ FIELD(ZPS00004) VAR(zcmd) VAL('2')
+ FIELD(ZPS00005) VAR(zcmd) VAL('3')
+ FIELD(ZPS00006) VAR(zcmd) VAL('3')
+)end
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2025 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */
