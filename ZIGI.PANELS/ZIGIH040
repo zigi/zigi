@@ -9,16 +9,16 @@
                               %Logging Activity+
 +
 %zigi+provides the ability to log all, or nearly all, processing. This
-+is accomplished by writing to a file created in the users OMVS home
++is accomplished by writing to a file created in the users OMVS Home
 +directory. The file has a date and time stamp of when it is initially
 +created. The format is:%zigidebug.dyyddd.thhmmss+
 +
 +To initiate logging do:
    +1) Allocate a DUMMY DD to ZIGIDEBG
-+or 2) Issue the%logd+command from within zigi
++or 2) Issue the%debug+command from within zigi (or%debug on+
 +
-+To view the file use the%viewd+command under zigi at any time. It is also
-+displayed upon exiting zigi.
++To view the file use the%debug+command under zigi at any time. It is also
++displayed upon exiting zigi (or%debug view+
 +
 +           "Nearly everything awesome takes longer than you think.
 +                Get started and don't worry about the clock."

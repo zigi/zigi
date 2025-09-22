@@ -21,8 +21,8 @@
   [Githelp+Navigate the Git help output via ISPF panels
   [Gitinfo+ZIGI/Git Information
   [Select+ Select a repository by name           {Special:+
-  [SOrt+   Sort the table                        [logd+  Enable logging
-  [SSH+    Review your SSH public key            [viewd+ Vieew log
+  [SOrt+   Sort the table                        [debug+ Enable/View/Disable
+  [SSH+    Review your SSH public key
 +
 +Use%O+to display a command popup selection menu if the menu has been hidden.
 +
@@ -40,8 +40,7 @@
  &find    = 'Find'
  &sort    = 'Sort'
  &select  = 'Select'
- &logd    = 'LOGD'
- &viewd   = 'VIEWD'
+ &debug   = 'DEbug'
  &ztut = '100'
  vput (ztut)
 )PROC
@@ -59,8 +58,7 @@
     When abbrev('SELECT',zcmd,2) = 1 then zcmd = 9
     When abbrev('SORT',zcmd,2) = 1 then zcmd = 10
     When abbrev('CONNECT',zcmd,3) = 1 then zcmd = 11
-    When zcmd = 'LOGD'                then zcmd = 12
-    When zcmd = 'VIEWD'               then zcmd = 12
+    When zcmd = 'DEBUG'               then zcmd = 12
     Otherwise nop
   end
 *Endrexx
@@ -77,7 +75,7 @@
            9,zigih180    /*  Select              */
           10,zigih190    /*  Sort                */
           11,zigih125    /*  Connect             */
-          12,zigih040    /*  LogD/ViewD          */
+          12,zigih040    /*  Debug               */
            *,'?'
            )
 )PNTS

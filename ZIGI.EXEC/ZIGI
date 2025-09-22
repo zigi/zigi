@@ -29,13 +29,13 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |         2025 Sep 18 - Version 3.26                         |
+  |         2025 Sep 22 - Version 3.26                         |
   |                     - Support HTTPS clone                  |
   |                       - push will not be allowed           |
   |                     - Fix major bug in parseGitURI routine |
   |                     - Enhance Debug to include standard    |
   |                       out and error messages.              |
-  |                     - Add LOGD command to enable debug log |
+  |                     - Add DEBUG command and popup          |
   |                                                            |
   |         2025 Sep 04 - Version 3.25                         |
   |                     - Clean up SSH key regen messages      |
@@ -672,7 +672,7 @@
   parse arg start_option
 
   parse value '' with null repo_ztdsels fetch_flag dovetail_dir codep ,
-    dovestat created reset_env gitdiff zigissh gitenv
+    dovestat created reset_env gitdiff zigissh gitenv debugfil
 
   /* ------------------------------------------ *
   | ISPExec is our default host environment    |
@@ -764,8 +764,7 @@
       When abbrev('LOCAL',zcmd,2) = 1 then call handle_zigiprim_local
       When abbrev('SORT',word(zcmd,1),2) = 1 then call handle_zigiprim_sort
       When abbrev('SSH',zcmd,2) = 1 then call handle_zigiprim_ssh
-      When zcmd = 'LOGD' then call enable_debug
-      When zcmd = 'VIEWD' then call view_debug
+      When abbrev('DEBUG',word(zcmd,1),2) = 1 then call handle_debug
       Otherwise do
         rc = zigiexit(1 zcmd)
         if rc >= 12 then
@@ -883,9 +882,6 @@ set_sortdate:
   | Display ZIGI/Git Information |
   * ---------------------------- */
 display_gitinfo:
-  x = bpxwunix('df -k' zigigitl,,so.,se.)
-  gitzfs = word(so.2,2)
-  gitzfs = strip(translate(gitzfs,' ','()'))
   call pfshow 'off'           /* make sure pfshow is off */
   'addpop row(4)'
   'display panel(zigiginf)'
@@ -1003,11 +999,16 @@ init_git:
     end
   end
 
+  /* get location of git */
+  x = bpxwunix('df -k' zigigitl,,so.,se.)
+  gitzfs = word(so.2,2)
+  gitzfs = strip(translate(gitzfs,' ','()'))
+
   x = docmd('git --version')
   required_version = '2.26'
   x = so.0
   parse var so.x 'git' 'version' version'_'subversion
-  gitver = version
+  gitver = strip(version)
   'vput (gitver) shared'
   version = strip(version,'B')
   if version < required_version then do
@@ -1257,21 +1258,74 @@ init_ispf:
   cdrcnt = 0
   return
 
+Handle_Debug:
+  dopt = translate(word(zcmd,2))
+  zcmd = null
+  if strip(dopt) = null then do
+    'AddPop Row(4) Column(10)'
+    'display panel(zigidebg)'
+    drc = rc
+    'rempop'
+  end
+  if rc > 0 then return 0
+  if zcmd /= null then
+  dopt = word('ON OFF VIEW',zcmd)
+  Select
+    when abbrev('ON',dopt,2) = 1 then call enable_debug
+    when abbrev('OFF',dopt,2) = 1 then call disable_debug
+    when abbrev('VIEW',dopt,1) = 1 then call view_debug
+    Otherwise do
+      zerrsm = 'Unknown.'
+      zerrlm = dopt 'is not a valid DEBUG option - try again.'
+      'setmsg msg(isrz003)'
+    end
+    return
+
+Disable_Debug:
+  if debugfil = null then do
+     zerrsm = 'Ignored.'
+     zerrlm = 'Debug Logging is not enabled so unable to turn it off.'
+     'setmsg msg(isrz003)'
+     return
+     end
+  zigtitle = '(ZIGI' ver')'
+  zigidebg = 0
+  zerrsm = 'Disabled.'
+  zerrlm = 'ZIGI Debug disabled. Debug file' debugfil ,
+           'retained in your OMVS Home directory.'
+  'setmsg msg(isrz003)'
+  x = debug('Debug logging disaabled.')
+  debugfil = null
+ 'vput (debugfil)'
+ return
+
 Enable_Debug:
   /* --------------------- *
   | Enable debug logging. |
   * --------------------- */
+  zigtitle = '(ZIGI debug)'
   zigidebg = 1
   ztime = time()
   ztime = left(ztime,2)''substr(ztime,4,2)''substr(ztime,7,2)
   debugfil = home'/zigidebug.d'date('j')'.t'ztime
-  Address ISPExec ,
-    'vput (debugfil)'
+  'vput (debugfil)'
   zerrsm = 'Enabled.'
-  zerrlm = 'Debug logging enabled. Use the VIEWD command to' ,
+  zerrlm = 'Debug logging enabled. Use the DEBUG VIEW command to' ,
     'view or it will be displayed on exit from ZIGI.'
   'setmsg msg(isrz003)'
-  x = debug('Debug logging enabled.')
+  d.1 = 'Debug logging enabled.'
+  d.2 = 'ZIGI Version   :' ver
+  d.3 = 'Git Version    :' gitver
+  d.4 = 'Git Location   :' zigigitl
+  d.5 = 'Git ZFS        :' gitzfs
+  d.6 = 'CoZ Status     :' cozstat
+  d.7 = 'CoZ Location   :' dovedirl
+  d.8 = 'CoZ ZFS        :' zfscoz
+  d.9 = 'Encoding       :' encoding
+  d.10 = 'Custom Env Var :' gitenv
+  d.11 = 'SSH Key File   :' keyfile
+  d.0 = 11
+  address syscall 'writefile (debugfil) 644 d. 1'
   return
 
 Init_Debug:
@@ -1770,8 +1824,7 @@ Work_With_Repo:
       When abbrev('FLOWGO',zcmd,5)   = 1 then call WWR_handle_flowgo
       When abbrev('FLOWEND',zcmd,5)  = 1 then call WWR_handle_flowend
       When zcmd = 'STASHL' then call stash_list
-      When zcmd = 'LOGD' then call enable_debug
-      when zcmd = 'VIEWD' then call view_debug
+      When abbrev('DEBUG',word(zcmd,1),2) = 1 then call handle_debug
       Otherwise do
         rc = zigiexit(2 zcmd)
         if rc >= 12 then
@@ -3423,8 +3476,7 @@ Work_with_repo_file:
         When abbrev('SORT',word(zcmd,1),2) = 1 then call do_lsort
         When abbrev("LOCATE",translate(word(zcmd,1)),1) = 1 then
         call WWRF_handle_locate
-        When zcmd = 'LOGD' then call enable_debug
-        when zcmd = 'VIEWD' then call view_debug
+      When abbrev('DEBUG',word(zcmd,1),2) = 1 then call handle_debug
         Otherwise do
           zerrsm = 'Unknown'
           zerrlm = zcmd 'is not a recognized command.'
@@ -8986,7 +9038,7 @@ Handle_Gitenv:
         required_version = '2.26'
         x = so.0
         parse var so.x 'git' 'version' version'_'subversion
-        gitver = version
+        gitver = strip(version)
         'vput (gitver) shared'
       end
       return 0
@@ -9277,8 +9329,8 @@ view_debug:
   end
   else do
     zerrsm = 'Invalid.'
-    zerrlm = 'VIEWD is not supported when debug is not enabled. To' ,
-      'enable debug use the LOGD command.'
+    zerrlm = 'DEBUG VIEW is not supported when debug is not enabled. To' ,
+      'enable debug use the DEBUG ON command.'
     'setmsg msg(isrz003)'
   end
   return
