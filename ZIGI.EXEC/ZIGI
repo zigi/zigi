@@ -1326,7 +1326,7 @@ Enable_Debug:
   d.4 = 'Git Location   :' zigigitl
   d.5 = 'Git ZFS        :' gitzfs
   d.6 = 'CoZ Status     :' cozstat
-  d.7 = 'CoZ Location   :' dovedirl
+  d.7 = 'CoZ Location   :' word(dovedir,2)
   d.8 = 'CoZ ZFS        :' zfscoz
   d.9 = 'Encoding       :' encoding
   d.10 = 'Custom Env Var :' gitenv
