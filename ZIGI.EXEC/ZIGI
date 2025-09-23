@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |         2025 Sep 22 - Version 3.26                         |
+  |         2025 Sep 23 - Version 3.26                         |
   |                     - Support HTTPS clone                  |
   |                       - push will not be allowed           |
   |                     - Fix major bug in parseGitURI routine |
@@ -1302,6 +1302,13 @@ Enable_Debug:
   /* --------------------- *
   | Enable debug logging. |
   * --------------------- */
+  if zigidebg = 1 then do
+     zerrsm = 'Ignored.'
+     zerrlm = 'Debug is already active so we are ignoring your' ,
+              'activation attempt :)_'
+     'setmsg msg(isrz003)'
+     return
+     end
   zigtitle = '(ZIGI debug)'
   zigidebg = 1
   debugflg = 1
