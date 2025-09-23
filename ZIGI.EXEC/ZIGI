@@ -1305,7 +1305,7 @@ Enable_Debug:
   if zigidebg = 1 then do
      zerrsm = 'Ignored.'
      zerrlm = 'Debug is already active so we are ignoring your' ,
-              'activation attempt :)_'
+              'activation attempt :)'
      'setmsg msg(isrz003)'
      return
      end
