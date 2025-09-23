@@ -1320,7 +1320,13 @@ Enable_Debug:
   zerrlm = 'Debug logging enabled. Use the DEBUG VIEW command to' ,
     'view or it will be displayed on exit from ZIGI.'
   'setmsg msg(isrz003)'
-  d.1 = 'Debug logging enabled.'
+  if gitenv = ''
+     then vgitenv = 'Not Defined'
+     else vgitenv = gitenv
+  if dovestat = ''
+     then cozstat = 'Not Installed'
+     else cozstat = dovestat
+  d.1 = 'Debug logging enabled.' date() time()
   d.2 = 'ZIGI Version   :' ver
   d.3 = 'Git Version    :' gitver
   d.4 = 'Git Location   :' zigigitl
@@ -1328,9 +1334,9 @@ Enable_Debug:
   d.6 = 'CoZ Status     :' cozstat
   d.7 = 'CoZ Location   :' word(dovedir,2)
   d.8 = 'CoZ ZFS        :' zfscoz
-  d.9 = 'Encoding       :' encoding
-  d.10 = 'Custom Env Var :' gitenv
-  d.11 = 'SSH Key File   :' keyfile
+  d.9 = 'Custom Env Var :' vgitenv
+  d.10 = 'SSH Key File   :' keyfile
+  d.11 = copies('-',50)
   d.0 = 11
   address syscall 'writefile (debugfil) 644 d. 1'
   return
