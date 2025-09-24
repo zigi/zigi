@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |         2025 Sep 23 - Version 3.26                         |
+  |         2025 Sep 24 - Version 3.26                         |
   |                     - Support HTTPS clone                  |
   |                       - push will not be allowed           |
   |                     - Fix major bug in parseGitURI routine |
@@ -1267,7 +1267,7 @@ Handle_Debug:
   end
   if rc > 0 then return 0
   if zcmd /= null then
-  dopt = word('ON OFF VIEW',zcmd)
+     dopt = word('ON OFF VIEW',zcmd)
   Select
     when abbrev('ON',dopt,2) = 1 then call enable_debug
     when abbrev('OFF',dopt,2) = 1 then call disable_debug

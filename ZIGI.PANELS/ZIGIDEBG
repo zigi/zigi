@@ -6,9 +6,9 @@
 )Body Window(43,5)
 +Option:@z+
 +
-+Debug Option:#1#Enable+Debug Logging
-+             #2#Disable+Debug Logging
-+             #3#View+Active Debug Log File
++Debug Option:%1#Enable+Debug Logging
++             %2#Disable+Debug Logging
++             %3#View+Active Debug Log File
 )Init
  .zvars = '(zcmd)'
  &zwinttl = 'ZIGI Debug Logging Option'
@@ -16,12 +16,9 @@
 )Proc
  ver (&zcmd,list,1,2,3)
 )PNTS
- FIELD(ZPS00001) VAR(zcmd) VAL('1')
- FIELD(ZPS00002) VAR(zcmd) VAL('1')
- FIELD(ZPS00003) VAR(zcmd) VAL('2')
- FIELD(ZPS00004) VAR(zcmd) VAL('2')
- FIELD(ZPS00005) VAR(zcmd) VAL('3')
- FIELD(ZPS00006) VAR(zcmd) VAL('3')
+ FIELD(ZPS00001) VAR(ZCMD) VAL('1')
+ FIELD(ZPS00002) VAR(ZCMD) VAL('2')
+ FIELD(ZPS00003) VAR(ZCMD) VAL('3')
 )end
 /* ------------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                            */

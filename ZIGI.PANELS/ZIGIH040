@@ -15,14 +15,14 @@
 +
 +To initiate logging do:
    +1) Allocate a DUMMY DD to ZIGIDEBG
-+or 2) Issue the%debug+command from within zigi (or%debug on+
 +
-+To view the file use the%debug+command under zigi at any time. It is also
-+displayed upon exiting zigi (or%debug view+
++or 2) Issue the%DEBUG+command from within zigi to be prompted:
 +
-+           "Nearly everything awesome takes longer than you think.
-+                Get started and don't worry about the clock."
-+                               --- James Clear
++     %DEbug ON+   To enable logging
++     %DEbug OFf+  To disable logging
++     %DEbug View+ To ISPF View the active log file
++
++The log file(s) will also be displayed, if%debug+is used, upon exit from zigi.
 +
           +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
