@@ -10,7 +10,7 @@
 +
 % Specify+the Location of an Environment File that points to Git. This is
 + used when you wish to use a Git that isn't defined in your%/etc/profile+or
-+ your%home/.profile+, or it can be the zopen tools%../etc/zopen-config+file.
++ your%home/.profile+, or check your git installation documentation.
 +
 + Location of env-file: @gitenv                                             +
 +
