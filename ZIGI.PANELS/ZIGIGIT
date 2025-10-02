@@ -14,17 +14,17 @@
 +
 + Location of env-file: @gitenv                                             +
 +
-+
 + Your Git installation should have an env-file located somewhere on your
-+ system. This file contains things like:
++ system. This file contains things like this for IBM's OEF:
 +
-+ export PATH=/zdo/rocket/bin:$PATH
-+ export MANPATH=$MANPATH:/zdo/rocket/man
-+ export PERL5LIB=/zdo/rocket/lib/perl5:$PERL5LIB
-+ export LIBPATH=/zdo/rocket/lib/perl5/5.24.0/os390/CORE:$LIBPATH
++ export PATH=/usr/lpp/IBM/foz/vnrn/bin:$PATH
++ export LIBPATH=/usr/lpp/IBM/foz/vnrn/lib:$LIBPATH
++ export MANPATH=/usr/lpp/IBM/foz/vnrn/share:$MANPATH
 +
 + Use start option%/ENV+to be prompted to change, or use%/ENVR+to nullify
 + or use the%GITEnv+command on the primary menu to access.
++
++  "Every failure is a step to success."  --- William Whewell
 +
               +Press%Enter+to update and continue, or%F3+to cancel
 )Init
