@@ -29,13 +29,16 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |         2025 Sep 24 - Version 3.26                         |
+  |         2025 Oct 07 - Version 3.26                         |
   |                     - Support HTTPS clone                  |
   |                       - push will not be allowed           |
   |                     - Fix major bug in parseGitURI routine |
   |                     - Enhance Debug to include standard    |
   |                       out and error messages.              |
   |                     - Add DEBUG command and popup          |
+  |                     - Add test in repo delete for z/OS     |
+  |                       delete success and update message    |
+  |                     - Add tag display option on GITLog     |
   |                                                            |
   |         2025 Sep 04 - Version 3.25                         |
   |                     - Clean up SSH key regen messages      |
@@ -1437,8 +1440,8 @@ handle_zigiprim_lcmd_d:
     end
     if readonly = 1 then delzd = 'Y'
     if delzd = 'N' then do
-      delzd = 'The z/OS datasets have been deleted.'
       address syscall 'readdir' localrep'/'zigirep d.
+      drc = 0
       do id = 1 to d.0
         if left(d.id,1) = '.' then iterate
         deldsn = Add_DSN_HLQ(word(d.id,1))
@@ -1446,7 +1449,12 @@ handle_zigiprim_lcmd_d:
         call outtrap 'x.'
         address tso 'delete' deldsn
         call outtrap 'off'
+        if rc > 0 then drc = rc
       end
+      if rc = 0
+         then delzd = 'All z/OS datasets have been deleted.'
+         else delzd = 'Some z/OS datasets have been deleted, while' ,
+                      'at least one remains.'
     end
     else delzd = 'The z/OS datasets were NOT deleted.'
     if delco = 'N' then do
@@ -5460,7 +5468,7 @@ Do_Status:
 Do_GitLog:
   zcmd = null
   call pfshow 'off'           /* make sure pfshow is off */
-  'vget (lcnt logdfrom logdto greplog lbv incldiff) profile'
+  'vget (lcnt logdfrom logdto greplog lbv incldiff incltags) profile'
   if incldiff = null then incldiff = 'N'
   'Addpop row(4) column(6)'
   'Display Panel(zigilog)'
@@ -5470,13 +5478,14 @@ Do_GitLog:
   if drc = 0 then do
     lopts = null
     if incldiff = 'Y' then lopts = '--cc'
+    if incltags = 'Y' then lopts = lopts '--decorate'
     if lcnt /= null then lopts = lopts '-n' lcnt
     if logdfrom /= null then lopts = lopts '--after="'logdfrom'"'
     if logdto   /= null then lopts = lopts '--until="'logdto'"'
     if greplog /= null then lopts = lopts '--grep='greplog '-i'
     lopts = translate(lopts,'-','/')
     cmd = 'cd' localdir' && git log' lopts
-    'vput (lcnt logdfrom logdto greplog lbv incldiff) profile'
+    'vput (lcnt logdfrom logdto greplog lbv incldiff incltags) profile'
     x = docmd(cmd)
     htitle = 'GitLog Results'
     'vput (htitle)'

@@ -9,7 +9,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                              ZIGI Release Notes
                                 Version 3.26
-                                Sep 22, 2025
+                                Oct 07, 2025
 
                          New Features and Functions
                          --------------------------
@@ -24,6 +24,9 @@ Key changes:     - Support for HTTP/HTTPS cloning
                    deallocating the ZIGIDEBG DD
                  - Add new DEBUG command to dynamically enable/view/disable
                    logging without needing the ZIGIDEBG DD before starting ZIGI
+                 - Add test for z/OS dataset delete in delete repo and update
+                   the long message accordingly.
+                 - Add tag display option to GitLog dialog
 
 Exec (REXX) Updates:
 * zigi           - HTTP/HTTPS cloning Support
@@ -31,15 +34,20 @@ Exec (REXX) Updates:
                    in 3.25 by fat fingers
                  - Add DEBUG command to dynamically enable/view/disable logging
                  - Enhance Debug to include standard out and error messages.
+                 - Add test for z/OS dataset delete in delete repo and update
+                   the long message accordingly.
+                 - Add tag display option to GitLog dialog
 * zigistat       - update debug logging code
 
 Panel Updates:
 * several        - add LOGD and VIEWD to drop down menus and to popup menus
 * ZIGICC         - Updates for http/https support
+* ZIGIGIT        - Improve panel text to include OEF
 * ZIGIH040       - Added for DEBUG command
 * ZIGIH110       - Updates for http/https support
 * ZIGIH111       - Updates for http/https support
 * ZIGIH112       - Updates for http/https support
+* ZIGILOG        - Add Tag display option
 * ZIGIREMO       - Updates for http/https support
 * ZIGIRSET       - Updates for http/https support
 
