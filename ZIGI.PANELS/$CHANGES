@@ -9,7 +9,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                              ZIGI Release Notes
                                 Version 3.26
-                                Oct 07, 2025
+                                Mar 06, 2026
 
                          New Features and Functions
                          --------------------------
@@ -27,6 +27,7 @@ Key changes:     - Support for HTTP/HTTPS cloning
                  - Add test for z/OS dataset delete in delete repo and update
                    the long message accordingly.
                  - Add tag display option to GitLog dialog
+                 - Correct ssh key regen redisplay bug
 
 Exec (REXX) Updates:
 * zigi           - HTTP/HTTPS cloning Support
@@ -37,6 +38,7 @@ Exec (REXX) Updates:
                  - Add test for z/OS dataset delete in delete repo and update
                    the long message accordingly.
                  - Add tag display option to GitLog dialog
+                 - Correct ssh key regen redisplay bug
 * zigistat       - update debug logging code
 
 Panel Updates:

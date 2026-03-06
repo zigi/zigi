@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |         2025 Oct 07 - Version 3.26                         |
+  |         2026 Mar 06 - Version 3.26                         |
   |                     - Support HTTPS clone                  |
   |                       - push will not be allowed           |
   |                     - Fix major bug in parseGitURI routine |
@@ -39,6 +39,7 @@
   |                     - Add test in repo delete for z/OS     |
   |                       delete success and update message    |
   |                     - Add tag display option on GITLog     |
+  |                     - Correct SSH regen redisplay bug      |
   |                                                            |
   |         2025 Sep 04 - Version 3.25                         |
   |                     - Clean up SSH key regen messages      |
@@ -7319,7 +7320,7 @@ Do_Keygen:
 catsshk:
   drop so. se.
   address syscall 'readfile' keyfile 'so.'
-  if se.0 = 0
+  if so.0 = 1
   then do
     zigissh = so.1
     no_key = 0
