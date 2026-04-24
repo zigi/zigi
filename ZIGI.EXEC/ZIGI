@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r26'
+  ver = 'v3r27'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -28,6 +28,10 @@
   |           FM  - Filipe Meireles                            |
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
+  |                                                            |
+  |         2026 Mar 16 - Version 3.27                         |
+  |                     - Display user . files                 |
+  |                     - clean up some old comments           |
   |                                                            |
   |         2026 Mar 06 - Version 3.26                         |
   |                     - Support HTTPS clone                  |
@@ -1756,7 +1760,6 @@ Work_With_Repo:
   arg wwr_opt
 
   /* -------------------------------------------------- *
-  | WWR_init will also call update_metadata             |
   | check command will call work_with_repo recursively  |
   | with check_flag = 1 to force recheck of ispf dsns   |
   | If called with option then init and then return     |
@@ -2865,17 +2868,6 @@ WWR_handle_remote:
     'TBSAVE zigirepo REPLCOPY LIBRARY('isptabl')'
     parsedURI = parseGitURI(origin)
     parse var parsedURI user host port repo
-    /* Comment Start
-    if port /= 22 then extrabits = '-p 'port
-    else extrabits = null
-    cmd = 'touch 'home'/.ssh/known_hosts && '
-    cmd = cmd 'if | grep 'host
-    cmd = cmd home'/.ssh/known_hosts >/dev/null;'
-    cmd = cmd 'then ssh-keyscan 'extrabits' -t rsa,dsa 'host
-    cmd = cmd ' 2>/dev/null >> 'home'/.ssh/known_hosts ;'
-    cmd = cmd 'fi'
-    x = docmd(cmd)
-       Comment End */
     call update_known_hosts host
     cmd = 'cd' localrep'/'zigirep
     x = docmd(cmd '&& git remote add origin 'origin)
@@ -5941,14 +5933,6 @@ Clone_Repo:
     zs1 = "Cloning "zigirep" by "owner
     zs2 = "from "host
     call do_popup
-    /* Comment Start
-    cmd = 'touch 'home'/.ssh/known_hosts && '
-    cmd = cmd 'ssh-keyscan 'extrabits' -t rsa,dsa 'host
-    cmd = cmd ' 2>&1 | sort -u - 'home'/.ssh/known_hosts >'
-    cmd = cmd ' 'home'/.ssh/tmp_hosts && '
-    cmd = cmd 'mv 'home'/.ssh/tmp_hosts 'home'/.ssh/known_hosts'
-    x = docmd(cmd)
-       Comment End */
     call update_known_hosts host
     localrep = strip(localrep,'T','/')
     x = time('r')  /* begin timer */
@@ -7441,8 +7425,7 @@ Update_repo_metadata:
   end
   else check_files = '*'
   do umdi = 1 to root.0
-    if left(root.umdi,1) = "." then iterate
-    else do
+    do
       /* not the . and .. things */
       if dsnvalid(root.umdi) = "OK" then do
         /* and only for valid z/OS-datasets (skip README.md et al) */
@@ -7505,9 +7488,9 @@ Update_repo_metadata:
               '&& chtag -tc' encoding statpath
             x = docmd(cmd)
        /* ---------------------------------------------------------------- *
-            | If mixed and there are binary members then copy all of them      |
-            | with replace=yes (r=y). We can't do an upd=n since the stats     |
-            | file was just updated with the previous getpds copy all updates. |
+        | If mixed and there are binary members then copy all of them      |
+        | with replace=yes (r=y). We can't do an upd=n since the stats     |
+        | file was just updated with the previous getpds copy all updates. |
         * ---------------------------------------------------------------- */
             if strip(bin_members) /= null then do
               bin_members = translate(strip(bin_members),',',' ')
@@ -7712,10 +7695,7 @@ Update_repo_metadata:
     zs2 = 'Patience . . .'
     call do_popup
     dsnstat = null
-    if root.rooti = "." | root.rooti = ".." then do
-      iterate
-    end
-    else do
+    do
       if dsnvalid(root.rooti) = "OK" then do
         x = debug('Get the git status and fill dsnstat' root.rooti)
         dsn = root.rooti
@@ -7760,7 +7740,7 @@ Update_repo_metadata:
       | make sure it isn't a . file and then add it        |
       * -------------------------------------------------- */
       else do
-        if left(root.rooti,1) /= '.' then do
+        if wordpos(root.rooti,'. .. .git .zigi') = 0 then do
           dsn = root.rooti
           if rstat.rooti.1 = 1 then filetype = '(D)'
           else filetype = null
