@@ -13,6 +13,7 @@ version = tag.upper().replace('.','R')
 def convert_release_to_markdown(input_path, output_path):
     lines = Path(input_path).read_text().splitlines()
     out = []
+    in_latest = False
 
     for line in lines:
         stripped = line.strip()
@@ -28,17 +29,15 @@ def convert_release_to_markdown(input_path, output_path):
                 out.append(f'> {content}')
             continue
 
-        # All-equals: major version separator
-        if stripped and all(c == '=' for c in stripped):
-            out.append('\n---\n')
+        # Separator lines (all = or all -): stop once inside the latest version
+        if stripped and (all(c == '=' for c in stripped) or all(c == '-' for c in stripped)):
+            if in_latest:
+                break
             continue
 
-        # All-dashes: minor separator, skip
-        if stripped and all(c == '-' for c in stripped):
-            continue
-
-        # "ZIGI Release Notes"
+        # "ZIGI Release Notes" — marks entry into the latest version section
         if stripped == 'ZIGI Release Notes':
+            in_latest = True
             out.append(f'\n## {stripped}')
             continue
 
