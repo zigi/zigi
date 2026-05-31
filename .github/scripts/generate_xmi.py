@@ -1,45 +1,131 @@
+import re
 import shutil
 from pathlib import Path
 from xmi import create_xmi
 
 
+def convert_release_to_markdown(input_path, output_path):
+    lines = Path(input_path).read_text().splitlines()
+    out = []
+
+    for line in lines:
+        stripped = line.strip()
+
+        # Box drawing borders — skip
+        if re.match(r'^\*[-\s*]+\*$', stripped):
+            continue
+
+        # Box content lines: | content |
+        if stripped.startswith('|') and stripped.endswith('|'):
+            content = stripped[1:-1].strip()
+            if content:
+                out.append(f'> {content}')
+            continue
+
+        # All-equals: major version separator
+        if stripped and all(c == '=' for c in stripped):
+            out.append('\n---\n')
+            continue
+
+        # All-dashes: minor separator, skip
+        if stripped and all(c == '-' for c in stripped):
+            continue
+
+        # "ZIGI Release Notes"
+        if stripped == 'ZIGI Release Notes':
+            out.append(f'\n## {stripped}')
+            continue
+
+        # "Version X.XX"
+        if re.match(r'^Version \d+\.\d+$', stripped):
+            out.append(f'### {stripped}')
+            continue
+
+        # Section headers
+        if stripped.rstrip(':') in ('New Features and Functions',
+                                     'Bug Fixes and Other Updates'):
+            out.append(f'\n### {stripped.rstrip(":")}')
+            continue
+
+        # "Key changes:     - first item"
+        m = re.match(r'^Key changes:\s+-\s+(.+)$', stripped)
+        if m:
+            out.append(f'\n**Key changes:**\n- {m.group(1)}')
+            continue
+
+        # Component bullet: "* name   - description"
+        if stripped.startswith('* ') or stripped.startswith('*\t'):
+            content = stripped[1:].strip()
+            m = re.match(r'^(\S+)\s+-\s+(.+)$', content)
+            if m:
+                out.append(f'- **{m.group(1)}** — {m.group(2)}')
+            else:
+                out.append(f'- {content}')
+            continue
+
+        # Continuation lines starting with - (indented in source)
+        if line.startswith(' ') and stripped.startswith('- '):
+            out.append(f'  {stripped}')
+            continue
+
+        # Numbered items
+        if re.match(r'^\d+[.)]\s+', stripped):
+            out.append(f'- {stripped}')
+            continue
+
+        # Empty
+        if not stripped:
+            out.append('')
+            continue
+
+        # Everything else verbatim
+        out.append(stripped)
+
+    # Collapse runs of 3+ blank lines to 2
+    result = re.sub(r'\n{3,}', '\n\n', '\n'.join(out))
+    Path(output_path).write_text(result)
+
 
 outputfile = Path('ZIGI.XMIT')
 
 # Create placeholder folder
-Path('temp').mkdir(exist_ok=True) 
+Path('temp').mkdir(exist_ok=True)
+
+# Convert release notes to markdown for the GitHub release body
+convert_release_to_markdown('ZIGI.RELEASE', 'RELEASE.md')
+
+# Copy license file into temp
+shutil.copy('ZIGI.GPLLIC', 'temp/GPLLIC')
 
 # Create XMI for EXEC
-create_xmi(Path('ZIGI.EXEC'), 
+create_xmi(Path('ZIGI.EXEC'),
            output_file=Path('temp/EXEC'),
            dsn='LBDYCK.ZIGING.EXEC',
            from_user="ZIGI",
            from_node="GITHUB")
 
 # Create XMI for PANELS
-create_xmi(Path('ZIGI.PANELS'), 
+create_xmi(Path('ZIGI.PANELS'),
            output_file=Path('temp/PANELS'),
            dsn='LBDYCK.ZIGING.PANELS',
            from_user="ZIGI",
            from_node="GITHUB")
 
 # Create XMI for SAMPLES
-create_xmi(Path('ZIGI.SAMPLES'), 
+create_xmi(Path('ZIGI.SAMPLES'),
            output_file=Path('temp/SAMPLES'),
            dsn='LBDYCK.ZIGING.SAMPLES',
            from_user="ZIGI",
            from_node="GITHUB")
 
 # Add other repo files (LIC,STARTER and RELEASE) into dist-XMI
-shutil.copy('ZIGI.GPLLIC', 'temp/GPLLIC')
 shutil.copy('ZIGI.SAMPLES/STARTZIG', 'temp/STUB')
 shutil.copy('ZIGI.RELEASE', 'temp/RELEASE')
 
 # Mash all together into release artefact
-create_xmi(Path('temp'), 
+create_xmi(Path('temp'),
            output_file=outputfile,
            dsn='ZIGI.XMI',
            from_user="ZIGI",
-           from_node="GITHUB", 
+           from_node="GITHUB",
            message="ZIGI Distribution XMIT, made with xmi-reader")
-
