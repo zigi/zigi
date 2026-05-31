@@ -100,6 +100,14 @@ Path('temp').mkdir(exist_ok=True)
 # Convert release notes to markdown for the GitHub release body
 convert_release_to_markdown('ZIGI.RELEASE', 'RELEASE.md')
 
+# Prepend a direct download link to the XMI artifact
+repo = os.environ.get('GITHUB_REPOSITORY', '')
+if repo and tag != 'UNKNOWN':
+    xmit_url = f'https://github.com/{repo}/releases/download/{tag}/ZIGI.XMIT'
+    header = f'**Download ZIGI.XMIT:** [{tag}]({xmit_url})\n\n'
+    release_md = Path('RELEASE.md')
+    release_md.write_text(header + release_md.read_text())
+
 # Copy license file into temp
 shutil.copy('ZIGI.GPLLIC', 'temp/GPLLIC')
 
