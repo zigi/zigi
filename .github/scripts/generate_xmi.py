@@ -2,6 +2,12 @@ import re
 import shutil
 from pathlib import Path
 from xmi import create_xmi
+import os
+
+# What tag are we on
+tag = os.environ.get('RELEASE_TAG', 'UNKNOWN')
+# this is a vx.y but we want VxRy
+version = tag.upper().replace('.','R')
 
 
 def convert_release_to_markdown(input_path, output_path):
@@ -100,21 +106,21 @@ shutil.copy('ZIGI.GPLLIC', 'temp/GPLLIC')
 # Create XMI for EXEC
 create_xmi(Path('ZIGI.EXEC'),
            output_file=Path('temp/EXEC'),
-           dsn='LBDYCK.ZIGING.EXEC',
+           dsn=f'ZIGI.{version}.EXEC',
            from_user="ZIGI",
            from_node="GITHUB")
 
 # Create XMI for PANELS
 create_xmi(Path('ZIGI.PANELS'),
            output_file=Path('temp/PANELS'),
-           dsn='LBDYCK.ZIGING.PANELS',
+           dsn=f'ZIGI.{version}.PANELS',
            from_user="ZIGI",
            from_node="GITHUB")
 
 # Create XMI for SAMPLES
 create_xmi(Path('ZIGI.SAMPLES'),
            output_file=Path('temp/SAMPLES'),
-           dsn='LBDYCK.ZIGING.SAMPLES',
+           dsn=f'ZIGI.{version}.SAMPLES',
            from_user="ZIGI",
            from_node="GITHUB")
 
