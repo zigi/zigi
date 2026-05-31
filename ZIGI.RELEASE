@@ -3,9 +3,18 @@
    |  https://github.com/zigi/zigi/wiki/6.-Documentation               |
    *-------------------------------------------------------------------*
 
-=============================================================================
 This file is created as the RELEASE file and copied into the $CHANGES Panel
-=============================================================================
+
+                             ZIGI Release Notes
+                                Version 3.28
+                                May 31, 2026
+
+
+                         New Features and Functions
+                         --------------------------
+Key changes:     - Create auto-release via github merge
+
+-----------------------------------------------------------------------------
 
                              ZIGI Release Notes
                                 Version 3.27
@@ -13,6 +22,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                          New Features and Functions
                          --------------------------
+
 
 Key changes:     - Add . prefixed files to dataset/file display
                    except for .git and .zigi
@@ -641,7 +651,6 @@ individual files.
 28. Correction for tbsort on the repo table if sort variable corrupt
 29. Correct return processing from subdirectories
 
-=============================================================================
                              ZIGI Release Notes
                                Version 3.02
                              September 6, 2020
@@ -680,7 +689,6 @@ Support multiple prefixes (HLQs) on the dataset add panel.
    after updating a PDS member within ZIGI as not needed and speeds things
    up a tad.
 
-=============================================================================
 
                              ZIGI Release Notes
                                Version 3.01
@@ -719,7 +727,6 @@ required (thus SYS1.PARMLIB would clone into hlq.SYS1.PARMLIB).
 6. Generalize binary file detection in case someone modifies .gitattributes
    manually and doesn't follow the ZIGI convention.
 
-=============================================================================
 
                              ZIGI Release Notes
                                Version 3.00
@@ -868,7 +875,6 @@ Bug Fixes and Other Updates:
     of full replace
 39. Correct STASH processing
 
-=============================================================================
 
                              ZIGI Release Notes
                                 Version 2.9
@@ -885,7 +891,6 @@ Bug Fixes and Other Updates:
  3. Fix failure after selecting multiple files/datasets in the Current
     Repository display
 
-=============================================================================
 
                              ZIGI Release Notes
                                 Version 2.8
@@ -957,7 +962,6 @@ Bug Fixes and Other Updates:
  13. PDS members starting with # break cp going to z/OS
  14. Add a progress indicator to the OMVS->z/OS Copy (ZIGICKOT)
 
-=============================================================================
 
                              ZIGI Release Notes
                                 Version 2.7
@@ -1009,7 +1013,6 @@ Bug Fixes and Other Updates:
   7. Remove version from default installation datasets
 
 
-=============================================================================
                              ZIGI Release Notes
                                 Version 2.6
                                March 9, 2020
@@ -1039,7 +1042,6 @@ dataset prefix. The new prefix must have the same number of qualifiers and
 will result in all the z/OS datasets being renamed along with any OMVS files
 based on the prefix qualifier ignore value.
 
-=============================================================================
                              ZIGI Release Notes
                                 Version 2.5
                                March 5, 2020
@@ -1165,7 +1167,6 @@ New option to hide the splash screen if desired, and to restore it.
 Additional validation on the Clone and Create panels to validate the
 OMVS directory that is specified actually exists.
 
-=============================================================================
 
                              ZIGI Release Notes
                                 Version 2.0
@@ -1304,7 +1305,6 @@ dataset names to be added. Find works with a string that is searched
 anywhere in the dataset name (e.g. F PDS will find the 1st occurrence of
 a dataset with PDS in the name and repeat find (F5) find the next).
 
-=============================================================================
 
                              ZIGI Release Notes
                                 Version 1.3
