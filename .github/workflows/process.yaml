@@ -50,6 +50,8 @@ jobs:
         pip install xmi-reader
 
     - name: Generate XMIT
+      env:
+        RELEASE_TAG: ${{ steps.version.outputs.tag }}
       run: python .github/scripts/generate_xmi.py
 
     - name: Upload XMIT artifact
