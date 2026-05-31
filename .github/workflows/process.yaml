@@ -18,6 +18,27 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Compute next version
+      id: version
+      run: |
+        # Get latest tag matching vMAJOR.MINOR (e.g. v1.0, v1.12)
+        LATEST=$(git tag --list 'v*.*' --sort=-version:refname | head -n 1)
+        if [ -z "$LATEST" ]; then
+          NEXT="v1.0"
+        else
+          MAJOR=$(echo "$LATEST" | cut -d. -f1 | tr -d 'v')
+          MINOR=$(echo "$LATEST" | cut -d. -f2)
+          NEXT="v${MAJOR}.$((MINOR + 1))"
+        fi
+        echo "tag=$NEXT" >> "$GITHUB_OUTPUT"
+
+    - name: Create and push tag
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git tag ${{ steps.version.outputs.tag }}
+        git push origin ${{ steps.version.outputs.tag }}
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
@@ -40,7 +61,7 @@ jobs:
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: ${{ github.ref_name }}
-        name: ${{ github.ref_name }}
+        tag_name: ${{ steps.version.outputs.tag }}
+        name: ${{ steps.version.outputs.tag }}
         body_path: ZIGI.RELEASE
         files: ZIGI.XMIT
