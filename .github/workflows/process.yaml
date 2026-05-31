@@ -2,8 +2,8 @@ name: Build and Release ZIGI
 
 on:
   push:
-    tags:
-      - '*'  
+    branches:
+      - master
 
 permissions:
   contents: write
