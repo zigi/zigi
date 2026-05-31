@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r27'
+  ver = 'v3r28'
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -29,6 +29,9 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |         2026 Mar 16 - Version 3.28                         |
+  |                     - GitHub Actions implemented                                        |
+  |                                                            |                      |
   |         2026 Mar 16 - Version 3.27                         |
   |                     - Display user . files                 |
   |                     - clean up some old comments           |
