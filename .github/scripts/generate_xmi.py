@@ -104,7 +104,13 @@ convert_release_to_markdown('ZIGI.RELEASE', 'RELEASE.md')
 repo = os.environ.get('GITHUB_REPOSITORY', '')
 if repo and tag != 'UNKNOWN':
     xmit_url = f'https://github.com/{repo}/releases/download/{tag}/ZIGI.XMIT'
-    header = f'**Download ZIGI.XMIT:** [{tag}]({xmit_url})\n\n'
+    header = (
+        f'**Download ZIGI.XMIT:** [{tag}]({xmit_url})\n\n'
+        '### Installation\n\n'
+        '1. Transfer `ZIGI.XMIT` to z/OS in **binary** mode\n'
+        '2. Receive it: `RECEIVE INDSNAME(your.hlq.ZIGI.XMIT)`\n'
+        '3. Execute the `$INSTALL` member from the received PDS\n\n'
+    )
     release_md = Path('RELEASE.md')
     release_md.write_text(header + release_md.read_text())
 
@@ -132,9 +138,11 @@ create_xmi(Path('ZIGI.SAMPLES'),
            from_user="ZIGI",
            from_node="GITHUB")
 
-# Add other repo files (LIC,STARTER and RELEASE) into dist-XMI
+# Add other repo files (LIC,STARTER and RELEASE, installer) into dist-XMI
 shutil.copy('ZIGI.SAMPLES/STARTZIG', 'temp/STUB')
 shutil.copy('ZIGI.RELEASE', 'temp/RELEASE')
+shutil.copy('ZIGI.GPLLIC', 'temp/GPLLIC')
+shutil.copy('ZIGI.EXEC/XMITINST', 'temp/$INSTALL')
 
 # Mash all together into release artefact
 create_xmi(Path('temp'),
