@@ -18,7 +18,7 @@ def convert_release_to_markdown(input_path, output_path):
     for line in lines:
         stripped = line.strip()
 
-        # Box drawing borders — skip
+        # Box drawing borders  skip
         if re.match(r'^\*[-\s*]+\*$', stripped):
             continue
 
@@ -35,7 +35,7 @@ def convert_release_to_markdown(input_path, output_path):
                 break
             continue
 
-        # "ZIGI Release Notes" — marks entry into the latest version section
+        # "ZIGI Release Notes"  marks entry into the latest version section
         if stripped == 'ZIGI Release Notes':
             in_latest = True
             out.append(f'\n## {stripped}')
@@ -63,7 +63,7 @@ def convert_release_to_markdown(input_path, output_path):
             content = stripped[1:].strip()
             m = re.match(r'^(\S+)\s+-\s+(.+)$', content)
             if m:
-                out.append(f'- **{m.group(1)}** — {m.group(2)}')
+                out.append(f'- **{m.group(1)}**  {m.group(2)}')
             else:
                 out.append(f'- {content}')
             continue
