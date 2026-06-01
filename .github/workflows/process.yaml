@@ -11,6 +11,7 @@ permissions:
 
 jobs:
   release:
+    if: github.repository == 'zigi/zigi'
     runs-on: ubuntu-latest
 
     steps:
