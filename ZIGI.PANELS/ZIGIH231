@@ -19,10 +19,10 @@
 +The Push option is after the commit, a%git push+can be automatically
 +initiated by entering a%Y+in the Push after field.
 +
-+On the table, the following commands are available:
++Commit messages are limited to 72 characters (per git recommendations).
 +
-    +Command:%Insert+or%Insert #+
-    +Line:   %I+insert %I#+insert #%D+delete%D#+delete #
++All ISPF%Edit+capabilities are available when preparing the commit messages.
++
 +
          +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
@@ -34,7 +34,7 @@
  if (&ztut = 300)
      &zcont = zigih250
 )END
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2020 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2026 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */
