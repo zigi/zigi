@@ -60,7 +60,7 @@ jobs:
           echo "match=true" >> "$GITHUB_OUTPUT"
         else
           echo "match=false" >> "$GITHUB_OUTPUT"
-          echo "Version mismatch  skipping release"
+          echo "Version mismatch - skipping release"
         fi
 
     - name: Create and push tag
