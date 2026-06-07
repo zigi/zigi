@@ -57,7 +57,7 @@ jobs:
           echo "//*   $STATUS"
           echo "//*"
           echo "// EXEC PGM=IEFBR14"
-          echo "//* Normal end of job. CC=0000."
+          echo "//* Normal end of job. CC=0001."
 
           # Summary (visible on the run summary page)
           echo '```' >> "$GITHUB_STEP_SUMMARY"
