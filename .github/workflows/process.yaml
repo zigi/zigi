@@ -10,6 +10,21 @@ permissions:
   contents: write
 
 jobs:
+  iefbr14:
+    if: github.repository != 'zigi/zigi'
+    runs-on: ubuntu-latest
+    steps:
+      - name: IEFBR14
+        run: |
+          echo "//IEFBR14  JOB CLASS=A,MSGCLASS=X,NOTIFY=&SYSUID"
+          echo "//*"
+          echo "//* This workflow only executes on zigi/zigi."
+          echo "//* On forks, we run IEFBR14 — like the legendary z/OS program,"
+          echo "//* it branches to register 14 and returns. CC=0000."
+          echo "//*"
+          echo "// EXEC PGM=IEFBR14"
+          echo "//* Normal end of job."
+
   release:
     if: github.repository == 'zigi/zigi'
     runs-on: ubuntu-latest
