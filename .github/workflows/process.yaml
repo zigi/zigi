@@ -40,10 +40,11 @@ jobs:
           if [ "$RELEASE_VER" = "$COMPUTED_VER" ]; then
             STATUS="READY - ZIGI.RELEASE matches the next release tag"
             STATUS_MD="**STATUS:** :white_check_mark: READY — \`ZIGI.RELEASE\` is at \`$RELEASE_VER\`, matches next tag \`${{ steps.version.outputs.tag }}\`"
+            FAIL=0
           else
             STATUS="NOT READY - bump ZIGI.RELEASE to Version $COMPUTED_VER before merging"
-            STATUS_MD="**STATUS:** :warning: NOT READY — bump \`ZIGI.RELEASE\` to \`Version $COMPUTED_VER\` before merging"
-            echo "::warning::ZIGI.RELEASE is at $RELEASE_VER but next release will be $COMPUTED_VER — update ZIGI.RELEASE before merging"
+            STATUS_MD="**STATUS:** :x: NOT READY — bump \`ZIGI.RELEASE\` to \`Version $COMPUTED_VER\` before merging"
+            FAIL=1
           fi
 
           # Step summary
@@ -65,6 +66,8 @@ jobs:
 
           $STATUS_MD
           EOF
+
+          exit $FAIL
 
   release:
     if: github.repository == 'zigi/zigi'
