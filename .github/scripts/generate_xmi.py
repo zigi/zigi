@@ -150,4 +150,4 @@ create_xmi(Path('temp'),
            dsn='ZIGI.XMI',
            from_user="ZIGI",
            from_node="GITHUB",
-           message="ZIGI Distribution XMIT, made with xmi-reader")
+           message=f"ZIGI {tag} Distribution XMIT, made with xmi-reader")
