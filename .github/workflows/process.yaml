@@ -14,16 +14,57 @@ jobs:
     if: github.repository != 'zigi/zigi'
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compute next version
+        id: version
+        run: |
+          LATEST=$(git tag --list 'v*r*' --sort=-version:refname | head -n 1)
+          if [ -z "$LATEST" ]; then
+            NEXT="v3r28"
+          else
+            MAJOR=$(echo "$LATEST" | grep -oE 'v[0-9]+' | tr -d 'v')
+            MINOR=$(echo "$LATEST" | grep -oE 'r[0-9]+' | tr -d 'r')
+            NEXT="v${MAJOR}r$((MINOR + 1))"
+          fi
+          echo "tag=$NEXT" >> "$GITHUB_OUTPUT"
+
       - name: IEFBR14
         run: |
-          echo "//IEFBR14  JOB CLASS=A,MSGCLASS=X,NOTIFY=&SYSUID"
-          echo "//*"
-          echo "//* This workflow only executes on zigi/zigi."
-          echo "//* On forks, we run IEFBR14 — like the legendary z/OS program,"
-          echo "//* it branches to register 14 and returns. CC=0000."
-          echo "//*"
-          echo "// EXEC PGM=IEFBR14"
-          echo "//* Normal end of job."
+          RELEASE_VER=$(grep -m1 'Version [0-9]' ZIGI.RELEASE | grep -oE '[0-9]+\.[0-9]+')
+          COMPUTED_VER=$(echo "${{ steps.version.outputs.tag }}" | sed 's/^v//' | sed 's/r/./')
+
+          if [ "$RELEASE_VER" = "$COMPUTED_VER" ]; then
+            STATUS="READY - ZIGI.RELEASE matches the next release tag"
+            STATUS_MD="**STATUS:** :white_check_mark: READY — \`ZIGI.RELEASE\` is at \`$RELEASE_VER\`, matches next tag \`${{ steps.version.outputs.tag }}\`"
+          else
+            STATUS="NOT READY - bump ZIGI.RELEASE to Version $COMPUTED_VER before merging"
+            STATUS_MD="**STATUS:** :warning: NOT READY — bump \`ZIGI.RELEASE\` to \`Version $COMPUTED_VER\` before merging"
+            echo "::warning::ZIGI.RELEASE is at $RELEASE_VER but next release will be $COMPUTED_VER — update ZIGI.RELEASE before merging"
+          fi
+
+          # Step summary
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          \`\`\`
+          //IEFBR14  JOB CLASS=A,MSGCLASS=X,NOTIFY=&SYSUID
+          //*
+          //* This workflow only executes on zigi/zigi.
+          //* On forks, we run IEFBR14 - the legendary z/OS do-nothing program.
+          //*
+          //* Release check:
+          //*   ZIGI.RELEASE version : $RELEASE_VER
+          //*   Next release version : $COMPUTED_VER
+          //*   $STATUS
+          //*
+          // EXEC PGM=IEFBR14
+          //* Normal end of job. CC=0000.
+          \`\`\`
+
+          $STATUS_MD
+          EOF
 
   release:
     if: github.repository == 'zigi/zigi'
