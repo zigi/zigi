@@ -5616,7 +5616,6 @@ Do_Commit:
     if zigi_offline = 0 then
     if zpush = 'Y' then
     cmd = cmd '&& git push -v'
-    cmd = cmd '&& rm' file
     x = docmd(cmd)
     address syscall 'unlink (cmname)'
     call add_combine cmd
