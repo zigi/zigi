@@ -36,4 +36,3 @@
   '(x,y) = number'
   if x /= 'OFF' then
     'unnum'
-  'tenter .zlast'

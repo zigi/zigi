@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |         2026 Jun 06 - Version 3.29                         |
+  |         2026 Jun 08 - Version 3.29                         |
   |                     - Support Merge Squash with merged     |
   |                       edit of commit history               |
   |                     - Move dialog version to ZIGIVER exec  |
@@ -5573,7 +5573,7 @@ Do_Commit:
   address syscall 'writefile (cmname) 644 cmsg.'
   'vput (cmode)'
   do forever
-    'edit file(cmname) panel(zigicom) reclen(72)'
+    'edit file(cmname) panel(zigicom) reclen(72) macro(zigiemc)'
     erc = rc
     'vget (msg1 tagid zcmd)'
     if erc > 0 then do
