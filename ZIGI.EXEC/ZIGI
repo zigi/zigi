@@ -5573,9 +5573,11 @@ Do_Commit:
   /* --------------------------------------- *
    | prompt for the commit title and message |
    * --------------------------------------- */
+   mac = 'macro(zigiemc)'
   do forever
-    'edit file(cmname) panel(zigicom) reclen(72) macro(zigiemc)'
+    'edit file(cmname) panel(zigicom) reclen(72)' mac
     erc = rc
+    mac = null
     'vget (msg1 tagid zcmd)'
     if resp /= null then do
       if translate(zcmd) = 'CANCEL' then leave
