@@ -5,7 +5,42 @@
 
 =============================================================================
 This file is created as the RELEASE file and copied into the $CHANGES Panel
-=============================================================================
+
+                             ZIGI Release Notes
+                                Version 3.29
+                                June 9, 2026
+
+
+                         New Features and Functions
+                         --------------------------
+Exec (REXX) Updates:
+* zigi           - Move zigi version into the ZIGIVER exec
+                 - Clean up local only branch deletes
+                 - add a merge squash option
+                 - replace commit message entry table with ISPF Edit
+* zigiver        - New exec
+* zigiedc        - New edit macro for commit processing
+* zigiemc        - New edit macro for commit processing
+
+Panel Updates:
+*  zigicom       - update commit message entry
+*  zigih230      - tutorial update
+*  zigih231      - tutorial update
+*  zigih270      - tutorial update
+*  zigimer       - update merge branch selection with squash option
+
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
+                                Version 3.28
+                                May 31, 2026
+
+
+                         New Features and Functions
+                         --------------------------
+Key changes:     - Create auto-release via github merge
+
+-----------------------------------------------------------------------------
 
                              ZIGI Release Notes
                                 Version 3.27

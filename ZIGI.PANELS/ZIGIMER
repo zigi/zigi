@@ -15,7 +15,7 @@
 +Current Repository : $zigirep
 +Current HLQ        : $pdshlq
 %
-+Type%M+to merge that branch into[branch
++Type%M+to merge,or%S+to squash that branch into[branch
 +Press%F3+to exit
 +
 +
@@ -32,9 +32,9 @@
   .help = zigih270
   &zgsr = CSR
 )Proc
- ver (&zsel,list,M)
+ ver (&zsel,list,M,S)
 )End
 /* --------------------- Copyright (C) ------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                            */
-/* Copyright (C) 2020-2024 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* Copyright (C) 2020-2026 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* ------------------------------------------------------------- */
