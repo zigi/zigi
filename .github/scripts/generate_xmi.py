@@ -137,9 +137,10 @@ create_xmi(Path('ZIGI.SAMPLES'),
            from_user="ZIGI",
            from_node="GITHUB")
 
-# Add other repo files (LIC,STARTER and RELEASE, installer) into dist-XMI
+# Add other repo files (LIC,STARTER and RELEASE, README, installer) into dist-XMI
 shutil.copy('ZIGI.SAMPLES/STARTZIG', 'temp/STUB')
 shutil.copy('ZIGI.RELEASE', 'temp/RELEASE')
+shutil.copy('ZIGI.README', 'temp/$README')
 shutil.copy('ZIGI.GPLLIC', 'temp/GPLLIC')
 shutil.copy('ZIGI.EXEC/XMITINST', 'temp/$INSTALL')
 
@@ -149,4 +150,4 @@ create_xmi(Path('temp'),
            dsn='ZIGI.XMI',
            from_user="ZIGI",
            from_node="GITHUB",
-           message="ZIGI Distribution XMIT, made with xmi-reader")
+           message=f"ZIGI {tag} Distribution XMIT, made with xmi-reader")
