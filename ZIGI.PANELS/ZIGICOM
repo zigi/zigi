@@ -45,6 +45,7 @@
   &ZCURSOR = .CURSOR
   &ZCSROFF = .CSRPOS
   &ZLVLINE = LVLINE(ZDATA)
+  &resp    = .RESP
   vput (msg1 tagid zcmd)
 
 *REXX(* zedsmsg zedlmsg resp remote1)

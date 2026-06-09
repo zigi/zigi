@@ -5569,16 +5569,20 @@ Do_Commit:
        end
   address syscall 'writefile (cmname) 644 cmsg.'
   'vput (cmode)'
+
+  /* --------------------------------------- *
+   | prompt for the commit title and message |
+   * --------------------------------------- */
   do forever
     'edit file(cmname) panel(zigicom) reclen(72) macro(zigiemc)'
     erc = rc
     'vget (msg1 tagid zcmd)'
-    if erc > 0 then do
+    if resp /= null then do
       if translate(zcmd) = 'CANCEL' then leave
       'edit file(cmname) macro(zigiedc)'
       address syscall 'readfile (cmname) cmsg.'
     end
-    if erc = 4 then leave
+    if resp = 'END' then leave
   end
 
   x = do_commitq()
