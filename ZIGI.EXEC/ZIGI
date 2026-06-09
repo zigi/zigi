@@ -29,7 +29,7 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |         2026 Jun 08 - Version 3.29                         |
+  |         2026 Jun 09 - Version 3.29                         |
   |                     - Support Merge Squash with merged     |
   |                       edit of commit history               |
   |                     - Move dialog version to ZIGIVER exec  |
@@ -5565,11 +5565,8 @@ Do_Commit:
     cmsg.0 = 1
   end
   else do
-    cmsg.1 = 'Merge/Squash branch' branch
-    cmsg.2 = '   into' mrgbr
-    cmsg.3 = '  '
-    cmsg.0 = 3
-  end
+       msg1 = 'Merge/Squash branch' branch 'into' mrgbr
+       end
   address syscall 'writefile (cmname) 644 cmsg.'
   'vput (cmode)'
   do forever
