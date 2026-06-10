@@ -15,34 +15,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - name: Compute next version
+      - name: Read version from ZIGIVER
         id: version
         run: |
-          LATEST=$(git tag --list 'v*r*' --sort=-version:refname | head -n 1)
-          if [ -z "$LATEST" ]; then
-            NEXT="v3r28"
-          else
-            MAJOR=$(echo "$LATEST" | grep -oE 'v[0-9]+' | tr -d 'v')
-            MINOR=$(echo "$LATEST" | grep -oE 'r[0-9]+' | tr -d 'r')
-            NEXT="v${MAJOR}r$((MINOR + 1))"
-          fi
-          echo "tag=$NEXT" >> "$GITHUB_OUTPUT"
+          ZIGIVER=$(grep -oE '[Vv][0-9]+[Rr][0-9]+' ZIGI.EXEC/ZIGIVER | head -1 | tr '[:upper:]' '[:lower:]')
+          echo "tag=$ZIGIVER" >> "$GITHUB_OUTPUT"
 
       - name: IEFBR14
         run: |
-          RELEASE_VER=$(grep -m1 'Version [0-9]' ZIGI.RELEASE | grep -oE '[0-9]+\.[0-9]+')
-          COMPUTED_VER=$(echo "${{ steps.version.outputs.tag }}" | sed 's/^v//' | sed 's/r/./')
+          LATEST=$(git tag --list 'v*r*' --sort=-version:refname | head -n 1)
+          ZIGIVER="${{ steps.version.outputs.tag }}"
 
-          if [ "$RELEASE_VER" = "$COMPUTED_VER" ]; then
+          if [ "$ZIGIVER" != "$LATEST" ]; then
             FAIL=0
-            STATUS="READY - ZIGI.RELEASE matches the next release tag"
+            STATUS="READY - ZIGIVER ($ZIGIVER) is ahead of latest tag ($LATEST)"
           else
             FAIL=1
-            STATUS="NOT READY - bump ZIGI.RELEASE to Version $COMPUTED_VER before merging"
+            STATUS="NOT READY - ZIGIVER ($ZIGIVER) already released. Bump ZIGIVER before merging."
           fi
 
           # Log output (visible in step log)
@@ -52,18 +45,18 @@ jobs:
           echo "//* On forks, we run IEFBR14 - the legendary z/OS do-nothing program."
           echo "//*"
           echo "//* Release check:"
-          echo "//*   ZIGI.RELEASE version : $RELEASE_VER"
-          echo "//*   Next release version : $COMPUTED_VER"
+          echo "//*   ZIGIVER version : $ZIGIVER"
+          echo "//*   Latest tag      : $LATEST"
           echo "//*   $STATUS"
           echo "//*"
           echo "// EXEC PGM=IEFBR14"
-          echo "//* Normal end of job. CC=0001."
+          echo "//* Normal end of job. CC=0000."
 
           # Summary (visible on the run summary page)
           echo '```' >> "$GITHUB_STEP_SUMMARY"
           echo "//IEFBR14  JOB CLASS=A,MSGCLASS=X,NOTIFY=&SYSUID" >> "$GITHUB_STEP_SUMMARY"
-          echo "//*   ZIGI.RELEASE version : $RELEASE_VER" >> "$GITHUB_STEP_SUMMARY"
-          echo "//*   Next release version : $COMPUTED_VER" >> "$GITHUB_STEP_SUMMARY"
+          echo "//*   ZIGIVER version : $ZIGIVER" >> "$GITHUB_STEP_SUMMARY"
+          echo "//*   Latest tag      : $LATEST" >> "$GITHUB_STEP_SUMMARY"
           echo "//*   $STATUS" >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
 
@@ -75,36 +68,28 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0
 
-    - name: Compute next version
+    - name: Read version from ZIGIVER
       id: version
       run: |
-        # Get latest tag matching vXrY (e.g. v3r27)
-        LATEST=$(git tag --list 'v*r*' --sort=-version:refname | head -n 1)
-        if [ -z "$LATEST" ]; then
-          NEXT="v3r28"
-        else
-          MAJOR=$(echo "$LATEST" | grep -oE 'v[0-9]+' | tr -d 'v')
-          MINOR=$(echo "$LATEST" | grep -oE 'r[0-9]+' | tr -d 'r')
-          NEXT="v${MAJOR}r$((MINOR + 1))"
-        fi
-        echo "tag=$NEXT" >> "$GITHUB_OUTPUT"
+        ZIGIVER=$(grep -oE '[Vv][0-9]+[Rr][0-9]+' ZIGI.EXEC/ZIGIVER | head -1 | tr '[:upper:]' '[:lower:]')
+        echo "tag=$ZIGIVER" >> "$GITHUB_OUTPUT"
 
     - name: Check version match
       id: check
       run: |
-        RELEASE_VER=$(grep -m1 'Version [0-9]' ZIGI.RELEASE | grep -oE '[0-9]+\.[0-9]+')
-        COMPUTED_VER=$(echo "${{ steps.version.outputs.tag }}" | sed 's/^v//' | sed 's/r/./')
-        echo "ZIGI.RELEASE version : $RELEASE_VER"
-        echo "Computed next version: $COMPUTED_VER"
-        if [ "$RELEASE_VER" = "$COMPUTED_VER" ]; then
+        LATEST=$(git tag --list 'v*r*' --sort=-version:refname | head -n 1)
+        ZIGIVER="${{ steps.version.outputs.tag }}"
+        echo "Latest tag  : $LATEST"
+        echo "ZIGIVER says: $ZIGIVER"
+        if [ "$ZIGIVER" != "$LATEST" ]; then
           echo "match=true" >> "$GITHUB_OUTPUT"
         else
           echo "match=false" >> "$GITHUB_OUTPUT"
-          echo "Version mismatch - skipping release"
+          echo "ZIGIVER ($ZIGIVER) already tagged - skipping release"
         fi
 
     - name: Create and push tag
