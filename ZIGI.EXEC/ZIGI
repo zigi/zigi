@@ -5583,6 +5583,10 @@ Do_Commit:
       if translate(zcmd) = 'CANCEL' then leave
       'edit file(cmname) macro(zigiedc)'
       address syscall 'readfile (cmname) cmsg.'
+      if cmsg.0 = 0 then do
+         cmsg.1 = msg1
+         cmsg.0 = 1
+         end
     end
     if resp = 'END' then leave
   end
@@ -5613,7 +5617,7 @@ Do_Commit:
   /* ------------------------------- *
   | If > 1 msg line then use a file |
   * ------------------------------- */
-  if cmsg.0 > 2 then do
+  if cmsg.0 > 1 then do
     address ispexec
     cmd = 'cd' localrep'/'zigirep
     if zadd = 'Y' then
