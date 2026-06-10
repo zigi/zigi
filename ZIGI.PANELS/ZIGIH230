@@ -9,7 +9,8 @@
                                  %Commit+
 +
 %Commit+processing takes the changes that have been made in the managed
-+datasets and adds them to Git management.
++datasets and adds them to Git management. A%Merge+with%Squash+will invoke
++this dialog to allow changing the history of commits from the%squash+ process.
 +
 +Commit allows for, and it is encouraged to provide, a short summary of the
 +changes to be captured in the git log for historical tracking. The summary
@@ -22,7 +23,6 @@
 +
 +Cancel the%Commit+process by entering%F3+
 +
-+The%Import+command to import text from a dataset into the commit prose.
 +
          +Press the%Enter+key to continue your ZIGI tutorial journey.
 )Init
@@ -31,7 +31,7 @@
 )PROC
   &zcont = zigih231
 )END
-/* -------------------------------------------------------- */
-/* ZIGI - the z/OS ISPF Git Interface                       */
-/* Copyright (C) 2021 GPL V3 - Henri Kuiper and Lionel Dyck */
-/* -------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2021-2026 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */

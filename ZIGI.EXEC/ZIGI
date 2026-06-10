@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  ------------------- */
-  ver = 'v3r28'
+  ver = zigiver()
   /*Name:      ZIGI  (z ISPF Git Interface)                    |
   |                                                            |
   | Function:  ISPF Interface to Git for source code           |
@@ -29,9 +29,12 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
-  |         2026 Mar 16 - Version 3.28                         |
-  |                     - GitHub Actions implemented                                        |
-  |                                                            |                      |
+  |         2026 Jun 09 - Version 3.29                         |
+  |                     - Support Merge Squash with merged     |
+  |                       edit of commit history               |
+  |                     - Move dialog version to ZIGIVER exec  |
+  |                     - Clean up branch delete for local only|
+  |                                                            |
   |         2026 Mar 16 - Version 3.27                         |
   |                     - Display user . files                 |
   |                     - clean up some old comments           |
@@ -1847,7 +1850,10 @@ Work_With_Repo:
       When abbrev('ADDALL',zcmd,3)   = 1 then call WWR_handle_addall
       When abbrev('STATUS',zcmd,2)   = 1 then call do_status
       When abbrev('GREP',zcmd,2)     = 1 then call WWR_handle_grep
-      When abbrev('COMMIT',zcmd,3)   = 1 then call do_commit
+      When abbrev('COMMIT',zcmd,3)   = 1 then do
+           cmode = 'C'
+           call do_commit
+           end
       When abbrev('REMOTE',zcmd,3)   = 1 then call WWR_handle_remote
       When abbrev('FLOWSEL',zcmd,5)  = 1 then call WWR_handle_flowsel
       When abbrev('FLOWGO',zcmd,5)   = 1 then call WWR_handle_flowgo
@@ -5550,96 +5556,42 @@ Do_Commit:
   arg copt
   x = debug('Starting Commit:' zigirep)
   parse value '' with tagid msg1 cmsg file zcmd
+  drop combine.
+  combine.0 = 0
   cmtab = 'zc'random(99999)
-  'tbcreate' cmtab 'names(cmsg) nowrite'
-  if datatype(m.0) = 'NUM' then do
-    if copt /= null then do
-      msg1 = m.1
-      do dci = 2 to m.0
-        cmsg = m.dci
-        'tbadd' cmtab
-      end
-    end
-    cmsg = null
+  cmname = '/tmp/'sysvar('sysuid')'.zigi.commit.txt'
+  if cmode /= 'S' then do
+    cmsg.1 = '     '
+    cmsg.0 = 1
   end
-  do dci = 1 to 15
-    'tbadd' cmtab
-  end
-  drop m.
-  ctop = 0
-  ztdmark = Center('Use F3 to Continue - Cancel if Title blank',79,'-')
+  else do
+       msg1 = 'Merge/Squash branch' branch 'into' mrgbr
+       end
+  address syscall 'writefile (cmname) 644 cmsg.'
+  'vput (cmode)'
+
+  /* --------------------------------------- *
+   | prompt for the commit title and message |
+   * --------------------------------------- */
+   mac = 'macro(zigiemc)'
   do forever
-    if ztdsels > 1 then 'tbdispl' cmtab
-    else do
-      parse value '' with zsel zcmd
-      'tbtop' cmtab
-      'tbskip' cmtab 'number('ctop')'
-      'tbdispl' cmtab 'panel(zigicom)'
+    'edit file(cmname) panel(zigicom) reclen(72)' mac
+    erc = rc
+    mac = null
+    'vget (msg1 tagid zcmd)'
+    if resp /= null then do
+      if translate(zcmd) = 'CANCEL' then leave
+      'edit file(cmname) macro(zigiedc)'
+      address syscall 'readfile (cmname) cmsg.'
     end
-    if rc > 4 then do
-      x = do_commitq()
-      if x > 0 then answer = 'CANCEL'
-      if abbrev('CANCEL',translate(answer),1) = 1
-      then zcmd = 'CANCEL'
-      else zcmd = 'COMMIT'
-    end
-    if translate(zcmd) = 'CANCEL' then leave
-    if abbrev('COMMIT',translate(zcmd),2) = 1 then leave
-    ctop = ztdtop
-    if datatype(right(zcmd,1)) = 'NUM' then
-    zcmd = left(zcmd,1) substr(zcmd,2)
-    if zcmd /= null then
-    Select
-      When abbrev('IMPORT',word(translate(zcmd),1),2) = 1
-      then call commit_import
-      When abbrev('INSERT',translate(word(zcmd,1)),1) = 1 then do
-        c = word(zcmd,2)
-        if c = null then c = 1
-        'tbquery' cmtab 'rownum(cr)'
-        'tbtop' cmtab
-        'tbskip' cmtab 'number('cr')'
-        cmsg = ' '
-        do ix = 1 to c
-          'tbadd' cmtab
-        end
-      end
-      Otherwise nop
-    end
-    select
-      when zsel = 'D' then 'tbdelete' cmtab
-      when left(zsel,1) = 'D' & length(zsel) > 1 then do
-        dc = substr(zsel,2)
-        if datatype(dc) /= 'NUM' then dc = 1
-        do ix = 1 to dc
-          'tbdelete' cmtab
-          'tbskip' cmtab
-        end
-      end
-      when zsel = 'I' then do
-        cmsg = ' '
-        'tbadd' cmtab
-      end
-      when left(zsel,1) = 'I' then do
-        c = substr(zsel,2,1)
-        if datatype(c) /= 'NUM' then c = 1
-        cmsg = ' '
-        do i = 1 to c
-          'tbadd' cmtab
-        end
-      end
-      when zsel = null then
-      'tbput' cmtab
-      Otherwise if zsel /= null then do
-        zerrsm = 'Invalid.'
-        zerrlm = zsel 'is an invalid line selection. Try again with a valid' ,
-          'line selection of I, I#,or D.'
-        'setmsg msg(isrz003)'
-      end
-    end
+    if resp = 'END' then leave
   end
 
-  drop ztdmark
-
+  x = do_commitq()
+  if x > 0 then answer = 'CANCEL'
+  if abbrev('CANCEL',translate(answer),1) = 1
+  then zcmd = 'CANCEL'
+  else zcmd = 'COMMIT'
   if translate(zcmd) = 'CANCEL' then msg1 = null
   if strip(msg1) = null then do
     x = debug('Commit canceled:' zigirep)
@@ -5647,7 +5599,7 @@ Do_Commit:
     zerrlm = 'Commit canceled per your request.'
     'setmsg msg(isrz003)'
     'tbend' cmtab
-    drop m.
+    address syscall 'unlink (cmname)'
     return
   end
 
@@ -5655,67 +5607,23 @@ Do_Commit:
   zs2 = null
   call do_popup
 
-  /* find last row */
-  'tbbottom' cmtab
-  do forever
-    'tbskip' cmtab 'number(-1)'
-    if rc > 0 then leave
-    if strip(cmsg) /= null then leave
-  end
-  'tbquery' cmtab 'position(lastrow)'
-
-  cmsg.1 = value('msg1')
-  cmsg.2 = left('-',length(cmsg.1),'-')
-  io = 2
-
-  'tbtop' cmtab
-  if lastrow > 0 then
-  do forever
-    'tbskip' cmtab
-    if rc > 0 then leave
-    'tbquery' cmtab 'position(crp)'
-    io = io + 1
-    cmsg.io = strip(cmsg,'T') ' '
-    if crp = lastrow then leave
-  end
-  cmsg.0 = io
-
-  'tbend' cmtab
 
   if defruid /= null then call fixup_userids
-  drop combine.
-  combine.0 = 0
 
   /* ------------------------------- *
   | If > 1 msg line then use a file |
   * ------------------------------- */
-  if io > 2 then do
-    file = 'cmsg'random(999)
-    fdd  = file
-    if sysvar('syspref') = null
-    then filem = sysvar('sysuid')'.'file
-    else filem = file
-    file = localrep'/'file
-    file = "'"file"'"
-    address tso
-    'alloc f('fdd') new spa(1,1) tr recfm(f b) lrecl(72) blksize(0)',
-      'ds('filem')'
-    'execio * diskw' fdd '(finis stem cmsg.'
-    'free  f('fdd')'
-    call outtrap 'x.'
-    'oput' filem file 'Text'
-    'delete' filem
-    call outtrap 'off'
+  if cmsg.0 > 2 then do
     address ispexec
     cmd = 'cd' localrep'/'zigirep
     if zadd = 'Y' then
     cmd = cmd  '&& git add -A .'
-    cmd = cmd '&& git commit -F' file
+    cmd = cmd '&& git commit -F' cmname
     if zigi_offline = 0 then
     if zpush = 'Y' then
     cmd = cmd '&& git push -v'
-    cmd = cmd '&& rm' file
     x = docmd(cmd)
+    address syscall 'unlink (cmname)'
     call add_combine cmd
     call combine_msgs
   end
@@ -5764,56 +5672,6 @@ Do_Commit:
   drop m. cmsg.
   nocrpop = 1
   call update_repo_metadata
-  return
-
-  /* ---------------------------------------------------------- *
-  | Import the Commit Prose from a dataset.                    |
-  |                                                            |
-  | If the Import command has no dataset then display popup.   |
-  | If the import dataset is not valid then display the popup. |
-  * ---------------------------------------------------------- */
-Commit_Import:
-  parse value zcmd with imp comimprt .
-  zcmd = null
-  com_prompt = 0
-  if strip(comimprt) = null then com_prompt = 1
-  else do
-    x = sysdsn(comimprt)
-    if x /= 'OK' then do
-      com_prompt = 1
-      zerrsm = 'Error.'
-      zerrlm = left(comimprt,76) x
-      'setmsg msg(isrz003)'
-    end
-  end
-  if com_prompt = 1 then do
-    call pfshow 'off'           /* make sure pfshow is off */
-    'addpop row(3) column(4)'
-    'display panel(zigicimp)'
-    drc = rc
-    'rempop'
-    call pfshow 'reset'         /* restore pfshow setting */
-    if drc > 0 then return
-  end
-  cdd = 'CI'time('s')
-  Address TSO
-  'Alloc f('cdd') shr reuse ds('comimprt')'
-  'Execio * diskr' cdd '(finis stem cddin.'
-  'Free  f('cdd')'
-  Address ISPExec
-  'tbbottom' cmtab
-  do forever
-    'tbskip' cmtab 'number(-1)'
-    if rc > 0 then leave
-    if strip(cmsg) /= null then leave
-  end
-  'tbquery' cmtab 'position(lastrow)'
-  do cinp = 1 to cddin.0
-    cmsg = cddin.cinp
-    'tbadd' cmtab
-  end
-  'tbtop' cmtab
-  drop cddin.
   return
 
   /* ------------------------------------------------------ *
@@ -6415,7 +6273,8 @@ Branch_it:
           zerrsm = 'Local Deleted.'
           zerrlm = 'Branch 'bname' succesfully deleted from the local' ,
             'repository but remains on the remote.'
-          if left(translate(remote1),4) = 'HTTP'
+          if left(translate(remote1),4) = 'HTTP' ,
+             | left(translate(remote1),4) = '<NO '
              then do
                   'tbdelete' rtbb
                   zerrlm = 'Branch 'bname' succesfully deleted from the local' ,
@@ -6464,16 +6323,32 @@ Merge_it:
     /* ----------------------------- *
     | Checkout the selected bname   |
     * ----------------------------- */
-    if zsel = "M" then do
+    if pos(zsel,'M S') > 0 then do
       /* ----------------------------------------- */
       /* Get the delta of the elements between the */
       /* branches being merged.                    */
       /* ----------------------------------------- */
-      if brstatus = 'Local' then mer_branch = bname
-      else mer_branch = 'origin/'bname
+      if brstatus = 'Local' then mrgbr = bname
+      else mrgbr = 'origin/'bname
+     /* -------------------------------- *
+      | If Stash then get commit history |
+      * -------------------------------- */
+      if zsel = 'S' then do
+         cmode = 'S'
+         cmd = 'cd 'localdir ,
+           '&& git fetch --all',
+           '&& git log --reverse' branch'..'mrgbr '--pretty=format:"%B"'
+         x = docmd(cmd)
+         /* Save commit history for later commit */
+         drop cmsg.
+         do si = 1 to so.0
+            cmsg.si = so.si
+            cmsg.0 = si
+            end
+         end
       cmd = 'cd 'localdir ,
         '&& git fetch --all',
-        '&& git diff --name-status' branch'..'mer_branch
+        '&& git diff --name-status' branch'..'mrgbr
       x = docmd(cmd)
       /* save the delta info for future use */
       drop save_so.
@@ -6483,7 +6358,7 @@ Merge_it:
       save_so.0 = so.0
       /* ----------------------------------------- */
       cmd = 'cd 'localdir ,
-        '&& git merge --no-commit --no-ff' mer_branch
+        '&& git merge --no-commit --no-ff' mrgbr
       x = docmd(cmd)
       zigi_changed = 1
       mok = 'Automatic merge went well'
@@ -6507,7 +6382,8 @@ Merge_it:
       if rest /= "" then do
         /* No issues. Commit the merge then execute a Replace */
         /* Maybe popup a panel here for the commit message? */
-        x = docmd('cd 'localdir' && git commit -m "Merge 'bname'"')
+        if zsel = 'S' then call do_commit
+        else x = docmd('cd 'localdir' && git commit -m "Merge 'bname'"')
         Report_Header = 'Merge Report'
         delta_from = bname
         delta_to   = branch
@@ -6740,8 +6616,11 @@ Merge_it:
           zsel = null
           if zmcount = 0 then do
             call do_merge_conflict_rms
-            cmd = 'cd' mrgdir '&& git commit -m "Resolve merge conflicts"'
-            x = docmd(cmd)
+            if cmode = 'S' then call do_commit
+            else do
+               cmd = 'cd' mrgdir '&& git commit -m "Resolve merge conflicts"'
+               x = docmd(cmd)
+               end
             Report_Header = 'Merge Report'
             delta_from = bname
             delta_to   = branch

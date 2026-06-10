@@ -1,0 +1,7 @@
+  /* --------------------------- REXX -------------------------------- */
+   return 'V3R29'
+  /* ZIGIVER defines the version of the ZIGI ISPF Dialog               |
+   |                                                                   |
+   | History:                                                          |
+   | 2026Jun01 LBD Initial implementation of ZIGIVER                   |
+   * ----------------------------------------------------------------- */

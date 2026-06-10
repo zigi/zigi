@@ -10,6 +10,65 @@ permissions:
   contents: write
 
 jobs:
+  iefbr14:
+    if: github.repository != 'zigi/zigi'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compute next version
+        id: version
+        run: |
+          LATEST=$(git tag --list 'v*r*' --sort=-version:refname | head -n 1)
+          if [ -z "$LATEST" ]; then
+            NEXT="v3r28"
+          else
+            MAJOR=$(echo "$LATEST" | grep -oE 'v[0-9]+' | tr -d 'v')
+            MINOR=$(echo "$LATEST" | grep -oE 'r[0-9]+' | tr -d 'r')
+            NEXT="v${MAJOR}r$((MINOR + 1))"
+          fi
+          echo "tag=$NEXT" >> "$GITHUB_OUTPUT"
+
+      - name: IEFBR14
+        run: |
+          RELEASE_VER=$(grep -m1 'Version [0-9]' ZIGI.RELEASE | grep -oE '[0-9]+\.[0-9]+')
+          COMPUTED_VER=$(echo "${{ steps.version.outputs.tag }}" | sed 's/^v//' | sed 's/r/./')
+
+          if [ "$RELEASE_VER" = "$COMPUTED_VER" ]; then
+            FAIL=0
+            STATUS="READY - ZIGI.RELEASE matches the next release tag"
+          else
+            FAIL=1
+            STATUS="NOT READY - bump ZIGI.RELEASE to Version $COMPUTED_VER before merging"
+          fi
+
+          # Log output (visible in step log)
+          echo "//IEFBR14  JOB CLASS=A,MSGCLASS=X,NOTIFY=&SYSUID"
+          echo "//*"
+          echo "//* This workflow only executes on zigi/zigi."
+          echo "//* On forks, we run IEFBR14 - the legendary z/OS do-nothing program."
+          echo "//*"
+          echo "//* Release check:"
+          echo "//*   ZIGI.RELEASE version : $RELEASE_VER"
+          echo "//*   Next release version : $COMPUTED_VER"
+          echo "//*   $STATUS"
+          echo "//*"
+          echo "// EXEC PGM=IEFBR14"
+          echo "//* Normal end of job. CC=0001."
+
+          # Summary (visible on the run summary page)
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          echo "//IEFBR14  JOB CLASS=A,MSGCLASS=X,NOTIFY=&SYSUID" >> "$GITHUB_STEP_SUMMARY"
+          echo "//*   ZIGI.RELEASE version : $RELEASE_VER" >> "$GITHUB_STEP_SUMMARY"
+          echo "//*   Next release version : $COMPUTED_VER" >> "$GITHUB_STEP_SUMMARY"
+          echo "//*   $STATUS" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+          exit $FAIL
+
   release:
     if: github.repository == 'zigi/zigi'
     runs-on: ubuntu-latest
@@ -45,7 +104,7 @@ jobs:
           echo "match=true" >> "$GITHUB_OUTPUT"
         else
           echo "match=false" >> "$GITHUB_OUTPUT"
-          echo "Version mismatch  skipping release"
+          echo "Version mismatch - skipping release"
         fi
 
     - name: Create and push tag

@@ -1,46 +1,54 @@
-)Attr
- $ type(output) caps(off)
- } type(output) hilite(reverse) color(turq) caps(off)
- _ type(input) caps(off) hilite(uscore) intens(low)
- + type(text ) intens(low) skip(on)
+)ATTR /* EDIT PANEL WITH NO ACTION BAR & NO HIGHLIGHTING */
  @ type(input) caps(on ) hilite(uscore) intens(low)
-)Body Expand(\\)
-+Git Commit+\-\}zigtitle    +\-\----------
-%Command ===>_zcmd       \ \ %Scroll ===>_ccsr+
-+ \ \ %F3  +
-%Commit Title:_msg1                                        +%Add+before:@z+(Y/N)
-+Optional Tag:_tagid                                       +%Push+after:@z+(Y/N)
+ _ type(input) caps(off) hilite(uscore) intens(low)
+  | AREA(DYNAMIC) EXTEND(ON) SCROLL(ON) USERMOD(20)
+  ! TYPE(OUTPUT) INTENS(HIGH) PAD(-) Caps(off)
+ 01 TYPE(DATAOUT) INTENS(LOW)
+ 02 TYPE(DATAOUT) INTENS(HIGH)
+ 03 TYPE(DATAOUT) SKIP(ON) /* FOR TEXT ENTER CMD. FIELD */
+ 04 TYPE(DATAIN)  INTENS(LOW)  CAPS(OFF) FORMAT(&MIXED)     /*@OY36835*/
+ 05 TYPE(DATAIN)  INTENS(HIGH) CAPS(OFF) FORMAT(&MIXED)     /*@OY36835*/
+ 06 TYPE(DATAIN)  INTENS(LOW)  CAPS(IN)  FORMAT(&MIXED)
+ 07 TYPE(DATAIN)  INTENS(HIGH) CAPS(IN)  FORMAT(&MIXED)     /*@OY36835*/
+ 08 TYPE(DATAIN)  INTENS(LOW)  FORMAT(DBCS) OUTLINE(L)      /*@OW39183*/
+ 09 TYPE(DATAIN)  INTENS(LOW)  FORMAT(EBCDIC) OUTLINE(L)    /*@OW39183*/
+ 0A TYPE(DATAIN)  INTENS(LOW)  FORMAT(&MIXED) OUTLINE(L)    /*@OW39183*/
+ 0D TYPE(DATAIN)  INTENS(LOW)  CAPS(IN)  FORMAT(&MIXED) COLOR(BLUE)
+ 20 TYPE(DATAIN)  INTENS(LOW) CAPS(IN) FORMAT(&MIXED)
+)BODY EXPAND(\\)
+%Edit -----!CTITLE -------------------\-\------------------%Columns!ZCL  !ZCR  %
+%Command ===>_ZCMD                    \ \                     %Scroll ===>_Z   %
++                                                                         %F3+
+%Title:_msg1                                              +%Add+before:@z+(Y/N)
++Optional Tag:_tagid                                      +%Push+after:@z+(Y/N)
 +
-+Command:%Commit%Insert+or%Insert #+
-+Line   :%I+insert%I#+insert #%D+delete%D#+delete
-+
-%S  %Commit Message Text
-)Model
-@z +_cmsg                                                                      +
-)Init
-  .zvars = '(zadd zpush zsel)'
-  &ccsr = 'CSR'
-  if (&MSG1 EQ &Z)
-     .cursor = msg1
-  if (&MSG1 NE &Z)
-     if (&cmsg EQ &Z)
-        .cursor = cmsg
-  if (&zadd EQ &Z)
-      &zadd = 'N'
-  if (&zpush EQ &Z)
-      &zpush = 'N'
+|ZDATA -------------------------------\-\--------------------------------------|
+|                                     \ \                                      |
+| ------------------------------------\-\--------------------------------------|
+)INIT
   .help = zigih230
-)Reinit
-  REFRESH(tagid zpush)
-)Proc
- if (&zcmd EQ &Z)
-    if (&zsel EQ &Z)
-      ver (&msg1,nb)
-      ver (&zadd,list,Y,N,&Z)
-      ver (&zpush,list,Y,N,&Z)
- &resp = .resp
-  vput (zadd) profile
-*REXX(* zedsmsg zedlmsg resp remote1 zpush)
+  .zvars = '(zsced zadd zpush)'
+  &ZSCED = 'CSR'
+  .cursor = msg1
+  vget (cmode)
+  &CTITLE = &Z
+  if (&CMODE EQ 'C')
+      &CTITLE = 'Commit Processing.'
+  if (&CMODE EQ 'S')
+      &CTITLE = 'Merge/Squash Commit Processing.'
+
+)REINIT
+  REFRESH(ZCMD,ZSCED,ZDATA,CTITLE,ZCL,ZCR)
+
+)PROC
+
+  &ZCURSOR = .CURSOR
+  &ZCSROFF = .CSRPOS
+  &ZLVLINE = LVLINE(ZDATA)
+  &resp    = .RESP
+  vput (msg1 tagid zcmd)
+
+*REXX(* zedsmsg zedlmsg resp remote1)
   if resp = 'END' then exit
   zedsmsg = ''
   if words(tagid) > 1 then do
@@ -56,8 +64,12 @@
  if (&zedsmsg NE &Z)
     .cursor = TAGID
     .msg = isrz001
+ Ver (&msg1,NB)
 )end
 /* --------------------- Copyright (C) ------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                            */
-/* Copyright (C) 2020-2025 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* Copyright (C) 2020-2026 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* ------------------------------------------------------------- */
+/* Copied from IBM Sample:  */
+/* $SEG(ISREFR01) COMP(EDIT)       PROD(MVS):                        */
+/* 5647-A01 (C) COPYRIGHT IBM CORP 1980, 2000 */
