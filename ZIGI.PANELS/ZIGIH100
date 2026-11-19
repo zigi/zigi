@@ -22,7 +22,7 @@
   [Gitinfo+ZIGI/Git Information
   [Select+ Select a repository by name           {Special:+
   [SOrt+   Sort the table                        [debug+ Enable/View/Disable
-  [SSH+    Review your SSH public key
+  [SSH+    Review your SSH public key            [vcheck+Version Check
 +
 +Use%O+to display a command popup selection menu if the menu has been hidden.
 +
@@ -41,6 +41,7 @@
  &sort    = 'Sort'
  &select  = 'Select'
  &debug   = 'DEbug'
+ &vcheck   = 'VCheck'
  &ztut = '100'
  vput (ztut)
 )PROC
@@ -59,6 +60,7 @@
     When abbrev('SORT',zcmd,2) = 1 then zcmd = 10
     When abbrev('CONNECT',zcmd,3) = 1 then zcmd = 11
     When zcmd = 'DEBUG'               then zcmd = 12
+    When abbrev('VCHECK',zcmd,2) = 1 then zcmd = 13
     Otherwise nop
   end
 *Endrexx
@@ -76,6 +78,7 @@
           10,zigih190    /*  Sort                */
           11,zigih125    /*  Connect             */
           12,zigih040    /*  Debug               */
+          13,zigih041    /*  VCheck              */
            *,'?'
            )
 )PNTS
@@ -90,10 +93,10 @@
  Field(select ) var(zcmd) val('9')
  Field(sort   ) var(zcmd) val('10')
  Field(connect) var(zcmd) val('11')
- Field(logd   ) var(zcmd) val('12')
- Field(viewd  ) var(zcmd) val('12')
+ Field(debug  ) var(zcmd) val('12')
+ Field(vcheck ) var(zcmd) val('13')
 )END
 /* ------------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                            */
-/* Copyright (C) 2020-2025 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* Copyright (C) 2020-2026 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* ------------------------------------------------------------- */

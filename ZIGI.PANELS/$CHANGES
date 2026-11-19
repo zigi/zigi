@@ -7,7 +7,32 @@
 This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                              ZIGI Release Notes
-                                Version 3.29
+                                Version 3.31
+                                Nov 19, 2026
+
+
+                         New Features and Functions
+                         --------------------------
+Exec (REXX) Updates:
+* zigi           - Add new VCheck command to the primary table display
+                   to VCheck the GitHub repo for an updated version
+                 - Remove residual commit file when only a commit title
+                   is used (from /tmp)
+* zigivchk       - REXX to do the version update VCheck
+
+Panel Updates:
+* zigiprim       - Add new Help pulldown option VCheck command to the
+                   primary table display to VCheck the GitHub repo
+                   for an updated version
+* zigih040       - Update for VCheck tutorial panel
+* zigih041       - New VCheck tutorial panel
+* zigih100       - Add new VCheck tutorial option
+* zigih200       - Add new VCheck tutorial option
+
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
+                                Version 3.30
                                 June 9, 2026
 
 
@@ -29,6 +54,16 @@ Panel Updates:
 *  zigih270      - tutorial update
 *  zigimer       - update merge branch selection with squash option
 
+-----------------------------------------------------------------------------
+
+                             ZIGI Release Notes
+                                Version 3.29
+                                May 31, 2026
+
+
+                         New Features and Functions
+                         --------------------------
+Key changes:     - Refine auto-release via github merge
 -----------------------------------------------------------------------------
 
                              ZIGI Release Notes

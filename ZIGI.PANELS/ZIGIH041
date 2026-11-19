@@ -1,0 +1,36 @@
+)attr default(%+`)
+  ` type( input) intens(low ) just(left ) hilite(uscore)
+  ~ type(text) intens(high) caps(off) just(asis ) hilite(reverse) color(turq)
+  [ type(output) intens(high) caps(off) just(left) pas(on)
+)Body Expand(}})
+%Tutorial -}-}~The z ISPF Git Interface (zigi)%}-}- Tutorial
+%Selection ===>`ZCMD                                                          +
++
+                              %Check for Updates+
++
++The%VCheck+command on the primary ZIGI repository table will attempt,
++using curl, to connect to the main ZIGI GitHub repository to determine
++if there is a new version of ZIGI available.
++
++
++
+
++
++
++
++
++
++
++
++
++
+          +Press the%Enter+key to continue your ZIGI tutorial journey.
+)Init
+ .cursor = &zcmd
+)PROC
+ &zcont = zigih100
+)END
+/* --------------------- Copyright (C) ------------------------- */
+/* ZIGI - the z/OS ISPF Git Interface                            */
+/* Copyright (C) 2020-2026 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* ------------------------------------------------------------- */

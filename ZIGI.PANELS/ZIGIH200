@@ -22,7 +22,7 @@
 [Find+   Find in table   [Push+   Push to origin    [Tag+     Git Tag
 [Flow+   ZIGI Flow       [READme+ Edit README.md    [TagList+ List Tags
 [GitCMD +Git Commands    [Replace+Replace Datasets{*[View+    OMVS Dir
-+            {Special:[debug+Enable/View/Disable Logging
++{Special: [debug+Enable/View/Disable Logging  [vcheck+Version Check
 +
 {*+Not supported within subdirectories.
 {*+Use%O+to display a popup for commands if the menu has been hidden.
@@ -61,6 +61,7 @@
  &TagList = 'TagList'
  &View    = 'View'
  &debug   = 'DEbug'
+ &vcheck   = 'VCheck'
  &ztut = '200'
  vput (ztut)
 )PROC
@@ -97,6 +98,7 @@
     When abbrev('DIFF',zcmd,1)    = 1 then zcmd = 27
     When abbrev('README',zcmd,1)  = 1 then zcmd = 28
     When zcmd = 'DEBUG'               then zcmd = 29
+    When abbrev('VCHECK',zcmd,2) = 1 then zcmd = 30
     Otherwise nop
   end
 *Endrexx
@@ -131,6 +133,7 @@
           27,zigih2l0  /* Diff           */
           28,zigih2m0  /* README         */
           29,zigih040  /* Debug          */
+          30,zigih041  /*  VCheck       */
            *,'?'
            )
 )PNTS
@@ -165,8 +168,9 @@
  FIELD(DIFF  )  VAR(ZCMD)  VAL('27')
  FIELD(README)  VAR(ZCMD)  VAL('28')
  FIELD(debug )  VAR(ZCMD)  VAL('29')
+ Field(vcheck ) var(zcmd) val('30')
 )END
 /* --------------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                              */
-/* Copyright (C) 2020 - 2025 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* Copyright (C) 2020 - 2026 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* --------------------------------------------------------------- */

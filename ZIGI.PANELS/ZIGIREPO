@@ -68,6 +68,7 @@
  PDC DESC('Change History') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%zigichg)')
  PDC DESC('Feedback') ACTION RUN(Tutor) Parm('zigifdbk')
  PDC DESC('Git Help') ACTION RUN(ISRROUTE) PARM('SELECT CMD(%GITHELP)')
+ PDC DESC('Version Check') ACTION RUN(vcheck)
  PDC DESC('Help') ACTION RUN(TUTOR) PARM('zigih200')
  PDC DESC('End')                                Action Run(END)
 )ABCINIT
@@ -120,5 +121,5 @@
 )End
 /* --------------------------------------------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                              */
-/* Copyright (C) 2020 - 2025 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* Copyright (C) 2020 - 2026 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* --------------------------------------------------------------- */

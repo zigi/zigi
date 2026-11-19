@@ -29,6 +29,10 @@
   |                                                            |
   | History:  (most recent on top, see git log for full info)  |
   |                                                            |
+  |         2026 Nov 19 - Version 3.31                         |
+  |                     - Add CHECK command to check for update|
+  |                     - Clean up residual commit file        |
+  |                                                            |
   |         2026 Jun 09 - Version 3.29                         |
   |                     - Support Merge Squash with merged     |
   |                       edit of commit history               |
@@ -779,6 +783,7 @@
       When abbrev('SORT',word(zcmd,1),2) = 1 then call handle_zigiprim_sort
       When abbrev('SSH',zcmd,2) = 1 then call handle_zigiprim_ssh
       When abbrev('DEBUG',word(zcmd,1),2) = 1 then call handle_debug
+      When abbrev('VCHECK',word(zcmd,1),2) = 1 then call handle_vcheck
       Otherwise do
         rc = zigiexit(1 zcmd)
         if rc >= 12 then
@@ -1268,6 +1273,10 @@ init_ispf:
   parse value '' with null rx save_zigirep fulldsn cltime
   cscnt = 0
   cdrcnt = 0
+  return
+
+Handle_VCheck:
+  'Select cmd(%zigivchk)'
   return
 
 Handle_Debug:
@@ -1860,6 +1869,7 @@ Work_With_Repo:
       When abbrev('FLOWEND',zcmd,5)  = 1 then call WWR_handle_flowend
       When zcmd = 'STASHL' then call stash_list
       When abbrev('DEBUG',word(zcmd,1),2) = 1 then call handle_debug
+      When abbrev('VCHECK',word(zcmd,1),2) = 1 then call handle_vcheck
       Otherwise do
         rc = zigiexit(2 zcmd)
         if rc >= 12 then
@@ -5645,6 +5655,7 @@ Do_Commit:
     if zpush = 'Y' then
     cmd = cmd '&& git push -v'
     x = docmd(cmd)
+    address syscall 'unlink (cmname)'  /* not used so rm it */
     call add_combine cmd
     call combine_msgs
   end
@@ -8831,18 +8842,6 @@ Pop:
 Do_Popup:
   call pfshow 'off'           /* make sure pfshow is off */
   'Control Display Lock'
-  'Addpop row(4) column(8)'
-  'Display Panel(zigipop)'
-  'Rempop'
-  call pfshow 'reset'         /* restore pfshow setting */
-  parse value '' with zs1 zs2
-  return
-
-  /* ---------------------------------------- *
-  | Common routine for normal (2 line) popup |
-  * ---------------------------------------- */
-Do_PopupP:
-  call pfshow 'off'           /* make sure pfshow is off */
   'Addpop row(4) column(8)'
   'Display Panel(zigipop)'
   'Rempop'

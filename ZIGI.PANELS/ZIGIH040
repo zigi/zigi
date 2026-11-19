@@ -28,9 +28,9 @@
 )Init
  .cursor = &zcmd
 )PROC
- &zcont = zigih100
+ &zcont = zigih041
 )END
 /* --------------------- Copyright (C) ------------------------- */
 /* ZIGI - the z/OS ISPF Git Interface                            */
-/* Copyright (C) 2020-2025 GPL V3 - Henri Kuiper and Lionel Dyck */
+/* Copyright (C) 2020-2026 GPL V3 - Henri Kuiper and Lionel Dyck */
 /* ------------------------------------------------------------- */
