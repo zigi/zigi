@@ -8,7 +8,7 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 
                              ZIGI Release Notes
                                 Version 3.31
-                                July 18, 2026
+                                Nov 19, 2026
 
 
                          New Features and Functions
@@ -16,6 +16,8 @@ This file is created as the RELEASE file and copied into the $CHANGES Panel
 Exec (REXX) Updates:
 * zigi           - Add new VCheck command to the primary table display
                    to VCheck the GitHub repo for an updated version
+                 - Remove residual commit file when only a commit title
+                   is used (from /tmp)
 * zigivchk       - REXX to do the version update VCheck
 
 Panel Updates:
